@@ -499,4 +499,20 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       message: message,
     };
   },
+  [VALIDATION_TYPES.SELECTED_TAB]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const tabs = props.tabs ? JSON.parse(props.tabs) : [];
+    const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
+    const isValidTabName = tabNames.includes(value);
+    return {
+      isValid: isValidTabName,
+      parsed: value,
+      message: isValidTabName
+        ? ""
+        : `${WIDGET_TYPE_VALIDATION_ERROR}: Invalid tab name.`,
+    };
+  },
 };
