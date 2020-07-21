@@ -5,7 +5,7 @@ import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown
 
 import { AppState } from "reducers";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import ContextMenuTrigger from "./ContextMenuTrigger";
+import ContextMenuTrigger from "../ContextMenuTrigger";
 
 import {
   moveActionRequest,
@@ -14,7 +14,7 @@ import {
 } from "actions/actionActions";
 
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { ContextMenuPopoverModifiers } from "./ContextMenuHelpers";
+import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 
 const useNewAPIName = () => {

@@ -150,6 +150,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       position={PopoverPosition.AUTO_END}
       className={props.className}
       modifiers={props.modifiers}
+      onClose={() => {
+        setIsOpen(false);
+      }}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

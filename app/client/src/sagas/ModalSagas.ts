@@ -99,9 +99,7 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   yield put(focusWidget(action.payload.modalId));
 
   // Then show the modal we would like to show.
-  yield put(
-    updateWidgetMetaProperty(action.payload.modalId, "isVisible", true),
-  );
+  yield put(updateWidgetMetaProperty(action.payload.modalId, "open", true));
 
   yield delay(1);
   yield put({
@@ -128,7 +126,6 @@ export function* closeModalSaga(action: ReduxAction<{ modalName?: string }>) {
       });
     } else {
       // If modalName is not provided, find all open modals
-
       // Get all meta prop records
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
 
@@ -141,7 +138,7 @@ export function* closeModalSaga(action: ReduxAction<{ modalName?: string }>) {
       // Loop through all modal widgetIds
       modalWidgetIds.forEach((widgetId: string) => {
         // Check if modal is open
-        if (metaProps[widgetId] && metaProps[widgetId].isVisible) {
+        if (metaProps[widgetId] && metaProps[widgetId].open) {
           // Add to our list of widgetIds
           widgetIds.push(widgetId);
         }
@@ -151,7 +148,7 @@ export function* closeModalSaga(action: ReduxAction<{ modalName?: string }>) {
     if (widgetIds) {
       yield all(
         widgetIds.map((widgetId: string) =>
-          put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
+          put(updateWidgetMetaProperty(widgetId, "open", false)),
         ),
       );
     }

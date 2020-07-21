@@ -21,7 +21,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import {
-  getDatasourceRefs,
   getPluginForm,
   getDatasource,
   getDatasourceDraft,
@@ -118,6 +117,16 @@ export function* deleteDatasourceSaga(
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+
+      if (
+        window.location.pathname ===
+        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id)
+      ) {
+        history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+      }
+
       AppToaster.show({
         message: `${response.data.name} datasource deleted`,
         type: ToastType.SUCCESS,
@@ -302,14 +311,8 @@ function* createDatasourceFromFormSaga(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
       );
       AppToaster.show({
-        message: `${actionPayload.payload.name} Datasource created`,
+        message: `${response.data.name} Datasource created`,
         type: ToastType.SUCCESS,
-      });
-
-      const datasourceRefs = yield select(getDatasourceRefs);
-
-      datasourceRefs[response.data.id].current.scrollIntoView({
-        behavior: "smooth",
       });
     }
   } catch (error) {

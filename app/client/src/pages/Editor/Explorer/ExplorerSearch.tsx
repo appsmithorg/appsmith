@@ -6,9 +6,16 @@ import { Colors } from "constants/Colors";
 const ExplorerSearchWrapper = styled.div`
   display: grid;
   grid-template-columns: 12px 1fr 19px;
-  margin: 10px 0;
+  margin: 0;
   justify-content: flex-start;
   align-items: center;
+  padding: 10px 0 10px 4px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  box-shadow: 0px 1px 3px ${props => props.theme.colors.navBG};
+
+  background: ${props => props.theme.colors.paneBG};
   & {
     .${Classes.ICON} {
       color: ${Colors.SLATE_GRAY};

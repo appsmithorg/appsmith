@@ -28,34 +28,21 @@ const allowedRoutes = EDITOR_ROUTES.filter(route => {
   return route.allowed !== undefined ? route.allowed : true;
 });
 
-const TopBar = styled.div`
-  border-bottom: 1px solid #4e5d78;
-`;
-const BottomBar = styled.div`
-  display: flex;
-  padding-bottom: 118px;
-  height: 100%;
-  align-items: flex-end;
-`;
-
 const Sidebar = () => {
   const params = useParams<BuilderRouteParams>();
 
   return (
     <Wrapper>
       <NavBar>
-        <TopBar>
-          {allowedRoutes.map(config => (
-            <NavBarItem
-              key={config.title}
-              {...config}
-              width={32}
-              height={32}
-              path={config.path(params.applicationId, params.pageId)}
-            />
-          ))}
-        </TopBar>
-        <BottomBar></BottomBar>
+        {allowedRoutes.map(config => (
+          <NavBarItem
+            key={config.title}
+            {...config}
+            width={24}
+            height={24}
+            path={config.path(params.applicationId, params.pageId)}
+          />
+        ))}
       </NavBar>
       <EditorSidebar />
     </Wrapper>

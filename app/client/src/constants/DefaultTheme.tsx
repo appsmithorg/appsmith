@@ -41,6 +41,26 @@ export enum Skin {
   DARK,
 }
 
+export const scrollbarDark = css`
+  scrollbar-color: ${props => props.theme.colors.paneCard}
+    ${props => props.theme.colors.paneBG};
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.paneCard};
+    // outline: 1px solid ${props => props.theme.colors.paneText};
+    border-radius: ${props => props.theme.radii[1]}px;
+  }
+`;
+
 export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL} {

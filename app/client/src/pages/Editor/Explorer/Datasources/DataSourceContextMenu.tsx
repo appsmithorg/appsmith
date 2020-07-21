@@ -2,8 +2,9 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
-import ContextMenuTrigger from "./ContextMenuTrigger";
+import ContextMenuTrigger from "../ContextMenuTrigger";
 import { noop } from "lodash";
+import { ContextMenuPopoverModifiers } from "../helpers";
 
 export const DataSourceContextMenu = (props: {
   datasourceId: string;
@@ -16,6 +17,7 @@ export const DataSourceContextMenu = (props: {
   return (
     <TreeDropdown
       className={props.className}
+      modifiers={ContextMenuPopoverModifiers}
       defaultText=""
       onSelect={noop}
       selectedValue=""

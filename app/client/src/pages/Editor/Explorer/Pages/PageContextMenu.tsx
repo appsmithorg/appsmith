@@ -2,10 +2,10 @@ import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 import { noop } from "lodash";
-import ContextMenuTrigger from "./ContextMenuTrigger";
+import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ContextMenuPopoverModifiers } from "./ContextMenuHelpers";
+import { ContextMenuPopoverModifiers } from "../helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 
 export const PageContextMenu = (props: {

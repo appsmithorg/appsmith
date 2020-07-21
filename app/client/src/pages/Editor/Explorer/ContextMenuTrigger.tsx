@@ -2,8 +2,9 @@ import React from "react";
 import { ControlIcons } from "icons/ControlIcons";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
-import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
+import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
 import styled from "styled-components";
+
 const ToggleIcon = styled(ControlIcons.MORE_VERTICAL_CONTROL)`
   &&& {
     flex-grow: 0;

@@ -10,7 +10,7 @@ const Wrapper = styled(EntityTogglesWrapper)`
       border-color: ${Colors.WHITE};
     }
     & > span {
-      line-height: 17.5px;
+      line-height: 16px;
     }
   }
 `;

@@ -179,18 +179,14 @@ function* initializeExtraFormDataSaga() {
   }
 }
 
-function* changeApiSaga(
-  actionPayload: ReduxAction<{ id: string; newApi?: boolean }>,
-) {
+function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  const { newApi } = actionPayload.payload;
   // Typescript says Element does not have blur function but it does;
   document.activeElement &&
     "blur" in document.activeElement &&
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore
     document.activeElement.blur();
-
   if (!id) {
     return;
   }
@@ -198,14 +194,6 @@ function* changeApiSaga(
   if (!action) return;
 
   yield put(initialize(API_EDITOR_FORM_NAME, action));
-  // history.push(
-  //   API_EDITOR_ID_URL(
-  //     applicationId,
-  //     pageId,
-  //     id,
-  //     newApi ? { new: "true" } : undefined,
-  //   ),
-  // );
 
   yield call(initializeExtraFormDataSaga);
 

@@ -47,7 +47,7 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     this.props.showPropertyPane(undefined);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
-    super.updateWidgetMetaProperty("isVisible", false);
+    super.updateWidgetMetaProperty("open", false);
     e.stopPropagation();
     e.preventDefault();
   };
@@ -63,7 +63,7 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return (
       <React.Fragment>
         <ModalComponent
-          isOpen={!!this.props.isVisible}
+          isOpen={!!this.props.open}
           onClose={this.closeModal}
           width={MODAL_SIZE[this.props.size].width}
           height={MODAL_SIZE[this.props.size].height}
