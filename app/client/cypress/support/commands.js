@@ -1307,10 +1307,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
-  cy.route("PUT", "/api/v1/actions/*").as("putActions");
   cy.route("POST", "/track/*").as("postTrack");
   cy.route("POST", "/api/v1/actions/execute").as("postExecute");
-  cy.route("POST", "/api/v1/actions").as("postaction");
 
   cy.route("POST", "/api/v1/actions").as("createNewApi");
   cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
