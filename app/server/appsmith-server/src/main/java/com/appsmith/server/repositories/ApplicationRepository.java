@@ -7,6 +7,6 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface ApplicationRepository extends BaseRepository<Application, String>, CustomApplicationRepository {
 
-    Flux<Application> findByOrganizationId(String organizationId);
+    Flux<Application> findByOrganizationIdAndIsPublicTrue(String organizationId);
 
 }
