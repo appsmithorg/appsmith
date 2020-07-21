@@ -241,7 +241,18 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         Mono<Datasource> datasourceMono;
 
         if (datasource.getId() != null) {
-            datasourceMono = getById(datasource.getId());
+            datasourceMono = getById(datasource.getId())
+                    // If datasource has encrypted fields, decrypt them
+                    .map(datasourceFromRepo-> {
+                        if (datasourceFromRepo.getDatasourceConfiguration()!=null && datasourceFromRepo.getDatasourceConfiguration().getAuthentication()!=null) {
+                            AuthenticationDTO authentication = datasourceFromRepo.getDatasourceConfiguration().getAuthentication();
+                            if (authentication.getPassword() != null) {
+                                authentication.setPassword(encryptionService.decryptString(authentication.getPassword()));
+                            }
+                            datasourceFromRepo.getDatasourceConfiguration().setAuthentication(authentication);
+                        }
+                        return datasourceFromRepo;
+                    });
         } else {
             datasourceMono = Mono.just(datasource);
         }
