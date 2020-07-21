@@ -138,7 +138,7 @@ public class ExamplesOrganizationCloner {
     private Mono<Void> cloneApplications(String fromOrganizationId, String toOrganizationId) {
         final Mono<Map<String, Datasource>> cloneDatasourcesMono = cloneDatasources(fromOrganizationId, toOrganizationId).cache();
         return applicationRepository
-                .findByOrganizationId(fromOrganizationId)
+                .findByOrganizationIdAndIsPublicTrue(fromOrganizationId)
                 .flatMap(application -> {
                     final String templateApplicationId = application.getId();
                     makePristine(application);

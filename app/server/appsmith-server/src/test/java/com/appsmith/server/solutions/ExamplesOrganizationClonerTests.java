@@ -1,15 +1,15 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.repositories.ConfigRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -45,9 +45,6 @@ public class ExamplesOrganizationClonerTests {
     private ExamplesOrganizationCloner examplesOrganizationCloner;
 
     @Autowired
-    private OrganizationRepository organizationRepository;
-
-    @Autowired
     private ConfigRepository configRepository;
 
     @Autowired
@@ -56,22 +53,45 @@ public class ExamplesOrganizationClonerTests {
     @Autowired
     private DatasourceService datasourceService;
 
+    @Autowired
+    private OrganizationService organizationService;
+
+    @Autowired
+    private ApplicationPageService applicationPageService;
+
     @Test
     @WithUserDetails(value = "api_user")
-    public void createNewUserValid() {
-        final Mono<Organization> organizationMono = organizationRepository
-                .findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS)
-                .flatMap(organization -> {
-                    if (organization.getId() == null) {
-                        log.error("Cannot find Spring Test Organization");
-                    }
-                    Config config = new Config();
-                    config.setName(ExamplesOrganizationCloner.TEMPLATE_ORGANIZATION_CONFIG_NAME);
-                    config.setConfig(new JSONObject(Map.of(FieldName.ORGANIZATION_ID, organization.getId())));
-                    return configRepository.save(config).thenReturn(organization);
-                })
-                .flatMap(organization -> examplesOrganizationCloner.cloneExamplesOrganization())
-                .cache();
+    public void cloneOrganizationWithItsContents() {
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+        final Mono<Organization> organizationMono = organizationService.create(newOrganization)
+            .flatMap(organization -> {
+                if (organization.getId() == null) {
+                    return Mono.error(new RuntimeException("Created templates organization doesn't have an ID."));
+                }
+
+                Application app1 = new Application();
+                app1.setName("1 - public app");
+                app1.setOrganizationId(organization.getId());
+                app1.setIsPublic(true);
+
+                Application app2 = new Application();
+                app2.setOrganizationId(organization.getId());
+                app2.setName("2 - private app");
+
+                Config config = new Config();
+                config.setName(ExamplesOrganizationCloner.TEMPLATE_ORGANIZATION_CONFIG_NAME);
+                config.setConfig(new JSONObject(Map.of(FieldName.ORGANIZATION_ID, organization.getId())));
+
+                return Mono.when(
+                        applicationPageService.createApplication(app1),
+                        applicationPageService.createApplication(app2),
+                        configRepository.save(config).thenReturn(organization)
+                ).thenReturn(organization);
+            })
+            .flatMap(organization -> examplesOrganizationCloner.cloneExamplesOrganization())
+            .cache();
 
         final Mono<Tuple3<Organization, List<Application>, List<Datasource>>> resultMono = Mono.zip(
                 organizationMono,
@@ -90,12 +110,10 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(organization.getPolicies()).isNotEmpty();
 
                     final List<Application> applications = tuple.getT2();
-                    assertThat(applications).hasSize(3);
+                    assertThat(applications).hasSize(1);
                     assertThat(applications.stream().map(Application::getName).collect(Collectors.toSet()))
                             .containsExactlyInAnyOrder(
-                                    "LayoutServiceTest TestApplications",
-                                    "TestApplications",
-                                    "Another TestApplications"
+                                    "1 - public app"
                             );
 
                     final List<Datasource> datasources = tuple.getT3();

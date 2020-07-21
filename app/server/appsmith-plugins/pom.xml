@@ -19,6 +19,7 @@
         <module>restApiPlugin</module>
         <module>mongoPlugin</module>
         <module>rapidApiPlugin</module>
+        <module>mysqlPlugin</module>
     </modules>
 
 </project>
