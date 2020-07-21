@@ -14,6 +14,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 
 import FormControlFactory from "utils/FormControlFactory";
+import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "api/DatasourcesApi";
 import { reduxForm, InjectedFormProps, Field } from "redux-form";
@@ -98,6 +99,17 @@ const StyledButton = styled(Button)`
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
+`;
+
+const StyledOpenDocsIcon = styled(Icon)`
+  svg {
+    width: 12px;
+    height: 18px;
+  }
+`;
+
+const CollapsibleWrapper = styled.div`
+  width: max-content;
 `;
 
 class DatasourceDBEditor extends React.Component<
@@ -308,10 +320,19 @@ class DatasourceDBEditor extends React.Component<
             focusOnMount={this.props.isNewDatasource}
           />
         </FormTitleContainer>
-        <CollapsibleHelp>
-          You will need your db admin to whitelist the Appsmith IP address{" "}
-          {APPSMITH_IP_ADDRESS}
-        </CollapsibleHelp>
+        <CollapsibleWrapper>
+          <CollapsibleHelp>
+            <span>{`Whitelist the IP ${APPSMITH_IP_ADDRESS} on your database instance to connect to it. `}</span>
+            <a
+              href={`${HelpBaseURL}${HelpMap["DATASOURCE_FORM"].path}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {"Read more "}
+              <StyledOpenDocsIcon icon="document-open" />
+            </a>
+          </CollapsibleHelp>
+        </CollapsibleWrapper>
         {!_.isNil(sections)
           ? _.map(sections, this.renderMainSection)
           : undefined}

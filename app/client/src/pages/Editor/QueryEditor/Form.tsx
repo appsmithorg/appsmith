@@ -92,10 +92,6 @@ const ActionButton = styled(BaseButton)`
   }
 `;
 
-const ResponseContainer = styled.div`
-  margin-top: 20px;
-`;
-
 const DropdownSelect = styled.div`
   font-size: 14px;
 `;
@@ -212,6 +208,10 @@ const NameWrapper = styled.div`
     margin: 0;
     box-sizing: border-box;
   }
+`;
+
+const CollapsibleWrapper = styled.div`
+  width: 200px;
 `;
 
 type QueryFormProps = {
@@ -406,29 +406,29 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             )}
           </ActionButtons>
         </FormRow>
-        <CollapsibleHelp>
-          <span>{`Having trouble taking inputs from widget?`}</span>
-          <a
-            href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {" Learn How "}
-            <StyledOpenDocsIcon icon="document-open" />
-          </a>
-        </CollapsibleHelp>
 
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+          }}
+        >
           <p className="statementTextArea">Query Statement</p>
 
           {documentationLink && (
-            <a
-              href={documentationLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Docs
-            </a>
+            <CollapsibleWrapper>
+              <CollapsibleHelp>
+                <a
+                  href={documentationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {"Documentation "}
+                  <StyledOpenDocsIcon icon="document-open" />
+                </a>
+              </CollapsibleHelp>
+            </CollapsibleWrapper>
           )}
         </div>
 
