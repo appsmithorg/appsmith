@@ -10,4 +10,4 @@ if [[ -f .env ]]; then
   source .env
 fi
 
-exec java -jar dist/server-*.jar
+(cd dist && exec java -jar server-*.jar )

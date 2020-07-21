@@ -99,6 +99,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
 
+                    log.debug("Going to fetch obj with id {} and query {}", id, query);
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
                             .one()
@@ -185,6 +186,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     public T setUserPermissionsInObject(T obj, User user) {
 
+        log.debug("Before adding permissions for user {} in obj, obj is {}", user.getUsername(), obj);
         Set<String> permissions = new HashSet<>();
 
         for (Policy policy : obj.getPolicies()) {
