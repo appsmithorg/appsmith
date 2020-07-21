@@ -206,7 +206,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       theme: EditorTheme.LIGHT,
       tabBehaviour: TabBehaviour.INPUT,
       size: EditorSize.COMPACT,
-      marking: [this.handleDatasourceHighlight()],
+      marking: [bindingMarker, this.handleDatasourceHighlight()],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
     };
