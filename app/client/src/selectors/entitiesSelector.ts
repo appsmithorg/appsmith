@@ -9,6 +9,7 @@ import { createSelector } from "reselect";
 import { Datasource } from "api/DatasourcesApi";
 import { Action } from "entities/Action";
 import { find } from "lodash";
+import ImageAlt from "assets/images/placeholder-image.svg";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -137,12 +138,56 @@ export const getQueryActions = (state: AppState): ActionDataState => {
     return action.config.pluginType === QUERY_CONSTANT;
   });
 };
+
 const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
 export const getDatasourcePlugins = createSelector(getPlugins, plugins => {
   return plugins.filter(plugin => plugin?.allowUserDatasources ?? true);
 });
+
+export const getPluginImages = createSelector(getPlugins, plugins => {
+  const pluginImages: Record<string, string> = {};
+
+  plugins.forEach(plugin => {
+    pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
+  });
+
+  return pluginImages;
+});
+
+export const getPluginTemplates = createSelector(getPlugins, plugins => {
+  const pluginTemplates: Record<string, any> = {};
+
+  plugins.forEach(plugin => {
+    pluginTemplates[plugin.id] = plugin.templates;
+  });
+
+  return pluginTemplates;
+});
+
+export const getPluginResponseTypes = createSelector(getPlugins, plugins => {
+  const pluginResponseTypes: Record<string, any> = {};
+
+  plugins.forEach(plugin => {
+    pluginResponseTypes[plugin.id] = plugin.responseType;
+  });
+
+  return pluginResponseTypes;
+});
+
+export const getPluginDocumentationLinks = createSelector(
+  getPlugins,
+  plugins => {
+    const pluginDocumentationLinks: Record<string, string | undefined> = {};
+
+    plugins.forEach(plugin => {
+      pluginDocumentationLinks[plugin.id] = plugin.documentationLink;
+    });
+
+    return pluginDocumentationLinks;
+  },
+);
 
 export const getActionsForCurrentPage = createSelector(
   getCurrentPageId,
@@ -162,6 +207,7 @@ export const getActionResponses = createSelector(getActions, actions => {
 
   return responses;
 });
+
 export const getAction = (
   state: AppState,
   actionId: string,

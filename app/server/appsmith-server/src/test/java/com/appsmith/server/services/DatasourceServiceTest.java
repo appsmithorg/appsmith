@@ -482,4 +482,45 @@ public class DatasourceServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkEncryptionOfAuthenticationDTOAfterUpdate() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name for authenticated fields encryption test post update");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        String username = "username";
+        String password = "password";
+        authenticationDTO.setUsername(username);
+        authenticationDTO.setPassword(password);
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Datasource createdDatasource = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create).block();
+
+        Mono<Datasource> datasourceMono = Mono.just(createdDatasource)
+                .flatMap(original -> {
+                    Datasource datasource1 = new Datasource();
+                    datasource1.setName("New Name for update to test that encryption is still correct");
+                    return datasourceService.update(original.getId(), datasource1);
+                });
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(updatedDatasource -> {
+                    AuthenticationDTO authentication = updatedDatasource.getDatasourceConfiguration().getAuthentication();
+                    assertThat(authentication.getUsername()).isEqualTo(username);
+                    assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
+                })
+                .verifyComplete();
+    }
 }

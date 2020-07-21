@@ -1,5 +1,5 @@
 const ApiEditor = require("../../../locators/ApiEditor.json");
-const apiwidget = require("../../../locators/apiWidgetsLocator.json");
+const apiwidget = require("../../../locators/apiWidgetslocator.json");
 
 describe("Test curl import flow", function() {
   it("Test curl import flow for POST action", function() {
