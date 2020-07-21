@@ -323,3 +323,65 @@ const TableFilters = (props: TableFilterProps) => {
 };
 
 export default TableFilters;
+
+// Use react memoize
+// const filterOptions = [
+//   {
+//     content: "Created Date",
+//     id: "created_date",
+//     type: "date",
+//     next: {
+//       type: "dropdown",
+//       placeholder: "is",
+//       options: [
+//         {
+//           content: "is",
+//           id: "is",
+//           next: {
+//             type: "date",
+//             placeholder: "Enter date",
+//           },
+//         },
+//         {
+//           content: "is before",
+//           id: "is_before",
+//           next: {
+//             type: "date",
+//             placeholder: "Enter date",
+//           },
+//         },
+//         {
+//           content: "is after",
+//           id: "is_after",
+//           next: {
+//             type: "date",
+//             placeholder: "Enter date",
+//           },
+//         },
+//       ],
+//     },
+//   },
+//   {
+//     content: "User Name",
+//     id: "user_name",
+//     type: "text",
+//     next: {
+//       type: "dropdown",
+//       placeholder: "is",
+//       options: [
+//         {
+//           content: "contains",
+//           id: "contains",
+//         },
+//         {
+//           content: "does not contains",
+//           id: "does_not_contain",
+//         },
+//         {
+//           content: "starts with",
+//           id: "starts_with",
+//         },
+//       ],
+//     },
+//   },
+// ];
