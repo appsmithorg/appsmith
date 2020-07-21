@@ -408,11 +408,7 @@ const TableAction = (props: {
     setLoading(false);
   };
   return (
-    <ActionWrapper
-      onClick={e => {
-        e.stopPropagation();
-      }}
-    >
+    <ActionWrapper>
       <Button
         loading={loading}
         onClick={() => {
