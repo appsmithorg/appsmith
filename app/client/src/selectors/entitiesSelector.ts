@@ -126,7 +126,7 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
 export const getDBPlugins = createSelector(getPlugins, plugins =>
-  plugins.filter(plugin => plugin.type === "DB"),
+  plugins.filter(plugin => plugin.type === QUERY_CONSTANT),
 );
 
 export const getDBDatasources = createSelector(
