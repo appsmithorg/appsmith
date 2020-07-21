@@ -477,8 +477,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Mono<Action> findByNameAndPageId(String name, String pageId) {
-        return repository.findByNameAndPageId(name, pageId, READ_ACTIONS);
+    public Mono<Action> findByNameAndPageId(String name, String pageId, AclPermission permission) {
+        return repository.findByNameAndPageId(name, pageId, permission);
     }
 
     /**

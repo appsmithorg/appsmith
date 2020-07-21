@@ -57,6 +57,10 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
     location /oauth2 {
         proxy_pass http://appsmith-internal-server:8080;
     }
+    
+    location /login {
+        proxy_pass http://appsmith-internal-server:8080;
+    }
 }
 
 $NGINX_SSL_CMNT server {
@@ -106,8 +110,17 @@ $NGINX_SSL_CMNT    location /oauth2 {
 $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    location /login {
+$NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
+$NGINX_SSL_CMNT    }
+$NGINX_SSL_CMNT
 $NGINX_SSL_CMNT }
 ' > nginx_app.conf
 
-sed -in "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
-sed -in "s/\$custom_domain/$custom_domain/g" nginx_app.conf
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
+    sed -i '' "s/\$custom_domain/$custom_domain/g" nginx_app.conf
+else 
+    sed -i "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
+    sed -i "s/\$custom_domain/$custom_domain/g" nginx_app.conf
+fi

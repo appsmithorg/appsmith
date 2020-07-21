@@ -1,18 +1,22 @@
 import React, { useState } from "react";
 import { Icon, InputGroup } from "@blueprintjs/core";
-import moment from "moment-timezone";
 import {
   MenuColumnWrapper,
   CellWrapper,
   ActionWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import { ColumnMenuOptionProps } from "./ReactTableComponent";
-import { isString } from "lodash";
+import {
+  ColumnMenuOptionProps,
+  ReactTableColumnProps,
+  ColumnTypes,
+} from "components/designSystems/appsmith/ReactTableComponent";
+import { isString, isNumber } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import TableColumnMenuPopup from "./TableColumnMenu";
+import { Colors } from "constants/Colors";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -57,86 +61,106 @@ export const getMenuOptions = (props: MenuOptionProps) => {
     },
     {
       content: (
-        <MenuColumnWrapper selected={props.columnType === "image"}>
+        <MenuColumnWrapper selected={props.columnType === ColumnTypes.IMAGE}>
           <Icon
             icon="media"
             iconSize={12}
-            color={props.columnType === "image" ? "#ffffff" : "#2E3D49"}
+            color={
+              props.columnType === ColumnTypes.IMAGE
+                ? Colors.WHITE
+                : Colors.OXFORD_BLUE
+            }
           />
           <div className="title">Image</div>
         </MenuColumnWrapper>
       ),
       closeOnClick: true,
-      isSelected: props.columnType === "image",
+      isSelected: props.columnType === ColumnTypes.IMAGE,
       onClick: (columnIndex: number, isSelected: boolean) => {
         if (isSelected) {
           props.updateColumnType(columnIndex, "");
         } else {
-          props.updateColumnType(columnIndex, "image");
+          props.updateColumnType(columnIndex, ColumnTypes.IMAGE);
         }
       },
     },
     {
       content: (
-        <MenuColumnWrapper selected={props.columnType === "video"}>
+        <MenuColumnWrapper selected={props.columnType === ColumnTypes.VIDEO}>
           <Icon
             icon="video"
             iconSize={12}
-            color={props.columnType === "video" ? "#ffffff" : "#2E3D49"}
+            color={
+              props.columnType === ColumnTypes.VIDEO
+                ? Colors.WHITE
+                : Colors.OXFORD_BLUE
+            }
           />
           <div className="title">Video</div>
         </MenuColumnWrapper>
       ),
-      isSelected: props.columnType === "video",
+      isSelected: props.columnType === ColumnTypes.VIDEO,
       closeOnClick: true,
       onClick: (columnIndex: number, isSelected: boolean) => {
         if (isSelected) {
           props.updateColumnType(columnIndex, "");
         } else {
-          props.updateColumnType(columnIndex, "video");
+          props.updateColumnType(columnIndex, ColumnTypes.VIDEO);
         }
       },
     },
     {
       content: (
-        <MenuColumnWrapper selected={props.columnType === "text"}>
+        <MenuColumnWrapper selected={props.columnType === ColumnTypes.TEXT}>
           <Icon
             icon="label"
             iconSize={12}
-            color={props.columnType === "text" ? "#ffffff" : "#2E3D49"}
+            color={
+              props.columnType === ColumnTypes.TEXT
+                ? Colors.WHITE
+                : Colors.OXFORD_BLUE
+            }
           />
           <div className="title">Text</div>
         </MenuColumnWrapper>
       ),
       closeOnClick: true,
-      isSelected: props.columnType === "text",
+      isSelected: props.columnType === ColumnTypes.TEXT,
       onClick: (columnIndex: number, isSelected: boolean) => {
         if (isSelected) {
           props.updateColumnType(columnIndex, "");
         } else {
-          props.updateColumnType(columnIndex, "text");
+          props.updateColumnType(columnIndex, ColumnTypes.TEXT);
         }
       },
     },
     {
       content: (
-        <MenuColumnWrapper selected={props.columnType === "currency"}>
+        <MenuColumnWrapper selected={props.columnType === ColumnTypes.CURRENCY}>
           <Icon
             icon="dollar"
             iconSize={12}
-            color={props.columnType === "currency" ? "#ffffff" : "#2E3D49"}
+            color={
+              props.columnType === ColumnTypes.CURRENCY
+                ? Colors.WHITE
+                : Colors.OXFORD_BLUE
+            }
           />
           <div className="title">Currency</div>
           <Icon
             className="sub-menu"
             icon="chevron-right"
             iconSize={16}
-            color={props.columnType === "currency" ? "#ffffff" : "#2E3D49"}
+            color={
+              props.columnType === ColumnTypes.CURRENCY
+                ? Colors.WHITE
+                : Colors.OXFORD_BLUE
+            }
           />
         </MenuColumnWrapper>
       ),
       closeOnClick: false,
-      isSelected: props.columnType === "currency",
+      isSelected: props.columnType === ColumnTypes.CURRENCY,
       options: [
         {
           content: "USD - $",
@@ -198,23 +222,31 @@ export const getMenuOptions = (props: MenuOptionProps) => {
     },
     {
       content: (
-        <MenuColumnWrapper selected={props.columnType === "date"}>
+        <MenuColumnWrapper selected={props.columnType === ColumnTypes.DATE}>
           <Icon
             icon="calendar"
             iconSize={12}
-            color={props.columnType === "date" ? "#ffffff" : "#2E3D49"}
+            color={
+              props.columnType === ColumnTypes.DATE
+                ? Colors.WHITE
+                : Colors.OXFORD_BLUE
+            }
           />
           <div className="title">Date</div>
           <Icon
             className="sub-menu"
             icon="chevron-right"
             iconSize={16}
-            color={props.columnType === "date" ? "#ffffff" : "#2E3D49"}
+            color={
+              props.columnType === ColumnTypes.DATE
+                ? Colors.WHITE
+                : Colors.OXFORD_BLUE
+            }
           />
         </MenuColumnWrapper>
       ),
       closeOnClick: false,
-      isSelected: props.columnType === "date",
+      isSelected: props.columnType === ColumnTypes.DATE,
       options: [
         {
           content: "MM-DD-YY",
@@ -252,22 +284,26 @@ export const getMenuOptions = (props: MenuOptionProps) => {
     },
     {
       content: (
-        <MenuColumnWrapper selected={props.columnType === "time"}>
+        <MenuColumnWrapper selected={props.columnType === ColumnTypes.TIME}>
           <Icon
             icon="time"
             iconSize={12}
-            color={props.columnType === "time" ? "#ffffff" : "#2E3D49"}
+            color={
+              props.columnType === ColumnTypes.TIME
+                ? Colors.WHITE
+                : Colors.OXFORD_BLUE
+            }
           />
           <div className="title">Time</div>
         </MenuColumnWrapper>
       ),
       closeOnClick: true,
-      isSelected: props.columnType === "time",
+      isSelected: props.columnType === ColumnTypes.TIME,
       onClick: (columnIndex: number, isSelected: boolean) => {
         if (isSelected) {
           props.updateColumnType(columnIndex, "");
         } else {
-          props.updateColumnType(columnIndex, "time");
+          props.updateColumnType(columnIndex, ColumnTypes.TIME);
         }
       },
     },
@@ -277,17 +313,11 @@ export const getMenuOptions = (props: MenuOptionProps) => {
 
 export const renderCell = (
   value: any,
-  rowIndex: number,
   columnType: string,
   isHidden: boolean,
-  widgetId: string,
-  format?: string,
 ) => {
-  if (!value) {
-    return <div></div>;
-  }
   switch (columnType) {
-    case "image":
+    case ColumnTypes.IMAGE:
       if (!isString(value)) {
         return (
           <CellWrapper isHidden={isHidden}>
@@ -316,7 +346,7 @@ export const renderCell = (
             })}
         </CellWrapper>
       );
-    case "video":
+    case ColumnTypes.VIDEO:
       const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
       if (isString(value) && youtubeRegex.test(value)) {
         return (
@@ -329,65 +359,11 @@ export const renderCell = (
           <CellWrapper isHidden={isHidden}>Invalid Video Link</CellWrapper>
         );
       }
-    case "currency":
-      if (!isNaN(value)) {
-        return (
-          <AutoToolTipComponent
-            title={`${format}${value}`}
-            isHidden={isHidden}
-          >{`${format}${value}`}</AutoToolTipComponent>
-        );
-      } else {
-        return <CellWrapper isHidden={isHidden}>Invalid Value</CellWrapper>;
-      }
-    case "date":
-      let isValidDate = true;
-      if (isNaN(value)) {
-        const dateTime = Date.parse(value);
-        if (isNaN(dateTime)) {
-          isValidDate = false;
-        }
-      }
-      if (isValidDate) {
-        return (
-          <AutoToolTipComponent
-            title={moment(value).format(format)}
-            isHidden={isHidden}
-          >
-            {moment(value).format(format)}
-          </AutoToolTipComponent>
-        );
-      } else {
-        return <CellWrapper isHidden={isHidden}>Invalid Date</CellWrapper>;
-      }
-    case "time":
-      let isValidTime = true;
-      if (isNaN(value)) {
-        const time = Date.parse(value);
-        if (isNaN(time)) {
-          isValidTime = false;
-        }
-      }
-      if (isValidTime) {
-        return (
-          <CellWrapper isHidden={isHidden}>
-            {moment(value).format("HH:mm")}
-          </CellWrapper>
-        );
-      } else {
-        return <CellWrapper isHidden={isHidden}>Invalid Time</CellWrapper>;
-      }
-    case "text":
-      const text = isString(value) ? value : JSON.stringify(value);
-      return (
-        <AutoToolTipComponent title={text} isHidden={isHidden}>
-          {text}
-        </AutoToolTipComponent>
-      );
     default:
-      const data = isString(value) ? value : JSON.stringify(value);
+      const data =
+        isString(value) || isNumber(value) ? value : JSON.stringify(value);
       return (
-        <AutoToolTipComponent title={data} isHidden={isHidden}>
+        <AutoToolTipComponent title={data.toString()} isHidden={isHidden}>
           {data}
         </AutoToolTipComponent>
       );
@@ -585,4 +561,52 @@ export const TableHeaderCell = (props: {
       />
     </div>
   );
+};
+
+export const getAllTableColumnKeys = (tableData: object[]) => {
+  const columnKeys: string[] = [];
+  for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
+    const row = tableData[i];
+    for (const key in row) {
+      if (!columnKeys.includes(key)) {
+        columnKeys.push(key);
+      }
+    }
+  }
+  return columnKeys;
+};
+
+export const reorderColumns = (
+  columns: ReactTableColumnProps[],
+  columnOrder: string[],
+) => {
+  const reorderedColumns = [];
+  const reorderedFlagMap: { [key: string]: boolean } = {};
+  for (let index = 0; index < columns.length; index++) {
+    const accessor = columnOrder[index];
+    if (accessor) {
+      const column = columns.filter((col: ReactTableColumnProps) => {
+        return col.accessor === accessor;
+      });
+      if (column.length && !reorderedFlagMap[column[0].accessor]) {
+        reorderedColumns.push(column[0]);
+        reorderedFlagMap[column[0].accessor] = true;
+      } else if (!reorderedFlagMap[columns[index].accessor]) {
+        reorderedColumns.push(columns[index]);
+        reorderedFlagMap[columns[index].accessor] = true;
+      }
+    } else if (!reorderedFlagMap[columns[index].accessor]) {
+      reorderedColumns.push(columns[index]);
+      reorderedFlagMap[columns[index].accessor] = true;
+    }
+  }
+  if (reorderedColumns.length < columns.length) {
+    for (let index = 0; index < columns.length; index++) {
+      if (!reorderedFlagMap[columns[index].accessor]) {
+        reorderedColumns.push(columns[index]);
+        reorderedFlagMap[columns[index].accessor] = true;
+      }
+    }
+  }
+  return reorderedColumns;
 };

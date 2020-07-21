@@ -11,6 +11,8 @@ public interface ApplicationPageService {
 
     Mono<Page> getPage(String pageId, Boolean viewMode);
 
+    Mono<Application> createApplication(Application application);
+
     Mono<Application> createApplication(Application application, String orgId);
 
     Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode);

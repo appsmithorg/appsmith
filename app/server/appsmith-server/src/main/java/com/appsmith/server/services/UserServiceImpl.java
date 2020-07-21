@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
@@ -53,7 +52,6 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 @Service
 public class UserServiceImpl extends BaseService<UserRepository, User, String> implements UserService {
 
-    private UserRepository repository;
     private final OrganizationService organizationService;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
@@ -61,7 +59,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
     private final ApplicationRepository applicationRepository;
-    private final PolicyGenerator policyGenerator;
     private final PolicyUtils policyUtils;
     private final OrganizationRepository organizationRepository;
     private final UserOrganizationService userOrganizationService;
@@ -88,9 +85,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            PasswordEncoder passwordEncoder,
                            EmailSender emailSender,
                            ApplicationRepository applicationRepository,
-                           PolicyGenerator policyGenerator, PolicyUtils policyUtils, OrganizationRepository organizationRepository, UserOrganizationService userOrganizationService) {
+                           PolicyUtils policyUtils,
+                           OrganizationRepository organizationRepository,
+                           UserOrganizationService userOrganizationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.repository = repository;
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
         this.sessionUserService = sessionUserService;
@@ -98,7 +96,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
         this.applicationRepository = applicationRepository;
-        this.policyGenerator = policyGenerator;
         this.policyUtils = policyUtils;
         this.organizationRepository = organizationRepository;
         this.userOrganizationService = userOrganizationService;
@@ -431,16 +428,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }
 
         Organization personalOrg = new Organization();
-        String firstName;
-        if (user.getName() != null) {
-            // Get the first word from the full name and assume that that's the user's first name
-            firstName = user.getName().split(" ")[0];
-        } else {
+        if (user.getName() == null) {
             user.setName(user.getEmail());
-            firstName = user.getEmail().split("@")[0];
         }
 
-        String personalOrganizationName = firstName + "'s Personal Organization";
+        String personalOrganizationName = user.computeFirstName() + "'s Personal Organization";
         personalOrg.setName(personalOrganizationName);
 
         // Set the permissions for the user
@@ -455,10 +447,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(savedUser -> {
                     // Creating the personal workspace and assigning the default groups to the new user
                     log.debug("Going to create organization: {} for user: {}", personalOrg, savedUser.getEmail());
-                    return organizationService.create(personalOrg, savedUser)
-                            .thenReturn(repository.findByEmail(savedUser.getUsername()));
+                    return organizationService.create(personalOrg, savedUser);
                 })
-                .flatMap(obj -> obj)
+                .then(repository.findByEmail(user.getUsername()))
                 .flatMap(analyticsService::trackNewUser);
     }
 
@@ -474,7 +465,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      */
     @Override
     public Mono<User> createUserAndSendEmail(User user, String originHeader) {
-        
+
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
             originHeader = DEFAULT_ORIGIN_HEADER;

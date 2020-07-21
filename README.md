@@ -46,6 +46,10 @@ Appsmith provides a better way of building internal tools by visualising them as
 * **Fine-grained access control**: Control who can edit / view your applications from a single control panel
 * **App management**: Build and organise multiple applications on a single platform
 
+## Build & Deploy
+
+* [Docker](https://docs.appsmith.com/quick-start#docker)
+
 ## Documentation & Support
 
 If you have encountered a bug or need to get in touch with us, you can contact us using one of the following channels:
