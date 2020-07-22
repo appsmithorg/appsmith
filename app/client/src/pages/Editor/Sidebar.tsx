@@ -7,7 +7,7 @@ import { EDITOR_ROUTES, BuilderRouteParams } from "constants/routes";
 
 const Wrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns: 1fr 5fr;
   width: ${props => props.theme.sidebarWidth};
   box-shadow: 0px 1px 3px ${props => props.theme.colors.paneBG};
   z-index: 3;

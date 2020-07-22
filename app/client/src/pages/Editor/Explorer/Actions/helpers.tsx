@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { apiIcon, queryIcon, MethodTag } from "../ExplorerIcons";
-import { PluginType, Action, GenericAction } from "entities/Action";
+import { PluginType, GenericAction } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import { QUERIES_EDITOR_URL, API_EDITOR_URL } from "constants/routes";
 import {
@@ -95,7 +95,7 @@ export const getActionGroups = (
   return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
     if (!config) return null;
     const entries = actions.filter(
-      (entry: { config: Action }) => entry.config.pluginType === config?.type,
+      (entry: GenericAction) => entry.pluginType === config?.type,
     );
 
     return (

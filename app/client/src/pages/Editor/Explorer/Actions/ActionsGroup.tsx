@@ -4,7 +4,7 @@ import { Page } from "constants/ReduxActionConstants";
 import { ExplorerURLParams } from "../helpers";
 import { ActionGroupConfig } from "./helpers";
 import { useParams } from "react-router";
-import { GenericAction, RestAction } from "entities/Action";
+import { GenericAction, ApiActionConfig } from "entities/Action";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import { noop } from "lodash";
@@ -19,23 +19,21 @@ type ExplorerActionsGroupProps = {
 };
 export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
   const params = useParams<ExplorerURLParams>();
-
   let childNode: ReactNode = props.actions.map((action: GenericAction) => {
     const url = props.config?.getURL(
       params.applicationId,
       props.page.pageId,
-      action.config.id,
+      action.actionId,
     );
     const active =
-      params?.apiId === action.config.id ||
-      params?.queryId === action.config.id;
+      params?.apiId === action.actionId || params?.queryId === action.actionId;
 
     let method = undefined;
-    method = (action.config as RestAction).actionConfiguration.httpMethod;
+    method = (action.config as ApiActionConfig).httpMethod;
     const icon = props.config?.getIcon(method);
     return (
       <ExplorerActionEntity
-        key={action.config.id}
+        key={action.actionId}
         action={action}
         url={url}
         active={active}

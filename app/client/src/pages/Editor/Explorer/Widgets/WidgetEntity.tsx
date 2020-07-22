@@ -18,7 +18,7 @@ import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
 import EntityProperty, { EntityPropertyProps } from "../Entity/EntityProperty";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { noop } from "lodash";
+import { isFunction } from "lodash";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -60,7 +60,7 @@ const useWidget = (
       return;
     }
     if (parentModalId) dispatch(showModal(parentModalId));
-    dispatch(closeAllModals());
+    else dispatch(closeAllModals());
     navigateToCanvas(params, window.location.pathname);
     flashElementById(widgetId);
     selectWidget(widgetId);
@@ -82,51 +82,26 @@ export const getWidgetProperies = (
   widgetProps: any,
   step: number,
 ): Array<EntityPropertyProps> => {
-  let config: any;
-  let name: string;
-  let value: any;
-  if (widgetProps.type === WidgetTypes.TABLE_WIDGET) {
-    config = entityDefinitions[WidgetTypes.TABLE_WIDGET](widgetProps);
-    name = widgetProps.widgetName;
-    return Object.keys(config)
-      .filter(k => k.indexOf("!") === -1)
-      .map(widgetProperty => {
-        if (widgetProperty === "selectedRow") {
-          try {
-            const tableData = JSON.parse(widgetProps.tableData);
-            if (tableData && tableData[widgetProps.selectedRowIndex])
-              value = tableData[widgetProps.selectedRowIndex];
-          } catch (e) {
-            noop();
-          }
-        }
-        return {
-          propertyName: widgetProperty,
-          entityName: name,
-          value,
-          step,
-        };
-      });
-  } else {
-    config =
-      entityDefinitions[
-        widgetProps.type as Exclude<
-          Partial<WidgetType>,
-          "CANVAS_WIDGET" | "ICON_WIDGET" | "TABLE_WIDGET"
-        >
-      ];
-    name = widgetProps.widgetName;
-    return Object.keys(config)
-      .filter(k => k.indexOf("!") === -1)
-      .map(widgetProperty => {
-        return {
-          propertyName: widgetProperty,
-          entityName: name,
-          value: widgetProps[widgetProperty],
-          step,
-        };
-      });
-  }
+  let config: any =
+    entityDefinitions[
+      widgetProps.type as Exclude<
+        Partial<WidgetType>,
+        "CANVAS_WIDGET" | "ICON_WIDGET"
+      >
+    ];
+
+  if (isFunction(config)) config = config(widgetProps);
+
+  return Object.keys(config)
+    .filter(k => k.indexOf("!") === -1)
+    .map(widgetProperty => {
+      return {
+        propertyName: widgetProperty,
+        entityName: widgetProps.widgetName,
+        value: widgetProps[widgetProperty],
+        step,
+      };
+    });
 };
 
 export type WidgetEntityProps = {
@@ -142,8 +117,10 @@ export const WidgetEntity = (props: WidgetEntityProps) => {
     props.widgetProps.type,
     props.parentModalId,
   );
+
   if (UNREGISTERED_WIDGETS.indexOf(props.widgetProps.type) > -1)
     return <React.Fragment />;
+
   let children: ReactNode = props.children;
   if (!props.children) {
     children = getWidgetProperies(

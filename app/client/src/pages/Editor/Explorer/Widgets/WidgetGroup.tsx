@@ -7,8 +7,8 @@ import WidgetEntity, { WidgetTree } from "./WidgetEntity";
 import { WidgetTypes } from "constants/WidgetConstants";
 
 const getWidgetEntity = (entity: any, step: number, parentModalId?: string) => {
-  if (!entity) return <React.Fragment />;
   if (entity.type === WidgetTypes.CANVAS_WIDGET) {
+    if (!entity.children || entity.children.length === 0) return;
     return entity.children.map((child: any) =>
       getWidgetEntity(child, step + 1, parentModalId),
     );

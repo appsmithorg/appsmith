@@ -24,18 +24,18 @@ const initialState: ApiPaneReduxState = {
 };
 
 export interface ApiPaneReduxState {
-  lastUsed: string;
-  isCreating: boolean;
-  isFetching: boolean;
-  isMoving: boolean;
-  isCopying: boolean;
+  lastUsed: string; // NR
+  isCreating: boolean; // RR
+  isFetching: boolean; // RR
+  isMoving: boolean; // NR
+  isCopying: boolean; // NR
   isRunning: Record<string, boolean>;
-  isSaving: Record<string, boolean>;
+  isSaving: Record<string, boolean>; // RN
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
   currentCategory: string;
-  lastUsedEditorPage: string;
-  lastSelectedPage: string;
+  lastUsedEditorPage: string; // NR
+  lastSelectedPage: string; // NR
   extraformData: Record<string, any>;
 }
 

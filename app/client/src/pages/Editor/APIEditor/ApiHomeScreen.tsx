@@ -437,8 +437,10 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     }
   }
 
-  handleCreateNew = (params: string) => {
-    const pageId = new URLSearchParams(params).get("importTo");
+  handleCreateNew = () => {
+    const pageId = new URLSearchParams(this.props.location.search).get(
+      "importTo",
+    );
     if (pageId) {
       this.props.createNewApiAction(pageId);
     }
@@ -480,7 +482,6 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     } = this.props;
     const { showSearchResults } = this.state;
 
-    const queryParams: string = location.search;
     let destinationPageId = new URLSearchParams(location.search).get(
       "importTo",
     );
@@ -600,7 +601,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
             <Card
               interactive={false}
               className="eachCard t--createBlankApiCard"
-              onClick={() => this.handleCreateNew(queryParams)}
+              onClick={this.handleCreateNew}
             >
               <Icon icon="plus" iconSize={20} className="createIcon" />
               <p className="textBtn">Create new</p>

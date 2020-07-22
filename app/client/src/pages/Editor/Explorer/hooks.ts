@@ -8,13 +8,18 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  ENTITY_TYPE,
+  DataTreeEntity,
+  DataTree,
+  DataTreeAction,
+} from "entities/DataTree/dataTreeFactory";
 import { Page } from "constants/ReduxActionConstants";
-import { merge, compact } from "lodash";
+import { compact } from "lodash";
 import { Datasource } from "api/DatasourcesApi";
-import { Action, GenericAction } from "entities/Action";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
+import { evaluateDataTreeWithFunctions } from "selectors/dataTreeSelectors";
 
 const usePages = () => {
   const pageList: Page[] = useSelector((state: AppState) => {
@@ -48,10 +53,9 @@ const findWidgets = (widgets: WidgetProps, keyword: string) => {
   if (widgets.widgetName.toLowerCase().indexOf(keyword) > -1) return widgets;
 };
 
-const findActions = (actions: Array<GenericAction>, keyword: string) => {
+const findActions = (actions: Array<DataTreeAction>, keyword: string) => {
   return actions.filter(
-    (action: { config: Action }) =>
-      action.config.name.toLowerCase().indexOf(keyword) > -1,
+    (action: DataTreeAction) => action.name.toLowerCase().indexOf(keyword) > -1,
   );
 };
 
@@ -67,13 +71,23 @@ export const useFilteredEntities = (
 ) => {
   const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
 
-  const canvasWidgets = useSelector((state: AppState) => {
-    return state.entities.canvasWidgets;
-  });
+  const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
 
-  const metaProps = useSelector((state: AppState) => {
-    return state.entities.meta;
-  });
+  const canvasWidgets: { [id: string]: any } = {};
+  Object.values(dataTree).forEach(
+    (
+      entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE; widgetId?: string },
+    ) => {
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET && entity.widgetId) {
+        canvasWidgets[entity.widgetId] = entity;
+      }
+    },
+  );
+
+  const actions = Object.values(dataTree).filter(
+    (entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE }) =>
+      entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
+  );
 
   const pages = usePages();
 
@@ -89,9 +103,8 @@ export const useFilteredEntities = (
   });
 
   const widgetEntities = useMemo(() => {
-    const widgets = merge(canvasWidgets, metaProps);
     const widgetTree = CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: widgets,
+      canvasWidgets,
     });
     widgetTree.ENTITY_TYPE = ENTITY_TYPE.WIDGET;
     widgetTree.pageId = currentPageId;
@@ -99,21 +112,13 @@ export const useFilteredEntities = (
     return searchKeyword !== null
       ? findWidgets(widgetTree, searchKeyword.toLowerCase())
       : widgetTree;
-  }, [searchKeyword, canvasWidgets, metaProps, currentPageId]);
-
-  const actionsState = useSelector((state: AppState) => {
-    return state.entities.actions;
-  });
+  }, [searchKeyword, canvasWidgets, currentPageId]);
 
   const actionEntities = useMemo(() => {
-    const actions = actionsState.map(action => ({
-      ...action,
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
-    }));
     return searchKeyword !== null
-      ? findActions(actions, searchKeyword.toLowerCase())
+      ? findActions(actions as DataTreeAction[], searchKeyword.toLowerCase())
       : actions;
-  }, [searchKeyword, actionsState]);
+  }, [searchKeyword, actions]);
 
   const datasourceEntities = useMemo(
     () =>
@@ -159,7 +164,7 @@ export const useFilteredEntities = (
 
   return {
     widgets: widgetEntities,
-    actions: actionEntities,
+    actions: actionEntities as DataTreeAction[],
     dataSources: datasourceEntities,
     currentPageId,
     plugins,

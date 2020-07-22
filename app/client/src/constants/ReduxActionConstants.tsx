@@ -325,6 +325,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   FETCH_ALL_USERS_ERROR: "FETCH_ALL_USERS_ERROR",
   FETCH_ALL_ROLES_ERROR: "FETCH_ALL_ROLES_ERROR",
   FETCH_ACTIONS_VIEW_MODE_ERROR: "FETCH_ACTION_VIEW_MODE_ERROR",
+  SAVE_API_NAME_ERROR: "SAVE_API_NAME_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {

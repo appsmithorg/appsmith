@@ -14,7 +14,6 @@ const getUpdateActionNameReduxAction = (id: string, name: string) => {
 
 const getActionProperties = (action: any, step: number) => {
   const config = entityDefinitions.ACTION(action);
-  const data = action.data && action.data.body ? action.data.body : action.data;
   const actionName = action.config.name;
 
   return (
@@ -28,7 +27,7 @@ const getActionProperties = (action: any, step: number) => {
           actionProperty = actionProperty + "()";
         }
         if (actionProperty === "data") {
-          value = data;
+          value = action.data;
         }
         return (
           <EntityProperty
@@ -54,19 +53,19 @@ type ExplorerActionEntityProps = {
 export const ExplorerActionEntity = (props: ExplorerActionEntityProps) => {
   return (
     <Entity
-      key={props.action.config.id}
+      key={props.action.actionId}
       icon={props.icon}
-      name={props.action.config.name}
+      name={props.action.name}
       action={props.url ? () => history.push(props.url) : noop}
       isDefaultExpanded={props.active}
       active={props.active}
-      entityId={props.action.config.id}
+      entityId={props.action.actionId}
       step={props.step}
       updateEntityName={getUpdateActionNameReduxAction}
       contextMenu={
         <ActionEntityContextMenu
-          id={props.action.config.id}
-          name={props.action.config.name}
+          id={props.action.actionId}
+          name={props.action.name}
           className={EntityClassNames.ACTION_CONTEXT_MENU}
         />
       }

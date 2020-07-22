@@ -23,6 +23,7 @@ type ExplorerPageEntityProps = {
 };
 export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
+
   return (
     <Entity
       key={props.page.pageId}
@@ -45,6 +46,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
           pageId={props.page.pageId}
           name={props.page.pageName}
           className={EntityClassNames.ACTION_CONTEXT_MENU}
+          isDefaultPage={props.page.isDefault}
         />
       }
     >

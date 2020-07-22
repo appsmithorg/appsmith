@@ -6,7 +6,7 @@ const Wrapper = styled.div<{ step: number }>`
   width: calc(100% - ${props => props.step * props.theme.spaces[2]}px);
   font-size: ${props => props.theme.fontSizes[2]}px;
   color: ${Colors.WHITE};
-  padding: ${props => props.theme.spaces[2]}px;
+  padding: ${props => props.theme.spaces[4]}px;
   text-align: left;
   display: flex;
   justify-content: center;

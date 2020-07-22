@@ -5,7 +5,6 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { convertToCamelCase } from "utils/helpers";
-import { GenericAction } from "entities/Action";
 import { AppState } from "reducers";
 import { Page } from "constants/ReduxActionConstants";
 const Wrapper = styled.div`
@@ -36,7 +35,9 @@ export const EntityName = (props: EntityNameProps) => {
   );
 
   const existingActionNames: string[] = useSelector((state: AppState) =>
-    state.entities.actions.map((action: GenericAction) => action.config.name),
+    state.entities.actions.map(
+      (action: { config: { name: string } }) => action.config.name,
+    ),
   );
 
   const hasNameConflict = useCallback(

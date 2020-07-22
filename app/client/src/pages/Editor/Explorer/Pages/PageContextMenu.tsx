@@ -1,6 +1,8 @@
 import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
+import TreeDropdown, {
+  TreeDropdownOption,
+} from "components/editorComponents/actioncreator/TreeDropdown";
 import { noop } from "lodash";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -13,6 +15,7 @@ export const PageContextMenu = (props: {
   name: string;
   applicationId: string;
   className?: string;
+  isDefaultPage: boolean;
 }) => {
   const dispatch = useDispatch();
 
@@ -48,6 +51,27 @@ export const PageContextMenu = (props: {
     () => dispatch(initExplorerEntityNameEdit(props.pageId)),
     [dispatch, props.pageId],
   );
+
+  const optionTree: TreeDropdownOption[] = [
+    {
+      value: "rename",
+      onSelect: editPageName,
+      label: "Edit Name",
+    },
+  ];
+  if (!props.isDefaultPage) {
+    optionTree.push({
+      value: "setdefault",
+      onSelect: () => setPageAsDefault(props.pageId, props.applicationId),
+      label: "Set as Home Page",
+    });
+  }
+  optionTree.push({
+    value: "delete",
+    onSelect: () => deletePage(props.pageId, props.name),
+    label: "Delete",
+    intent: "danger",
+  });
   return (
     <TreeDropdown
       className={props.className}
@@ -55,24 +79,7 @@ export const PageContextMenu = (props: {
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
       selectedValue=""
-      optionTree={[
-        {
-          value: "rename",
-          onSelect: editPageName,
-          label: "Edit Name",
-        },
-        {
-          value: "setdefault",
-          onSelect: () => setPageAsDefault(props.pageId, props.applicationId),
-          label: "Set as Home Page",
-        },
-        {
-          value: "delete",
-          onSelect: () => deletePage(props.pageId, props.name),
-          label: "Delete",
-          intent: "danger",
-        },
-      ]}
+      optionTree={optionTree}
       toggle={<ContextMenuTrigger />}
     />
   );

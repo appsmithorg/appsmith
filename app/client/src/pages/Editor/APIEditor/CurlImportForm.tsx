@@ -111,7 +111,6 @@ type Props = StateAndRouteProps &
 class CurlImportForm extends React.Component<Props> {
   render() {
     const { handleSubmit, history, isImportingCurl } = this.props;
-    console.log("curl import form loaded");
     return (
       <React.Fragment>
         <Header>
