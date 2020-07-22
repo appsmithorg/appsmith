@@ -11,7 +11,7 @@ export default {
 
 export const withDynamicProps = () => (
   <Button
-    size={select("Intent", ["small", "medium", "large"], undefined)}
+    size={select("size", ["small", "medium", "large"], "small")}
     text={"button"}
   ></Button>
 );

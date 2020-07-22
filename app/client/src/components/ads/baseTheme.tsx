@@ -55,38 +55,6 @@ export const adsTheme: Theme<0> = {
 
 export const buttonCustomTheme = {
   ...adsTheme,
-  buttonVariant: {
-    successPrimary: {
-      color: "blackShades.9",
-      borderColor: "danger.main",
-      bg: "success.main",
-    },
-    successSecondary: {
-      color: "success.main",
-      borderColor: "success.main",
-      bg: "none",
-    },
-    warningPrimary: {
-      color: "blackShades.9",
-      borderColor: "warning.main",
-      bg: "warning.main",
-    },
-    warningSecondary: {
-      color: "warning.main",
-      borderColor: "warning.main",
-      bg: "none",
-    },
-    dangerPrimary: {
-      color: "blackShades.9",
-      borderColor: "danger.main",
-      bg: "danger.main",
-    },
-    dangerSecondary: {
-      color: "danger.main",
-      borderColor: "danger.main",
-      bg: "none",
-    },
-  },
   buttonSizes: {
     small: {
       fontSize: 1,

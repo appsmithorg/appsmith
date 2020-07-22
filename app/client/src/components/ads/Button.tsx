@@ -2,7 +2,7 @@ import React from "react";
 import { IconName } from "./Icons";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
-import { variant, typography } from "styled-system";
+import { variant } from "styled-system";
 
 type ButtonProps = CommonComponentProps & {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
@@ -14,27 +14,30 @@ type ButtonProps = CommonComponentProps & {
 };
 // https://design.gitlab.com/components/button
 
-const StyledButton = styled("button")(
-  typography,
+const sizeButton = styled("button")(
   variant({
     prop: "size",
     scale: "buttonSizes",
     variants: {
-      medium: {},
-    },
-  }),
-  variant({
-    prop: "variant",
-    scale: "buttonVariant",
-    variants: {
-      successPrimary: {},
+      small: {},
     },
   }),
 );
 
+const StyledButton = styled(sizeButton)`
+  background-color: ${props => props.theme.colors.success};
+  color: ${props => props.theme.colors.success};
+  border-color: ${props => props.theme.colors.primary.success};
+`;
+
 function AdsButton(props: ButtonProps) {
   return (
-    <StyledButton {...props} onClick={e => props.onClick(e)}>
+    <StyledButton
+      {...props}
+      onClick={(e: React.MouseEvent<HTMLElement>) =>
+        props.onClick && props.onClick(e)
+      }
+    >
       {props.text}
     </StyledButton>
   );
