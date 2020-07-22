@@ -146,10 +146,6 @@ if [[ $mongo_option -eq 2 ]];then
     read -sp 'Enter the mongo password: ' mongo_root_password
     read -p 'Enter your mongo database name: ' mongo_database
 
-    # urlencoding the Mongo username and password
-    mongo_root_user=$( urlencode $mongo_root_user )
-    mongo_root_password=$( urlencode $mongo_root_password )
-
     # It is possible that this isn't the first installation. 
     echo ""
     read -p 'Do you have any existing data in the database?[Y/n]: ' existing_encrypted_data
@@ -165,10 +161,6 @@ elif [[ $mongo_option -eq 1 ]];then
     mongo_database="appsmith"
     read -p 'Set the mongo root user: ' mongo_root_user
     read -sp 'Set the mongo password: ' mongo_root_password
-
-    # urlencoding the Mongo username and password
-    mongo_root_user=$( urlencode $mongo_root_user )
-    mongo_root_password=$( urlencode $mongo_root_password )
 
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
@@ -272,7 +264,14 @@ echo "Generating the configuration files from the templates"
 . ./template/docker-compose.yml.sh
 . ./template/mongo-init.js.sh
 . ./template/init-letsencrypt.sh.sh
-. ./template/docker.env.sh
+
+if [ 1 ];then
+    # urlencoding the Mongo username and password
+    mongo_root_user=$( urlencode $mongo_root_user )
+    mongo_root_password=$( urlencode $mongo_root_password )
+    . ./template/docker.env.sh
+fi
+
 if [[ "$setup_encryption" = "true" ]];then
    . ./template/encryption.env.sh
 fi
