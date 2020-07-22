@@ -259,18 +259,16 @@ do
   fi
 done
 
+# urlencoding the Mongo username and password
+ENCODED_mongo_root_user=$( urlencode $mongo_root_user )
+ENCODED_mongo_root_password=$( urlencode $mongo_root_password )
+
 echo "Generating the configuration files from the templates"
 . ./template/nginx_app.conf.sh
 . ./template/docker-compose.yml.sh
 . ./template/mongo-init.js.sh
 . ./template/init-letsencrypt.sh.sh
-
-if [ 1 ];then
-    # urlencoding the Mongo username and password
-    mongo_root_user=$( urlencode $mongo_root_user )
-    mongo_root_password=$( urlencode $mongo_root_password )
-    . ./template/docker.env.sh
-fi
+. ./template/docker.env.sh
 
 if [[ "$setup_encryption" = "true" ]];then
    . ./template/encryption.env.sh
