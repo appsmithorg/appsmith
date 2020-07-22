@@ -106,15 +106,10 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("Test GET Action for mock API with header and pagination", function() {
-    const apiname = "FirstAPI";
+    const apiname = "SecondAPI";
     cy.CreateAPI(apiname);
     cy.log("Creation of API Action successful");
-    cy.EnterSourceDetailsWithHeader(
-      testdata.baseUrl,
-      testdata.methods,
-      testdata.headerValueBlank,
-      testdata.headerValueBlank,
-    );
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
@@ -137,8 +132,8 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("API check with query params test API fetaure", function() {
-    cy.CreateAPI("FirstAPI");
-    cy.log("Creation of FirstAPI Action successful");
+    cy.CreateAPI("ThirdAPI");
+    cy.log("Creation of API Action successful");
     cy.EnterSourceDetailsWithQueryParam(
       testdata.baseUrl,
       testdata.methods,
@@ -155,13 +150,13 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("API check with Invalid Header", function() {
-    cy.CreateAPI("FirstAPI");
-    cy.log("Creation of SecondAPI Action successful");
+    cy.CreateAPI("FourthAPI");
+    cy.log("Creation of API Action successful");
     cy.EnterSourceDetailsWithQueryParam(
       testdata.baseUrl,
       testdata.methods,
       testdata.headerKey,
-      testdata.headerValueBlank,
+      testdata.invalidValue,
       testdata.queryKey,
       testdata.queryValue,
     );
