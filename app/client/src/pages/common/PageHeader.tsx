@@ -32,15 +32,11 @@ const LogoContainer = styled.div`
 
 type PageHeaderProps = {
   user?: User;
-  fetchCurrentUser: () => void;
 };
 
 export const PageHeader = (props: PageHeaderProps) => {
-  const { user, fetchCurrentUser } = props;
+  const { user } = props;
   const history = useHistory();
-  useEffect(() => {
-    fetchCurrentUser();
-  }, [fetchCurrentUser]);
 
   return (
     <StyledPageHeader>
@@ -70,8 +66,4 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  fetchCurrentUser: () => dispatch({ type: ReduxActionTypes.FETCH_USER_INIT }),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(PageHeader);
+export default connect(mapStateToProps)(PageHeader);

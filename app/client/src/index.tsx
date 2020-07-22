@@ -26,6 +26,10 @@ import {
   PAGE_NOT_FOUND_URL,
 } from "constants/routes";
 import { LayersContext, Layers } from "constants/Layers";
+import EditorLoader from "pages/Editor/loader";
+import ApplicationListLoader from "pages/Applications/loader";
+import AppViewerLoader from "pages/AppViewer/loader";
+import OrganizationLoader from "pages/organization/loader";
 
 const loadingIndicator = <Loader />;
 const App = lazy(() =>
@@ -34,24 +38,9 @@ const App = lazy(() =>
 const UserAuth = lazy(() =>
   import(/* webpackChunkName: "auth",webpackPrefetch: 5 */ "./pages/UserAuth"),
 );
-const Editor = lazy(() =>
-  import(/* webpackChunkName: "editor",webpackPrefetch: 3 */ "./pages/Editor"),
-);
-const Applications = lazy(() =>
-  import(
-    /* webpackChunkName: "apps",webpackPrefetch: 4 */ "./pages/Applications"
-  ),
-);
+
 const PageNotFound = lazy(() =>
   import(/* webpackChunkName: "404"*/ "./pages/common/PageNotFound"),
-);
-const AppViewer = lazy(() =>
-  import(
-    /* webpackChunkName: "viewer",webpackPrefetch: 2 */ "./pages/AppViewer"
-  ),
-);
-const Organization = lazy(() =>
-  import(/* webpackChunkName: "orgs" */ "./pages/organization"),
 );
 const Users = lazy(() => import(/* webpackPrefetch: true */ "./pages/users"));
 appInitializer();
@@ -83,7 +72,7 @@ ReactDOM.render(
               />
               <AppRoute
                 path={ORG_URL}
-                component={Organization}
+                component={OrganizationLoader}
                 name={"Organisation"}
                 routeProtected
               />
@@ -104,19 +93,19 @@ ReactDOM.render(
               <AppRoute
                 exact
                 path={APPLICATIONS_URL}
-                component={Applications}
+                component={ApplicationListLoader}
                 name={"Home"}
                 routeProtected
               />
               <AppRoute
                 path={BUILDER_URL}
-                component={Editor}
+                component={EditorLoader}
                 name={"Editor"}
                 routeProtected
               />
               <AppRoute
                 path={APP_VIEW_URL}
-                component={AppViewer}
+                component={AppViewerLoader}
                 name={"AppViewer"}
                 routeProtected
                 logDisable

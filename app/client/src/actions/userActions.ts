@@ -51,3 +51,7 @@ export const invitedUserSignupError = (error: any) => ({
     error,
   },
 });
+
+export const getCurrentUser = () => ({
+  type: ReduxActionTypes.FETCH_USER_INIT,
+});
