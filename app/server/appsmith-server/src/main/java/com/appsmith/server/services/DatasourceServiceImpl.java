@@ -283,7 +283,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
-        log.debug("Going to fetch datasource using base repository function for ds id {} and permission", id, aclPermission.getValue());
         return repository.findById(id, aclPermission);
     }
 

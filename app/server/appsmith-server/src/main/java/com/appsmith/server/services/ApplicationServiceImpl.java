@@ -214,41 +214,29 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux
-                .map(action -> {
+                .flatMap(action -> {
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        log.debug("Going to set datasource policies now for action {} with polcies : {}", action.getName(), action.getPolicies());
                         return datasourceService
                                 .findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
-                                .doOnSuccess(datasource -> {
-                                    if (datasource == null) {
-                                        log.error("datasource not found for action {}", action.getName() );
-                                    } else {
-                                        log.error("datasource found for action {} is {}", action.getName(), datasource);
-                                    }
-                                })
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource", action.getDatasource().getId())))
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.DATASOURCE, action.getDatasource().getId())))
                                 .map(datasource -> {
                                     Datasource updatedDatasource;
-                                    log.debug("Going to update policy of datasource {}", datasource.getName());
                                     if (isPublic) {
                                         updatedDatasource = (Datasource) policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
                                     } else {
                                         updatedDatasource = (Datasource) policyUtils.removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
                                     }
-                                    log.debug("Right before saving the datasource, ds policies are {}", updatedDatasource.getPolicies());
-                                    return datasourceService.save(updatedDatasource)
-                                            .map(savedDs -> {
-                                                log.debug("policies : {}", savedDs.getPolicies());
-                                                return savedDs;
-                                            });
+
+                                    return datasourceService.save(updatedDatasource);
                                 })
                                 // In case the datasource is not found, do not stop the processing for other actions.
                                 .switchIfEmpty(Mono.empty());
                     }
                     // In case of no datasource / embedded datasource, nothing else needs to be done here.
-                    log.debug("No datasource found in the action {}. Returning", action.getName());
                     return Mono.empty();
                 })
+                .flatMap(obj -> obj)
                 .collectList()
                 .thenReturn(application)
                 .flatMap(app -> {
