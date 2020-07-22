@@ -94,6 +94,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(principal -> {
                     User user = (User) principal;
                     Query query = new Query(getIdCriteria(id));
