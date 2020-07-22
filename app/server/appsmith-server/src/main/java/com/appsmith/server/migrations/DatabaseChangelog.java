@@ -499,7 +499,8 @@ public class DatabaseChangelog {
         plugin1.setType(PluginType.DB);
         plugin1.setPackageName("mysql-plugin");
         plugin1.setUiComponent("DbEditorForm");
-        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Mysql.png");
+        plugin1.setResponseType(Plugin.ResponseType.TABLE);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Mysql.jpg");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
