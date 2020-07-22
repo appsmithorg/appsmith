@@ -1,10 +1,6 @@
-import React, { useEffect } from "react";
-import { RouteComponentProps, withRouter } from "react-router";
-import { connect } from "react-redux";
-import { AppState } from "reducers";
+import React from "react";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
-import { fetchApplication } from "actions/applicationActions";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import {
   BASE_URL,
@@ -61,9 +57,8 @@ const ShareButton = styled.div`
   justify-content: flex-end;
 `;
 
-type EditorHeaderProps = RouteComponentProps<{ applicationId: string }> & {
-  fetchApplication: (applicationId: string) => void;
-  currentApplicationDetails?: ApplicationPayload;
+type EditorHeaderProps = {
+  currentApplication?: ApplicationPayload;
   isSaving?: boolean;
   pageSaveError?: boolean;
   pageName?: string;
@@ -85,18 +80,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   const selectedPageName = props.pages?.find(
     page => page.pageId === props.currentPageId,
   )?.pageName;
-
-  const {
-    match: {
-      params: { applicationId },
-    },
-    currentApplicationDetails,
-    fetchApplication,
-  } = props;
-
-  useEffect(() => {
-    fetchApplication(applicationId);
-  }, [fetchApplication, applicationId]);
 
   const pageSelectorData: CustomizedDropdownProps = {
     sections: [
@@ -180,8 +163,8 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           }
           Form={ShareApplicationForm}
           title={
-            currentApplicationDetails
-              ? currentApplicationDetails.name
+            props.currentApplication
+              ? props.currentApplication.name
               : "Share Application"
           }
         />
@@ -204,16 +187,4 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   );
 };
 
-const mapStateToProps = (state: AppState) => ({
-  currentApplicationDetails: state.ui.applications.currentApplication,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  fetchApplication: (applicationId: string) => {
-    return dispatch(fetchApplication(applicationId));
-  },
-});
-
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(EditorHeader),
-);
+export default EditorHeader;
