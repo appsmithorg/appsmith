@@ -2,11 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
-import {
-  PLUGIN_PACKAGE_MONGO,
-  PLUGIN_PACKAGE_POSTGRES,
-} from "constants/QueryEditorConstants";
 import { Spinner } from "@blueprintjs/core";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Collapsible from "./Collapsible";
@@ -14,18 +9,17 @@ import history from "utils/history";
 import FormLabel from "components/editorComponents/FormLabel";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-import ImageAlt from "assets/images/placeholder-image.svg";
-import Postgres from "assets/images/Postgress.png";
-import MongoDB from "assets/images/MongoDB.png";
-import RestTemplateImage from "assets/images/RestAPI.png";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 
 import FormControlFactory from "utils/FormControlFactory";
+import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "api/DatasourcesApi";
 import { reduxForm, InjectedFormProps, Field } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import { APPSMITH_IP_ADDRESS } from "constants/DatasourceEditorConstants";
 
 interface DatasourceDBEditorProps {
   onSave: (formValues: Datasource) => void;
@@ -42,6 +36,7 @@ interface DatasourceDBEditorProps {
   loadingFormConfigs: boolean;
   formConfig: [];
   isNewDatasource: boolean;
+  pluginImage: string;
 }
 
 interface DatasourceDBEditorState {
@@ -104,6 +99,17 @@ const StyledButton = styled(Button)`
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
+`;
+
+const StyledOpenDocsIcon = styled(Icon)`
+  svg {
+    width: 12px;
+    height: 18px;
+  }
+`;
+
+const CollapsibleWrapper = styled.div`
+  width: max-content;
 `;
 
 class DatasourceDBEditor extends React.Component<
@@ -179,19 +185,6 @@ class DatasourceDBEditor extends React.Component<
     });
 
     return !_.isEmpty(errors);
-  };
-
-  getImageSrc = (pluginPackage: string) => {
-    switch (pluginPackage) {
-      case PLUGIN_PACKAGE_POSTGRES:
-        return Postgres;
-      case PLUGIN_PACKAGE_MONGO:
-        return MongoDB;
-      case REST_PLUGIN_PACKAGE_NAME:
-        return RestTemplateImage;
-      default:
-        return ImageAlt;
-    }
   };
 
   render() {
@@ -287,7 +280,6 @@ class DatasourceDBEditor extends React.Component<
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      selectedPluginPackage,
       isSaving,
       applicationId,
       pageId,
@@ -321,16 +313,26 @@ class DatasourceDBEditor extends React.Component<
         </span>
         <br />
         <FormTitleContainer>
-          <PluginImage
-            src={this.getImageSrc(selectedPluginPackage)}
-            alt="Datasource"
-          />
+          <PluginImage src={this.props.pluginImage} alt="Datasource" />
           <Field
             name="name"
             component={FormTitle}
             focusOnMount={this.props.isNewDatasource}
           />
         </FormTitleContainer>
+        <CollapsibleWrapper>
+          <CollapsibleHelp>
+            <span>{`Whitelist the IP ${APPSMITH_IP_ADDRESS} on your database instance to connect to it. `}</span>
+            <a
+              href={`${HelpBaseURL}${HelpMap["DATASOURCE_FORM"].path}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {"Read more "}
+              <StyledOpenDocsIcon icon="document-open" />
+            </a>
+          </CollapsibleHelp>
+        </CollapsibleWrapper>
         {!_.isNil(sections)
           ? _.map(sections, this.renderMainSection)
           : undefined}

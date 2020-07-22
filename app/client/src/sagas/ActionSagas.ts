@@ -384,7 +384,7 @@ export function* refactorActionName(
 }
 
 function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
-  // Takes from drafts, checks if the name isValid, saves
+  // Takes from state, checks if the name isValid, saves
   const apiId = action.payload.id;
   const api = yield select(state =>
     state.entities.actions.find(

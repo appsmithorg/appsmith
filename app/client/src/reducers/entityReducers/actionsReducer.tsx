@@ -249,6 +249,7 @@ const actionsReducer = createReducer(initialState, {
           ...a,
           config: {
             ...a.config,
+            id: "TEMP_COPY_ID",
             name: action.payload.name,
             pageId: action.payload.destinationPageId,
           },

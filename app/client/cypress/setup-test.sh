@@ -41,6 +41,32 @@ curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
 	"password": "'"$CYPRESS_PASSWORD"'"
 }'
 
+#Create another testUser1
+curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"name" : "'"$CYPRESS_TESTUSERNAME1"'",
+	"email" : "'"$CYPRESS_TESTUSERNAME1"'",
+	"source" : "FORM",
+	"state" : "ACTIVATED",
+	"isEnabled" : "true",
+	"password": "'"$CYPRESS_TESTPASSWORD1"'"
+}'
+
+#Create another testUser2
+curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"name" : "'"$CYPRESS_TESTUSERNAME2"'",
+	"email" : "'"$CYPRESS_TESTUSERNAME2"'",
+	"source" : "FORM",
+	"state" : "ACTIVATED",
+	"isEnabled" : "true",
+	"password": "'"$CYPRESS_TESTPASSWORD2"'"
+}'
+
+
+
 # DEBUG=cypress:* $(npm bin)/cypress version
 # sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
 # cat /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
