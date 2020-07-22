@@ -95,6 +95,23 @@ overwrite_file() {
     fi
 }
 
+urlencode() {
+    # urlencode <string>
+    old_lc_collate=$LC_COLLATE
+    LC_COLLATE=C
+
+    local length="${#1}"
+    for (( i = 0; i < length; i++ )); do
+        local c="${1:i:1}"
+        case $c in
+            [a-zA-Z0-9.~_-]) printf "$c" ;;
+            *) printf '%%%02X' "'$c" ;;
+        esac
+    done
+
+    LC_COLLATE=$old_lc_collate
+}
+
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
 echo ""
 
@@ -128,6 +145,11 @@ if [[ $mongo_option -eq 2 ]];then
     read -p 'Enter the mongo root user: ' mongo_root_user
     read -sp 'Enter the mongo password: ' mongo_root_password
     read -p 'Enter your mongo database name: ' mongo_database
+
+    # urlencoding the Mongo username and password
+    mongo_root_user=$( urlencode $mongo_root_user )
+    mongo_root_password=$( urlencode $mongo_root_password )
+
     # It is possible that this isn't the first installation. 
     echo ""
     read -p 'Do you have any existing data in the database?[Y/n]: ' existing_encrypted_data
@@ -143,6 +165,11 @@ elif [[ $mongo_option -eq 1 ]];then
     mongo_database="appsmith"
     read -p 'Set the mongo root user: ' mongo_root_user
     read -sp 'Set the mongo password: ' mongo_root_password
+
+    # urlencoding the Mongo username and password
+    mongo_root_user=$( urlencode $mongo_root_user )
+    mongo_root_password=$( urlencode $mongo_root_password )
+
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
 fi
