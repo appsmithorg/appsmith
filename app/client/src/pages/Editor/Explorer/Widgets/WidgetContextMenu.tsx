@@ -1,19 +1,34 @@
 import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import { deleteDatasource } from "actions/datasourceActions";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
-import { noop } from "lodash";
 import { ContextMenuPopoverModifiers } from "../helpers";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { noop } from "lodash";
+import { initExplorerEntityNameEdit } from "actions/explorerActions";
 
-export const DataSourceContextMenu = (props: {
-  datasourceId: string;
+export const WidgetContextMenu = (props: {
+  widgetId: string;
+  parentId: string;
   className?: string;
 }) => {
+  const { parentId, widgetId } = props;
   const dispatch = useDispatch();
   const dispatchDelete = useCallback(() => {
-    dispatch(deleteDatasource({ id: props.datasourceId }));
-  }, [dispatch, props.datasourceId]);
+    dispatch({
+      type: ReduxActionTypes.WIDGET_DELETE,
+      payload: {
+        widgetId,
+        parentId,
+      },
+    });
+  }, [dispatch, widgetId, parentId]);
+
+  const editWidgetName = useCallback(
+    () => dispatch(initExplorerEntityNameEdit(widgetId)),
+    [dispatch, widgetId],
+  );
+
   return (
     <TreeDropdown
       className={props.className}
@@ -22,6 +37,11 @@ export const DataSourceContextMenu = (props: {
       onSelect={noop}
       selectedValue=""
       optionTree={[
+        {
+          value: "rename",
+          onSelect: editWidgetName,
+          label: "Edit Name",
+        },
         {
           value: "delete",
           onSelect: dispatchDelete,
@@ -34,4 +54,4 @@ export const DataSourceContextMenu = (props: {
   );
 };
 
-export default DataSourceContextMenu;
+export default WidgetContextMenu;

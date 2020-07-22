@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, ReactNode } from "react";
-import Entity from "../Entity";
+import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
@@ -19,6 +19,8 @@ import { getWidgetIcon } from "../ExplorerIcons";
 import EntityProperty, { EntityPropertyProps } from "../Entity/EntityProperty";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { isFunction } from "lodash";
+import WidgetContextMenu from "./WidgetContextMenu";
+import { updateWidgetName } from "actions/propertyPaneActions";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -140,6 +142,14 @@ export const WidgetEntity = (props: WidgetEntityProps) => {
       active={isWidgetSelected}
       entityId={props.widgetProps.widgetId}
       step={props.step}
+      updateEntityName={updateWidgetName}
+      contextMenu={
+        <WidgetContextMenu
+          widgetId={props.widgetProps.widgetId}
+          parentId={props.widgetProps.parentId}
+          className={EntityClassNames.ACTION_CONTEXT_MENU}
+        />
+      }
     >
       {children}
     </Entity>

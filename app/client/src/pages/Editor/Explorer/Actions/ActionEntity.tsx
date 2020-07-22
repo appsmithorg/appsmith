@@ -14,7 +14,6 @@ const getUpdateActionNameReduxAction = (id: string, name: string) => {
 
 const getActionProperties = (action: any, step: number) => {
   const config = entityDefinitions.ACTION(action);
-  const actionName = action.config.name;
 
   return (
     config &&
@@ -33,7 +32,7 @@ const getActionProperties = (action: any, step: number) => {
           <EntityProperty
             key={actionProperty}
             propertyName={actionProperty}
-            entityName={actionName}
+            entityName={action.name}
             value={value}
             step={step}
           />

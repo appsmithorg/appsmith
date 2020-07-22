@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect, useCallback } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import CollapseToggle from "./CollapseToggle";
@@ -7,7 +7,6 @@ import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
-import { useDispatch } from "react-redux";
 
 export enum EntityClassNames {
   ACTION_CONTEXT_MENU = "action-entity",
@@ -52,12 +51,10 @@ export type EntityProps = {
   contextMenu?: ReactNode;
   step: number;
   updateEntityName?: (id: string, name: string) => any;
-  dispatchableAction?: boolean;
 };
 
 export const Entity = (props: EntityProps) => {
   const [isOpen, open] = useState(!props.disabled && !!props.isDefaultExpanded);
-  const dispatch = useDispatch();
   const isUpdating = useEntityUpdateState(props.entityId);
   const isEditing = useEntityEditState(props.entityId);
 
@@ -81,20 +78,12 @@ export const Entity = (props: EntityProps) => {
       props.updateEntityName && props.updateEntityName(props.entityId, name)
     );
   };
-  const { dispatchableAction, action } = props;
-  const handleEntityClick = useCallback(() => {
-    if (dispatchableAction) {
-      dispatch(action());
-    } else {
-      action();
-    }
-  }, [dispatchableAction, action, dispatch]);
 
   return (
     <Wrapper active={!!props.active}>
       <EntityItem
         active={!!props.active}
-        onClick={handleEntityClick}
+        onClick={props.action}
         step={props.step}
         spaced={!!props.children}
       >
