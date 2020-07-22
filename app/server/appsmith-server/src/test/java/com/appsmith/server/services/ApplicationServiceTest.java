@@ -510,9 +510,6 @@ public class ApplicationServiceTest {
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
-//        Datasource actionDatasource = new Datasource();
-//        actionDatasource.setId(savedDatasource.getId());
-
         Action action = new Action();
         action.setName("Public App Test action");
         action.setPageId(pageId);
