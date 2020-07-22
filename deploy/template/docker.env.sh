@@ -4,7 +4,7 @@ if [ ! -f docker-compose.yml ]; then
     touch docker-compose.yml
 fi
 
-cat > docker.env  << EOF
+cat >| docker.env  << EOF
 # Read our documentation on how to configure these features
 # https://docs.appsmith.com/v/v1.1/enabling-3p-services
 

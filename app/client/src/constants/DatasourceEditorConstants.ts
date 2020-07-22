@@ -1,1 +1,2 @@
 export const DATASOURCE_CONSTANT = "DATASOURCE";
+export const APPSMITH_IP_ADDRESS = "18.223.74.85";

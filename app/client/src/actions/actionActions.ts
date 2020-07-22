@@ -4,7 +4,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { Action, RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 
 export const createActionRequest = (payload: Partial<Action>) => {
@@ -50,7 +50,7 @@ export const fetchActionsForPage = (pageId: string) => {
   };
 };
 
-export const fetchActionsForPageSuccess = (actions: RestAction[]) => {
+export const fetchActionsForPageSuccess = (actions: Action[]) => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
@@ -74,7 +74,7 @@ export const updateAction = (payload: { id: string }) => {
   };
 };
 
-export const updateActionSuccess = (payload: { data: RestAction }) => {
+export const updateActionSuccess = (payload: { data: Action }) => {
   return {
     type: ReduxActionTypes.UPDATE_ACTION_SUCCESS,
     payload,
@@ -107,7 +107,7 @@ export const moveActionRequest = (payload: {
   };
 };
 
-export const moveActionSuccess = (payload: RestAction) => {
+export const moveActionSuccess = (payload: Action) => {
   return {
     type: ReduxActionTypes.MOVE_ACTION_SUCCESS,
     payload,
@@ -135,10 +135,7 @@ export const copyActionRequest = (payload: {
   };
 };
 
-export const copyActionSuccess = (payload: {
-  id: string;
-  destinationPageId: string;
-}) => {
+export const copyActionSuccess = (payload: Action) => {
   return {
     type: ReduxActionTypes.COPY_ACTION_SUCCESS,
     payload,

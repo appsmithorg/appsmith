@@ -112,8 +112,8 @@ describe("API Panel Test Functionality", function() {
     cy.EnterSourceDetailsWithHeader(
       testdata.baseUrl,
       testdata.methods,
-      testdata.headerKey,
-      testdata.headerValue,
+      testdata.headerValueBlank,
+      testdata.headerValueBlank,
     );
     cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
@@ -142,8 +142,8 @@ describe("API Panel Test Functionality", function() {
     cy.EnterSourceDetailsWithQueryParam(
       testdata.baseUrl,
       testdata.methods,
-      testdata.headerKey,
-      testdata.headerValue,
+      testdata.headerValueBlank,
+      testdata.headerValueBlank,
       testdata.queryKey,
       testdata.queryValue,
     );
