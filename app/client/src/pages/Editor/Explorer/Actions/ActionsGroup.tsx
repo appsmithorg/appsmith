@@ -7,7 +7,6 @@ import { useParams } from "react-router";
 import { GenericAction, ApiActionConfig } from "entities/Action";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
-import { noop } from "lodash";
 import history from "utils/history";
 
 type ExplorerActionsGroupProps = {
@@ -56,7 +55,6 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
     <Entity
       icon={props.config?.icon}
       name={props.config?.groupName || "Actions"}
-      action={noop}
       entityId={props.page.pageId + "_" + props.config?.type}
       step={props.step}
       disabled={props.isFiltered && (!childNode || !props.actions.length)}

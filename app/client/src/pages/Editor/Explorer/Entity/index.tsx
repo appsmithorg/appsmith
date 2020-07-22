@@ -44,7 +44,7 @@ export type EntityProps = {
   children?: ReactNode;
   icon: ReactNode;
   disabled?: boolean;
-  action: () => void;
+  action?: () => void;
   active?: boolean;
   isDefaultExpanded?: boolean;
   createFn?: () => void;
@@ -79,11 +79,16 @@ export const Entity = (props: EntityProps) => {
     );
   };
 
+  const handleClick = () => {
+    if (props.action) props.action();
+    else toggleChildren();
+  };
+
   return (
     <Wrapper active={!!props.active}>
       <EntityItem
         active={!!props.active}
-        onClick={props.action}
+        onClick={handleClick}
         step={props.step}
         spaced={!!props.children}
       >

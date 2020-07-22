@@ -5,7 +5,6 @@ import { Datasource } from "api/DatasourcesApi";
 import { getPluginIcon } from "../ExplorerIcons";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { noop } from "lodash";
 import ExplorerDatasourceEntity from "./DatasourceEntity";
 
 type DatasourcePluginGroupProps = {
@@ -29,7 +28,6 @@ export const DatasourcePluginGroup = (props: DatasourcePluginGroupProps) => {
       name={props.plugin?.name || "Unknown Plugin"}
       active={currentGroup}
       isDefaultExpanded={currentGroup}
-      action={noop}
       step={props.step}
     >
       {props.datasources.map((datasource: Datasource) => {

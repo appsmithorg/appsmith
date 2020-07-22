@@ -2,7 +2,6 @@ import React from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import { widgetIcon } from "../ExplorerIcons";
-import { noop } from "lodash";
 import WidgetEntity, { WidgetTree } from "./WidgetEntity";
 import { WidgetTypes } from "constants/WidgetConstants";
 
@@ -59,7 +58,6 @@ export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
       icon={widgetIcon}
       step={props.step}
       name="Widgets"
-      action={noop}
       disabled={!props.widgets && props.isFiltered}
       entityId={props.pageId + "_widgets"}
     >

@@ -2,7 +2,7 @@ import React, { useMemo, ReactNode } from "react";
 import { Datasource } from "api/DatasourcesApi";
 import { datasourceIcon } from "../ExplorerIcons";
 import Entity from "../Entity";
-import { noop, groupBy } from "lodash";
+import { groupBy } from "lodash";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
@@ -47,7 +47,6 @@ export const ExplorerDatasourcesGroup = (
       step={props.step}
       name="DataSources"
       icon={datasourceIcon}
-      action={noop}
       active={
         window.location.pathname.indexOf(
           DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
