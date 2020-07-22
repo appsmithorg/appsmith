@@ -10,7 +10,7 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
-    import("./index").then(module => {
+    import(/* webpackChunkName: "Applications" */ "./index").then(module => {
       this.setState({ Page: module.default });
     });
   }
