@@ -68,8 +68,8 @@ do
   fi
 done
 
-ENCODED_mongo_root_user=$mongo_root_user
-ENCODED_mongo_root_password=$mongo_root_password
+encoded_mongo_root_user=$mongo_root_user
+encoded_mongo_root_password=$mongo_root_password
 
 echo "Generating the configuration files from the templates"
 . ./template/nginx_app.conf.sh

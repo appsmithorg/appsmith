@@ -260,8 +260,8 @@ do
 done
 
 # urlencoding the Mongo username and password
-ENCODED_mongo_root_user=$( urlencode $mongo_root_user )
-ENCODED_mongo_root_password=$( urlencode $mongo_root_password )
+encoded_mongo_root_user=$( urlencode $mongo_root_user )
+encoded_mongo_root_password=$( urlencode $mongo_root_password )
 
 echo "Generating the configuration files from the templates"
 . ./template/nginx_app.conf.sh
