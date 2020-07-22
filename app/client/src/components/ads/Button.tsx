@@ -5,7 +5,8 @@ import styled from "styled-components";
 import { variant, typography } from "styled-system";
 
 type ButtonProps = CommonComponentProps & {
-  onClick: (event: React.MouseEvent<HTMLElement>) => void;
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  text?: string;
   category?: "primary" | "secondary" | "tertiary"; //default primary
   variant?: "success" | "info" | "warning" | "danger" | "link"; //default info
   icon?: IconName; //default undefined.
@@ -33,7 +34,9 @@ const StyledButton = styled("button")(
 
 function AdsButton(props: ButtonProps) {
   return (
-    <StyledButton {...props} onClick={e => props.onClick(e)}></StyledButton>
+    <StyledButton {...props} onClick={e => props.onClick(e)}>
+      {props.text}
+    </StyledButton>
   );
 }
 

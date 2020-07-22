@@ -125,7 +125,9 @@
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
-    "test:unit": "$(npm bin)/jest -b --colors"
+    "test:unit": "$(npm bin)/jest -b --colors",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "resolution": {
     "jest": "24.8.0"
@@ -141,6 +143,15 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.7.4",
+    "@storybook/addon-actions": "^5.3.19",
+    "@storybook/addon-contexts": "^5.3.19",
+    "@storybook/addon-docs": "^5.3.19",
+    "@storybook/addon-knobs": "^5.3.19",
+    "@storybook/addon-links": "^5.3.19",
+    "@storybook/addon-notes": "^5.3.19",
+    "@storybook/addons": "^5.3.19",
+    "@storybook/preset-create-react-app": "^3.1.4",
+    "@storybook/react": "^5.3.19",
     "@types/codemirror": "^0.0.96",
     "@types/jest": "^24.0.22",
     "@types/react-beautiful-dnd": "^11.0.4",
@@ -175,6 +186,7 @@
     "redux-devtools": "^3.5.0",
     "redux-devtools-extension": "^2.13.8",
     "source-map-explorer": "^2.4.2",
+    "storybook-addon-designs": "^5.4.0",
     "ts-jest": "^24.3.0",
     "webpack-merge": "^4.2.2",
     "workbox-webpack-plugin": "^5.1.2"
