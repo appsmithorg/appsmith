@@ -6,7 +6,7 @@ fi
 
 
 
-cat > init-letsencrypt.sh  << EOF
+cat >| init-letsencrypt.sh  << EOF
 #!/bin/bash
 
 if ! [ -x "\$(command -v docker-compose)" ]; then

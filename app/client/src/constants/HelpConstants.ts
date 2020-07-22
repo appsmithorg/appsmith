@@ -87,6 +87,10 @@ export const HelpMap = {
     path: "/core-concepts/apis/taking-inputs-from-widgets",
     searchKey: "Taking Inputs from Widgets",
   },
+  DATASOURCE_FORM: {
+    path: "/core-concepts/connecting-to-databases",
+    searchKey: "Connecting to databases",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

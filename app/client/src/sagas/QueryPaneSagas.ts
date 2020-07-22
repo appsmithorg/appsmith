@@ -20,7 +20,6 @@ import {
 } from "selectors/editorSelectors";
 import { initialize } from "redux-form";
 import { AppState } from "reducers";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { changeQuery } from "actions/queryPaneActions";
 import { getAction } from "selectors/entitiesSelector";
 import { RestAction } from "entities/Action";
