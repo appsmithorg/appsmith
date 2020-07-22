@@ -301,6 +301,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
+    this.resetSelectedRowIndex();
     super.updateWidgetMetaProperty("searchKeyword", searchKey);
     if (onSearchTextChanged) {
       super.executeAction({
