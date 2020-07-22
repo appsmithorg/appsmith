@@ -85,7 +85,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
 
         return pageMono
-                .flatMap(pageService::create)
+                .flatMap(pageService::createDefault)
                 //After the page has been saved, update the application (save the page id inside the application)
                 .flatMap(savedPage ->
                         addPageToApplication(applicationMono, savedPage, false)
@@ -190,6 +190,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
+    @Override
+    public Mono<Application> createApplication(Application application) {
+        return createApplication(application, application.getOrganizationId());
+    }
+
+    @Override
     public Mono<Application> createApplication(Application application, String orgId) {
         if (application.getName() == null || application.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
@@ -222,7 +228,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
 
         return applicationWithPoliciesMono
-                .flatMap(applicationService::create)
+                .flatMap(applicationService::createDefault)
                 .zipWith(userMono)
                 .flatMap(tuple -> {
                     Application savedApplication = tuple.getT1();
@@ -239,7 +245,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     generateAndSetPagePolicies(savedApplication, user, page);
 
                     return pageService
-                            .create(page)
+                            .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(Mono.just(savedApplication), savedPage, true));
                 });
     }
@@ -267,7 +273,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
-                    return pageService.findByApplicationId(id)
+                    return pageService.findByApplicationId(id, READ_PAGES)
                             .flatMap(page -> pageService.delete(page.getId()))
                             .collectList()
                             .thenReturn(application);

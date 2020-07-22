@@ -1,11 +1,10 @@
-const loginData = require("../../../fixtures/user.json");
 let pageid;
 let appId;
 
 describe("Login from UI and check the functionality", function() {
   it("Login/create page/delete page/delete app from UI", function() {
     const appname = localStorage.getItem("AppName");
-    cy.LogintoApp(loginData.username, loginData.password);
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appname);
     cy.get("#loading").should("not.exist");
     cy.wait("@getPropertyPane");

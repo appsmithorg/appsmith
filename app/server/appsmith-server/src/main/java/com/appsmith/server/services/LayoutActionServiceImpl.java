@@ -36,6 +36,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static java.util.stream.Collectors.toSet;
 
@@ -267,7 +268,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         return Mono.error(new AppsmithException(AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
                     }
                     return actionService
-                            .findByNameAndPageId(oldName, pageId);
+                            .findByNameAndPageId(oldName, pageId, READ_ACTIONS);
                 })
                 .flatMap(action -> {
                     action.setName(newName);
