@@ -89,7 +89,8 @@ public class ApplicationServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    private ApplicationFetcher applicationFetcher;
+    @Autowired
+    ApplicationFetcher applicationFetcher;
 
     String orgId;
 
