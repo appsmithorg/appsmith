@@ -523,4 +523,24 @@ public class DatabaseChangelog {
             mongoTemplate.save(organization);
         }
     }
+
+    @ChangeSet(order = "019", id = "update-database-documentation-links", author = "")
+    public void updateDatabaseDocumentationLinks(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            if ("postgres-plugin".equals(plugin.getPackageName())) {
+                plugin.setDocumentationLink(
+                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-postgres");
+
+            } else if ("mongo-plugin".equals(plugin.getPackageName())) {
+                plugin.setDocumentationLink(
+                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mongodb");
+
+            } else {
+                continue;
+
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
 }
