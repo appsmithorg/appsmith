@@ -200,7 +200,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   searchTableData = (tableData: object[]) => {
-    const { filter } = this.props;
+    const { filters } = this.props;
     const searchKey =
       this.props.searchKey !== undefined
         ? this.props.searchKey.toString().toUpperCase()
@@ -213,9 +213,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           .includes(searchKey);
       })
       .filter((item: { [key: string]: any }) => {
-        return (
-          !filter || compare(item[filter.column], filter.value, filter.operator)
-        );
+        return true;
+        // return (
+        //   !filter || compare(item[filter.column], filter.value, filter.operator)
+        // );
       });
   };
 
@@ -300,9 +301,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.disableDrag(disable);
           }}
           searchTableData={this.handleSearchTable}
-          filter={this.props.filter}
-          applyFilter={(filter: ReactTableFilter) => {
-            super.updateWidgetProperty("filter", filter);
+          filters={this.props.filters}
+          applyFilter={(filters: ReactTableFilter[]) => {
+            super.updateWidgetProperty("filters", filters);
           }}
         />
       </Suspense>
@@ -408,7 +409,7 @@ export interface TableWidgetProps extends WidgetProps {
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: { [key: string]: { type: string; format: string } };
   columnSizeMap?: { [key: string]: number };
-  filter?: ReactTableFilter;
+  filters?: ReactTableFilter[];
 }
 
 export default TableWidget;

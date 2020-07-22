@@ -93,8 +93,8 @@ interface ReactTableComponentProps {
   handleResizeColumn: Function;
   handleReorderColumn: Function;
   searchTableData: (searchKey: any) => void;
-  filter?: ReactTableFilter;
-  applyFilter: (filter: ReactTableFilter) => void;
+  filters?: ReactTableFilter[];
+  applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
 }
 
@@ -315,7 +315,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         props.disableDrag(false);
       }}
       searchTableData={debounce(props.searchTableData, 500)}
-      filter={props.filter}
+      filters={props.filters}
       applyFilter={props.applyFilter}
     />
   );

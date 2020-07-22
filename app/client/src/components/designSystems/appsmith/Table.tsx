@@ -52,8 +52,8 @@ interface TableProps {
   disableDrag: () => void;
   enableDrag: () => void;
   searchTableData: (searchKey: any) => void;
-  filter?: ReactTableFilter;
-  applyFilter: (filter: ReactTableFilter) => void;
+  filters?: ReactTableFilter[];
+  applyFilter: (filters: ReactTableFilter[]) => void;
 }
 
 export const Table = (props: TableProps) => {
@@ -129,7 +129,7 @@ export const Table = (props: TableProps) => {
         })}
         hiddenColumns={props.hiddenColumns}
         updateHiddenColumns={props.updateHiddenColumns}
-        filter={props.filter}
+        filters={props.filters}
         applyFilter={props.applyFilter}
         displayColumnActions={props.displayColumnActions}
       />

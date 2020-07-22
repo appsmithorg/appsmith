@@ -15,6 +15,7 @@ import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
 import { ReactComponent as SettingsIcon } from "assets/icons/control/settings.svg";
+import { ReactComponent as RemoveIcon } from "assets/icons/control/remove.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -99,6 +100,11 @@ export const ControlIcons: {
         style={{ height: "30px", width: "30px" }}
         alt="Datasource"
       />
+    </IconWrapper>
+  ),
+  REMOVE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <RemoveIcon />
     </IconWrapper>
   ),
 };

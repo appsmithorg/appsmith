@@ -75,8 +75,8 @@ interface TableHeaderProps {
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
-  filter?: ReactTableFilter;
-  applyFilter: (filter: ReactTableFilter) => void;
+  filters?: ReactTableFilter[];
+  applyFilter: (filters: ReactTableFilter[]) => void;
   displayColumnActions: boolean;
 }
 
@@ -91,7 +91,7 @@ const TableHeader = (props: TableHeaderProps) => {
       <CommonFunctionsMenuWrapper>
         <TableFilters
           columns={props.columns}
-          filter={props.filter}
+          filters={props.filters}
           applyFilter={props.applyFilter}
         />
         <TableDataDownload
