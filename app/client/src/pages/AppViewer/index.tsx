@@ -123,6 +123,7 @@ class AppViewer extends Component<
         <AppViewWrapper>
           <AppViewerHeader
             url={this.props.editorURL}
+            currentApplicationDetails={currentApplication}
             permissions={userPermissions || []}
             permissionRequired={PERMISSION_TYPE.MANAGE_APPLICATION}
             open={this.state.isSideNavOpen}

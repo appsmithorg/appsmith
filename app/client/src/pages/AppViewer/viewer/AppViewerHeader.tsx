@@ -1,11 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { noop } from "lodash";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import { withRouter, RouteComponentProps } from "react-router";
-import { fetchApplication } from "actions/applicationActions";
 import { FormIcons } from "icons/FormIcons";
 import Button from "components/editorComponents/Button";
 import { BACK_TO_EDITOR } from "constants/messages";
@@ -25,7 +22,7 @@ const StyledHomeButton = styled.div<{
   open: boolean;
 }>`
   && a {
-    :hover{
+    :hover {
       text-decoration: none;
     }
     color: ${props => props.theme.colors.textDefault};
@@ -46,13 +43,12 @@ const StyledApplicationName = styled.span`
   font-size: 15px;
   padding-left: 8px;
 `;
-type AppViewerHeaderProps = RouteComponentProps<{ applicationId: string }> & {
+type AppViewerHeaderProps = {
   url?: string;
   open: boolean;
   permissionRequired: string;
   permissions: string[];
   currentApplicationDetails?: ApplicationPayload;
-  fetchApplication: (applicationId: string) => void;
 };
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
@@ -61,18 +57,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
     props.permissionRequired,
   );
 
-  const {
-    match: {
-      params: { applicationId },
-    },
-    fetchApplication,
-    currentApplicationDetails,
-    open,
-  } = props;
-
-  useEffect(() => {
-    fetchApplication(applicationId);
-  }, [fetchApplication, applicationId]);
+  const { currentApplicationDetails, open } = props;
 
   return (
     <HeaderWrapper>
@@ -84,7 +69,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
               width={20}
               color={"grey"}
               background={"grey"}
-              onClick={() => {}}
+              onClick={noop}
               style={{ alignSelf: "center", cursor: "pointer" }}
             />
             <StyledApplicationName>
@@ -108,16 +93,4 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   );
 };
 
-const mapStateToProps = (state: AppState) => ({
-  currentApplicationDetails: state.ui.applications.currentApplication,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  fetchApplication: (applicationId: string) => {
-    return dispatch(fetchApplication(applicationId));
-  },
-});
-
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(AppViewerHeader),
-);
+export default AppViewerHeader;
