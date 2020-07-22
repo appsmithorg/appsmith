@@ -186,7 +186,6 @@ export const Table = (props: TableProps) => {
                     props.selectTableRow(row, row.index === selectedRowIndex);
                   }}
                   key={rowIndex}
-                  data-rowindex={rowIndex}
                 >
                   {row.cells.map((cell, cellIndex) => {
                     return (
@@ -194,6 +193,7 @@ export const Table = (props: TableProps) => {
                         {...cell.getCellProps()}
                         className="td"
                         key={cellIndex}
+                        data-rowindex={rowIndex}
                         data-colindex={cellIndex}
                       >
                         {cell.render("Cell")}
