@@ -1,8 +1,14 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +19,19 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
-import java.sql.*;
 import java.sql.Connection;
-import java.util.*;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
@@ -39,10 +55,22 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Object> execute(Object connection, DatasourceConfiguration datasourceConfiguration,
+        public Mono<Object> execute(Object connection,
+                                    DatasourceConfiguration datasourceConfiguration,
                                     ActionConfiguration actionConfiguration) {
 
             Connection conn = (Connection) connection;
+
+            try {
+                if (conn == null || conn.isClosed() || !conn.isValid(5)) {
+                    log.info("Encountered stale connection in MySQL plugin. Reporting back.");
+                    throw new StaleConnectionException();
+                }
+            } catch (SQLException error) {
+                // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
+                // here, this should never happen.
+                log.error("Error checking validity of Postgres connection.", error);
+            }
 
             String query = actionConfiguration.getBody();
 
@@ -149,7 +177,7 @@ public class MySqlPlugin extends BasePlugin {
                         configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                 return Mono.just(connection);
             } catch (SQLException e) {
-                return pluginErrorMono("Error connecting to MySql.", e);
+                return pluginErrorMono("Error connecting to MySQL: " + e.getMessage(), e);
             }
         }
 
