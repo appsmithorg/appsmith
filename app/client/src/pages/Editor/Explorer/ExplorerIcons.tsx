@@ -4,15 +4,14 @@ import { Colors } from "constants/Colors";
 import { WidgetType } from "constants/WidgetConstants";
 import { WidgetIcons } from "icons/WidgetIcons";
 import { Plugin } from "api/PluginApi";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
-import {
-  PLUGIN_PACKAGE_POSTGRES,
-  PLUGIN_PACKAGE_MONGO,
-} from "constants/QueryEditorConstants";
+// import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
+// import {
+//   PLUGIN_PACKAGE_POSTGRES,
+//   PLUGIN_PACKAGE_MONGO,
+// } from "constants/QueryEditorConstants";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import Postgres from "assets/images/Postgress.png";
-import MongoDB from "assets/images/MongoDB.png";
-import RestTemplateImage from "assets/images/RestAPI.png";
+// import Postgres from "assets/images/Postgress.png";
+// import RestTemplateImage from "assets/images/RestAPI.png";
 import styled from "styled-components";
 import {
   HTTP_METHODS,
@@ -68,18 +67,10 @@ const PluginIcon = styled.img`
 `;
 
 export const getPluginIcon = (plugin?: Plugin) => {
-  switch (plugin?.packageName) {
-    case REST_PLUGIN_PACKAGE_NAME:
-      return (
-        <PluginIcon alt={REST_PLUGIN_PACKAGE_NAME} src={RestTemplateImage} />
-      );
-    case PLUGIN_PACKAGE_MONGO:
-      return <PluginIcon alt={PLUGIN_PACKAGE_MONGO} src={MongoDB} />;
-    case PLUGIN_PACKAGE_POSTGRES:
-      return <PluginIcon alt={PLUGIN_PACKAGE_POSTGRES} src={Postgres} />;
-    default:
-      return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
+  if (plugin && plugin.iconLocation) {
+    return <PluginIcon alt={plugin.packageName} src={plugin.iconLocation} />;
   }
+  return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
 };
 
 const StyledTag = styled.div<{ color: string }>`

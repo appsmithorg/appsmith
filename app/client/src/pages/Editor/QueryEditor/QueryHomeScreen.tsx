@@ -156,7 +156,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   render() {
     const {
       dataSources,
-      pluginIds,
       applicationId,
       pageId,
       history,
