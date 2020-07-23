@@ -33,7 +33,6 @@ import {
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
-import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,

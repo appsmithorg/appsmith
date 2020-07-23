@@ -10,21 +10,20 @@ interface TableProps {
   data: Record<string, any>[];
 }
 
-/*
- * 310 = height of the table header + rest of the items (excluding editor height)
- * 100vh /4 = height of the editor
- */
 const StyledTableWrapped = styled(TableWrapper)`
-  width: 100%;
+  min-height: 0px;
   height: auto;
-  font-size: 14px;
+  .tableWrap {
+    display: flex;
+    flex: 1;
+  }
   .table {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: auto;
     .tbody {
       overflow: auto;
-      height: auto;
-      max-height: calc(
-        100vh - (100vh / 4) - 310px - ${props => props.theme.headerHeight}
-      );
     }
   }
 `;
