@@ -7,6 +7,8 @@ type SideNavProps = {
   items?: SideNavItemProps[];
   active?: string;
   headeroffset?: number;
+  open: boolean;
+  toggleCollapse: (open: boolean) => void;
 };
 
 /* eslint-disable no-unexpected-multiline */
@@ -66,7 +68,7 @@ const ToggleButton = styled(Button)<{
 `;
 
 export const SideNav = (props: SideNavProps) => {
-  const [open, setopen] = useState(true);
+  const { open, toggleCollapse } = props;
   const renderItems = (sideNavItems?: SideNavItemProps[]) => {
     let items = sideNavItems;
     if (!items) {
@@ -88,15 +90,14 @@ export const SideNav = (props: SideNavProps) => {
       );
     });
   };
-  const toggleCollapse = () => {
-    setopen(!open);
-  };
 
   return (
     <SideNavWrapper open={open} headeroffset={props.headeroffset}>
       <ToggleButton
         headeroffset={props.headeroffset}
-        onClick={toggleCollapse}
+        onClick={() => {
+          toggleCollapse(!open);
+        }}
         icon={open ? "double-chevron-left" : "menu"}
         minimal
         open={open}

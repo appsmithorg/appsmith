@@ -3,8 +3,8 @@ import { Colors } from "constants/Colors";
 import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 
 export const TableWrapper = styled.div<{ width: number; height: number }>`
-  width: ${props => props.width - 5}px;
-  height: ${props => props.height - 5}px;
+  width: 100%;
+  height: 100%;
   background: white;
   border: 1px solid ${Colors.GEYSER_LIGHT};
   box-sizing: border-box;
@@ -21,26 +21,14 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     border-spacing: 0;
     color: ${Colors.BLUE_BAYOUX};
     position: relative;
-    .thead {
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
+    overflow-y: auto;
+    height: ${props => props.height - TABLE_SIZES.TABLE_HEADER_HEIGHT}px;
+    .thead,
     .tbody {
-      overflow: scroll;
-      /* 
-      Here 5px is subtracted to compensate padding from widget resizers and
-      113px to compensate table column header and table header heights
-      */
-      height: ${props =>
-        props.height -
-        5 -
-        TABLE_SIZES.TABLE_HEADER_HEIGHT -
-        TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
-      &.no-scroll {
-        overflow: hidden;
-      }
+      overflow: hidden;
     }
     .tr {
+      overflow: hidden;
       :nth-child(even) {
         background: ${Colors.ATHENS_GRAY_DARKER};
       }
@@ -284,4 +272,23 @@ export const RowWrapper = styled.div`
   color: #4e5d78;
   margin: 0 4px;
   white-space: nowrap;
+`;
+
+export const TableIconWrapper = styled.div<{
+  selected?: boolean;
+  disabled?: boolean;
+}>`
+  background: ${props => (props.selected ? Colors.ATHENS_GRAY : "transparent")};
+  box-shadow: ${props =>
+    props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
+  width: 48px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: ${props => (props.disabled ? 0.6 : 1)};
+  cursor: ${props => !props.disabled && "pointer"};
+  &:hover {
+    background: ${Colors.ATHENS_GRAY};
+  }
 `;

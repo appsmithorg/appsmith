@@ -95,6 +95,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
+        // If Authentication Details are present in the datasource, encrypt the details before saving
+        if (datasource.getDatasourceConfiguration() != null) {
+            datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
+        }
+
         Mono<Datasource> datasourceMono = Mono.just(datasource);
 
         if (StringUtils.isEmpty(datasource.getName())) {
@@ -136,6 +141,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        // If Authentication Details are present in the datasource, encrypt the details before saving
+        if (datasource.getDatasourceConfiguration() != null) {
+            datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
+        }
+
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
 
@@ -148,6 +158,14 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository);
+    }
+
+    private AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
+        // Encrypt password in AuthenticationDTO
+        if (authentication != null && authentication.getPassword() != null) {
+            authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
+        }
+        return authentication;
     }
 
     @Override
@@ -198,20 +216,14 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
     }
 
+    @Override
+    public Mono<Datasource> save(Datasource datasource) {
+        return repository.save(datasource);
+    }
+
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
-
-        // If Authentication Details are present in the datasource, encrypt the details before saving
-        if (datasource.getDatasourceConfiguration() != null &&
-                datasource.getDatasourceConfiguration().getAuthentication() != null) {
-            AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-            // Encrypt password before saving
-            if (authentication.getPassword() != null) {
-                authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
-            }
-            datasource.getDatasourceConfiguration().setAuthentication(authentication);
-        }
 
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
@@ -229,7 +241,18 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         Mono<Datasource> datasourceMono;
 
         if (datasource.getId() != null) {
-            datasourceMono = getById(datasource.getId());
+            datasourceMono = getById(datasource.getId())
+                    // If datasource has encrypted fields, decrypt them
+                    .map(datasourceFromRepo-> {
+                        if (datasourceFromRepo.getDatasourceConfiguration()!=null && datasourceFromRepo.getDatasourceConfiguration().getAuthentication()!=null) {
+                            AuthenticationDTO authentication = datasourceFromRepo.getDatasourceConfiguration().getAuthentication();
+                            if (authentication.getPassword() != null) {
+                                authentication.setPassword(encryptionService.decryptString(authentication.getPassword()));
+                            }
+                            datasourceFromRepo.getDatasourceConfiguration().setAuthentication(authentication);
+                        }
+                        return datasourceFromRepo;
+                    });
         } else {
             datasourceMono = Mono.just(datasource);
         }
@@ -254,8 +277,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
-    public Mono<Datasource> findByName(String name) {
-        return repository.findByName(name, AclPermission.READ_DATASOURCES);
+    public Mono<Datasource> findByName(String name, AclPermission permission) {
+        return repository.findByName(name, permission);
     }
 
     @Override
@@ -283,10 +306,15 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
          * Note : Currently this API is ONLY used to fetch datasources for an organization.
          */
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
-            return repository.findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
+            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+    }
+
+    @Override
+    public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
+        return repository.findAllByOrganizationId(organizationId, permission);
     }
 
     @Override

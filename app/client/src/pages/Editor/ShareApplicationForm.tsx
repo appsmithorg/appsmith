@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { StyledSwitch } from "components/propertyControls/StyledControls";
-import { fetchApplication } from "actions/applicationActions";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
@@ -33,16 +32,11 @@ export const ShareApplicationForm = (props: any) => {
     match: {
       params: { applicationId },
     },
-    fetchApplication,
     isFetchingApplication,
     isChangingViewAccess,
     currentApplicationDetails,
     changeAppViewAccess,
   } = props;
-
-  useEffect(() => {
-    fetchApplication(applicationId);
-  }, [fetchApplication, applicationId]);
 
   return (
     <ShareWithPublicOption>
@@ -76,9 +70,6 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  fetchApplication: (applicationId: string) => {
-    return dispatch(fetchApplication(applicationId));
-  },
   changeAppViewAccess: (applicationId: string, publicAccess: boolean) =>
     dispatch({
       type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,

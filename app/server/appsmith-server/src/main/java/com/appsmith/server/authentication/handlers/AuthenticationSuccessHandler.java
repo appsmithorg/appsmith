@@ -1,6 +1,8 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +24,7 @@ import java.net.URI;
 public class AuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
 
     private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+    private final ExamplesOrganizationCloner examplesOrganizationCloner;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -37,11 +40,14 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                                               Authentication authentication) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
 
-        if (authentication instanceof OAuth2AuthenticationToken) {
-            return handleOAuth2Redirect(webFilterExchange);
-        }
+        Mono<Void> redirectionMono = authentication instanceof OAuth2AuthenticationToken
+                ? handleOAuth2Redirect(webFilterExchange)
+                : handleRedirect(webFilterExchange);
 
-        return handleRedirect(webFilterExchange);
+        return Mono.when(
+                redirectionMono,
+                examplesOrganizationCloner.cloneExamplesOrganization()
+        );
     }
 
     /**
@@ -58,7 +64,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
-        String originHeader = "/";
+        String originHeader = RedirectHelper.DEFAULT_REDIRECT_URL;
         if (state != null && !state.isEmpty()) {
             String[] stateArray = state.split(",");
             for (int i = 0; i < stateArray.length; i++) {
@@ -79,12 +85,9 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
         // is set in the cookie on the browser.
-        String originHeader = exchange.getRequest().getHeaders().getOrigin();
-        if (originHeader == null || originHeader.isEmpty()) {
-            originHeader = "/";
-        }
+        String redirectUrl = RedirectHelper.getRedirectUrl(exchange.getRequest().getHeaders());
 
-        URI defaultRedirectLocation = URI.create(originHeader);
+        URI defaultRedirectLocation = URI.create(redirectUrl);
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
     }
 }

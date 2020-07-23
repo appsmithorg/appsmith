@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.RedirectHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,8 +32,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -191,24 +190,8 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
      */
     private String generateKey(HttpHeaders httpHeaders) {
         String stateKey = this.stateGenerator.generateKey();
-        String originHeader = httpHeaders.getOrigin();
-        if (originHeader == null || originHeader.isBlank()) {
-            String refererHeader = httpHeaders.getFirst(Security.REFERER_HEADER);
-            if (refererHeader != null && !refererHeader.isBlank()) {
-                URI uri = null;
-                try {
-                    uri = new URI(refererHeader);
-                    String authority = uri.getAuthority();
-                    String scheme = uri.getScheme();
-                    originHeader = scheme + "://" + authority;
-                } catch (URISyntaxException e) {
-                    originHeader = "/";
-                }
-            } else {
-                originHeader = "/";
-            }
-        }
-        stateKey = stateKey + "," + Security.STATE_PARAMETER_ORIGIN + originHeader;
+        String redirectUrl = RedirectHelper.getRedirectUrl(httpHeaders);
+        stateKey = stateKey + "," + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
         return stateKey;
     }
 

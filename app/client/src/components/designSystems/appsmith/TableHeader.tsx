@@ -1,9 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import { Icon, NumericInput } from "@blueprintjs/core";
-import SearchComponent from "components/designSystems/appsmith/SearchComponent";
-import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
-import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import {
   RowWrapper,
   PaginationWrapper,
@@ -11,6 +8,10 @@ import {
   PaginationItemWrapper,
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
+import SearchComponent from "components/designSystems/appsmith/SearchComponent";
+import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
+import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
 import { Colors } from "constants/Colors";
 
 const PageNumberInputWrapper = styled(NumericInput)`
@@ -58,12 +59,15 @@ interface TableHeaderProps {
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
+  tableData: object[];
+  tableColumns: ReactTableColumnProps[];
   pageCount: number;
   currentPageIndex: number;
   pageOptions: number[];
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
+  widgetName: string;
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
@@ -79,6 +83,11 @@ const TableHeader = (props: TableHeaderProps) => {
         onSearch={props.searchTableData}
       />
       <CommonFunctionsMenuWrapper>
+        <TableDataDownload
+          data={props.tableData}
+          columns={props.tableColumns}
+          widgetName={props.widgetName}
+        />
         {props.displayColumnActions && (
           <TableColumnsVisibility
             columns={props.columns}

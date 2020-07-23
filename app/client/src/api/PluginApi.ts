@@ -7,8 +7,12 @@ export interface Plugin {
   name: string;
   type: "API" | "DB";
   packageName: string;
+  iconLocation?: string;
   uiComponent: "ApiEditorForm" | "RapidApiEditorForm" | "DbEditorForm";
   allowUserDatasources?: boolean;
+  templates: Record<string, string>;
+  responseType?: "TABLE" | "JSON";
+  documentationLink?: string;
 }
 
 export interface DatasourceForm {
