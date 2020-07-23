@@ -1,6 +1,6 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
-import { APPLICATIONS_URL, USER_AUTH_URL } from "constants/routes";
+import { USER_AUTH_URL } from "constants/routes";
 import { useDispatch } from "react-redux";
 import { getCurrentUser } from "actions/userActions";
 
