@@ -432,6 +432,13 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                         .then(executionMono);
                             })
                             .timeout(Duration.ofMillis(timeoutDuration))
+                            .onErrorMap(
+                                    StaleConnectionException.class,
+                                    error -> new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Secondary stale connection error."
+                                    )
+                            )
                             .onErrorResume(e -> {
                                 log.debug("In the action execution error mode.", e);
                                 ActionExecutionResult result = new ActionExecutionResult();
