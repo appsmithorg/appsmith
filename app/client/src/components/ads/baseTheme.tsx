@@ -1,6 +1,6 @@
 import { Theme } from "styled-system";
 
-export const adsTheme: Theme<0> = {
+export const adsTheme: Theme = {
   colors: {
     blackShades: [
       "#090707",
@@ -19,60 +19,37 @@ export const adsTheme: Theme<0> = {
       dark: "#B94310",
       darker: "#A03C12",
       darkest: "#2B2B2B",
-      hover: "#2B2B2D",
     },
     success: {
       main: "#218358",
+      light: "#30CF89",
       dark: "#0F4B30",
-      darker: "#115134",
+      darker: "#17211E",
       darkest: "#293835",
-      hover: "#17211E",
     },
     warning: {
-      main: "#E22C2C",
-      dark: "#CD2A2A",
-      darker: "#B12728",
-      darkest: "#462F32",
-      hover: "#2C271A",
+      main: "#EABB0C",
+      light: "#FFD32E",
+      dark: "#886B00",
+      darker: "#2C271A",
+      darkest: "#2F2A1B",
     },
     danger: {
       main: "#E22C2C",
+      light: "#FF4D4D",
       dark: "#830C0C",
-      darker: "#830C0C",
+      darker: "#2B1A1D",
       darkest: "#462F32",
-      hover: "#2B1A1D",
     },
   },
   fonts: {
     main:
       '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
   },
-  space: [0, 3, 14, 7, 16, 11, 26],
+  space: [0, 3, 14, 7, 16, 11, 40],
   fontSizes: [0, 11, 12, 13],
-  fontWeights: [0, 200, 300, 400, 500, 700],
+  fontWeights: [0, 200, 300, 400, 500, 600, 700],
   lineHeights: [0, 13, 14, 15],
-};
-
-export const buttonCustomTheme = {
-  ...adsTheme,
-  buttonSizes: {
-    small: {
-      fontSize: 1,
-      lineHeight: 1,
-      px: 1,
-      py: 2,
-    },
-    medium: {
-      fontSize: 2,
-      lineHeight: 2,
-      px: 3,
-      py: 4,
-    },
-    large: {
-      fontSize: 3,
-      lineHeight: 3,
-      px: 5,
-      py: 6,
-    },
-  },
+  letterSpacings: [0, 0.4, 0.6],
+  radii: [0, 4],
 };
