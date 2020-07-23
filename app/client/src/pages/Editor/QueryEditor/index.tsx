@@ -2,14 +2,12 @@ import React from "react";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues, change } from "redux-form";
-import { get } from "lodash";
 import styled from "styled-components";
 import { QueryEditorRouteParams } from "constants/routes";
 import QueryEditorForm from "./Form";
 import QueryHomeScreen from "./QueryHomeScreen";
 import { deleteAction, runAction } from "actions/actionActions";
 import { AppState } from "reducers";
-import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { Plugin } from "api/PluginApi";
@@ -17,15 +15,15 @@ import { Datasource } from "api/DatasourcesApi";
 import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
 import {
   getPluginIdsOfPackageNames,
-  getPluginPackageFromDatasourceId,
   getPlugins,
+  getPluginImages,
+  getDBDatasources,
 } from "selectors/entitiesSelector";
 import {
   PLUGIN_PACKAGE_DBS,
   QUERY_BODY_FIELD,
 } from "constants/QueryEditorConstants";
 import { QueryAction } from "entities/Action";
-import { getPluginImage } from "pages/Editor/QueryEditor/helpers";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeQuery, initQueryPane } from "actions/queryPaneActions";
@@ -56,10 +54,10 @@ type ReduxStateProps = {
   runErrorMessage: Record<string, string>;
   pluginIds: Array<string> | undefined;
   executedQueryData: any;
-  selectedPluginPackage: string | undefined;
   isCreating: boolean;
   isMoving: boolean;
   isCopying: boolean;
+  pluginImages: Record<string, string>;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -95,9 +93,9 @@ class QueryEditor extends React.Component<Props> {
       match: {
         params: { queryId },
       },
+      pluginImages,
       pluginIds,
       executedQueryData,
-      selectedPluginPackage,
       isCreating,
       isMoving,
       isCopying,
@@ -120,17 +118,10 @@ class QueryEditor extends React.Component<Props> {
     }
     const { isRunning, isDeleting } = queryPane;
 
-    const validDataSources: Array<Datasource> = [];
-    dataSources.forEach(dataSource => {
-      if (pluginIds?.includes(dataSource.pluginId)) {
-        validDataSources.push(dataSource);
-      }
-    });
-
-    const DATASOURCES_OPTIONS = validDataSources.map(dataSource => ({
+    const DATASOURCES_OPTIONS = dataSources.map(dataSource => ({
       label: dataSource.name,
       value: dataSource.id,
-      image: getPluginImage(this.props.plugins, dataSource.pluginId),
+      image: pluginImages[dataSource.pluginId],
     }));
     return (
       <React.Fragment>
@@ -146,7 +137,6 @@ class QueryEditor extends React.Component<Props> {
             dataSources={dataSources}
             createTemplate={createTemplate}
             DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
-            selectedPluginPackage={selectedPluginPackage}
             executedQueryData={executedQueryData[queryId]}
             runErrorMessage={runErrorMessage[queryId]}
           />
@@ -168,21 +158,16 @@ class QueryEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   const { runErrorMessage } = state.ui.queryPane;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
-  const datasourceId = get(formData, "datasource.id");
-  const selectedPluginPackage = getPluginPackageFromDatasourceId(
-    state,
-    datasourceId,
-  );
 
   return {
+    pluginImages: getPluginImages(state),
     plugins: getPlugins(state),
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-    dataSources: getDataSources(state),
+    dataSources: getDBDatasources(state),
     executedQueryData: state.ui.queryPane.runQuerySuccessData,
     queryPane: state.ui.queryPane,
     formData,
-    selectedPluginPackage,
     isCreating: state.ui.apiPane.isCreating,
     isMoving: state.ui.apiPane.isMoving,
     isCopying: state.ui.apiPane.isCopying,

@@ -4,7 +4,7 @@
     "createBlankApiCard": ".t--createBlankApiCard",
     "eachProviderCard": ".t--eachProviderCard",
     "nameOfApi": ".t--nameOfApi",
-    "ApiNameField": ".t--action-name-edit-field span",
+    "ApiNameField": ".bp3-editable-text",
     "addToPageBtn": ".t--addToPageBtn",
     "ApiDeleteBtn": ".t--apiFormDeleteBtn",
     "ApiRunBtn": ".t--apiFormRunBtn",
