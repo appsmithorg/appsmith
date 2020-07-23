@@ -72,6 +72,7 @@
       },
       logLevel: CONFIG_LOG_LEVEL_INDEX > -1 ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX] : LOG_LEVELS[1],
       google: parseConfig("__APPSMITH_GOOGLE_MAPS_API_KEY__"),
+      cloudHosting: parseConfig("__APPSMITH_CLOUD_HOSTING__").length > 0,
       enableTNCPP: parseConfig("__APPSMITH_TNC_PP__").length > 0
     };
   </script>
