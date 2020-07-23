@@ -20,7 +20,7 @@ import AppRoute from "pages/common/AppRoute";
 
 const SidebarWrapper = styled.div`
   background-color: ${props => props.theme.colors.paneBG};
-  padding: 0px 0;
+  padding: 0px 0 0 6px;
   color: ${props => props.theme.colors.textOnDarkBG};
   overflow-y: auto;
 `;

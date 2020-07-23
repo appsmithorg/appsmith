@@ -46,7 +46,7 @@ export const scrollbarDark = css`
     ${props => props.theme.colors.paneBG};
   scrollbar-width: thin;
   &::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-track {
@@ -56,7 +56,6 @@ export const scrollbarDark = css`
 
   &::-webkit-scrollbar-thumb {
     background-color: ${props => props.theme.colors.paneCard};
-    // outline: 1px solid ${props => props.theme.colors.paneText};
     border-radius: ${props => props.theme.radii[1]}px;
   }
 `;

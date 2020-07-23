@@ -28,6 +28,7 @@ type EditableTextProps = {
   editInteractionKind: EditInteractionKind;
   hideEditIcon?: boolean;
   minimal?: boolean;
+  onBlur?: (value?: string) => void;
 };
 
 const EditPen = styled.img`
@@ -101,6 +102,7 @@ export const EditableText = (props: EditableTextProps) => {
     e.stopPropagation();
   };
   const onChange = (_value: string) => {
+    props.onBlur && props.onBlur();
     const isInvalid = props.isInvalid ? props.isInvalid(_value) : false;
     if (!isInvalid) {
       props.onTextChanged(_value);
@@ -142,6 +144,7 @@ export const EditableText = (props: EditableTextProps) => {
             value={value}
             placeholder={props.placeholder}
             className={props.className}
+            onCancel={props.onBlur}
           />
           {!props.minimal &&
             !props.hideEditIcon &&

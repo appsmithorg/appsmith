@@ -6,7 +6,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import { convertToCamelCase } from "utils/helpers";
 import { AppState } from "reducers";
-import { Page } from "constants/ReduxActionConstants";
+import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const searchHighlightSpanClassName = "token";
 const searchTokenizationDelimiter = "!!";
@@ -124,6 +124,12 @@ export const EntityName = (props: EntityNameProps) => {
     return name;
   }, [searchKeyword, name]);
 
+  const exitEditMode = useCallback(() => {
+    dispatch({
+      type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
+    });
+  }, [dispatch]);
+
   if (!props.isEditing) return <Wrapper>{searchHighlightedName}</Wrapper>;
   return (
     <Wrapper>
@@ -137,6 +143,7 @@ export const EntityName = (props: EntityNameProps) => {
         isEditingDefault
         editInteractionKind={EditInteractionKind.SINGLE}
         minimal
+        onBlur={exitEditMode}
       />
     </Wrapper>
   );

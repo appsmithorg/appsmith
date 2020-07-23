@@ -36,6 +36,12 @@ const EntityItem = styled.div<{
   &:hover {
     background: ${Colors.MAKO};
   }
+  &&&& .${EntityClassNames.ACTION_CONTEXT_MENU} {
+    visibility: hidden;
+  }
+  &&&&:hover .${EntityClassNames.ACTION_CONTEXT_MENU} {
+    visibility: visible;
+  }
 `;
 
 export type EntityProps = {
