@@ -77,6 +77,7 @@ class AppViewer extends Component<
 > {
   public state = {
     registered: false,
+    isSideNavOpen: true,
   };
   componentDidMount() {
     editorInitializer().then(() => {
@@ -87,6 +88,10 @@ class AppViewer extends Component<
       this.props.initializeAppViewer(applicationId);
     }
   }
+
+  toggleCollapse = (open: boolean) => {
+    this.setState({ isSideNavOpen: open });
+  };
 
   public render() {
     const { isInitialized, currentApplication } = this.props;
@@ -118,12 +123,19 @@ class AppViewer extends Component<
         <AppViewWrapper>
           <AppViewerHeader
             url={this.props.editorURL}
+            currentApplicationDetails={currentApplication}
             permissions={userPermissions || []}
             permissionRequired={PERMISSION_TYPE.MANAGE_APPLICATION}
+            open={this.state.isSideNavOpen}
           />
           <AppViewerBody>
             <AppViewerSideNavWrapper>
-              <SideNav items={items} active={this.props.currentDSLPageId} />
+              <SideNav
+                items={items}
+                active={this.props.currentDSLPageId}
+                open={this.state.isSideNavOpen}
+                toggleCollapse={this.toggleCollapse}
+              />
             </AppViewerSideNavWrapper>
             <Switch>
               <AppRoute

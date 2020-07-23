@@ -16,6 +16,11 @@ export const FormIcons: {
       <InfoIcon />
     </IconWrapper>
   ),
+  HOME_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <Icon icon={IconNames.HOME} color={props.color} iconSize={props.height} />
+    </IconWrapper>
+  ),
   DELETE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <DeleteIcon />
