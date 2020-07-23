@@ -52,6 +52,7 @@ export type EntityProps = {
   searchKeyword?: string;
   step: number;
   updateEntityName?: (id: string, name: string) => any;
+  runActionOnExpand?: boolean;
 };
 
 export const Entity = (props: EntityProps) => {
@@ -74,6 +75,9 @@ export const Entity = (props: EntityProps) => {
   const toggleChildren = () => {
     // Make sure this entity is enabled before toggling the collpse of children.
     !props.disabled && open(!isOpen);
+    if (props.runActionOnExpand && !isOpen) {
+      props.action && props.action();
+    }
   };
 
   const updateNameCallback = (name: string) => {
