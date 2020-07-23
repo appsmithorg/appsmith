@@ -232,11 +232,17 @@ function* createDatasourceFromFormSaga(
         }
 
         if (subSection.initialValue) {
-          _.set(
-            initialValues,
-            subSection.configProperty,
-            subSection.initialValue,
-          );
+          if (subSection.controlType === "KEYVALUE_ARRAY") {
+            const configProperty = subSection.configProperty.replace("*", "0");
+
+            _.set(initialValues, configProperty, subSection.initialValue);
+          } else {
+            _.set(
+              initialValues,
+              subSection.configProperty,
+              subSection.initialValue,
+            );
+          }
         }
       });
     };
