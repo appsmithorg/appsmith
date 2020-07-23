@@ -52,6 +52,12 @@ export interface ReactTableFilter {
   operator: string;
   value: any;
 }
+
+export interface DropdownOption {
+  label: string;
+  value: string;
+  type: string;
+}
 interface TableFilterProps {
   columns: ReactTableColumnProps[];
   filters?: ReactTableFilter[];
@@ -94,6 +100,16 @@ const TableFilters = (props: TableFilterProps) => {
       </TableIconWrapper>
     );
   }
+  const columns: DropdownOption[] = props.columns.map(
+    (column: ReactTableColumnProps) => {
+      const type = column.metaProperties?.type || "text";
+      return {
+        label: column.Header,
+        value: column.accessor,
+        type: type,
+      };
+    },
+  );
   return (
     <Popover
       minimal
@@ -122,27 +138,27 @@ const TableFilters = (props: TableFilterProps) => {
         </IconWrapper>
       </TableIconWrapper>
       <TableFilerWrapper onClick={e => e.stopPropagation()}>
-        {props.filters &&
-          props.filters.map((filter: ReactTableFilter, index: number) => {
-            return (
-              <CascadeFields
-                key={index}
-                index={index}
-                filter={filter}
-                columns={props.columns}
-                applyFilter={(filter: ReactTableFilter, index: number) => {
-                  const filters = props.filters || [];
-                  filters[index] = filter;
-                  props.applyFilter(filters);
-                }}
-                removeFilter={(index: number) => {
-                  const filters: ReactTableFilter[] = [...props.filters];
-                  filters.splice(index, 1);
-                  props.applyFilter(filters);
-                }}
-              />
-            );
-          })}
+        {filters.map((filter: ReactTableFilter, index: number) => {
+          return (
+            <CascadeFields
+              key={index}
+              index={index}
+              filter={filter}
+              columns={columns}
+              applyFilter={(filter: ReactTableFilter, index: number) => {
+                const filters = props.filters || [];
+                filters[index] = filter;
+                props.applyFilter(filters);
+              }}
+              removeFilter={(index: number) => {
+                const filters: ReactTableFilter[] = [...props.filters];
+                filters.splice(index, 1);
+                updateFilters(filters);
+                props.applyFilter(filters);
+              }}
+            />
+          );
+        })}
         <ButtonWrapper className={Classes.POPOVER_DISMISS}>
           <Button
             intent="primary"
@@ -158,65 +174,3 @@ const TableFilters = (props: TableFilterProps) => {
 };
 
 export default TableFilters;
-
-// Use react memoize
-// const filterOptions = [
-//   {
-//     content: "Created Date",
-//     id: "created_date",
-//     type: "date",
-//     next: {
-//       type: "dropdown",
-//       placeholder: "is",
-//       options: [
-//         {
-//           content: "is",
-//           id: "is",
-//           next: {
-//             type: "date",
-//             placeholder: "Enter date",
-//           },
-//         },
-//         {
-//           content: "is before",
-//           id: "is_before",
-//           next: {
-//             type: "date",
-//             placeholder: "Enter date",
-//           },
-//         },
-//         {
-//           content: "is after",
-//           id: "is_after",
-//           next: {
-//             type: "date",
-//             placeholder: "Enter date",
-//           },
-//         },
-//       ],
-//     },
-//   },
-//   {
-//     content: "User Name",
-//     id: "user_name",
-//     type: "text",
-//     next: {
-//       type: "dropdown",
-//       placeholder: "is",
-//       options: [
-//         {
-//           content: "contains",
-//           id: "contains",
-//         },
-//         {
-//           content: "does not contains",
-//           id: "does_not_contain",
-//         },
-//         {
-//           content: "starts with",
-//           id: "starts_with",
-//         },
-//       ],
-//     },
-//   },
-// ];

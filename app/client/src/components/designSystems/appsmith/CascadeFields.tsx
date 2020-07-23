@@ -8,6 +8,141 @@ import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Skin } from "constants/DefaultTheme";
+import {
+  DropdownOption,
+  ReactTableFilter,
+} from "components/designSystems/appsmith/TableFilters";
+
+const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
+  text: [
+    {
+      label: "contains",
+      value: "contains",
+      type: "input",
+    },
+    {
+      label: "does not contain",
+      value: "does_not_contain",
+      type: "input",
+    },
+    {
+      label: "starts with",
+      value: "starts_with",
+      type: "input",
+    },
+    {
+      label: "ends with",
+      value: "ends_with",
+      type: "input",
+    },
+    {
+      label: "is exactly",
+      value: "starts_with",
+      type: "input",
+    },
+    {
+      label: "empty",
+      value: "empty",
+      type: "",
+    },
+    {
+      label: "not empty",
+      value: "not_empty",
+      type: "",
+    },
+  ],
+  date: [
+    {
+      label: "is",
+      value: "is",
+      type: "date",
+    },
+    {
+      label: "is before",
+      value: "is_before",
+      type: "date",
+    },
+    {
+      label: "is after",
+      value: "is_after",
+      type: "date",
+    },
+    {
+      label: "is within",
+      value: "is_within",
+      type: "date_range",
+    },
+    {
+      label: "is not",
+      value: "is_not",
+      type: "date",
+    },
+    {
+      label: "empty",
+      value: "empty",
+      type: "",
+    },
+    {
+      label: "not empty",
+      value: "not_empty",
+      type: "",
+    },
+  ],
+  image: [
+    {
+      label: "empty",
+      value: "empty",
+      type: "",
+    },
+    {
+      label: "not empty",
+      value: "not_empty",
+      type: "",
+    },
+  ],
+  currency: [
+    {
+      label: "is equal to",
+      value: "is_equal_to",
+      type: "input",
+    },
+    {
+      label: "not equal to",
+      value: "not_equal_to",
+      type: "input",
+    },
+    {
+      label: "greater than",
+      value: "greater_than",
+      type: "input",
+    },
+    {
+      label: "greater than or equal to",
+      value: "greater_than_equal_to",
+      type: "input",
+    },
+    {
+      label: "less than",
+      value: "less_than",
+      type: "input",
+    },
+    {
+      label: "less than or equal to",
+      value: "less_than_equal_to",
+      type: "input",
+    },
+    {
+      label: "empty",
+      value: "empty",
+      type: "",
+    },
+    {
+      label: "not empty",
+      value: "not_empty",
+      type: "",
+    },
+  ],
+};
 
 const StyledRemoveIcon = styled(
   ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
@@ -64,35 +199,39 @@ const DropdownTrigger = styled.div`
   justify-content: space-between;
   width: 100%;
   &&& div {
+    width: 100%;
     color: #2e3d49;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 10px;
   }
   &&& span {
     margin-right: 0;
   }
 `;
 
-const RenderColumnOptions = (props: {
-  columns: ReactTableColumnProps[];
-  selectColumn: (column: string) => void;
+const RenderOptions = (props: {
+  columns: DropdownOption[];
+  selectItem: (column: DropdownOption) => void;
+  placeholder: string;
   value?: string;
 }) => {
-  const [selectedValue, selectValue] = useState("Attribute");
-  const options = props.columns.map(
-    (column: ReactTableColumnProps, index: number) => {
-      return {
-        content: column.Header,
-        value: column.accessor,
-        onSelect: () => {
-          selectValue(column.Header);
-          props.selectColumn(column.accessor);
-        },
-      };
-    },
-  );
+  const [selectedValue, selectValue] = useState(props.placeholder);
+  console.log("columns", props.columns);
   const configs = {
     sections: [
       {
-        options: options,
+        options: props.columns.map((column: DropdownOption) => {
+          return {
+            content: column.label,
+            value: column.value,
+            onSelect: () => {
+              selectValue(column.label);
+              props.selectItem(column);
+            },
+          };
+        }),
       },
     ],
     openDirection: Directions.DOWN,
@@ -107,71 +246,18 @@ const RenderColumnOptions = (props: {
     skin: Skin.LIGHT,
   };
   useEffect(() => {
-    if (props.value) {
+    if (props.value && configs.sections[0].options) {
       const selectedOption = configs.sections[0].options.filter(
         i => i.value === props.value,
       );
-      selectValue(selectedOption[0].content);
+      console.log("selectedOption", selectedOption);
+      // if (selectedOption && selectedOption.length) {
+      //   selectValue(selectedOption[0].content);
+      // }
     }
   }, [props.value]);
   return <CustomizedDropdown {...configs} />;
 };
-
-const RenderOperatorOptions = (props: {
-  selectOperator: (operator: string) => void;
-  value?: string;
-}) => {
-  const [selectedValue, selectValue] = useState("Is");
-  const configs = {
-    sections: [
-      {
-        options: [
-          {
-            content: "Is",
-            value: "is",
-            onSelect: () => {
-              selectValue("Is");
-              props.selectOperator("is");
-            },
-          },
-          {
-            content: "Is Not",
-            value: "is_not",
-            onSelect: () => {
-              selectValue("Is Not");
-              props.selectOperator("is_not");
-            },
-          },
-        ],
-      },
-    ],
-    openDirection: Directions.DOWN,
-    trigger: {
-      content: (
-        <DropdownTrigger>
-          <div>{selectedValue}</div>
-          <Icon icon="chevron-down" iconSize={16} color="#768896" />
-        </DropdownTrigger>
-      ),
-    },
-    skin: Skin.LIGHT,
-  };
-  useEffect(() => {
-    if (props.value) {
-      const selectedOption = configs.sections[0].options.filter(
-        i => i.value === props.value,
-      );
-      selectValue(selectedOption[0].content);
-    }
-  }, [props.value]);
-  return <CustomizedDropdown {...configs} />;
-};
-
-export interface ReactTableFilter {
-  column: string;
-  operator: string;
-  value: any;
-}
 
 const defaultFilter: ReactTableFilter = {
   column: "",
@@ -180,7 +266,7 @@ const defaultFilter: ReactTableFilter = {
 };
 
 interface CascaseFieldProps {
-  columns: ReactTableColumnProps[];
+  columns: DropdownOption[];
   filter?: ReactTableFilter;
   index: number;
   applyFilter: (filter: ReactTableFilter, index: number) => void;
@@ -189,24 +275,29 @@ interface CascaseFieldProps {
 
 const CascadeFields = (props: CascaseFieldProps) => {
   const [filter, updateFilter] = React.useState(props.filter || defaultFilter);
+  const [showInput, toggleInput] = React.useState(true);
+  const [operators, setOperators] = React.useState(
+    new Array<DropdownOption>(0),
+  );
   const removeFilter = () => {
     props.removeFilter(props.index);
   };
-  const selectColumn = (column: string) => {
-    console.log("selected column", column);
-    filter.column = column;
+  const selectColumn = (column: DropdownOption) => {
+    filter.column = column.value;
+    if (column.type && typeOperatorsMap[column.type]) {
+      setOperators(typeOperatorsMap[column.type]);
+    }
     updateFilter(filter);
     props.applyFilter(filter, props.index);
   };
-  const selectOperator = (operator: string) => {
-    console.log("selected operator", operator);
-    filter.operator = operator;
+  const selectOperator = (operator: DropdownOption) => {
+    filter.operator = operator.value;
+    toggleInput(operator.type === "input");
     updateFilter(filter);
     props.applyFilter(filter, props.index);
   };
   const onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    console.log("selected value", value);
     filter.value = value;
     updateFilter(filter);
     props.applyFilter(filter, props.index);
@@ -221,24 +312,29 @@ const CascadeFields = (props: CascaseFieldProps) => {
       />
       <LabelWrapper>Where</LabelWrapper>
       <DropdownWrapper width={150}>
-        <RenderColumnOptions
+        <RenderOptions
           columns={props.columns}
-          selectColumn={selectColumn}
+          selectItem={selectColumn}
           value={filter.column}
+          placeholder="Attribute"
         />
       </DropdownWrapper>
       <DropdownWrapper width={100}>
-        <RenderOperatorOptions
-          selectOperator={selectOperator}
+        <RenderOptions
+          columns={operators}
+          selectItem={selectOperator}
           value={filter.operator}
+          placeholder="Is"
         />
       </DropdownWrapper>
-      <StyledInputGroup
-        placeholder="Enter value"
-        onChange={onValueChange}
-        type="text"
-        defaultValue={filter.value}
-      />
+      {showInput && (
+        <StyledInputGroup
+          placeholder="Enter value"
+          onChange={onValueChange}
+          type="text"
+          defaultValue={filter.value}
+        />
+      )}
     </FieldWrapper>
   );
 };
