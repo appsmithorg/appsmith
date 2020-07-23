@@ -90,7 +90,7 @@ export const getActionGroups = (
   page: Page,
   actions: GenericAction[],
   step: number,
-  isFiltered: boolean,
+  searchKeyword?: string,
 ) => {
   return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
     if (!config) return null;
@@ -103,7 +103,7 @@ export const getActionGroups = (
         key={page.pageId + "_" + config.type}
         actions={entries}
         step={step}
-        isFiltered={isFiltered}
+        searchKeyword={searchKeyword}
         page={page}
         config={config}
       />

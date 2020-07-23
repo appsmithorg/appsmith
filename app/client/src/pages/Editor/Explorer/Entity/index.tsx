@@ -49,6 +49,7 @@ export type EntityProps = {
   isDefaultExpanded?: boolean;
   createFn?: () => void;
   contextMenu?: ReactNode;
+  searchKeyword?: string;
   step: number;
   updateEntityName?: (id: string, name: string) => any;
 };
@@ -64,6 +65,8 @@ export const Entity = (props: EntityProps) => {
       open(true);
       // Else if entry is disabled, don't expand.
     } else if (props.disabled) {
+      open(false);
+    } else if (!props.isDefaultExpanded) {
       open(false);
     }
   }, [props.disabled, props.isDefaultExpanded, open]);
@@ -103,6 +106,7 @@ export const Entity = (props: EntityProps) => {
           name={props.name}
           isEditing={!!props.updateEntityName && isEditing}
           updateEntityName={updateNameCallback}
+          searchKeyword={props.searchKeyword}
         />
         <AddButton onClick={props.createFn} />
         {props.contextMenu}

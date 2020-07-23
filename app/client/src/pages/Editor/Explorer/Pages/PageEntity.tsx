@@ -19,7 +19,7 @@ type ExplorerPageEntityProps = {
   widgets?: WidgetTree;
   actions: GenericAction[];
   step: number;
-  isFiltered: boolean;
+  searchKeyword?: string;
 };
 export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
@@ -52,7 +52,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
     >
       <ExplorerWidgetGroup
         step={props.step + 1}
-        isFiltered={props.isFiltered}
+        searchKeyword={props.searchKeyword}
         widgets={props.widgets || null}
         pageId={props.page.pageId}
       />
@@ -60,7 +60,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
         props.page,
         props.actions,
         props.step + 1,
-        props.isFiltered,
+        props.searchKeyword,
       )}
     </Entity>
   );

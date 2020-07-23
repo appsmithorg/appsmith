@@ -47,6 +47,7 @@ type ExplorerActionEntityProps = {
   icon: ReactNode;
   active: boolean;
   step: number;
+  searchKeyword?: string;
 };
 
 export const ExplorerActionEntity = (props: ExplorerActionEntityProps) => {
@@ -61,6 +62,7 @@ export const ExplorerActionEntity = (props: ExplorerActionEntityProps) => {
       entityId={props.action.actionId}
       step={props.step}
       updateEntityName={getUpdateActionNameReduxAction}
+      searchKeyword={props.searchKeyword}
       contextMenu={
         <ActionEntityContextMenu
           id={props.action.actionId}

@@ -17,7 +17,7 @@ type ExplorerPageGroupProps = {
   widgets?: WidgetTree;
   actions: GenericAction[];
   currentPageId?: string;
-  isFiltered: boolean;
+  searchKeyword?: string;
   step: number;
 };
 
@@ -50,7 +50,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
           widgets={props.widgets}
           actions={props.actions}
           step={props.step + 1}
-          isFiltered={props.isFiltered}
+          searchKeyword={props.searchKeyword}
           page={page}
         />
       ))}

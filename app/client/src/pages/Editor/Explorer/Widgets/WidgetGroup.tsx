@@ -5,11 +5,17 @@ import { widgetIcon } from "../ExplorerIcons";
 import WidgetEntity, { WidgetTree } from "./WidgetEntity";
 import { WidgetTypes } from "constants/WidgetConstants";
 
-const getWidgetEntity = (entity: any, step: number, parentModalId?: string) => {
+const getWidgetEntity = (
+  entity: any,
+  step: number,
+  parentModalId?: string,
+  searchKeyword?: string,
+) => {
+  if (!entity) return;
   if (entity.type === WidgetTypes.CANVAS_WIDGET) {
     if (!entity.children || entity.children.length === 0) return;
     return entity.children.map((child: any) =>
-      getWidgetEntity(child, step + 1, parentModalId),
+      getWidgetEntity(child, step + 1, parentModalId, searchKeyword),
     );
   }
   const childEntities =
@@ -20,6 +26,7 @@ const getWidgetEntity = (entity: any, step: number, parentModalId?: string) => {
         child,
         step,
         entity.type === WidgetTypes.MODAL_WIDGET ? entity.widgetId : undefined,
+        searchKeyword,
       ),
     );
 
@@ -29,6 +36,7 @@ const getWidgetEntity = (entity: any, step: number, parentModalId?: string) => {
       step={step}
       key={entity.widgetId}
       parentModalId={parentModalId}
+      searchKeyword={searchKeyword}
     >
       {childEntities}
     </WidgetEntity>
@@ -36,15 +44,20 @@ const getWidgetEntity = (entity: any, step: number, parentModalId?: string) => {
 };
 
 type ExplorerWidgetGroupProps = {
-  isFiltered: boolean;
   pageId: string;
   step: number;
   widgets: WidgetTree | null;
+  searchKeyword?: string;
 };
 
 export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
-  let childNode = getWidgetEntity(props.widgets, props.step);
-  if (!childNode && !props.isFiltered) {
+  let childNode = getWidgetEntity(
+    props.widgets,
+    props.step,
+    undefined,
+    props.searchKeyword,
+  );
+  if (!childNode && !props.searchKeyword) {
     childNode = (
       <EntityPlaceholder step={props.step + 1}>
         No widgets yet. Please click the <strong>Widgets</strong> navigation
@@ -58,8 +71,9 @@ export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
       icon={widgetIcon}
       step={props.step}
       name="Widgets"
-      disabled={!props.widgets && props.isFiltered}
+      disabled={!props.widgets && !!props.searchKeyword}
       entityId={props.pageId + "_widgets"}
+      isDefaultExpanded={!!props.searchKeyword}
     >
       {childNode}
     </Entity>

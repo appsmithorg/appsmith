@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import EditableText, {
@@ -7,22 +7,58 @@ import EditableText, {
 import { convertToCamelCase } from "utils/helpers";
 import { AppState } from "reducers";
 import { Page } from "constants/ReduxActionConstants";
+
+const searchHighlightSpanClassName = "token";
+const searchTokenizationDelimiter = "!!";
+
 const Wrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0 4px;
+  & span.token {
+    background: ${props => props.theme.colors.primary};
+  }
 `;
+
+const replace = (
+  str: string,
+  delimiter: string,
+  className = "token",
+  keyIndex = 1,
+): JSX.Element[] => {
+  const occurrenceIndex = str.indexOf(delimiter);
+  if (occurrenceIndex === -1)
+    return [<span key={`notokenize-${keyIndex}`}>{str}</span>];
+  const sliced = str.slice(occurrenceIndex + delimiter.length);
+  const nextOccurenceIndex = sliced.indexOf(delimiter);
+  const rest = str.slice(
+    occurrenceIndex + delimiter.length + nextOccurenceIndex + delimiter.length,
+  );
+  const token = str.slice(
+    occurrenceIndex + delimiter.length,
+    occurrenceIndex + delimiter.length + nextOccurenceIndex,
+  );
+  const final = [
+    <span key={`tokenize-${keyIndex}`}>{str.slice(0, occurrenceIndex)}</span>,
+    <span key={`tokenize-${keyIndex}-token`} className={className}>
+      {token}
+    </span>,
+  ].concat(replace(rest, delimiter, className, keyIndex + 1));
+  return final;
+};
 
 export interface EntityNameProps {
   name: string;
   isEditing?: boolean;
   onChange?: (name: string) => void;
   updateEntityName: (name: string) => void;
+
+  searchKeyword?: string;
 }
 
 export const EntityName = (props: EntityNameProps) => {
-  const { name, updateEntityName } = props;
+  const { name, updateEntityName, searchKeyword } = props;
   const dispatch = useDispatch();
   const existingPageNames: string[] = useSelector((state: AppState) =>
     state.entities.pageList.pages.map((page: Page) => page.pageName),
@@ -71,7 +107,24 @@ export const EntityName = (props: EntityNameProps) => {
     [dispatch, isInvalidName, name, updateEntityName],
   );
 
-  if (!props.isEditing) return <Wrapper>{name}</Wrapper>;
+  const searchHighlightedName = useMemo(() => {
+    if (searchKeyword) {
+      const regex = new RegExp(searchKeyword, "gi");
+      const delimited = name.replace(regex, function(str) {
+        return searchTokenizationDelimiter + str + searchTokenizationDelimiter;
+      });
+
+      const final = replace(
+        delimited,
+        searchTokenizationDelimiter,
+        searchHighlightSpanClassName,
+      );
+      return final;
+    }
+    return name;
+  }, [searchKeyword, name]);
+
+  if (!props.isEditing) return <Wrapper>{searchHighlightedName}</Wrapper>;
   return (
     <Wrapper>
       <EditableText

@@ -12,7 +12,7 @@ import history from "utils/history";
 type ExplorerActionsGroupProps = {
   actions: GenericAction[];
   step: number;
-  isFiltered: boolean;
+  searchKeyword?: string;
   config: ActionGroupConfig;
   page: Page;
 };
@@ -38,11 +38,12 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
         active={active}
         icon={icon}
         step={props.step + 1}
+        searchKeyword={props.searchKeyword}
       />
     );
   });
 
-  if (!props.isFiltered && (!childNode || !props.actions.length)) {
+  if (!props.searchKeyword && (!childNode || !props.actions.length)) {
     childNode = (
       <EntityPlaceholder step={props.step + 1}>
         No {props.config?.groupName || "Actions"} yet. Please click the{" "}
@@ -57,7 +58,7 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
       name={props.config?.groupName || "Actions"}
       entityId={props.page.pageId + "_" + props.config?.type}
       step={props.step}
-      disabled={props.isFiltered && (!childNode || !props.actions.length)}
+      disabled={!!props.searchKeyword && (!childNode || !props.actions.length)}
       createFn={() => {
         const path = props.config?.generateCreatePageURL(
           params?.applicationId,
@@ -66,7 +67,9 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
         );
         history.push(path);
       }}
-      isDefaultExpanded={props.config?.isGroupActive(params)}
+      isDefaultExpanded={
+        props.config?.isGroupActive(params) || !!props.searchKeyword
+      }
       active={props.config?.isGroupActive(params)}
     >
       {childNode}

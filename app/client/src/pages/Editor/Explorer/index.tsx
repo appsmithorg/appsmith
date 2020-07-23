@@ -24,7 +24,7 @@ const EntityExplorer = () => {
     currentPageId,
     pages,
     plugins,
-    isFiltered,
+    searchKeyword,
     clearSearch,
   } = useFilteredEntities(searchInputRef);
 
@@ -35,7 +35,7 @@ const EntityExplorer = () => {
         widgets={widgets}
         actions={actions}
         currentPageId={currentPageId}
-        isFiltered={isFiltered}
+        searchKeyword={searchKeyword}
         pages={pages}
         step={0}
       />
@@ -43,6 +43,7 @@ const EntityExplorer = () => {
       <ExplorerDatasourcesGroup
         dataSources={dataSources}
         plugins={plugins}
+        searchKeyword={searchKeyword}
         step={0}
       />
     </Wrapper>

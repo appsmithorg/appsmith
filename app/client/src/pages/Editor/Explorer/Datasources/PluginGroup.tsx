@@ -11,6 +11,7 @@ type DatasourcePluginGroupProps = {
   plugin?: Plugin;
   datasources: Datasource[];
   step: number;
+  searchKeyword?: string;
 };
 export const DatasourcePluginGroup = (props: DatasourcePluginGroupProps) => {
   const params = useParams<ExplorerURLParams>();
@@ -27,7 +28,7 @@ export const DatasourcePluginGroup = (props: DatasourcePluginGroupProps) => {
       icon={pluginIcon}
       name={props.plugin?.name || "Unknown Plugin"}
       active={currentGroup}
-      isDefaultExpanded={currentGroup}
+      isDefaultExpanded={currentGroup || !!props.searchKeyword}
       step={props.step}
     >
       {props.datasources.map((datasource: Datasource) => {
@@ -36,6 +37,7 @@ export const DatasourcePluginGroup = (props: DatasourcePluginGroupProps) => {
             key={datasource.id}
             datasource={datasource}
             step={props.step + 1}
+            searchKeyword={props.searchKeyword}
           />
         );
       })}

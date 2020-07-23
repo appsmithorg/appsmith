@@ -11,6 +11,7 @@ import history from "utils/history";
 type ExplorerDatasourceEntityProps = {
   datasource: Datasource;
   step: number;
+  searchKeyword?: string;
 };
 export const ExplorerDatasourceEntity = (
   props: ExplorerDatasourceEntityProps,
@@ -24,6 +25,7 @@ export const ExplorerDatasourceEntity = (
       name={props.datasource.name}
       active={params?.datasourceId === props.datasource.id}
       step={props.step + 1}
+      searchKeyword={props.searchKeyword}
       action={() =>
         history.push(
           DATA_SOURCES_EDITOR_ID_URL(

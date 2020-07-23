@@ -111,6 +111,7 @@ export type WidgetEntityProps = {
   step: number;
   children: ReactNode;
   parentModalId?: string;
+  searchKeyword?: string;
 };
 
 export const WidgetEntity = (props: WidgetEntityProps) => {
@@ -143,6 +144,8 @@ export const WidgetEntity = (props: WidgetEntityProps) => {
       entityId={props.widgetProps.widgetId}
       step={props.step}
       updateEntityName={updateWidgetName}
+      searchKeyword={props.searchKeyword}
+      isDefaultExpanded={!!props.searchKeyword && !!props.widgetProps.children}
       contextMenu={
         <WidgetContextMenu
           widgetId={props.widgetProps.widgetId}

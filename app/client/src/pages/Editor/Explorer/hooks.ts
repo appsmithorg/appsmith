@@ -149,11 +149,6 @@ export const useFilteredEntities = (
     };
   }, [ref, search]);
 
-  const isFiltered = useMemo(
-    () => !!searchKeyword && searchKeyword.length > 0,
-    [searchKeyword],
-  );
-
   const clearSearch = useCallback(() => {
     const el: HTMLInputElement | null = ref.current;
     if (el && el.value.trim().length > 0) {
@@ -169,7 +164,7 @@ export const useFilteredEntities = (
     currentPageId,
     plugins,
     pages,
-    isFiltered,
+    searchKeyword: searchKeyword ?? undefined,
     clearSearch,
   };
 };

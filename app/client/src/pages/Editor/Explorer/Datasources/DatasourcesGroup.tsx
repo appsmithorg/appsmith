@@ -14,7 +14,9 @@ type ExplorerDatasourcesGroupProps = {
   dataSources: Datasource[];
   plugins: Plugin[];
   step: number;
+  searchKeyword?: string;
 };
+
 export const ExplorerDatasourcesGroup = (
   props: ExplorerDatasourcesGroupProps,
 ) => {
@@ -36,6 +38,7 @@ export const ExplorerDatasourcesGroup = (
       <DatasourcePluginGroup
         plugin={plugin}
         datasources={datasources}
+        searchKeyword={props.searchKeyword}
         step={props.step + 1}
         key={plugin?.id || "unknown-plugin"}
       />,
@@ -55,7 +58,7 @@ export const ExplorerDatasourcesGroup = (
       isDefaultExpanded={
         window.location.pathname.indexOf(
           DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
-        ) > -1
+        ) > -1 || !!props.searchKeyword
       }
       disabled={disableDatasourceGroup}
       createFn={() => {
