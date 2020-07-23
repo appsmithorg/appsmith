@@ -18,7 +18,11 @@ public class RedirectHelper {
 
         // If not, then try to get the redirect URL from Origin header.
         // We append DEFAULT_REDIRECT_URL to the Origin header by default.
-        if (StringUtils.isEmpty(redirectUrl) && !StringUtils.isEmpty(httpHeaders.getOrigin())) {
+        if (StringUtils.isEmpty(redirectUrl)) {
+            redirectUrl = DEFAULT_REDIRECT_URL;
+        }
+
+        if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://")) && !StringUtils.isEmpty(httpHeaders.getOrigin())) {
             redirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
         }
 
