@@ -9,18 +9,20 @@ import java.net.URISyntaxException;
 
 public class RedirectHelper {
 
-    public static String DEFAULT_REDIRECT_URL = "/applications";
-    private static String REDIRECT_URL_HEADER = "X-Redirect-Url";
+    public static final String DEFAULT_REDIRECT_URL = "/applications";
+    private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
 
     public static String getRedirectUrl(HttpHeaders httpHeaders) {
         // First check if the custom redirect header is set
         String redirectUrl = httpHeaders.getFirst(REDIRECT_URL_HEADER);
 
-        // If not, then try to get the header from Origin. We append
+        // If not, then try to get the redirect URL from Origin header.
+        // We append DEFAULT_REDIRECT_URL to the Origin header by default.
         if (StringUtils.isEmpty(redirectUrl) && !StringUtils.isEmpty(httpHeaders.getOrigin())) {
             redirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
         }
 
+        // If the redirect Url is still empty, construct the redirect Url from the Referrer header.
         if (StringUtils.isEmpty(redirectUrl)) {
             // If the header is still empty
             String refererHeader = httpHeaders.getFirst(Security.REFERER_HEADER);
