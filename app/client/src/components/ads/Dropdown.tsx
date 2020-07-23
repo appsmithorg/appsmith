@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { IconName } from "./Icons";
+import { IconName } from "./Icon";
 import { CommonComponentProps } from "./common";
 
 type DropdownOption = {

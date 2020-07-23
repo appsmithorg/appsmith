@@ -37,7 +37,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import Spinner from "components/editorComponents/Spinner";
+import Spinner from "@appsmith/components/ads/Spinner";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";

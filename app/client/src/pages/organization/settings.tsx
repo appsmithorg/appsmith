@@ -18,7 +18,7 @@ import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
 import styled from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { RouteComponentProps } from "react-router";
-import Spinner from "components/editorComponents/Spinner";
+import Spinner from "@appsmith/components/ads/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";

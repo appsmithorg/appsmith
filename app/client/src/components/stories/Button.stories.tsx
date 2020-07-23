@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "components/ads/Button";
-import { withKnobs, select } from "@storybook/addon-knobs";
+import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 
 export default {
@@ -11,9 +11,15 @@ export default {
 
 export const withDynamicProps = () => (
   <Button
-    size={select("size", ["small", "medium", "large"], "large")}
-    category={select("category", ["primary", "secondary"], "primary")}
-    variant={select("variant", ["success", "warning", "danger"], "success")}
+    size={select("size", ["small", "medium", "large"], undefined)}
+    category={select("category", ["primary", "secondary"], undefined)}
+    variant={select(
+      "variant",
+      ["info", "success", "warning", "danger"],
+      undefined,
+    )}
     text={"button"}
+    icon={select("iconName", ["delete", "user"], undefined)}
+    isLoading={boolean("Loading", false)}
   ></Button>
 );

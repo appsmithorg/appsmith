@@ -1,7 +1,7 @@
 import React from "react";
-import { IconName } from "./Icons";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
+import { IconName, Icon } from "./Icon";
 
 type ButtonProps = CommonComponentProps & {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
@@ -10,6 +10,7 @@ type ButtonProps = CommonComponentProps & {
   variant?: "success" | "info" | "warning" | "danger" | "link"; //default info
   icon?: IconName; //default undefined.
   size?: "small" | "medium" | "large"; // default medium
+  isLoading?: false | true;
 };
 // https://design.gitlab.com/components/button
 
@@ -75,6 +76,19 @@ const btnFontStyles = (props: any) => {
   return { fontSize, fontWeight, lineHeight, letterSpacing, padding };
 };
 
+const iconColorHandler = (props: any) => {
+  let iconColor: string;
+  switch (props.category) {
+    case "primary":
+      iconColor = props.theme.colors.blackShades[9];
+      break;
+    default:
+      iconColor = props.theme.colors[props.variant].main;
+      break;
+  }
+  return iconColor;
+};
+
 const StyledButton = styled("button")`
   height: 100%;
   border: none;
@@ -96,6 +110,7 @@ const StyledButton = styled("button")`
       btnColorStyles(props, "dark", "darker", "hover").txtColor};
     border: ${props =>
       btnColorStyles(props, "dark", "darker", "hover").borderColor};
+    cursor: pointer;
   };
   &:active {
     background-color: ${props =>
@@ -104,10 +119,25 @@ const StyledButton = styled("button")`
       btnColorStyles(props, "dark", "darker", "active").txtColor};
     border: ${props =>
       btnColorStyles(props, "dark", "darker", "active").borderColor};
+    cursor: pointer;
   };
+  div {
+    margin-right: ${props => props.theme.space[7]}px;
+  }
+  display: flex;
+  path {
+    fill: ${props => iconColorHandler(props)};
+  }
 `;
 
-function AdsButton(props: ButtonProps) {
+Button.defaultProps = {
+  category: "primary",
+  variant: "success",
+  size: "small",
+  isLoading: false,
+};
+
+function Button(props: ButtonProps) {
   return (
     <StyledButton
       {...props}
@@ -115,9 +145,13 @@ function AdsButton(props: ButtonProps) {
         props.onClick && props.onClick(e)
       }
     >
-      {props.text}
+      {props.icon && !props.isLoading ? (
+        <Icon name={props.icon} iconSize={props.size} />
+      ) : null}
+      {props.text && !props.isLoading ? props.text : null}
+      {props.isLoading ? <span>Loading...</span> : null}
     </StyledButton>
   );
 }
 
-export default AdsButton;
+export default Button;

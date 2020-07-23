@@ -25,7 +25,7 @@ import {
 } from "constants/QueryEditorConstants";
 import { QueryAction } from "entities/Action";
 import { getPluginImage } from "pages/Editor/QueryEditor/helpers";
-import Spinner from "components/editorComponents/Spinner";
+import Spinner from "@appsmith/components/ads/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 const EmptyStateContainer = styled.div`

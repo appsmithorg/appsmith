@@ -1,5 +1,5 @@
 import { CommonComponentProps } from "./common";
-import { IconName } from "./Icons";
+import { IconName } from "./Icon";
 
 type IconSelectorProps = CommonComponentProps & {
   onSelect: (icon: IconName) => void;
