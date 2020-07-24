@@ -21,17 +21,18 @@ function* formLoginSaga() {
     getFormValues(LOGIN_FORM_NAME),
   );
   const formData = qs.stringify(values);
+  const base = window.location.origin;
 
   const response = yield loginAxios({
     method: "POST",
     url: `/api/v1${BASE_LOGIN_URL}`,
     data: formData,
     headers: {
-      "X-Redirect-Url": "https://dev.appsmith.com/applications",
+      "X-Redirect-Url": `${base}/applications`,
     },
   });
   yield put(getCurrentUser({}));
-  const url = response.request.responseURL.replace(window.location.origin, "");
+  const url = response.request.responseURL.replace(base, "");
   history.replace(url);
 }
 

@@ -3,7 +3,12 @@ import { connect } from "react-redux";
 import { getCurrentUser } from "actions/authActions";
 import PageHeader from "pages/common/PageHeader";
 import { Route, Switch } from "react-router";
-import { APP_VIEW_URL, BASE_URL, BUILDER_URL } from "constants/routes";
+import {
+  APP_VIEW_URL,
+  BASE_URL,
+  BUILDER_URL,
+  USER_AUTH_URL,
+} from "constants/routes";
 import { withRouter, RouteComponentProps } from "react-router";
 
 type Props = {
@@ -24,6 +29,7 @@ class AppHeader extends React.Component<Props, any> {
         <Switch>
           <Route path={BUILDER_URL} component={NoRender} />
           <Route path={APP_VIEW_URL} component={NoRender} />
+          <Route path={USER_AUTH_URL} component={NoRender} />
           <Route path={BASE_URL} component={PageHeader} />
         </Switch>
       </React.Fragment>
