@@ -233,9 +233,16 @@ function* createDatasourceFromFormSaga(
 
         if (subSection.initialValue) {
           if (subSection.controlType === "KEYVALUE_ARRAY") {
-            const configProperty = subSection.configProperty.replace("*", "0");
+            subSection.initialValue.forEach(
+              (initialValue: string | number, index: number) => {
+                const configProperty = subSection.configProperty.replace(
+                  "*",
+                  index,
+                );
 
-            _.set(initialValues, configProperty, subSection.initialValue);
+                _.set(initialValues, configProperty, initialValue);
+              },
+            );
           } else {
             _.set(
               initialValues,
