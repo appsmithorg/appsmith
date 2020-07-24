@@ -205,7 +205,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@applications").should(
+  cy.wait("@getUser").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -1330,6 +1330,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/organizations").as("createOrg");
   cy.route("POST", "/api/v1/users/invite").as("postInvite");
   cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
+  cy.route("GET", "/api/v1/users/me").as("getUser");
 });
 
 Cypress.Commands.add("alertValidate", text => {
