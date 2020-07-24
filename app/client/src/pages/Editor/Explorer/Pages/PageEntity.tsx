@@ -7,7 +7,7 @@ import { pageIcon } from "../ExplorerIcons";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { getActionGroups } from "../Actions/helpers";
-import { EXPLORER_URL } from "constants/routes";
+import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
@@ -33,7 +33,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       action={() =>
         !props.isCurrentPage &&
         params.applicationId &&
-        history.push(EXPLORER_URL(params.applicationId, props.page.pageId))
+        history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId))
       }
       runActionOnExpand={!props.isCurrentPage}
       entityId={props.page.pageId}

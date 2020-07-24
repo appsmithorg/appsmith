@@ -30,7 +30,7 @@ const navigateToCanvas = (params: ExplorerURLParams, currentPath: string) => {
   const canvasEditorURL = `${BUILDER_PAGE_URL(
     params.applicationId,
     params.pageId,
-  )}/explorer`;
+  )}`;
   if (currentPath !== canvasEditorURL) {
     history.push(canvasEditorURL);
   }

@@ -1,17 +1,16 @@
-import React from "react";
+import React, { memo } from "react";
 import { Switch } from "react-router";
 import styled from "styled-components";
 import {
   API_EDITOR_URL,
   BUILDER_URL,
+  WIDGETS_URL,
   API_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   QUERIES_EDITOR_URL,
   QUERIES_EDITOR_ID_URL,
   getCurlImportPageURL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  EXPLORER_URL,
   getProviderTemplatesURL,
 } from "constants/routes";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
@@ -25,85 +24,46 @@ const SidebarWrapper = styled.div`
   overflow-y: auto;
 `;
 
-export const Sidebar = () => {
+// All the following paths must show the explorer sidebar
+// TODO(abhinav): Figure out how to make the explorer the sidebar
+// the default, if any other sidebar paths donot match
+const allExplorerURLS = [
+  BUILDER_URL,
+  API_EDITOR_URL(),
+  API_EDITOR_ID_URL(),
+  QUERIES_EDITOR_URL(),
+  QUERIES_EDITOR_ID_URL(),
+  DATA_SOURCES_EDITOR_URL(),
+  DATA_SOURCES_EDITOR_ID_URL(),
+  getProviderTemplatesURL(),
+  getCurlImportPageURL(),
+];
+
+const explorerSidebarRoutes = allExplorerURLS.map(url => (
+  <AppRoute
+    exact
+    key={url}
+    path={url}
+    component={ExplorerSidebar}
+    name={"ExplorerSidebar"}
+  />
+));
+
+/* eslint-disable react/display-name */
+export const Sidebar = memo(() => {
   return (
     <SidebarWrapper className="t--sidebar">
       <Switch>
         <AppRoute
           exact
-          path={BUILDER_URL}
+          path={WIDGETS_URL()}
           component={WidgetSidebar}
           name={"WidgetSidebar"}
         />
-        <AppRoute
-          exact
-          path={API_EDITOR_URL()}
-          component={ExplorerSidebar}
-          name={"ExplorerSidebar"}
-        />
-        <AppRoute
-          exact
-          path={API_EDITOR_ID_URL()}
-          component={ExplorerSidebar}
-          name={"ExplorerSidebar"}
-        />
-        <AppRoute
-          exact
-          path={EXPLORER_URL()}
-          component={ExplorerSidebar}
-          name="ExplorerSidebar"
-        />
-
-        <AppRoute
-          exact
-          path={getCurlImportPageURL()}
-          component={ExplorerSidebar}
-          name={"ExplorerSidebar"}
-        />
-        <AppRoute
-          exact
-          path={getProviderTemplatesURL()}
-          component={ExplorerSidebar}
-          name={"ExplorerSidebar"}
-        />
-
-        <AppRoute
-          exact
-          path={API_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
-          component={ExplorerSidebar}
-          name={"ExplorerSidebar"}
-        />
-        <AppRoute
-          exact
-          path={QUERIES_EDITOR_URL()}
-          component={ExplorerSidebar}
-          name={"ExplorerSidebar"}
-        />
-        <AppRoute
-          exact
-          path={QUERIES_EDITOR_ID_URL()}
-          component={ExplorerSidebar}
-          name={"ExplorerSidebar"}
-        />
-        <AppRoute
-          exact
-          path={DATA_SOURCES_EDITOR_URL()}
-          component={ExplorerSidebar}
-          name="ExplorerSidebar"
-        />
-        <AppRoute
-          exact
-          path={DATA_SOURCES_EDITOR_ID_URL()}
-          component={ExplorerSidebar}
-          name="ExplorerSidebar"
-        />
+        {explorerSidebarRoutes}
       </Switch>
     </SidebarWrapper>
   );
-};
-
-Sidebar.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
+});
 
 export default Sidebar;

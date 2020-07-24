@@ -24,22 +24,18 @@ const EditorSidebar = styled(SidebarComponent)`
   background-color: ${props => props.theme.colors.paneBG};
 `;
 
-const allowedRoutes = EDITOR_ROUTES.filter(route => {
-  return route.allowed !== undefined ? route.allowed : true;
-});
-
 const Sidebar = () => {
   const params = useParams<BuilderRouteParams>();
 
   return (
     <Wrapper>
       <NavBar>
-        {allowedRoutes.map(config => (
+        {EDITOR_ROUTES.map(config => (
           <NavBarItem
             key={config.title}
             {...config}
-            width={24}
-            height={24}
+            width={16}
+            height={16}
             path={config.path(params.applicationId, params.pageId)}
           />
         ))}

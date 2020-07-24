@@ -13,7 +13,6 @@ import {
   QUERIES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_URL,
   DATA_SOURCES_EDITOR_ID_URL,
-  EXPLORER_URL,
   BUILDER_BASE_URL,
   BUILDER_PAGE_URL,
   BuilderRouteParams,
@@ -109,7 +108,7 @@ class EditorsRouter extends React.Component<
     this.setState({
       isVisible: false,
     });
-    this.props.history.replace(EXPLORER_URL(applicationId, pageId));
+    this.props.history.replace(BUILDER_PAGE_URL(applicationId, pageId));
   };
 
   preventClose = (e: React.MouseEvent) => {

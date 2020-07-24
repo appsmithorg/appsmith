@@ -51,6 +51,19 @@ export const BUILDER_PAGE_URL = (
   );
 };
 
+export const WIDGETS_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  params?: Record<string, string>,
+): string => {
+  if (!pageId) return APPLICATIONS_URL;
+  const queryParams = convertToQueryParams(params);
+  return (
+    `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit/widgets` +
+    queryParams
+  );
+};
+
 export const API_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
@@ -61,10 +74,10 @@ export const PAGE_LIST_EDITOR_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/pages`;
 
-export const EXPLORER_URL = (
-  applicationId = ":applicationId",
-  pageId = ":pageId",
-): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/explorer`;
+// export const EXPLORER_URL = (
+//   applicationId = ":applicationId",
+//   pageId = ":pageId",
+// ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/explorer`;
 
 export const DATA_SOURCES_EDITOR_URL = (
   applicationId = ":applicationId",
@@ -172,7 +185,25 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
 export const EDITOR_ROUTES = [
   {
     icon: MenuIcons.EXPLORER_ICON,
-    path: EXPLORER_URL,
+    path: BUILDER_PAGE_URL,
+    isActive: (expected: string, current: string) => {
+      // Currently, the explorer shows on all paths except for the
+      // WIDGETS_URL path
+
+      // get the applicationId and pageId from the current location pathname
+      const found = current.match(
+        /^\/applications\/(?<applicationId>\w+)\/pages\/(?<pageId>\w+)\//,
+      );
+      // In this case: expected = BUILDER_PAGE_URL(applicationId, pageId)
+      // If current url begins with expected url AND
+      // If the current url isn't the WIDGETS_URL THEN
+      // this is an explorer sidebar path
+      return (
+        current.indexOf(expected) === 0 &&
+        current !==
+          WIDGETS_URL(found?.groups?.applicationId, found?.groups?.pageId)
+      );
+    },
     title: "Explorer",
     className: "t--nav-link-entity-explorer",
     exact: false,
@@ -180,7 +211,10 @@ export const EDITOR_ROUTES = [
   },
   {
     icon: MenuIcons.WIDGETS_ICON,
-    path: BUILDER_PAGE_URL,
+    path: WIDGETS_URL,
+    isActive: (expected: string, current: string) => {
+      return expected === current;
+    },
     title: "Widgets",
     className: "t--nav-link-widgets-editor",
     exact: true,
