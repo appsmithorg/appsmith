@@ -11,6 +11,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -412,16 +413,34 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                             action.getPageId(), action.getId(), action.getName(), datasourceConfiguration,
                             actionConfiguration);
 
-                    return datasourceContextService
-                            .getDatasourceContext(datasource)
-                            //Now that we have the context (connection details, execute the action
-                            .flatMap(resourceContext -> pluginExecutor.execute(
-                                    resourceContext.getConnection(),
-                                    datasourceConfiguration,
-                                    actionConfiguration))
+                    Mono<Object> executionMono = Mono.just(datasource)
+                            .flatMap(datasourceContextService::getDatasourceContext)
+                            // Now that we have the context (connection details), execute the action.
+                            .flatMap(
+                                    resourceContext -> pluginExecutor.execute(
+                                            resourceContext.getConnection(),
+                                            datasourceConfiguration,
+                                            actionConfiguration
+                                    )
+                            );
+
+                    return executionMono
+                            .onErrorResume(StaleConnectionException.class, error -> {
+                                log.info("Looks like the connection is stale. Retrying with a fresh context.");
+                                return datasourceContextService
+                                        .deleteDatasourceContext(datasource.getId())
+                                        .then(executionMono);
+                            })
                             .timeout(Duration.ofMillis(timeoutDuration))
+                            .onErrorMap(
+                                    StaleConnectionException.class,
+                                    error -> new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Secondary stale connection error."
+                                    )
+                            )
                             .onErrorResume(e -> {
-                                log.debug("In the action execution error mode. Cause: {}", e.getMessage());
+                                log.debug("In the action execution error mode.", e);
                                 ActionExecutionResult result = new ActionExecutionResult();
                                 result.setBody(e.getMessage());
                                 result.setIsExecutionSuccess(false);
