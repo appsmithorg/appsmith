@@ -1,6 +1,6 @@
-import React from "react";
+import React, { FormEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { InjectedFormProps, reduxForm, formValueSelector } from "redux-form";
 import {
   LOGIN_FORM_NAME,
@@ -8,7 +8,6 @@ import {
   LOGIN_FORM_PASSWORD_FIELD_NAME,
 } from "constants/forms";
 import { FORGOT_PASSWORD_URL, SIGN_UP_URL } from "constants/routes";
-import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 import {
   LOGIN_PAGE_SUBTITLE,
   LOGIN_PAGE_TITLE,
@@ -35,6 +34,7 @@ import Button from "components/editorComponents/Button";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "./helpers";
+import { formLoginInit } from "actions/authActions";
 
 import {
   AuthCardContainer,
@@ -80,6 +80,7 @@ if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 export const Login = (props: LoginFormProps) => {
   const { error, valid } = props;
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const queryParams = new URLSearchParams(location.search);
   let showError = false;
@@ -91,6 +92,11 @@ export const Login = (props: LoginFormProps) => {
   if (props.emailValue && !isEmptyString(props.emailValue)) {
     forgotPasswordURL += `?email=${props.emailValue}`;
   }
+
+  const handleLoginSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    dispatch(formLoginInit());
+  };
 
   return (
     <AuthCardContainer>
@@ -112,7 +118,7 @@ export const Login = (props: LoginFormProps) => {
         <h5>{LOGIN_PAGE_SUBTITLE}</h5>
       </AuthCardHeader>
       <AuthCardBody>
-        <SpacedSubmitForm method="POST" action={"/api/v1/" + LOGIN_SUBMIT_PATH}>
+        <SpacedSubmitForm onSubmit={handleLoginSubmit}>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
@@ -158,7 +164,7 @@ export const Login = (props: LoginFormProps) => {
         {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
       </AuthCardNavLink>
       <AuthCardFooter>
-        <TncPPLinks></TncPPLinks>
+        <TncPPLinks />
       </AuthCardFooter>
     </AuthCardContainer>
   );

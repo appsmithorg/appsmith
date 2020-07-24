@@ -239,6 +239,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_ACTION_PROPERTY: "UPDATE_ACTION_PROPERTY",
   FETCH_ACTIONS_VIEW_MODE_INIT: "FETCH_ACTIONS_VIEW_MODE_INIT",
   FETCH_ACTIONS_VIEW_MODE_SUCCESS: "FETCH_ACTIONS_VIEW_MODE_SUCCESS",
+  FORM_LOGIN_INIT: "FORM_LOGIN_INIT",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

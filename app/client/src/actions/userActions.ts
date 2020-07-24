@@ -1,9 +1,9 @@
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { CurrentUserDetailsRequestPayload } from "constants/userConstants";
-import { VerifyTokenRequest, TokenPasswordUpdateRequest } from "api/UserApi";
+import { TokenPasswordUpdateRequest, VerifyTokenRequest } from "api/UserApi";
 
 export const logoutUserSuccess = () => ({
   type: ReduxActionTypes.LOGOUT_USER_SUCCESS,
@@ -50,8 +50,4 @@ export const invitedUserSignupError = (error: any) => ({
   payload: {
     error,
   },
-});
-
-export const getCurrentUser = () => ({
-  type: ReduxActionTypes.FETCH_USER_INIT,
 });

@@ -96,13 +96,7 @@ export const ThirdPartyAuth = (props: {
 }) => {
   const socialLoginButtons = getSocialLoginButtonProps(props.logins).map(
     item => {
-      return (
-        <SocialLoginButton
-          key={item.name}
-          {...item}
-          type={props.type}
-        ></SocialLoginButton>
-      );
+      return <SocialLoginButton key={item.name} {...item} type={props.type} />;
     },
   );
   return <ThirdPartyAuthWrapper>{socialLoginButtons}</ThirdPartyAuthWrapper>;

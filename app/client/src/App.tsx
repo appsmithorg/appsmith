@@ -1,13 +1,11 @@
 import React from "react";
-import { Redirect } from "react-router-dom";
-import { USER_AUTH_URL } from "constants/routes";
 import { useDispatch } from "react-redux";
-import { getCurrentUser } from "actions/userActions";
+import { getCurrentUser } from "actions/authActions";
 
-export const App = () => {
+const App = () => {
   const dispatch = useDispatch();
   dispatch(getCurrentUser());
-  return <Redirect to={USER_AUTH_URL} />;
+  return <div>Loading</div>;
 };
 
 export default App;
