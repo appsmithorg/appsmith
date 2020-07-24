@@ -11,7 +11,6 @@ import {
   renderCell,
   renderActions,
   reorderColumns,
-  compare,
 } from "components/designSystems/appsmith/TableUtilities";
 import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
@@ -24,6 +23,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
+import { compare } from "components/designSystems/appsmith/CascadeFields";
 import moment from "moment";
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
@@ -201,6 +201,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   searchTableData = (tableData: object[]) => {
     const { filters } = this.props;
+    console.log("filters", filters);
     const searchKey =
       this.props.searchKey !== undefined
         ? this.props.searchKey.toString().toUpperCase()
@@ -213,10 +214,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           .includes(searchKey);
       })
       .filter((item: { [key: string]: any }) => {
-        return true;
-        // return (
-        //   !filter || compare(item[filter.column], filter.value, filter.operator)
-        // );
+        if (!filters) return true;
+        let filter = false;
+        for (let i = 0; i < filters.length; i++) {
+          filter =
+            filter ||
+            compare(
+              item[filters[i].column],
+              filters[i].value,
+              filters[i].operator,
+            );
+        }
+        return filter;
       });
   };
 

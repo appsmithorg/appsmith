@@ -13,7 +13,9 @@ import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.s
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import Button from "components/editorComponents/Button";
-import CascadeFields from "components/designSystems/appsmith/CascadeFields";
+import CascadeFields, {
+  Operator,
+} from "components/designSystems/appsmith/CascadeFields";
 
 const TableFilerWrapper = styled.div`
   display: flex;
@@ -46,10 +48,9 @@ const DropdownTrigger = styled.div`
     margin-right: 0;
   }
 `;
-
 export interface ReactTableFilter {
   column: string;
-  operator: string;
+  operator: Operator;
   value: any;
 }
 
