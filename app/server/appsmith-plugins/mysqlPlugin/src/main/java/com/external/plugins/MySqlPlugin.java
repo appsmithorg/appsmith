@@ -69,7 +69,7 @@ public class MySqlPlugin extends BasePlugin {
             } catch (SQLException error) {
                 // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                 // here, this should never happen.
-                log.error("Error checking validity of Postgres connection.", error);
+                log.error("Error checking validity of MySQL connection.", error);
             }
 
             String query = actionConfiguration.getBody();
