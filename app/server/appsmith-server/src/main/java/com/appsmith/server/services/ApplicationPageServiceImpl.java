@@ -15,6 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -248,6 +249,52 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(Mono.just(savedApplication), savedPage, true));
                 });
+    }
+
+    @Override
+    public Mono<Application> cloneApplication(Application application) {
+        if (!StringUtils.hasText(application.getName())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
+        }
+
+        String orgId = application.getOrganizationId();
+        if (!StringUtils.hasText(orgId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
+
+        // Clean the object so that it will be saved as a new application for the currently signed in user.
+        application.setId(null);
+        if (application.getPolicies() != null) {
+            application.getPolicies().clear();
+        }
+        if (application.getPages() != null) {
+            application.getPages().clear();
+        }
+
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+        Mono<Application> applicationWithPoliciesMono = userMono
+                .flatMap(user -> {
+                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
+
+                    return orgMono.map(org -> {
+                        application.setOrganizationId(org.getId());
+                        // At the organization level, filter out all the application specific policies and apply them
+                        // to the new application that we are creating.
+                        Set<Policy> policySet = org.getPolicies().stream()
+                                .filter(policy ->
+                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
+                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
+                                ).collect(Collectors.toSet());
+
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Application.class);
+                        application.setPolicies(documentPolicies);
+                        return application;
+                    });
+                });
+
+        return applicationWithPoliciesMono
+                .flatMap(applicationService::createDefault);
     }
 
     private void generateAndSetPagePolicies(Application application, User user, Page page) {

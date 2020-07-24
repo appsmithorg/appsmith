@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -144,42 +143,53 @@ public class ExamplesOrganizationCloner {
                 .findByOrganizationIdAndIsPublicTrue(fromOrganizationId)
                 .flatMap(application -> {
                     final String templateApplicationId = application.getId();
-                    makePristine(application);
                     application.setOrganizationId(toOrganizationId);
-                    if (!CollectionUtils.isEmpty(application.getPages())) {
-                        application.getPages().clear();
-                    }
-                    return Flux.combineLatest(
-                            pageRepository.findByApplicationId(templateApplicationId),
-                            applicationPageService.createApplication(application).cache(),
-                            (page, savedApplication) -> {
-                                log.info("Cloned application {} into new application {}", templateApplicationId, savedApplication.getId());
-                                page.setApplicationId(savedApplication.getId());
-                                return page;
-                            }
-                    );
+                    return applicationPageService
+                            .cloneApplication(application)
+                            .flatMapMany(
+                                    savedApplication -> pageRepository
+                                            .findByApplicationId(templateApplicationId)
+                                            .map(page -> {
+                                                log.info("Preparing page for cloning {} {}.", page.getName(), page.getId());
+                                                page.setApplicationId(savedApplication.getId());
+                                                return page;
+                                            })
+                            );
                 })
                 .flatMap(page -> {
                     final String templatePageId = page.getId();
                     makePristine(page);
-                    return Flux.combineLatest(
-                            actionRepository.findByPageId(templatePageId),
-                            applicationPageService.createPage(page).cache(),
-                            (action, savedPage) -> {
-                                action.setPageId(savedPage.getId());
-                                return action;
-                            }
-                    );
+                    return applicationPageService
+                            .createPage(page)
+                            .flatMapMany(
+                                    savedPage -> actionRepository
+                                            .findByPageId(templatePageId)
+                                            .map(action -> {
+                                                log.info("Preparing action for cloning {} {}.", action.getName(), action.getId());
+                                                action.setPageId(savedPage.getId());
+                                                return action;
+                                            })
+                            );
                 })
-                .zipWith(cloneDatasourcesMono)
-                .flatMap(tuple -> {
-                    final Action action = tuple.getT1();
-                    final Map<String, Datasource> newDatasourcesByTemplateId = tuple.getT2();
+                .flatMap(action -> {
+                    log.info("Creating clone of action {}", action.getId());
                     makePristine(action);
                     action.setOrganizationId(toOrganizationId);
                     action.setCollectionId(null);
-                    action.setDatasource(newDatasourcesByTemplateId.get(action.getDatasource().getId()));
-                    return actionService.create(action);
+                    Mono<Action> actionMono = Mono.just(action);
+                    final Datasource datasourceInsideAction = action.getDatasource();
+                    if (datasourceInsideAction != null) {
+                        if (datasourceInsideAction.getId() != null) {
+                            actionMono = cloneDatasourcesMono
+                                    .map(newDatasourcesByTemplateId -> {
+                                        action.setDatasource(newDatasourcesByTemplateId.get(datasourceInsideAction.getId()));
+                                        return action;
+                                    });
+                        } else {
+                            datasourceInsideAction.setOrganizationId(toOrganizationId);
+                        }
+                    }
+                    return actionMono.flatMap(actionService::create);
                 })
                 .then();
     }
