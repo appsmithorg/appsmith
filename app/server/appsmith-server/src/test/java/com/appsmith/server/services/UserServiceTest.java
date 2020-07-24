@@ -20,7 +20,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -162,6 +161,7 @@ public class UserServiceTest {
                     assertThat(user.getName()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
+                    assertThat(user.getOrganizationIds()).isNotNull();
                     assertThat(user.getOrganizationIds().size()).isEqualTo(1);
                 })
                 .verifyComplete();

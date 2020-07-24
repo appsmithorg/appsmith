@@ -8,7 +8,6 @@ import com.appsmith.server.dtos.ExecuteActionDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,7 +17,7 @@ public interface ActionService extends CrudService<Action, String> {
 
     Mono<Action> save(Action action);
 
-    Mono<Action> findByNameAndPageId(String name, String pageId);
+    Mono<Action> findByNameAndPageId(String name, String pageId, AclPermission permission);
 
     Flux<Action> findOnLoadActionsInPage(Set<String> names, String pageId);
 
