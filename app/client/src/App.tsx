@@ -5,7 +5,7 @@ import { getCurrentUser } from "@appsmith/selectors/usersSelectors";
 import { connect } from "react-redux";
 import { User } from "@appsmith/constants/userConstants";
 import { Redirect } from "react-router";
-import { APPLICATIONS_URL } from "@appsmith/constants/routes";
+import { APPLICATIONS_URL } from "constants/routes";
 
 type Props = {
   user?: User;
