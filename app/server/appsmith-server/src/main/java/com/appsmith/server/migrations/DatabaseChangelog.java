@@ -572,8 +572,8 @@ public class DatabaseChangelog {
                                 .users(readActionPolicy.getUsers()).build();
                         action.getPolicies().add(newExecuteActionPolicy);
                     }
+                    mongoTemplate.save(action);
                 }
-                mongoTemplate.save(action);
             }
         }
     }
