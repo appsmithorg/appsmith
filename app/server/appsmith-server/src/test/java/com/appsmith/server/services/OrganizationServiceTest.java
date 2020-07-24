@@ -9,7 +9,7 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
-import com.appsmith.server.dtos.InviteUserDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -295,12 +295,12 @@ public class OrganizationServiceTest {
         Mono<User> userAddedToOrgMono = seedOrganization
                 .flatMap(organization1 -> {
                     // Add user to organization
-                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
-                    inviteUserDTO.setEmail("usertest@usertest.com");
-                    inviteUserDTO.setOrgId(organization1.getId());
-                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    inviteUsersDTO.setEmail("usertest@usertest.com");
+                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
 
-                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080");
                 })
                 .cache();
 
@@ -352,12 +352,12 @@ public class OrganizationServiceTest {
         Mono<User> userAddedToOrgMono = seedOrganization
                 .flatMap(organization1 -> {
                     // Add user to organization
-                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
-                    inviteUserDTO.setEmail("newEmailWhichShouldntExist@usertest.com");
-                    inviteUserDTO.setOrgId(organization1.getId());
-                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    inviteUsersDTO.setEmail("newEmailWhichShouldntExist@usertest.com");
+                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
 
-                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080");
                 })
                 .cache();
 
@@ -417,12 +417,12 @@ public class OrganizationServiceTest {
         Mono<User> userAddedToOrgMono = organizationMono
                 .flatMap(organization1 -> {
                     // Add user to organization
-                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
-                    inviteUserDTO.setEmail("newEmailWhichShouldntExistAsViewer@usertest.com");
-                    inviteUserDTO.setOrgId(organization1.getId());
-                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    inviteUsersDTO.setEmail("newEmailWhichShouldntExistAsViewer@usertest.com");
+                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
-                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080");
                 })
                 .cache();
 
