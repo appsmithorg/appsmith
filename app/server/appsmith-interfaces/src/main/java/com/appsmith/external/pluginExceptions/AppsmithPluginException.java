@@ -29,7 +29,7 @@ public class AppsmithPluginException extends Exception {
     }
 
     public Integer getAppErrorCode() {
-        return this.error.getAppErrorCode();
+        return this.error == null ? 0 : this.error.getAppErrorCode();
     }
 
 }
