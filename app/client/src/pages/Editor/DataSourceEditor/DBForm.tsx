@@ -20,6 +20,8 @@ import { Datasource } from "api/DatasourcesApi";
 import { reduxForm, InjectedFormProps, Field } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { APPSMITH_IP_ADDRESS } from "constants/DatasourceEditorConstants";
+import { getAppsmithConfigs } from "configs";
+const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps {
   onSave: (formValues: Datasource) => void;
@@ -320,19 +322,21 @@ class DatasourceDBEditor extends React.Component<
             focusOnMount={this.props.isNewDatasource}
           />
         </FormTitleContainer>
-        <CollapsibleWrapper>
-          <CollapsibleHelp>
-            <span>{`Whitelist the IP ${APPSMITH_IP_ADDRESS} on your database instance to connect to it. `}</span>
-            <a
-              href={`${HelpBaseURL}${HelpMap["DATASOURCE_FORM"].path}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {"Read more "}
-              <StyledOpenDocsIcon icon="document-open" />
-            </a>
-          </CollapsibleHelp>
-        </CollapsibleWrapper>
+        {cloudHosting && (
+          <CollapsibleWrapper>
+            <CollapsibleHelp>
+              <span>{`Whitelist the IP ${APPSMITH_IP_ADDRESS} on your database instance to connect to it. `}</span>
+              <a
+                href={`${HelpBaseURL}${HelpMap["DATASOURCE_FORM"].path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {"Read more "}
+                <StyledOpenDocsIcon icon="document-open" />
+              </a>
+            </CollapsibleHelp>
+          </CollapsibleWrapper>
+        )}
         {!_.isNil(sections)
           ? _.map(sections, this.renderMainSection)
           : undefined}
