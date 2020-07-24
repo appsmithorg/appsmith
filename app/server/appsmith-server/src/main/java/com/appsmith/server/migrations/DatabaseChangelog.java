@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -40,10 +41,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -541,6 +545,36 @@ public class DatabaseChangelog {
             }
 
             mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "020", id = "execute-action-for-read-action", author = "")
+    public void giveExecutePermissionToReadActionUsers(MongoTemplate mongoTemplate) {
+        final List<Action> actions = mongoTemplate.find(
+                query(where("policies").exists(true)),
+                Action.class
+        );
+
+        for (final Action action : actions) {
+            Set<Policy> policies = action.getPolicies();
+            if (policies.size() > 0) {
+                Optional<Policy> readActionsOptional = policies.stream().filter(policy -> policy.getPermission().equals(READ_ACTIONS.getValue())).findFirst();
+                if (readActionsOptional.isPresent()) {
+                    Policy readActionPolicy = readActionsOptional.get();
+
+                    Optional<Policy> executeActionsOptional = policies.stream().filter(policy -> policy.getPermission().equals(EXECUTE_ACTIONS.getValue())).findFirst();
+                    if (executeActionsOptional.isPresent()) {
+                        Policy executeActionPolicy = executeActionsOptional.get();
+                        executeActionPolicy.getUsers().addAll(readActionPolicy.getUsers());
+                    } else {
+                        // this policy doesnt exist. create and add this to the policy set
+                        Policy newExecuteActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                                .users(readActionPolicy.getUsers()).build();
+                        action.getPolicies().add(newExecuteActionPolicy);
+                    }
+                }
+                mongoTemplate.save(action);
+            }
         }
     }
 }
