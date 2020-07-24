@@ -72,7 +72,7 @@ type EditorHeaderProps = {
   createModal: () => void;
 };
 const navigation: IBreadcrumbProps[] = [
-  { href: BASE_URL, icon: "home", text: "Home" },
+  { href: APPLICATIONS_URL, icon: "home", text: "Home" },
   { href: APPLICATIONS_URL, icon: "folder-close", text: "Applications" },
   { icon: "page-layout", text: "", current: true },
 ];
