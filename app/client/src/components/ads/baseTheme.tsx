@@ -1,13 +1,4 @@
 import { Theme } from "styled-system";
-import tinycolor from "tinycolor2";
-import { Color } from "@appsmith/constants/Colors";
-
-const darken = (color: Color, intensity: number) => {
-  return new tinycolor(color).darken(intensity).toString();
-};
-const lighten = (color: Color, intensity: number) => {
-  return new tinycolor(color).lighten(intensity).toString();
-};
 
 export const adsTheme: Theme = {
   colors: {
@@ -23,15 +14,17 @@ export const adsTheme: Theme = {
       "#E9E9E9",
       "#FFFFFF",
     ],
+    tertiary: {
+      main: "#D4D4D4",
+      light: "#FFFFFF",
+      dark: "#2B2B2B",
+      darker: "#202021",
+    },
     info: {
       main: "#CB4810",
-      // dark: "#B94310",
-      // darker: "#A03C12",
-      // darkest: "#2B2B2B",
-      light: lighten("#CB4810", 16),
-      dark: darken("#CB4810", 8),
-      darker: lighten("#CB4810", 8),
-      darkest: darken("#CB4810", 24),
+      dark: "#8B2E05",
+      darker: "#A03C12",
+      darkest: "#2B2B2B",
     },
     success: {
       main: "#218358",
@@ -59,7 +52,7 @@ export const adsTheme: Theme = {
     main:
       '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
   },
-  space: [0, 3, 14, 7, 16, 11, 26, 10],
+  space: [0, 3, 14, 7, 16, 11, 26, 10, 4, 26, 30, 36, 4, 6, 11],
   fontSizes: [0, 11, 12, 13],
   fontWeights: [0, 200, 300, 400, 500, 600, 700],
   lineHeights: [0, 13, 14, 15],

@@ -10,16 +10,29 @@ export default {
 };
 
 export const withDynamicProps = () => (
-  <Button
-    size={select("size", ["small", "medium", "large"], undefined)}
-    category={select("category", ["primary", "secondary"], undefined)}
-    variant={select(
-      "variant",
-      ["info", "success", "warning", "danger"],
-      undefined,
-    )}
-    text={"button"}
-    icon={select("iconName", ["delete", "user"], undefined)}
-    isLoading={boolean("Loading", false)}
-  ></Button>
+  <div
+    style={{
+      width: "100%",
+      height: "600px",
+      backgroundColor: "#090707",
+      padding: "100px",
+    }}
+  >
+    <Button
+      size={select("size", ["small", "medium", "large"], "large")}
+      category={select(
+        "category",
+        ["primary", "secondary", "tertiary"],
+        "primary",
+      )}
+      variant={select(
+        "variant",
+        ["info", "success", "warning", "danger"],
+        "info",
+      )}
+      icon={select("iconName", ["delete", "user"], undefined)}
+      isLoading={boolean("Loading", false)}
+      isDisabled={boolean("Disabled", false)}
+    ></Button>
+  </div>
 );

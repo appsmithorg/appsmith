@@ -43,7 +43,7 @@ const iconSizeHandler = (props: { size: IconProp }) => {
 };
 
 export type IconProp = "small" | "medium" | "large" | undefined;
-export type IconName = "delete" | "user";
+export type IconName = "delete" | "user" | undefined;
 
 const IconWrapper = styled.div<{ size: IconProp }>`
   &:focus {

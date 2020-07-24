@@ -1,5 +1,5 @@
 export interface CommonComponentProps {
-  loading?: boolean;
+  isLoading?: boolean; //default false
   cypressSelector?: string;
-  disabled?: boolean; //default false
+  isDisabled?: boolean; //default false
 }
