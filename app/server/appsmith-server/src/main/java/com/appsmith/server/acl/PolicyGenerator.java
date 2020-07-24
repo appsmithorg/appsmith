@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -37,6 +38,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
+
 
 @Getter
 @Setter
@@ -112,9 +114,11 @@ public class PolicyGenerator {
 
     private void createActionPolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_PAGES, MANAGE_ACTIONS);
-        hierarchyGraph.addEdge(READ_PAGES, READ_ACTIONS);
+        hierarchyGraph.addEdge(READ_PAGES, EXECUTE_ACTIONS);
 
-        lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);
+        lateralGraph.addEdge(MANAGE_ACTIONS, READ_ACTIONS);
+        lateralGraph.addEdge(MANAGE_ACTIONS, EXECUTE_ACTIONS);
+        lateralGraph.addEdge(READ_ACTIONS, EXECUTE_ACTIONS);
     }
 
     private void createPagePolicyGraph() {

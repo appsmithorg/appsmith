@@ -143,6 +143,9 @@ public class ExamplesOrganizationCloner {
                     final String templateApplicationId = application.getId();
                     makePristine(application);
                     application.setOrganizationId(toOrganizationId);
+                    if (!CollectionUtils.isEmpty(application.getPages())) {
+                        application.getPages().clear();
+                    }
                     return Flux.combineLatest(
                             pageRepository.findByApplicationId(templateApplicationId),
                             applicationPageService.createApplication(application).cache(),
