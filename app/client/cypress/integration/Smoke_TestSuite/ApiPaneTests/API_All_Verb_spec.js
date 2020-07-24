@@ -134,14 +134,7 @@ describe("API Panel Test Functionality", function() {
   it("API check with query params test API fetaure", function() {
     cy.CreateAPI("ThirdAPI");
     cy.log("Creation of API Action successful");
-    cy.EnterSourceDetailsWithQueryParam(
-      testdata.baseUrl,
-      testdata.methods,
-      testdata.headerValueBlank,
-      testdata.headerValueBlank,
-      testdata.queryKey,
-      testdata.queryValue,
-    );
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.queryAndValue);
     cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
