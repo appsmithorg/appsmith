@@ -236,6 +236,10 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
     }
 
+    /**
+    * This function can now only be used if you send the entire datasource object and not just id inside the datasource object. We only fetch
+    * the password from the db if its a saved datasource before testing.
+    */
     @Override
     public Mono<DatasourceTestResult> testDatasource(Datasource datasource) {
         Mono<Datasource> datasourceMono = null;
