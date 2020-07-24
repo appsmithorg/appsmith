@@ -199,6 +199,8 @@ export const Table = (props: TableProps) => {
                         {...cell.getCellProps()}
                         className="td"
                         key={cellIndex}
+                        data-rowindex={rowIndex}
+                        data-colindex={cellIndex}
                       >
                         {cell.render("Cell")}
                       </div>

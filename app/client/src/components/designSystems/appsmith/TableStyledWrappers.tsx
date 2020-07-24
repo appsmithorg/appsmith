@@ -11,6 +11,7 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
   display: flex;
   justify-content: space-between;
   flex-direction: column;
+  overflow: hidden;
   .tableWrap {
     height: 100%;
     display: block;
@@ -22,7 +23,8 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     color: ${Colors.BLUE_BAYOUX};
     position: relative;
     overflow-y: auto;
-    height: ${props => props.height - TABLE_SIZES.TABLE_HEADER_HEIGHT}px;
+    /* Subtracting 9px to handling widget padding */
+    height: ${props => props.height - TABLE_SIZES.TABLE_HEADER_HEIGHT - 9}px;
     .thead,
     .tbody {
       overflow: hidden;
@@ -255,6 +257,7 @@ export const TableHeaderWrapper = styled.div`
   align-items: center;
   width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
+  min-width: 700px;
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div`

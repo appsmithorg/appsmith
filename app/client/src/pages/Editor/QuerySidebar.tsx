@@ -9,8 +9,6 @@ import EditorSidebar from "pages/Editor/EditorSidebar";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { QueryEditorRouteParams } from "constants/routes";
 import { Datasource } from "api/DatasourcesApi";
-import { getPluginImage } from "pages/Editor/QueryEditor/helpers";
-import { Plugin } from "api/PluginApi";
 import {
   createActionRequest,
   moveActionRequest,
@@ -18,7 +16,7 @@ import {
   deleteAction,
 } from "actions/actionActions";
 import { changeQuery, initQueryPane } from "actions/queryPaneActions";
-import { getQueryActions, getPlugins } from "selectors/entitiesSelector";
+import { getQueryActions, getPluginImages } from "selectors/entitiesSelector";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
@@ -53,7 +51,7 @@ const StyledImage = styled.img`
 `;
 
 interface ReduxStateProps {
-  plugins: Plugin[];
+  pluginImages: Record<string, string>;
   queries: ActionDataState;
   apiPane: ApiPaneReduxState;
   actions: ActionDataState;
@@ -128,10 +126,12 @@ class QuerySidebar extends React.Component<Props> {
   };
 
   renderItem = (query: RestAction) => {
+    const { pluginImages } = this.props;
+
     return (
       <ActionItem>
         <StyledImage
-          src={getPluginImage(this.props.plugins, query.datasource.pluginId)}
+          src={pluginImages[query.datasource?.pluginId ?? ""]}
           className="pluginImage"
           alt="Plugin Image"
         />
@@ -168,7 +168,7 @@ class QuerySidebar extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  plugins: getPlugins(state),
+  pluginImages: getPluginImages(state),
   queries: getQueryActions(state),
   apiPane: state.ui.apiPane,
   actions: state.entities.actions,

@@ -190,6 +190,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
+    @Override
+    public Mono<Application> createApplication(Application application) {
+        return createApplication(application, application.getOrganizationId());
+    }
+
+    @Override
     public Mono<Application> createApplication(Application application, String orgId) {
         if (application.getName() == null || application.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
@@ -267,7 +273,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
-                    return pageService.findByApplicationId(id)
+                    return pageService.findByApplicationId(id, READ_PAGES)
                             .flatMap(page -> pageService.delete(page.getId()))
                             .collectList()
                             .thenReturn(application);

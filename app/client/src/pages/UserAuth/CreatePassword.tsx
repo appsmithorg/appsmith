@@ -1,6 +1,6 @@
 import React, { useLayoutEffect } from "react";
 import { AppState } from "reducers";
-import { Link, withRouter, RouteComponentProps } from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, Field } from "redux-form";
 import { CREATE_PASSWORD_FORM_NAME } from "constants/forms";

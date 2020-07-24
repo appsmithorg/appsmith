@@ -334,11 +334,18 @@ export const renderCell = (
             .map((item: string, index: number) => {
               if (imageRegex.test(item)) {
                 return (
-                  <div
-                    key={index}
-                    className="image-cell"
-                    style={{ backgroundImage: `url("${item}")` }}
-                  />
+                  <a
+                    onClick={e => e.stopPropagation()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={item}
+                  >
+                    <div
+                      key={index}
+                      className="image-cell"
+                      style={{ backgroundImage: `url("${item}")` }}
+                    />
+                  </a>
                 );
               } else {
                 return <div>Invalid Image</div>;
@@ -361,7 +368,9 @@ export const renderCell = (
       }
     default:
       const data =
-        isString(value) || isNumber(value) ? value : JSON.stringify(value);
+        isString(value) || isNumber(value)
+          ? value.toString()
+          : JSON.stringify(value);
       return (
         <AutoToolTipComponent title={data.toString()} isHidden={isHidden}>
           {data}
@@ -401,11 +410,7 @@ const TableAction = (props: {
     setLoading(false);
   };
   return (
-    <ActionWrapper
-      onClick={e => {
-        e.stopPropagation();
-      }}
-    >
+    <ActionWrapper>
       <Button
         loading={loading}
         onClick={() => {

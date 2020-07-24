@@ -1,5 +1,8 @@
 import React from "react";
-import { TableWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import {
+  TableWrapper,
+  CellWrapper,
+} from "components/designSystems/appsmith/TableStyledWrappers";
 import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
 
@@ -8,16 +11,19 @@ interface TableProps {
 }
 
 const StyledTableWrapped = styled(TableWrapper)`
-  width: 100%;
+  min-height: 0px;
   height: auto;
-  font-size: 14px;
+  .tableWrap {
+    display: flex;
+    flex: 1;
+  }
   .table {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: auto;
     .tbody {
       overflow: auto;
-      height: auto;
-      max-height: calc(
-        100vh - (100vh / 3) - 230px - ${props => props.theme.headerHeight}
-      );
     }
   }
 `;
@@ -94,7 +100,9 @@ const Table = (props: TableProps) => {
                         data-rowindex={index}
                         data-colindex={cellIndex}
                       >
-                        {cell.render("Cell")}
+                        <CellWrapper isHidden={false}>
+                          {cell.render("Cell")}
+                        </CellWrapper>
                       </div>
                     );
                   })}

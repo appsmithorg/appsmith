@@ -2,7 +2,12 @@ import React from "react";
 import { connect } from "react-redux";
 import { getFormValues, submit } from "redux-form";
 import { AppState } from "reducers";
-import { getPluginPackageFromId } from "selectors/entitiesSelector";
+import _ from "lodash";
+import {
+  getPluginPackageFromId,
+  getPluginImages,
+  getDatasource,
+} from "selectors/entitiesSelector";
 import {
   updateDatasource,
   testDatasource,
@@ -19,7 +24,6 @@ import { RouteComponentProps } from "react-router";
 interface ReduxStateProps {
   formData: Datasource;
   selectedPluginPackage: string;
-  currentPluginId: string;
   isSaving: boolean;
   currentApplication: UserApplication;
   isTesting: boolean;
@@ -27,6 +31,8 @@ interface ReduxStateProps {
   loadingFormConfigs: boolean;
   isDeleting: boolean;
   newDatasource: string;
+  pluginImages: Record<string, string>;
+  pluginId: string;
 }
 
 type Props = ReduxStateProps &
@@ -60,12 +66,15 @@ class DataSourceEditor extends React.Component<Props> {
       isDeleting,
       deleteDatasource,
       newDatasource,
+      pluginImages,
+      pluginId,
     } = this.props;
 
     return (
       <React.Fragment>
         {datasourceId ? (
           <DataSourceEditorForm
+            pluginImage={pluginImages[pluginId]}
             applicationId={this.props.match.params.applicationId}
             pageId={this.props.match.params.pageId}
             isSaving={isSaving}
@@ -96,21 +105,23 @@ class DataSourceEditor extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
+const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
+  const datasource = getDatasource(state, props.match.params.datasourceId);
   const { formConfigs, loadingFormConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
 
   return {
+    pluginImages: getPluginImages(state),
     formData,
+    pluginId: _.get(datasource, "pluginId", ""),
     selectedPluginPackage: getPluginPackageFromId(
       state,
       datasourcePane.selectedPlugin,
     ),
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
-    currentPluginId: datasourcePane.selectedPlugin,
     currentApplication: getCurrentApplication(state),
     isTesting: datasources.isTesting,
     formConfig: formConfigs[datasourcePane.selectedPlugin] || [],

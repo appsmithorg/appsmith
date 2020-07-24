@@ -13,7 +13,6 @@ import TableColumnsVisibility from "components/designSystems/appsmith/TableColum
 import TableFilters, {
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableFilters";
-
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
 import { Colors } from "constants/Colors";
