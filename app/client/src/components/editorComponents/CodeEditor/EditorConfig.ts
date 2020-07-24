@@ -34,8 +34,8 @@ export type EditorConfig = {
 };
 
 export const EditorThemes: Record<EditorTheme, string> = {
-  [EditorTheme.LIGHT]: "neat",
-  [EditorTheme.DARK]: "monokai",
+  [EditorTheme.LIGHT]: "mdn-like",
+  [EditorTheme.DARK]: "midnight",
 };
 
 export type HintHelper = (editor: CodeMirror.Editor, data: DataTree) => Hinter;

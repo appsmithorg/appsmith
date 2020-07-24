@@ -19,12 +19,19 @@ export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
         { ch: ending.start, line: lineNo },
         { ch: ending.end, line: lineNo },
         {
-          className: "binding-highlight",
+          className: "binding-brackets",
         },
       );
       editor.markText(
         { ch: opening.start, line: lineNo },
         { ch: opening.end, line: lineNo },
+        {
+          className: "binding-brackets",
+        },
+      );
+      editor.markText(
+        { ch: opening.start, line: lineNo },
+        { ch: ending.end, line: lineNo },
         {
           className: "binding-highlight",
         },

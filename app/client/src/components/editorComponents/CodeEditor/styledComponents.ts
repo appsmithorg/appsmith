@@ -133,7 +133,13 @@ export const EditorWrapper = styled.div<{
   flex-direction: row;
   text-transform: none;
   && {
-    .binding-highlight {
+    .cm-s-midnight.CodeMirror {
+      background: ${props =>
+        props.editorTheme === EditorTheme.DARK ? "#272822" : "#fff"};
+      color: ${props =>
+        props.editorTheme === EditorTheme.DARK ? "#fff" : "#272822"};
+    }
+    .binding-brackets {
       color: ${props =>
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.bindingTextDark

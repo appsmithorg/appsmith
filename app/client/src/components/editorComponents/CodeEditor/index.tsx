@@ -3,8 +3,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import CodeMirror, { EditorConfiguration } from "codemirror";
 import "codemirror/lib/codemirror.css";
-import "codemirror/theme/monokai.css";
-import "codemirror/theme/neat.css";
+import "codemirror/theme/midnight.css";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
@@ -103,7 +102,7 @@ class CodeEditor extends Component<Props, State> {
     if (this.textArea.current) {
       const options: EditorConfiguration = {
         mode: this.props.mode,
-        theme: EditorThemes[this.props.theme],
+        theme: "midnight",
         viewportMargin: 10,
         tabSize: 2,
         autoCloseBrackets: true,
