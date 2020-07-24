@@ -362,18 +362,14 @@ Cypress.Commands.add("EditApiName", apiname => {
 
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
-  cy.wait(200);
+  cy.wait(2000);
   cy.wait("@saveAction");
   //cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("RunAPI", () => {
   cy.get(ApiEditor.ApiRunBtn).click({ force: true });
-  cy.wait("@postExecute").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("SaveAndRunAPI", () => {
