@@ -1,5 +1,5 @@
 import React from "react";
-import { useHistory, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
@@ -13,6 +13,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { useEffect } from "react";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
+import history from "utils/history";
 
 const StyledPageHeader = styled(StyledHeader)`
   width: 100%;
@@ -36,8 +37,6 @@ type PageHeaderProps = {
 
 export const PageHeader = (props: PageHeaderProps) => {
   const { user } = props;
-  const history = useHistory();
-
   return (
     <StyledPageHeader>
       <LogoContainer>
@@ -45,19 +44,21 @@ export const PageHeader = (props: PageHeaderProps) => {
           <img className="logoimg" src={Logo} alt="Appsmith Logo" />
         </Link>
       </LogoContainer>
-      <StyledDropDownContainer>
-        {user && user.username !== ANONYMOUS_USERNAME ? (
-          <CustomizedDropdown {...DropdownProps(user, user.username)} />
-        ) : (
-          <Button
-            filled
-            text="Sign In"
-            intent={"primary"}
-            size="small"
-            onClick={() => history.push(AUTH_LOGIN_URL)}
-          />
-        )}
-      </StyledDropDownContainer>
+      {user && (
+        <StyledDropDownContainer>
+          {user.username === ANONYMOUS_USERNAME ? (
+            <Button
+              filled
+              text="Sign In"
+              intent={"primary"}
+              size="small"
+              onClick={() => history.push(AUTH_LOGIN_URL)}
+            />
+          ) : (
+            <CustomizedDropdown {...DropdownProps(user, user.username)} />
+          )}
+        </StyledDropDownContainer>
+      )}
     </StyledPageHeader>
   );
 };

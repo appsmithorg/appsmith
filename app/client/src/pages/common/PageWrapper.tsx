@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
-import PageHeader from "./PageHeader";
 
 const Wrapper = styled.section`
   && .fade {
@@ -50,7 +49,6 @@ export const PageWrapper = (props: PageWrapperProps) => (
     <Helmet>
       <title>{`${props.displayName} | Appsmith`}</title>
     </Helmet>
-    <PageHeader />
     <PageBody>{props.children}</PageBody>
   </Wrapper>
 );

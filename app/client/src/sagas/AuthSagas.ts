@@ -29,9 +29,8 @@ function* formLoginSaga() {
     headers: {
       "X-Redirect-Url": "https://dev.appsmith.com/applications",
     },
-    withCredentials: true,
   });
-  yield put(getCurrentUser());
+  yield put(getCurrentUser({}));
   const url = response.request.responseURL.replace(window.location.origin, "");
   history.replace(url);
 }

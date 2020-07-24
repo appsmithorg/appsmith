@@ -72,8 +72,9 @@ export function* createUserSaga(
   }
 }
 
-export function* getCurrentUserSaga() {
+export function* getCurrentUserSaga(action: ReduxAction<{ path?: string }>) {
   try {
+    const { path } = action.payload;
     const response: ApiResponse = yield call(UserApi.getCurrentUser);
 
     const isValidResponse = yield validateResponse(response);
@@ -81,7 +82,11 @@ export function* getCurrentUserSaga() {
       if (response.data.name === "anonymousUser") {
         history.push(AUTH_LOGIN_URL);
       } else {
-        history.push(APPLICATIONS_URL);
+        if (path) {
+          history.push(path);
+        } else {
+          history.push(APPLICATIONS_URL);
+        }
       }
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

@@ -1,11 +1,8 @@
 import React from "react";
-import { useDispatch } from "react-redux";
-import { getCurrentUser } from "actions/authActions";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 const App = () => {
-  const dispatch = useDispatch();
-  dispatch(getCurrentUser());
-  return <div>Loading</div>;
+  return <CenteredWrapper>Loading</CenteredWrapper>;
 };
 
 export default App;

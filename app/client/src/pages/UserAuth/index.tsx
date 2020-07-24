@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, useRouteMatch, useLocation } from "react-router-dom";
+import { Switch, useRouteMatch, useLocation, Redirect } from "react-router-dom";
 import Login from "./Login";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { animated, useTransition } from "react-spring";
@@ -9,6 +9,12 @@ import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
 import CreatePassword from "./CreatePassword";
 import AppRoute from "pages/common/AppRoute";
+import {
+  AUTH_LOGIN_URL,
+  BASE_LOGIN_URL,
+  BASE_SIGNUP_URL,
+  SIGN_UP_URL,
+} from "constants/routes";
 const AnimatedAuthCard = animated(AuthContainer);
 export const UserAuth = () => {
   const { path } = useRouteMatch();
@@ -55,6 +61,8 @@ export const UserAuth = () => {
                 component={CreatePassword}
                 name={"CreatePassword"}
               />
+              <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
+              <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
             </Switch>
           </AuthCard>
         </Centered>

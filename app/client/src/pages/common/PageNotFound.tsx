@@ -3,7 +3,6 @@ import { RouterProps } from "react-router";
 import styled from "styled-components";
 import Button from "components/editorComponents/Button";
 import PageUnavailableImage from "assets/images/404-image.png";
-import PageHeader from "pages/common/PageHeader";
 import { BASE_URL } from "constants/routes";
 
 const Wrapper = styled.div`
@@ -25,7 +24,6 @@ class PageNotFound extends React.PureComponent<RouterProps> {
   public render() {
     return (
       <>
-        <PageHeader />
         <Wrapper>
           <img
             src={PageUnavailableImage}

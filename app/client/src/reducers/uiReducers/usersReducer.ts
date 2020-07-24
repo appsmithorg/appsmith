@@ -77,6 +77,11 @@ const usersReducer = createReducer(initialState, {
     ...state,
     current: action.payload,
   }),
+  [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (state: UsersReduxState) => ({
+    ...state,
+    current: undefined,
+    currentUser: undefined,
+  }),
 });
 
 export interface UsersReduxState {
