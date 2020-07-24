@@ -17,4 +17,6 @@ public interface ActionRepository extends BaseRepository<Action, String>, Custom
             Set<String> names, String pageId);
 
     Mono<Long> countByDatasourceId(String datasourceId);
+
+    Flux<Action> findByPageId(String pageId);
 }

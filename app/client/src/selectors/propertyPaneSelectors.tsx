@@ -47,14 +47,18 @@ export const getWidgetPropsForPropertyPane = createSelector(
     const evaluatedWidget = _.find(evaluatedTree, {
       widgetId: widget.widgetId,
     }) as DataTreeWidget;
-    const widgetProperties = {
-      ...widget,
-      evaluatedValues: { ...evaluatedWidget.evaluatedValues },
-    };
-    if (evaluatedWidget.invalidProps) {
-      const { invalidProps, validationMessages } = evaluatedWidget;
-      widgetProperties.invalidProps = invalidProps;
-      widgetProperties.validationMessages = validationMessages;
+    const widgetProperties = { ...widget };
+    if (evaluatedWidget) {
+      if (evaluatedWidget.evaluatedValues) {
+        widgetProperties.evaluatedValues = {
+          ...evaluatedWidget.evaluatedValues,
+        };
+      }
+      if (evaluatedWidget.invalidProps) {
+        const { invalidProps, validationMessages } = evaluatedWidget;
+        widgetProperties.invalidProps = invalidProps;
+        widgetProperties.validationMessages = validationMessages;
+      }
     }
     return widgetProperties;
   },

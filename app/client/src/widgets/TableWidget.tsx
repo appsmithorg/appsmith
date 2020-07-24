@@ -14,7 +14,7 @@ import {
 } from "components/designSystems/appsmith/TableUtilities";
 import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -198,6 +198,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   searchTableData = (tableData: object[]) => {
+    if (!tableData || !tableData.length) {
+      return [];
+    }
     const searchKey =
       this.props.searchText !== undefined
         ? this.props.searchText.toString().toUpperCase()
@@ -298,6 +301,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
+    this.resetSelectedRowIndex();
     super.updateWidgetMetaProperty("searchText", searchKey);
     if (onSearchTextChanged) {
       super.executeAction({

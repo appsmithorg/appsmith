@@ -6,7 +6,7 @@ fi
 
 
 
-cat > mongo-init.js  << EOF
+cat >| mongo-init.js  << EOF
 let error = false
 print("**** Going to start Mongo seed ****")
 

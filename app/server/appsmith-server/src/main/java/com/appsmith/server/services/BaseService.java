@@ -53,7 +53,8 @@ public abstract class BaseService<R extends BaseRepository & AppsmithRepository,
                        Validator validator,
                        MongoConverter mongoConverter,
                        ReactiveMongoTemplate reactiveMongoTemplate,
-                       R repository, AnalyticsService analyticsService) {
+                       R repository,
+                       AnalyticsService analyticsService) {
         this.scheduler = scheduler;
         this.validator = validator;
         this.mongoConverter = mongoConverter;
