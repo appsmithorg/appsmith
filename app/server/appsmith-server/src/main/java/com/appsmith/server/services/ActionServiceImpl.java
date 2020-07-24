@@ -58,6 +58,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -289,7 +291,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         // 2. Fetch the query from the DB/from dto to get the type
         Mono<Action> actionMono;
         if (actionFromDto.getId() != null) {
-            actionMono = repository.findById(actionFromDto.getId())
+            actionMono = repository.findById(actionFromDto.getId(), EXECUTE_ACTIONS)
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", actionFromDto.getId())))
                     .flatMap(action -> {
                         // This is separately done instead of fetching from the repository using id and isValid. This is
@@ -317,11 +319,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        /** TODO
-                         * Add datasource.findById with execute permissions
-                         */
-                        return datasourceService.findById(action.getDatasource().getId())
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource")));
+                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)));
                     }
                     //The data source in the action has not been persisted.
                     if (action.getDatasource() != null) {
@@ -329,7 +328,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Valid action"));
                     }
-                });
+                })
+                .cache();
 
         Mono<Plugin> pluginMono = datasourceMono
                 .flatMap(datasource -> {
@@ -533,7 +533,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .flatMapMany(Flux::fromIterable)
                 .map(pageNameIdDTO -> pageNameIdDTO.getId())
                 .collectList()
-                .flatMapMany(pages -> repository.findAllActionsByNameAndPageIds(null, pages, READ_ACTIONS, sort))
+                // Since this is to fetch actions just for execution, instead of reading actions with READ_ACTIONS permission
+                // read actions with EXECUTE_ACTIONS permission only
+                .flatMapMany(pages -> repository.findAllActionsByNameAndPageIds(null, pages, EXECUTE_ACTIONS, sort))
                 .map(action -> {
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
                     actionViewDTO.setId(action.getId());

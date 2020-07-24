@@ -121,5 +121,17 @@ describe("Create new org and share with a user", function() {
       expect($lis.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
       expect($lis.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
+    cy.xpath(homePage.appHome)
+      .should("be.visible")
+      .click();
+    cy.wait("@applications").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.SearchApp(appid);
+    cy.get("#loading").should("not.exist");
+    cy.wait("@getPropertyPane");
+    cy.get("@getPropertyPane").should("have.property", "status", 200);
   });
 });

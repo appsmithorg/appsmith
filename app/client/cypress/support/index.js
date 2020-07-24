@@ -25,6 +25,12 @@ Cypress.on("uncaught:exception", (err, runnable) => {
   return false;
 });
 
+Cypress.on("fail", (error, runnable) => {
+  debugger;
+  throw error; // throw error to have test still fail
+  return false;
+});
+
 before(function() {
   cy.startServerAndRoutes();
   const username = Cypress.env("USERNAME");
