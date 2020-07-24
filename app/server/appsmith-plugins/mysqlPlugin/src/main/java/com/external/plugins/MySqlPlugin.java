@@ -41,6 +41,7 @@ public class MySqlPlugin extends BasePlugin {
 
     private static final String USER = "user";
     private static final String PASSWORD = "password";
+    private static final int VALIDITY_CHECK_TIMEOUT = 5;
 
     public MySqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -62,7 +63,7 @@ public class MySqlPlugin extends BasePlugin {
             Connection conn = (Connection) connection;
 
             try {
-                if (conn == null || conn.isClosed() || !conn.isValid(5)) {
+                if (conn == null || conn.isClosed() || !conn.isValid(VALIDITY_CHECK_TIMEOUT)) {
                     log.info("Encountered stale connection in MySQL plugin. Reporting back.");
                     throw new StaleConnectionException();
                 }

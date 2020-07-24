@@ -48,6 +48,7 @@ public class PostgresPlugin extends BasePlugin {
     private static final String PASSWORD = "password";
     private static final String SSL = "ssl";
     private static final String DATE_COLUMN_TYPE_NAME = "date";
+    private static final int VALIDITY_CHECK_TIMEOUT = 5;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -69,7 +70,7 @@ public class PostgresPlugin extends BasePlugin {
             Connection conn = (Connection) connection;
 
             try {
-                if (conn == null || conn.isClosed() || !conn.isValid(5)) {
+                if (conn == null || conn.isClosed() || !conn.isValid(VALIDITY_CHECK_TIMEOUT)) {
                     log.info("Encountered stale connection in Postgres plugin. Reporting back.");
                     throw new StaleConnectionException();
                 }
