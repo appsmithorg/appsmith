@@ -368,9 +368,11 @@ export const renderCell = (
       }
     default:
       const data =
-        isString(value) || isNumber(value) ? value : JSON.stringify(value);
+        isString(value) || isNumber(value)
+          ? value.toString()
+          : JSON.stringify(value);
       return (
-        <AutoToolTipComponent title={data.toString()} isHidden={isHidden}>
+        <AutoToolTipComponent title={data} isHidden={isHidden}>
           {data}
         </AutoToolTipComponent>
       );
