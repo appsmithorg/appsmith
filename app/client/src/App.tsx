@@ -1,9 +1,9 @@
 import React from "react";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { AppState } from "@appsmith/reducers";
-import { getCurrentUser } from "@appsmith/selectors/usersSelectors";
+import { AppState } from "reducers";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { connect } from "react-redux";
-import { User } from "@appsmith/constants/userConstants";
+import { User } from "constants/userConstants";
 import { Redirect } from "react-router";
 import { APPLICATIONS_URL } from "constants/routes";
 
