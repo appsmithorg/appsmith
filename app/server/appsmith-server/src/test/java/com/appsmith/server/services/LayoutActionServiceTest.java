@@ -100,7 +100,7 @@ public class LayoutActionServiceTest {
             JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
             layout.setDsl(dsl);
             layout.setPublishedDsl(dsl);
-            pageService.save(testPage).block();
+            layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
 
             testPage = pageService.getById(pageId).block();
         }
