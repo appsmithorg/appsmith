@@ -118,6 +118,9 @@ public class ExamplesOrganizationCloner {
                     User userUpdate = new User();
                     userUpdate.setExamplesOrganizationId(newOrganization.getId());
                     userUpdate.setPasswordResetInitiated(user.getPasswordResetInitiated());
+                    userUpdate.setSource(user.getSource());
+                    userUpdate.setGroupIds(null);
+                    userUpdate.setPolicies(null);
                     return Mono
                             .when(
                                     userService.update(user.getId(), userUpdate),
@@ -143,6 +146,9 @@ public class ExamplesOrganizationCloner {
                     final String templateApplicationId = application.getId();
                     makePristine(application);
                     application.setOrganizationId(toOrganizationId);
+                    if (!CollectionUtils.isEmpty(application.getPages())) {
+                        application.getPages().clear();
+                    }
                     return Flux.combineLatest(
                             pageRepository.findByApplicationId(templateApplicationId),
                             applicationPageService.createApplication(application).cache(),

@@ -9,6 +9,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
@@ -47,6 +48,7 @@ public class PostgresPlugin extends BasePlugin {
     private static final String PASSWORD = "password";
     private static final String SSL = "ssl";
     private static final String DATE_COLUMN_TYPE_NAME = "date";
+    private static final int VALIDITY_CHECK_TIMEOUT = 5;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -61,11 +63,22 @@ public class PostgresPlugin extends BasePlugin {
     public static class PostgresPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<Object> execute(@NonNull Object connection,
+        public Mono<Object> execute(Object connection,
                                     DatasourceConfiguration datasourceConfiguration,
                                     ActionConfiguration actionConfiguration) {
 
             Connection conn = (Connection) connection;
+
+            try {
+                if (conn == null || conn.isClosed() || !conn.isValid(VALIDITY_CHECK_TIMEOUT)) {
+                    log.info("Encountered stale connection in Postgres plugin. Reporting back.");
+                    throw new StaleConnectionException();
+                }
+            } catch (SQLException error) {
+                // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
+                // here, this should never happen.
+                log.error("Error checking validity of Postgres connection.", error);
+            }
 
             String query = actionConfiguration.getBody();
 

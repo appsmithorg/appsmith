@@ -116,6 +116,8 @@ public class ExamplesOrganizationClonerTests {
                                     "1 - public app"
                             );
 
+                    assertThat(applications.get(0).getPages()).hasSize(1);
+
                     final List<Datasource> datasources = tuple.getT3();
                     assertThat(datasources).isEmpty();
                 })

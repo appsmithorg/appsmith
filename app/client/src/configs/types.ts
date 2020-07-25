@@ -55,6 +55,8 @@ export type AppsmithUIConfigs = {
   enableMixpanel: boolean;
   enableTNCPP: boolean;
 
+  cloudHosting: boolean;
+
   featureFlag?: FeatureFlagConfig;
   logLevel: LogLevelDesc;
 };
