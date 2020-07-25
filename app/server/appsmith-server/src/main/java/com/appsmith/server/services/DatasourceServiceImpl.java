@@ -236,24 +236,39 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
     }
 
+    /**
+    * This function can now only be used if you send the entire datasource object and not just id inside the datasource object. We only fetch
+    * the password from the db if its a saved datasource before testing.
+    */
     @Override
     public Mono<DatasourceTestResult> testDatasource(Datasource datasource) {
-        Mono<Datasource> datasourceMono;
+        Mono<Datasource> datasourceMono = null;
 
-        if (datasource.getId() != null) {
-            datasourceMono = getById(datasource.getId())
-                    // If datasource has encrypted fields, decrypt them
-                    .map(datasourceFromRepo-> {
-                        if (datasourceFromRepo.getDatasourceConfiguration()!=null && datasourceFromRepo.getDatasourceConfiguration().getAuthentication()!=null) {
-                            AuthenticationDTO authentication = datasourceFromRepo.getDatasourceConfiguration().getAuthentication();
-                            if (authentication.getPassword() != null) {
-                                authentication.setPassword(encryptionService.decryptString(authentication.getPassword()));
+        // Fetch the password from the db if the datasource being tested does not have password set.
+        // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
+        // password field (because password is not sent over the network after encryption back to the client
+        if (datasource.getId() != null && datasource.getDatasourceConfiguration()!=null &&
+                datasource.getDatasourceConfiguration().getAuthentication()!=null) {
+            String password = datasource.getDatasourceConfiguration().getAuthentication().getPassword();
+            if (password == null || password.isEmpty()) {
+
+                datasourceMono = getById(datasource.getId())
+                        // If datasource has encrypted password, decrypt and set it in the datasource which is being tested
+                        .map(datasourceFromRepo-> {
+                            if (datasourceFromRepo.getDatasourceConfiguration()!=null && datasourceFromRepo.getDatasourceConfiguration().getAuthentication()!=null) {
+                                AuthenticationDTO authentication = datasourceFromRepo.getDatasourceConfiguration().getAuthentication();
+                                if (authentication.getPassword() != null) {
+                                    String decryptedPassword = encryptionService.decryptString(authentication.getPassword());
+                                    datasource.getDatasourceConfiguration().getAuthentication().setPassword(decryptedPassword);
+                                }
                             }
-                            datasourceFromRepo.getDatasourceConfiguration().setAuthentication(authentication);
-                        }
-                        return datasourceFromRepo;
-                    });
-        } else {
+                            return datasource;
+                        })
+                        .switchIfEmpty(Mono.just(datasource));
+            }
+        }
+
+        if (datasourceMono == null) {
             datasourceMono = Mono.just(datasource);
         }
 

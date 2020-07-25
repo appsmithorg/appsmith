@@ -14,7 +14,7 @@ import {
 } from "components/designSystems/appsmith/TableUtilities";
 import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -33,7 +33,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevPageKey: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
-      searchKey: VALIDATION_TYPES.TEXT,
+      searchText: VALIDATION_TYPES.TEXT,
       // columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
       // onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
       // onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
@@ -50,7 +50,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo: 1,
       pageSize: undefined,
       selectedRowIndex: -1,
-      searchKey: "",
+      searchText: "",
     };
   }
 
@@ -58,7 +58,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       onRowSelected: true,
       onPageChange: true,
-      onSearch: true,
+      onSearchTextChanged: true,
     };
   }
 
@@ -198,9 +198,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   searchTableData = (tableData: object[]) => {
+    if (!tableData || !tableData.length) {
+      return [];
+    }
     const searchKey =
-      this.props.searchKey !== undefined
-        ? this.props.searchKey.toString().toUpperCase()
+      this.props.searchText !== undefined
+        ? this.props.searchText.toString().toUpperCase()
         : "";
     return tableData.filter((item: object) => {
       return Object.values(item)
@@ -246,7 +249,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           isLoading={this.props.isLoading}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
-          searchKey={this.props.searchKey}
+          searchKey={this.props.searchText}
           renderMode={this.props.renderMode}
           hiddenColumns={hiddenColumns}
           columnActions={this.props.columnActions}
@@ -297,11 +300,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   handleSearchTable = (searchKey: any) => {
-    const { onSearch } = this.props;
-    super.updateWidgetMetaProperty("searchKey", searchKey);
-    if (onSearch) {
+    const { onSearchTextChanged } = this.props;
+    this.resetSelectedRowIndex();
+    super.updateWidgetMetaProperty("searchText", searchKey);
+    if (onSearchTextChanged) {
       super.executeAction({
-        dynamicString: onSearch,
+        dynamicString: onSearchTextChanged,
         event: {
           type: EventType.ON_SEARCH,
         },
@@ -381,12 +385,12 @@ export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
-  searchKey: string;
+  searchText: string;
   tableData: object[];
   onPageChange?: string;
   pageSize: number;
   onRowSelected?: string;
-  onSearch: string;
+  onSearchTextChanged: string;
   selectedRowIndex?: number;
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;

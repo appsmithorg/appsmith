@@ -118,6 +118,9 @@ public class ExamplesOrganizationCloner {
                     User userUpdate = new User();
                     userUpdate.setExamplesOrganizationId(newOrganization.getId());
                     userUpdate.setPasswordResetInitiated(user.getPasswordResetInitiated());
+                    userUpdate.setSource(user.getSource());
+                    userUpdate.setGroupIds(null);
+                    userUpdate.setPolicies(null);
                     return Mono
                             .when(
                                     userService.update(user.getId(), userUpdate),
