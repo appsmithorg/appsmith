@@ -53,7 +53,6 @@ import java.util.UUID;
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -559,40 +558,6 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void updateActionUpdatesLayout() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        Action action = new Action();
-        action.setName("query1");
-        action.setPageId(testPage.getId());
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        Mono<Page> resultMono = actionService
-                .create(action)
-                .flatMap(savedAction -> {
-                    Action updates = new Action();
-                    updates.setExecuteOnLoad(true);
-                    updates.setPolicies(null);
-                    updates.setUserPermissions(null);
-                    return layoutActionService.updateAction(savedAction.getId(), updates);
-                })
-                .flatMap(savedAction -> pageService.findById(testPage.getId(), READ_PAGES));
-
-        StepVerifier
-                .create(resultMono)
-                .assertNext(page -> {
-                    assertThat(page.getLayouts()).hasSize(2);
-                    assertThat(page.getLayouts().get(1).getLayoutOnLoadActions()).hasSize(1);
-                    assertThat(page.getLayouts().get(1).getLayoutOnLoadActions().get(0).iterator().next().getName()).isEqualTo("query1");
                 })
                 .verifyComplete();
     }
