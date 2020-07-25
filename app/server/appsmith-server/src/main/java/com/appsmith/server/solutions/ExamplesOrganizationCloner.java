@@ -212,7 +212,7 @@ public class ExamplesOrganizationCloner {
                     }
                     makePristine(datasource);
                     datasource.setOrganizationId(toOrganizationId);
-                    datasource.setName(datasource.getName() + " cloned " + Math.random());
+                    datasource.setName(datasource.getName());
                     return Mono.zip(
                             Mono.just(templateDatasourceId),
                             datasourceService.create(datasource)
