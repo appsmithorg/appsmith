@@ -13,6 +13,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
@@ -28,6 +29,7 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +53,7 @@ import java.util.UUID;
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -91,6 +94,9 @@ public class ActionServiceTest {
     @Autowired
     LayoutActionService layoutActionService;
 
+    @Autowired
+    LayoutService layoutService;
+
     Application testApp = null;
 
     Page testPage = null;
@@ -110,7 +116,15 @@ public class ActionServiceTest {
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
             testApp = applicationPageService.createApplication(application, organization.getId()).block();
-            testPage = pageService.getById(testApp.getPages().get(0).getId()).block();
+
+            final String pageId = testApp.getPages().get(0).getId();
+            Layout layout = new Layout();
+            JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
+            layout.setDsl(dsl);
+            layout.setPublishedDsl(dsl);
+            layoutService.createLayout(pageId, layout).block();
+
+            testPage = pageService.getById(pageId).block();
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
@@ -545,6 +559,40 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateActionUpdatesLayout() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Action action = new Action();
+        action.setName("query1");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<Page> resultMono = actionService
+                .create(action)
+                .flatMap(savedAction -> {
+                    Action updates = new Action();
+                    updates.setExecuteOnLoad(true);
+                    updates.setPolicies(null);
+                    updates.setUserPermissions(null);
+                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                })
+                .flatMap(savedAction -> pageService.findById(testPage.getId(), READ_PAGES));
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(page -> {
+                    assertThat(page.getLayouts()).hasSize(2);
+                    assertThat(page.getLayouts().get(1).getLayoutOnLoadActions()).hasSize(1);
+                    assertThat(page.getLayouts().get(1).getLayoutOnLoadActions().get(0).iterator().next().getName()).isEqualTo("query1");
                 })
                 .verifyComplete();
     }

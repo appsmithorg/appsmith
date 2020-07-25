@@ -510,30 +510,19 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return dbAction;
                 })
                 .flatMap(actionService::validateAndSaveActionToRepository)
-                .flatMap(savedAction -> {
+                .flatMap(savedAction ->
                     // Now that the action has been saved, update the page layout as well
-                    String pageId = savedAction.getPageId();
-                    Mono<Object> updateLayoutsMono = null;
-                    if (pageId != null) {
-                        updateLayoutsMono = pageService.findById(pageId, MANAGE_PAGES)
-                                .map(page -> {
-                                    if (page.getLayouts() == null) {
-                                        return Mono.empty();
-                                    }
-
-                                    return Mono.just(page.getLayouts())
-                                            .flatMapMany(Flux::fromIterable)
-                                            .map(layout -> this.updateLayout(page.getId(), layout.getId(), layout))
-                                            .collect(toSet())
-                                            .then(Mono.just(savedAction));
-                                });
-                    }
-                    if (updateLayoutsMono != null) {
-                        return updateLayoutsMono
-                                .then(Mono.just(savedAction));
-                    }
-                    return Mono.just(savedAction);
-                })
+                    Mono.justOrEmpty(savedAction.getPageId())
+                            .flatMap(pageId -> pageService.findById(pageId, MANAGE_PAGES))
+                            .flatMapMany(page -> {
+                                if (page.getLayouts() == null) {
+                                    return Mono.empty();
+                                }
+                                return Flux.fromIterable(page.getLayouts())
+                                        .flatMap(layout -> updateLayout(page.getId(), layout.getId(), layout));
+                            })
+                            .then(Mono.just(savedAction))
+                )
                 .map(savedAction -> {
                             Action act = (Action) savedAction;
                             analyticsService
