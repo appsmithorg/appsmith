@@ -8,12 +8,7 @@ describe("API Panel Test Functionality", function() {
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
-    cy.EnterSourceDetailsWithHeader(
-      testdata.baseUrl,
-      testdata.methods,
-      testdata.headerKey,
-      testdata.headerValue,
-    );
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.get(apiwidget.createApiOnSideBar)

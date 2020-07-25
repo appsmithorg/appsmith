@@ -4,7 +4,7 @@ if [ ! -f docker-compose.yml ]; then
     touch docker-compose.yml
 fi
 
-cat > docker-compose.yml  << EOF
+cat >| docker-compose.yml  << EOF
 version: "3.7"
 
 services:

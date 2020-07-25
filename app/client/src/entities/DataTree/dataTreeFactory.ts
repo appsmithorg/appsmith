@@ -28,13 +28,14 @@ export type RunActionPayload = {
   actionId: string;
   onSuccess: string;
   onError: string;
+  params: Record<string, any>;
 };
 
 export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   data: ActionResponse["body"];
   actionId: string;
   config: Partial<ActionConfig>;
-  run: ActionDispatcher<RunActionPayload, [string, string]> | {};
+  run: ActionDispatcher<RunActionPayload, [string, string, string]> | {};
   dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
@@ -103,13 +104,19 @@ export class DataTreeFactory {
         dynamicBindingPathList,
         data: a.data ? a.data.body : {},
         run: withFunctions
-          ? function(this: DataTreeAction, onSuccess: string, onError: string) {
+          ? function(
+              this: DataTreeAction,
+              onSuccess: string,
+              onError: string,
+              params = "",
+            ) {
               return {
                 type: "RUN_ACTION",
                 payload: {
                   actionId: this.actionId,
                   onSuccess: onSuccess ? `{{${onSuccess.toString()}}}` : "",
                   onError: onError ? `{{${onError.toString()}}}` : "",
+                  params,
                 },
               };
             }

@@ -64,6 +64,7 @@ export const entityDefinitions = {
     pageNo: "number",
     pageSize: "number",
     isVisible: isVisible,
+    searchText: "string",
   }),
   DROP_DOWN_WIDGET: {
     "!doc":

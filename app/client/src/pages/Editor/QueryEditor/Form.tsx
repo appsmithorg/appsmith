@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import styled, { createGlobalStyle } from "styled-components";
@@ -10,6 +10,7 @@ import {
   OptionTypeBase,
   SingleValueProps,
 } from "react-select";
+import _ from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import TemplateMenu from "./TemplateMenu";
@@ -19,7 +20,6 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "api/DatasourcesApi";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
-import { PLUGIN_PACKAGE_POSTGRES } from "constants/QueryEditorConstants";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
 import Table from "./Table";
@@ -28,13 +28,22 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  EditorModes,
+  EditorSize,
+} from "components/editorComponents/CodeEditor/EditorConfig";
+import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
+import {
+  getPluginResponseTypes,
+  getPluginDocumentationLinks,
+} from "selectors/entitiesSelector";
 
 const QueryFormContainer = styled.div`
-  font-size: 20px;
   padding: 20px 32px;
   width: 100%;
-  max-height: 93vh;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - ${props => props.theme.headerHeight});
   a {
     font-size: 14px;
     line-height: 20px;
@@ -45,7 +54,7 @@ const QueryFormContainer = styled.div`
     border-radius: 4px;
     border: 1px solid #d0d7dd;
     font-size: 14px;
-    height: calc(100vh / 3);
+    height: calc(100vh / 4);
   }
   .statementTextArea {
     font-size: 14px;
@@ -80,17 +89,6 @@ const ActionButton = styled(BaseButton)`
     margin: 0 5px;
     min-height: 30px;
   }
-`;
-
-const ResponseContainer = styled.div`
-  margin-top: 20px;
-`;
-
-const ResponseContent = styled.div`
-  height: calc(
-    100vh - (100vh / 3) - 175px - ${props => props.theme.headerHeight}
-  );
-  overflow: auto;
 `;
 
 const DropdownSelect = styled.div`
@@ -194,6 +192,27 @@ const StyledCheckbox = styled(CheckboxField)`
   }
 `;
 
+const StyledOpenDocsIcon = styled(Icon)`
+  svg {
+    width: 12px;
+    height: 18px;
+  }
+`;
+
+const NameWrapper = styled.div`
+  width: 39%;
+  display: flex;
+  justify-content: space-between;
+  input {
+    margin: 0;
+    box-sizing: border-box;
+  }
+`;
+
+const CollapsibleWrapper = styled.div`
+  width: 200px;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -203,10 +222,9 @@ type QueryFormProps = {
   dataSources: Datasource[];
   DATASOURCES_OPTIONS: any;
   executedQueryData: {
-    body: Record<string, any>[];
+    body: Record<string, any>[] | string;
   };
   applicationId: string;
-  selectedPluginPackage: string | undefined;
   runErrorMessage: string | undefined;
   pageId: string;
   location: {
@@ -216,6 +234,9 @@ type QueryFormProps = {
 
 type ReduxProps = {
   actionName: string;
+  responseType: string | undefined;
+  pluginId: string;
+  documentationLink: string | undefined;
 };
 
 export type StateAndRouteProps = QueryFormProps & ReduxProps;
@@ -235,32 +256,28 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     applicationId,
     dataSources,
     executedQueryData,
-    selectedPluginPackage,
     createTemplate,
     runErrorMessage,
+    pluginId,
+    responseType,
+    documentationLink,
   } = props;
 
   const [showTemplateMenu, setMenuVisibility] = useState(true);
-
-  const isSQL = selectedPluginPackage === PLUGIN_PACKAGE_POSTGRES;
-  const isNewQuery =
-    new URLSearchParams(window.location.search).get("new") === "true";
-  let queryOutput: {
-    body: Record<string, any>[];
-  } = { body: [] };
-  const inputEl = useRef<HTMLInputElement>();
+  let error = runErrorMessage;
+  let output: Record<string, any>[] | null = null;
 
   if (executedQueryData) {
-    if (isSQL && executedQueryData.body.length) {
-      queryOutput = executedQueryData;
+    if (_.isString(executedQueryData.body)) {
+      error = executedQueryData.body;
+    } else {
+      output = executedQueryData.body;
     }
   }
 
-  useEffect(() => {
-    if (isNewQuery) {
-      inputEl.current?.select();
-    }
-  }, [isNewQuery]);
+  const isSQL = responseType === "TABLE";
+  const isNewQuery =
+    new URLSearchParams(window.location.search).get("new") === "true";
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (
@@ -316,7 +333,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     <QueryFormContainer>
       <form onSubmit={handleSubmit}>
         <FormRow>
-          <ActionNameEditor />
+          <NameWrapper>
+            <ActionNameEditor />
+          </NameWrapper>
           <DropdownSelect>
             <DropdownField
               placeholder="Datasource"
@@ -350,8 +369,10 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                   <ActionButton
                     className="t--run-query"
                     text="Run"
-                    accent="primary"
+                    filled
                     loading={isRunning}
+                    accent="primary"
+                    onClick={onRunClick}
                   />
                   <div>
                     <p className="popuptext">
@@ -376,55 +397,68 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               <ActionButton
                 className="t--run-query"
                 text="Run"
+                filled
                 loading={isRunning}
-                accent="secondary"
+                accent="primary"
                 onClick={onRunClick}
               />
             )}
           </ActionButtons>
         </FormRow>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+          }}
+        >
           <p className="statementTextArea">Query Statement</p>
-          {isSQL ? (
-            <a
-              href="https://www.postgresql.org/docs/12/index.html"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              PostgreSQL docs
-            </a>
-          ) : (
-            <a
-              href="https://docs.mongodb.com/manual/reference/command/nav-crud/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Mongo docs
-            </a>
+
+          {documentationLink && (
+            <CollapsibleWrapper>
+              <CollapsibleHelp>
+                <a
+                  href={documentationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {"Documentation "}
+                  <StyledOpenDocsIcon icon="document-open" />
+                </a>
+              </CollapsibleHelp>
+            </CollapsibleWrapper>
           )}
         </div>
-        {isNewQuery && showTemplateMenu && selectedPluginPackage ? (
+
+        {isNewQuery && showTemplateMenu && pluginId ? (
           <TemplateMenu
             createTemplate={templateString => {
               setMenuVisibility(false);
               createTemplate(templateString);
             }}
-            selectedPluginPackage={selectedPluginPackage}
+            pluginId={pluginId}
           />
         ) : isSQL ? (
-          <DynamicTextField
-            name="actionConfiguration.body"
-            dataTreePath={`${props.actionName}.config.body`}
-            className="textAreaStyles"
-            mode={EditorModes.SQL_WITH_BINDING}
-          />
+          <div>
+            <DynamicTextField
+              size={EditorSize.EXTENDED}
+              name="actionConfiguration.body"
+              dataTreePath={`${props.actionName}.config.body`}
+              className="textAreaStyles"
+              mode={EditorModes.SQL_WITH_BINDING}
+            />
+          </div>
         ) : (
-          <DynamicTextField
-            name="actionConfiguration.body"
-            dataTreePath={`${props.actionName}.config.body`}
-            className="textAreaStyles"
-            mode={EditorModes.JSON_WITH_BINDING}
-          />
+          <div>
+            <DynamicTextField
+              size={EditorSize.EXTENDED}
+              name="actionConfiguration.body"
+              dataTreePath={`${props.actionName}.config.body`}
+              className="textAreaStyles"
+              mode={EditorModes.JSON_WITH_BINDING}
+            />
+          </div>
         )}
         <StyledCheckbox
           intent="primary"
@@ -452,29 +486,20 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         </NoDataSourceContainer>
       )}
 
-      {runErrorMessage && (
+      {error && (
         <>
           <p className="statementTextArea">Query error</p>
-          <ErrorMessage>{runErrorMessage}</ErrorMessage>
+          <ErrorMessage>{error}</ErrorMessage>
         </>
       )}
 
-      {executedQueryData && dataSources.length && (
-        <ResponseContainer>
+      {!error && output && dataSources.length && (
+        <>
           <p className="statementTextArea">
-            {executedQueryData.body.length
-              ? "Query response"
-              : "No data records to display"}
+            {output.length ? "Query response" : "No data records to display"}
           </p>
-
-          {isSQL ? (
-            <Table data={queryOutput.body} />
-          ) : (
-            <ResponseContent>
-              <JSONViewer src={executedQueryData.body} />
-            </ResponseContent>
-          )}
-        </ResponseContainer>
+          {isSQL ? <Table data={output} /> : <JSONViewer src={output} />}
+        </>
       )}
     </QueryFormContainer>
   );
@@ -483,8 +508,15 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
 const mapStateToProps = (state: AppState) => {
   const actionName = valueSelector(state, "name");
+  const pluginId = valueSelector(state, "datasource.pluginId");
+  const responseTypes = getPluginResponseTypes(state);
+  const documentationLinks = getPluginDocumentationLinks(state);
+
   return {
     actionName,
+    pluginId,
+    responseType: responseTypes[pluginId],
+    documentationLink: documentationLinks[pluginId],
   };
 };
 

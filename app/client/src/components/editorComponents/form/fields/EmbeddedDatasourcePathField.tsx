@@ -46,35 +46,17 @@ type Props = EditorProps &
 
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
-    const { datasource, pluginId, orgId, datasourceList } = this.props;
+    const { datasource, pluginId, orgId } = this.props;
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
-      if ("id" in datasource && datasource.id) {
-        this.props.updateDatasource({
-          ...DEFAULT_DATASOURCE(pluginId, orgId),
-          datasourceConfiguration: {
-            ...datasource.datasourceConfiguration,
-            url: datasourceUrl,
-          },
-        });
-      } else {
-        const matchesExistingDatasource = _.find(
-          datasourceList,
-          d => d.datasourceConfiguration?.url === datasourceUrl,
-        );
-        if (matchesExistingDatasource) {
-          this.props.updateDatasource(matchesExistingDatasource);
-        } else {
-          this.props.updateDatasource({
-            ...DEFAULT_DATASOURCE(pluginId, orgId),
-            datasourceConfiguration: {
-              ...datasource.datasourceConfiguration,
-              url: datasourceUrl,
-            },
-          });
-        }
-      }
+      this.props.updateDatasource({
+        ...DEFAULT_DATASOURCE(pluginId, orgId),
+        datasourceConfiguration: {
+          ...datasource.datasourceConfiguration,
+          url: datasourceUrl,
+        },
+      });
     }
   };
 
@@ -113,7 +95,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       const matches = value.match(urlGroupsRegexExp);
       if (matches && matches.length) {
         datasourceUrl = matches[1];
-        path = `${matches[2]}${matches[3]}`;
+        path = `${matches[2] || ""}${matches[3] || ""}`;
       }
     } else {
       datasourceUrl = value;
