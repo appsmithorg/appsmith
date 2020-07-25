@@ -93,11 +93,14 @@ public class LayoutActionServiceTest {
             testApp = applicationPageService.createApplication(application, organization.getId()).block();
 
             final String pageId = testApp.getPages().get(0).getId();
-            Layout layout = new Layout();
+
+            testPage = pageService.getById(pageId).block();
+
+            Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
             layout.setDsl(dsl);
             layout.setPublishedDsl(dsl);
-            layoutService.createLayout(pageId, layout).block();
+            pageService.save(testPage).block();
 
             testPage = pageService.getById(pageId).block();
         }
@@ -147,9 +150,9 @@ public class LayoutActionServiceTest {
         StepVerifier
                 .create(resultMono)
                 .assertNext(page -> {
-                    assertThat(page.getLayouts()).hasSize(2);
-                    assertThat(page.getLayouts().get(1).getLayoutOnLoadActions()).hasSize(1);
-                    assertThat(page.getLayouts().get(1).getLayoutOnLoadActions().get(0).iterator().next().getName()).isEqualTo("query1");
+                    assertThat(page.getLayouts()).hasSize(1);
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(1);
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getName()).isEqualTo("query1");
                 })
                 .verifyComplete();
     }
