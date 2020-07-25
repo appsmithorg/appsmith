@@ -15,6 +15,7 @@ import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledW
 import Button from "components/editorComponents/Button";
 import CascadeFields, {
   Operator,
+  Condition,
 } from "components/designSystems/appsmith/CascadeFields";
 
 const TableFilerWrapper = styled.div`
@@ -50,7 +51,8 @@ const DropdownTrigger = styled.div`
 `;
 export interface ReactTableFilter {
   column: string;
-  operator: Operator;
+  operator?: Operator;
+  condition: Condition;
   value: any;
 }
 
@@ -78,6 +80,7 @@ const TableFilters = (props: TableFilterProps) => {
         column: "",
         operator: "",
         value: "",
+        condition: "",
       });
     }
     updateFilters(filters);
@@ -88,6 +91,7 @@ const TableFilters = (props: TableFilterProps) => {
       column: "",
       operator: "",
       value: "",
+      condition: "",
     });
     updateFilters(filters);
     props.applyFilter(filters);

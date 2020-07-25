@@ -24,7 +24,7 @@ const StyledRemoveIcon = styled(
 `;
 
 const LabelWrapper = styled.div`
-  width: 64px;
+  width: 85px;
   text-align: center;
   color: #4e5d78;
   font-size: 14px;
@@ -45,7 +45,7 @@ const DropdownWrapper = styled.div<{ width: number }>`
   border: 1px solid #d3dee3;
   box-sizing: border-box;
   border-radius: 4px;
-  margin-right: 16px;
+  margin-left: 10px;
   font-size: 14px;
   padding: 5px 12px 7px;
   color: #2e3d49;
@@ -59,9 +59,14 @@ const StyledInputGroup = styled(InputGroup)`
   color: #2e3d49;
   height: 32px;
   width: 100px;
+  margin-left: 10px;
   input {
     box-shadow: none;
   }
+`;
+
+const DatePickerWrapper = styled.div`
+  margin-left: 10px;
 `;
 
 const DropdownTrigger = styled.div`
@@ -171,7 +176,7 @@ function getDateRange(b: any) {
   };
 }
 
-const OperatorFunctions: { [key: string]: (a: any, b: any) => boolean } = {
+const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
   isExactly: (a: any, b: any) => {
     return a === b;
   },
@@ -231,7 +236,20 @@ const OperatorFunctions: { [key: string]: (a: any, b: any) => boolean } = {
   },
 };
 
-export type Operator = keyof typeof OperatorFunctions;
+export type Condition = keyof typeof ConditionFunctions;
+
+const operators: { [key: string]: string } = {
+  or: "or",
+  and: "and",
+};
+
+const operatorOptions: DropdownOption[] = [
+  { label: "or", value: "or", type: "" },
+  { label: "and", value: "and", type: "" },
+];
+
+export type Operator = keyof typeof operators;
+
 // | "today"
 // | "tomorrow"
 // | "yesterday"
@@ -250,10 +268,10 @@ const dateOptions: DropdownOption[] = [
   { label: "exact date", value: "exact", type: "date_input" },
 ];
 
-export function compare(a: any, b: any, operator: Operator) {
-  const operatorFunction = OperatorFunctions[operator];
-  if (operatorFunction) {
-    return operatorFunction(a, b);
+export function compare(a: any, b: any, condition: Condition) {
+  const conditionFunction = ConditionFunctions[condition];
+  if (conditionFunction) {
+    return conditionFunction(a, b);
   } else {
     return true;
   }
@@ -263,7 +281,7 @@ const RenderOptions = (props: {
   columns: DropdownOption[];
   selectItem: (column: DropdownOption) => void;
   placeholder: string;
-  value?: string | Operator;
+  value?: string | Condition;
 }) => {
   const [selectedValue, selectValue] = useState(props.placeholder);
   console.log("columns", props.columns);
@@ -274,6 +292,7 @@ const RenderOptions = (props: {
           return {
             content: column.label,
             value: column.value,
+            active: column.value === props.value,
             onSelect: () => {
               selectValue(column.label);
               props.selectItem(column);
@@ -312,8 +331,9 @@ const RenderOptions = (props: {
 
 const defaultFilter: ReactTableFilter = {
   column: "",
-  operator: "",
+  condition: "",
   value: "",
+  operator: "",
 };
 
 interface CascaseFieldProps {
@@ -326,7 +346,7 @@ interface CascaseFieldProps {
 
 const CascadeFields = (props: CascaseFieldProps) => {
   const [filter, updateFilter] = React.useState(props.filter || defaultFilter);
-  const getOperators = () => {
+  const getConditions = () => {
     const columnValue = (props.filter || defaultFilter).column;
     const filteredColumn = props.columns.filter((column: DropdownOption) => {
       return columnValue === column.value;
@@ -337,44 +357,44 @@ const CascadeFields = (props: CascaseFieldProps) => {
       return new Array<DropdownOption>(0);
     }
   };
-  const [operators, setOperators] = React.useState(getOperators());
+  const [conditions, setConditions] = React.useState(getConditions());
   const showInputField = () => {
-    const operatorValue = (props.filter || defaultFilter).operator;
-    const filteredOperator =
-      operators &&
-      operators.filter((operator: DropdownOption) => {
-        return operator.value === operatorValue;
+    const conditionValue = (props.filter || defaultFilter).condition;
+    const filteredConditions =
+      conditions &&
+      conditions.filter((condition: DropdownOption) => {
+        return condition.value === conditionValue;
       });
-    return filteredOperator.length && filteredOperator[0].type === "input";
+    return filteredConditions.length && filteredConditions[0].type === "input";
   };
   const [showInput, toggleInput] = React.useState(showInputField());
   const showDateDropdownField = () => {
-    const operatorValue = (props.filter || defaultFilter).operator;
-    const filteredOperator =
-      operators &&
-      operators.filter((operator: DropdownOption) => {
-        return operator.value === operatorValue;
+    const conditionValue = (props.filter || defaultFilter).condition;
+    const filteredConditions =
+      conditions &&
+      conditions.filter((condition: DropdownOption) => {
+        return condition.value === conditionValue;
       });
-    return filteredOperator.length && filteredOperator[0].type === "date";
+    return filteredConditions.length && filteredConditions[0].type === "date";
   };
   const [showDateDropdown, toggleDateDropDown] = React.useState(
     showDateDropdownField(),
   );
   const showDateInputField = () => {
-    const operatorValue = (props.filter || defaultFilter).operator;
+    const conditionValue = (props.filter || defaultFilter).condition;
     const filterValue = (props.filter || defaultFilter).value;
     const isExactDate =
       dateOptions.filter((item: DropdownOption) => {
         return item.value === filterValue;
       }).length === 0;
-    const filteredOperator =
-      operators &&
-      operators.filter((operator: DropdownOption) => {
-        return operator.value === operatorValue;
+    const filteredConditions =
+      conditions &&
+      conditions.filter((condition: DropdownOption) => {
+        return condition.value === conditionValue;
       });
     return (
-      filteredOperator.length &&
-      filteredOperator[0].type === "date" &&
+      filteredConditions.length &&
+      filteredConditions[0].type === "date" &&
       isExactDate
     );
   };
@@ -387,16 +407,16 @@ const CascadeFields = (props: CascaseFieldProps) => {
   const selectColumn = (column: DropdownOption) => {
     filter.column = column.value;
     if (column.type && typeOperatorsMap[column.type]) {
-      setOperators(typeOperatorsMap[column.type]);
+      setConditions(typeOperatorsMap[column.type]);
     }
     updateFilter(filter);
     props.applyFilter(filter, props.index);
   };
-  const selectOperator = (operator: DropdownOption) => {
-    filter.operator = operator.value;
-    toggleInput(operator.type === "input");
-    toggleDateDropDown(operator.type === "date");
-    if (operator.type !== "date") {
+  const selectCondition = (condition: DropdownOption) => {
+    filter.condition = condition.value;
+    toggleInput(condition.type === "input");
+    toggleDateDropDown(condition.type === "date");
+    if (condition.type !== "date") {
       toggleShowDateInput(false);
     }
     updateFilter(filter);
@@ -419,6 +439,11 @@ const CascadeFields = (props: CascaseFieldProps) => {
     updateFilter(filter);
     props.applyFilter(filter, props.index);
   };
+  const selectOperator = (option: DropdownOption) => {
+    filter.operator = option.value;
+    updateFilter(filter);
+    props.applyFilter(filter, props.index);
+  };
   return (
     <FieldWrapper>
       <StyledRemoveIcon
@@ -427,7 +452,18 @@ const CascadeFields = (props: CascaseFieldProps) => {
         width={16}
         color="#4A545B"
       />
-      <LabelWrapper>Where</LabelWrapper>
+      {props.index === 1 ? (
+        <DropdownWrapper width={75}>
+          <RenderOptions
+            columns={operatorOptions}
+            selectItem={selectOperator}
+            value={filter.operator}
+            placeholder="or"
+          />
+        </DropdownWrapper>
+      ) : (
+        <LabelWrapper>Where</LabelWrapper>
+      )}
       <DropdownWrapper width={150}>
         <RenderOptions
           columns={props.columns}
@@ -438,9 +474,9 @@ const CascadeFields = (props: CascaseFieldProps) => {
       </DropdownWrapper>
       <DropdownWrapper width={100}>
         <RenderOptions
-          columns={operators}
-          selectItem={selectOperator}
-          value={filter.operator}
+          columns={conditions}
+          selectItem={selectCondition}
+          value={filter.condition}
           placeholder="Is"
         />
       </DropdownWrapper>
@@ -463,17 +499,19 @@ const CascadeFields = (props: CascaseFieldProps) => {
         </DropdownWrapper>
       ) : null}
       {showDateInput ? (
-        <DatePickerComponent
-          label=""
-          dateFormat="DD/MM/YYYY"
-          datePickerType="DATE_PICKER"
-          onDateSelected={onDateSelected}
-          selectedDate={filter.value}
-          isDisabled={false}
-          isLoading={false}
-          enableTimePicker={false}
-          widgetId=""
-        />
+        <DatePickerWrapper>
+          <DatePickerComponent
+            label=""
+            dateFormat="DD/MM/YYYY"
+            datePickerType="DATE_PICKER"
+            onDateSelected={onDateSelected}
+            selectedDate={filter.value}
+            isDisabled={false}
+            isLoading={false}
+            enableTimePicker={false}
+            widgetId=""
+          />
+        </DatePickerWrapper>
       ) : null}
     </FieldWrapper>
   );

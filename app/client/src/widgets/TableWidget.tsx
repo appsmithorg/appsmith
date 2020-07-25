@@ -216,16 +216,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           .includes(searchKey);
       })
       .filter((item: { [key: string]: any }) => {
-        if (!filters) return true;
-        let filter = false;
+        if (!filters || filters.length === 0) return true;
+        const filterOperator = filters.length >= 2 ? filters[1].operator : "";
+        let filter = filterOperator === "and" ? true : false;
         for (let i = 0; i < filters.length; i++) {
-          filter =
-            filter ||
-            compare(
-              item[filters[i].column],
-              filters[i].value,
-              filters[i].operator,
-            );
+          const filterValue = compare(
+            item[filters[i].column],
+            filters[i].value,
+            filters[i].condition,
+          );
+          if (filterOperator === "and") {
+            filter = filter && filterValue;
+          } else {
+            filter = filter || filterValue;
+          }
         }
         return filter;
       });
