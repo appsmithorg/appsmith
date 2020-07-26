@@ -4,18 +4,30 @@ import Entity from "../Entity";
 import { widgetIcon } from "../ExplorerIcons";
 import WidgetEntity, { WidgetTree } from "./WidgetEntity";
 import { WidgetTypes } from "constants/WidgetConstants";
+import { useParams } from "react-router";
+import { ExplorerURLParams } from "../helpers";
+import { BUILDER_PAGE_URL } from "constants/routes";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
 
 const getWidgetEntity = (
   entity: any,
   step: number,
+  pageId: string,
   parentModalId?: string,
   searchKeyword?: string,
 ) => {
-  if (!entity) return;
+  if (!entity) {
+    if (searchKeyword) {
+      return <React.Fragment />;
+    } else {
+      return;
+    }
+  }
   if (entity.type === WidgetTypes.CANVAS_WIDGET) {
     if (!entity.children || entity.children.length === 0) return;
     return entity.children.map((child: any) =>
-      getWidgetEntity(child, step + 1, parentModalId, searchKeyword),
+      getWidgetEntity(child, step + 1, pageId, parentModalId, searchKeyword),
     );
   }
   const childEntities =
@@ -37,6 +49,7 @@ const getWidgetEntity = (
       key={entity.widgetId}
       parentModalId={parentModalId}
       searchKeyword={searchKeyword}
+      pageId={pageId}
     >
       {childEntities}
     </WidgetEntity>
@@ -50,18 +63,42 @@ type ExplorerWidgetGroupProps = {
   searchKeyword?: string;
 };
 
+const StyledLink = styled(Link)`
+  & {
+    color: ${props => props.theme.colors.primary};
+    &:hover {
+      color: ${props => props.theme.colors.primary};
+    }
+  }
+`;
+
 export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
+  const params = useParams<ExplorerURLParams>();
   let childNode = getWidgetEntity(
     props.widgets,
     props.step,
+    props.pageId,
     undefined,
     props.searchKeyword,
   );
   if (!childNode && !props.searchKeyword) {
     childNode = (
       <EntityPlaceholder step={props.step + 1}>
-        No widgets yet. Please click the <strong>Widgets</strong> navigation
-        menu icon on the left to drag and drop widgets
+        No widgets yet. Please{" "}
+        {params.pageId !== props.pageId ? (
+          <React.Fragment>
+            <StyledLink
+              to={BUILDER_PAGE_URL(params.applicationId, props.pageId)}
+            >
+              switch to this page
+            </StyledLink>
+            ,&nbsp;then&nbsp;
+          </React.Fragment>
+        ) : (
+          "  "
+        )}
+        click the <strong>Widgets</strong> navigation menu icon on the left to
+        drag and drop widgets
       </EntityPlaceholder>
     );
   }

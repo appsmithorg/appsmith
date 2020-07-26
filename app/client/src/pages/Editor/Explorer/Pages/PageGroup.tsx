@@ -14,7 +14,7 @@ import ExplorerPageEntity from "./PageEntity";
 
 type ExplorerPageGroupProps = {
   pages: Page[];
-  widgets?: WidgetTree;
+  widgets?: (WidgetTree | undefined)[];
   actions: GenericAction[];
   currentPageId?: string;
   searchKeyword?: string;
@@ -43,17 +43,26 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       step={props.step}
       createFn={createPageCallback}
     >
-      {props.pages.map((page: Page) => (
-        <ExplorerPageEntity
-          key={page.pageId}
-          isCurrentPage={props.currentPageId === page.pageId}
-          widgets={props.widgets}
-          actions={props.actions}
-          step={props.step + 1}
-          searchKeyword={props.searchKeyword}
-          page={page}
-        />
-      ))}
+      {props.pages.map((page: Page) => {
+        const widgets = props.widgets?.find(
+          (tree?: WidgetTree) => tree && tree.pageId === page.pageId,
+        );
+        const actions = props.actions.filter(
+          (action: GenericAction & { pageId?: string }) =>
+            action.pageId === page.pageId,
+        );
+        return (
+          <ExplorerPageEntity
+            key={page.pageId}
+            isCurrentPage={props.currentPageId === page.pageId}
+            widgets={widgets}
+            actions={actions}
+            step={props.step + 1}
+            searchKeyword={props.searchKeyword}
+            page={page}
+          />
+        );
+      })}
     </Entity>
   );
 };

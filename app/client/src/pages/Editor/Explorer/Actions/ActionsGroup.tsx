@@ -39,6 +39,7 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
         icon={icon}
         step={props.step + 1}
         searchKeyword={props.searchKeyword}
+        pageId={props.page.pageId}
       />
     );
   });
@@ -48,7 +49,8 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
       <EntityPlaceholder step={props.step + 1}>
         No {props.config?.groupName || "Actions"} yet. Please click the{" "}
         <strong>+</strong> icon on
-        <strong> {props.config?.groupName || "Actions"}</strong> to create.
+        <strong> {props.config?.groupName || "Actions"}</strong> above, to
+        create.
       </EntityPlaceholder>
     );
   }
@@ -62,15 +64,16 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
       createFn={() => {
         const path = props.config?.generateCreatePageURL(
           params?.applicationId,
-          params?.pageId,
-          params?.pageId,
+          props.page.pageId,
+          props.page.pageId,
         );
         history.push(path);
       }}
       isDefaultExpanded={
-        props.config?.isGroupActive(params) || !!props.searchKeyword
+        props.config?.isGroupActive(params, props.page.pageId) ||
+        !!props.searchKeyword
       }
-      active={props.config?.isGroupActive(params)}
+      active={props.config?.isGroupActive(params, props.page.pageId)}
     >
       {childNode}
     </Entity>

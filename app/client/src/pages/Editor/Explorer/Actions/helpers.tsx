@@ -30,7 +30,7 @@ export type ActionGroupConfig = {
     selectedPageId: string,
   ) => string;
   getIcon: (method?: string) => ReactNode;
-  isGroupActive: (params: ExplorerURLParams) => boolean;
+  isGroupActive: (params: ExplorerURLParams, pageId: string) => boolean;
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -55,9 +55,9 @@ export const ACTION_PLUGIN_MAP: Array<
         },
         dispatchableCreateAction: createNewApiAction,
         generateCreatePageURL: API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-        isGroupActive: (params: ExplorerURLParams) =>
+        isGroupActive: (params: ExplorerURLParams, pageId: string) =>
           window.location.pathname.indexOf(
-            API_EDITOR_URL(params.applicationId, params.pageId),
+            API_EDITOR_URL(params.applicationId, pageId),
           ) > -1,
       };
     case PluginType.DB:
@@ -73,9 +73,9 @@ export const ACTION_PLUGIN_MAP: Array<
         },
         dispatchableCreateAction: createNewQueryAction,
         generateCreatePageURL: QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-        isGroupActive: (params: ExplorerURLParams) =>
+        isGroupActive: (params: ExplorerURLParams, pageId: string) =>
           window.location.pathname.indexOf(
-            QUERIES_EDITOR_URL(params.applicationId, params.pageId),
+            QUERIES_EDITOR_URL(params.applicationId, pageId),
           ) > -1,
       };
     default:

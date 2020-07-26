@@ -48,6 +48,7 @@ type ExplorerActionEntityProps = {
   active: boolean;
   step: number;
   searchKeyword?: string;
+  pageId: string;
 };
 
 export const ExplorerActionEntity = (props: ExplorerActionEntityProps) => {
@@ -68,6 +69,7 @@ export const ExplorerActionEntity = (props: ExplorerActionEntityProps) => {
           id={props.action.actionId}
           name={props.action.name}
           className={EntityClassNames.ACTION_CONTEXT_MENU}
+          pageId={props.pageId}
         />
       }
     >

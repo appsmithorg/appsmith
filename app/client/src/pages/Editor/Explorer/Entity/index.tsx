@@ -113,6 +113,7 @@ export const Entity = (props: EntityProps) => {
         />
         {props.icon}
         <EntityName
+          entityId={props.entityId}
           name={props.name}
           isEditing={!!props.updateEntityName && isEditing}
           updateEntityName={updateNameCallback}

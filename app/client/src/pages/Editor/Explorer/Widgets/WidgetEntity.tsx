@@ -6,7 +6,7 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { flashElement } from "utils/helpers";
+import { flashElementById } from "utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import {
   forceOpenPropertyPane,
@@ -18,7 +18,7 @@ import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
 import EntityProperty, { EntityPropertyProps } from "../Entity/EntityProperty";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { isFunction } from "lodash";
+import { isFunction, noop } from "lodash";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 
@@ -26,30 +26,25 @@ export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
 const UNREGISTERED_WIDGETS: WidgetType[] = [WidgetTypes.ICON_WIDGET];
 
-const navigateToCanvas = (params: ExplorerURLParams, currentPath: string) => {
+const navigateToCanvas = (
+  params: ExplorerURLParams,
+  currentPath: string,
+  widgetPageId: string,
+  widgetId: string,
+) => {
   const canvasEditorURL = `${BUILDER_PAGE_URL(
     params.applicationId,
-    params.pageId,
-  )}`;
+    widgetPageId,
+  )}#${widgetId}`;
   if (currentPath !== canvasEditorURL) {
     history.push(canvasEditorURL);
   }
 };
 
-const flashElementById = (id: string) => {
-  const el = document.getElementById(id);
-  el?.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-    inline: "center",
-  });
-
-  if (el) flashElement(el);
-};
-
 const useWidget = (
   widgetId: string,
   widgetType: WidgetType,
+  pageId: string,
   parentModalId?: string,
 ) => {
   const params = useParams<ExplorerURLParams>();
@@ -63,11 +58,19 @@ const useWidget = (
     }
     if (parentModalId) dispatch(showModal(parentModalId));
     else dispatch(closeAllModals());
-    navigateToCanvas(params, window.location.pathname);
+    navigateToCanvas(params, window.location.pathname, pageId, widgetId);
     flashElementById(widgetId);
     selectWidget(widgetId);
     dispatch(forceOpenPropertyPane(widgetId));
-  }, [dispatch, params, selectWidget, widgetType, widgetId, parentModalId]);
+  }, [
+    dispatch,
+    params,
+    selectWidget,
+    widgetType,
+    widgetId,
+    parentModalId,
+    pageId,
+  ]);
 
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
@@ -109,15 +112,18 @@ export const getWidgetProperies = (
 export type WidgetEntityProps = {
   widgetProps: WidgetTree;
   step: number;
+  pageId: string;
   children: ReactNode;
   parentModalId?: string;
   searchKeyword?: string;
 };
 
 export const WidgetEntity = (props: WidgetEntityProps) => {
+  const params = useParams<ExplorerURLParams>();
   const { navigateToWidget, isWidgetSelected } = useWidget(
     props.widgetProps.widgetId,
     props.widgetProps.type,
+    props.pageId,
     props.parentModalId,
   );
 
@@ -143,15 +149,19 @@ export const WidgetEntity = (props: WidgetEntityProps) => {
       active={isWidgetSelected}
       entityId={props.widgetProps.widgetId}
       step={props.step}
-      updateEntityName={updateWidgetName}
+      updateEntityName={
+        props.pageId === params?.pageId ? updateWidgetName : noop
+      }
       searchKeyword={props.searchKeyword}
       isDefaultExpanded={!!props.searchKeyword && !!props.widgetProps.children}
       contextMenu={
-        <WidgetContextMenu
-          widgetId={props.widgetProps.widgetId}
-          parentId={props.widgetProps.parentId}
-          className={EntityClassNames.ACTION_CONTEXT_MENU}
-        />
+        props.pageId === params?.pageId && (
+          <WidgetContextMenu
+            widgetId={props.widgetProps.widgetId}
+            parentId={props.widgetProps.parentId}
+            className={EntityClassNames.ACTION_CONTEXT_MENU}
+          />
+        )
       }
     >
       {children}

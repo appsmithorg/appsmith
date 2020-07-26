@@ -35,11 +35,9 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
         params.applicationId &&
         history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId))
       }
-      runActionOnExpand={!props.isCurrentPage}
       entityId={props.page.pageId}
       active={props.isCurrentPage}
-      disabled={!props.isCurrentPage}
-      isDefaultExpanded={props.isCurrentPage}
+      isDefaultExpanded={props.isCurrentPage || !!props.searchKeyword}
       updateEntityName={updatePage}
       contextMenu={
         <PageContextMenu

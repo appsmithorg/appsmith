@@ -30,6 +30,7 @@ import { ImportReduxState } from "reducers/uiReducers/importReducer";
 import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
+import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -60,6 +61,7 @@ export interface AppState {
     help: HelpReduxState;
     apiName: ApiNameReduxState;
     explorer: ExplorerReduxState;
+    pageDSLs: PageDSLsReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

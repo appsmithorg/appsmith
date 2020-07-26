@@ -9,7 +9,7 @@ const Wrapper = styled.div<{ step: number }>`
   padding: ${props => props.theme.spaces[4]}px;
   text-align: left;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 `;
 

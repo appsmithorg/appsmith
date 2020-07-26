@@ -145,6 +145,9 @@ export const EditableText = (props: EditableTextProps) => {
             placeholder={props.placeholder}
             className={props.className}
             onCancel={props.onBlur}
+            onEdit={() => {
+              console.log("editing");
+            }}
           />
           {!props.minimal &&
             !props.hideEditIcon &&

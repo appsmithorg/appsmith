@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 
 import { AppState } from "reducers";
@@ -33,9 +32,9 @@ type EntityContextMenuProps = {
   id: string;
   name: string;
   className?: string;
+  pageId: string;
 };
 export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
-  const { pageId } = useParams<{ pageId: string }>();
   const nextEntityName = useNewAPIName();
 
   const dispatch = useDispatch();
@@ -56,11 +55,11 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
         moveActionRequest({
           id: actionId,
           destinationPageId,
-          originalPageId: pageId,
+          originalPageId: props.pageId,
           name: nextEntityName(actionName),
         }),
       ),
-    [dispatch, nextEntityName, pageId],
+    [dispatch, nextEntityName, props.pageId],
   );
   const deleteActionFromPage = useCallback(
     (actionId: string, actionName: string) =>
@@ -110,7 +109,7 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
           onSelect: noop,
           label: "Move to",
           children: menuPages
-            .filter(page => page.id !== pageId) // Remove current page from the list
+            .filter(page => page.id !== props.pageId) // Remove current page from the list
             .map(page => {
               return {
                 ...page,

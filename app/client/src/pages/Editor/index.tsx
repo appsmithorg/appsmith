@@ -29,7 +29,14 @@ import {
   ReduxActionTypes,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
+import {
+  Dialog,
+  Classes,
+  AnchorButton,
+  Hotkey,
+  Hotkeys,
+  HotkeysTarget,
+} from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
 import { RenderModes } from "constants/WidgetConstants";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -58,7 +65,26 @@ type EditorProps = {
   currentApplication: UserApplication;
 } & RouteComponentProps<BuilderRouteParams>;
 
+@HotkeysTarget
 class Editor extends Component<EditorProps> {
+  public renderHotkeys() {
+    return (
+      <Hotkeys>
+        <Hotkey
+          global={true}
+          combo="meta + f"
+          label="Search entities"
+          onKeyDown={(e: any) => {
+            //TODO(abhinav): make this id into a constant.
+            const el = document.getElementById("entity-explorer-search");
+            el?.focus();
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        />
+      </Hotkeys>
+    );
+  }
   public state = {
     isDialogOpen: false,
     registered: false,

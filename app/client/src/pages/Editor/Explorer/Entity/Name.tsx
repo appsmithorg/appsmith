@@ -53,7 +53,7 @@ export interface EntityNameProps {
   isEditing?: boolean;
   onChange?: (name: string) => void;
   updateEntityName: (name: string) => void;
-
+  entityId: string;
   searchKeyword?: string;
 }
 
@@ -130,7 +130,22 @@ export const EntityName = (props: EntityNameProps) => {
     });
   }, [dispatch]);
 
-  if (!props.isEditing) return <Wrapper>{searchHighlightedName}</Wrapper>;
+  const enterEditMode = useCallback(
+    () =>
+      props.updateEntityName &&
+      dispatch({
+        type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
+        payload: {
+          id: props.entityId,
+        },
+      }),
+    [dispatch, props.entityId, props.updateEntityName],
+  );
+
+  if (!props.isEditing)
+    return (
+      <Wrapper onDoubleClick={enterEditMode}>{searchHighlightedName}</Wrapper>
+    );
   return (
     <Wrapper>
       <EditableText

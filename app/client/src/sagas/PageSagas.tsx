@@ -217,6 +217,14 @@ function* savePageSaga() {
   const editorConfigs = yield select(getEditorConfigs) as any;
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
   try {
+    // Store the updated DSL in the pageDSLs reducer
+    yield put({
+      type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+      payload: {
+        pageId: savePageRequest.pageId,
+        dsl: savePageRequest.dsl,
+      },
+    });
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,
       savePageRequest,

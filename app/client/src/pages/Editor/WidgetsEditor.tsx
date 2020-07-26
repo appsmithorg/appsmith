@@ -18,6 +18,7 @@ import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import { getCanvasClassName } from "utils/generators";
+import { flashElementById } from "utils/helpers";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -67,6 +68,14 @@ const WidgetsEditor = memo((props: EditorProps) => {
       });
     }
   }, [props.currentPageName, props.currentPageId]);
+
+  useEffect(() => {
+    if (!props.isFetchingPage && window.location.hash.length > 0) {
+      const widgetIdFromURLHash = window.location.hash.substr(1);
+      flashElementById(widgetIdFromURLHash);
+      selectWidget(widgetIdFromURLHash);
+    }
+  }, [props.isFetchingPage]);
 
   const handleWrapperClick = () => {
     focusWidget && focusWidget();

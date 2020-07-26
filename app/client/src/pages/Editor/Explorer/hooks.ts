@@ -20,6 +20,7 @@ import { Datasource } from "api/DatasourcesApi";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { evaluateDataTreeWithFunctions } from "selectors/dataTreeSelectors";
+import { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 const usePages = () => {
   const pageList: Page[] = useSelector((state: AppState) => {
@@ -102,7 +103,7 @@ export const useFilteredEntities = (
     return state.entities.plugins.list;
   });
 
-  const widgetEntities = useMemo(() => {
+  const currentPageWidgetEntities = useMemo(() => {
     const widgetTree = CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets,
     });
@@ -114,11 +115,54 @@ export const useFilteredEntities = (
       : widgetTree;
   }, [searchKeyword, canvasWidgets, currentPageId]);
 
+  const allPageDSLs = useSelector((state: AppState) => state.ui.pageDSLs);
+  const otherPagesWidgetEntities = useMemo(() => {
+    return Object.keys(allPageDSLs)
+      .filter((pageId: string) => pageId !== currentPageId)
+      .map((pageId: string) => {
+        const tree = allPageDSLs[pageId];
+        tree.ENTITY_TYPE = ENTITY_TYPE.WIDGET;
+        tree.pageId = pageId;
+
+        return searchKeyword !== null
+          ? findWidgets(tree, searchKeyword.toLowerCase())
+          : tree;
+      });
+  }, [searchKeyword, allPageDSLs, currentPageId]);
+
+  const allAppActions = useSelector(
+    (state: AppState) => state.entities.actions,
+  );
+
   const actionEntities = useMemo(() => {
+    const otherPageDataTreeActions: DataTreeAction[] = allAppActions
+      .filter((action: ActionData) => action.config.pageId !== currentPageId)
+      .map((action: ActionData) => ({
+        isLoading: action.isLoading,
+        actionId: action.config.id,
+        pluginType: action.config.pluginType,
+        name: action.config.name,
+        pageId: action.config.pageId,
+        run: {},
+        dynamicBindingPathList: action.config.dynamicBindingPathList,
+        ENTITY_TYPE: ENTITY_TYPE.ACTION,
+        data: action.data || {},
+        config: {
+          paginationType: action.config.actionConfiguration.paginationType,
+          timeoutInMillisecond:
+            action.config.actionConfiguration.timeoutInMillisecond,
+          httpMethod: action.config.actionConfiguration.httpMethod,
+        },
+      }));
+    const currentPageActions = actions.map(action => ({
+      ...action,
+      pageId: currentPageId,
+    }));
+    const allActions = [...currentPageActions, ...otherPageDataTreeActions];
     return searchKeyword !== null
-      ? findActions(actions as DataTreeAction[], searchKeyword.toLowerCase())
-      : actions;
-  }, [searchKeyword, actions]);
+      ? findActions(allActions as DataTreeAction[], searchKeyword.toLowerCase())
+      : allActions;
+  }, [searchKeyword, actions, allAppActions, currentPageId]);
 
   const datasourceEntities = useMemo(
     () =>
@@ -156,9 +200,8 @@ export const useFilteredEntities = (
       el?.dispatchEvent(event);
     }
   }, [ref, event]);
-
   return {
-    widgets: widgetEntities,
+    widgets: [currentPageWidgetEntities, ...otherPagesWidgetEntities],
     actions: actionEntities as DataTreeAction[],
     dataSources: datasourceEntities,
     currentPageId,

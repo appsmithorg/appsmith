@@ -95,3 +95,14 @@ export const flashElement = (el: HTMLElement) => {
     el.style.backgroundColor = "transparent";
   }, 3000);
 };
+
+export const flashElementById = (id: string) => {
+  const el = document.getElementById(id);
+  el?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+    inline: "center",
+  });
+
+  if (el) flashElement(el);
+};
