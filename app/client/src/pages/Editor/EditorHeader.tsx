@@ -9,7 +9,7 @@ import {
   PAGE_LIST_EDITOR_URL,
 } from "constants/routes";
 import { Directions } from "utils/helpers";
-
+import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
@@ -24,7 +24,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Skin } from "constants/DefaultTheme";
 import { HelpModal } from "components/designSystems/appsmith/help/HelpModal";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
-import ShareApplicationForm from "pages/Editor/ShareApplicationForm";
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -68,6 +67,7 @@ type EditorHeaderProps = {
   currentPageId?: string;
   isPublishing: boolean;
   publishedTime?: string;
+  orgId: string;
   currentApplicationId?: string;
   createModal: () => void;
 };
@@ -161,12 +161,15 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               className="t--application-share-btn"
             />
           }
-          Form={ShareApplicationForm}
+          Form={InviteUsersFormv2}
+          orgId={props.orgId}
+          applicationId={props.currentApplicationId}
           title={
             props.currentApplication
               ? props.currentApplication.name
               : "Share Application"
           }
+          setMaxWidth
         />
       </ShareButton>
 

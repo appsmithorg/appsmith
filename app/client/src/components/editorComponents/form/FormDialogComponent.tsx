@@ -29,6 +29,7 @@ type FormDialogComponentProps = {
   permissionRequired?: string;
   permissions?: string[];
   setMaxWidth?: boolean;
+  applicationId?: string;
 };
 
 export const FormDialogComponent = (props: FormDialogComponentProps) => {
@@ -65,6 +66,9 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
           <Form
             onCancel={onClose}
             orgId={props.orgId ? props.orgId : undefined}
+            applicationId={
+              props.applicationId ? props.applicationId : undefined
+            }
           />
         </div>
       </StyledDialog>
