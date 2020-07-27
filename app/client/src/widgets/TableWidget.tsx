@@ -33,7 +33,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevPageKey: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
-      searchKeyword: VALIDATION_TYPES.TEXT,
+      searchText: VALIDATION_TYPES.TEXT,
       // columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
       // onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
       // onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
@@ -50,7 +50,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo: 1,
       pageSize: undefined,
       selectedRowIndex: -1,
-      searchKeyword: "",
+      searchText: "",
     };
   }
 
@@ -202,8 +202,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return [];
     }
     const searchKey =
-      this.props.searchKeyword !== undefined
-        ? this.props.searchKeyword.toString().toUpperCase()
+      this.props.searchText !== undefined
+        ? this.props.searchText.toString().toUpperCase()
         : "";
     return tableData.filter((item: object) => {
       return Object.values(item)
@@ -249,7 +249,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           isLoading={this.props.isLoading}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
-          searchKey={this.props.searchKeyword}
+          searchKey={this.props.searchText}
           renderMode={this.props.renderMode}
           hiddenColumns={hiddenColumns}
           columnActions={this.props.columnActions}
@@ -302,7 +302,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
     this.resetSelectedRowIndex();
-    super.updateWidgetMetaProperty("searchKeyword", searchKey);
+    super.updateWidgetMetaProperty("searchText", searchKey);
     if (onSearchTextChanged) {
       super.executeAction({
         dynamicString: onSearchTextChanged,
@@ -385,7 +385,7 @@ export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
-  searchKeyword: string;
+  searchText: string;
   tableData: object[];
   onPageChange?: string;
   pageSize: number;

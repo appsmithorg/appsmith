@@ -13,6 +13,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
@@ -28,6 +29,7 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,6 +93,9 @@ public class ActionServiceTest {
     @Autowired
     LayoutActionService layoutActionService;
 
+    @Autowired
+    LayoutService layoutService;
+
     Application testApp = null;
 
     Page testPage = null;
@@ -110,7 +115,15 @@ public class ActionServiceTest {
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
             testApp = applicationPageService.createApplication(application, organization.getId()).block();
-            testPage = pageService.getById(testApp.getPages().get(0).getId()).block();
+
+            final String pageId = testApp.getPages().get(0).getId();
+            Layout layout = new Layout();
+            JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
+            layout.setDsl(dsl);
+            layout.setPublishedDsl(dsl);
+            layoutService.createLayout(pageId, layout).block();
+
+            testPage = pageService.getById(pageId).block();
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
