@@ -7,6 +7,7 @@ import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Skin } from "constants/DefaultTheme";
+import { ColumnTypes } from "components/designSystems/appsmith/ReactTableComponent";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
 import {
@@ -88,7 +89,7 @@ const DropdownTrigger = styled.div`
 `;
 
 const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
-  text: [
+  [ColumnTypes.TEXT]: [
     { label: "contains", value: "contains", type: "input" },
     { label: "does not contain", value: "doesNotContain", type: "input" },
     { label: "starts with", value: "startsWith", type: "input" },
@@ -97,7 +98,7 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  date: [
+  [ColumnTypes.DATE]: [
     { label: "is", value: "is", type: "date" },
     { label: "is before", value: "isBefore", type: "date" },
     { label: "is after", value: "isAfter", type: "date" },
@@ -106,11 +107,15 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  image: [
+  [ColumnTypes.IMAGE]: [
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  currency: [
+  [ColumnTypes.VIDEO]: [
+    { label: "empty", value: "empty", type: "" },
+    { label: "not empty", value: "notEmpty", type: "" },
+  ],
+  [ColumnTypes.CURRENCY]: [
     { label: "is equal to", value: "isEqualTo", type: "input" },
     { label: "not equal to", value: "notEqualTo", type: "input" },
     { label: "greater than", value: "greaterThan", type: "input" },
@@ -159,7 +164,6 @@ const RenderOptions = (props: {
   value?: string | Condition;
 }) => {
   const [selectedValue, selectValue] = useState(props.placeholder);
-  console.log("columns", props.columns);
   const configs = {
     sections: [
       {

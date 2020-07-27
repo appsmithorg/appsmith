@@ -238,28 +238,24 @@ const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
     return a != b;
   },
   lessThan: (a: any, b: any) => {
-    if (isNumber(a) && isNumber(b)) {
-      return a < b;
-    }
-    return false;
+    const numericB = Number(b);
+    const numericA = Number(a);
+    return numericA < numericB;
   },
   lessThanEqualTo: (a: any, b: any) => {
-    if (isNumber(a) && isNumber(b)) {
-      return a <= b;
-    }
-    return false;
+    const numericB = Number(b);
+    const numericA = Number(a);
+    return numericA <= numericB;
   },
   greaterThan: (a: any, b: any) => {
-    if (isNumber(a) && isNumber(b)) {
-      return a > b;
-    }
-    return false;
+    const numericB = Number(b);
+    const numericA = Number(a);
+    return numericA > numericB;
   },
   greaterThanEqualTo: (a: any, b: any) => {
-    if (isNumber(a) && isNumber(b)) {
-      return a >= b;
-    }
-    return false;
+    const numericB = Number(b);
+    const numericA = Number(a);
+    return numericA >= numericB;
   },
   contains: (a: any, b: any) => {
     if (isString(a) && isString(b)) {
@@ -295,7 +291,6 @@ const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
   },
   isWithin: (a: any, b: any) => {
     const { startDate, endDate } = getDateRange(b);
-    console.log(moment(a), startDate, endDate);
     return moment(a).isBetween(startDate, endDate, "d");
   },
   isAfter: (a: any, b: any) => {
@@ -311,6 +306,7 @@ const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
 export type Condition = keyof typeof ConditionFunctions;
 
 export function compare(a: any, b: any, condition: Condition) {
+  console.log(a, b, condition);
   let result = true;
   try {
     const conditionFunction = ConditionFunctions[condition];

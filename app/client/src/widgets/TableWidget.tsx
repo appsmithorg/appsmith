@@ -229,6 +229,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             filters[i].value,
             filters[i].condition,
           );
+          console.log("filterValue", filterValue);
           if (filterOperator === "and") {
             filter = filter && filterValue;
           } else {
