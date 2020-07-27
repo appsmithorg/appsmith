@@ -36,7 +36,7 @@ export const withDynamicProps = () => (
       text={select(
         "text",
         ["Get", "Delete", "Fetch Users from the Database"],
-        undefined,
+        "Get",
       )}
     ></Button>
   </div>
