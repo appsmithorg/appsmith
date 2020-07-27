@@ -34,5 +34,8 @@
   "deleteAction": "//div[contains(@id,'react-select') and contains(text(),'DELETE')]",
   "moustacheMethod": "{{Api.text}}",
   "nextUrl": ".data.next}}",
-  "prevUrl": ".data.previous}}"
+  "prevUrl": ".data.previous}}",
+  "methodsWithParam": "users?page=2",
+  "invalidHeader": "invalid",
+  "invalidValue": "invalid"
 }
