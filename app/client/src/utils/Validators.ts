@@ -504,7 +504,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const tabs = props.tabs ? JSON.parse(props.tabs) : [];
+    const tabs =
+      props.tabs && _.isString(props.tabs)
+        ? JSON.parse(props.tabs)
+        : props.tabs && Array.isArray(props.tabs)
+        ? props.tabs
+        : [];
     const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
     const isValidTabName = tabNames.includes(value);
     return {
