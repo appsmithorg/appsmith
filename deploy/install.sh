@@ -220,10 +220,10 @@ if ! is_command_present docker ;then
     if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
         install_docker
     else
-        echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
-        echo "Docker Desktop must be installed to proceed."
+        echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
+        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker will be installed automatically on Ubuntu / Redhat / Cent OS"
         echo "https://docs.docker.com/docker-for-mac/install/"
-        echo "++++++++++++++++++++++++++++++++++++++++++++"
+        echo "++++++++++++++++++++++++++++++++++++++++++++++++"
         exit
     fi
 fi
