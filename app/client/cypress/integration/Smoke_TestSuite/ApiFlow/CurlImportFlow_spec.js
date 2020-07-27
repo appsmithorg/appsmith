@@ -24,7 +24,6 @@ describe("Test curl import flow", function() {
     cy.ResponseStatusCheck("200 OK");
     cy.get(ApiEditor.formActionButtons).should("be.visible");
     cy.get(ApiEditor.ApiDeleteBtn).click();
-    cy.get(ApiEditor.ApiDeleteBtn).should("be.disabled");
     cy.wait("@deleteAction");
     cy.get("@deleteAction").then(response => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
