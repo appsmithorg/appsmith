@@ -54,7 +54,6 @@ jobs:
         if: success() && github.ref == 'refs/heads/master'
         run: |
           docker build -t appsmith/appsmith-editor:${{ github.ref }} .
-          docker build -t appsmith/appsmith-editor:latest .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push appsmith/appsmith-editor
 
@@ -98,7 +97,6 @@ jobs:
     # Build Docker image and push to Docker Hub
     - name: Push image to Docker Hub
       run: |
-        docker build -t appsmith/appsmith-server:${{steps.vars.outputs.tag}} .
         docker build -t appsmith/appsmith-server:${{ github.ref }} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-server

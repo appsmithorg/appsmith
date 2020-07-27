@@ -225,10 +225,10 @@ jobs:
         docker push appsmith/appsmith-editor
     
     # Build master Docker image and push to Docker Hub
-    # - name: Push production image to Docker Hub with commit tag
-    #   if: success() && github.ref == 'refs/heads/master'
-    #   run: |
-    #     docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
-    #     docker build -t appsmith/appsmith-editor:latest .
-    #     echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-    #     docker push appsmith/appsmith-editor
+    - name: Push production image to Docker Hub with commit tag
+      if: success() && github.ref == 'refs/heads/master'
+      run: |
+        docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
+        docker build -t appsmith/appsmith-editor:latest .
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        docker push appsmith/appsmith-editor
