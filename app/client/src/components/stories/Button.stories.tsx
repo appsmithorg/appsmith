@@ -33,6 +33,11 @@ export const withDynamicProps = () => (
       icon={select("iconName", ["delete", "user"], undefined)}
       isLoading={boolean("Loading", false)}
       isDisabled={boolean("Disabled", false)}
+      text={select(
+        "text",
+        ["Get", "Delete", "Fetch Users from the Database"],
+        undefined,
+      )}
     ></Button>
   </div>
 );
