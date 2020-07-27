@@ -48,12 +48,15 @@ jobs:
     
       - name: Create the bundle
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn build
-    
-      # Build master Docker image and push to Docker Hub
+      
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+      
+      # Build Docker image and push to Docker Hub
       - name: Push production image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master'
         run: |
-          docker build -t appsmith/appsmith-editor:${{ github.ref }} .
+          docker build -t appsmith/appsmith-editor:${{steps.get_version.outputs.tag}}  .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push appsmith/appsmith-editor
 
@@ -88,16 +91,14 @@ jobs:
     - name: Build without running any tests
       run: mvn -B package -DskipTests
     
-    # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-    # first 11 characters. This can be used to build images for several branches
-    - name: Get the version to tag the Docker image
-      id: vars
-      run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
     
     # Build Docker image and push to Docker Hub
     - name: Push image to Docker Hub
       run: |
-        docker build -t appsmith/appsmith-server:${{ github.ref }} .
+        docker build -t appsmith/appsmith-server:${{steps.get_version.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-server
 
