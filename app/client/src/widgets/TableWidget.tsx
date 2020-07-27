@@ -22,8 +22,10 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
-import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
-import { compare } from "components/designSystems/appsmith/CascadeFields";
+import {
+  ReactTableFilter,
+  compare,
+} from "components/designSystems/appsmith/TableFilters";
 import moment from "moment";
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
@@ -205,6 +207,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return [];
     }
     const { filters } = this.props;
+    console.log("filters", filters);
     const searchKey =
       this.props.searchText !== undefined
         ? this.props.searchText.toString().toUpperCase()

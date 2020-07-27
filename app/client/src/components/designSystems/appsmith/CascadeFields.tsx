@@ -12,8 +12,8 @@ import DatePickerComponent from "components/designSystems/blueprint/DatePickerCo
 import {
   DropdownOption,
   ReactTableFilter,
+  Condition,
 } from "components/designSystems/appsmith/TableFilters";
-import moment from "moment";
 
 const StyledRemoveIcon = styled(
   ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
@@ -130,114 +130,6 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
   ],
 };
 
-function getDateRange(b: any) {
-  let startDate, endDate;
-  switch (b) {
-    case "today":
-      startDate = moment();
-      endDate = moment();
-      break;
-    case "tomorrow":
-      startDate = moment().add(1, "d");
-      endDate = moment().add(1, "d");
-      break;
-    case "yesterday":
-      startDate = moment().subtract(1, "d");
-      endDate = moment().subtract(1, "d");
-      break;
-    case "last_week":
-      startDate = moment()
-        .subtract(1, "weeks")
-        .startOf("week");
-      endDate = moment()
-        .subtract(1, "weeks")
-        .endOf("week");
-      break;
-    case "last_month":
-      startDate = moment()
-        .subtract(1, "month")
-        .startOf("month");
-      endDate = moment()
-        .subtract(1, "month")
-        .endOf("month");
-      break;
-    case "last_year":
-      startDate = moment()
-        .subtract(1, "year")
-        .startOf("year");
-      endDate = moment()
-        .subtract(1, "year")
-        .startOf("year");
-      break;
-  }
-  return {
-    startDate,
-    endDate,
-  };
-}
-
-const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
-  isExactly: (a: any, b: any) => {
-    return a === b;
-  },
-  empty: (a: any) => {
-    return a === "" || a === undefined || a === null;
-  },
-  notEmpty: (a: any) => {
-    return a !== "" && a !== undefined && a !== null;
-  },
-  notEqualTo: (a: any, b: any) => {
-    return a !== b;
-  },
-  lessThan: (a: any, b: any) => {
-    return a < b;
-  },
-  lessThanEqualTo: (a: any, b: any) => {
-    return a <= b;
-  },
-  greaterThan: (a: any, b: any) => {
-    return a > b;
-  },
-  greaterThanEqualTo: (a: any, b: any) => {
-    return a >= b;
-  },
-  contains: (a: any, b: any) => {
-    return a.includes(b);
-  },
-  doesNotContain: (a: any, b: any) => {
-    return !a.includes(b);
-  },
-  startsWith: (a: any, b: any) => {
-    return a.indexOf(b) === 0;
-  },
-  endsWith: (a: any, b: any) => {
-    return a.indexOf(b) + b.legnth === a.length;
-  },
-  is: (a: any, b: any) => {
-    const { startDate } = getDateRange(b);
-    return moment(a).isSame(startDate, "d");
-  },
-  isNot: (a: any, b: any) => {
-    const { startDate } = getDateRange(b);
-    return !moment(a).isSame(startDate, "d");
-  },
-  isWithin: (a: any, b: any) => {
-    const { startDate, endDate } = getDateRange(b);
-    console.log(moment(a), startDate, endDate);
-    return moment(a).isBetween(startDate, endDate, "d");
-  },
-  isAfter: (a: any, b: any) => {
-    const { endDate } = getDateRange(b);
-    return !moment(a).isAfter(endDate, "d");
-  },
-  isBefore: (a: any, b: any) => {
-    const { startDate } = getDateRange(b);
-    return !moment(a).isBefore(startDate, "d");
-  },
-};
-
-export type Condition = keyof typeof ConditionFunctions;
-
 const operators: { [key: string]: string } = {
   or: "or",
   and: "and",
@@ -250,14 +142,6 @@ const operatorOptions: DropdownOption[] = [
 
 export type Operator = keyof typeof operators;
 
-// | "today"
-// | "tomorrow"
-// | "yesterday"
-// | "last_week"
-// | "last_month"
-// | "last_year"
-// | "exact";
-
 const dateOptions: DropdownOption[] = [
   { label: "today", value: "today", type: "" },
   { label: "tomorrow", value: "tomorrow", type: "" },
@@ -267,15 +151,6 @@ const dateOptions: DropdownOption[] = [
   { label: "past year", value: "last_year", type: "" },
   { label: "exact date", value: "exact", type: "date_input" },
 ];
-
-export function compare(a: any, b: any, condition: Condition) {
-  const conditionFunction = ConditionFunctions[condition];
-  if (conditionFunction) {
-    return conditionFunction(a, b);
-  } else {
-    return true;
-  }
-}
 
 const RenderOptions = (props: {
   columns: DropdownOption[];

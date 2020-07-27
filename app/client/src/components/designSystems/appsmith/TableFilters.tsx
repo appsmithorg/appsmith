@@ -15,8 +15,9 @@ import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledW
 import Button from "components/editorComponents/Button";
 import CascadeFields, {
   Operator,
-  Condition,
 } from "components/designSystems/appsmith/CascadeFields";
+import { isString, isNumber } from "lodash";
+import moment from "moment";
 
 const TableFilerWrapper = styled.div`
   display: flex;
@@ -177,5 +178,149 @@ const TableFilters = (props: TableFilterProps) => {
     </Popover>
   );
 };
+
+function getDateRange(b: any) {
+  let startDate, endDate;
+  switch (b) {
+    case "today":
+      startDate = moment();
+      endDate = moment();
+      break;
+    case "tomorrow":
+      startDate = moment().add(1, "d");
+      endDate = moment().add(1, "d");
+      break;
+    case "yesterday":
+      startDate = moment().subtract(1, "d");
+      endDate = moment().subtract(1, "d");
+      break;
+    case "last_week":
+      startDate = moment()
+        .subtract(1, "weeks")
+        .startOf("week");
+      endDate = moment()
+        .subtract(1, "weeks")
+        .endOf("week");
+      break;
+    case "last_month":
+      startDate = moment()
+        .subtract(1, "month")
+        .startOf("month");
+      endDate = moment()
+        .subtract(1, "month")
+        .endOf("month");
+      break;
+    case "last_year":
+      startDate = moment()
+        .subtract(1, "year")
+        .startOf("year");
+      endDate = moment()
+        .subtract(1, "year")
+        .startOf("year");
+      break;
+  }
+  return {
+    startDate,
+    endDate,
+  };
+}
+const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
+  isExactly: (a: any, b: any) => {
+    return a == b;
+  },
+  empty: (a: any) => {
+    return a == "" || a == undefined || a == null;
+  },
+  notEmpty: (a: any) => {
+    return a != "" && a != undefined && a != null;
+  },
+  notEqualTo: (a: any, b: any) => {
+    return a != b;
+  },
+  lessThan: (a: any, b: any) => {
+    if (isNumber(a) && isNumber(b)) {
+      return a < b;
+    }
+    return false;
+  },
+  lessThanEqualTo: (a: any, b: any) => {
+    if (isNumber(a) && isNumber(b)) {
+      return a <= b;
+    }
+    return false;
+  },
+  greaterThan: (a: any, b: any) => {
+    if (isNumber(a) && isNumber(b)) {
+      return a > b;
+    }
+    return false;
+  },
+  greaterThanEqualTo: (a: any, b: any) => {
+    if (isNumber(a) && isNumber(b)) {
+      return a >= b;
+    }
+    return false;
+  },
+  contains: (a: any, b: any) => {
+    if (isString(a) && isString(b)) {
+      return a.includes(b);
+    }
+    return false;
+  },
+  doesNotContain: (a: any, b: any) => {
+    if (isString(a) && isString(b)) {
+      return !a.includes(b);
+    }
+    return false;
+  },
+  startsWith: (a: any, b: any) => {
+    if (isString(a) && isString(b)) {
+      return a.indexOf(b) === 0;
+    }
+    return false;
+  },
+  endsWith: (a: any, b: any) => {
+    if (isString(a) && isString(b)) {
+      return a.length === a.indexOf(b) + b.length;
+    }
+    return false;
+  },
+  is: (a: any, b: any) => {
+    const { startDate } = getDateRange(b);
+    return moment(a).isSame(startDate, "d");
+  },
+  isNot: (a: any, b: any) => {
+    const { startDate } = getDateRange(b);
+    return !moment(a).isSame(startDate, "d");
+  },
+  isWithin: (a: any, b: any) => {
+    const { startDate, endDate } = getDateRange(b);
+    console.log(moment(a), startDate, endDate);
+    return moment(a).isBetween(startDate, endDate, "d");
+  },
+  isAfter: (a: any, b: any) => {
+    const { endDate } = getDateRange(b);
+    return !moment(a).isAfter(endDate, "d");
+  },
+  isBefore: (a: any, b: any) => {
+    const { startDate } = getDateRange(b);
+    return !moment(a).isBefore(startDate, "d");
+  },
+};
+
+export type Condition = keyof typeof ConditionFunctions;
+
+export function compare(a: any, b: any, condition: Condition) {
+  let result = true;
+  try {
+    const conditionFunction = ConditionFunctions[condition];
+    if (conditionFunction) {
+      result = conditionFunction(a, b);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+}
 
 export default TableFilters;
