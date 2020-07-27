@@ -61,11 +61,12 @@ const OrgSection = styled.div``;
 
 const OrgName = styled.div`
   display: flex;
-  font-size: ${props => props.theme.fontSizes[3]}px;
+  font-size: ${props => props.theme.fontSizes[4]}px;
+  font-weight: ${props => props.theme.fontWeights[3]};
   padding-top: ${props => props.theme.spaces[4]}px;
   padding-left: ${props => props.theme.spaces[6]}px;
-  & > div {
-    margin-right: 20px;
+  & > span {
+    margin-right: 10px;
   }
 `;
 
@@ -206,7 +207,7 @@ class Applications extends Component<
             },
           }}
           search={{
-            placeholder: "Search",
+            placeholder: "Search App Name",
             queryFn: this.props.searchApplications,
           }}
         />

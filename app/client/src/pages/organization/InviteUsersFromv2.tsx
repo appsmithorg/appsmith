@@ -26,6 +26,8 @@ import {
 import history from "utils/history";
 import { Colors } from "constants/Colors";
 import { isEmail } from "utils/formhelpers";
+import { generateReactKey } from "utils/generators";
+
 const StyledForm = styled.form`
   width: 100%;
   background: white;
@@ -150,6 +152,7 @@ const InviteUsersForm = (props: any) => {
       <StyledInviteFieldGroup>
         <div className="wrapper">
           <TagListField
+            key={generateReactKey()}
             name="users"
             placeholder="Enter email address"
             type="email"
@@ -186,17 +189,17 @@ const InviteUsersForm = (props: any) => {
           );
         })}
       </UserList>
-      <Button
-        className="manageUsers"
-        text="Manage Users"
-        filled
-        intent="primary"
-        onClick={() => {
-          pathRegex.test(currentPath)
-            ? onCancel()
-            : history.push(`/org/${props.orgId}/settings`);
-        }}
-      />
+      {!pathRegex.test(currentPath) && (
+        <Button
+          className="manageUsers"
+          text="Manage Users"
+          filled
+          intent="primary"
+          onClick={() => {
+            history.push(`/org/${props.orgId}/settings`);
+          }}
+        />
+      )}
     </StyledForm>
   );
 };
