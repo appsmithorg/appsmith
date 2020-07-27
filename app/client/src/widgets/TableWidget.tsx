@@ -23,6 +23,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
+import { filterTableData } from "utils/computations";
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -41,7 +42,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
   static getDerivedPropertiesMap() {
     return {
-      selectedRow: "{{this.tableData[this.selectedRowIndex]}}",
+      selectedRow:
+        "{{this.tableData.filter((item)=>Object.values(item).join(',').toUpperCase().includes(this.searchText.toString().toUpperCase()))[this.selectedRowIndex]}}",
     };
   }
 
@@ -198,19 +200,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   searchTableData = (tableData: object[]) => {
-    if (!tableData || !tableData.length) {
-      return [];
-    }
-    const searchKey =
-      this.props.searchText !== undefined
-        ? this.props.searchText.toString().toUpperCase()
-        : "";
-    return tableData.filter((item: object) => {
-      return Object.values(item)
-        .join(", ")
-        .toUpperCase()
-        .includes(searchKey);
-    });
+    return filterTableData(tableData, this.props.searchText);
   };
 
   getPageView() {
