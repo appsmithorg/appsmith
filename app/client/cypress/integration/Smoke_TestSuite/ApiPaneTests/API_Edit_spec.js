@@ -9,7 +9,7 @@ describe("API Panel Test Functionality", function() {
     cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
-    cy.SaveAndRunAPI();
+    cy.SaveAndRunAPI(); //updated test with save and run
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.get(apiwidget.createApiOnSideBar)
       .first()
