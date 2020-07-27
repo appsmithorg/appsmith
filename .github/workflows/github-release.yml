@@ -37,28 +37,28 @@ jobs:
             ${{ runner.OS }}-
   
       # Install all the dependencies
-      - name: Install dependencies
-        run: yarn install
+    - name: Install dependencies
+      run: yarn install
 
-      - name: Set the build environment based on the branch
-        id: vars
-        run: |
-          REACT_APP_ENVIRONMENT="PRODUCTION"
-          echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
+    - name: Set the build environment based on the branch
+      id: vars
+      run: |
+        REACT_APP_ENVIRONMENT="PRODUCTION"
+        echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
     
-      - name: Create the bundle
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn build
+    - name: Create the bundle
+      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn build
       
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
       
-      # Build Docker image and push to Docker Hub
-      - name: Push production image to Docker Hub with commit tag
-        run: |
-          docker build -t appsmith/appsmith-editor:${{steps.get_version.outputs.tag}}  .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push appsmith/appsmith-editor
+    # Build Docker image and push to Docker Hub
+    - name: Push production image to Docker Hub with commit tag
+      run: |
+        docker build -t appsmith/appsmith-editor:${{steps.get_version.outputs.tag}}  .
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        docker push appsmith/appsmith-editor
 
   build-server:
     runs-on: ubuntu-latest
