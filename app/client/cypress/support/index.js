@@ -61,7 +61,7 @@ beforeEach(function() {
 
 after(function() {
   //-- Deleting the application by Api---//
-  cy.DeleteAppByApi();
+  //cy.DeleteAppByApi();
   //-- LogOut Application---//
   cy.LogOut();
 });
