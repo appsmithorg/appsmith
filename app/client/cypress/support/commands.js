@@ -691,6 +691,7 @@ Cypress.Commands.add("EvaluateDataType", dataType => {
 });
 
 Cypress.Commands.add("EvaluateCurrentValue", currentValue => {
+  cy.wait(2000);
   cy.get(commonlocators.evaluatedCurrentValue)
     .should("be.visible")
     .contains(currentValue);
