@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    db: mongo
+spec:
+  ports:
+  - port: 27017
+    name: mongo
+  clusterIP: None
+  selector:
+    db: mongo
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+spec:
+  selector:
+    matchLabels:
+      db: mongo # has to match .spec.template.metadata.labels
+  serviceName: "mongo"
+  replicas: 1 # by default is 1
+  template:
+    metadata:
+      labels:
+        db: mongo # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mongo
+        image: mongo
+        ports:
+        - containerPort: 27017
+          name: db
+        volumeMounts:
+        - name: task-pv-storage
+          mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: task-pv-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "my-storage-class"
+      resources:
+        requests:
+          storage: 1Gi
