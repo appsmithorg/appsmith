@@ -74,15 +74,6 @@ export const useFilteredEntities = (
 
   const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
 
-  const actions = useMemo(
-    () =>
-      Object.values(dataTree).filter(
-        (entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE }) =>
-          entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
-      ),
-    [dataTree],
-  );
-
   const pages = usePages();
 
   const currentPageId = useSelector((state: AppState) => {
@@ -136,6 +127,15 @@ export const useFilteredEntities = (
           : tree;
       });
   }, [searchKeyword, allPageDSLs, currentPageId]);
+
+  const actions = useMemo(
+    () =>
+      Object.values(dataTree).filter(
+        (entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE }) =>
+          entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
+      ),
+    [dataTree],
+  );
 
   const allAppActions = useSelector(
     (state: AppState) => state.entities.actions,
@@ -207,8 +207,12 @@ export const useFilteredEntities = (
       el?.dispatchEvent(event);
     }
   }, [ref, event]);
+  const allWidgetEntities = useMemo(
+    () => compact([currentPageWidgetEntities, ...otherPagesWidgetEntities]),
+    [currentPageWidgetEntities, otherPagesWidgetEntities],
+  );
   return {
-    widgets: [currentPageWidgetEntities, ...otherPagesWidgetEntities],
+    widgets: allWidgetEntities,
     actions: actionEntities as DataTreeAction[],
     dataSources: datasourceEntities,
     currentPageId,

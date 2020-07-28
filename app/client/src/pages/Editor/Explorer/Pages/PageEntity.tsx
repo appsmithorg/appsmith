@@ -49,12 +49,14 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
         />
       }
     >
-      <ExplorerWidgetGroup
-        step={props.step + 1}
-        searchKeyword={props.searchKeyword}
-        widgets={props.widgets || null}
-        pageId={props.page.pageId}
-      />
+      {!(!props.widgets && props.searchKeyword) && (
+        <ExplorerWidgetGroup
+          step={props.step + 1}
+          searchKeyword={props.searchKeyword}
+          widgets={props.widgets || null}
+          pageId={props.page.pageId}
+        />
+      )}
       {getActionGroups(
         props.page,
         props.actions,

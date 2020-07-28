@@ -97,6 +97,7 @@ export const getActionGroups = (
     const entries = actions.filter(
       (entry: GenericAction) => entry.pluginType === config?.type,
     );
+    if (entries.length === 0 && !!searchKeyword) return null;
 
     return (
       <ExplorerActionsGroup
