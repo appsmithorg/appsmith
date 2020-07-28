@@ -35,9 +35,9 @@ const navigateToCanvas = (
   const canvasEditorURL = `${BUILDER_PAGE_URL(
     params.applicationId,
     widgetPageId,
-  )}#${widgetId}`;
+  )}`;
   if (currentPath !== canvasEditorURL) {
-    history.push(canvasEditorURL);
+    history.push(`${canvasEditorURL}#${widgetId}`);
   }
 };
 

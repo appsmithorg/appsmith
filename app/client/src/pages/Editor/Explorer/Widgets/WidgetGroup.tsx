@@ -37,6 +37,7 @@ const getWidgetEntity = (
       getWidgetEntity(
         child,
         step,
+        pageId,
         entity.type === WidgetTypes.MODAL_WIDGET ? entity.widgetId : undefined,
         searchKeyword,
       ),

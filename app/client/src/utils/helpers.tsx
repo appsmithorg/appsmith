@@ -90,10 +90,10 @@ export const convertToCamelCase = (value: string, limit?: number) => {
 };
 
 export const flashElement = (el: HTMLElement) => {
-  el.style.backgroundColor = "blueviolet";
+  el.style.backgroundColor = "#FFCB33";
   setTimeout(() => {
     el.style.backgroundColor = "transparent";
-  }, 3000);
+  }, 1000);
 };
 
 export const flashElementById = (id: string) => {
