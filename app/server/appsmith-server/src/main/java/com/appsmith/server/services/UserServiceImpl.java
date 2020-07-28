@@ -641,7 +641,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     }
                     params.put("inviter_org_name", updatedOrg.getName());
 
-                    Mono<Void> emailMono;
+                    Mono<String> emailMono;
                     if (userExisted.get()) {
                         // If the user already existed, just send an email informing that the user has been added
                         // to a new organization
