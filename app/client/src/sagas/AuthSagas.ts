@@ -3,18 +3,9 @@ import { getFormValues } from "redux-form";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { LOGIN_FORM_NAME } from "constants/forms";
 import history from "utils/history";
-import axios from "axios";
 import qs from "qs";
-import { BASE_LOGIN_URL } from "constants/routes";
 import { getCurrentUser } from "actions/authActions";
-
-const loginAxios = axios.create({
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded",
-    Accept: "text/html",
-  },
-  withCredentials: true,
-});
+import AuthApi from "@appsmith/api/AuthApi";
 
 function* formLoginSaga() {
   const values: Record<string, string> = yield select(
@@ -22,15 +13,7 @@ function* formLoginSaga() {
   );
   const formData = qs.stringify(values);
   const base = window.location.origin;
-
-  const response = yield loginAxios({
-    method: "POST",
-    url: `/api/v1${BASE_LOGIN_URL}`,
-    data: formData,
-    headers: {
-      "X-Redirect-Url": `${base}/applications`,
-    },
-  });
+  const response = yield AuthApi.formLogin(formData, `${base}/applications`);
   yield put(getCurrentUser({}));
   const url = response.request.responseURL.replace(base, "");
   history.replace(url);

@@ -1,21 +1,25 @@
-import Api from "./Api";
-import { AxiosPromise } from "axios";
+import axios, { AxiosPromise } from "axios";
 import { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 
-class AuthApi extends Api {
-  static baseURL = `v1/${LOGIN_SUBMIT_PATH}`;
+const loginAxios = axios.create({
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "text/html",
+  },
+  withCredentials: true,
+});
+
+class AuthApi {
+  static baseURL = `/api/v1/${LOGIN_SUBMIT_PATH}`;
   static formLogin(
     formData: string,
-    redirectUri: string,
+    redirectUri = "",
   ): AxiosPromise<PropertyPaneConfigsResponse> {
-    return Api.post(AuthApi.baseURL, formData, undefined, {
+    return loginAxios.post(AuthApi.baseURL, formData, {
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
         "X-Redirect-Url": redirectUri,
-        Accept: "text/html",
       },
-      withCredentials: true,
     });
   }
 }
