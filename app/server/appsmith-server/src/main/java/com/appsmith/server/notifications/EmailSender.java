@@ -67,10 +67,11 @@ public class EmailSender {
                         Mono.fromRunnable(() -> {
                             sendMailSync(to, subject, emailBody);
                         })
-                                // Scheduling using boundedElastic because the number of active tasks are capped
-                                // and hence not allowing the background threads to grow indefinitely
-                                .subscribeOn(Schedulers.boundedElastic())
-                                .subscribe());
+                        // Scheduling using boundedElastic because the number of active tasks are capped
+                        // and hence not allowing the background threads to grow indefinitely
+                        .subscribeOn(Schedulers.boundedElastic())
+                        .subscribe()
+                );
     }
 
     /**
