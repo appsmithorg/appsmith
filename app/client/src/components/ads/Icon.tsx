@@ -26,7 +26,7 @@ import styled from "styled-components";
 
 // export type IconName = keyof typeof Icons
 
-const iconSizeHandler = (props: { size: IconProp }) => {
+const iconSizeHandler = (props: { size: IconSize }) => {
   let iconSize: number;
   switch (props.size) {
     case "small":
@@ -35,17 +35,17 @@ const iconSizeHandler = (props: { size: IconProp }) => {
     case "medium":
       iconSize = 14;
       break;
-    default:
+    case "large":
       iconSize = 15;
+      break;
+    default:
+      iconSize = 20;
       break;
   }
   return iconSize;
 };
 
-export type IconProp = "small" | "medium" | "large" | undefined;
-export type IconName = "delete" | "user" | undefined;
-
-const IconWrapper = styled.div<{ size: IconProp }>`
+const IconWrapper = styled.span<{ size: IconSize }>`
   &:focus {
     outline: none;
   }
@@ -58,19 +58,27 @@ const IconWrapper = styled.div<{ size: IconProp }>`
   }
 `;
 
-export const Icon = (props: { name: IconName; iconSize: IconProp }) => {
+export type IconSize = "small" | "medium" | "large" | "tab" | undefined;
+export type IconName = "delete" | "user" | undefined;
+
+type IconProps = {
+  name: IconName;
+  size: IconSize;
+};
+
+export const Icon = (props: IconProps) => {
   let returnIcon;
   switch (props.name) {
     case "delete":
       returnIcon = (
-        <IconWrapper size={props.iconSize}>
+        <IconWrapper size={props.size}>
           <DeleteIcon />
         </IconWrapper>
       );
       break;
     default:
       returnIcon = (
-        <IconWrapper size={props.iconSize}>
+        <IconWrapper size={props.size}>
           <UserIcon />
         </IconWrapper>
       );

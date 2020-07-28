@@ -3,12 +3,13 @@ import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { IconName, Icon } from "./Icon";
 import NewSpinner from "./NewSpinner";
+import { AdSTheme } from "./baseTheme";
 
 type ButtonProps = CommonComponentProps & {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   text?: string;
   category?: "primary" | "secondary" | "tertiary"; //default primary
-  variant?: "success" | "info" | "warning" | "danger" | "link"; //default info
+  variant?: "success" | "info" | "warning" | "danger"; //default info
   icon?: IconName; //default undefined.
   size?: "small" | "medium" | "large"; // default medium
 };
@@ -48,7 +49,10 @@ const rgbaIntensity = (color: string) => {
   return `rgba(${value.r}, ${value.g}, ${value.b}, 0.1);`;
 };
 
-const stateStyles = (props: any, state: string) => {
+const stateStyles = (
+  props: { theme: AdSTheme } & ButtonProps,
+  state: string,
+) => {
   let bgColorPrimary,
     borderColorPrimary,
     txtColorPrimary,
@@ -62,32 +66,40 @@ const stateStyles = (props: any, state: string) => {
   if (props.isLoading || props.isDisabled) {
     switch (props.category) {
       case "primary":
-        bgColorPrimary = props.theme.colors[props.variant].darkest;
-        borderColorPrimary = props.theme.colors[props.variant].darkest;
-        txtColorPrimary = props.theme.colors.blackShades[6];
+        if (props.variant) {
+          bgColorPrimary = props.theme.colors[props.variant].darkest;
+          borderColorPrimary = props.theme.colors[props.variant].darkest;
+          txtColorPrimary = props.theme.colors.blackShades[6];
+        }
         break;
       case "secondary":
-        bgColorSecondary = props.theme.colors[props.variant].darkest;
-        borderColorSecondary = props.theme.colors[props.variant].darker;
-        txtColorSecondary = props.theme.colors.blackShades[6];
+        if (props.variant) {
+          bgColorSecondary = props.theme.colors[props.variant].darkest;
+          borderColorSecondary = props.theme.colors[props.variant].darker;
+          txtColorSecondary = props.theme.colors.blackShades[6];
+        }
         break;
       default:
-        bgColorTertiary = props.theme.colors.tertiary.darker;
-        borderColorTertiary = props.theme.colors.tertiary.dark;
+        bgColorTertiary = props.theme.colors.tertiary.darkest;
+        borderColorTertiary = props.theme.colors.tertiary.darker;
         txtColorTertiary = props.theme.colors.blackShades[6];
         break;
     }
   } else if (state === "main") {
     switch (props.category) {
       case "primary":
-        bgColorPrimary = props.theme.colors[props.variant].main;
-        txtColorPrimary = props.theme.colors.blackShades[9];
-        borderColorPrimary = props.theme.colors[props.variant].main;
+        if (props.variant) {
+          bgColorPrimary = props.theme.colors[props.variant].main;
+          txtColorPrimary = props.theme.colors.blackShades[9];
+          borderColorPrimary = props.theme.colors[props.variant].main;
+        }
         break;
       case "secondary":
-        bgColorSecondary = "transparent";
-        borderColorSecondary = props.theme.colors[props.variant].main;
-        txtColorSecondary = props.theme.colors[props.variant].main;
+        if (props.variant) {
+          bgColorSecondary = "transparent";
+          borderColorSecondary = props.theme.colors[props.variant].main;
+          txtColorSecondary = props.theme.colors[props.variant].main;
+        }
         break;
       default:
         bgColorTertiary = "transparent";
@@ -98,16 +110,20 @@ const stateStyles = (props: any, state: string) => {
   } else if (state === "hover") {
     switch (props.category) {
       case "primary":
-        bgColorPrimary = props.theme.colors[props.variant].dark;
-        txtColorPrimary = props.theme.colors.blackShades[9];
-        borderColorPrimary = props.theme.colors[props.variant].dark;
+        if (props.variant) {
+          bgColorPrimary = props.theme.colors[props.variant].dark;
+          txtColorPrimary = props.theme.colors.blackShades[9];
+          borderColorPrimary = props.theme.colors[props.variant].dark;
+        }
         break;
       case "secondary":
-        bgColorSecondary = rgbaIntensity(
-          props.theme.colors[props.variant].main,
-        );
-        txtColorSecondary = props.theme.colors[props.variant].main;
-        borderColorSecondary = props.theme.colors[props.variant].main;
+        if (props.variant) {
+          bgColorSecondary = rgbaIntensity(
+            props.theme.colors[props.variant].main,
+          );
+          txtColorSecondary = props.theme.colors[props.variant].main;
+          borderColorSecondary = props.theme.colors[props.variant].main;
+        }
         break;
       default:
         bgColorTertiary = rgbaIntensity(props.theme.colors.tertiary.main);
@@ -118,16 +134,20 @@ const stateStyles = (props: any, state: string) => {
   } else if (state === "active") {
     switch (props.category) {
       case "primary":
-        bgColorPrimary = props.theme.colors[props.variant].dark;
-        txtColorPrimary = props.theme.colors.blackShades[9];
-        borderColorPrimary = props.theme.colors[props.variant].main;
+        if (props.variant) {
+          bgColorPrimary = props.theme.colors[props.variant].dark;
+          txtColorPrimary = props.theme.colors.blackShades[9];
+          borderColorPrimary = props.theme.colors[props.variant].main;
+        }
         break;
       case "secondary":
-        bgColorSecondary = rgbaIntensity(
-          props.theme.colors[props.variant].main,
-        );
-        txtColorSecondary = props.theme.colors[props.variant].light;
-        borderColorSecondary = props.theme.colors[props.variant].light;
+        if (props.variant) {
+          bgColorSecondary = rgbaIntensity(
+            props.theme.colors[props.variant].main,
+          );
+          txtColorSecondary = props.theme.colors[props.variant].light;
+          borderColorSecondary = props.theme.colors[props.variant].light;
+        }
         break;
       default:
         bgColorTertiary = rgbaIntensity(props.theme.colors.tertiary.main);
@@ -150,7 +170,10 @@ const stateStyles = (props: any, state: string) => {
   };
 };
 
-const btnColorStyles = (props: any, state: string) => {
+const btnColorStyles = (
+  props: { theme: AdSTheme } & ButtonProps,
+  state: string,
+) => {
   let bgColor, txtColor, borderColor;
   switch (props.category) {
     case "primary":
@@ -175,7 +198,7 @@ const btnColorStyles = (props: any, state: string) => {
   return { bgColor, txtColor, borderColor };
 };
 
-const btnFontStyles = (props: any) => {
+const btnFontStyles = (props: { theme: AdSTheme } & ButtonProps) => {
   let fontSize, fontWeight, lineHeight, letterSpacing, padding;
   switch (props.size) {
     case "small":
@@ -212,26 +235,33 @@ const btnFontStyles = (props: any) => {
   return { fontSize, fontWeight, lineHeight, letterSpacing, padding };
 };
 
-const iconColorHandler = (props: any) => {
+const iconColorHandler = (props: { theme: AdSTheme } & ButtonProps) => {
   let iconColor: string;
-  switch (props.category) {
-    case "primary":
-      iconColor = props.theme.colors.blackShades[9];
-      break;
-    case "secondary":
-      iconColor = props.theme.colors[props.variant].main;
-      break;
-    default:
-      iconColor = props.theme.colors.tertiary.light;
+  if (props.isLoading || props.isDisabled) {
+    iconColor = props.theme.colors.blackShades[6];
+  } else {
+    switch (props.category) {
+      case "primary":
+        iconColor = props.theme.colors.blackShades[9];
+        break;
+      case "secondary":
+        iconColor = props.variant ? props.theme.colors[props.variant].main : "";
+        break;
+      default:
+        iconColor = props.theme.colors.tertiary.light;
+    }
   }
   return iconColor;
 };
 
-const StyledButton = styled("button")`
+const StyledButton = styled("button")<ButtonProps>`
   border: none;
   outline: none;
   text-transform: uppercase;;
-  background-color: ${props => btnColorStyles(props, "main").bgColor};
+  background-color: ${props => {
+    console.log(".................", props);
+    return btnColorStyles(props, "main").bgColor;
+  }};
   color: ${props => btnColorStyles(props, "main").txtColor};
   border: ${props => btnColorStyles(props, "main").borderColor};
   border-radius: ${props => props.theme.radii[0]};
@@ -245,7 +275,7 @@ const StyledButton = styled("button")`
     background-color: ${props => btnColorStyles(props, "hover").bgColor}
     color: ${props => btnColorStyles(props, "hover").txtColor};
     border: ${props => btnColorStyles(props, "hover").borderColor};
-    cursor: ${(props: any) =>
+    cursor: ${props =>
       props.isLoading || props.isDisabled ? `not-allowed` : `pointer`};
   };
   font-style: normal;
@@ -253,11 +283,11 @@ const StyledButton = styled("button")`
     background-color: ${props => btnColorStyles(props, "active").bgColor}
     color: ${props => btnColorStyles(props, "active").txtColor};
     border: ${props => btnColorStyles(props, "active").borderColor};
-    cursor:  ${(props: any) =>
+    cursor:  ${props =>
       props.isLoading || props.isDisabled ? `not-allowed` : `pointer`};
   };
-  div {
-    margin-right: ${(props: any) =>
+  span {
+    margin-right: ${props =>
       props.text && props.icon ? `${props.theme.space[7]}px` : `0`}
   }
   display: flex;
@@ -266,8 +296,8 @@ const StyledButton = styled("button")`
   }
   position: relative;
   .new-spinner {
-    position: ${(props: any) => (props.isLoading ? "absolute" : "relative")};
-    left: ${(props: any) => (props.isLoading && props.text ? "40%" : "unset")};
+    position: ${props => (props.isLoading ? "absolute" : "relative")};
+    left: ${props => (props.isLoading && props.text ? "40%" : "unset")};
   }
 `;
 
@@ -279,11 +309,12 @@ Button.defaultProps = {
   isDisabled: false,
 };
 
-const InvisibleText = styled.div`
+const InvisibleText = styled.span`
   visibility: hidden;
 `;
 
 function Button(props: ButtonProps) {
+  console.log("props", props);
   return (
     <StyledButton
       data-cy={props.cypressSelector}
@@ -293,10 +324,10 @@ function Button(props: ButtonProps) {
       }
     >
       {props.icon && !props.isLoading ? (
-        <Icon name={props.icon} iconSize={props.size} />
-      ) : props.isLoading && props.icon && !props.text ? (
+        <Icon name={props.icon} size={props.size} />
+      ) : props.isLoading && props.icon ? (
         <InvisibleText>
-          <Icon name={props.icon} iconSize={props.size} />
+          <Icon name={props.icon} size={props.size} />
         </InvisibleText>
       ) : null}
       {props.text && !props.isLoading ? (

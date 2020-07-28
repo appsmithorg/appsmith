@@ -40,13 +40,13 @@ const spinnerSize = (props: SpinnerProp) => {
   let iconSize: number;
   switch (props.size) {
     case "small":
-      iconSize = 12;
+      iconSize = 11;
       break;
     case "medium":
-      iconSize = 14;
+      iconSize = 13;
       break;
     default:
-      iconSize = 15;
+      iconSize = 14;
       break;
   }
   return iconSize;
