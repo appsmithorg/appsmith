@@ -93,7 +93,7 @@ public class ExamplesOrganizationCloner {
      * @param user The user who will own the new cloned organization.
      * @return Publishes the newly created organization.
      */
-    private Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user) {
+    public Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user) {
         return organizationRepository
                 .findById(templateOrganizationId)
                 .doOnSuccess(organization -> {
@@ -191,6 +191,7 @@ public class ExamplesOrganizationCloner {
                     }
                     return actionMono.flatMap(actionService::create);
                 })
+                .then(cloneDatasourcesMono)  // Run the datasource cloning mono if it isn't already done.
                 .then();
     }
 
