@@ -39,6 +39,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
   static getDerivedPropertiesMap() {
     return {
+      filteredTableData:
+        "{{this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText.toUpperCase()))}}",
       selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
     };
   }
@@ -60,29 +62,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onPageChange: true,
       onSearchTextChanged: true,
     };
-  }
-
-  componentDidMount() {
-    const filteredData = this.getFilteredData();
-    super.updateWidgetMetaProperty("filteredTableData", filteredData);
-  }
-
-  // When the original data provided by the user changes
-  // Filter the original data using the searchText
-  // donot filter if server side filter is enabled
-
-  // TODO: It may be necessary to make the tableData property immutable
-  componentDidUpdate(prevProps: TableWidgetProps) {
-    if (
-      JSON.stringify(prevProps.tableData) !==
-        JSON.stringify(this.props.tableData) ||
-      this.props.searchText !== prevProps.searchText
-    ) {
-      let filteredData = this.props.tableData;
-      if (!this.props.onSearchTextChanged)
-        filteredData = this.getFilteredData();
-      super.updateWidgetMetaProperty("filteredTableData", filteredData);
-    }
   }
 
   getTableColumns = (tableData: object[]) => {
@@ -236,11 +215,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         .toUpperCase()
         .includes(searchKey);
     });
-  };
-
-  searchTableData = () => {
-    const filteredData = this.getFilteredData();
-    super.updateWidgetMetaProperty("filteredTableData", filteredData);
   };
 
   getPageView() {
