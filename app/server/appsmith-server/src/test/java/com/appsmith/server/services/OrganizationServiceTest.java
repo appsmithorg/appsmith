@@ -796,4 +796,79 @@ public class OrganizationServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * This test tests for a multiple new users being added to an organzation as viewer.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addNewUsersBulkToOrganizationAsViewer() {
+        Organization organization = new Organization();
+        organization.setName("Add Bulk Viewers to Test Organization");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
+
+        Mono<Organization> organizationMono = organizationService
+                .create(organization)
+                .cache();
+
+        Mono<List<User>> userAddedToOrgMono = organizationMono
+                .flatMap(organization1 -> {
+                    // Add user to organization
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add("newEmailWhichShouldntExistAsViewer1@usertest.com");
+                    users.add("newEmailWhichShouldntExistAsViewer2@usertest.com");
+                    users.add("newEmailWhichShouldntExistAsViewer3@usertest.com");
+                    inviteUsersDTO.setUsernames(users);
+                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080");
+                })
+                .cache();
+
+        Mono<Organization> readOrgMono = organizationRepository.findByName("Add Bulk Viewers to Test Organization");
+
+        Mono<Organization> orgAfterUpdateMono = userAddedToOrgMono
+                .then(readOrgMono);
+
+        StepVerifier
+                .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1().get(0);
+                    Organization org = tuple.getT2();
+
+                    assertThat(org).isNotNull();
+                    assertThat(org.getName()).isEqualTo("Add Bulk Viewers to Test Organization");
+                    assertThat(org.getUserRoles().stream()
+                            .map(userRole -> userRole.getUsername())
+                            .filter(username -> !username.equals("api_user"))
+                            .collect(Collectors.toSet())
+                    ).containsAll(Set.of("newEmailWhichShouldntExistAsViewer1@usertest.com", "newEmailWhichShouldntExistAsViewer2@usertest.com",
+                            "newEmailWhichShouldntExistAsViewer3@usertest.com"));
+
+                    Policy readOrgAppsPolicy = Policy.builder().permission(ORGANIZATION_READ_APPLICATIONS.getValue())
+                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer1@usertest.com",
+                                    "newEmailWhichShouldntExistAsViewer2@usertest.com",
+                                    "newEmailWhichShouldntExistAsViewer3@usertest.com"))
+                            .build();
+
+                    Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
+                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer1@usertest.com",
+                                    "newEmailWhichShouldntExistAsViewer2@usertest.com",
+                                    "newEmailWhichShouldntExistAsViewer3@usertest.com"))
+                            .build();
+
+                    assertThat(org.getPolicies()).isNotEmpty();
+                    assertThat(org.getPolicies()).containsAll(Set.of(readOrgAppsPolicy, readOrgPolicy));
+
+                    assertThat(user).isNotNull();
+                    assertThat(user.getIsEnabled()).isFalse();
+                    Set<String> organizationIds = user.getOrganizationIds();
+                    assertThat(organizationIds).contains(org.getId());
+
+                })
+                .verifyComplete();
+    }
+
 }
