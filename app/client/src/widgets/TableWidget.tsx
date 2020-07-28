@@ -40,7 +40,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       filteredTableData:
-        "{{this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText.toUpperCase()))}}",
+        "{{!this.onSearchTextChanged ? this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText.toUpperCase())) : this.tableData}}",
       selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
     };
   }
@@ -197,24 +197,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       updatedTableData.push(tableRow);
     }
     return updatedTableData;
-  };
-
-  getFilteredData = () => {
-    if (!this.props.tableData || !this.props.tableData.length) {
-      return [];
-    }
-
-    if (!this.props.searchText) {
-      return this.props.tableData;
-    }
-
-    const searchKey = this.props.searchText.toString().toUpperCase();
-    return this.props.tableData.filter((item: object) => {
-      return Object.values(item)
-        .join(", ")
-        .toUpperCase()
-        .includes(searchKey);
-    });
   };
 
   getPageView() {
