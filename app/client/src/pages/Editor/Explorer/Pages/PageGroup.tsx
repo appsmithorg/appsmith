@@ -51,6 +51,12 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
           (action: GenericAction & { pageId?: string }) =>
             action.pageId === page.pageId,
         );
+        if (
+          (!widgets || widgets.length === 0) &&
+          actions.length === 0 &&
+          props.searchKeyword
+        )
+          return null;
         return (
           <ExplorerPageEntity
             key={page.pageId}
