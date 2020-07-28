@@ -23,7 +23,6 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { filterTableData } from "utils/computations";
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -35,15 +34,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
-      // columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
-      // onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
-      // onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
+      filteredTableData: VALIDATION_TYPES.TABLE_DATA,
     };
   }
   static getDerivedPropertiesMap() {
     return {
-      selectedRow:
-        "{{this.tableData.filter((item)=>Object.values(item).join(',').toUpperCase().includes(this.searchText.toString().toUpperCase()))[this.selectedRowIndex]}}",
+      selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
     };
   }
 
@@ -53,6 +49,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: undefined,
       selectedRowIndex: -1,
       searchText: "",
+      // The following meta property is used for rendering the table.
+      filteredTableData: [],
     };
   }
 
@@ -62,6 +60,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onPageChange: true,
       onSearchTextChanged: true,
     };
+  }
+
+  componentDidMount() {
+    const filteredData = this.getFilteredData();
+    super.updateWidgetMetaProperty("filteredTableData", filteredData);
+  }
+
+  // When the original data provided by the user changes
+  // Filter the original data using the searchText
+  // donot filter if server side filter is enabled
+
+  // TODO: It may be necessary to make the tableData property immutable
+  componentDidUpdate(prevProps: TableWidgetProps) {
+    if (
+      JSON.stringify(prevProps.tableData) !==
+        JSON.stringify(this.props.tableData) ||
+      this.props.searchText !== prevProps.searchText
+    ) {
+      let filteredData = this.props.tableData;
+      if (!this.props.onSearchTextChanged)
+        filteredData = this.getFilteredData();
+      super.updateWidgetMetaProperty("filteredTableData", filteredData);
+    }
   }
 
   getTableColumns = (tableData: object[]) => {
@@ -199,14 +220,33 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return updatedTableData;
   };
 
-  searchTableData = (tableData: object[]) => {
-    return filterTableData(tableData, this.props.searchText);
+  getFilteredData = () => {
+    if (!this.props.tableData || !this.props.tableData.length) {
+      return [];
+    }
+
+    if (!this.props.searchText) {
+      return this.props.tableData;
+    }
+
+    const searchKey = this.props.searchText.toString().toUpperCase();
+    return this.props.tableData.filter((item: object) => {
+      return Object.values(item)
+        .join(", ")
+        .toUpperCase()
+        .includes(searchKey);
+    });
+  };
+
+  searchTableData = () => {
+    const filteredData = this.getFilteredData();
+    super.updateWidgetMetaProperty("filteredTableData", filteredData);
   };
 
   getPageView() {
-    const { tableData, hiddenColumns } = this.props;
+    const { tableData, hiddenColumns, filteredTableData } = this.props;
     const tableColumns = this.getTableColumns(tableData);
-    const filteredTableData = this.searchTableData(tableData);
+    // Use the filtered data to render the table.
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
