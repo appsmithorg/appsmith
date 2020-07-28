@@ -17,7 +17,7 @@ jobs:
     # This step pulls the merges the latest release branch from the Appsmith CE into EE repository
     - name: repo-sync
       run: |
-        git remote add community git@github.com:appsmithorg/appsmith.git
+        git remote add community https://github.com/appsmithorg/appsmith.git
         git pull community release --no-edit
         git push origin release
 
