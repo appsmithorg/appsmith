@@ -37,7 +37,7 @@ jobs:
       env:
         cache-name: cache-yarn-dependencies
       with:
-        # maven dependencies are stored in `~/.m2` on Linux/macOS
+        # npm dependencies are stored in `~/.npm` on Linux/macOS
         path: ~/.npm
         key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
@@ -229,6 +229,6 @@ jobs:
       if: success() && github.ref == 'refs/heads/master'
       run: |
         docker build -t appsmith/appsmith-editor-ee:${GITHUB_SHA} .
-        docker build -t appsmith/appsmith-editor-ee:latest .
+        docker build -t appsmith/appsmith-editor-ee:nightly .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-editor-ee
