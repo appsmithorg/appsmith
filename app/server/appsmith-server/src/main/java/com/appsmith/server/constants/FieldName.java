@@ -24,6 +24,7 @@ public class FieldName {
     public static String PROVIDER_ID = "providerId";
     public static String CATEGORY = "category";
     public static String PAGE = "page";
+    public static String PAGES = "pages";
     public static String SIZE = "size";
     public static String ROLE = "role";
     public static String DEFAULT_WIDGET_NAME = "MainContainer";
