@@ -63,7 +63,7 @@ jobs:
   build-server:
     runs-on: ubuntu-latest
     defaults:
-    run:
+      run:
         working-directory: app/server
 
     steps:
