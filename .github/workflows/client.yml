@@ -229,6 +229,6 @@ jobs:
       if: success() && github.ref == 'refs/heads/master'
       run: |
         docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
-        docker build -t appsmith/appsmith-editor:latest .
+        docker build -t appsmith/appsmith-editor:nightly .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-editor
