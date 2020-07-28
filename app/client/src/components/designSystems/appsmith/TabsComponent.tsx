@@ -54,7 +54,7 @@ const ScrollableCanvasWrapper = styled.div<
 
 const TabsContainer = styled.div`
   width: 100%;
-  overflow: auto;
+  overflow: hidden;
   && {
     height: 32px;
     width: 100%;
