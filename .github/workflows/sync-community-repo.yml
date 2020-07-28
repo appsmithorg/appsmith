@@ -1,0 +1,23 @@
+# This workflow is responsible for syncing the release branch from the community edition repository
+name: Sync Community workflow
+
+on:
+  schedule:
+  - cron:  "0 * * * *"
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: release
+
+    # This step pulls the merges the latest release branch from the Appsmith CE into EE repository
+    - name: repo-sync
+      run: |
+        git remote add community git@github.com:appsmithorg/appsmith.git
+        git pull community release --no-edit
+        git push origin release
+
