@@ -9,7 +9,6 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -43,7 +42,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
@@ -550,9 +548,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * 2. User exists :
      * a. Add user to the organization
      * b. Add organization to the user
+     * @return
      */
     @Override
-    public Mono<User> inviteUser(InviteUsersDTO inviteUsersDTO, String originHeader) {
+    public Mono<List<User>> inviteUser(InviteUsersDTO inviteUsersDTO, String originHeader) {
 
         if (originHeader == null || originHeader.isBlank()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
@@ -568,23 +567,52 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
         }
 
-        // This variable will be used to decide if an email should be sent to get a user to sign up for appsmith or the
-        // email would inform the user that the user has been invited to a new organization
-        AtomicBoolean userExisted = new AtomicBoolean(true);
-
-
-        // Check if the invited user exists. If yes, return the user, else create a new user by triggering the create
-        // new user Mono.
-        Flux<User> inviteUsersFlux = Flux.fromIterable(usernames)
-                .flatMap(username -> repository.findByEmail(username)
-                        .switchIfEmpty(createNewUserMono(username)))
-                .cache();
-
         Mono<Organization> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, inviteUsersDTO.getOrgId())))
                 .cache();
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+
+        // Check if the invited user exists. If yes, return the user, else create a new user by triggering the create
+        // new user Mono. In both the cases, send email.
+
+        Flux<User> inviteUsersFlux = Flux.fromIterable(usernames)
+                .flatMap(username -> Mono.zip(Mono.just(username), organizationMono, currentUserMono))
+                .flatMap(tuple -> {
+                    String username = tuple.getT1();
+                    Organization organization = tuple.getT2();
+                    User currentUser = tuple.getT3();
+
+                    // Email template parameters initialization below.
+                    Map<String, String> params = new HashMap<>();
+                    if (!StringUtils.isEmpty(currentUser.getName())) {
+                        params.put("Inviter_First_Name", currentUser.getName());
+                    } else {
+                        params.put("Inviter_First_Name", currentUser.getEmail());
+                    }
+                    params.put("inviter_org_name", organization.getName());
+
+                    return repository.findByEmail(username)
+                            .flatMap(existingUser -> {
+                                // The user already existed, just send an email informing that the user has been added
+                                // to a new organization
+                                log.debug("Going to send email to user {} informing that the user has been added to new organization {}",
+                                        existingUser.getEmail(), organization.getName());
+                                params.put("inviteUrl", originHeader);
+                                Mono<Void> emailMono = emailSender.sendMail(existingUser.getEmail(),
+                                        "Appsmith: You have been added to a new organization",
+                                        USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
+
+                                return emailMono
+                                        .thenReturn(existingUser)
+                                        .onErrorResume(error -> {
+                                            log.error("Unable to send invite user email to {}. Cause: ", existingUser.getEmail(), error);
+                                            return Mono.just(existingUser);
+                                        });
+                            })
+                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, params));
+                })
+                .cache();
 
         // Add User to the invited Organization
         Mono<Organization> organizationWithUserAddedMono = Mono.zip(inviteUsersFlux.collectList(), organizationMono)
@@ -616,74 +644,45 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 })
                 .collectList();
 
-
-        return Mono.zip(organizationWithUserAddedMono, usersUpdatedWithOrgMono, currentUserMono)
-                .flatMap(tuple -> {
-                    // We reached here. This implies that both user and org got updated without any errors. Proceed forward
-                    // with communication (email) here.
-                    Organization updatedOrg = tuple.getT1();
-                    User updatedUser = tuple.getT2();
-                    User currentUser = tuple.getT3();
-
-                    // Email template parameters initialization below.
-                    Map<String, String> params = new HashMap<>();
-                    if (!StringUtils.isEmpty(currentUser.getName())) {
-                        params.put("Inviter_First_Name", currentUser.getName());
-                    } else {
-                        params.put("Inviter_First_Name", currentUser.getEmail());
-                    }
-                    params.put("inviter_org_name", updatedOrg.getName());
-
-                    Mono<Void> emailMono;
-                    if (userExisted.get()) {
-                        // If the user already existed, just send an email informing that the user has been added
-                        // to a new organization
-                        log.debug("Going to send email to user {} informing that the user has been added to new organization {}",
-                                updatedUser.getEmail(), updatedOrg.getName());
-                        params.put("inviteUrl", originHeader);
-                        emailMono = emailSender.sendMail(updatedUser.getEmail(), "Appsmith: You have been added to a new organization", USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
-
-                    } else {
-                        // The user was created and then added to the organization. Send an email to the user to sign
-                        // up on Appsmith platform with the token generated during create user.
-                        log.debug("Going to send email for invite user to {} with token {}", updatedUser.getEmail(), updatedUser.getInviteToken());
-                        String inviteUrl = String.format(
-                                INVITE_USER_CLIENT_URL_FORMAT,
-                                originHeader,
-                                URLEncoder.encode(updatedUser.getInviteToken(), StandardCharsets.UTF_8),
-                                URLEncoder.encode(updatedUser.getEmail(), StandardCharsets.UTF_8)
-                        );
-
-                        params.put("token", updatedUser.getInviteToken());
-                        params.put("inviteUrl", inviteUrl);
-                        emailMono = emailSender.sendMail(updatedUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
-
-                    }
-
-                    // We have sent out the emails. Just send back the saved user.
-                    return emailMono
-                            .thenReturn(updatedUser)
-                            .onErrorResume(error -> {
-                                log.error("Unable to send invite user email to {}. Cause: ", updatedUser.getEmail(), error);
-                                return Mono.just(updatedUser);
-                            });
-                });
+        // Trigger the flow to first add the users to the organization and then update each user with the organizationId
+        // added to the user's list of organizations.
+        return organizationWithUserAddedMono
+                .then(usersUpdatedWithOrgMono);
     }
 
-    private Mono<User> createNewUserMono (String email) {
+    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Map<String, String> params) {
         User newUser = new User();
         newUser.setEmail(email);
         // This is a new user. Till the user signs up, this user would be disabled.
         newUser.setIsEnabled(false);
 
-        // TODO : Handle email sending
-//        userExisted.set(false);
-
         // Create an invite token for the user. This token is linked to the email ID and the organization to which the
         // user was invited.
         newUser.setInviteToken(UUID.randomUUID().toString());
+
         // Call user service's userCreate function so that the personal organization, etc are also created along with assigning basic permissions.
-        return userCreate(newUser);
+        return userCreate(newUser)
+                .flatMap(createdUser -> {
+                    log.debug("Going to send email for invite user to {} with token {}", createdUser.getEmail(), createdUser.getInviteToken());
+                    String inviteUrl = String.format(
+                            INVITE_USER_CLIENT_URL_FORMAT,
+                            originHeader,
+                            URLEncoder.encode(createdUser.getInviteToken(), StandardCharsets.UTF_8),
+                            URLEncoder.encode(createdUser.getEmail(), StandardCharsets.UTF_8)
+                    );
+
+                    params.put("token", createdUser.getInviteToken());
+                    params.put("inviteUrl", inviteUrl);
+                    Mono<Void> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
+
+                    // We have sent out the emails. Just send back the saved user.
+                    return emailMono
+                            .thenReturn(createdUser)
+                            .onErrorResume(error -> {
+                                log.error("Unable to send invite user email to {}. Cause: ", createdUser.getEmail(), error);
+                                return Mono.just(createdUser);
+                            });
+                });
     }
 
 }

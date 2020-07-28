@@ -6,6 +6,8 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface UserService extends CrudService<User, String> {
 
     Mono<User> findByEmail(String email);
@@ -28,5 +30,5 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> userCreate(User user);
 
-    Mono<User> inviteUser(InviteUsersDTO inviteUsersDTO, String originHeader);
+    Mono<List<User>> inviteUser(InviteUsersDTO inviteUsersDTO, String originHeader);
 }

@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -343,7 +344,9 @@ public class UserServiceTest {
                 .flatMap(organization1 -> {
                     // Add user to organization
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-                    inviteUsersDTO.setEmail(newUserEmail);
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add(newUserEmail);
+                    inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setOrgId(organization1.getId());
                     inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 

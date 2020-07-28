@@ -316,6 +316,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
             // User was not found in the organization. Continue with adding it
             UserRole userRole = new UserRole();
             userRole.setUserId(user.getId());
+            userRole.setUsername(user.getUsername());
             userRole.setName(user.getName());
             userRole.setRole(role);
             newUserRoles.add(userRole);

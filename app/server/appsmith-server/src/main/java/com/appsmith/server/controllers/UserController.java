@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(Url.USER_URL)
@@ -111,16 +112,16 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     /**
-     * This function creates an invite for a new user to join the Appsmith platform. We require the Origin header
-     * in order to construct client facing URLs that will be sent to the user via email.
+     * This function creates an invite for new users to join an Appsmith organization. We require the Origin header
+     * in order to construct client facing URLs that will be sent to the users via email.
      *
-     * @param inviteUsersDTO The inviteUserDto object for the new user being invited to the Appsmith platform
+     * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith organization
      * @param originHeader Origin header in the request
-     * @return The new user who has been created.
+     * @return List of new users who have been created/existing users who have been added to the organization.
      */
     @PostMapping("/invite")
-    public Mono<ResponseDTO<User>> inviteUserNew(@RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
+    public Mono<ResponseDTO<List<User>>> inviteUserNew(@RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
         return service.inviteUser(inviteUsersDTO, originHeader)
-                .map(resUser -> new ResponseDTO<>(HttpStatus.OK.value(), resUser, null));
+                .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 }
