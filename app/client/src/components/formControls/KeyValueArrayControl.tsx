@@ -10,6 +10,7 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import FormLabel from "components/editorComponents/FormLabel";
 import { InputType } from "widgets/InputWidget";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
+import { Colors } from "constants/Colors";
 
 const FormRowWithLabel = styled.div`
   display: flex;
@@ -105,13 +106,14 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                           onClick={() =>
                             props.fields.push({ key: "", value: "" })
                           }
-                          color={"#A3B3BF"}
+                          color={Colors["CADET_BLUE"]}
                           style={{ alignSelf: "center" }}
                         />
                       ) : (
                         <FormIcons.DELETE_ICON
                           height={20}
                           width={20}
+                          color={Colors["CADET_BLUE"]}
                           onClick={() => props.fields.remove(index)}
                           style={{ alignSelf: "center" }}
                         />
