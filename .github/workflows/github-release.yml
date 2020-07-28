@@ -8,7 +8,6 @@ on:
 
 jobs:
   build-client:
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -61,7 +60,6 @@ jobs:
         docker push appsmith/appsmith-editor
 
   build-server:
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -104,7 +102,6 @@ jobs:
         docker push appsmith/appsmith-server
 
   create-release:
-    if: github.ref == 'refs/heads/master'
     needs: 
       - build-server
       - build-client
