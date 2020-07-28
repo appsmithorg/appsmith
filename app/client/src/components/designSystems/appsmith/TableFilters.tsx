@@ -155,19 +155,20 @@ const TableFilters = (props: TableFilterProps) => {
             <CascadeFields
               key={index}
               index={index}
-              operator={filter.operator}
+              operator={
+                filters.length >= 2 ? filters[1].operator : filter.operator
+              }
               column={filter.column}
               condition={filter.condition}
               value={filter.value}
               columns={columns}
               applyFilter={(filter: ReactTableFilter, index: number) => {
-                const updatedFilters = [...props.filters];
+                const updatedFilters = props.filters || [];
                 updatedFilters[index] = filter;
-                // updatedFilters(updatedFilters);
                 props.applyFilter(updatedFilters);
               }}
               removeFilter={(index: number) => {
-                const filters: ReactTableFilter[] = [...props.filters];
+                const filters: ReactTableFilter[] = props.filters || [];
                 if (index === 1 && filters.length > 2) {
                   filters[2].operator = filters[1].operator;
                 }
@@ -175,7 +176,6 @@ const TableFilters = (props: TableFilterProps) => {
                   ...filters.slice(0, index),
                   ...filters.slice(index + 1),
                 ];
-                // updateFilters(updatedFilters);
                 props.applyFilter(newFilters);
               }}
             />
