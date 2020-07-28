@@ -2,14 +2,20 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
+import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -62,6 +68,16 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     public Flux<Application> findByMultipleOrganizationIds(Set<String> orgIds, AclPermission permission) {
         Criteria orgIdsCriteria = where(fieldName(QApplication.application.organizationId)).in(orgIds);
         return queryAll(List.of(orgIdsCriteria), permission);
+    }
+
+    @Override
+    public Mono<UpdateResult> addPageToApplication(Application application, Page page, boolean isDefault) {
+        final ApplicationPage applicationPage = new ApplicationPage(page.getId(), isDefault);
+        return mongoOperations.updateFirst(
+                Query.query(Criteria.where("_id").is(application.getId())),
+                new Update().addToSet(FieldName.PAGES, applicationPage),
+                Application.class
+        );
     }
 
 }

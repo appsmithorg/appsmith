@@ -13,12 +13,9 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -47,7 +44,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final AnalyticsService analyticsService;
     private final PolicyGenerator policyGenerator;
 
-    private final ReactiveMongoTemplate mongoTemplate;
+    private final ApplicationRepository applicationRepository;
 
     public ApplicationPageServiceImpl(ApplicationService applicationService,
                                       PageService pageService,
@@ -55,14 +52,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                       OrganizationService organizationService,
                                       AnalyticsService analyticsService,
                                       PolicyGenerator policyGenerator,
-                                      ReactiveMongoTemplate mongoTemplate) {
+                                      ApplicationRepository applicationRepository) {
         this.applicationService = applicationService;
         this.pageService = pageService;
         this.sessionUserService = sessionUserService;
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
         this.policyGenerator = policyGenerator;
-        this.mongoTemplate = mongoTemplate;
+        this.applicationRepository = applicationRepository;
     }
 
     public Mono<Page> createPage(Page page) {
@@ -117,13 +114,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, Page page, Boolean isDefault) {
-        final ApplicationPage applicationPage = new ApplicationPage(page.getId(), isDefault);
-        return mongoTemplate
-                .updateFirst(
-                        Query.query(Criteria.where("_id").is(application.getId())),
-                        new Update().addToSet("pages", applicationPage),
-                        Application.class
-                )
+        return applicationRepository.addPageToApplication(application, page, isDefault)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
                         log.error("Add page to application didn't update anything, probably because application wasn't found.");
