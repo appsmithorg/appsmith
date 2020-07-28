@@ -107,16 +107,16 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
     yield put(
       updateWidgetMetaProperty(action.payload.modalId, "isVisible", true),
     );
-    yield delay(1);
-    yield put({
-      type: ReduxActionTypes.SHOW_PROPERTY_PANE,
-      payload: {
-        widgetId: action.payload.modalId,
-        callForDragOrResize: undefined,
-        force: true,
-      },
-    });
+    yield delay(1000);
   }
+  yield put({
+    type: ReduxActionTypes.SHOW_PROPERTY_PANE,
+    payload: {
+      widgetId: action.payload.modalId,
+      callForDragOrResize: undefined,
+      force: true,
+    },
+  });
 }
 
 export function* closeModalSaga(

@@ -61,7 +61,6 @@ const useWidget = (
   const navigateToWidget = useCallback(() => {
     if (widgetType === WidgetTypes.MODAL_WIDGET) {
       dispatch(showModal(widgetId));
-      dispatch(forceOpenPropertyPane(widgetId));
       return;
     }
     if (parentModalId) dispatch(showModal(parentModalId));
