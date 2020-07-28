@@ -573,8 +573,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
-        // Check if the invited user exists. If yes, return the user, else create a new user by triggering the create
-        // new user Mono. In both the cases, send email.
+        // Check if the invited user exists. If yes, return the user, else create a new user by triggering
+        // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
 
         Flux<User> inviteUsersFlux = Flux.fromIterable(usernames)
                 .flatMap(username -> Mono.zip(Mono.just(username), organizationMono, currentUserMono))
@@ -615,7 +615,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .cache();
 
         // Add User to the invited Organization
-        Mono<Organization> organizationWithUserAddedMono = Mono.zip(inviteUsersFlux.collectList(), organizationMono)
+        Mono<Organization> organizationWithUsersAddedMono = Mono.zip(inviteUsersFlux.collectList(), organizationMono)
                 .flatMap(tuple -> {
                     List<User> invitedUsers = tuple.getT1();
                     Organization organization = tuple.getT2();
@@ -623,7 +623,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 
-        // Add invited  Organization to the Users
+        // Add organization id to each invited user
         Mono<List<User>> usersUpdatedWithOrgMono = inviteUsersFlux
                 .flatMap(user -> Mono.zip(Mono.just(user), organizationMono))
                 // zipping with organizationMono to ensure that the orgId is checked before updating the user object.
@@ -646,7 +646,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Trigger the flow to first add the users to the organization and then update each user with the organizationId
         // added to the user's list of organizations.
-        return organizationWithUserAddedMono
+        return organizationWithUsersAddedMono
                 .then(usersUpdatedWithOrgMono);
     }
 

@@ -384,7 +384,6 @@ public class OrganizationServiceTest {
                             .filter(username -> username.equals("newEmailWhichShouldntExist@usertest.com"))
                             .collect(Collectors.toSet())
                     ).hasSize(1);
-//                    assertThat(org.getUserRoles().get(0).getUsername()).isEqualTo("newEmailWhichShouldntExist@usertest.com");
 
                     Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
                             .users(Set.of("api_user", "newEmailWhichShouldntExist@usertest.com"))
@@ -455,9 +454,8 @@ public class OrganizationServiceTest {
                     assertThat(org.getName()).isEqualTo("Add Viewer to Test Organization");
                     assertThat(org.getUserRoles().stream()
                             .filter(role -> role.getUsername().equals("newEmailWhichShouldntExistAsViewer@usertest.com"))
-                            .map(role -> role.getUsername())
-                            .findFirst().get()).isEqualTo("newEmailWhichShouldntExistAsViewer@usertest.com");
-//                    assertThat(org.getUserRoles().get(1).getUsername()).isEqualTo("newEmailWhichShouldntExistAsViewer@usertest.com");
+                            .collect(Collectors.toSet())
+                    ).hasSize(1);
 
                     Policy readOrgAppsPolicy = Policy.builder().permission(ORGANIZATION_READ_APPLICATIONS.getValue())
                             .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer@usertest.com"))

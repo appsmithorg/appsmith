@@ -141,7 +141,6 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
             }
         }
         // User was not found in the organization. Continue with adding it
-
         AppsmithRole role = AppsmithRole.generateAppsmithRoleFromName(userRole.getRoleName());
         userRole.setUserId(user.getId());
         userRole.setName(user.getName());
@@ -212,8 +211,6 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         if (role == null) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER));
         }
-
-
 
         // Generate all the policies for Organization, Application, Page and Actions
         Set<AclPermission> rolePermissions = role.getPermissions();
@@ -307,10 +304,8 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         AppsmithRole role = AppsmithRole.generateAppsmithRoleFromName(roleName);
 
         for (User user : users) {
-            // If the user already exists in the organization, skip adding the user to the organization
+            // If the user already exists in the organization, skip adding the user to the organization user roles
             if (userRoles.stream().anyMatch(orgRole -> orgRole.getUsername().equals(user.getUsername()))) {
-                 // TODO : Check if we want to remove the user from the list as well
-//                users.remove(user);
                 continue;
             }
             // User was not found in the organization. Continue with adding it
@@ -320,6 +315,13 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
             userRole.setName(user.getName());
             userRole.setRole(role);
             newUserRoles.add(userRole);
+        }
+
+        if (newUserRoles.isEmpty()) {
+            // All the users being added to the organization already exist in the organization. Return without doing anything
+            // Because we are not erroring out here, this ensures that an email would be sent everytime a user is invited
+            // to an organization (whether or not the user is already part of the organization)
+            return Mono.just(organization);
         }
 
         // Add the users to the organization roles
