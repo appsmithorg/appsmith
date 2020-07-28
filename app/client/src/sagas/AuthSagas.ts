@@ -5,7 +5,7 @@ import { LOGIN_FORM_NAME } from "constants/forms";
 import history from "utils/history";
 import qs from "qs";
 import { getCurrentUser } from "actions/authActions";
-import AuthApi from "@appsmith/api/AuthApi";
+import AuthApi from "api/AuthApi";
 
 function* formLoginSaga() {
   const values: Record<string, string> = yield select(

@@ -1,4 +1,6 @@
 import React from "react";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { Spinner } from "@blueprintjs/core";
 
 class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   constructor(props: any) {
@@ -18,7 +20,13 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   render() {
     const { Page } = this.state;
 
-    return Page ? <Page {...this.props} /> : <div>Loading...</div>;
+    return Page ? (
+      <Page {...this.props} />
+    ) : (
+      <CenteredWrapper>
+        <Spinner />
+      </CenteredWrapper>
+    );
   }
 }
 
