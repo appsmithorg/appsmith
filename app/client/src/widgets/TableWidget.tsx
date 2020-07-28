@@ -207,7 +207,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return [];
     }
     const { filters } = this.props;
-    console.log("filters", filters);
     const searchKey =
       this.props.searchText !== undefined
         ? this.props.searchText.toString().toUpperCase()
@@ -229,7 +228,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             filters[i].value,
             filters[i].condition,
           );
-          console.log("filterValue", filterValue);
           if (filterOperator === "and") {
             filter = filter && filterValue;
           } else {
@@ -323,6 +321,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           searchTableData={this.handleSearchTable}
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
+            console.log("filters", filters);
             super.updateWidgetProperty("filters", filters);
           }}
         />

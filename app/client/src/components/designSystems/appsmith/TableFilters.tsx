@@ -15,6 +15,7 @@ import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledW
 import Button from "components/editorComponents/Button";
 import CascadeFields, {
   Operator,
+  operators,
 } from "components/designSystems/appsmith/CascadeFields";
 import { isString, isNumber } from "lodash";
 import moment from "moment";
@@ -52,7 +53,7 @@ const DropdownTrigger = styled.div`
 `;
 export interface ReactTableFilter {
   column: string;
-  operator?: Operator;
+  operator: Operator;
   condition: Condition;
   value: any;
 }
@@ -79,23 +80,27 @@ const TableFilters = (props: TableFilterProps) => {
     if (filters.length === 0) {
       filters.push({
         column: "",
-        operator: "",
+        operator: "or",
         value: "",
         condition: "",
       });
     }
     updateFilters(filters);
-  }, []);
+  }, [props.filters]);
 
   const addFilter = () => {
-    filters.push({
+    const updatedFilters = [...props.filters];
+    let operator = operators.or;
+    if (updatedFilters.length >= 2) {
+      operator = updatedFilters[1].operator;
+    }
+    updatedFilters.push({
       column: "",
-      operator: "",
+      operator: operator,
       value: "",
       condition: "",
     });
-    updateFilters(filters);
-    props.applyFilter(filters);
+    props.applyFilter(updatedFilters);
   };
   if (props.columns.length === 0) {
     return (
@@ -116,6 +121,7 @@ const TableFilters = (props: TableFilterProps) => {
       };
     },
   );
+  console.log("filters", filters);
   return (
     <Popover
       minimal
@@ -149,18 +155,28 @@ const TableFilters = (props: TableFilterProps) => {
             <CascadeFields
               key={index}
               index={index}
-              filter={filter}
+              operator={filter.operator}
+              column={filter.column}
+              condition={filter.condition}
+              value={filter.value}
               columns={columns}
               applyFilter={(filter: ReactTableFilter, index: number) => {
-                const filters = props.filters || [];
-                filters[index] = filter;
-                props.applyFilter(filters);
+                const updatedFilters = [...props.filters];
+                updatedFilters[index] = filter;
+                // updatedFilters(updatedFilters);
+                props.applyFilter(updatedFilters);
               }}
               removeFilter={(index: number) => {
                 const filters: ReactTableFilter[] = [...props.filters];
-                filters.splice(index, 1);
-                updateFilters(filters);
-                props.applyFilter(filters);
+                if (index === 1 && filters.length > 2) {
+                  filters[2].operator = filters[1].operator;
+                }
+                const newFilters = [
+                  ...filters.slice(0, index),
+                  ...filters.slice(index + 1),
+                ];
+                // updateFilters(updatedFilters);
+                props.applyFilter(newFilters);
               }}
             />
           );
@@ -303,10 +319,9 @@ const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
   },
 };
 
-export type Condition = keyof typeof ConditionFunctions;
+export type Condition = keyof typeof ConditionFunctions | "";
 
 export function compare(a: any, b: any, condition: Condition) {
-  console.log(a, b, condition);
   let result = true;
   try {
     const conditionFunction = ConditionFunctions[condition];
