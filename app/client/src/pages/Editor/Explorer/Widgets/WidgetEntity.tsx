@@ -50,6 +50,13 @@ const useWidget = (
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const { selectWidget } = useWidgetSelection();
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+  );
+  const isWidgetSelected = useMemo(() => selectedWidget === widgetId, [
+    selectedWidget,
+    widgetId,
+  ]);
 
   const navigateToWidget = useCallback(() => {
     if (widgetType === WidgetTypes.MODAL_WIDGET) {
@@ -60,7 +67,7 @@ const useWidget = (
     else dispatch(closeAllModals());
     navigateToCanvas(params, window.location.pathname, pageId, widgetId);
     flashElementById(widgetId);
-    selectWidget(widgetId);
+    if (!isWidgetSelected) selectWidget(widgetId);
     dispatch(forceOpenPropertyPane(widgetId));
   }, [
     dispatch,
@@ -72,14 +79,6 @@ const useWidget = (
     pageId,
   ]);
 
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
-  );
-
-  const isWidgetSelected = useMemo(() => selectedWidget === widgetId, [
-    selectedWidget,
-    widgetId,
-  ]);
   return { navigateToWidget, isWidgetSelected };
 };
 

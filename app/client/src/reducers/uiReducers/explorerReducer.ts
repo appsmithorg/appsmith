@@ -28,10 +28,6 @@ const setEntityUpdateSuccess = () => {
 };
 
 const explorerReducer = createReducer(initialState, {
-  [ReduxActionTypes.UPDATE_ACTION_INIT]: setUpdatingEntity,
-  [ReduxActionErrorTypes.UPDATE_ACTION_ERROR]: setEntityUpdateError,
-  [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: setEntityUpdateSuccess,
-
   [ReduxActionTypes.MOVE_ACTION_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.MOVE_ACTION_SUCCESS]: setEntityUpdateSuccess,

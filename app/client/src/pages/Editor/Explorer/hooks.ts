@@ -74,20 +74,13 @@ export const useFilteredEntities = (
 
   const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
 
-  const canvasWidgets: { [id: string]: any } = {};
-  Object.values(dataTree).forEach(
-    (
-      entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE; widgetId?: string },
-    ) => {
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET && entity.widgetId) {
-        canvasWidgets[entity.widgetId] = entity;
-      }
-    },
-  );
-
-  const actions = Object.values(dataTree).filter(
-    (entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE }) =>
-      entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
+  const actions = useMemo(
+    () =>
+      Object.values(dataTree).filter(
+        (entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE }) =>
+          entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
+      ),
+    [dataTree],
   );
 
   const pages = usePages();
@@ -104,6 +97,20 @@ export const useFilteredEntities = (
   });
 
   const currentPageWidgetEntities = useMemo(() => {
+    const canvasWidgets: { [id: string]: any } = {};
+    Object.values(dataTree).forEach(
+      (
+        entity: DataTreeEntity & {
+          ENTITY_TYPE?: ENTITY_TYPE;
+          widgetId?: string;
+        },
+      ) => {
+        if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET && entity.widgetId) {
+          canvasWidgets[entity.widgetId] = entity;
+        }
+      },
+    );
+
     const widgetTree = CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets,
     });
@@ -113,7 +120,7 @@ export const useFilteredEntities = (
     return searchKeyword !== null
       ? findWidgets(widgetTree, searchKeyword.toLowerCase())
       : widgetTree;
-  }, [searchKeyword, canvasWidgets, currentPageId]);
+  }, [searchKeyword, dataTree, currentPageId]);
 
   const allPageDSLs = useSelector((state: AppState) => state.ui.pageDSLs);
   const otherPagesWidgetEntities = useMemo(() => {

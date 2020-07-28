@@ -75,25 +75,17 @@ ReactDOM.render(
         <Router history={history}>
           <Suspense fallback={loadingIndicator}>
             <Switch>
-              <AppRoute
-                exact
-                path={BASE_URL}
-                component={App}
-                name={"App"}
-                routeProtected
-              />
+              <AppRoute exact path={BASE_URL} component={App} name={"App"} />
               <AppRoute
                 path={ORG_URL}
                 component={Organization}
                 name={"Organisation"}
-                routeProtected
               />
               <AppRoute
                 exact
                 path={USERS_URL}
                 component={Users}
                 name={"Users"}
-                routeProtected
               />
               <AppRoute
                 path={USER_AUTH_URL}
@@ -107,19 +99,12 @@ ReactDOM.render(
                 path={APPLICATIONS_URL}
                 component={Applications}
                 name={"Home"}
-                routeProtected
               />
-              <AppRoute
-                path={BUILDER_URL}
-                component={Editor}
-                name={"Editor"}
-                routeProtected
-              />
+              <AppRoute path={BUILDER_URL} component={Editor} name={"Editor"} />
               <AppRoute
                 path={APP_VIEW_URL}
                 component={AppViewer}
                 name={"AppViewer"}
-                routeProtected
                 logDisable
               />
               <AppRoute

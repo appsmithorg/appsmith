@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, ReactNode } from "react";
 import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import ApiEditor from "./APIEditor";
 import QueryEditor from "./QueryEditor";
@@ -23,6 +23,10 @@ import {
 } from "constants/routes";
 import styled from "styled-components";
 import AppRoute from "pages/common/AppRoute";
+import {
+  useShowPropertyPane,
+  useWidgetSelection,
+} from "utils/hooks/dragResizeHooks";
 
 const Wrapper = styled.div<{ isVisible: boolean; showOnlySidebar?: boolean }>`
   position: absolute;
@@ -124,7 +128,7 @@ class EditorsRouter extends React.Component<
         }
         showOnlySidebar={this.state.showOnlySidebar}
       >
-        <DrawerWrapper
+        <PaneDrawer
           isVisible={this.state.isVisible}
           showOnlySidebar={this.state.showOnlySidebar}
           onClick={this.preventClose}
@@ -186,10 +190,33 @@ class EditorsRouter extends React.Component<
               name={"ApiEditor"}
             />
           </Switch>
-        </DrawerWrapper>
+        </PaneDrawer>
       </Wrapper>
     );
   }
 }
+type PaneDrawerProps = {
+  isVisible: boolean;
+  showOnlySidebar: boolean;
+  onClick: (e: React.MouseEvent) => void;
+  children: ReactNode;
+};
+const PaneDrawer = (props: PaneDrawerProps) => {
+  const showPropertyPane = useShowPropertyPane();
+  const { selectWidget, focusWidget } = useWidgetSelection();
+
+  useEffect(() => {
+    // This pane drawer is only open when NOT on canvas.
+    // De-select all widgets
+    // Un-focus all widgets
+    // Hide property pane
+    if (props.isVisible) {
+      showPropertyPane();
+      selectWidget(undefined);
+      focusWidget(undefined);
+    }
+  }, [props.isVisible, useShowPropertyPane, useWidgetSelection]);
+  return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;
+};
 
 export default withRouter(EditorsRouter);
