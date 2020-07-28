@@ -39,5 +39,7 @@
   "invalidHeader": "invalid",
   "invalidValue": "invalid",
   "Put": "PUT",
-  "Get": "GET"
+  "Get": "GET",
+  "next": "?page=2&pageSize=10",
+  "prev": "?page=1&pageSize=10"
 }

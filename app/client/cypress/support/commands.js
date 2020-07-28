@@ -381,7 +381,6 @@ Cypress.Commands.add("validateRequest", (baseurl, path, verb) => {
   cy.xpath(apiwidget.Request)
     .should("be.visible")
     .click({ force: true });
-  cy.log(baseurl.concat(path));
   cy.xpath(apiwidget.RequestURL).contains(baseurl.concat(path));
   cy.xpath(apiwidget.RequestMethod).contains(verb);
   cy.xpath(apiwidget.Responsetab)
@@ -483,9 +482,12 @@ Cypress.Commands.add("selectPaginationType", option => {
 });
 
 Cypress.Commands.add("clickTest", testbutton => {
+  cy.wait(2000);
+  cy.wait("@saveAction");
   cy.get(testbutton)
     .first()
     .click({ force: true });
+  cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("enterUrl", (apiname, url, value) => {
