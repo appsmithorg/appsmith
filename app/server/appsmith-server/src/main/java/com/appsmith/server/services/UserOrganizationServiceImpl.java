@@ -347,12 +347,8 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Flux<Action> updatedActionsFlux = updatedPagesFlux
                 .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, true));
 
-        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
-                .flatMap(tuple -> {
-                    //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-                    Organization updatedOrgBeforeSave = tuple.getT3();
-                    return organizationRepository.save(updatedOrgBeforeSave);
-                });
+        return Mono.when(updatedDatasourcesFlux.collectList(), updatedActionsFlux.collectList())
+                //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
+                .then(organizationRepository.save(updatedOrganization));
     }
-
 }
