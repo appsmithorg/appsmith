@@ -56,6 +56,12 @@ jobs:
     - name: Push production image to Docker Hub with commit tag
       run: |
         docker build -t appsmith/appsmith-editor:${{steps.get_version.outputs.tag}}  .
+        
+        # Only build & tag with latest if the tag doesn't contain beta
+        if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+          docker build -t appsmith/appsmith-editor:latest  .
+        fi
+        
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-editor
 
@@ -98,6 +104,12 @@ jobs:
     - name: Push image to Docker Hub
       run: |
         docker build -t appsmith/appsmith-server:${{steps.get_version.outputs.tag}} .
+
+        # Only build & tag with latest if the tag doesn't contain beta
+        if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+          docker build -t appsmith/appsmith-server:latest .
+        fi
+
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-server
 
