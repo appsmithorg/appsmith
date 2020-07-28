@@ -96,7 +96,7 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
         {
           value: "copy",
           onSelect: noop,
-          label: "Copy to",
+          label: "Copy to page",
           children: menuPages.map(page => {
             return {
               ...page,
@@ -107,7 +107,7 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
         {
           value: "move",
           onSelect: noop,
-          label: "Move to",
+          label: "Move to page",
           children: menuPages
             .filter(page => page.id !== props.pageId) // Remove current page from the list
             .map(page => {

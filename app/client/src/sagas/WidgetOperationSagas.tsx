@@ -42,6 +42,7 @@ import { resetWidgetMetaProperty } from "actions/metaActions";
 import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import ValidationFactory from "utils/ValidationFactory";
+import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 
 function* getChildWidgetProps(
   parent: ContainerWidgetProps<WidgetProps>,
@@ -51,7 +52,7 @@ function* getChildWidgetProps(
   const { leftColumn, topRow, newWidgetId, props, type } = params;
   let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
-  const defaultConfig = yield select(getDefaultWidgetConfig, type);
+  const defaultConfig: any = WidgetConfigResponse.config[type];
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
     widgetName = getNextEntityName(defaultConfig.widgetName, widgetNames);

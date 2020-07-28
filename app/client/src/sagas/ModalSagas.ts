@@ -89,7 +89,9 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   // Notice the empty payload.
   yield call(closeModalSaga, {
     type: ReduxActionTypes.CLOSE_MODAL,
-    payload: {},
+    payload: {
+      exclude: action.payload.modalId,
+    },
   });
 
   yield put({
@@ -99,7 +101,9 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   yield put(focusWidget(action.payload.modalId));
 
   // Then show the modal we would like to show.
-  yield put(updateWidgetMetaProperty(action.payload.modalId, "open", true));
+  yield put(
+    updateWidgetMetaProperty(action.payload.modalId, "isVisible", true),
+  );
 
   yield delay(1);
   yield put({
@@ -112,7 +116,9 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
 }
 
-export function* closeModalSaga(action: ReduxAction<{ modalName?: string }>) {
+export function* closeModalSaga(
+  action: ReduxAction<{ modalName?: string; exclude?: string }>,
+) {
   try {
     const { modalName } = action.payload;
     let widgetIds: string[] = [];
@@ -138,17 +144,20 @@ export function* closeModalSaga(action: ReduxAction<{ modalName?: string }>) {
       // Loop through all modal widgetIds
       modalWidgetIds.forEach((widgetId: string) => {
         // Check if modal is open
-        if (metaProps[widgetId] && metaProps[widgetId].open) {
+        if (metaProps[widgetId] && metaProps[widgetId].isVisible) {
           // Add to our list of widgetIds
           widgetIds.push(widgetId);
         }
       });
     }
+    widgetIds = action.payload.exclude
+      ? widgetIds.filter((id: string) => id !== action.payload.exclude)
+      : widgetIds;
     // If we have modals to close, set its isVisible to false to close.
     if (widgetIds) {
       yield all(
         widgetIds.map((widgetId: string) =>
-          put(updateWidgetMetaProperty(widgetId, "open", false)),
+          put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
         ),
       );
     }
