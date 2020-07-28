@@ -10,7 +10,6 @@ import {
   select,
   takeEvery,
   takeLatest,
-  debounce,
 } from "redux-saga/effects";
 import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
 import _ from "lodash";
@@ -481,7 +480,7 @@ export function* watchActionSagas() {
       fetchActionsForViewModeSaga,
     ),
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
-    debounce(500, ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
+    takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
     takeLatest(ReduxActionTypes.SAVE_API_NAME, saveApiNameSaga),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),

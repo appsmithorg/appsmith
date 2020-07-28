@@ -110,6 +110,7 @@ describe("API Panel Test Functionality", function() {
     cy.CreateAPI(apiname);
     cy.log("Creation of API Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
+    cy.WaitAutoSave();
     cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
@@ -135,6 +136,7 @@ describe("API Panel Test Functionality", function() {
     cy.CreateAPI("ThirdAPI");
     cy.log("Creation of API Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.queryAndValue);
+    cy.WaitAutoSave();
     cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
@@ -153,6 +155,7 @@ describe("API Panel Test Functionality", function() {
       testdata.queryKey,
       testdata.queryValue,
     );
+    cy.WaitAutoSave();
     cy.RunAPI();
     cy.ResponseStatusCheck("5000");
     cy.log("Response code check successful");
