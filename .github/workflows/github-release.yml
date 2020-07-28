@@ -127,10 +127,10 @@ jobs:
 
     # If the tag has the string "beta", then mark the Github release as a pre-release
     - name: Get the version
-      id: get_release
+      id: get_prerelease
       run: |
         STATUS=false
-        if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+        if [[ ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
           STATUS=true
         fi
 
@@ -145,5 +145,5 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         draft: false
-        prerelease: ${{steps.get_release.outputs.status}}
+        prerelease: ${{steps.get_prerelease.outputs.status}}
         
