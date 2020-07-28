@@ -377,6 +377,18 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
   cy.RunAPI();
 });
 
+Cypress.Commands.add("validateRequest", (baseurl, path, verb) => {
+  cy.xpath(apiwidget.Request)
+    .should("be.visible")
+    .click({ force: true });
+  cy.log(baseurl.concat(path));
+  cy.xpath(apiwidget.RequestURL).contains(baseurl.concat(path));
+  cy.xpath(apiwidget.RequestMethod).contains(verb);
+  cy.xpath(apiwidget.Responsetab)
+    .should("be.visible")
+    .click({ force: true });
+});
+
 Cypress.Commands.add("SelectAction", action => {
   cy.get(ApiEditor.ApiVerb)
     .first()

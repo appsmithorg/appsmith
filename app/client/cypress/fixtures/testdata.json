@@ -37,5 +37,7 @@
   "prevUrl": ".data.previous}}",
   "methodsWithParam": "users?page=2",
   "invalidHeader": "invalid",
-  "invalidValue": "invalid"
+  "invalidValue": "invalid",
+  "Put": "PUT",
+  "Get": "GET"
 }

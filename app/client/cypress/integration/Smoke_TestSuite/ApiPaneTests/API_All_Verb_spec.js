@@ -30,9 +30,10 @@ describe("API Panel Test Functionality", function() {
         .click({ force: true })
         .focus()
         .type(json, { force: true });
+      cy.WaitAutoSave();
+      cy.RunAPI();
+      cy.validateRequest(testdata.baseUrl2, testdata.methodput, testdata.Put);
     });
-    cy.WaitAutoSave();
-    cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
     cy.ResponseCheck("updatedAt");
