@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -35,9 +36,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple3;
-import reactor.util.function.Tuple4;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +93,31 @@ public class ExamplesOrganizationClonerTests {
 
     private Plugin installedPlugin;
 
+    private static class OrganizationData {
+        Organization organization;
+        List<Application> applications = new ArrayList<>();
+        List<Datasource> datasources = new ArrayList<>();
+        List<Action> actions = new ArrayList<>();
+    }
+
+    public Mono<OrganizationData> loadOrganizationData(Organization organization) {
+        final OrganizationData data = new OrganizationData();
+        data.organization = organization;
+
+        return Mono
+                .when(
+                        applicationService
+                                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                                .map(data.applications::add),
+                        datasourceService
+                                .findAllByOrganizationId(organization.getId(), READ_DATASOURCES)
+                                .map(data.datasources::add),
+                        getActionsInOrganization(organization)
+                                .map(data.actions::add)
+                )
+                .thenReturn(data);
+    }
+
     @Before
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -104,33 +129,22 @@ public class ExamplesOrganizationClonerTests {
     public void cloneEmptyOrganization() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization");
-        final Mono<Organization> organizationMono = organizationService.create(newOrganization)
+        final Mono<OrganizationData> resultMono = organizationService.create(newOrganization)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
                         examplesOrganizationCloner.cloneOrganizationForUser(tuple.getT1().getId(), tuple.getT2()))
-                .cache();
-
-        final Mono<Tuple3<Organization, List<Application>, List<Datasource>>> resultMono = Mono.zip(
-                organizationMono,
-                organizationMono
-                        .flatMapMany(organization -> applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS))
-                        .collectList(),
-                organizationMono
-                        .flatMapMany(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES))
-                        .collectList()
-        );
+                .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
-                .assertNext(tuple -> {
-                    Organization organization = tuple.getT1();
-                    assertThat(organization).isNotNull();
-                    assertThat(organization.getId()).isNotNull();
-                    assertThat(organization.getName()).isEqualTo("api_user's Examples");
-                    assertThat(organization.getPolicies()).isNotEmpty();
+                .assertNext(data -> {
+                    assertThat(data.organization).isNotNull();
+                    assertThat(data.organization.getId()).isNotNull();
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getPolicies()).isNotEmpty();
 
-                    assertThat(tuple.getT2()).isEmpty();
-
-                    assertThat(tuple.getT3()).isEmpty();
+                    assertThat(data.applications).isEmpty();
+                    assertThat(data.datasources).isEmpty();
+                    assertThat(data.actions).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -140,7 +154,7 @@ public class ExamplesOrganizationClonerTests {
     public void cloneOrganizationWithItsContents() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization");
-        final Mono<Organization> organizationMono = Mono
+        final Mono<OrganizationData> resultMono = Mono
                 .zip(
                         organizationService.create(newOrganization),
                         sessionUserService.getCurrentUser()
@@ -161,34 +175,21 @@ public class ExamplesOrganizationClonerTests {
                             applicationPageService.createApplication(app2)
                     ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
                 })
-                .cache();
-
-        final Mono<Tuple3<Organization, List<Application>, List<Datasource>>> resultMono = Mono.zip(
-                organizationMono,
-                organizationMono
-                        .flatMapMany(organization -> applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS))
-                        .collectList(),
-                organizationMono
-                        .flatMapMany(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES))
-                        .collectList()
-        );
+                .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
-                .assertNext(tuple -> {
-                    Organization organization = tuple.getT1();
-                    assertThat(organization).isNotNull();
-                    assertThat(organization.getId()).isNotNull();
-                    assertThat(organization.getName()).isEqualTo("api_user's Examples");
-                    assertThat(organization.getPolicies()).isNotEmpty();
+                .assertNext(data -> {
+                    assertThat(data.organization).isNotNull();
+                    assertThat(data.organization.getId()).isNotNull();
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getPolicies()).isNotEmpty();
 
-                    final List<Application> applications = tuple.getT2();
-                    assertThat(applications).hasSize(1);
-                    assertThat(map(applications, Application::getName)).containsExactly("1 - public app");
+                    assertThat(data.applications).hasSize(1);
+                    assertThat(map(data.applications, Application::getName)).containsExactly("1 - public app");
+                    assertThat(data.applications.get(0).getPages()).hasSize(1);
 
-                    assertThat(applications.get(0).getPages()).hasSize(1);
-
-                    final List<Datasource> datasources = tuple.getT3();
-                    assertThat(datasources).isEmpty();
+                    assertThat(data.datasources).isEmpty();
+                    assertThat(data.actions).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -198,7 +199,7 @@ public class ExamplesOrganizationClonerTests {
     public void cloneOrganizationWithOnlyPublicApplications() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization 2");
-        final Mono<Organization> organizationMono = Mono
+        final Mono<OrganizationData> resultMono = Mono
                 .zip(
                         organizationService.create(newOrganization),
                         sessionUserService.getCurrentUser()
@@ -216,43 +217,41 @@ public class ExamplesOrganizationClonerTests {
                     app2.setName("2 - another public app more");
                     app2.setIsPublic(true);
 
-                    return Mono.when(
+                    return Mono.zip(
                             applicationPageService.createApplication(app1),
-                            applicationPageService.createApplication(app2)
+                            applicationPageService.createApplication(app2).flatMap(application -> {
+                                final Page newPage = new Page();
+                                newPage.setName("The New Page");
+                                newPage.setApplicationId(application.getId());
+                                return applicationPageService.createPage(newPage);
+                            })
                     ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
                 })
-                .cache();
-
-        final Mono<Tuple3<Organization, List<Application>, List<Datasource>>> resultMono = Mono.zip(
-                organizationMono,
-                organizationMono
-                        .flatMapMany(organization -> applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS))
-                        .collectList(),
-                organizationMono
-                        .flatMapMany(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES))
-                        .collectList()
-        );
+                .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
-                .assertNext(tuple -> {
-                    Organization organization = tuple.getT1();
-                    assertThat(organization).isNotNull();
-                    assertThat(organization.getId()).isNotNull();
-                    assertThat(organization.getName()).isEqualTo("api_user's Examples");
-                    assertThat(organization.getPolicies()).isNotEmpty();
+                .assertNext(data -> {
+                    assertThat(data.organization).isNotNull();
+                    assertThat(data.organization.getId()).isNotNull();
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getPolicies()).isNotEmpty();
 
-                    final List<Application> applications = tuple.getT2();
-                    assertThat(applications).hasSize(2);
-                    assertThat(map(applications, Application::getName)).containsExactlyInAnyOrder(
+                    assertThat(data.applications).hasSize(2);
+                    assertThat(map(data.applications, Application::getName)).containsExactlyInAnyOrder(
                             "1 - public app more",
                             "2 - another public app more"
                     );
 
-                    assertThat(applications.get(0).getPages()).hasSize(1);
-                    assertThat(applications.get(1).getPages()).hasSize(1);
+                    for (final Application app : data.applications) {
+                        if ("2 - another public app more".equals(app.getName())) {
+                            assertThat(app.getPages()).hasSize(2);
+                        } else {
+                            assertThat(app.getPages()).hasSize(1);
+                        }
+                    }
 
-                    final List<Datasource> datasources = tuple.getT3();
-                    assertThat(datasources).isEmpty();
+                    assertThat(data.datasources).isEmpty();
+                    assertThat(data.actions).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -262,7 +261,7 @@ public class ExamplesOrganizationClonerTests {
     public void cloneOrganizationWithOnlyPrivateApplications() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization 2");
-        final Mono<Organization> organizationMono = Mono
+        final Mono<OrganizationData> resultMono = Mono
                 .zip(
                         organizationService.create(newOrganization),
                         sessionUserService.getCurrentUser()
@@ -283,31 +282,18 @@ public class ExamplesOrganizationClonerTests {
                             applicationPageService.createApplication(app2)
                     ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
                 })
-                .cache();
-
-        final Mono<Tuple3<Organization, List<Application>, List<Datasource>>> resultMono = Mono.zip(
-                organizationMono,
-                organizationMono
-                        .flatMapMany(organization -> applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS))
-                        .collectList(),
-                organizationMono
-                        .flatMapMany(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES))
-                        .collectList()
-        );
+                .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
-                .assertNext(tuple -> {
-                    Organization organization = tuple.getT1();
-                    assertThat(organization).isNotNull();
-                    assertThat(organization.getId()).isNotNull();
-                    assertThat(organization.getName()).isEqualTo("api_user's Examples");
-                    assertThat(organization.getPolicies()).isNotEmpty();
+                .assertNext(data -> {
+                    assertThat(data.organization).isNotNull();
+                    assertThat(data.organization.getId()).isNotNull();
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getPolicies()).isNotEmpty();
 
-                    final List<Application> applications = tuple.getT2();
-                    assertThat(applications).isEmpty();
-
-                    final List<Datasource> datasources = tuple.getT3();
-                    assertThat(datasources).isEmpty();
+                    assertThat(data.applications).isEmpty();
+                    assertThat(data.datasources).isEmpty();
+                    assertThat(data.actions).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -317,7 +303,7 @@ public class ExamplesOrganizationClonerTests {
     public void cloneOrganizationWithOnlyDatasources() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization 2");
-        final Mono<Organization> organizationMono = Mono
+        final Mono<OrganizationData> resultMono = Mono
                 .zip(
                         organizationService.create(newOrganization),
                         sessionUserService.getCurrentUser()
@@ -344,37 +330,22 @@ public class ExamplesOrganizationClonerTests {
                             datasourceService.create(ds2)
                     ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
                 })
-                .cache();
-
-        final Mono<Tuple3<Organization, List<Application>, List<Datasource>>> resultMono = Mono.zip(
-                organizationMono,
-                organizationMono
-                        .flatMapMany(organization -> applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS))
-                        .collectList(),
-                organizationMono
-                        .flatMapMany(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES))
-                        .collectList()
-        );
+                .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
-                .assertNext(tuple -> {
-                    Organization organization = tuple.getT1();
-                    assertThat(organization).isNotNull();
-                    assertThat(organization.getId()).isNotNull();
-                    assertThat(organization.getName()).isEqualTo("api_user's Examples");
-                    assertThat(organization.getPolicies()).isNotEmpty();
+                .assertNext(data -> {
+                    assertThat(data.organization).isNotNull();
+                    assertThat(data.organization.getId()).isNotNull();
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getPolicies()).isNotEmpty();
 
-                    final List<Application> applications = tuple.getT2();
-                    assertThat(applications).isEmpty();
-
-                    final List<Datasource> datasources = tuple.getT3();
-                    assertThat(datasources).hasSize(2);
-                    assertThat(map(datasources, Datasource::getName)).containsExactlyInAnyOrder(
+                    assertThat(data.datasources).hasSize(2);
+                    assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
                             "datasource 1",
                             "datasource 2"
                     );
 
-                    final Datasource ds1 = datasources.stream()
+                    final Datasource ds1 = data.datasources.stream()
                             .filter(datasource -> "datasource 1".equals(datasource.getName()))
                             .findFirst()
                             .orElseThrow();
@@ -382,6 +353,9 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(ds1.getDatasourceConfiguration().getHeaders()).containsOnly(
                             new Property("X-Answer", "42")
                     );
+
+                    assertThat(data.applications).isEmpty();
+                    assertThat(data.actions).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -391,7 +365,7 @@ public class ExamplesOrganizationClonerTests {
     public void cloneOrganizationWithDatasourcesAndApplications() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization 2");
-        final Mono<Organization> organizationMono = Mono
+        final Mono<OrganizationData> resultMono = Mono
                 .zip(
                         organizationService.create(newOrganization),
                         sessionUserService.getCurrentUser()
@@ -424,39 +398,28 @@ public class ExamplesOrganizationClonerTests {
                             datasourceService.create(ds2)
                     ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
                 })
-                .cache();
-
-        final Mono<Tuple3<Organization, List<Application>, List<Datasource>>> resultMono = Mono.zip(
-                organizationMono,
-                organizationMono
-                        .flatMapMany(organization -> applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS))
-                        .collectList(),
-                organizationMono
-                        .flatMapMany(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES))
-                        .collectList()
-        );
+                .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
-                .assertNext(tuple -> {
-                    Organization organization = tuple.getT1();
-                    assertThat(organization).isNotNull();
-                    assertThat(organization.getId()).isNotNull();
-                    assertThat(organization.getName()).isEqualTo("api_user's Examples");
-                    assertThat(organization.getPolicies()).isNotEmpty();
+                .assertNext(data -> {
+                    assertThat(data.organization).isNotNull();
+                    assertThat(data.organization.getId()).isNotNull();
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getPolicies()).isNotEmpty();
 
-                    final List<Application> applications = tuple.getT2();
-                    assertThat(applications).hasSize(2);
-                    assertThat(map(applications, Application::getName)).containsExactlyInAnyOrder(
+                    assertThat(data.applications).hasSize(2);
+                    assertThat(map(data.applications, Application::getName)).containsExactlyInAnyOrder(
                             "first application",
                             "second application"
                     );
 
-                    final List<Datasource> datasources = tuple.getT3();
-                    assertThat(datasources).hasSize(2);
-                    assertThat(map(datasources, Datasource::getName)).containsExactlyInAnyOrder(
+                    assertThat(data.datasources).hasSize(2);
+                    assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
                             "datasource 1",
                             "datasource 2"
                     );
+
+                    assertThat(data.actions).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -466,7 +429,7 @@ public class ExamplesOrganizationClonerTests {
     public void cloneOrganizationWithDatasourcesAndApplicationsAndActions() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization 2");
-        final Mono<Organization> organizationMono = Mono
+        final Mono<OrganizationData> resultMono = Mono
                 .zip(
                         organizationService.create(newOrganization),
                         sessionUserService.getCurrentUser()
@@ -547,45 +510,29 @@ public class ExamplesOrganizationClonerTests {
                             })
                             .then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
                 })
-                .cache();
-
-        final Mono<Tuple4<Organization, List<Application>, List<Datasource>, List<Action>>> resultMono = Mono.zip(
-                organizationMono,
-                organizationMono
-                        .flatMapMany(organization -> applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS))
-                        .collectList(),
-                organizationMono
-                        .flatMapMany(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES))
-                        .collectList(),
-                organizationMono.flatMapMany(this::getActionsInOrganization)
-                        .collectList()
-        );
+                .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
-                .assertNext(tuple -> {
-                    Organization organization = tuple.getT1();
-                    assertThat(organization).isNotNull();
-                    assertThat(organization.getId()).isNotNull();
-                    assertThat(organization.getName()).isEqualTo("api_user's Examples");
-                    assertThat(organization.getPolicies()).isNotEmpty();
+                .assertNext(data -> {
+                    assertThat(data.organization).isNotNull();
+                    assertThat(data.organization.getId()).isNotNull();
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getPolicies()).isNotEmpty();
 
-                    final List<Application> applications = tuple.getT2();
-                    assertThat(applications).hasSize(2);
-                    assertThat(map(applications, Application::getName)).containsExactlyInAnyOrder(
+                    assertThat(data.applications).hasSize(2);
+                    assertThat(map(data.applications, Application::getName)).containsExactlyInAnyOrder(
                             "first application",
                             "second application"
                     );
 
-                    final List<Datasource> datasources = tuple.getT3();
-                    assertThat(datasources).hasSize(2);
-                    assertThat(map(datasources, Datasource::getName)).containsExactlyInAnyOrder(
+                    assertThat(data.datasources).hasSize(2);
+                    assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
                             "datasource 1",
                             "datasource 2"
                     );
 
-                    final List<Action> actions = tuple.getT4();
-                    assertThat(actions).hasSize(4);
-                    assertThat(map(actions, Action::getName)).containsExactlyInAnyOrder(
+                    assertThat(data.actions).hasSize(4);
+                    assertThat(map(data.actions, Action::getName)).containsExactlyInAnyOrder(
                             "action1",
                             "action2",
                             "action3",

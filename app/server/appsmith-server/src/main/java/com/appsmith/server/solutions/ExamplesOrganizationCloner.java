@@ -3,8 +3,10 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -94,6 +97,7 @@ public class ExamplesOrganizationCloner {
      * @return Publishes the newly created organization.
      */
     public Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user) {
+        log.info("Cloning organization id {}", templateOrganizationId);
         return organizationRepository
                 .findById(templateOrganizationId)
                 .doOnSuccess(organization -> {
@@ -144,23 +148,21 @@ public class ExamplesOrganizationCloner {
                 .flatMap(application -> {
                     final String templateApplicationId = application.getId();
                     application.setOrganizationId(toOrganizationId);
-                    return applicationPageService
-                            .cloneApplication(application)
-                            .flatMapMany(
-                                    savedApplication -> pageRepository
-                                            .findByApplicationId(templateApplicationId)
-                                            .map(page -> {
-                                                log.info("Preparing page for cloning {} {}.", page.getName(), page.getId());
-                                                page.setApplicationId(savedApplication.getId());
-                                                return page;
-                                            })
-                            );
+                    return doCloneApplication(application, templateApplicationId);
                 })
                 .flatMap(page -> {
                     final String templatePageId = page.getId();
                     makePristine(page);
                     return applicationPageService
                             .createPage(page)
+                            .flatMap(page1 -> {
+                                log.info("Cloned into new page {}", page1);
+                                return applicationRepository.findById(page.getApplicationId())
+                                        .map(application -> {
+                                            log.info("Application after page got cloned: {}", application);
+                                            return page1;
+                                        });
+                            })
                             .flatMapMany(
                                     savedPage -> actionRepository
                                             .findByPageId(templatePageId)
@@ -193,6 +195,20 @@ public class ExamplesOrganizationCloner {
                 })
                 .then(cloneDatasourcesMono)  // Run the datasource cloning mono if it isn't already done.
                 .then();
+    }
+
+    private Flux<Page> doCloneApplication(Application application, String templateApplicationId) {
+        return applicationPageService
+                .cloneApplication(application)
+                .flatMapMany(
+                        savedApplication -> pageRepository
+                                .findByApplicationId(templateApplicationId)
+                                .map(page -> {
+                                    log.info("Preparing page for cloning {} {}.", page.getName(), page.getId());
+                                    page.setApplicationId(savedApplication.getId());
+                                    return page;
+                                })
+                );
     }
 
     /**

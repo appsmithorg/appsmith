@@ -13,12 +13,18 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,18 +47,22 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final AnalyticsService analyticsService;
     private final PolicyGenerator policyGenerator;
 
+    private final ReactiveMongoTemplate mongoTemplate;
+
     public ApplicationPageServiceImpl(ApplicationService applicationService,
                                       PageService pageService,
                                       SessionUserService sessionUserService,
                                       OrganizationService organizationService,
                                       AnalyticsService analyticsService,
-                                      PolicyGenerator policyGenerator) {
+                                      PolicyGenerator policyGenerator,
+                                      ReactiveMongoTemplate mongoTemplate) {
         this.applicationService = applicationService;
         this.pageService = pageService;
         this.sessionUserService = sessionUserService;
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
         this.policyGenerator = policyGenerator;
+        this.mongoTemplate = mongoTemplate;
     }
 
     public Mono<Page> createPage(Page page) {
@@ -88,34 +98,37 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return pageMono
                 .flatMap(pageService::createDefault)
                 //After the page has been saved, update the application (save the page id inside the application)
-                .flatMap(savedPage ->
-                        addPageToApplication(applicationMono, savedPage, false)
-                                .thenReturn(savedPage));
+                .zipWith(applicationMono)
+                .flatMap(tuple -> {
+                    final Page savedPage = tuple.getT1();
+                    final Application application = tuple.getT2();
+                    return addPageToApplication(application, savedPage, false)
+                            .thenReturn(savedPage);
+                });
     }
 
     /**
-     * This function is called during page create in Page Service. It adds the newly created
-     * page to its ApplicationPages list.
+     * This function is called during page create in Page Service. It adds the given page to its ApplicationPages list.
+     * Note: It is assumed here that `application` is already checked for the MANAGE_APPLICATIONS policy.
      *
-     * @param applicationMono
-     * @param page
-     * @return Updated application
+     * @param application Application to which the page will be added. Should have an `id` already.
+     * @param page Page to be added to the application. Should have an `id` already.
+     * @return UpdateResult object with details on how many documents have been updated, which should be 0 or 1.
      */
-    public Mono<Application> addPageToApplication(Mono<Application> applicationMono, Page page, Boolean isDefault) {
-        return applicationMono
-                .map(application -> {
-                    List<ApplicationPage> applicationPages = application.getPages();
-                    if (applicationPages == null) {
-                        applicationPages = new ArrayList<>();
+    @Override
+    public Mono<UpdateResult> addPageToApplication(Application application, Page page, Boolean isDefault) {
+        final ApplicationPage applicationPage = new ApplicationPage(page.getId(), isDefault);
+        return mongoTemplate
+                .updateFirst(
+                        Query.query(Criteria.where("_id").is(application.getId())),
+                        new Update().addToSet("pages", applicationPage),
+                        Application.class
+                )
+                .doOnSuccess(result -> {
+                    if (result.getModifiedCount() != 1) {
+                        log.error("Add page to application didn't update anything, probably because application wasn't found.");
                     }
-                    ApplicationPage applicationPage = new ApplicationPage();
-                    applicationPage.setId(page.getId());
-                    applicationPage.setIsDefault(isDefault);
-                    applicationPages.add(applicationPage);
-                    application.setPages(applicationPages);
-                    return application;
-                })
-                .flatMap(applicationService::save);
+                });
     }
 
     public Mono<Page> getPage(String pageId, Boolean viewMode) {
@@ -247,7 +260,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     return pageService
                             .createDefault(page)
-                            .flatMap(savedPage -> addPageToApplication(Mono.just(savedApplication), savedPage, true));
+                            .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
+                            .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS));
                 });
     }
 
@@ -264,12 +278,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         // Clean the object so that it will be saved as a new application for the currently signed in user.
         application.setId(null);
-        if (application.getPolicies() != null) {
-            application.getPolicies().clear();
-        }
-        if (application.getPages() != null) {
-            application.getPages().clear();
-        }
+        application.setPolicies(new HashSet<>());
+        application.setPages(new ArrayList<>());
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = userMono
