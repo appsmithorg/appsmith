@@ -11,7 +11,10 @@ import java.util.List;
 public class InviteUsersDTO {
 
     @NotNull
-    List<InvitedUserDetailDTO> users;
+    List<String> usernames;
+
+    @NotNull
+    String roleName;
 
     @NotNull
     String orgId;

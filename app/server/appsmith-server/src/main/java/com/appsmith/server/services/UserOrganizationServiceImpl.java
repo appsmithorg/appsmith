@@ -309,7 +309,8 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         for (User user : users) {
             // If the user already exists in the organization, skip adding the user to the organization
             if (userRoles.stream().anyMatch(orgRole -> orgRole.getUsername().equals(user.getUsername()))) {
-                users.remove(user);
+                 // TODO : Check if we want to remove the user from the list as well
+//                users.remove(user);
                 continue;
             }
             // User was not found in the organization. Continue with adding it

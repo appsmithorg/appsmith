@@ -11,7 +11,6 @@ import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.dtos.InvitedUserDetailDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -35,7 +34,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -560,9 +558,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        List<InvitedUserDetailDTO> users = inviteUsersDTO.getUsers();
+        List<String> usernames = inviteUsersDTO.getUsernames();
 
-        if (users == null || users.isEmpty()) {
+        if (usernames == null || usernames.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         }
 
@@ -577,9 +575,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Check if the invited user exists. If yes, return the user, else create a new user by triggering the create
         // new user Mono.
-        Flux<User> inviteUserMono = Flux.fromIterable(users)
-                .flatMap(user -> repository.findByEmail(user.getEmail())
-                        .switchIfEmpty(createNewUserMono(user.getEmail())))
+        Flux<User> inviteUsersFlux = Flux.fromIterable(usernames)
+                .flatMap(username -> repository.findByEmail(username)
+                        .switchIfEmpty(createNewUserMono(username)))
                 .cache();
 
         Mono<Organization> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), MANAGE_ORGANIZATIONS)
@@ -589,20 +587,17 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         // Add User to the invited Organization
-        Mono<Organization> organizationWithUserAddedMono = Mono.zip(inviteUserMono, organizationMono)
+        Mono<Organization> organizationWithUserAddedMono = Mono.zip(inviteUsersFlux.collectList(), organizationMono)
                 .flatMap(tuple -> {
-                    User invitedUser = tuple.getT1();
+                    List<User> invitedUsers = tuple.getT1();
                     Organization organization = tuple.getT2();
 
-                    UserRole userRole = new UserRole();
-                    userRole.setUsername(invitedUser.getUsername());
-                    userRole.setRoleName(inviteUsersDTO.getRoleName());
-
-                    return userOrganizationService.addUserToOrganizationGivenUserObject(organization, invitedUser, userRole);
+                    return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 
-        // Add invited  Organization to the User
-        Mono<User> userUpdatedWithOrgMono = Mono.zip(inviteUserMono, organizationMono)
+        // Add invited  Organization to the Users
+        Mono<List<User>> usersUpdatedWithOrgMono = inviteUsersFlux
+                .flatMap(user -> Mono.zip(Mono.just(user), organizationMono))
                 // zipping with organizationMono to ensure that the orgId is checked before updating the user object.
                 .flatMap(tuple -> {
                     User invitedUser = tuple.getT1();
@@ -618,10 +613,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                     //Lets save the updated user object
                     return repository.save(invitedUser);
-                });
+                })
+                .collectList();
 
 
-        return Mono.zip(organizationWithUserAddedMono, userUpdatedWithOrgMono, currentUserMono)
+        return Mono.zip(organizationWithUserAddedMono, usersUpdatedWithOrgMono, currentUserMono)
                 .flatMap(tuple -> {
                     // We reached here. This implies that both user and org got updated without any errors. Proceed forward
                     // with communication (email) here.
