@@ -9,8 +9,6 @@ import DropdownProps from "./CustomizedDropdown/HeaderDropdownData";
 import { AppState } from "reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import Logo from "assets/images/appsmith_logo.png";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { useEffect } from "react";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import history from "utils/history";
