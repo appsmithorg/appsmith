@@ -45,7 +45,7 @@ const DropdownTrigger = styled.div`
   justify-content: space-between;
   width: 100%;
   &&& div {
-    color: #2e3d49;
+    color: ${Colors.OXFORD_BLUE};
   }
   &&& span {
     margin-right: 0;
@@ -121,7 +121,6 @@ const TableFilters = (props: TableFilterProps) => {
       };
     },
   );
-  console.log("filters", filters);
   return (
     <Popover
       minimal

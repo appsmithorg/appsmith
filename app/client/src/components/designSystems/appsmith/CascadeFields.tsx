@@ -27,7 +27,7 @@ const StyledRemoveIcon = styled(
 const LabelWrapper = styled.div`
   width: 85px;
   text-align: center;
-  color: #4e5d78;
+  color: ${Colors.BLUE_BAYOUX};
   font-size: 14px;
   font-weight: 500;
 `;
@@ -42,22 +42,22 @@ const FieldWrapper = styled.div`
 const DropdownWrapper = styled.div<{ width: number }>`
   width: ${props => props.width}px;
   height: 32px;
-  background: #ffffff;
+  background: ${Colors.WHITE};
   border: 1px solid #d3dee3;
   box-sizing: border-box;
   border-radius: 4px;
   margin-left: 10px;
   font-size: 14px;
   padding: 5px 12px 7px;
-  color: #2e3d49;
+  color: ${Colors.OXFORD_BLUE};
 `;
 
 const StyledInputGroup = styled(InputGroup)`
-  background: #ffffff;
+  background: ${Colors.WHITE};
   border: 1px solid #d3dee3;
   box-sizing: border-box;
   border-radius: 4px;
-  color: #2e3d49;
+  color: ${Colors.OXFORD_BLUE};
   height: 32px;
   width: 100px;
   margin-left: 10px;
@@ -78,7 +78,7 @@ const DropdownTrigger = styled.div`
   width: 100%;
   &&& div {
     width: 100%;
-    color: #2e3d49;
+    color: ${Colors.OXFORD_BLUE};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -194,7 +194,7 @@ const RenderOptions = (props: {
               {selectedValue}
             </AutoToolTipComponent>
           </div>
-          <Icon icon="chevron-down" iconSize={16} color="#768896" />
+          <Icon icon="chevron-down" iconSize={16} color={Colors.SLATE_GRAY} />
         </DropdownTrigger>
       ),
     },
