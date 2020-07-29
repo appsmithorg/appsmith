@@ -33,7 +33,7 @@ public class RedirectHelper {
             String redirectUrl = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
             if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://")) &&
                     !StringUtils.isEmpty(httpHeaders.getOrigin())) {
-                redirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
+                redirectUrl = httpHeaders.getOrigin() + (StringUtils.isEmpty(redirectUrl) ? DEFAULT_REDIRECT_URL : redirectUrl);
             }
             return redirectUrl;
         }
