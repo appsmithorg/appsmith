@@ -90,7 +90,7 @@ const DropdownTrigger = styled.div`
 `;
 
 const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
-  [ColumnTypes.TEXT]: [
+  text: [
     { label: "contains", value: "contains", type: "input" },
     { label: "does not contain", value: "doesNotContain", type: "input" },
     { label: "starts with", value: "startsWith", type: "input" },
@@ -99,7 +99,7 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  [ColumnTypes.DATE]: [
+  date: [
     { label: "is", value: "is", type: "date" },
     { label: "is before", value: "isBefore", type: "date" },
     { label: "is after", value: "isAfter", type: "date" },
@@ -108,19 +108,19 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  [ColumnTypes.IMAGE]: [
+  image: [
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  [ColumnTypes.VIDEO]: [
+  video: [
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  [ColumnTypes.TIME]: [
+  time: [
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  [ColumnTypes.CURRENCY]: [
+  currency: [
     { label: "is equal to", value: "isEqualTo", type: "input" },
     { label: "not equal to", value: "notEqualTo", type: "input" },
     { label: "greater than", value: "greaterThan", type: "input" },

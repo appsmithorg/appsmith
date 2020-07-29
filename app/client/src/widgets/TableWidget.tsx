@@ -240,7 +240,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPageView() {
     const { tableData, hiddenColumns } = this.props;
-    console.log("props", this.props);
     const tableColumns = this.getTableColumns(tableData);
     const filteredTableData = this.searchTableData(tableData);
     const transformedData = this.transformData(filteredTableData, tableColumns);
