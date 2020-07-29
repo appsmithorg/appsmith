@@ -63,7 +63,7 @@
     "json-fn": "^1.1.1",
     "lint-staged": "^9.2.5",
     "localforage": "^1.7.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "loglevel": "^1.6.7",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",

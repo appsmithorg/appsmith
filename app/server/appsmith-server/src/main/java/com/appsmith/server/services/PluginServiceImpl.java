@@ -93,7 +93,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Organization> organizationMono = organizationService.findById(organizationId);
+        Mono<Organization> organizationMono = organizationService.getById(organizationId);
 
         return organizationMono
                 .flatMapMany(org -> {
@@ -215,7 +215,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                                         .subscribe();
                             })
                             //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the organization
-                            .then(organizationService.findById(pluginDTO.getOrganizationId()))
+                            .then(organizationService.getById(pluginDTO.getOrganizationId()))
                             .flatMap(organization -> {
 
                                 List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
