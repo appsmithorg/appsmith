@@ -18,6 +18,7 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -51,6 +52,7 @@ public class ExamplesOrganizationCloner {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final ApplicationPageService applicationPageService;
+    private final DatasourceContextService datasourceContextService;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -230,6 +232,7 @@ public class ExamplesOrganizationCloner {
                     makePristine(datasource);
                     datasource.setOrganizationId(toOrganizationId);
                     datasource.setName(datasource.getName());
+                    datasourceContextService.decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication());
                     return Mono.zip(
                             Mono.just(templateDatasourceId),
                             datasourceService.create(datasource)
