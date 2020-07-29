@@ -65,7 +65,7 @@ describe("Text-Table Binding Functionality", function() {
       .find(".tr")
       .then(listing => {
         const listingCount = listing.length.toString();
-        cy.get(commonlocators.TextInside).should("have.text", listingCount);
+        cy.get(commonlocators.TextInside).contains(listingCount);
         cy.EvaluateDataType("string");
         cy.EvaluateCurrentValue(listingCount);
         cy.PublishtheApp();
@@ -73,10 +73,7 @@ describe("Text-Table Binding Functionality", function() {
           .find(".tr")
           .then(listing => {
             const listingCountP = listing.length.toString();
-            cy.get(commonlocators.TextInside).should(
-              "have.text",
-              listingCountP,
-            );
+            cy.get(commonlocators.TextInside).contains(listingCountP);
           });
       });
   });
@@ -96,14 +93,14 @@ describe("Text-Table Binding Functionality", function() {
      */
     cy.readTabledata("1", "2").then(tabData => {
       const tabValue = `\"${tabData}\"`;
-      cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.get(commonlocators.TextInside).contains(tabValue);
       cy.EvaluateDataType("string");
       cy.EvaluateCurrentValue(tabValue);
       cy.PublishtheApp();
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "2").then(tabDataP => {
         const tabValueP = `\"${tabDataP}\"`;
-        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
+        cy.get(commonlocators.TextInside).contains(tabValueP);
       });
     });
   });
