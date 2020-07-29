@@ -297,6 +297,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       selectTableRow={selectTableRow}
       pageNo={props.pageNo - 1}
       updatePageNo={props.updatePageNo}
+      columnActions={props.columnActions}
       nextPageClick={() => {
         props.nextPageClick();
       }}

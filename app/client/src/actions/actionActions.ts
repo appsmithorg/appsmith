@@ -68,10 +68,10 @@ export const runAction = (id: string, paginationField?: PaginationField) => {
 };
 
 export const updateAction = (payload: { id: string }) => {
-  return {
+  return batchAction({
     type: ReduxActionTypes.UPDATE_ACTION_INIT,
     payload,
-  };
+  });
 };
 
 export const updateActionSuccess = (payload: { data: Action }) => {

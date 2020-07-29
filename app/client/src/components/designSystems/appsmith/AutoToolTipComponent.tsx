@@ -44,11 +44,13 @@ const AutoToolTipComponent = (props: {
     const element = ref.current;
     if (element && element.offsetWidth < element.scrollWidth) {
       updateToolTip(true);
+    } else {
+      updateToolTip(false);
     }
   }, [ref]);
   return (
     <CellWrapper ref={ref} isHidden={props.isHidden}>
-      {useToolTip ? (
+      {useToolTip && props.children ? (
         <Tooltip
           autoFocus={false}
           hoverOpenDelay={1000}
