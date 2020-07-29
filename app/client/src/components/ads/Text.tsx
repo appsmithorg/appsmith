@@ -5,6 +5,8 @@ type TextProps = CommonComponentProps & {
   value: string;
   hasError: boolean;
   disabled: boolean;
+  validator: (value: string) => { isValid: boolean; message: string };
+  onChange: (value: string) => void;
   cypressSelector?: string;
 };
 
