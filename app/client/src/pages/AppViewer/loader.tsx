@@ -1,6 +1,5 @@
 import React from "react";
-import { Spinner } from "@blueprintjs/core";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import PageLoadingScreen from "pages/common/PageLoadingScreen";
 
 class AppViewerLoader extends React.PureComponent<any, { Page: any }> {
   constructor(props: any) {
@@ -19,13 +18,10 @@ class AppViewerLoader extends React.PureComponent<any, { Page: any }> {
 
   render() {
     const { Page } = this.state;
-
     return Page ? (
       <Page {...this.props} />
     ) : (
-      <CenteredWrapper>
-        <Spinner />
-      </CenteredWrapper>
+      <PageLoadingScreen displayName={"App view"} />
     );
   }
 }

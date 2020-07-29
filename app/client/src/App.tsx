@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import { User } from "constants/userConstants";
 import { Redirect } from "react-router";
 import { APPLICATIONS_URL } from "constants/routes";
+import { Spinner } from "@blueprintjs/core";
 
 type Props = {
   user?: User;
@@ -15,7 +16,11 @@ const App = (props: Props) => {
   if (props.user) {
     return <Redirect to={APPLICATIONS_URL} />;
   }
-  return <CenteredWrapper>Checking auth</CenteredWrapper>;
+  return (
+    <CenteredWrapper>
+      <Spinner />
+    </CenteredWrapper>
+  );
 };
 
 const mapStateToProps = (state: AppState) => ({

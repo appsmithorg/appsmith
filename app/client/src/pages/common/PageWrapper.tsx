@@ -26,8 +26,9 @@ const Wrapper = styled.section`
 
 const PageBody = styled.div`
   width: ${props => props.theme.pageContentWidth}px;
-  min-height: calc(
-    100vh - ${props => props.theme.headerHeight + props.theme.spaces[12]}
+  height: calc(
+    100vh - ${props => props.theme.headerHeight} +
+      ${props => props.theme.spaces[12]}px
   );
   display: flex;
   flex-direction: column;
@@ -47,7 +48,7 @@ type PageWrapperProps = {
 export const PageWrapper = (props: PageWrapperProps) => (
   <Wrapper>
     <Helmet>
-      <title>{`${props.displayName} | Appsmith`}</title>
+      <title>{`${props.displayName || ""} | Appsmith`}</title>
     </Helmet>
     <PageBody>{props.children}</PageBody>
   </Wrapper>

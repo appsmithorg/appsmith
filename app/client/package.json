@@ -142,7 +142,6 @@
     "@babel/core": "^7.7.4",
     "@types/codemirror": "^0.0.96",
     "@types/jest": "^24.0.22",
-    "@types/qs": "^6.9.3",
     "@types/react-beautiful-dnd": "^11.0.4",
     "@types/react-select": "^3.0.5",
     "@types/react-tabs": "^2.3.1",

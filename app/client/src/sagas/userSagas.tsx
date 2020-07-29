@@ -80,7 +80,10 @@ export function* getCurrentUserSaga(action: ReduxAction<{ path?: string }>) {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       if (response.data.name === "anonymousUser") {
-        history.push(AUTH_LOGIN_URL);
+        history.push({
+          pathname: AUTH_LOGIN_URL,
+          search: encodeURI(`redirectTo=applications`),
+        });
       } else {
         if (path) {
           history.push(path);

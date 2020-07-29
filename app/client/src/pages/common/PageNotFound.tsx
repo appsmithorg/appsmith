@@ -29,7 +29,7 @@ class PageNotFound extends React.PureComponent<RouterProps> {
             src={PageUnavailableImage}
             alt="Page Unavailable"
             className="page-unavailable-img"
-          ></img>
+          />
           <div>
             <p className="bold-text">Page not found</p>
             <p>

@@ -1,6 +1,6 @@
-import React, { FormEvent } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, formValueSelector } from "redux-form";
 import {
   LOGIN_FORM_NAME,
@@ -34,7 +34,6 @@ import Button from "components/editorComponents/Button";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "./helpers";
-import { formLoginInit } from "actions/authActions";
 
 import {
   AuthCardContainer,
@@ -48,6 +47,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { TncPPLinks } from "./SignUp";
+import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
@@ -80,7 +80,6 @@ if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 export const Login = (props: LoginFormProps) => {
   const { error, valid } = props;
   const location = useLocation();
-  const dispatch = useDispatch();
 
   const queryParams = new URLSearchParams(location.search);
   let showError = false;
@@ -88,15 +87,15 @@ export const Login = (props: LoginFormProps) => {
     showError = true;
   }
 
+  let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
+  if (queryParams.has("redirectTo")) {
+    loginURL += `?redirectTo=${queryParams.get("redirectTo")}`;
+  }
+
   let forgotPasswordURL = `${FORGOT_PASSWORD_URL}`;
   if (props.emailValue && !isEmptyString(props.emailValue)) {
     forgotPasswordURL += `?email=${props.emailValue}`;
   }
-
-  const handleLoginSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    dispatch(formLoginInit());
-  };
 
   return (
     <AuthCardContainer>
@@ -118,7 +117,7 @@ export const Login = (props: LoginFormProps) => {
         <h5>{LOGIN_PAGE_SUBTITLE}</h5>
       </AuthCardHeader>
       <AuthCardBody>
-        <SpacedSubmitForm onSubmit={handleLoginSubmit}>
+        <SpacedSubmitForm method="POST" action={loginURL}>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
