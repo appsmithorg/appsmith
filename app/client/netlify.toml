@@ -6,7 +6,7 @@
     REACT_APP_OAUTH2_GOOGLE_CLIENT_ID = "enabled"
     REACT_APP_OAUTH2_GITHUB_CLIENT_ID = "enabled"
     REACT_APP_SEGMENT_KEY = "9OnZ6LnDztuZZo4zXfoutEEBB2wftHUH"
-    REACT_APP_MARKETPLACE_URL = "https://release-marketplace.appsmith.com"
+#    REACT_APP_MARKETPLACE_URL = "https://release-marketplace.appsmith.com"
     REACT_APP_OPTIMIZELY_KEY = "Jq3K2kVdvuvxecHyHbVYcj"
     REACT_APP_ALGOLIA_API_ID = "AZ2Z9CJSJ0"
     REACT_APP_ALGOLIA_API_KEY = "d113611dccb80ac14aaa72a6e3ac6d10"
