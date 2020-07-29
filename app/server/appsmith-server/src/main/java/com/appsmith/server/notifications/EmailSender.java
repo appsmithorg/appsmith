@@ -9,9 +9,9 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -51,7 +51,7 @@ public class EmailSender {
         return matcher.find();
     }
 
-    public Mono<Void> sendMail(String to, String subject, String text, Map<String, String> params) {
+    public Mono<String> sendMail(String to, String subject, String text, Map<String, String> params) {
         return Mono
                 .fromSupplier(() -> {
                     try {
@@ -60,15 +60,22 @@ public class EmailSender {
                         throw Exceptions.propagate(e);
                     }
                 })
-                .flatMap(emailBody -> sendMail(to, subject, emailBody));
-    }
-
-    public Mono<Void> sendMail(String to, String subject, String text) {
-        return Mono.fromRunnable(() -> sendMailSync(to, subject, text));
+                // Sending email is a high cost I/O operation. Schedule the same on non-netty threads
+                // to implement a fire-and-forget strategy.
+                // CAUTION : We may run into scenarios where too many tasks have been created and queued and the master tasks have already exited with success.
+                .doOnNext(emailBody ->
+                        Mono.fromRunnable(() -> {
+                            sendMailSync(to, subject, emailBody);
+                        })
+                        // Scheduling using boundedElastic because the number of active tasks are capped
+                        // and hence not allowing the background threads to grow indefinitely
+                        .subscribeOn(Schedulers.boundedElastic())
+                        .subscribe()
+                );
     }
 
     /**
-     * This function sends an HTML email to the user from the default email address
+     * [Synchronous]This function sends an HTML email to the user from the default email address
      *
      * @param to      Single valid string email address to send to. Multiple addresses doesn't work.
      * @param subject Subject string.

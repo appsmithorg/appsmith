@@ -14,6 +14,7 @@ import {
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
+import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
 export enum TABLE_SIZES {
   COLUMN_HEADER_HEIGHT = 52,
@@ -51,6 +52,7 @@ interface TableProps {
   disableDrag: () => void;
   enableDrag: () => void;
   searchTableData: (searchKey: any) => void;
+  columnActions?: ColumnAction[];
 }
 
 export const Table = (props: TableProps) => {
@@ -67,6 +69,7 @@ export const Table = (props: TableProps) => {
   const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
   const columns = React.useMemo(() => props.columns, [
     JSON.stringify(props.columns),
+    props.columnActions,
   ]);
   const {
     getTableProps,
