@@ -41,7 +41,7 @@ export const RichtextEditorComponent = (
     const onChange = debounce(props.onValueChange, 200);
     (window as any).tinyMCE.init({
       height: "100%",
-      selector: `textarea#${props.widgetId}`,
+      selector: `textarea#rte-${props.widgetId}`,
       menubar: false,
       branding: false,
       resize: false,
@@ -82,7 +82,7 @@ export const RichtextEditorComponent = (
   }, []);
   return (
     <StyledRTEditor>
-      <textarea id={props.widgetId}></textarea>
+      <textarea id={`rte-${props.widgetId}`}></textarea>
     </StyledRTEditor>
   );
 };
