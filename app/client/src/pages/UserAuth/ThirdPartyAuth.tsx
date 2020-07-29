@@ -6,6 +6,7 @@ import {
 } from "constants/SocialLogin";
 import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
+import { useLocation } from "react-router-dom";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
@@ -69,9 +70,15 @@ const SocialLoginButton = (props: {
   url: string;
   type: SignInType;
 }) => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  let url = props.url;
+  if (queryParams.has("redirectTo")) {
+    url += `?redirectUrl=${queryParams.get("redirectTo")}`;
+  }
   return (
     <StyledSocialLoginButton
-      href={props.url}
+      href={url}
       onClick={() => {
         let eventName: EventName = "LOGIN_CLICK";
         if (props.type === "SIGNUP") {

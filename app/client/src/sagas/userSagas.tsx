@@ -72,25 +72,12 @@ export function* createUserSaga(
   }
 }
 
-export function* getCurrentUserSaga(action: ReduxAction<{ path?: string }>) {
+export function* getCurrentUserSaga() {
   try {
-    const { path } = action.payload;
     const response: ApiResponse = yield call(UserApi.getCurrentUser);
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      if (response.data.name === "anonymousUser") {
-        history.push({
-          pathname: AUTH_LOGIN_URL,
-          search: encodeURI(`redirectTo=applications`),
-        });
-      } else {
-        if (path) {
-          history.push(path);
-        } else {
-          history.push(APPLICATIONS_URL);
-        }
-      }
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
