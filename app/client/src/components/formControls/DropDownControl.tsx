@@ -23,7 +23,7 @@ const customSelectStyles = {
       backgroundColor: isDisabled
         ? undefined
         : isSelected
-        ? theme.colors.primary
+        ? theme.colors.primaryOld
         : isFocused
         ? theme.colors.hover
         : undefined,
@@ -31,7 +31,7 @@ const customSelectStyles = {
         ...styles[":active"],
         backgroundColor:
           !isDisabled &&
-          (isSelected ? theme.colors.primary : theme.colors.hover),
+          (isSelected ? theme.colors.primaryOld : theme.colors.hover),
       },
     };
   },

@@ -67,7 +67,7 @@ const ItemContainer = styled.div`
         background-color: ${props => props.theme.colors.paneBG};
         color: ${props => props.theme.colors.textOnDarkBG};
         ${IconContainer} {
-          background-color: ${props => props.theme.colors.primary};
+          background-color: ${props => props.theme.colors.primaryOld};
           svg path {
             fill: ${props => props.theme.colors.textOnDarkBG};
           }
@@ -143,7 +143,7 @@ class NavBarItem extends React.Component<Props> {
                 animate
                 width={9}
                 height={9}
-                color={theme.colors.primary}
+                color={theme.colors.primaryOld}
               />
             )}
           </DetailsContainer>

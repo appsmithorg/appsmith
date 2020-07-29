@@ -4,29 +4,9 @@ import React from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import styled from "styled-components";
+import { Size } from "./Button";
 
-// import { Color } from "./Colors";
-
-/* eslint-disable react/display-name */
-
-// export const Icons: {
-//   [id: string]: JSXElementConstructor<IconProps>;
-// } = {
-//   delete: (props: IconProps) => (
-//     <IconWrapper {...props}>
-//       <DeleteIcon />
-//     </IconWrapper>
-//   ),
-//   user: (props: IconProps) => (
-//     <IconWrapper {...props}>
-//       <UserIcon />
-//     </IconWrapper>
-//   ),
-// };
-
-// export type IconName = keyof typeof Icons
-
-const iconSizeHandler = (props: { size: IconSize }) => {
+const iconSizeHandler = (props: IconProps) => {
   let iconSize: number;
   switch (props.size) {
     case "small":
@@ -45,7 +25,9 @@ const iconSizeHandler = (props: { size: IconSize }) => {
   return iconSize;
 };
 
-const IconWrapper = styled.span<{ size: IconSize }>`
+export type IconName = "delete" | "user" | undefined;
+
+const IconWrapper = styled.div<IconProps>`
   &:focus {
     outline: none;
   }
@@ -58,12 +40,9 @@ const IconWrapper = styled.span<{ size: IconSize }>`
   }
 `;
 
-export type IconSize = "small" | "medium" | "large" | "tab" | undefined;
-export type IconName = "delete" | "user" | undefined;
-
-type IconProps = {
-  name: IconName;
-  size: IconSize;
+export type IconProps = {
+  size?: Size;
+  name?: IconName;
 };
 
 export const Icon = (props: IconProps) => {
