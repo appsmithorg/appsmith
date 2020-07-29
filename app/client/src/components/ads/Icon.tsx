@@ -1,26 +1,9 @@
 import React from "react";
-// import React, { JSXElementConstructor } from "react";
-// import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import styled from "styled-components";
 import { Size } from "./Button";
-
-const iconSizeHandler = (props: IconProps) => {
-  let iconSize: number;
-  switch (props.size) {
-    case "small":
-      iconSize = 12;
-      break;
-    case "medium":
-      iconSize = 14;
-      break;
-    default:
-      iconSize = 15;
-      break;
-  }
-  return iconSize;
-};
+import { sizeHandler } from "./NewSpinner";
 
 export type IconName = "delete" | "user" | undefined;
 
@@ -29,17 +12,19 @@ const IconWrapper = styled.div<IconProps>`
     outline: none;
   }
   display: inline-block;
-  width: ${props => iconSizeHandler(props)}px;
-  height: ${props => iconSizeHandler(props)}px;
+  width: ${props => sizeHandler(props)}px;
+  height: ${props => sizeHandler(props)}px;
   svg {
-    width: ${props => iconSizeHandler(props)}px;
-    height: ${props => iconSizeHandler(props)}px;
+    width: ${props => sizeHandler(props)}px;
+    height: ${props => sizeHandler(props)}px;
   }
+  visibility: ${props => (props.invisible ? "hidden" : "visible")};
 `;
 
 export type IconProps = {
   size?: Size;
   name?: IconName;
+  invisible?: boolean;
 };
 
 export const Icon = (props: IconProps) => {
@@ -47,14 +32,14 @@ export const Icon = (props: IconProps) => {
   switch (props.name) {
     case "delete":
       returnIcon = (
-        <IconWrapper size={props.size}>
+        <IconWrapper className="ads-icon" {...props}>
           <DeleteIcon />
         </IconWrapper>
       );
       break;
     default:
       returnIcon = (
-        <IconWrapper size={props.size}>
+        <IconWrapper className="ads-icon" {...props}>
           <UserIcon />
         </IconWrapper>
       );
