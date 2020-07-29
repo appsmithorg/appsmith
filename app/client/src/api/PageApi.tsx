@@ -6,7 +6,7 @@ import { AxiosPromise } from "axios";
 import { PageAction } from "constants/ActionConstants";
 
 export interface FetchPageRequest {
-  pageId: string;
+  id: string;
 }
 
 export interface FetchPublishedPageRequest {
@@ -106,7 +106,7 @@ class PageApi extends Api {
   static fetchPage(
     pageRequest: FetchPageRequest,
   ): AxiosPromise<FetchPageResponse> {
-    return Api.get(PageApi.url + "/" + pageRequest.pageId);
+    return Api.get(PageApi.url + "/" + pageRequest.id);
   }
 
   static savePage(

@@ -11,7 +11,7 @@ import {
   updateAndSaveLayout,
 } from "actions/pageActions";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets, getWidget, getDefaultWidgetConfig } from "./selectors";
+import { getWidgets, getWidget } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
@@ -44,7 +44,7 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 
-function* getChildWidgetProps(
+function getChildWidgetProps(
   parent: ContainerWidgetProps<WidgetProps>,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },

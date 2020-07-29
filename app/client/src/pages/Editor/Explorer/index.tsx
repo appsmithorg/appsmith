@@ -58,13 +58,13 @@ const EntityExplorer = () => {
   const noResults =
     widgets.length === 0 &&
     actions.length === 0 &&
-    dataSources.length == 0 &&
+    dataSources.length === 0 &&
     !!searchKeyword;
 
   const noPageEntities =
     widgets.length === 0 && actions.length === 0 && !!searchKeyword;
 
-  const noDatsourceEntities = dataSources.length == 0 && !!searchKeyword;
+  const noDatsourceEntities = dataSources.length === 0 && !!searchKeyword;
 
   const noResultMessage = (
     <NoResult

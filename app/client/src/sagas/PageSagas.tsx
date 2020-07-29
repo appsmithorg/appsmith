@@ -41,7 +41,7 @@ import {
   debounce,
 } from "redux-saga/effects";
 import history from "utils/history";
-import { PAGE_LIST_EDITOR_URL } from "constants/routes";
+import { PAGE_LIST_EDITOR_URL, BUILDER_PAGE_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets, getAllPageIds } from "./selectors";
@@ -129,9 +129,9 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { pageId } = pageRequestAction.payload;
+    const { id } = pageRequestAction.payload;
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-      pageId,
+      id,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
@@ -142,7 +142,7 @@ export function* fetchPageSaga(
       // Update the canvas
       yield put(updateCanvas(canvasWidgetsPayload));
       // set current page
-      yield put(updateCurrentPage(pageId));
+      yield put(updateCurrentPage(id));
       // dispatch fetch page success
       yield put(fetchPageSuccess());
       // Execute page load actions
@@ -290,6 +290,18 @@ export function* createPageSaga(
           layoutId: response.data.layouts[0].id,
         },
       });
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        payload: {
+          pageId: response.data.id,
+        },
+      });
+      history.push(
+        BUILDER_PAGE_URL(
+          createPageAction.payload.applicationId,
+          response.data.id,
+        ),
+      );
     }
   } catch (error) {
     yield put({

@@ -215,7 +215,7 @@ const PaneDrawer = (props: PaneDrawerProps) => {
       selectWidget(undefined);
       focusWidget(undefined);
     }
-  }, [props.isVisible, useShowPropertyPane, useWidgetSelection]);
+  }, [props.isVisible, selectWidget, showPropertyPane, focusWidget]);
   return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;
 };
 

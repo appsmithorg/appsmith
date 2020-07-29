@@ -66,17 +66,17 @@ function* initializeEditorSaga(
   yield call(populatePageDSLsSaga, pageId);
 }
 
-function* fetchPageDSLSaga(pageId: string) {
+function* fetchPageDSLSaga(action: ReduxAction<{ pageId: string }>) {
   try {
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-      pageId,
+      id: action.payload.pageId,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
-          pageId,
+          pageId: action.payload.pageId,
           dsl: extractCurrentDSL(fetchPageResponse),
         },
       });
@@ -85,7 +85,7 @@ function* fetchPageDSLSaga(pageId: string) {
     yield put({
       type: ReduxActionTypes.FETCH_PAGE_DSL_ERROR,
       payload: {
-        pageId,
+        pageId: action.payload.pageId,
         error,
         show: false,
       },
@@ -103,7 +103,10 @@ export function* populatePageDSLsSaga(currentPageId: string) {
     );
     yield all(
       pageIds.map((pageId: string) => {
-        return call(fetchPageDSLSaga, pageId);
+        return call(fetchPageDSLSaga, {
+          type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+          payload: { pageId },
+        });
       }),
     );
     yield put({

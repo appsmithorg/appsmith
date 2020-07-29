@@ -75,7 +75,7 @@ const WidgetsEditor = memo((props: EditorProps) => {
       flashElementById(widgetIdFromURLHash);
       selectWidget(widgetIdFromURLHash);
     }
-  }, [props.isFetchingPage]);
+  }, [props.isFetchingPage, selectWidget]);
 
   const handleWrapperClick = () => {
     focusWidget && focusWidget();

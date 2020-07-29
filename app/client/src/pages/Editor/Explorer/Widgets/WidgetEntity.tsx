@@ -77,6 +77,7 @@ const useWidget = (
     widgetId,
     parentModalId,
     pageId,
+    isWidgetSelected,
   ]);
 
   return { navigateToWidget, isWidgetSelected };

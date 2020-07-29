@@ -102,7 +102,7 @@ const useWidgetExpandList = (
       }
     }
     return widgetIdsExpandList;
-  }, [canvasWidgets, widgetPageId, currentPageId]);
+  }, [canvasWidgets, widgetPageId, currentPageId, selectedWidget]);
 };
 
 type ExplorerWidgetGroupProps = {

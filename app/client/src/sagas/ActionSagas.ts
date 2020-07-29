@@ -348,7 +348,7 @@ export function* refactorActionName(
 ) {
   // fetch page of the action
   const pageResponse = yield call(PageApi.fetchPage, {
-    pageId: pageId,
+    id: pageId,
   });
   // check if page request is successful
   const isPageRequestSuccessful = yield validateResponse(pageResponse);
