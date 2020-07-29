@@ -4,13 +4,32 @@ import styled from "styled-components";
 import { IconName, Icon } from "./Icon";
 import NewSpinner from "./NewSpinner";
 
+export enum Category {
+  primary = "primary",
+  secondary = "secondary",
+  tertiary = "tertiary",
+}
+
+export enum Variant {
+  success = "success",
+  info = "info",
+  warning = "warning",
+  danger = "danger",
+}
+
+export enum Size {
+  small = "small",
+  medium = "medium",
+  large = "large",
+}
+
 type ButtonProps = CommonComponentProps & {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   text?: string;
-  category?: "primary" | "secondary" | "tertiary"; //default primary
-  variant?: "success" | "info" | "warning" | "danger" | "link"; //default info
+  category?: Category; //default primary
+  variant?: Variant; //default info
   icon?: IconName; //default undefined.
-  size?: "small" | "medium" | "large"; // default medium
+  size?: Size; // default medium
 };
 // https://design.gitlab.com/components/button
 
@@ -295,10 +314,10 @@ function Button(props: ButtonProps) {
       }
     >
       {props.icon && !props.isLoading ? (
-        <Icon name={props.icon} iconSize={props.size} />
+        <Icon name={props.icon} size={props.size} />
       ) : props.isLoading && props.icon && !props.text ? (
         <InvisibleText>
-          <Icon name={props.icon} iconSize={props.size} />
+          <Icon name={props.icon} size={props.size} />
         </InvisibleText>
       ) : null}
       {props.text && !props.isLoading ? (

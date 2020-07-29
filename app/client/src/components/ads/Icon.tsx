@@ -4,29 +4,9 @@ import React from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import styled from "styled-components";
+import { Size } from "./Button";
 
-// import { Color } from "./Colors";
-
-/* eslint-disable react/display-name */
-
-// export const Icons: {
-//   [id: string]: JSXElementConstructor<IconProps>;
-// } = {
-//   delete: (props: IconProps) => (
-//     <IconWrapper {...props}>
-//       <DeleteIcon />
-//     </IconWrapper>
-//   ),
-//   user: (props: IconProps) => (
-//     <IconWrapper {...props}>
-//       <UserIcon />
-//     </IconWrapper>
-//   ),
-// };
-
-// export type IconName = keyof typeof Icons
-
-const iconSizeHandler = (props: { size: IconProp }) => {
+const iconSizeHandler = (props: IconProps) => {
   let iconSize: number;
   switch (props.size) {
     case "small":
@@ -42,10 +22,9 @@ const iconSizeHandler = (props: { size: IconProp }) => {
   return iconSize;
 };
 
-export type IconProp = "small" | "medium" | "large" | undefined;
 export type IconName = "delete" | "user" | undefined;
 
-const IconWrapper = styled.div<{ size: IconProp }>`
+const IconWrapper = styled.div<IconProps>`
   &:focus {
     outline: none;
   }
@@ -58,19 +37,24 @@ const IconWrapper = styled.div<{ size: IconProp }>`
   }
 `;
 
-export const Icon = (props: { name: IconName; iconSize: IconProp }) => {
+export type IconProps = {
+  size?: Size;
+  name?: IconName;
+};
+
+export const Icon = (props: IconProps) => {
   let returnIcon;
   switch (props.name) {
     case "delete":
       returnIcon = (
-        <IconWrapper size={props.iconSize}>
+        <IconWrapper size={props.size}>
           <DeleteIcon />
         </IconWrapper>
       );
       break;
     default:
       returnIcon = (
-        <IconWrapper size={props.iconSize}>
+        <IconWrapper size={props.size}>
           <UserIcon />
         </IconWrapper>
       );
