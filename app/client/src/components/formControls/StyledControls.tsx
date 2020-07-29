@@ -269,7 +269,7 @@ export const StyledTimeZonePicker = styled(TimezonePicker)`
 
 export const StyledPropertyPaneButton = styled(Button)`
   &&&& {
-    background-color: ${props => props.theme.colors.info};
+    background-color: ${props => props.theme.colors.infoOld};
     color: #ffffff;
     .bp3-icon {
       color: #ffffff;

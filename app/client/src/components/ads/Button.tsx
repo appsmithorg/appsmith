@@ -62,6 +62,7 @@ const stateStyles = (props: any, state: string) => {
   if (props.isLoading || props.isDisabled) {
     switch (props.category) {
       case "primary":
+        console.log("props.theme.colors", props.theme.colors);
         bgColorPrimary = props.theme.colors[props.variant].darkest;
         borderColorPrimary = props.theme.colors[props.variant].darkest;
         txtColorPrimary = props.theme.colors.blackShades[6];
@@ -259,7 +260,7 @@ const StyledButton = styled("button")`
   };
   div {
     margin-right: ${(props: any) =>
-      props.text && props.icon ? `${props.spaces[4]}px` : `0`}
+      props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
   }
   display: flex;
   path {  
