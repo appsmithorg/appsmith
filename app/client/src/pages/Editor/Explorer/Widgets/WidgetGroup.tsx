@@ -1,21 +1,27 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useSelector } from "react-redux";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import { widgetIcon } from "../ExplorerIcons";
 import WidgetEntity, { WidgetTree } from "./WidgetEntity";
-import { WidgetTypes } from "constants/WidgetConstants";
+import {
+  WidgetTypes,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { AppState } from "reducers";
 
 const getWidgetEntity = (
   entity: any,
   step: number,
-  pageId: string,
+  widgetsPageId: string,
   parentModalId?: string,
   searchKeyword?: string,
+  widgetIdsToExpand?: string[],
 ) => {
   if (!entity) {
     if (searchKeyword) {
@@ -27,7 +33,14 @@ const getWidgetEntity = (
   if (entity.type === WidgetTypes.CANVAS_WIDGET) {
     if (!entity.children || entity.children.length === 0) return;
     return entity.children.map((child: any) =>
-      getWidgetEntity(child, step + 1, pageId, parentModalId, searchKeyword),
+      getWidgetEntity(
+        child,
+        step + 1,
+        widgetsPageId,
+        parentModalId,
+        searchKeyword,
+        widgetIdsToExpand,
+      ),
     );
   }
   const childEntities =
@@ -37,12 +50,17 @@ const getWidgetEntity = (
       getWidgetEntity(
         child,
         step,
-        pageId,
+        widgetsPageId,
         entity.type === WidgetTypes.MODAL_WIDGET ? entity.widgetId : undefined,
         searchKeyword,
+        widgetIdsToExpand,
       ),
     );
 
+  const shouldExpandWidgetEntity =
+    widgetIdsToExpand && widgetIdsToExpand.indexOf(entity.widgetId) > -1
+      ? true
+      : undefined;
   return (
     <WidgetEntity
       widgetProps={entity}
@@ -50,11 +68,41 @@ const getWidgetEntity = (
       key={entity.widgetId}
       parentModalId={parentModalId}
       searchKeyword={searchKeyword}
-      pageId={pageId}
+      pageId={widgetsPageId}
+      isDefaultExpanded={shouldExpandWidgetEntity}
     >
       {childEntities}
     </WidgetEntity>
   );
+};
+
+const useWidgetExpandList = (
+  widgetPageId: string,
+  currentPageId: string,
+  selectedWidget?: string,
+) => {
+  const canvasWidgets = useSelector(
+    (state: AppState) => state.entities.canvasWidgets,
+  );
+
+  return useMemo(() => {
+    const widgetIdsExpandList = [];
+    if (currentPageId === widgetPageId && !!selectedWidget) {
+      // Make sure that the selected widget exists in canvasWidgets
+      let widgetId = canvasWidgets[selectedWidget]
+        ? canvasWidgets[selectedWidget].parentId
+        : undefined;
+      // If there is a parentId for the selectedWidget
+      if (widgetId) {
+        // Keep including the parent until we reach the main container
+        while (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+          widgetIdsExpandList.push(widgetId);
+          widgetId = canvasWidgets[widgetId].parentId;
+        }
+      }
+    }
+    return widgetIdsExpandList;
+  }, [canvasWidgets, widgetPageId, currentPageId]);
 };
 
 type ExplorerWidgetGroupProps = {
@@ -75,12 +123,23 @@ const StyledLink = styled(Link)`
 
 export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+  );
+
+  const widgetIdsExpandList = useWidgetExpandList(
+    props.pageId,
+    params.pageId,
+    selectedWidget,
+  );
+
   let childNode = getWidgetEntity(
     props.widgets,
     props.step,
     props.pageId,
     undefined,
     props.searchKeyword,
+    widgetIdsExpandList,
   );
   if (!childNode && !props.searchKeyword) {
     childNode = (
@@ -111,7 +170,10 @@ export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
       name="Widgets"
       disabled={!props.widgets && !!props.searchKeyword}
       entityId={props.pageId + "_widgets"}
-      isDefaultExpanded={!!props.searchKeyword}
+      isDefaultExpanded={
+        !!props.searchKeyword ||
+        (params.pageId === props.pageId && !!selectedWidget)
+      }
     >
       {childNode}
     </Entity>

@@ -115,6 +115,7 @@ export type WidgetEntityProps = {
   children: ReactNode;
   parentModalId?: string;
   searchKeyword?: string;
+  isDefaultExpanded?: boolean;
 };
 
 export const WidgetEntity = (props: WidgetEntityProps) => {
@@ -152,7 +153,10 @@ export const WidgetEntity = (props: WidgetEntityProps) => {
         props.pageId === params?.pageId ? updateWidgetName : noop
       }
       searchKeyword={props.searchKeyword}
-      isDefaultExpanded={!!props.searchKeyword && !!props.widgetProps.children}
+      isDefaultExpanded={
+        (!!props.searchKeyword && !!props.widgetProps.children) ||
+        !!props.isDefaultExpanded
+      }
       contextMenu={
         props.pageId === params?.pageId && (
           <WidgetContextMenu

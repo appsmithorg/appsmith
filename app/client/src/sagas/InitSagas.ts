@@ -98,11 +98,8 @@ export function* populatePageDSLsSaga(currentPageId: string) {
     yield put({
       type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
     });
-    const pageIds: string[] = yield select(
-      (state: AppState) =>
-        state.entities.pageList.pages
-          .map((page: Page) => page.pageId)
-          .filter((pageId: string) => pageId !== currentPageId), // donot fetch the current page DSL
+    const pageIds: string[] = yield select((state: AppState) =>
+      state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
     yield all(
       pageIds.map((pageId: string) => {
