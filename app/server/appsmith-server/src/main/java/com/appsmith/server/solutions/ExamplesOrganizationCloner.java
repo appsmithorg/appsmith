@@ -232,7 +232,9 @@ public class ExamplesOrganizationCloner {
                     makePristine(datasource);
                     datasource.setOrganizationId(toOrganizationId);
                     datasource.setName(datasource.getName());
-                    datasourceContextService.decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication());
+                    if (datasource.getDatasourceConfiguration() != null) {
+                        datasourceContextService.decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication());
+                    }
                     return Mono.zip(
                             Mono.just(templateDatasourceId),
                             datasourceService.create(datasource)

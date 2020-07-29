@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
@@ -17,6 +18,7 @@ import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PageService;
 import com.appsmith.server.services.SessionUserService;
@@ -87,6 +89,9 @@ public class ExamplesOrganizationClonerTests {
 
     @Autowired
     private PluginRepository pluginRepository;
+
+    @Autowired
+    private EncryptionService encryptionService;
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
@@ -324,6 +329,9 @@ public class ExamplesOrganizationClonerTests {
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setOrganizationId(organization.getId());
+                    ds2.setDatasourceConfiguration(new DatasourceConfiguration());
+                    ds2.getDatasourceConfiguration().setAuthentication(new AuthenticationDTO());
+                    ds2.getDatasourceConfiguration().getAuthentication().setPassword("answer-to-life");
 
                     return Mono.when(
                             datasourceService.create(ds1),
@@ -353,6 +361,14 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(ds1.getDatasourceConfiguration().getHeaders()).containsOnly(
                             new Property("X-Answer", "42")
                     );
+
+                    final Datasource ds2 = data.datasources.stream()
+                            .filter(datasource -> "datasource 2".equals(datasource.getName()))
+                            .findFirst()
+                            .orElseThrow();
+                    assertThat(ds2.getDatasourceConfiguration().getAuthentication()).isNotNull();
+                    assertThat(ds2.getDatasourceConfiguration().getAuthentication().getPassword())
+                            .isEqualTo(encryptionService.encryptString("answer-to-life"));
 
                     assertThat(data.applications).isEmpty();
                     assertThat(data.actions).isEmpty();
