@@ -22,5 +22,8 @@ public interface DatasourceService extends CrudService<Datasource, String> {
 
     Mono<Datasource> validateDatasource(Datasource datasource);
 
+    Mono<Datasource> save(Datasource datasource);
+
     Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission readDatasources);
+
 }

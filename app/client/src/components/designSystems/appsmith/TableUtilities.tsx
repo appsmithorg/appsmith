@@ -334,11 +334,18 @@ export const renderCell = (
             .map((item: string, index: number) => {
               if (imageRegex.test(item)) {
                 return (
-                  <div
-                    key={index}
-                    className="image-cell"
-                    style={{ backgroundImage: `url("${item}")` }}
-                  />
+                  <a
+                    onClick={e => e.stopPropagation()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={item}
+                  >
+                    <div
+                      key={index}
+                      className="image-cell"
+                      style={{ backgroundImage: `url("${item}")` }}
+                    />
+                  </a>
                 );
               } else {
                 return <div>Invalid Image</div>;
@@ -361,9 +368,11 @@ export const renderCell = (
       }
     default:
       const data =
-        isString(value) || isNumber(value) ? value : JSON.stringify(value);
+        isString(value) || isNumber(value)
+          ? value.toString()
+          : JSON.stringify(value);
       return (
-        <AutoToolTipComponent title={data.toString()} isHidden={isHidden}>
+        <AutoToolTipComponent title={data} isHidden={isHidden}>
           {data}
         </AutoToolTipComponent>
       );
@@ -371,6 +380,7 @@ export const renderCell = (
 };
 
 interface RenderActionProps {
+  isSelected: boolean;
   columnActions?: ColumnAction[];
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
@@ -384,6 +394,7 @@ export const renderActions = (props: RenderActionProps) => {
           <TableAction
             key={index}
             action={action}
+            isSelected={props.isSelected}
             onCommandClick={props.onCommandClick}
           />
         );
@@ -393,6 +404,7 @@ export const renderActions = (props: RenderActionProps) => {
 };
 
 const TableAction = (props: {
+  isSelected: boolean;
   action: ColumnAction;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) => {
@@ -403,7 +415,9 @@ const TableAction = (props: {
   return (
     <ActionWrapper
       onClick={e => {
-        e.stopPropagation();
+        if (props.isSelected) {
+          e.stopPropagation();
+        }
       }}
     >
       <Button

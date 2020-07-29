@@ -8,7 +8,6 @@ import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
-import { UserApplication } from "constants/userConstants";
 import { AppState } from "reducers";
 import EditorHeader from "./EditorHeader";
 import MainContainer from "./MainContainer";
@@ -28,6 +27,7 @@ import {
 import {
   ReduxActionTypes,
   PageListPayload,
+  ApplicationPayload,
 } from "constants/ReduxActionConstants";
 import {
   Dialog,
@@ -39,7 +39,6 @@ import {
 } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
 import { RenderModes } from "constants/WidgetConstants";
-import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { fetchPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
@@ -62,7 +61,7 @@ type EditorProps = {
   errorPublishing: boolean;
   isPageSwitching: boolean;
   createModal: () => void;
-  currentApplication: UserApplication;
+  currentApplication?: ApplicationPayload;
 } & RouteComponentProps<BuilderRouteParams>;
 
 @HotkeysTarget
@@ -166,6 +165,7 @@ class Editor extends Component<EditorProps> {
             pages={this.props.pages}
             currentPageId={this.props.currentPageId}
             currentApplicationId={this.props.currentApplicationId}
+            currentApplication={this.props.currentApplication}
             isPublishing={this.props.isPublishing}
             createModal={this.props.createModal}
           />
@@ -208,7 +208,7 @@ const mapStateToProps = (state: AppState) => ({
   currentPageName: state.ui.editor.currentPageName,
   isSaving: getIsPageSaving(state),
   currentApplicationId: getCurrentApplicationId(state),
-  currentApplication: getCurrentApplication(state),
+  currentApplication: state.ui.applications.currentApplication,
   currentPageId: getCurrentPageId(state),
   pages: getPageList(state),
   errorPublishing: getPublishingError(state),

@@ -30,6 +30,7 @@ function* initializeEditorSaga(
     put(fetchEditorConfigs()),
     put(fetchActions(applicationId)),
     put(fetchPage(pageId)),
+    put(fetchApplication(applicationId)),
   ]);
   // Step 2: Wait for all data to be in the state
   yield all([

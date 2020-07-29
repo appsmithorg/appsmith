@@ -28,6 +28,11 @@ const QueryHomePage = styled.div`
   max-height: 95vh;
   overflow: auto;
 
+  .sectionHeader {
+    font-weight: ${props => props.theme.fontWeights[2]};
+    font-size: ${props => props.theme.fontSizes[4]}px;
+  }
+
   .addIcon {
     align-items: center;
     margin-top: 15px;
@@ -185,7 +190,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
     return (
       <QueryHomePage>
-        <p style={{ fontSize: "14px" }}>Create Query</p>
+        <p className="sectionHeader">Create Query</p>
         <CardsWrapper>
           <DatasourceCardsContainer>
             <Card
