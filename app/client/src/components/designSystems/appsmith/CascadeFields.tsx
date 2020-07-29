@@ -103,7 +103,6 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
     { label: "is", value: "is", type: "date" },
     { label: "is before", value: "isBefore", type: "date" },
     { label: "is after", value: "isAfter", type: "date" },
-    // { label: "is within", value: "isWithin", type: "date" },
     { label: "is not", value: "isNot", type: "date" },
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
@@ -150,16 +149,6 @@ export const operators: { [key: string]: Operator } = {
 const operatorOptions: DropdownOption[] = [
   { label: "or", value: "or", type: "" },
   { label: "and", value: "and", type: "" },
-];
-
-const dateOptions: DropdownOption[] = [
-  { label: "today", value: "today", type: "" },
-  { label: "tomorrow", value: "tomorrow", type: "" },
-  { label: "yesterday", value: "yesterday", type: "" },
-  { label: "past week", value: "last_week", type: "" },
-  { label: "past month", value: "last_month", type: "" },
-  { label: "past year", value: "last_year", type: "" },
-  { label: "exact date", value: "exact", type: "date_input" },
 ];
 
 const RenderOptions = (props: {
@@ -231,7 +220,6 @@ type CascadeFieldState = {
   operator: Operator;
   conditions: DropdownOption[];
   showInput: boolean;
-  showDateDropdown: boolean;
   showDateInput: boolean;
   isDeleted: boolean;
   isUpdate: boolean;
@@ -247,19 +235,6 @@ const getConditions = (props: CascadeFieldProps) => {
   } else {
     return new Array<DropdownOption>(0);
   }
-};
-
-const showDateDropdownField = (
-  props: CascadeFieldProps,
-  conditions: DropdownOption[],
-) => {
-  const conditionValue = props.condition || "";
-  const filteredConditions =
-    conditions &&
-    conditions.filter((condition: DropdownOption) => {
-      return condition.value === conditionValue;
-    });
-  return !!filteredConditions.length && filteredConditions[0].type === "date";
 };
 
 const showInputField = (
@@ -280,25 +255,17 @@ const showDateInputField = (
   conditions: DropdownOption[],
 ) => {
   const conditionValue = props.condition || "";
-  const filterValue = props.value || "";
-  // const isExactDate =
-  //   dateOptions.filter((item: DropdownOption) => {
-  //     return item.value === filterValue;
-  //   }).length === 0 || filterValue === "exact";
   const filteredConditions =
     conditions &&
     conditions.filter((condition: DropdownOption) => {
       return condition.value === conditionValue;
     });
-  return (
-    !!filteredConditions.length && filteredConditions[0].type === "date" //&& isExactDate
-  );
+  return !!filteredConditions.length && filteredConditions[0].type === "date";
 };
 
 function calculateInitialState(props: CascadeFieldProps) {
   const conditions = getConditions(props);
   const showInput = showInputField(props, conditions);
-  // const showDateDropdown = showDateDropdownField(props, conditions);
   const showDateInput = showDateInputField(props, conditions);
   return {
     operator: props.operator,
@@ -307,7 +274,6 @@ function calculateInitialState(props: CascadeFieldProps) {
     value: props.value,
     conditions: conditions,
     showInput: showInput,
-    showDateDropdown: false,
     showDateInput: showDateInput,
     isDeleted: false,
     isUpdate: false,
@@ -318,7 +284,6 @@ export enum CascadeFieldActionTypes {
   SELECT_COLUMN = "SELECT_COLUMN",
   SELECT_CONDITION = "SELECT_CONDITION",
   CHANGE_VALUE = "CHANGE_VALUE",
-  SELECT_DATE = "SELECT_DATE",
   SELECT_OPERATOR = "SELECT_OPERATOR",
   UPDATE_FILTER = "UPDATE_FILTER",
   DELETE_FILTER = "DELETE_FILTER",
@@ -328,7 +293,6 @@ type CascadeFieldAction =
   | "SELECT_COLUMN"
   | "SELECT_CONDITION"
   | "CHANGE_VALUE"
-  | "SELECT_DATE"
   | "SELECT_OPERATOR"
   | "UPDATE_FILTER"
   | "DELETE_FILTER";
@@ -353,7 +317,6 @@ function CaseCaseFieldReducer(
         ...state,
         condition: action.payload.value,
         showInput: action.payload.type === "input",
-        // showDateDropdown: action.payload.type === "date",
         showDateInput: action.payload.type === "date",
         value: action.payload.type === "" ? "" : state.value,
         isUpdate: true,
@@ -362,13 +325,6 @@ function CaseCaseFieldReducer(
       return {
         ...state,
         value: action.payload,
-        isUpdate: true,
-      };
-    case CascadeFieldActionTypes.SELECT_DATE:
-      return {
-        ...state,
-        value: action.payload,
-        showDateInput: action.payload === "exact",
         isUpdate: true,
       };
     case CascadeFieldActionTypes.SELECT_OPERATOR:
@@ -422,12 +378,6 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
       payload: event.target.value,
     });
   };
-  const selectDateOption = (option: DropdownOption) => {
-    dispatch({
-      type: CascadeFieldActionTypes.SELECT_DATE,
-      payload: option.value,
-    });
-  };
   const onDateSelected = (date: string) => {
     dispatch({
       type: CascadeFieldActionTypes.CHANGE_VALUE,
@@ -464,7 +414,6 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
     value,
     showInput,
     showDateInput,
-    showDateDropdown,
     conditions,
   } = state;
   return (
@@ -512,16 +461,6 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
           type="text"
           defaultValue={value}
         />
-      ) : null}
-      {showDateDropdown ? (
-        <DropdownWrapper width={120}>
-          <RenderOptions
-            columns={dateOptions}
-            selectItem={selectDateOption}
-            value={value}
-            placeholder="date"
-          />
-        </DropdownWrapper>
       ) : null}
       {showDateInput ? (
         <DatePickerWrapper>

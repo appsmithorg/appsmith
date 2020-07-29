@@ -194,51 +194,6 @@ const TableFilters = (props: TableFilterProps) => {
   );
 };
 
-function getDateRange(b: any) {
-  let startDate, endDate;
-  switch (b) {
-    case "today":
-      startDate = moment();
-      endDate = moment();
-      break;
-    case "tomorrow":
-      startDate = moment().add(1, "d");
-      endDate = moment().add(1, "d");
-      break;
-    case "yesterday":
-      startDate = moment().subtract(1, "d");
-      endDate = moment().subtract(1, "d");
-      break;
-    case "last_week":
-      startDate = moment()
-        .subtract(1, "weeks")
-        .startOf("week");
-      endDate = moment()
-        .subtract(1, "weeks")
-        .endOf("week");
-      break;
-    case "last_month":
-      startDate = moment()
-        .subtract(1, "month")
-        .startOf("month");
-      endDate = moment()
-        .subtract(1, "month")
-        .endOf("month");
-      break;
-    case "last_year":
-      startDate = moment()
-        .subtract(1, "year")
-        .startOf("year");
-      endDate = moment()
-        .subtract(1, "year")
-        .startOf("year");
-      break;
-  }
-  return {
-    startDate,
-    endDate,
-  };
-}
 const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
   isExactly: (a: any, b: any) => {
     return a == b;
@@ -297,24 +252,16 @@ const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
     return false;
   },
   is: (a: any, b: any) => {
-    const { startDate } = getDateRange(b);
-    return moment(a).isSame(startDate, "d");
+    return moment(a).isSame(moment(b), "d");
   },
   isNot: (a: any, b: any) => {
-    const { startDate } = getDateRange(b);
-    return !moment(a).isSame(startDate, "d");
-  },
-  isWithin: (a: any, b: any) => {
-    const { startDate, endDate } = getDateRange(b);
-    return moment(a).isBetween(startDate, endDate, "d");
+    return !moment(a).isSame(moment(b), "d");
   },
   isAfter: (a: any, b: any) => {
-    const { endDate } = getDateRange(b);
-    return !moment(a).isAfter(endDate, "d");
+    return !moment(a).isAfter(moment(b), "d");
   },
   isBefore: (a: any, b: any) => {
-    const { startDate } = getDateRange(b);
-    return !moment(a).isBefore(startDate, "d");
+    return !moment(a).isBefore(moment(b), "d");
   },
 };
 
