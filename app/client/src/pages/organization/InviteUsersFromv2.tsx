@@ -26,7 +26,6 @@ import {
 import history from "utils/history";
 import { Colors } from "constants/Colors";
 import { isEmail } from "utils/formhelpers";
-import { generateReactKey } from "utils/generators";
 
 const StyledForm = styled.form`
   width: 100%;
@@ -127,7 +126,6 @@ const InviteUsersForm = (props: any) => {
     fetchUser,
     fetchAllRoles,
     valid,
-    onCancel,
   } = props;
 
   const currentPath = useLocation().pathname;
@@ -152,7 +150,6 @@ const InviteUsersForm = (props: any) => {
       <StyledInviteFieldGroup>
         <div className="wrapper">
           <TagListField
-            key={generateReactKey()}
             name="users"
             placeholder="Enter email address"
             type="email"

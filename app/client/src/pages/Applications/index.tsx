@@ -44,7 +44,8 @@ import { IntentColors } from "constants/DefaultTheme";
 
 const OrgDropDown = styled.div`
   display: flex;
-  padding: 0px 30px;
+  padding: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[4]}px;
   font-size: ${props => props.theme.fontSizes[1]}px;
   justify-content: space-between;
 `;
@@ -68,6 +69,12 @@ const OrgName = styled.div`
   & > span {
     margin-right: 10px;
   }
+`;
+
+const DropDownTrigger = styled.div`
+  font-size: ${props => props.theme.fontSizes[4]}px;
+  font-weight: ${props => props.theme.fontWeights[3]};
+  cursor: pointer;
 `;
 
 const ApplicationAddCardWrapper = styled(Card)`
@@ -182,7 +189,11 @@ class Applications extends Component<
         ],
         trigger: {
           icon: "ORG_ICON",
-          text: orgName,
+          content: (
+            <DropDownTrigger>
+              {orgName} <Icon icon="chevron-down" color={"black"} />
+            </DropDownTrigger>
+          ),
           outline: false,
         },
         openDirection: Directions.DOWN,

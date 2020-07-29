@@ -18,9 +18,13 @@ const StyledAddButton = styled(Button)<IIconProps>`
   }
 `;
 const SearchContainer = styled.div`
-  &&& {
+  flex-grow: 1;
+  .bp3-control-group {
+    display: block;
+  }
+  && {
     .bp3-input {
-      width: 200% !important;
+      width: 40%;
     }
   }
 `;
