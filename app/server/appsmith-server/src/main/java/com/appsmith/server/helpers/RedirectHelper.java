@@ -2,6 +2,8 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.Security;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 import java.net.URI;
@@ -11,8 +13,29 @@ public class RedirectHelper {
 
     public static final String DEFAULT_REDIRECT_URL = "/applications";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
+    private static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
 
-    public static String getRedirectUrl(HttpHeaders httpHeaders) {
+    /**
+     * This function determines the redirect url that the browser should redirect to post-login. The priority order
+     * in which these checks will be made are:
+     * 1. Query parameters
+     * 2. Headers
+     *
+     * @param request
+     * @return
+     */
+    public static String getRedirectUrl(ServerHttpRequest request) {
+
+        MultiValueMap<String, String> queryParams = request.getQueryParams();
+        HttpHeaders httpHeaders = request.getHeaders();
+
+        if (queryParams != null && queryParams.containsKey(REDIRECT_URL_QUERY_PARAM)) {
+            return queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
+        }
+        return getRedirectUrlFromHeader(httpHeaders);
+    }
+
+    private static String getRedirectUrlFromHeader(HttpHeaders httpHeaders) {
         // First check if the custom redirect header is set
         String redirectUrl = httpHeaders.getFirst(REDIRECT_URL_HEADER);
 
@@ -46,4 +69,5 @@ public class RedirectHelper {
         }
         return redirectUrl;
     }
+
 }
