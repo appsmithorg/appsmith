@@ -89,7 +89,7 @@ export const Login = (props: LoginFormProps) => {
 
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
   if (queryParams.has("redirectTo")) {
-    loginURL += `?redirectTo=${queryParams.get("redirectTo")}`;
+    loginURL += `?redirectUrl=${queryParams.get("redirectTo")}`;
   }
 
   let forgotPasswordURL = `${FORGOT_PASSWORD_URL}`;
