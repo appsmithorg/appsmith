@@ -26,7 +26,6 @@ const App = lazy(() =>
 const UserAuth = lazy(() =>
   import(/* webpackChunkName: "auth",webpackPrefetch: 5 */ "./pages/UserAuth"),
 );
-
 const PageNotFound = lazy(() =>
   import(/* webpackChunkName: "404"*/ "./pages/common/PageNotFound"),
 );

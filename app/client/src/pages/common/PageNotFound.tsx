@@ -3,7 +3,7 @@ import { RouterProps } from "react-router";
 import styled from "styled-components";
 import Button from "components/editorComponents/Button";
 import PageUnavailableImage from "assets/images/404-image.png";
-import { BASE_URL } from "constants/routes";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const Wrapper = styled.div`
   text-align: center;
@@ -45,7 +45,7 @@ class PageNotFound extends React.PureComponent<RouterProps> {
               iconAlignment="right"
               size="small"
               className="button-position"
-              onClick={() => this.props.history.push(BASE_URL)}
+              onClick={() => this.props.history.push(APPLICATIONS_URL)}
             />
           </div>
         </Wrapper>

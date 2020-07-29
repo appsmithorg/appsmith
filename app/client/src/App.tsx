@@ -13,9 +13,9 @@ type Props = {
 };
 
 const App = (props: Props) => {
-  if (props.user) {
-    return <Redirect to={APPLICATIONS_URL} />;
-  }
+  // if (props.user) {
+  //   return <Redirect to={APPLICATIONS_URL} />;
+  // }
   return <PageLoadingScreen displayName={"Appsmith"} />;
 };
 
