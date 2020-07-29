@@ -38,14 +38,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
-      // columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
-      // onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
-      // onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
+      filteredTableData: VALIDATION_TYPES.TABLE_DATA,
     };
   }
   static getDerivedPropertiesMap() {
     return {
-      selectedRow: "{{this.tableData[this.selectedRowIndex]}}",
+      filteredTableData:
+        "{{!this.onSearchTextChanged ? this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText.toUpperCase())) : this.tableData}}",
+      selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
     };
   }
 
@@ -55,6 +55,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: undefined,
       selectedRowIndex: -1,
       searchText: "",
+      // The following meta property is used for rendering the table.
+      filteredTableData: [],
     };
   }
 
@@ -202,47 +204,37 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return updatedTableData;
   };
 
-  searchTableData = (tableData: object[]) => {
+  filterTableData = (tableData: object[]) => {
     if (!tableData || !tableData.length) {
       return [];
     }
     const { filters } = this.props;
-    const searchKey =
-      this.props.searchText !== undefined
-        ? this.props.searchText.toString().toUpperCase()
-        : "";
-    return tableData
-      .filter((item: object) => {
-        return Object.values(item)
-          .join(", ")
-          .toUpperCase()
-          .includes(searchKey);
-      })
-      .filter((item: { [key: string]: any }) => {
-        if (!filters || filters.length === 0) return true;
-        const filterOperator = filters.length >= 2 ? filters[1].operator : "";
-        let filter = filterOperator === "and" ? true : false;
-        for (let i = 0; i < filters.length; i++) {
-          const filterValue = compare(
-            item[filters[i].column],
-            filters[i].value,
-            filters[i].condition,
-          );
-          if (filterOperator === "and") {
-            filter = filter && filterValue;
-          } else {
-            filter = filter || filterValue;
-          }
+    return tableData.filter((item: { [key: string]: any }) => {
+      if (!filters || filters.length === 0) return true;
+      const filterOperator = filters.length >= 2 ? filters[1].operator : "";
+      let filter = filterOperator === "and" ? true : false;
+      for (let i = 0; i < filters.length; i++) {
+        const filterValue = compare(
+          item[filters[i].column],
+          filters[i].value,
+          filters[i].condition,
+        );
+        if (filterOperator === "and") {
+          filter = filter && filterValue;
+        } else {
+          filter = filter || filterValue;
         }
-        return filter;
-      });
+      }
+      return filter;
+    });
   };
 
   getPageView() {
-    const { tableData, hiddenColumns } = this.props;
+    const { tableData, hiddenColumns, filteredTableData } = this.props;
     const tableColumns = this.getTableColumns(tableData);
-    const filteredTableData = this.searchTableData(tableData);
-    const transformedData = this.transformData(filteredTableData, tableColumns);
+    // Use the filtered data to render the table.
+    const filterData = this.filterTableData(filteredTableData);
+    const transformedData = this.transformData(filterData, tableColumns);
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
       this.props.serverSidePaginationEnabled) as boolean;
