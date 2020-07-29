@@ -70,7 +70,6 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     document.activeElement.blur();
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
-  const URL = QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
   if (!applicationId || !pageId) {
     history.push(APPLICATIONS_URL);
     return;
@@ -82,7 +81,6 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 
   yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
-  history.push(URL);
 }
 
 function* formValueChangeSaga(
@@ -111,7 +109,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     const pageId = yield select(getCurrentPageId);
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
-        new: true,
+        new: "true",
       }),
     );
   }

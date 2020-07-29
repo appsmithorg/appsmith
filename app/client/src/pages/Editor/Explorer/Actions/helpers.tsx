@@ -9,11 +9,8 @@ import {
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
-import {
-  createNewApiAction,
-  createNewQueryAction,
-} from "actions/apiPaneActions";
-import { ReduxAction, Page } from "constants/ReduxActionConstants";
+
+import { Page } from "constants/ReduxActionConstants";
 import ExplorerActionsGroup from "./ActionsGroup";
 import { ExplorerURLParams } from "../helpers";
 
@@ -23,7 +20,6 @@ export type ActionGroupConfig = {
   icon: JSX.Element;
   key: string;
   getURL: (applicationId: string, pageId: string, id: string) => string;
-  dispatchableCreateAction: (pageId: string) => ReduxAction<{ pageId: string }>;
   generateCreatePageURL: (
     applicationId: string,
     pageId: string,
@@ -53,7 +49,6 @@ export const ACTION_PLUGIN_MAP: Array<
           if (!method) return apiIcon;
           return <MethodTag type={method} />;
         },
-        dispatchableCreateAction: createNewApiAction,
         generateCreatePageURL: API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
         isGroupActive: (params: ExplorerURLParams, pageId: string) =>
           window.location.pathname.indexOf(
@@ -71,7 +66,6 @@ export const ACTION_PLUGIN_MAP: Array<
         getIcon: () => {
           return queryIcon;
         },
-        dispatchableCreateAction: createNewQueryAction,
         generateCreatePageURL: QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
         isGroupActive: (params: ExplorerURLParams, pageId: string) =>
           window.location.pathname.indexOf(

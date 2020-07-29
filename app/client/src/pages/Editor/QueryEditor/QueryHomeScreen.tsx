@@ -144,9 +144,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
     if (pageId) {
       const newQueryName = createNewQueryName(actions, pageId);
 
-      history.push(
-        QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-      );
       this.props.createAction({
         name: newQueryName,
         pageId,
