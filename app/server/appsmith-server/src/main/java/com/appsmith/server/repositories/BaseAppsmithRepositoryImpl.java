@@ -90,7 +90,9 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public Mono<T> findById(String id, AclPermission permission) {
-        Assert.notNull(id, "The given id must not be null!");
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())

@@ -137,9 +137,8 @@ public class OrganizationServiceTest {
     public void getOrganizationInvalidId() {
         Mono<Organization> organizationMono = organizationService.getById("random-id");
         StepVerifier.create(organizationMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("resource", "random-id")))
-                .verify();
+                // This would not return any organization and would complete.
+                .verifyComplete();
     }
 
     @Test
