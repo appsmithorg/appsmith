@@ -6,7 +6,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { AppState } from "reducers";
-import Spinner from "@appsmith/components/ads/Spinner";
+import Spinner from "components/ads/Spinner";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { convertToCamelCase } from "utils/helpers";
 const Wrapper = styled.div`

@@ -179,34 +179,35 @@ const btnFontStyles = (props: any) => {
   let fontSize, fontWeight, lineHeight, letterSpacing, padding;
   switch (props.size) {
     case "small":
-      fontSize = `${props.theme.fontSizes[1]}px`;
-      fontWeight = props.theme.fontWeights[5];
-      lineHeight = `${props.theme.lineHeights[1]}px`;
-      letterSpacing = `${props.theme.letterSpacings[1]}px`;
+      fontSize = `${props.theme.typography.btnSmall.fontSize}px`;
+      fontWeight = props.theme.typography.btnSmall.fontWeight;
+      lineHeight = `${props.theme.typography.btnSmall.lineHeight}px`;
+      letterSpacing = `${props.theme.typography.btnSmall.letterSpacing}px`;
       padding =
         !props.text && props.icon
-          ? `${props.theme.space[12]}px ${props.theme.space[12]}px`
-          : `${props.theme.space[8]}px ${props.theme.space[2]}px ${props.theme.space[1]}px`;
+          ? `${props.theme.spaces[1]}px ${props.theme.spaces[1]}px`
+          : `${props.theme.spaces[1]}px ${props.theme.spaces[6]}px ${props.theme
+              .spaces[1] - 1}px`;
       break;
     case "medium":
-      fontSize = `${props.theme.fontSizes[2]}px`;
-      fontWeight = props.theme.fontWeights[5];
-      lineHeight = `${props.theme.lineHeights[2]}px`;
-      letterSpacing = `${props.theme.letterSpacings[2]}px`;
+      fontSize = `${props.theme.typography.btnMedium.fontSize}px`;
+      fontWeight = props.theme.typography.btnMedium.fontWeight;
+      lineHeight = `${props.theme.typography.btnMedium.lineHeight}px`;
+      letterSpacing = `${props.theme.typography.btnMedium.letterSpacing}px`;
       padding =
         !props.text && props.icon
-          ? `${props.theme.space[13]}px ${props.theme.space[13]}px`
-          : `${props.theme.space[3]}px ${props.theme.space[4]}px`;
+          ? `${props.theme.spaces[2]}px ${props.theme.spaces[2]}px`
+          : `${props.theme.spaces[3] - 1}px ${props.theme.spaces[7]}px`;
       break;
     default:
-      fontSize = `${props.theme.fontSizes[3]}px`;
-      fontWeight = props.theme.fontWeights[5];
-      lineHeight = `${props.theme.lineHeights[3]}px`;
-      letterSpacing = `${props.theme.letterSpacings[2]}px`;
+      fontSize = `${props.theme.typography.btnLarge.fontSize}px`;
+      fontWeight = props.theme.typography.btnLarge.fontWeight;
+      lineHeight = `${props.theme.typography.btnLarge.lineHeight}px`;
+      letterSpacing = `${props.theme.typography.btnLarge.letterSpacing}px`;
       padding =
         !props.text && props.icon
-          ? `${props.theme.space[14]}px ${props.theme.space[14]}px`
-          : `${props.theme.space[5]}px ${props.theme.space[6]}px`;
+          ? `${props.theme.spaces[5] - 1}px ${props.theme.spaces[5] - 1}px`
+          : `${props.theme.spaces[5] - 1}px ${props.theme.spaces[12] - 4}px`;
       break;
   }
   return { fontSize, fontWeight, lineHeight, letterSpacing, padding };
@@ -238,7 +239,7 @@ const StyledButton = styled("button")`
   font-size: ${props => btnFontStyles(props).fontSize};
   font-weight: ${props => btnFontStyles(props).fontWeight};
   line-height: ${props => btnFontStyles(props).lineHeight};
-  font-family: ${props => props.theme.fonts.main};
+  font-family: ${props => props.theme.fonts[3]};
   letter-spacing: ${props => btnFontStyles(props).letterSpacing};
   padding: ${props => btnFontStyles(props).padding};
   &:hover {
@@ -258,7 +259,7 @@ const StyledButton = styled("button")`
   };
   div {
     margin-right: ${(props: any) =>
-      props.text && props.icon ? `${props.theme.space[7]}px` : `0`}
+      props.text && props.icon ? `${props.spaces[4]}px` : `0`}
   }
   display: flex;
   path {  

@@ -116,7 +116,7 @@ const DropdownStyles = createGlobalStyle`
             top: -2px;
             position: absolute;
             content: "";
-            background: ${props => props.theme.colors.primary};
+            background: ${props => props.theme.colors.primaryOld};
             border-radius: 4px 0 0 4px;
             width: 4px;
             height:100%;
@@ -135,9 +135,9 @@ const DropdownStyles = createGlobalStyle`
         }&
       }
       .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${props => props.theme.colors.primary};
+        background: ${props => props.theme.colors.primaryOld};
         color: ${props => props.theme.colors.textOnDarkBG};
-        border-color: ${props => props.theme.colors.primary};
+        border-color: ${props => props.theme.colors.primaryOld};
       }
     }
   }
