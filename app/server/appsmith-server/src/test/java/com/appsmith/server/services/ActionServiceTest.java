@@ -108,7 +108,7 @@ public class ActionServiceTest {
 
         User apiUser = userService.findByEmail("api_user").block();
         String orgId = apiUser.getOrganizationIds().iterator().next();
-        Organization organization = organizationService.findById(orgId).block();
+        Organization organization = organizationService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.

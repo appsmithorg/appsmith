@@ -14,6 +14,7 @@ class TabsWidget extends BaseWidget<
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       tabs: VALIDATION_TYPES.TABS_DATA,
+      selectedTab: VALIDATION_TYPES.SELECTED_TAB,
     };
   }
 
