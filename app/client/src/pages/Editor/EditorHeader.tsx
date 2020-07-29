@@ -1,14 +1,7 @@
-import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { AppState } from "reducers";
+import React from "react";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  getCurrentOrg,
-  getCurrentOrgId,
-} from "selectors/organizationSelectors";
-import { Org } from "constants/orgConstants";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 import {
   BASE_URL,
   APPLICATIONS_URL,
@@ -65,9 +58,7 @@ const ShareButton = styled.div`
 `;
 
 type EditorHeaderProps = {
-  currentOrg: Org;
-  currentOrgId: string;
-  fetchCurrentOrg: (orgId: string) => void;
+  currentApplication?: ApplicationPayload;
   isSaving?: boolean;
   pageSaveError?: boolean;
   pageName?: string;
@@ -89,12 +80,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   const selectedPageName = props.pages?.find(
     page => page.pageId === props.currentPageId,
   )?.pageName;
-
-  const { fetchCurrentOrg, currentOrgId } = props;
-
-  useEffect(() => {
-    fetchCurrentOrg(currentOrgId);
-  }, [fetchCurrentOrg, currentOrgId]);
 
   const pageSelectorData: CustomizedDropdownProps = {
     sections: [
@@ -173,11 +158,15 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               intent="primary"
               outline
               size="small"
-              className="t--application-publish-btn"
+              className="t--application-share-btn"
             />
           }
           Form={ShareApplicationForm}
-          title={props.currentOrg.name}
+          title={
+            props.currentApplication
+              ? props.currentApplication.name
+              : "Share Application"
+          }
         />
       </ShareButton>
 
@@ -198,19 +187,4 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   );
 };
 
-const mapStateToProps = (state: AppState) => ({
-  currentOrg: getCurrentOrg(state),
-  currentOrgId: getCurrentOrgId(state),
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  fetchCurrentOrg: (orgId: string) =>
-    dispatch({
-      type: ReduxActionTypes.FETCH_CURRENT_ORG,
-      payload: {
-        orgId,
-      },
-    }),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);
+export default EditorHeader;

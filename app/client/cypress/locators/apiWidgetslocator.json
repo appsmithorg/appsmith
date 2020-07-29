@@ -34,5 +34,12 @@
   "TestNextUrl": ".t--apiFormPaginationNextTest",
   "TestPreUrl": ".t--apiFormPaginationPrevTest",
   "EditApiName": "img[alt='Edit pen']",
-  "ApiName": ".t--action-name-edit-field span"
+  "ApiName": ".t--action-name-edit-field span",
+  "Request": "//li[text()='Request']",
+  "RequestURL": "(//span[@class='bp3-tree-node-label']/span)[1]",
+  "RequestMethod": "(//span[@class='bp3-tree-node-label']/span)[2]",
+  "content-Type": "(//span[@class='bp3-tree-node-label']/span)[3]",
+  "requestBody": "(//div[contains(@class,'bp3-collapse-body')]//textarea)[1]",
+  "showrequest": "span:contains('Show Request')",
+  "Responsetab": "//li[text()='Response Body']"
 }

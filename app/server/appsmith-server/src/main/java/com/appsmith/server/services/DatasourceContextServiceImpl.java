@@ -57,7 +57,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
             return Mono.just(datasourceContextMap.get(datasourceId));
         }
 
-        log.debug("Datasource context doesn't exist. Creating connection");
+        log.debug("Datasource context doesn't exist. Creating connection.");
 
         Mono<Datasource> datasourceMono;
 
@@ -124,31 +124,29 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
 
     @Override
     public Mono<DatasourceContext> deleteDatasourceContext(String datasourceId) {
-
         DatasourceContext datasourceContext = datasourceContextMap.get(datasourceId);
         if (datasourceContext == null) {
-            //No resource context exists for this resource. Return void;
+            // No resource context exists for this resource. Return void.
             return Mono.empty();
         }
 
-        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, EXECUTE_DATASOURCES);
-
-        Mono<Plugin> pluginMono = datasourceMono
-                .flatMap(datasource -> pluginService.findById(datasource.getPluginId()));
-
-        //Datasource Context has not been created for this resource on this machine. Create one now.
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
-
-        return Mono.zip(datasourceMono, pluginExecutorMono, ((datasource, pluginExecutor) -> {
-            pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
-            datasourceContextMap.remove(datasourceId);
-            return datasourceContext;
-        }));
+        return datasourceService
+                .findById(datasourceId, EXECUTE_DATASOURCES)
+                .zipWhen(datasource1 ->
+                        pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource1.getPluginId()))
+                )
+                .map(tuple -> {
+                    final Datasource datasource = tuple.getT1();
+                    final PluginExecutor pluginExecutor = tuple.getT2();
+                    log.info("Clearing datasource context for datasource ID {}.", datasource.getId());
+                    pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
+                    return datasourceContextMap.remove(datasourceId);
+                });
     }
 
     @Override
     public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authenticationDTO) {
-        if (authenticationDTO.getPassword() != null) {
+        if (authenticationDTO != null && authenticationDTO.getPassword() != null) {
             authenticationDTO.setPassword(encryptionService.decryptString(authenticationDTO.getPassword()));
         }
         return authenticationDTO;

@@ -1,15 +1,12 @@
 #!/bin/sh
 
-if [ -f init-letsencrypt.sh ]
-  then
-    echo "file init-letsencrypt.sh already exists"
-  else
+if [ ! -f init-letsencrypt.sh ]; then
     touch init-letsencrypt.sh
 fi
 
 
 
-cat > init-letsencrypt.sh  << EOF
+cat >| init-letsencrypt.sh  << EOF
 #!/bin/bash
 
 if ! [ -x "\$(command -v docker-compose)" ]; then
