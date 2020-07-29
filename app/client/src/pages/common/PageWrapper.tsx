@@ -48,7 +48,9 @@ type PageWrapperProps = {
 export const PageWrapper = (props: PageWrapperProps) => (
   <Wrapper>
     <Helmet>
-      <title>{`${props.displayName || ""} | Appsmith`}</title>
+      <title>{`${
+        props.displayName ? `${props.displayName} | ` : ""
+      }Appsmith`}</title>
     </Helmet>
     <PageBody>{props.children}</PageBody>
   </Wrapper>

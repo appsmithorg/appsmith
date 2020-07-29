@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import { User } from "constants/userConstants";
 import { Redirect } from "react-router";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Spinner } from "@blueprintjs/core";
+import PageLoadingScreen from "pages/common/PageLoadingScreen";
 
 type Props = {
   user?: User;
@@ -16,11 +16,7 @@ const App = (props: Props) => {
   if (props.user) {
     return <Redirect to={APPLICATIONS_URL} />;
   }
-  return (
-    <CenteredWrapper>
-      <Spinner />
-    </CenteredWrapper>
-  );
+  return <PageLoadingScreen displayName={"Appsmith"} />;
 };
 
 const mapStateToProps = (state: AppState) => ({
