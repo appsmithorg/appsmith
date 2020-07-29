@@ -1,0 +1,149 @@
+name: Appsmith Github Release Workflow 
+
+on:
+  push:
+    # Only trigger if a tag has been created and pushed to this branch
+    tags:
+      - v*
+
+jobs:
+  build-client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+
+    steps:
+    # Checkout the code
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 10.16.3
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.16.3'
+        
+    # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+    - name: Cache npm dependencies
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-yarn-dependencies
+      with:
+        # npm dependencies are stored in `~/.m2` on Linux/macOS
+        path: ~/.npm
+        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
+  
+      # Install all the dependencies
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Set the build environment based on the branch
+      id: vars
+      run: |
+        REACT_APP_ENVIRONMENT="PRODUCTION"
+        echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
+    
+    - name: Create the bundle
+      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn build
+      
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+      
+    # Build Docker image and push to Docker Hub
+    - name: Push production image to Docker Hub with commit tag
+      run: |
+        docker build -t appsmith/appsmith-editor-ee:${{steps.get_version.outputs.tag}}  .
+        
+        # Only build & tag with latest if the tag doesn't contain beta
+        if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+          docker build -t appsmith/appsmith-editor-ee:latest  .
+        fi
+        
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        docker push appsmith/appsmith-editor-ee
+
+  build-server:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/server
+
+    steps:
+    # Checkout the code
+    - uses: actions/checkout@v2
+    
+    # Setup Java
+    - name: Set up JDK 1.11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.11
+    
+    # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+    - name: Cache maven dependencies
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-maven-dependencies
+      with:
+        # maven dependencies are stored in `~/.m2` on Linux/macOS
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    
+    # Build the code
+    - name: Build without running any tests
+      run: mvn -B package -DskipTests
+    
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+    
+    # Build Docker image and push to Docker Hub
+    - name: Push image to Docker Hub
+      run: |
+        docker build -t appsmith/appsmith-server-ee:${{steps.get_version.outputs.tag}} .
+
+        # Only build & tag with latest if the tag doesn't contain beta
+        if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+          docker build -t appsmith/appsmith-server-ee:latest .
+        fi
+
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        docker push appsmith/appsmith-server-ee
+
+  create-release:
+    needs: 
+      - build-server
+      - build-client
+    runs-on: ubuntu-latest
+
+    steps:
+    # Creating the release on Github
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+
+    # If the tag has the string "beta", then mark the Github release as a pre-release
+    - name: Get the version
+      id: get_prerelease
+      run: |
+        STATUS=false
+        if [[ ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+          STATUS=true
+        fi
+
+        echo ::set-output name=status::${STATUS}
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: ${{steps.get_prerelease.outputs.status}}
+        
