@@ -6,12 +6,14 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
@@ -27,6 +29,7 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,6 +93,9 @@ public class ActionServiceTest {
     @Autowired
     LayoutActionService layoutActionService;
 
+    @Autowired
+    LayoutService layoutService;
+
     Application testApp = null;
 
     Page testPage = null;
@@ -109,7 +115,15 @@ public class ActionServiceTest {
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
             testApp = applicationPageService.createApplication(application, organization.getId()).block();
-            testPage = pageService.getById(testApp.getPages().get(0).getId()).block();
+
+            final String pageId = testApp.getPages().get(0).getId();
+            Layout layout = new Layout();
+            JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
+            layout.setDsl(dsl);
+            layout.setPublishedDsl(dsl);
+            layoutService.createLayout(pageId, layout).block();
+
+            testPage = pageService.getById(pageId).block();
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
@@ -513,6 +527,37 @@ public class ActionServiceTest {
                     assertThat(actionViewDTO2).isNotNull();
                     assertThat(actionViewDTO2.getPageId()).isEqualTo(testPage.getId());
                     assertThat(actionViewDTO2.getTimeoutInMillisecond()).isEqualTo(DEFAULT_ACTION_EXECUTION_TIMEOUT_MS);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkRecoveryFromStaleConnections() {
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        Action action = new Action();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from users");
+        action.setActionConfiguration(actionConfiguration);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setAction(action);
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenThrow(new StaleConnectionException())
+                .thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = actionService.executeAction(executeActionDTO);
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getBody()).isEqualTo(mockResult.getBody());
                 })
                 .verifyComplete();
     }

@@ -1,11 +1,6 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import {
-  reduxForm,
-  InjectedFormProps,
-  FormSubmitHandler,
-  formValueSelector,
-} from "redux-form";
+import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,

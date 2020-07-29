@@ -14,7 +14,154 @@ const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
+
 let pageidcopy = " ";
+
+Cypress.Commands.add("createOrg", orgName => {
+  cy.get(homePage.createOrg)
+    .should("be.visible")
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.inputOrgName)
+    .should("be.visible")
+    .type(orgName);
+  cy.xpath(homePage.submitBtn).click();
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("navigateToOrgSettings", orgName => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(homePage.orgSectionBtn)
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.OrgSettings).click({ force: true });
+  cy.wait("@getRoles").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.xpath(homePage.inviteUser).should("be.visible");
+});
+
+Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(homePage.orgList.concat(orgName).concat(homePage.shareOrg))
+    .first()
+    .should("be.visible")
+    .click();
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.get(homePage.manageUsers).click({ force: true });
+  cy.xpath(homePage.appHome)
+    .should("be.visible")
+    .click();
+});
+
+Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(homePage.orgSection.concat(orgName).concat(")"))
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.OrgSettings).click({ force: true });
+  cy.wait("@getRoles").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.xpath(homePage.DeleteBtn).click({ force: true });
+  cy.xpath(homePage.appHome)
+    .should("be.visible")
+    .click();
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(homePage.orgSection.concat(orgName).concat(")"))
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.OrgSettings).click({ force: true });
+  cy.wait("@getRoles").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.xpath(homePage.inviteUser).click({ force: true });
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.get(homePage.manageUsers).click({ force: true });
+  cy.xpath(homePage.appHome)
+    .should("be.visible")
+    .click();
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("launchApp", appName => {
+  cy.get(homePage.appView)
+    .should("be.visible")
+    .first()
+    .click();
+  cy.get("#loading").should("not.exist");
+  cy.wait("@getPagesForApp").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
+  cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
+    .scrollIntoView()
+    .should("be.visible")
+    .click();
+  cy.get(homePage.inputAppName).type(appname);
+  cy.get(homePage.CreateApp)
+    .contains("Submit")
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
+  cy.wait("@getPropertyPane");
+  cy.get("@getPropertyPane").should("have.property", "status", 200);
+});
 
 Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.createNew)
@@ -178,14 +325,13 @@ Cypress.Commands.add("CreateAPI", apiname => {
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.EditApiName).should("be.visible");
-  cy.get(apiwidget.EditApiName).click();
+  cy.get(apiwidget.apiTxt).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
     .should("have.value", apiname)
     .blur();
-  //cy.WaitAutoSave();
+  cy.WaitAutoSave();
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
   cy.wait(2000);
@@ -216,8 +362,8 @@ Cypress.Commands.add("EditApiName", apiname => {
 
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
-  cy.wait(200);
-  cy.wait("@saveQuery");
+  cy.wait(2000);
+  cy.wait("@saveAction");
   //cy.wait("@postExecute");
 });
 
@@ -229,6 +375,17 @@ Cypress.Commands.add("RunAPI", () => {
 Cypress.Commands.add("SaveAndRunAPI", () => {
   cy.WaitAutoSave();
   cy.RunAPI();
+});
+
+Cypress.Commands.add("validateRequest", (baseurl, path, verb) => {
+  cy.xpath(apiwidget.Request)
+    .should("be.visible")
+    .click({ force: true });
+  cy.xpath(apiwidget.RequestURL).contains(baseurl.concat(path));
+  cy.xpath(apiwidget.RequestMethod).contains(verb);
+  cy.xpath(apiwidget.Responsetab)
+    .should("be.visible")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("SelectAction", action => {
@@ -325,9 +482,12 @@ Cypress.Commands.add("selectPaginationType", option => {
 });
 
 Cypress.Commands.add("clickTest", testbutton => {
+  cy.wait(2000);
+  cy.wait("@saveAction");
   cy.get(testbutton)
     .first()
     .click({ force: true });
+  cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("enterUrl", (apiname, url, value) => {
@@ -545,6 +705,7 @@ Cypress.Commands.add("EvaluateDataType", dataType => {
 });
 
 Cypress.Commands.add("EvaluateCurrentValue", currentValue => {
+  cy.wait(2000);
   cy.get(commonlocators.evaluatedCurrentValue)
     .should("be.visible")
     .contains(currentValue);
@@ -1038,6 +1199,7 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
     cy.expect(response.response.body.responseMeta.success).to.eq(true);
     cy.get(ApiEditor.ApiNameField)
+      .click()
       .invoke("text")
       .then(text => {
         const someText = text;
@@ -1124,7 +1286,14 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.route("GET", "/api/v1/configs/name/propertyPane").as("getPropertyPane");
+  cy.route({
+    method: "GET",
+    url: "**/api/v1/configs/name/propertyPane",
+    status: 200,
+    response: "fixture:../fixtures/propertyPaneResponse.json",
+    delay: 100,
+  }).as("getPropertyPane");
+
   cy.route("GET", "/api/v1/datasources").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForApp");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
@@ -1149,10 +1318,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
-  cy.route("PUT", "/api/v1/actions/*").as("putActions");
   cy.route("POST", "/track/*").as("postTrack");
   cy.route("POST", "/api/v1/actions/execute").as("postExecute");
-  cy.route("POST", "/api/v1/actions").as("postaction");
 
   cy.route("POST", "/api/v1/actions").as("createNewApi");
   cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
@@ -1173,6 +1340,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
 
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
+
+  cy.route("POST", "/api/v1/organizations").as("createOrg");
+  cy.route("POST", "/api/v1/users/invite").as("postInvite");
+  cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
 });
 
 Cypress.Commands.add("alertValidate", text => {

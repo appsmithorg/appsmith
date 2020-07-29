@@ -33,6 +33,7 @@ const SearchComponent = (props: SearchProps) => {
   return (
     <SearchInputWrapper
       leftIcon="search"
+      type="search"
       onChange={handleSearch}
       placeholder={props.placeholder}
       value={value}

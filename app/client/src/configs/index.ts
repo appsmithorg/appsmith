@@ -13,6 +13,7 @@ type INJECTED_CONFIGS = {
   enableMixpanel: boolean;
   google: string;
   enableTNCPP: boolean;
+  cloudHosting: boolean;
   algolia: {
     apiId: string;
     apiKey: string;
@@ -60,6 +61,9 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       : false,
     enableRapidAPI: process.env.REACT_APP_MARKETPLACE_URL
       ? process.env.REACT_APP_MARKETPLACE_URL.length > 0
+      : false,
+    cloudHosting: process.env.REACT_APP_CLOUD_HOSTING
+      ? process.env.REACT_APP_CLOUD_HOSTING.length > 0
       : false,
   };
 };
@@ -150,6 +154,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       APPSMITH_FEATURE_CONFIGS.enableGoogleOAuth,
     enableMixpanel:
       ENV_CONFIG.enableMixpanel || APPSMITH_FEATURE_CONFIGS.enableMixpanel,
+    cloudHosting:
+      ENV_CONFIG.cloudHosting || APPSMITH_FEATURE_CONFIGS.cloudHosting,
     featureFlag: getFeatureFlags(
       ENV_CONFIG.optimizely || APPSMITH_FEATURE_CONFIGS.optimizely,
     ),

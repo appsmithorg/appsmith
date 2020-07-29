@@ -88,6 +88,7 @@ export const StyledDropDownContainer = styled.div`
         word-break: break-word;
         display: block;
         overflow: auto;
+        overflow-y: hidden;
       }
     }
   }

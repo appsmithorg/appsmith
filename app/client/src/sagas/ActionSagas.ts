@@ -10,7 +10,6 @@ import {
   select,
   takeEvery,
   takeLatest,
-  debounce,
 } from "redux-saga/effects";
 import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
 import _ from "lodash";
@@ -384,7 +383,7 @@ export function* refactorActionName(
 }
 
 function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
-  // Takes from drafts, checks if the name isValid, saves
+  // Takes from state, checks if the name isValid, saves
   const apiId = action.payload.id;
   const api = yield select(state =>
     state.entities.actions.find(
@@ -481,7 +480,7 @@ export function* watchActionSagas() {
       fetchActionsForViewModeSaga,
     ),
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
-    debounce(500, ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
+    takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
     takeLatest(ReduxActionTypes.SAVE_API_NAME, saveApiNameSaga),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
