@@ -23,19 +23,31 @@ const tabArr: tabSingle[] = [
   {
     key: "r",
     title: "Tab one",
-    panelComponent: <h2>1</h2>,
+    panelComponent: (
+      <div
+        style={{ backgroundColor: "#CB4810", width: "100%", height: "100%" }}
+      ></div>
+    ),
     icon: "delete",
   },
   {
     key: "r",
     title: "Tab two",
-    panelComponent: <h2>2</h2>,
+    panelComponent: (
+      <div
+        style={{ backgroundColor: "#218358", width: "100%", height: "100%" }}
+      ></div>
+    ),
     icon: "delete",
   },
   {
     key: "r",
     title: "Tab three",
-    panelComponent: <h2>3</h2>,
+    panelComponent: (
+      <div
+        style={{ backgroundColor: "#457AE6", width: "100%", height: "100%" }}
+      ></div>
+    ),
     icon: "delete",
   },
 ];
