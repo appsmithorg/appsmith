@@ -30,7 +30,12 @@ public class RedirectHelper {
         HttpHeaders httpHeaders = request.getHeaders();
 
         if (queryParams != null && queryParams.containsKey(REDIRECT_URL_QUERY_PARAM)) {
-            return queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
+            String redirectUrl = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
+            if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://")) &&
+                    !StringUtils.isEmpty(httpHeaders.getOrigin())) {
+                redirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
+            }
+            return redirectUrl;
         }
         return getRedirectUrlFromHeader(httpHeaders);
     }
