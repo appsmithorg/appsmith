@@ -55,25 +55,37 @@ axiosInstance.interceptors.response.use(
       // console.log(error.response.data);
       // console.log(error.response.status);
       // console.log(error.response.headers);
-      if (error.response.status === 401) {
-        if (!/^\/user\/\w+/.test(window.location.pathname)) {
-          setRouteBeforeLogin(window.location.pathname);
-          history.push(AUTH_LOGIN_URL);
+      if (!/^\/user\/\w+/.test(window.location.pathname)) {
+        const currentUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+        if (error.response.status === 401) {
+          // Redirect to login and set a redirect url.
+          history.replace({
+            pathname: AUTH_LOGIN_URL,
+            search: `redirectTo=${currentUrl}`,
+          });
           return Promise.reject({
             code: 401,
             message: "Unauthorized. Redirecting to login page...",
             show: false,
           });
         }
-      }
-      const errorData = error.response.data.responseMeta;
-      if (errorData.status === 404 && errorData.error.code === 4028) {
-        history.push(PAGE_NOT_FOUND_URL);
-        return Promise.reject({
-          code: 404,
-          message: "Page Not Found",
-          show: false,
-        });
+        const errorData = error.response.data.responseMeta;
+        if (
+          errorData.status === 404 &&
+          errorData.error.code === 4028 &&
+          !/^\/404/.test(window.location.pathname)
+        ) {
+          // console.log({ currentUrl, location: window.location });
+          history.replace({
+            pathname: PAGE_NOT_FOUND_URL,
+            search: `redirectTo=${currentUrl}`,
+          });
+          return Promise.reject({
+            code: 404,
+            message: "Resource Not Found",
+            show: false,
+          });
+        }
       }
       if (error.response.data.responseMeta) {
         return Promise.resolve(error.response.data);

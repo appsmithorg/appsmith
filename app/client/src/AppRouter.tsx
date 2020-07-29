@@ -79,6 +79,7 @@ class AppRouter extends React.Component<any, any> {
               logDisable
             />
             <AppRoute
+              exact
               path={PAGE_NOT_FOUND_URL}
               component={PageNotFound}
               name={"PageNotFound"}

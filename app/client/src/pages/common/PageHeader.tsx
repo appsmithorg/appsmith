@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
@@ -35,6 +35,13 @@ type PageHeaderProps = {
 
 export const PageHeader = (props: PageHeaderProps) => {
   const { user } = props;
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  let loginUrl = AUTH_LOGIN_URL;
+  if (queryParams.has("redirectTo")) {
+    loginUrl += `?redirectTo=${queryParams.get("redirectTo")}`;
+  }
+
   return (
     <StyledPageHeader>
       <LogoContainer>
@@ -50,7 +57,7 @@ export const PageHeader = (props: PageHeaderProps) => {
               text="Sign In"
               intent={"primary"}
               size="small"
-              onClick={() => history.push(AUTH_LOGIN_URL)}
+              onClick={() => history.push(loginUrl)}
             />
           ) : (
             <CustomizedDropdown {...DropdownProps(user, user.username)} />
