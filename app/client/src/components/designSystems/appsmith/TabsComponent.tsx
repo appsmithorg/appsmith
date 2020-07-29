@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import { ComponentProps } from "./BaseComponent";
 import { TabsWidgetProps, TabContainerWidgetProps } from "widgets/TabsWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
+import { scrollbarLight } from "constants/DefaultTheme";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -54,9 +55,12 @@ const ScrollableCanvasWrapper = styled.div<
 
 const TabsContainer = styled.div`
   width: 100%;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  ${scrollbarLight};
+  background: ${props => props.theme.colors.builderBodyBG};
   && {
-    height: 32px;
+    height: 38px;
     width: 100%;
     display: flex;
     justify-content: flex-start;
