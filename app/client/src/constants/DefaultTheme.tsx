@@ -564,5 +564,23 @@ export const theme: Theme = {
   },
 };
 
+export const scrollbarLight = css`
+  scrollbar-color: ${props => props.theme.colors.paneText}
+    
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneText, 0.3)};
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.paneText};
+    border-radius: ${props => props.theme.radii[1]}px;
+  }
+`;
+
 export { css, createGlobalStyle, keyframes, ThemeProvider };
 export default styled;
