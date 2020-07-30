@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -47,7 +48,8 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Application>> create(@Valid @RequestBody Application resource,
-                                                 @RequestParam String orgId) {
+                                                 @RequestParam String orgId,
+                                                 ServerWebExchange exchange) {
         if (orgId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organization id"));
         }

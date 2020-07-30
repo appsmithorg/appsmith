@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -32,21 +34,25 @@ public class UserController extends BaseController<UserService, User, String> {
 
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
+    private final UserSignup userSignup;
 
     @Autowired
     public UserController(UserService service,
                           SessionUserService sessionUserService,
-                          UserOrganizationService userOrganizationService) {
+                          UserOrganizationService userOrganizationService,
+                          UserSignup userSignup) {
         super(service);
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
+        this.userSignup = userSignup;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
-                                          @RequestHeader(name = "Origin", required = false) String originHeader) {
-        return service.createUserAndSendEmail(resource, originHeader)
+                                          @RequestHeader(name = "Origin", required = false) String originHeader,
+                                          ServerWebExchange exchange) {
+        return userSignup.signup(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
