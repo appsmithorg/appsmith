@@ -197,7 +197,7 @@ jobs:
       run:
         working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: always() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
+    if: always() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/fix/first-run-performance')
 
     steps:
     
