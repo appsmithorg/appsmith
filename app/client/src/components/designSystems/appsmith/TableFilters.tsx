@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Popover,
   PopoverInteractionKind,
   Position,
-  Icon,
   Classes,
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
@@ -17,7 +16,7 @@ import CascadeFields, {
   Operator,
   operators,
 } from "components/designSystems/appsmith/CascadeFields";
-import { isString, isNumber } from "lodash";
+import { isString } from "lodash";
 import moment from "moment";
 
 const TableFilerWrapper = styled.div`
@@ -36,19 +35,6 @@ const ButtonWrapper = styled.div`
   margin-top: 14px;
   &&& button:hover {
     background: transparent;
-  }
-`;
-
-const DropdownTrigger = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  &&& div {
-    color: ${Colors.OXFORD_BLUE};
-  }
-  &&& span {
-    margin-right: 0;
   }
 `;
 export interface ReactTableFilter {
@@ -196,16 +182,16 @@ const TableFilters = (props: TableFilterProps) => {
 
 const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
   isExactly: (a: any, b: any) => {
-    return a == b;
+    return a === b;
   },
   empty: (a: any) => {
-    return a == "" || a == undefined || a == null;
+    return a === "" || a === undefined || a === null;
   },
   notEmpty: (a: any) => {
-    return a != "" && a != undefined && a != null;
+    return a !== "" && a !== undefined && a !== null;
   },
   notEqualTo: (a: any, b: any) => {
-    return a != b;
+    return a !== b;
   },
   lessThan: (a: any, b: any) => {
     const numericB = Number(b);

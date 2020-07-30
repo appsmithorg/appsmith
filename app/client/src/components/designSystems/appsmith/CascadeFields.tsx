@@ -7,7 +7,6 @@ import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Skin } from "constants/DefaultTheme";
-import { ColumnTypes } from "components/designSystems/appsmith/ReactTableComponent";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
 import {
@@ -198,7 +197,7 @@ const RenderOptions = (props: {
         selectValue(selectedOptions[0].content);
       }
     }
-  }, [props.value]);
+  }, [props.value, configs.sections]);
   return <CustomizedDropdown {...configs} />;
 };
 
@@ -351,10 +350,11 @@ function CaseCaseFieldReducer(
 
 const CascadeField = (props: CascadeFieldProps) => {
   const memoizedState = React.useMemo(() => calculateInitialState(props), [
-    JSON.stringify(props),
+    props,
   ]);
   return <Fields state={memoizedState} {...props} />;
 };
+
 const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
   const [state, dispatch] = React.useReducer(CaseCaseFieldReducer, props.state);
   const removeFilter = () => {

@@ -23,6 +23,7 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
           if (column.metaProperties && !column.metaProperties.isHidden) {
             return column.Header;
           }
+          return null;
         })
         .filter(i => !!i),
     );

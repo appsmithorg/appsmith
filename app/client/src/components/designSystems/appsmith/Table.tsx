@@ -67,12 +67,13 @@ export const Table = (props: TableProps) => {
     }),
     [],
   );
-
-  const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
-  const columns = React.useMemo(() => props.columns, [
-    JSON.stringify(props.columns),
-    JSON.stringify(props.columnActions),
-  ]);
+  const dataString = JSON.stringify(props.data);
+  const columnString = JSON.stringify({
+    columns: props.columns,
+    actions: props.columnActions,
+  });
+  const data = React.useMemo(() => props.data, [dataString]);
+  const columns = React.useMemo(() => props.columns, [columnString]);
   const pageCount = Math.ceil(data.length / props.pageSize) || 1;
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {

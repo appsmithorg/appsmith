@@ -75,7 +75,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       columnNameMap,
       columnSizeMap,
       columnTypeMap,
-      widgetId,
       columnActions,
     } = this.props;
     if (tableData.length) {
@@ -313,7 +312,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           searchTableData={this.handleSearchTable}
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
-            console.log("filters", filters);
             super.updateWidgetProperty("filters", filters);
           }}
         />

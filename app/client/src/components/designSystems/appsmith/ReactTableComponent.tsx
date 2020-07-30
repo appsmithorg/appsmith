@@ -3,10 +3,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import Table from "./Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
-import {
-  getMenuOptions,
-  getAllTableColumnKeys,
-} from "components/designSystems/appsmith/TableUtilities";
+import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
 
 export enum ColumnTypes {
@@ -99,9 +96,8 @@ interface ReactTableComponentProps {
 }
 
 const ReactTableComponent = (props: ReactTableComponentProps) => {
-  let dragged = -1;
-
   useEffect(() => {
+    let dragged = -1;
     const headers = Array.prototype.slice.call(
       document.querySelectorAll(`#table${props.widgetId} .draggable-header`),
     );
