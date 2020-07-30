@@ -58,7 +58,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
 
-    private final Map<String, Mono<Map>> formCache = new HashMap<String, Mono<Map>>();
+    private final Map<String, Mono<Map>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
 
     private static final int CONNECTION_TIMEOUT = 10000;
@@ -393,7 +393,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                         Map editorMap = objectMapper.readValue(editorResourceStream, Map.class);
 
                         formMap.putAll(editorMap);
-                        
+
                         return Mono.just(formMap);
                     } catch (IOException e) {
                         return Mono.error(e);
