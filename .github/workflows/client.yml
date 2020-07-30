@@ -2,7 +2,7 @@ name: Appsmith Client Workflow
 
 on:
   push:
-    branches: [ release, master, fix/first-run-performance ]
+    branches: [ release, master ]
     # Only trigger if files have changed in this specific path
     paths:
       - 'app/client/**'
@@ -197,7 +197,7 @@ jobs:
       run:
         working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: always() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/fix/first-run-performance')
+    if: always() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master' )
 
     steps:
     
@@ -230,13 +230,5 @@ jobs:
       run: |
         docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
         docker build -t appsmith/appsmith-editor:latest .
-        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        docker push appsmith/appsmith-editor
-    
-    # Build release Docker image and push to Docker Hub
-    - name: Push custom image to Docker Hub
-      if: success() && github.ref == 'refs/heads/fix/first-run-performance'
-      run: |
-        docker build -t appsmith/appsmith-editor:performance .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-editor
