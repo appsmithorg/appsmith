@@ -174,7 +174,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
           {transformedValue(props.value)}
         </StyledValue>
         <Popover
-          interactionKind={PopoverInteractionKind.CLICK}
+          interactionKind={PopoverInteractionKind.HOVER}
           position="left"
           modifiers={ContextMenuPopoverModifiers}
         >

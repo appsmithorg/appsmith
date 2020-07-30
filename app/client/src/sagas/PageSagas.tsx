@@ -353,7 +353,6 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
         yield put(deletePageSuccess());
       }
       history.push(BUILDER_PAGE_URL(applicationId, defaultPageId));
-      // history.push(PAGE_LIST_EDITOR_URL(applicationId, defaultPageId));
     }
   } catch (error) {
     yield put({

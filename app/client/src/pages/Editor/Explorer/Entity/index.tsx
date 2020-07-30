@@ -83,15 +83,10 @@ export const Entity = (props: EntityProps) => {
 
   useEffect(() => {
     // If the default state must be expanded, expand to show children
-    if (props.isDefaultExpanded && !props.disabled) {
+    if (props.isDefaultExpanded) {
       open(true);
-      // Else if entry is disabled, don't expand.
-    } else if (props.disabled) {
-      open(false);
-    } else if (!props.isDefaultExpanded) {
-      open(false);
     }
-  }, [props.disabled, props.isDefaultExpanded, open]);
+  }, [props.isDefaultExpanded, open]);
 
   const toggleChildren = () => {
     // Make sure this entity is enabled before toggling the collpse of children.
