@@ -102,7 +102,7 @@ class CodeEditor extends Component<Props, State> {
     if (this.textArea.current) {
       const options: EditorConfiguration = {
         mode: this.props.mode,
-        theme: "midnight",
+        theme: EditorThemes[this.props.theme],
         viewportMargin: 10,
         tabSize: 2,
         autoCloseBrackets: true,

@@ -134,10 +134,13 @@ export const EditorWrapper = styled.div<{
   text-transform: none;
   && {
     .cm-s-midnight.CodeMirror {
-      background: ${props =>
-        props.editorTheme === EditorTheme.DARK ? "#272822" : "#fff"};
-      color: ${props =>
-        props.editorTheme === EditorTheme.DARK ? "#fff" : "#272822"};
+      background: #272822;
+      color: #fff;
+    }
+    .cm-s-default.CodeMirror {
+      .cm-variable {
+        color: #0384FE;
+      }
     }
     .binding-brackets {
       color: ${props =>

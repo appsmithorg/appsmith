@@ -34,7 +34,7 @@ export type EditorConfig = {
 };
 
 export const EditorThemes: Record<EditorTheme, string> = {
-  [EditorTheme.LIGHT]: "mdn-like",
+  [EditorTheme.LIGHT]: "default",
   [EditorTheme.DARK]: "midnight",
 };
 
