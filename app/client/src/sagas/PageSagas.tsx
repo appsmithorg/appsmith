@@ -39,6 +39,7 @@ import {
   takeLatest,
   all,
   debounce,
+  takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
 import { PAGE_LIST_EDITOR_URL, BUILDER_PAGE_URL } from "constants/routes";
@@ -351,13 +352,15 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
-      history.push(PAGE_LIST_EDITOR_URL(applicationId, defaultPageId));
+      history.push(BUILDER_PAGE_URL(applicationId, defaultPageId));
+      // history.push(PAGE_LIST_EDITOR_URL(applicationId, defaultPageId));
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_PAGE_ERROR,
       payload: {
-        error,
+        error: { message: error.message, show: true },
+        show: true,
       },
     });
   }
@@ -443,7 +446,7 @@ export default function* pageSagas() {
       fetchPublishedPageSaga,
     ),
     takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
-    takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
+    takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
