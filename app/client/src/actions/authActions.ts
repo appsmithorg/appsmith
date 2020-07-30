@@ -1,6 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
-export const getCurrentUser = (payload: { path?: string }) => ({
+export const getCurrentUser = () => ({
   type: ReduxActionTypes.FETCH_USER_INIT,
-  payload,
 });

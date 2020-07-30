@@ -15,6 +15,7 @@ const initialState: UsersReduxState = {
   },
   list: [],
   users: [],
+  error: "",
 };
 
 const usersReducer = createReducer(initialState, {
@@ -66,6 +67,13 @@ const usersReducer = createReducer(initialState, {
       list: users,
     };
   },
+  [ReduxActionErrorTypes.FETCH_USER_DETAILS_ERROR]: (
+    state: UsersReduxState,
+    action: ReduxAction<{ error: string }>,
+  ) => ({
+    ...initialState,
+    error: action.payload.error,
+  }),
   [ReduxActionErrorTypes.FETCH_USER_ERROR]: (state: UsersReduxState) => ({
     ...state,
     loadingStates: { ...state.loadingStates, fetchingUser: false },
@@ -93,6 +101,7 @@ export interface UsersReduxState {
   };
   users: User[];
   currentUser?: User;
+  error: string;
 }
 
 export default usersReducer;

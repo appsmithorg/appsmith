@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import {
-  BASE_URL,
   APPLICATIONS_URL,
   BUILDER_PAGE_URL,
   PAGE_LIST_EDITOR_URL,
@@ -182,7 +181,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           className="t--application-publish-btn"
         />
       </PreviewPublishSection>
-      <HelpModal></HelpModal>
+      <HelpModal />
     </StyledHeader>
   );
 };

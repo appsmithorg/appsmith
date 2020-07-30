@@ -1,7 +1,7 @@
-import React, { lazy, Suspense } from "react";
+import React, { Suspense } from "react";
 import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
-import { Redirect, Router, Switch } from "react-router-dom";
+import { Router, Switch } from "react-router-dom";
 import AppRoute from "pages/common/AppRoute";
 import {
   APP_VIEW_URL,
@@ -17,19 +17,13 @@ import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
+import LandingScreen from "./LandingScreen";
+import UserAuth from "pages/UserAuth";
+import Users from "pages/users";
+import PageNotFound from "pages/common/PageNotFound";
 import Loader from "pages/common/Loader";
 
 const loadingIndicator = <Loader />;
-const App = lazy(() =>
-  import(/* webpackChunkName: "appsmith",webpackPrefetch: 10 */ "./App"),
-);
-const UserAuth = lazy(() =>
-  import(/* webpackChunkName: "auth",webpackPrefetch: 5 */ "./pages/UserAuth"),
-);
-const PageNotFound = lazy(() =>
-  import(/* webpackChunkName: "404"*/ "./pages/common/PageNotFound"),
-);
-const Users = lazy(() => import(/* webpackPrefetch: true */ "./pages/users"));
 
 class AppRouter extends React.Component<any, any> {
   render() {
@@ -38,7 +32,12 @@ class AppRouter extends React.Component<any, any> {
         <Suspense fallback={loadingIndicator}>
           <AppHeader />
           <Switch>
-            <AppRoute exact path={BASE_URL} component={App} name={"App"} />
+            <AppRoute
+              exact
+              path={BASE_URL}
+              component={LandingScreen}
+              name={"App"}
+            />
             <AppRoute
               path={ORG_URL}
               component={OrganizationLoader}

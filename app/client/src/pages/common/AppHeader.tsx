@@ -11,17 +11,19 @@ import {
 } from "constants/routes";
 import { withRouter, RouteComponentProps } from "react-router";
 
-type Props = {
-  getCurrentUser: (path: string) => void;
-} & RouteComponentProps;
+type Props = { getCurrentUser: () => void } & RouteComponentProps;
 
 const NoRender = () => {
   return null;
 };
-
+/*
+ * App header is rendered as the first thing in the app. This kicks off the auth check
+ * Currently each path has rendered their own header but we can move that here to have
+ * a consistent header experience
+ */
 class AppHeader extends React.Component<Props, any> {
   componentDidMount() {
-    this.props.getCurrentUser(this.props.location.pathname);
+    this.props.getCurrentUser();
   }
   render() {
     return (
@@ -38,7 +40,7 @@ class AppHeader extends React.Component<Props, any> {
 }
 
 const mapStateToProps = (dispatch: any) => ({
-  getCurrentUser: (path: string) => dispatch(getCurrentUser({ path })),
+  getCurrentUser: () => dispatch(getCurrentUser()),
 });
 
 export default withRouter(connect(null, mapStateToProps)(AppHeader));

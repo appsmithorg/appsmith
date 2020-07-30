@@ -6,7 +6,6 @@ import {
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
-import { setRouteBeforeLogin } from "utils/storage";
 import history from "utils/history";
 
 //TODO(abhinav): Refactor this to make more composable.
@@ -32,6 +31,11 @@ const makeExecuteActionResponse = (response: any): ActionApiResponse => ({
   },
 });
 
+const is404orAuthPath = () => {
+  const pathName = window.location.pathname;
+  return /^\/404/.test(pathName) || /^\/user\/\w+/.test(pathName);
+};
+
 axiosInstance.interceptors.response.use(
   (response: any): any => {
     if (response.config.url.match(executeActionRegex)) {
@@ -55,7 +59,7 @@ axiosInstance.interceptors.response.use(
       // console.log(error.response.data);
       // console.log(error.response.status);
       // console.log(error.response.headers);
-      if (!/^\/user\/\w+/.test(window.location.pathname)) {
+      if (!is404orAuthPath()) {
         const currentUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
         if (error.response.status === 401) {
           // Redirect to login and set a redirect url.
@@ -70,12 +74,7 @@ axiosInstance.interceptors.response.use(
           });
         }
         const errorData = error.response.data.responseMeta;
-        if (
-          errorData.status === 404 &&
-          errorData.error.code === 4028 &&
-          !/^\/404/.test(window.location.pathname)
-        ) {
-          // console.log({ currentUrl, location: window.location });
+        if (errorData.status === 404 && errorData.error.code === 4028) {
           history.replace({
             pathname: PAGE_NOT_FOUND_URL,
             search: `redirectTo=${currentUrl}`,
