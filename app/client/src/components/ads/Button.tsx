@@ -99,7 +99,10 @@ const rgbaIntensity = (color: string, alpha: number) => {
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
 };
 
-const stateStyles = (props: any, state: string): stateStyleType => {
+const stateStyles = (
+  props: ThemeProp & ButtonProps,
+  state: string,
+): stateStyleType => {
   let bgColorPrimary,
     borderColorPrimary,
     txtColorPrimary,
@@ -113,13 +116,17 @@ const stateStyles = (props: any, state: string): stateStyleType => {
   if (props.isLoading || props.isDisabled) {
     switch (props.category) {
       case Category.primary:
-        bgColorPrimary = props.theme.colors[props.variant].darkest;
-        borderColorPrimary = props.theme.colors[props.variant].darkest;
+        if (props.variant) {
+          bgColorPrimary = props.theme.colors[props.variant].darkest;
+          borderColorPrimary = props.theme.colors[props.variant].darkest;
+        }
         txtColorPrimary = props.theme.colors.blackShades[6];
         break;
       case Category.secondary:
-        bgColorSecondary = props.theme.colors[props.variant].darkest;
-        borderColorSecondary = props.theme.colors[props.variant].darker;
+        if (props.variant) {
+          bgColorSecondary = props.theme.colors[props.variant].darkest;
+          borderColorSecondary = props.theme.colors[props.variant].darker;
+        }
         txtColorSecondary = props.theme.colors.blackShades[6];
         break;
       case Category.tertiary:
@@ -131,14 +138,18 @@ const stateStyles = (props: any, state: string): stateStyleType => {
   } else if (state === "main") {
     switch (props.category) {
       case Category.primary:
-        bgColorPrimary = props.theme.colors[props.variant].main;
+        if (props.variant) {
+          bgColorPrimary = props.theme.colors[props.variant].main;
+          borderColorPrimary = props.theme.colors[props.variant].main;
+        }
         txtColorPrimary = props.theme.colors.blackShades[9];
-        borderColorPrimary = props.theme.colors[props.variant].main;
         break;
       case Category.secondary:
+        if (props.variant) {
+          borderColorSecondary = props.theme.colors[props.variant].main;
+          txtColorSecondary = props.theme.colors[props.variant].main;
+        }
         bgColorSecondary = "transparent";
-        borderColorSecondary = props.theme.colors[props.variant].main;
-        txtColorSecondary = props.theme.colors[props.variant].main;
         break;
       case Category.tertiary:
         bgColorTertiary = "transparent";
@@ -149,17 +160,21 @@ const stateStyles = (props: any, state: string): stateStyleType => {
   } else if (state === "hover") {
     switch (props.category) {
       case Category.primary:
-        bgColorPrimary = props.theme.colors[props.variant].dark;
+        if (props.variant) {
+          bgColorPrimary = props.theme.colors[props.variant].dark;
+          borderColorPrimary = props.theme.colors[props.variant].dark;
+        }
         txtColorPrimary = props.theme.colors.blackShades[9];
-        borderColorPrimary = props.theme.colors[props.variant].dark;
         break;
       case Category.secondary:
-        bgColorSecondary = rgbaIntensity(
-          props.theme.colors[props.variant].main,
-          0.1,
-        );
-        txtColorSecondary = props.theme.colors[props.variant].main;
-        borderColorSecondary = props.theme.colors[props.variant].main;
+        if (props.variant) {
+          bgColorSecondary = rgbaIntensity(
+            props.theme.colors[props.variant].main,
+            0.1,
+          );
+          txtColorSecondary = props.theme.colors[props.variant].main;
+          borderColorSecondary = props.theme.colors[props.variant].main;
+        }
         break;
       case Category.tertiary:
         bgColorTertiary = rgbaIntensity(props.theme.colors.tertiary.main, 0.1);
@@ -170,17 +185,21 @@ const stateStyles = (props: any, state: string): stateStyleType => {
   } else if (state === "active") {
     switch (props.category) {
       case Category.primary:
-        bgColorPrimary = props.theme.colors[props.variant].dark;
+        if (props.variant) {
+          bgColorPrimary = props.theme.colors[props.variant].dark;
+          borderColorPrimary = props.theme.colors[props.variant].main;
+        }
         txtColorPrimary = props.theme.colors.blackShades[9];
-        borderColorPrimary = props.theme.colors[props.variant].main;
         break;
       case Category.secondary:
-        bgColorSecondary = rgbaIntensity(
-          props.theme.colors[props.variant].main,
-          0.1,
-        );
-        txtColorSecondary = props.theme.colors[props.variant].light;
-        borderColorSecondary = props.theme.colors[props.variant].light;
+        if (props.variant) {
+          bgColorSecondary = rgbaIntensity(
+            props.theme.colors[props.variant].main,
+            0.1,
+          );
+          txtColorSecondary = props.theme.colors[props.variant].light;
+          borderColorSecondary = props.theme.colors[props.variant].light;
+        }
         break;
       case Category.tertiary:
         bgColorTertiary = rgbaIntensity(props.theme.colors.tertiary.main, 0.1);
@@ -203,7 +222,10 @@ const stateStyles = (props: any, state: string): stateStyleType => {
   };
 };
 
-const btnColorStyles = (props: any, state: string): BtnColorType => {
+const btnColorStyles = (
+  props: ThemeProp & ButtonProps,
+  state: string,
+): BtnColorType => {
   let bgColor = "",
     txtColor = "",
     border = "";
