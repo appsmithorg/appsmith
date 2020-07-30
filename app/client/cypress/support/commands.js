@@ -255,9 +255,7 @@ Cypress.Commands.add("Deletepage", Pagename => {
 });
 
 Cypress.Commands.add("LogOut", () => {
-  cy.request("POST", "/api/v1/logout").then(response => {
-    expect(response.status).equal(200);
-  });
+  cy.request("POST", "/api/v1/logout");
 });
 
 Cypress.Commands.add("NavigateToHome", () => {
@@ -863,9 +861,7 @@ Cypress.Commands.add("DeleteAppByApi", () => {
 
     if (appId != null) {
       cy.log(appId + "appId");
-      cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
-        expect(response.status).equal(200);
-      });
+      cy.request("DELETE", "api/v1/applications/" + appId);
     }
   });
 });
