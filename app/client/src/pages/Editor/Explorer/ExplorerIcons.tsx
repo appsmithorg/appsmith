@@ -4,14 +4,7 @@ import { Colors } from "constants/Colors";
 import { WidgetType } from "constants/WidgetConstants";
 import { WidgetIcons } from "icons/WidgetIcons";
 import { Plugin } from "api/PluginApi";
-// import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
-// import {
-//   PLUGIN_PACKAGE_POSTGRES,
-//   PLUGIN_PACKAGE_MONGO,
-// } from "constants/QueryEditorConstants";
 import ImageAlt from "assets/images/placeholder-image.svg";
-// import Postgres from "assets/images/Postgress.png";
-// import RestTemplateImage from "assets/images/RestAPI.png";
 import styled from "styled-components";
 import {
   HTTP_METHODS,
@@ -20,12 +13,21 @@ import {
 
 const ENTITY_ICON_SIZE = 14;
 
-const PageIcon = MenuIcons.PAGES_ICON;
+const PagesIcon = MenuIcons.PAGES_ICON;
+export const pageGroupIcon = (
+  <PagesIcon
+    width={ENTITY_ICON_SIZE}
+    height={ENTITY_ICON_SIZE}
+    color={Colors.ALTO}
+  />
+);
+
+const PageIcon = MenuIcons.PAGE_ICON;
 export const pageIcon = (
   <PageIcon
     width={ENTITY_ICON_SIZE}
     height={ENTITY_ICON_SIZE}
-    color={Colors.WHITE}
+    color={Colors.ALTO}
   />
 );
 
@@ -49,7 +51,7 @@ export const datasourceIcon = (
   <DataSourceIcon
     width={ENTITY_ICON_SIZE}
     height={ENTITY_ICON_SIZE}
-    color={Colors.WHITE}
+    color={Colors.ALTO}
   />
 );
 

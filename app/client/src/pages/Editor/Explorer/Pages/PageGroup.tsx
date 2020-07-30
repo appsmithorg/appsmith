@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import Entity from "../Entity";
-import { pageIcon } from "../ExplorerIcons";
+import { pageGroupIcon } from "../ExplorerIcons";
 import { noop } from "lodash";
 import { useDispatch } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -36,7 +36,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
   return (
     <Entity
       name="Pages"
-      icon={pageIcon}
+      icon={pageGroupIcon}
       isDefaultExpanded
       action={noop}
       entityId="Pages"

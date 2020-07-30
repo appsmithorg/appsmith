@@ -7,6 +7,7 @@ import EditableText, {
 import { convertToCamelCase } from "utils/helpers";
 import { AppState } from "reducers";
 import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { Colors } from "constants/Colors";
 
 const searchHighlightSpanClassName = "token";
 const searchTokenizationDelimiter = "!!";
@@ -17,7 +18,7 @@ const Wrapper = styled.div`
   white-space: nowrap;
   margin: 0 4px;
   & span.token {
-    background: ${props => props.theme.colors.primary};
+    color: ${Colors.OCEAN_GREEN};
   }
 `;
 

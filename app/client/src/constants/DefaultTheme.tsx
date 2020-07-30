@@ -439,7 +439,7 @@ export const theme: Theme = {
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
   },
-  lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
+  lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [FontFamilies.DMSans, FontFamilies.FiraCode],
   borders: [
     {

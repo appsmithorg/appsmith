@@ -7,6 +7,7 @@ import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
+import { Classes } from "@blueprintjs/core";
 
 export enum EntityClassNames {
   ACTION_CONTEXT_MENU = "action-entity",
@@ -22,21 +23,35 @@ const EntityItem = styled.div<{
   spaced: boolean;
 }>`
   position: relative;
+  font-size: 12px;
   padding-left: ${props => props.step * props.theme.spaces[2]}px;
-  background: ${props => (props.active ? Colors.SHARK : "none")};
+  background: ${props => (props.active ? Colors.TUNDORA : "none")};
   height: 30px;
   width: 100%;
   display: inline-grid;
   grid-template-columns: ${props =>
-    props.spaced ? "20px auto 1fr 20px" : "8px auto 1fr 20px"};
+    props.spaced ? "20px auto 1fr 30px" : "8px auto 1fr 30px"};
   border-radius: 0;
-  color: ${Colors.WHITE};
+  color: ${props => (props.active ? Colors.WHITE : Colors.ALTO)};
   cursor: pointer;
   align-items: center;
   &:hover {
-    background: ${Colors.MAKO};
+    background: ${Colors.TUNDORA};
+  }
+  & .${Classes.POPOVER_TARGET}, & .${Classes.POPOVER_WRAPPER} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   &&&& .${EntityClassNames.ACTION_CONTEXT_MENU} {
+    display: block;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     visibility: hidden;
   }
   &&&&:hover .${EntityClassNames.ACTION_CONTEXT_MENU} {
@@ -123,7 +138,7 @@ export const Entity = (props: EntityProps) => {
         {props.contextMenu}
         <Loader isVisible={isUpdating} />
       </EntityItem>
-      <Collapse step={props.step} isOpen={isOpen}>
+      <Collapse step={props.step} isOpen={isOpen} active={props.active}>
         {props.children}
       </Collapse>
     </Wrapper>

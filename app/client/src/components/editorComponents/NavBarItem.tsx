@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
 
 type MenuBarItemProps = {
   icon: Function;
@@ -48,13 +49,12 @@ const ItemContainer = styled.div`
       color: ${props => props.theme.colors.textOnDarkBG};
       font-size: ${props => props.theme.fontSizes[1]}px;
       cursor: pointer;
-      background-color: ${props => props.theme.colors.navBG};
       &:hover {
-        background-color: ${props => props.theme.colors.paneBG};
+        background: ${Colors.TUNDORA};
         text-decoration: none;
       }
       &.active {
-        background-color: ${props => props.theme.colors.paneBG};
+        background: ${Colors.TUNDORA};
         color: ${props => props.theme.colors.textOnDarkBG};
         & > div {
           background-color: ${props => props.theme.colors.primary};

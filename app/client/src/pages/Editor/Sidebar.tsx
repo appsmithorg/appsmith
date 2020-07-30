@@ -4,24 +4,27 @@ import styled from "styled-components";
 import SidebarComponent from "components/editorComponents/Sidebar";
 import NavBarItem from "components/editorComponents/NavBarItem";
 import { EDITOR_ROUTES, BuilderRouteParams } from "constants/routes";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 5fr;
   width: ${props => props.theme.sidebarWidth};
-  box-shadow: 0px 1px 3px ${props => props.theme.colors.paneBG};
+  box-shadow: 0px 1px 3px ${Colors.MINE_SHAFT};
+  background-color: ${Colors.MINE_SHAFT};
   z-index: 3;
 `;
 
 const NavBar = styled.div`
-  background-color: ${props => props.theme.colors.navBG};
+  background-color: ${Colors.MINE_SHAFT};
   color: ${props => props.theme.colors.textOnDarkBG};
   display: flex;
   flex-direction: column;
+  box-shadow: 0px 0px 4px ${Colors.CODE_GRAY};
 `;
 
 const EditorSidebar = styled(SidebarComponent)`
-  background-color: ${props => props.theme.colors.paneBG};
+  background-color: ${Colors.MINE_SHAFT};
 `;
 
 const Sidebar = () => {

@@ -5,32 +5,41 @@ import { Colors } from "constants/Colors";
 
 const ExplorerSearchWrapper = styled.div`
   display: grid;
-  grid-template-columns: 12px 1fr 19px;
+  grid-template-columns: 30px 1fr 30px;
   margin: 0;
+  height: 48px;
   justify-content: flex-start;
   align-items: center;
-  padding: 10px 0 10px 4px;
   position: sticky;
+  font-size: 12px;
   top: 0;
   z-index: 1;
-  box-shadow: 0px 1px 3px ${props => props.theme.colors.navBG};
-
-  background: ${props => props.theme.colors.paneBG};
+  background: ${Colors.MINE_SHAFT};
   & {
     .${Classes.ICON} {
-      color: ${Colors.SLATE_GRAY};
+      color: ${Colors.DOVE_GRAY};
       cursor: pointer;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       &:last-of-type:hover {
         color: ${Colors.WHITE};
       }
     }
     input {
-      border: none;
       background: none;
+      border: 1px solid transparent;
+      padding: 5px 10px;
       margin-left: 10px;
       color: ${Colors.WHITE};
       &::placeholder {
-        color: ${Colors.SLATE_GRAY};
+        color: ${Colors.DOVE_GRAY};
+      }
+      &:focus {
+        background: ${Colors.COD_GRAY};
+        border-color: ${Colors.TIA_MARIA};
       }
     }
   }

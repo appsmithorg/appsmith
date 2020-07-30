@@ -4,6 +4,7 @@ import { ReactComponent as WidgetsIcon } from "assets/icons/menu/widgets.svg";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api.svg";
 import { ReactComponent as OrgIcon } from "assets/icons/menu/org.svg";
 import { ReactComponent as PagesIcon } from "assets/icons/menu/pages.svg";
+import { ReactComponent as PageIcon } from "assets/icons/menu/page.svg";
 import { ReactComponent as DataSourcesIcon } from "assets/icons/menu/data-sources.svg";
 import { ReactComponent as QueriesIcon } from "assets/icons/menu/queries.svg";
 import { ReactComponent as HomepageIcon } from "assets/icons/menu/homepage.svg";
@@ -35,6 +36,11 @@ export const MenuIcons: {
   PAGES_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <PagesIcon />
+    </IconWrapper>
+  ),
+  PAGE_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <PageIcon />
     </IconWrapper>
   ),
   DATASOURCES_ICON: (props: IconProps) => (

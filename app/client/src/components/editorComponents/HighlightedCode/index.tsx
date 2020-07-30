@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, MutableRefObject } from "react";
+import React, {
+  useRef,
+  useEffect,
+  MutableRefObject,
+  forwardRef,
+  Ref,
+} from "react";
 import styled from "styled-components";
 import Prism from "prismjs";
 import themes from "./themes";
@@ -33,35 +39,42 @@ type HighlightedCodeProps = {
   language?: SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES;
   skin?: Skin;
   multiline?: boolean;
+  onClick?: () => void;
 };
+/* eslint-disable react/display-name */
+export const HighlightedCode = forwardRef(
+  (props: HighlightedCodeProps, ref: Ref<HTMLDivElement>) => {
+    const codeRef: MutableRefObject<HTMLElement | null> = useRef(null);
 
-export const HighlightedCode = (props: HighlightedCodeProps) => {
-  const codeRef: MutableRefObject<HTMLElement | null> = useRef(null);
+    // Highlight when component renders with new props.
+    // Skin is irrelevant here, as it only uses css.
+    // Skinning is handled in StyledCode component.
+    useEffect(() => {
+      if (codeRef.current) {
+        // When this is run, the code text is tokenized
+        // into HTML on which the theme CSS is applied
+        Prism.highlightElement(codeRef.current);
+      }
+    }, [props.codeText, props.language, codeRef]);
 
-  // Highlight when component renders with new props.
-  // Skin is irrelevant here, as it only uses css.
-  // Skinning is handled in StyledCode component.
-  useEffect(() => {
-    if (codeRef.current) {
-      // When this is run, the code text is tokenized
-      // into HTML on which the theme CSS is applied
-      Prism.highlightElement(codeRef.current);
-    }
-  }, [props.codeText, props.language, codeRef]);
+    // Set the default language to javascript if not provided.
+    const language =
+      props.language || SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.JAVASCRIPT;
 
-  // Set the default language to javascript if not provided.
-  const language =
-    props.language || SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.JAVASCRIPT;
-
-  return (
-    <StyledCode skin={props.skin || Skin.DARK}>
-      {!props.multiline && (
-        <code ref={codeRef} className={language}>
-          {props.codeText}
-        </code>
-      )}
-    </StyledCode>
-  );
-};
+    return (
+      <StyledCode
+        skin={props.skin || Skin.DARK}
+        onClick={props.onClick}
+        ref={ref}
+      >
+        {!props.multiline && (
+          <code ref={codeRef} className={language}>
+            {props.codeText}
+          </code>
+        )}
+      </StyledCode>
+    );
+  },
+);
 
 export default HighlightedCode;

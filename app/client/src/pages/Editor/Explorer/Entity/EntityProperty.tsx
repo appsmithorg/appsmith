@@ -3,28 +3,32 @@ import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
-import { Popover, PopoverInteractionKind } from "@blueprintjs/core";
+import { Popover, PopoverInteractionKind, Classes } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
-import Tooltip from "components/editorComponents/Tooltip";
 import { scrollbarDark } from "constants/DefaultTheme";
+import { ControlIcons } from "icons/ControlIcons";
 
-const StyledValue = styled.pre`
+import { ContextMenuPopoverModifiers } from "../helpers";
+
+const StyledValue = styled.pre<{ step: number }>`
   & {
-    font-size: ${props => props.theme.fontSizes[1]}px;
-    margin: 2px 0px;
+    display: inline;
+    font-size: 10px;
+    line-height: 12px;
     color: ${Colors.GRAY_CHATEAU};
+    padding-left: ${props =>
+      props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
+    margin: 0;
   }
 `;
 
 const Wrapper = styled.div<{ step: number }>`
   &&&& {
-    cursor: pointer;
     margin: ${props => props.theme.spaces[2]}px 0;
-    padding-left: ${props =>
-      props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
+
     position: relative;
     code {
       border: none;
@@ -38,7 +42,7 @@ const Wrapper = styled.div<{ step: number }>`
       height: 100%;
       top: 0;
       width: 100%;
-
+      font-size: 12px;
       color: white;
       display: flex;
       justify-content: center;
@@ -46,10 +50,34 @@ const Wrapper = styled.div<{ step: number }>`
       text-align: center;
       z-index: 1;
       &.success {
-        background: ${Colors.MAKO};
+        background: ${Colors.TUNDORA};
       }
       &.error {
         background: ${Colors.RED};
+      }
+    }
+    & > div:first-of-type {
+      padding-top: 4px;
+      padding-bottom: 4px;
+      cursor: pointer;
+      &:hover {
+        &:before {
+          content: "Copy";
+          background: ${Colors.TUNDORA};
+          opacity: 0.5;
+          position: absolute;
+          left: 0;
+          height: 100%;
+          top: 0;
+          width: 100%;
+          font-size: 12px;
+          color: white;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          text-align: right;
+          z-index: 1;
+        }
       }
     }
 
@@ -57,10 +85,22 @@ const Wrapper = styled.div<{ step: number }>`
       code.${SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH} {
         white-space: pre-wrap;
         background: transparent;
-        font-size: ${props => props.theme.fontSizes[2]}px;
+        font-size: 11px;
         overflow-wrap: break-word;
         text-shadow: none;
+        padding-left: ${props =>
+          props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
       }
+    }
+
+    & .${Classes.POPOVER_WRAPPER} {
+      display: inline;
+      vertical-align: middle;
+      margin-left: 4px;
+      cursor: pointer;
+    }
+    & .${Classes.POPOVER_TARGET} {
+      display: inline;
     }
   }
 `;
@@ -85,6 +125,9 @@ const StyledPopoverContent = styled.div`
     color: white;
   }
 `;
+
+const CollapseIcon = ControlIcons.COLLAPSE_CONTROL;
+const collapseIcon = <CollapseIcon width={10} height={8} color={Colors.ALTO} />;
 
 export type EntityPropertyProps = {
   propertyName: string;
@@ -122,57 +165,45 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
   };
 
   let propertyValue = (
-    <StyledValue>{transformedValue(props.value)}</StyledValue>
+    <StyledValue step={props.step}>{transformedValue(props.value)}</StyledValue>
   );
   if (showPopup) {
     propertyValue = (
-      <Popover
-        interactionKind={PopoverInteractionKind.HOVER}
-        position="left"
-        modifiers={{
-          offset: {
-            enabled: true,
-            offset: 200,
-          },
-
-          preventOverflow: {
-            enabled: true,
-            boundariesElement: "viewport",
-          },
-          hide: {
-            enabled: false,
-          },
-        }}
-      >
-        <StyledValue>{transformedValue(props.value)} </StyledValue>
-        {showPopup && (
-          <StyledPopoverContent>
-            {!isString && (
-              <CurrentValueViewer
-                theme={EditorTheme.DARK}
-                evaluatedValue={props.value}
-                hideLabel
-              />
-            )}
-            {isString && <pre>{props.value}</pre>}
-          </StyledPopoverContent>
-        )}
-      </Popover>
+      <React.Fragment>
+        <StyledValue step={props.step}>
+          {transformedValue(props.value)}
+        </StyledValue>
+        <Popover
+          interactionKind={PopoverInteractionKind.CLICK}
+          position="left"
+          modifiers={ContextMenuPopoverModifiers}
+        >
+          {collapseIcon}
+          {showPopup && (
+            <StyledPopoverContent>
+              {!isString && (
+                <CurrentValueViewer
+                  theme={EditorTheme.DARK}
+                  evaluatedValue={props.value}
+                  hideLabel
+                />
+              )}
+              {isString && <pre>{props.value}</pre>}
+            </StyledPopoverContent>
+          )}
+        </Popover>
+      </React.Fragment>
     );
   }
 
   return (
-    <Wrapper
-      ref={propertyRef}
-      onClick={copyBindingToClipboard}
-      step={props.step}
-    >
-      <Tooltip content="Click to copy">
-        <HighlightedCode
-          codeText={codeText}
-          language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
-        />
-      </Tooltip>
+    <Wrapper step={props.step}>
+      <HighlightedCode
+        ref={propertyRef}
+        onClick={copyBindingToClipboard}
+        codeText={codeText}
+        language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
+      />
       {propertyValue}
     </Wrapper>
   );

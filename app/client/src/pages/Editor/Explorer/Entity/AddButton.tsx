@@ -1,14 +1,9 @@
 import React from "react";
 import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import Tooltip from "components/editorComponents/Tooltip";
 const Wrapper = styled(EntityTogglesWrapper)`
   &&& {
-    border: 1px solid ${Colors.SLATE_GRAY};
-    &:hover {
-      border-color: ${Colors.WHITE};
-    }
     & > span {
       line-height: 16px;
     }
