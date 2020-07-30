@@ -1,15 +1,12 @@
 #!/bin/sh
 
-if [ -f mongo-init.js ]
-  then
-    echo "file docker-compose.yml already exists"
-  else
+if [ ! -f mongo-init.js ]; then
     touch mongo-init.js
 fi
 
 
 
-cat > mongo-init.js  << EOF
+cat >| mongo-init.js  << EOF
 let error = false
 print("**** Going to start Mongo seed ****")
 

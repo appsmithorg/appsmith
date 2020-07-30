@@ -9,6 +9,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.solutions.ApplicationFetcher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,11 +32,16 @@ import javax.validation.Valid;
 @Slf4j
 public class ApplicationController extends BaseController<ApplicationService, Application, String> {
     private final ApplicationPageService applicationPageService;
+    private final ApplicationFetcher applicationFetcher;
 
     @Autowired
-    public ApplicationController(ApplicationService service, ApplicationPageService applicationPageService) {
+    public ApplicationController(
+            ApplicationService service,
+            ApplicationPageService applicationPageService,
+            ApplicationFetcher applicationFetcher) {
         super(service);
         this.applicationPageService = applicationPageService;
+        this.applicationFetcher = applicationFetcher;
     }
 
     @PostMapping
@@ -72,7 +78,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
         log.debug("Going to get all applications grouped by organization");
-        return service.getAllApplications()
+        return applicationFetcher.getAllApplications()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 

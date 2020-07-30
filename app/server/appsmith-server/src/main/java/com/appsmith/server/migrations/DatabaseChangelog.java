@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -40,10 +41,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -489,6 +493,88 @@ public class DatabaseChangelog {
             AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
             authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
             mongoTemplate.save(datasource);
+        }
+    }
+
+    @ChangeSet(order = "018", id = "install-mysql-plugins", author = "")
+    public void mysqlPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("Mysql");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("mysql-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.TABLE);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Mysql.jpg");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn("mysql-plugin already present in database.");
+        }
+
+        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+                organization.setPlugins(new ArrayList<>());
+            }
+
+            final Set<String> installedPlugins = organization.getPlugins()
+                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+
+            if (!installedPlugins.contains(plugin1.getId())) {
+                organization.getPlugins()
+                        .add(new OrganizationPlugin(plugin1.getId(), OrganizationPluginStatus.FREE));
+            }
+            mongoTemplate.save(organization);
+        }
+    }
+
+    @ChangeSet(order = "019", id = "update-database-documentation-links", author = "")
+    public void updateDatabaseDocumentationLinks(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            if ("postgres-plugin".equals(plugin.getPackageName())) {
+                plugin.setDocumentationLink(
+                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-postgres");
+
+            } else if ("mongo-plugin".equals(plugin.getPackageName())) {
+                plugin.setDocumentationLink(
+                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mongodb");
+
+            } else {
+                continue;
+
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "020", id = "execute-action-for-read-action", author = "")
+    public void giveExecutePermissionToReadActionUsers(MongoTemplate mongoTemplate) {
+        final List<Action> actions = mongoTemplate.find(
+                query(where("policies").exists(true)),
+                Action.class
+        );
+
+        for (final Action action : actions) {
+            Set<Policy> policies = action.getPolicies();
+            if (policies.size() > 0) {
+                Optional<Policy> readActionsOptional = policies.stream().filter(policy -> policy.getPermission().equals(READ_ACTIONS.getValue())).findFirst();
+                if (readActionsOptional.isPresent()) {
+                    Policy readActionPolicy = readActionsOptional.get();
+
+                    Optional<Policy> executeActionsOptional = policies.stream().filter(policy -> policy.getPermission().equals(EXECUTE_ACTIONS.getValue())).findFirst();
+                    if (executeActionsOptional.isPresent()) {
+                        Policy executeActionPolicy = executeActionsOptional.get();
+                        executeActionPolicy.getUsers().addAll(readActionPolicy.getUsers());
+                    } else {
+                        // this policy doesnt exist. create and add this to the policy set
+                        Policy newExecuteActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                                .users(readActionPolicy.getUsers()).build();
+                        action.getPolicies().add(newExecuteActionPolicy);
+                    }
+                    mongoTemplate.save(action);
+                }
+            }
         }
     }
 }

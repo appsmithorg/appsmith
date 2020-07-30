@@ -1,7 +1,8 @@
 import { CommonComponentProps } from "./common";
+import { Variant } from "./Button";
 
 type CalloutProps = CommonComponentProps & {
-  variant?: "success" | "info" | "warning" | "danger"; //default info
+  variant?: Variant; //default info
 };
 
 export default function Callout(props: CalloutProps) {

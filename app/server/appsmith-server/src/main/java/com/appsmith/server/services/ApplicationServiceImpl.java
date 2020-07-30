@@ -7,13 +7,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
-import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -31,17 +29,14 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 
 
 @Slf4j
@@ -51,10 +46,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     //Using PageRepository instead of PageService is because a cyclic dependency is introduced if PageService is used here.
     //TODO : Solve for this across LayoutService, PageService and ApplicationService.
     private final PageRepository pageRepository;
-    private final SessionUserService sessionUserService;
-    private final OrganizationService organizationService;
-    private final UserService userService;
     private final PolicyUtils policyUtils;
+    private final DatasourceService datasourceService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -64,16 +57,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
                                   PageRepository pageRepository,
-                                  SessionUserService sessionUserService,
-                                  OrganizationService organizationService,
-                                  UserService userService,
-                                  PolicyUtils policyUtils) {
+                                  PolicyUtils policyUtils,
+                                  DatasourceService datasourceService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pageRepository = pageRepository;
-        this.sessionUserService = sessionUserService;
-        this.organizationService = organizationService;
-        this.userService = userService;
         this.policyUtils = policyUtils;
+        this.datasourceService = datasourceService;
     }
 
     @Override
@@ -102,8 +91,13 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> findByIdAndOrganizationId(String id, String organizationId) {
-        return repository.findByIdAndOrganizationId(id, organizationId, READ_APPLICATIONS);
+    public Mono<Application> findByIdAndOrganizationId(String id, String organizationId, AclPermission permission) {
+        return repository.findByIdAndOrganizationId(id, organizationId, permission);
+    }
+
+    @Override
+    public Flux<Application> findByOrganizationId(String organizationId, AclPermission permission) {
+        return repository.findByOrganizationId(organizationId, permission);
     }
 
     @Override
@@ -114,6 +108,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> save(Application application) {
         return repository.save(application);
+    }
+
+    @Override
+    public Mono<Application> create(Application object) {
+        throw new UnsupportedOperationException("Please use `ApplicationPageService.createApplication` to create an application.");
+    }
+
+    @Override
+    public Mono<Application> createDefault(Application object) {
+        return super.create(object);
     }
 
     @Override
@@ -169,78 +173,6 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .map(pages -> true);
     }
 
-    /**
-     * For the current user, it first fetches all the organizations that its part of. For each organization, in turn all
-     * the applications are fetched. These applications are then returned grouped by Organizations in a special DTO and returned
-     *
-     * TODO : We should also return applications shared with the user as part of this.
-     *
-     * @return List of OrganizationApplicationsDTO
-     */
-    @Override
-    public Mono<UserHomepageDTO> getAllApplications() {
-
-        Mono<User> userMono = sessionUserService
-                .getCurrentUser()
-                .flatMap(user -> {
-                    if (user.getIsAnonymous()) {
-                        return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
-                    }
-                    return Mono.just(user.getUsername());
-                })
-                .flatMap(userService::findByEmail)
-                .cache();
-
-        return userMono
-                .flatMap(user -> {
-                    Set<String> orgIds = user.getOrganizationIds();
-                    /*
-                     * For all the organization ids present in the user object, fetch all the organization objects
-                     * and store in a map for fast access;
-                     */
-                    Mono<Map<String, Organization>> organizationsMapMono = organizationService.findByIdsIn(orgIds, READ_ORGANIZATIONS)
-                            .collectMap(Organization::getId, Function.identity());
-
-                    UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
-                    userHomepageDTO.setUser(user);
-
-                    return repository
-                            // Fetch all the applications which belong the organization ids present in the user
-                            .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
-                            // Collect all the applications as a map with organization id as a key
-                            .collectMultimap(Application::getOrganizationId)
-                            .zipWith(organizationsMapMono)
-                            .map(tuple -> {
-                                Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT1();
-                                Map<String, Organization> organizationsMap = tuple.getT2();
-
-                                List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
-
-                                Iterator<Map.Entry<String, Organization>> orgIterator = organizationsMap.entrySet().iterator();
-
-                                while (orgIterator.hasNext()) {
-                                    Map.Entry<String, Organization> organizationEntry = orgIterator.next();
-                                    String orgId = organizationEntry.getKey();
-                                    Organization organization = organizationEntry.getValue();
-                                    Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(orgId);
-
-                                    List<Application> applicationList = new ArrayList<>();
-                                    if (applicationCollection!=null && !applicationCollection.isEmpty()) {
-                                        applicationList = applicationCollection.stream().collect(Collectors.toList());
-                                    }
-
-                                    OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();
-                                    organizationApplicationsDTO.setOrganization(organization);
-                                    organizationApplicationsDTO.setApplications(applicationList);
-
-                                    organizationApplicationsDTOS.add(organizationApplicationsDTO);
-                                }
-                                userHomepageDTO.setOrganizationApplications(organizationApplicationsDTOS);
-                                return userHomepageDTO;
-                            });
-                });
-    }
-
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
         return repository
@@ -263,16 +195,18 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     private Mono<Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
-        AclPermission permission = READ_APPLICATIONS;
+        AclPermission applicationPermission = READ_APPLICATIONS;
+        AclPermission datasourcePermission = EXECUTE_DATASOURCES;
 
         User user = new User();
         user.setName(FieldName.ANONYMOUS_USER);
         user.setEmail(FieldName.ANONYMOUS_USER);
         user.setIsAnonymous(true);
 
-        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(permission), user);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(applicationPermission), user);
         Map<String, Policy> pagePolicyMap = policyUtils.generatePagePoliciesFromApplicationPolicies(applicationPolicyMap, user);
         Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap, user);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
 
         Flux<Page> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
 
@@ -280,6 +214,29 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux
+                .flatMap(action -> {
+                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
+                        return datasourceService
+                                .findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.DATASOURCE, action.getDatasource().getId())))
+                                .map(datasource -> {
+                                    Datasource updatedDatasource;
+                                    if (isPublic) {
+                                        updatedDatasource = (Datasource) policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                                    } else {
+                                        updatedDatasource = (Datasource) policyUtils.removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
+                                    }
+
+                                    return datasourceService.save(updatedDatasource);
+                                })
+                                // In case the datasource is not found, do not stop the processing for other actions.
+                                .switchIfEmpty(Mono.empty());
+                    }
+                    // In case of no datasource / embedded datasource, nothing else needs to be done here.
+                    return Mono.empty();
+                })
+                .flatMap(obj -> obj)
                 .collectList()
                 .thenReturn(application)
                 .flatMap(app -> {

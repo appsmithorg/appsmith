@@ -2802,6 +2802,22 @@
     react-inspector "^4.0.0"
     uuid "^3.3.2"
 
+"@storybook/addon-backgrounds@^5.3.19":
+  version "5.3.19"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-backgrounds/-/addon-backgrounds-5.3.19.tgz#4efd995c8849498dba9a52b7a9085a6cdd2b28b4"
+  integrity sha512-1olfUaJL/VjlS86/WGJJVkhDVeFC9eONqa5G+yjCKgZS8BGN7G5em8GLo49ZO/F6VyWEB00K0dkAQbKEOa4jpQ==
+  dependencies:
+    "@storybook/addons" "5.3.19"
+    "@storybook/api" "5.3.19"
+    "@storybook/client-logger" "5.3.19"
+    "@storybook/components" "5.3.19"
+    "@storybook/core-events" "5.3.19"
+    "@storybook/theming" "5.3.19"
+    core-js "^3.0.1"
+    memoizerific "^1.11.3"
+    react "^16.8.3"
+    util-deprecate "^1.0.2"
+
 "@storybook/addon-contexts@^5.3.19":
   version "5.3.19"
   resolved "https://registry.yarnpkg.com/@storybook/addon-contexts/-/addon-contexts-5.3.19.tgz#b162510da164c7e1824185a46826ea1395ac04ff"

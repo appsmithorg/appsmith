@@ -346,6 +346,13 @@ export type Theme = {
       };
     };
   };
+  iconSizes: iconSizeType;
+};
+
+type iconSizeType = {
+  small: number;
+  medium: number;
+  large: number;
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -373,6 +380,27 @@ export const labelStyle = css`
 //   space: [0, 3, 14, 7, 16, 11, 26, 10, 4, 26, 30, 36, 4, 6, 11],
 // };
 // 3, 7, 11, 26
+
+export const smallButton = css`
+  font-size: ${props => props.theme.typography.btnSmall.fontSize}px;
+  font-weight: ${props => props.theme.typography.btnSmall.fontWeight};
+  line-height: ${props => props.theme.typography.btnSmall.lineHeight}px;
+  letter-spacing: ${props => props.theme.typography.btnSmall.letterSpacing}px;
+`;
+
+export const mediumButton = css`
+  font-size: ${props => props.theme.typography.btnMedium.fontSize}px;
+  font-weight: ${props => props.theme.typography.btnMedium.fontWeight};
+  line-height: ${props => props.theme.typography.btnMedium.lineHeight}px;
+  letter-spacing: ${props => props.theme.typography.btnMedium.letterSpacing}px;
+`;
+
+export const largeButton = css`
+  font-size: ${props => props.theme.typography.btnLarge.fontSize}px;
+  font-weight: ${props => props.theme.typography.btnLarge.fontWeight};
+  line-height: ${props => props.theme.typography.btnLarge.lineHeight}px;
+  letter-spacing: ${props => props.theme.typography.btnLarge.letterSpacing}px;
+`;
 
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
@@ -440,6 +468,11 @@ export const theme: Theme = {
       letterSpacing: 0.4,
       fontWeight: 600,
     },
+  },
+  iconSizes: {
+    small: 12,
+    medium: 14,
+    large: 15,
   },
   propertyPane: {
     width: 270,
