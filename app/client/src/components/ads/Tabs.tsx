@@ -10,7 +10,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
   border-radius: 0px;
   height: 100%;
-  span {
+  .ads-icon {
     margin-right: ${props => props.theme.spaces[2] - 1}px;
   }
   .react-tabs {

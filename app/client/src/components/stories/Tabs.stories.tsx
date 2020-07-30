@@ -21,7 +21,7 @@ type tabSingle = {
 
 const tabArr: tabSingle[] = [
   {
-    key: "r",
+    key: "1",
     title: "Tab one",
     panelComponent: (
       <div
@@ -31,7 +31,7 @@ const tabArr: tabSingle[] = [
     icon: "delete",
   },
   {
-    key: "r",
+    key: "2",
     title: "Tab two",
     panelComponent: (
       <div
@@ -41,7 +41,7 @@ const tabArr: tabSingle[] = [
     icon: "delete",
   },
   {
-    key: "r",
+    key: "3",
     title: "Tab three",
     panelComponent: (
       <div
