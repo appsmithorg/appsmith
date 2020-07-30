@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { lazy, Suspense } from "react";
 import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Router, Switch } from "react-router-dom";
@@ -18,12 +18,15 @@ import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
 import LandingScreen from "./LandingScreen";
-import UserAuth from "pages/UserAuth";
+// import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
 import PageNotFound from "pages/common/PageNotFound";
 import Loader from "pages/common/Loader";
 
 const loadingIndicator = <Loader />;
+const UserAuth = lazy(() =>
+  import(/* webpackChunkName: "auth",webpackPrefetch: 5 */ "./pages/UserAuth"),
+);
 
 class AppRouter extends React.Component<any, any> {
   render() {
