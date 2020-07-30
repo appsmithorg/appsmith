@@ -1,8 +1,6 @@
 #!/bin/bash
 set -o errexit
 
-echo "" > appsmith_deploy.log
-
 is_command_present() {
   type "$1" >/dev/null 2>&1
 }
@@ -26,7 +24,7 @@ install_docker() {
 
     sudo ${package_manager} -y update --quiet
     echo "Installing docker"
-    sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet --nobest
+    sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
    
     if [ ! -f /usr/bin/docker-compose ];then
         echo "Installing docker-compose"
@@ -184,11 +182,13 @@ echo ""
 read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
 setup_domain=${setup_domain:-Y}
 if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
+    echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
     echo "You can read more about this in our Documentation"
     echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
     echo "+++++++++++++++++++++++++++++++++++++++++++++++"
+    echo ""
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
     read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
     setup_ssl=${setup_ssl:-Y}
@@ -207,12 +207,12 @@ fi
 
 mkdir -p template
 ( cd template
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
 # Role - Docker
@@ -220,6 +220,7 @@ if ! is_command_present docker ;then
     if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
         install_docker
     else
+        echo ""
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
         echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker will be installed automatically on Ubuntu / Redhat / Cent OS"
         echo "https://docs.docker.com/docker-for-mac/install/"
