@@ -58,7 +58,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
 
-    private final Map<String, Mono<Map>> formCache = new HashMap<>();
+    private final Map<String, Mono<Map>> formCache = new HashMap<String, Mono<Map>>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
 
     private static final int CONNECTION_TIMEOUT = 10000;
@@ -296,17 +296,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     @Override
     public Mono<Map> getFormConfig(String pluginId) {
         if (!formCache.containsKey(pluginId)) {
-            final Mono<Map> mono = loadPluginResource(pluginId, "form.json")
-                    .flatMap(jsonStream -> Mono.fromSupplier(() -> {
-                        try {
-                            return new ObjectMapper().readValue(jsonStream, Map.class);
-                        } catch (IOException e) {
-                            log.error("Error loading form JSON for plugin " + pluginId, e);
-                            throw Exceptions.propagate(
-                                    new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage())
-                            );
-                        }
-                    }))
+            final Mono<Map> resourceMono = loadPluginResource(pluginId, "form.json", "editor.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId)
@@ -314,7 +304,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     .onErrorMap(Exceptions::unwrap)
                     .cache();
 
-            formCache.put(pluginId, mono);
+            formCache.put(pluginId, resourceMono);
         }
 
         return formCache.get(pluginId);
@@ -377,19 +367,37 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<InputStream> loadPluginResource(String pluginId, String resourcePath) {
+    public Mono<Map> loadPluginResource(String pluginId, String formPath, String editorPath) {
         return findById(pluginId)
                 .flatMap(plugin -> {
                     InputStream formResourceStream = pluginManager
                             .getPlugin(plugin.getPackageName())
                             .getPluginClassLoader()
-                            .getResourceAsStream(resourcePath);
+                            .getResourceAsStream(formPath);
+
+                    InputStream editorResourceStream = pluginManager
+                            .getPlugin(plugin.getPackageName())
+                            .getPluginClassLoader()
+                            .getResourceAsStream(editorPath);
 
                     if (formResourceStream == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "Resource not found"));
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "Form Resource not found"));
                     }
 
-                    return Mono.just(formResourceStream);
+                    if (editorResourceStream == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "Editor Resource not found"));
+                    }
+
+                    try {
+                        Map formMap = objectMapper.readValue(formResourceStream, Map.class);
+                        Map editorMap = objectMapper.readValue(editorResourceStream, Map.class);
+
+                        formMap.putAll(editorMap);
+                        
+                        return Mono.just(formMap);
+                    } catch (IOException e) {
+                        return Mono.error(e);
+                    }
                 });
     }
 }

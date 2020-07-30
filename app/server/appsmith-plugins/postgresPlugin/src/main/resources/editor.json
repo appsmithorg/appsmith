@@ -1,0 +1,27 @@
+{
+  "editor": [
+    {
+      "sectionName": "Connection",
+      "id": 1,
+      "children": [
+        {
+          "label": "Connection Mode",
+          "configProperty": "datasourceConfiguration.connection.mode",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "READ_WRITE",
+          "options": [
+            {
+              "label": "Read Only",
+              "value": "READ_ONLY"
+            },
+            {
+              "label": "Read / Write",
+              "value": "READ_WRITE"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
