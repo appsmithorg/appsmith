@@ -138,12 +138,17 @@ export const EditorWrapper = styled.div<{
       border-left-color: ${props =>
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.textOnDarkBG
-          : props.theme.colors.text}
+          : props.theme.colors.textDefault} !important
     }
     .cm-s-duotone-light.CodeMirror {
       background: #ffffff;
-      color: #000000;
-    }
+      color: #000000 !important;
+      & {
+        span.cm-operator {
+          color: ${props => props.theme.colors.textDefault};
+        }
+      }
+     }
     .cm-s-duotone-dark.CodeMirror {
       background: #182026;
       color: #FFFFFF;
