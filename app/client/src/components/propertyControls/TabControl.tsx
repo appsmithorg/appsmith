@@ -16,12 +16,10 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   cursor: pointer;
 `;
 
-const StyledDragIcon = styled(
-  ControlIcons.DRAGGABLE_CONTROL as AnyStyledComponent,
-)`
+const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
-  margin-left: 15px;
+  margin-right: 15px;
   cursor: move;
   svg {
     path {
@@ -40,6 +38,7 @@ const StyledPropertyPaneButtonWrapper = styled.div`
 const ItemWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
+  align-items: center;
 `;
 
 const TabsWrapper = styled.div`
@@ -77,6 +76,7 @@ function TabControlComponent(props: RenderComponentProps) {
   const { deleteOption, updateOption, item, index } = props;
   return (
     <ItemWrapper>
+      <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         type="text"
         placeholder="Tab Title"
@@ -92,7 +92,6 @@ function TabControlComponent(props: RenderComponentProps) {
           deleteOption(index);
         }}
       />
-      <StyledDragIcon height={20} width={20} />
     </ItemWrapper>
   );
 }

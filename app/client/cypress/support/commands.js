@@ -377,6 +377,17 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
   cy.RunAPI();
 });
 
+Cypress.Commands.add("validateRequest", (baseurl, path, verb) => {
+  cy.xpath(apiwidget.Request)
+    .should("be.visible")
+    .click({ force: true });
+  cy.xpath(apiwidget.RequestURL).contains(baseurl.concat(path));
+  cy.xpath(apiwidget.RequestMethod).contains(verb);
+  cy.xpath(apiwidget.Responsetab)
+    .should("be.visible")
+    .click({ force: true });
+});
+
 Cypress.Commands.add("SelectAction", action => {
   cy.get(ApiEditor.ApiVerb)
     .first()
@@ -471,9 +482,12 @@ Cypress.Commands.add("selectPaginationType", option => {
 });
 
 Cypress.Commands.add("clickTest", testbutton => {
+  cy.wait(2000);
+  cy.wait("@saveAction");
   cy.get(testbutton)
     .first()
     .click({ force: true });
+  cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("enterUrl", (apiname, url, value) => {
@@ -691,6 +705,7 @@ Cypress.Commands.add("EvaluateDataType", dataType => {
 });
 
 Cypress.Commands.add("EvaluateCurrentValue", currentValue => {
+  cy.wait(2000);
   cy.get(commonlocators.evaluatedCurrentValue)
     .should("be.visible")
     .contains(currentValue);

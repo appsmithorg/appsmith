@@ -1,8 +1,6 @@
 #!/bin/bash
 set -o errexit
 
-echo "" > appsmith_deploy.log
-
 is_command_present() {
   type "$1" >/dev/null 2>&1
 }
@@ -26,7 +24,7 @@ install_docker() {
 
     sudo ${package_manager} -y update --quiet
     echo "Installing docker"
-    sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet --nobest
+    sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
    
     if [ ! -f /usr/bin/docker-compose ];then
         echo "Installing docker-compose"
@@ -116,18 +114,15 @@ read -p 'Installation Directory [appsmith]: ' install_dir
 install_dir=${install_dir:-appsmith}
 mkdir -p $PWD/$install_dir
 install_dir=$PWD/$install_dir
-echo "Appsmith needs a mongodb instance to run"
-echo "1) Automatically setup mongo db on this instance (recommended)"
-echo "2) Connect to an external mongo db"
-read -p 'Enter option number [1]: ' mongo_option
-mongo_option=${mongo_option:-1}
+read -p 'Is this a fresh installation? [Y/n]' fresh_install
+fresh_install=${fresh_install:-Y}
 echo ""
 
-if [[ $mongo_option -eq 2 ]];then
-    read -p 'Enter your mongo db host: ' mongo_host
-    read -p 'Enter the mongo root user: ' mongo_root_user
-    read -sp 'Enter the mongo password: ' mongo_root_password
-    read -p 'Enter your mongo database name: ' mongo_database
+if [ $fresh_install == "N" -o $fresh_install == "n" -o $fresh_install == "no" -o $fresh_install == "No" ];then
+    read -p 'Enter your current mongo db host: ' mongo_host
+    read -p 'Enter your current mongo root user: ' mongo_root_user
+    read -sp 'Enter your current mongo password: ' mongo_root_password
+    read -p 'Enter your current mongo database name: ' mongo_database
     # It is possible that this isn't the first installation. 
     echo ""
     read -p 'Do you have any existing data in the database?[Y/n]: ' existing_encrypted_data
@@ -138,7 +133,8 @@ if [[ $mongo_option -eq 2 ]];then
     else
         auto_generate_encryption="false"
     fi
-elif [[ $mongo_option -eq 1 ]];then
+elif [ $fresh_install == "Y" -o $fresh_install == "y" -o $fresh_install == "yes" -o $fresh_install == "Yes" ];then
+    echo "Appsmith needs to configure a mongo db to run"
     mongo_host="mongo"
     mongo_database="appsmith"
     read -p 'Set the mongo root user: ' mongo_root_user
@@ -186,11 +182,13 @@ echo ""
 read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
 setup_domain=${setup_domain:-Y}
 if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
-    echo "+++++++++++++++++++++++++++++++++"
+    echo ""
+    echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
     echo "You can read more about this in our Documentation"
     echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
-    echo "+++++++++++++++++++++++++++++++++"
+    echo "+++++++++++++++++++++++++++++++++++++++++++++++"
+    echo ""
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
     read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
     setup_ssl=${setup_ssl:-Y}
@@ -199,7 +197,7 @@ else
 fi
 
 if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
-	read -p 'Enter your domain / subdomain name (example.com / app.example.com): ' custom_domain
+	read -p 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
 fi
 
 NGINX_SSL_CMNT=""
@@ -209,12 +207,12 @@ fi
 
 mkdir -p template
 ( cd template
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
+curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
 # Role - Docker
@@ -222,8 +220,12 @@ if ! is_command_present docker ;then
     if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
         install_docker
     else
-        echo "Please follow below link to Install Docker Desktop on Mac:"
+        echo ""
+        echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
+        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker will be installed automatically on Ubuntu / Redhat / Cent OS"
         echo "https://docs.docker.com/docker-for-mac/install/"
+        echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+        exit
     fi
 fi
 
