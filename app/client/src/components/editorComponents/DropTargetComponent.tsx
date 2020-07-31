@@ -5,6 +5,7 @@ import React, {
   Context,
   createContext,
   useEffect,
+  memo,
 } from "react";
 import styled from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
@@ -70,7 +71,7 @@ export const DropTargetContext: Context<{
   persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
-export const DropTargetComponent = (props: DropTargetComponentProps) => {
+export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const canDropTargetExtend = props.canExtend;
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -285,6 +286,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
-};
+});
 
 export default DropTargetComponent;

@@ -42,7 +42,7 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import { PAGE_LIST_EDITOR_URL, BUILDER_PAGE_URL } from "constants/routes";
+import { BUILDER_PAGE_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets, getAllPageIds } from "./selectors";
@@ -352,7 +352,11 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
-      history.push(BUILDER_PAGE_URL(applicationId, defaultPageId));
+      const currentPageId = yield select(
+        (state: AppState) => state.entities.pageList.currentPageId,
+      );
+      if (currentPageId === action.payload.id)
+        history.push(BUILDER_PAGE_URL(applicationId, defaultPageId));
     }
   } catch (error) {
     yield put({

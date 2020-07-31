@@ -1,6 +1,6 @@
-import React, { memo } from "react";
+import React from "react";
 import EditorsRouter from "./routes";
-import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 import WidgetsEditor from "./WidgetsEditor";
 import styled from "styled-components";
 
@@ -14,17 +14,18 @@ const EditorContainer = styled.div`
   width: calc(100vw - ${props => props.theme.sidebarWidth});
 `;
 
-/* eslint-disable react/display-name */
-const MainContainer = memo(() => {
+const MainContainer = () => {
   return (
     <Container>
-      <Sidebar />
+      <Navbar />
       <EditorContainer>
         <EditorsRouter />
         <WidgetsEditor />
       </EditorContainer>
     </Container>
   );
-});
+};
+
+MainContainer.displayName = "MainContainer";
 
 export default MainContainer;

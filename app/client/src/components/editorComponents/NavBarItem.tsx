@@ -8,7 +8,7 @@ type MenuBarItemProps = {
   icon: Function;
   path: string;
   title: string;
-  exact: boolean;
+  exact?: boolean;
   width: number;
   height: number;
   external?: boolean;

@@ -1,5 +1,5 @@
 import React, { useEffect, ReactNode, memo } from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
 import { AppState } from "reducers";
@@ -53,9 +53,12 @@ type EditorProps = {
 };
 
 /* eslint-disable react/display-name */
-const WidgetsEditor = memo((props: EditorProps) => {
+const WidgetsEditor = (props: EditorProps) => {
   const { focusWidget, selectWidget } = useWidgetSelection();
-
+  const widgets = useSelector(getCanvasWidgetDsl);
+  const isFetchingPage = useSelector(getIsFetchingPage);
+  const currentPageId = useSelector(getCurrentPageId);
+  const currentPageName = useSelector(getCurrentPageName);
   useEffect(() => {
     if (
       props.currentPageName !== undefined &&
@@ -107,7 +110,7 @@ const WidgetsEditor = memo((props: EditorProps) => {
       </EditorWrapper>
     </EditorContextProvider>
   );
-});
+};
 
 const mapStateToProps = (state: AppState) => {
   return {
@@ -116,6 +119,10 @@ const mapStateToProps = (state: AppState) => {
     currentPageId: getCurrentPageId(state),
     currentPageName: getCurrentPageName(state),
   };
+};
+
+WidgetsEditor.whyDidYouRender = {
+  logOnDifferentValues: false,
 };
 
 export default connect(mapStateToProps)(WidgetsEditor);

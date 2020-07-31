@@ -1,4 +1,4 @@
-import React, { useRef, MutableRefObject } from "react";
+import React, { useRef, MutableRefObject, useEffect } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import { useFilteredEntities } from "./hooks";
@@ -21,6 +21,9 @@ const NoResult = styled(NonIdealState)`
 `;
 
 const EntityExplorer = () => {
+  useEffect(() => {
+    console.log("MOUNTING EXPLORER =============");
+  }, []);
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );

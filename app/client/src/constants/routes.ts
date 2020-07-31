@@ -1,5 +1,3 @@
-import { MenuIcons } from "icons/MenuIcons";
-
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
 export const PAGE_NOT_FOUND_URL = "/404";
@@ -73,11 +71,6 @@ export const PAGE_LIST_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/pages`;
-
-// export const EXPLORER_URL = (
-//   applicationId = ":applicationId",
-//   pageId = ":pageId",
-// ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/explorer`;
 
 export const DATA_SOURCES_EDITOR_URL = (
   applicationId = ":applicationId",
@@ -181,45 +174,6 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
     pageId,
   )}/queries?importTo=${selectedPageId}`;
 };
-
-export const EDITOR_ROUTES = [
-  {
-    icon: MenuIcons.EXPLORER_ICON,
-    path: BUILDER_PAGE_URL,
-    isActive: (expected: string, current: string) => {
-      // Currently, the explorer shows on all paths except for the
-      // WIDGETS_URL path
-
-      // get the applicationId and pageId from the current location pathname
-      const found = current.match(
-        /^\/applications\/(?<applicationId>\w+)\/pages\/(?<pageId>\w+)\//,
-      );
-      // In this case: expected = BUILDER_PAGE_URL(applicationId, pageId)
-      // If current url begins with expected url AND
-      // If the current url isn't the WIDGETS_URL THEN
-      // this is an explorer sidebar path
-      return (
-        current.indexOf(expected) === 0 &&
-        current !==
-          WIDGETS_URL(found?.groups?.applicationId, found?.groups?.pageId)
-      );
-    },
-    title: "Explorer",
-    className: "t--nav-link-entity-explorer",
-    exact: false,
-    allowed: true,
-  },
-  {
-    icon: MenuIcons.WIDGETS_ICON,
-    path: WIDGETS_URL,
-    isActive: (expected: string, current: string) => {
-      return expected === current;
-    },
-    title: "Widgets",
-    className: "t--nav-link-widgets-editor",
-    exact: true,
-  },
-];
 
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;

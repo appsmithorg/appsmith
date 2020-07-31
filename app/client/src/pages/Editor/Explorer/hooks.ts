@@ -70,6 +70,7 @@ const findDataSources = (dataSources: Datasource[], keyword: string) => {
 export const useFilteredEntities = (
   ref: MutableRefObject<HTMLInputElement | null>,
 ) => {
+  const start = performance.now();
   const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
 
   const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
@@ -211,6 +212,9 @@ export const useFilteredEntities = (
     () => compact([currentPageWidgetEntities, ...otherPagesWidgetEntities]),
     [currentPageWidgetEntities, otherPagesWidgetEntities],
   );
+
+  const stop = performance.now();
+  console.log("Calculations took", stop - start);
   return {
     widgets: allWidgetEntities,
     actions: actionEntities as DataTreeAction[],

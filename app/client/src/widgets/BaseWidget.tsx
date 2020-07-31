@@ -22,7 +22,6 @@ import { ExecuteActionPayload } from "constants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { PositionTypes } from "constants/WidgetConstants";
 
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
@@ -52,8 +51,6 @@ abstract class BaseWidget<
   T extends WidgetProps,
   K extends WidgetState
 > extends Component<T, K> {
-  static contextType = EditorContext;
-
   // Needed to send a default no validation option. In case a widget needs
   // validation implement this in the widget class again
   static getPropertyValidationMap(): WidgetPropertyValidationType {

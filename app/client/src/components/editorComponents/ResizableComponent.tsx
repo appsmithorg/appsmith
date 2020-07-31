@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, memo } from "react";
 import { XYCoord } from "react-dnd";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 
@@ -44,7 +44,7 @@ export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
 };
 
 /* eslint-disable react/display-name */
-export const ResizableComponent = (props: ResizableComponentProps) => {
+export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
@@ -275,6 +275,6 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       </VisibilityContainer>
     </Resizable>
   );
-};
+});
 
 export default ResizableComponent;

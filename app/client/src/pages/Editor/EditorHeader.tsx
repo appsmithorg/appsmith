@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
 import {
   BASE_URL,
   APPLICATIONS_URL,
@@ -9,8 +8,6 @@ import {
   PAGE_LIST_EDITOR_URL,
 } from "constants/routes";
 import { Directions } from "utils/helpers";
-
-import { PageListPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import CustomizedDropdown, {
@@ -25,6 +22,11 @@ import { Skin } from "constants/DefaultTheme";
 import { HelpModal } from "components/designSystems/appsmith/help/HelpModal";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import ShareApplicationForm from "pages/Editor/ShareApplicationForm";
+import { useSelector, useDispatch } from "react-redux";
+import { AppState } from "reducers";
+import { getIsPageSaving } from "selectors/editorSelectors";
+import { getPageList } from "selectors/appViewSelectors";
+import { publishApplication } from "actions/applicationActions";
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -58,18 +60,10 @@ const ShareButton = styled.div`
 `;
 
 type EditorHeaderProps = {
-  currentApplication?: ApplicationPayload;
-  isSaving?: boolean;
   pageSaveError?: boolean;
-  pageName?: string;
-  onPublish: () => void;
-  onCreatePage: (name: string) => void;
-  pages?: PageListPayload;
   currentPageId?: string;
   isPublishing: boolean;
-  publishedTime?: string;
   currentApplicationId?: string;
-  createModal: () => void;
 };
 const navigation: IBreadcrumbProps[] = [
   { href: BASE_URL, icon: "home", text: "Home" },
@@ -77,7 +71,32 @@ const navigation: IBreadcrumbProps[] = [
   { icon: "page-layout", text: "", current: true },
 ];
 export const EditorHeader = (props: EditorHeaderProps) => {
-  const selectedPageName = props.pages?.find(
+  const { currentApplicationId, currentPageId, isPublishing } = props;
+  const dispatch = useDispatch();
+  const publishApp = useCallback(() => {
+    if (currentApplicationId) {
+      dispatch(publishApplication(currentApplicationId));
+
+      const appName = currentApplication ? currentApplication.name : "";
+      AnalyticsUtil.logEvent("PUBLISH_APP", {
+        appId: currentApplicationId,
+        appName,
+      });
+    }
+  }, [dispatch]);
+
+  const currentPageName = useSelector((state: AppState) => {
+    return state.ui.editor.currentPageName;
+  });
+
+  const isSaving = useSelector(getIsPageSaving);
+  const currentApplication = useSelector((state: AppState) => {
+    return state.ui.applications.currentApplication;
+  });
+
+  const pages = useSelector(getPageList);
+
+  const selectedPageName = pages?.find(
     page => page.pageId === props.currentPageId,
   )?.pageName;
 
@@ -97,21 +116,15 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             ),
             onSelect: () =>
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: PAGE_LIST_EDITOR_URL(
-                  props.currentApplicationId,
-                  props.currentPageId,
-                ),
+                path: PAGE_LIST_EDITOR_URL(currentApplicationId, currentPageId),
               }),
           },
         ],
       },
       {
-        options: props.pages
-          ? props.pages.map(page => {
-              const url = BUILDER_PAGE_URL(
-                props.currentApplicationId,
-                page.pageId,
-              );
+        options: pages
+          ? pages.map(page => {
+              const url = BUILDER_PAGE_URL(currentApplicationId, page.pageId);
               return {
                 content: page.pageName,
                 onSelect: () => {
@@ -125,7 +138,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
                   });
                 },
                 shouldCloseDropdown: true,
-                active: page.pageId === props.currentPageId,
+                active: page.pageId === currentPageId,
               };
             })
           : [],
@@ -138,13 +151,10 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     openOnHover: false,
   };
 
-  let saveStatusMessage = "";
-  if (props.isSaving) {
-    saveStatusMessage = "Saving...";
-  }
-  if (!props.isSaving && !props.pageSaveError) {
-    saveStatusMessage = "All changes saved";
-  }
+  const saveStatusMessage = useMemo(() => {
+    if (isSaving) return "Saving...";
+    return "All changes saved";
+  }, [isSaving]);
 
   return (
     <StyledHeader>
@@ -163,9 +173,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           }
           Form={ShareApplicationForm}
           title={
-            props.currentApplication
-              ? props.currentApplication.name
-              : "Share Application"
+            currentApplication ? currentApplication.name : "Share Application"
           }
         />
       </ShareButton>
@@ -173,9 +181,9 @@ export const EditorHeader = (props: EditorHeaderProps) => {
       <LoadingContainer>{saveStatusMessage}</LoadingContainer>
       <PreviewPublishSection>
         <Button
-          onClick={props.onPublish}
+          onClick={publishApp}
           text="Publish"
-          loading={props.isPublishing}
+          loading={isPublishing}
           intent="primary"
           filled
           size="small"

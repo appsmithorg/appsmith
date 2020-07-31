@@ -27,6 +27,8 @@ import {
   useShowPropertyPane,
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
+import { closeAllModals } from "actions/widgetActions";
+import { useDispatch } from "react-redux";
 
 const Wrapper = styled.div<{ isVisible: boolean; showOnlySidebar?: boolean }>`
   position: absolute;
@@ -204,19 +206,23 @@ type PaneDrawerProps = {
 const PaneDrawer = (props: PaneDrawerProps) => {
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget, focusWidget } = useWidgetSelection();
-
+  const dispatch = useDispatch();
   useEffect(() => {
     // This pane drawer is only open when NOT on canvas.
     // De-select all widgets
     // Un-focus all widgets
     // Hide property pane
+    // Close all modals
     if (props.isVisible) {
       showPropertyPane();
       selectWidget(undefined);
       focusWidget(undefined);
+      dispatch(closeAllModals());
     }
-  }, [props.isVisible, selectWidget, showPropertyPane, focusWidget]);
+  }, [dispatch, props.isVisible, selectWidget, showPropertyPane, focusWidget]);
   return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;
 };
+
+PaneDrawer.displayName = "PaneDrawer";
 
 export default withRouter(EditorsRouter);
