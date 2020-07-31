@@ -56,9 +56,7 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
       </TriggerWrapper>
 
       <StyledDialog
-        canOutsideClickClose={
-          props.canOutsideClickClose ? props.canOutsideClickClose : false
-        }
+        canOutsideClickClose={!!props.canOutsideClickClose}
         canEscapeKeyClose={false}
         title={props.title}
         onClose={onClose}
@@ -68,10 +66,8 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
         <div className={Classes.DIALOG_BODY}>
           <Form
             onCancel={onClose}
-            orgId={props.orgId ? props.orgId : undefined}
-            applicationId={
-              props.applicationId ? props.applicationId : undefined
-            }
+            orgId={props.orgId}
+            applicationId={props.applicationId}
           />
         </div>
       </StyledDialog>
