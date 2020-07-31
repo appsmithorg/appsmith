@@ -51,9 +51,8 @@ export const ACTION_PLUGIN_MAP: Array<
         },
         generateCreatePageURL: API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
         isGroupActive: (params: ExplorerURLParams, pageId: string) =>
-          window.location.pathname.indexOf(
-            API_EDITOR_URL(params.applicationId, pageId),
-          ) > -1,
+          window.location.pathname ===
+          API_EDITOR_URL(params.applicationId, pageId),
       };
     case PluginType.DB:
       return {
@@ -68,9 +67,8 @@ export const ACTION_PLUGIN_MAP: Array<
         },
         generateCreatePageURL: QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
         isGroupActive: (params: ExplorerURLParams, pageId: string) =>
-          window.location.pathname.indexOf(
-            QUERIES_EDITOR_URL(params.applicationId, pageId),
-          ) > -1,
+          window.location.pathname ===
+          QUERIES_EDITOR_URL(params.applicationId, pageId),
       };
     default:
       return undefined;
