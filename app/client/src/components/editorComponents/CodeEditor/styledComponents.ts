@@ -133,6 +133,13 @@ export const EditorWrapper = styled.div<{
   flex-direction: row;
   text-transform: none;
   && {
+    .CodeMirror-cursor {
+      border-right: none;
+      border-left-color: ${props =>
+        props.editorTheme === EditorTheme.DARK
+          ? props.theme.colors.textOnDarkBG
+          : props.theme.colors.text}
+    }
     .cm-s-duotone-light.CodeMirror {
       background: #ffffff;
       color: #000000;
@@ -140,9 +147,6 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-dark.CodeMirror {
       background: #182026;
       color: #FFFFFF;
-    }
-    .cm-s-duotone-light.CodeMirror {
-      cm-cursor { border-left: 1px solid #f8f8f0; width: 1px }
     }
     .binding-brackets {
       color: ${props =>
