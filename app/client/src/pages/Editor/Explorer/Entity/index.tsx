@@ -86,7 +86,10 @@ export const Entity = (props: EntityProps) => {
     if (props.isDefaultExpanded) {
       open(true);
     }
-  }, [props.isDefaultExpanded, open]);
+    if (!props.searchKeyword && !props.isDefaultExpanded) {
+      open(false);
+    }
+  }, [props.isDefaultExpanded, open, props.searchKeyword]);
 
   const toggleChildren = () => {
     // Make sure this entity is enabled before toggling the collpse of children.
