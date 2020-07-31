@@ -2,7 +2,6 @@ import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { focusWidget } from "actions/widgetActions";
 import { useCallback } from "react";
-import { useHistory } from "react-router";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
@@ -46,17 +45,15 @@ export const useCanvasSnapRowsUpdateHook = () => {
 
 export const useWidgetSelection = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
   return {
     selectWidget: useCallback(
       (widgetId?: string) => {
-        if (widgetId) history.push(`#${widgetId}`);
         dispatch({
           type: ReduxActionTypes.SELECT_WIDGET,
           payload: { widgetId },
         });
       },
-      [dispatch, history],
+      [dispatch],
     ),
     focusWidget: useCallback(
       (widgetId?: string) => dispatch(focusWidget(widgetId)),

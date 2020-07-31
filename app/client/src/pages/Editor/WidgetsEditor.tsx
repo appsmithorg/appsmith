@@ -1,16 +1,13 @@
-import React, { useEffect, ReactNode, memo } from "react";
-import { connect, useSelector } from "react-redux";
+import React, { useEffect, ReactNode, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
-import { AppState } from "reducers";
-import { WidgetProps } from "widgets/BaseWidget";
 import {
   getIsFetchingPage,
   getCurrentPageId,
   getCanvasWidgetDsl,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { Spinner } from "@blueprintjs/core";
@@ -19,6 +16,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import { getCanvasClassName } from "utils/generators";
 import { flashElementById } from "utils/helpers";
+import { useParams } from "react-router";
+import { fetchPage } from "actions/pageActions";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -45,45 +44,48 @@ const CanvasContainer = styled.section`
   }
 `;
 
-type EditorProps = {
-  widgets?: ContainerWidgetProps<WidgetProps>;
-  currentPageId?: string;
-  isFetchingPage: boolean;
-  currentPageName?: string;
-};
-
 /* eslint-disable react/display-name */
-const WidgetsEditor = (props: EditorProps) => {
+const WidgetsEditor = () => {
   const { focusWidget, selectWidget } = useWidgetSelection();
+  const params = useParams<{ applicationId: string; pageId: string }>();
+  const dispatch = useDispatch();
+
   const widgets = useSelector(getCanvasWidgetDsl);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
+
+  // Switch page
   useEffect(() => {
-    if (
-      props.currentPageName !== undefined &&
-      props.currentPageId !== undefined
-    ) {
+    if (currentPageId !== params.pageId && !!params.pageId) {
+      dispatch(fetchPage(params.pageId));
+    }
+  }, [currentPageId, params.pageId, dispatch]);
+
+  // log page load
+  useEffect(() => {
+    if (currentPageName !== undefined && currentPageId !== undefined) {
       AnalyticsUtil.logEvent("PAGE_LOAD", {
-        pageName: props.currentPageName,
-        pageId: props.currentPageId,
+        pageName: currentPageName,
+        pageId: currentPageId,
         mode: "EDIT",
       });
     }
-  }, [props.currentPageName, props.currentPageId]);
+  }, [currentPageName, currentPageId]);
 
+  // navigate to widget
   useEffect(() => {
-    if (!props.isFetchingPage && window.location.hash.length > 0) {
+    if (!isFetchingPage && window.location.hash.length > 0) {
       const widgetIdFromURLHash = window.location.hash.substr(1);
       flashElementById(widgetIdFromURLHash);
       selectWidget(widgetIdFromURLHash);
     }
-  }, [props.isFetchingPage, selectWidget]);
+  }, [isFetchingPage, selectWidget]);
 
-  const handleWrapperClick = () => {
+  const handleWrapperClick = useCallback(() => {
     focusWidget && focusWidget();
     selectWidget && selectWidget();
-  };
+  }, [focusWidget, selectWidget]);
 
   const pageLoading = (
     <Centered>
@@ -91,20 +93,17 @@ const WidgetsEditor = (props: EditorProps) => {
     </Centered>
   );
   let node: ReactNode;
-  if (props.isFetchingPage) {
+  if (isFetchingPage) {
     node = pageLoading;
   }
-  if (!props.isFetchingPage && props.widgets) {
-    node = <Canvas dsl={props.widgets} />;
+  if (!isFetchingPage && widgets) {
+    node = <Canvas dsl={widgets} />;
   }
   log.debug("Canvas rendered");
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
-        <CanvasContainer
-          key={props.currentPageId}
-          className={getCanvasClassName()}
-        >
+        <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
           {node}
         </CanvasContainer>
       </EditorWrapper>
@@ -112,17 +111,4 @@ const WidgetsEditor = (props: EditorProps) => {
   );
 };
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    widgets: getCanvasWidgetDsl(state),
-    isFetchingPage: getIsFetchingPage(state),
-    currentPageId: getCurrentPageId(state),
-    currentPageName: getCurrentPageName(state),
-  };
-};
-
-WidgetsEditor.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
-
-export default connect(mapStateToProps)(WidgetsEditor);
+export default WidgetsEditor;

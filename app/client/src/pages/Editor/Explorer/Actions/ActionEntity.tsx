@@ -1,9 +1,8 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history from "utils/history";
 import { GenericAction } from "@appsmith/entities/Action";
-import { noop } from "lodash";
 import { saveActionName } from "actions/actionActions";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import EntityProperty from "../Entity/EntityProperty";
@@ -51,31 +50,38 @@ type ExplorerActionEntityProps = {
   pageId: string;
 };
 
-export const ExplorerActionEntity = (props: ExplorerActionEntityProps) => {
+export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
+  const switchToAction = useCallback(() => {
+    props.url && history.push(props.url);
+  }, [props.url]);
+
+  const contextMenu = (
+    <ActionEntityContextMenu
+      id={props.action.actionId}
+      name={props.action.name}
+      className={EntityClassNames.ACTION_CONTEXT_MENU}
+      pageId={props.pageId}
+    />
+  );
   return (
     <Entity
       key={props.action.actionId}
       icon={props.icon}
       name={props.action.name}
-      action={props.url ? () => history.push(props.url) : noop}
+      action={switchToAction}
       isDefaultExpanded={props.active}
       active={props.active}
       entityId={props.action.actionId}
       step={props.step}
       updateEntityName={getUpdateActionNameReduxAction}
       searchKeyword={props.searchKeyword}
-      contextMenu={
-        <ActionEntityContextMenu
-          id={props.action.actionId}
-          name={props.action.name}
-          className={EntityClassNames.ACTION_CONTEXT_MENU}
-          pageId={props.pageId}
-        />
-      }
+      contextMenu={contextMenu}
     >
       {getActionProperties(props.action, props.step + 1)}
     </Entity>
   );
-};
+});
+
+ExplorerActionEntity.displayName = "ExplorerActionEntity";
 
 export default ExplorerActionEntity;

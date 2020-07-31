@@ -1,7 +1,7 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import Entity from "../Entity";
 import { pageGroupIcon } from "../ExplorerIcons";
-import { noop } from "lodash";
+import { noop, compact } from "lodash";
 import { useDispatch } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
@@ -33,6 +33,30 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
     dispatch(createPage(params.applicationId, name));
   }, [dispatch, props.pages, params.applicationId]);
 
+  const pageEntityList = useMemo(
+    () =>
+      compact(
+        props.pages.map((page: Page) => {
+          const widgets = props.widgets?.find(
+            (tree?: WidgetTree) => tree && tree.pageId === page.pageId,
+          );
+          const actions = props.actions.filter(
+            (action: GenericAction & { pageId?: string }) =>
+              action.pageId === page.pageId,
+          );
+          if (
+            (!widgets || widgets.length === 0) &&
+            actions.length === 0 &&
+            props.searchKeyword
+          ) {
+            return null;
+          }
+          return { page, widgets, actions };
+        }),
+      ),
+    [props.widgets, props.actions, props.pages, props.searchKeyword],
+  );
+
   return (
     <Entity
       name="Pages"
@@ -43,20 +67,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       step={props.step}
       createFn={createPageCallback}
     >
-      {props.pages.map((page: Page) => {
-        const widgets = props.widgets?.find(
-          (tree?: WidgetTree) => tree && tree.pageId === page.pageId,
-        );
-        const actions = props.actions.filter(
-          (action: GenericAction & { pageId?: string }) =>
-            action.pageId === page.pageId,
-        );
-        if (
-          (!widgets || widgets.length === 0) &&
-          actions.length === 0 &&
-          props.searchKeyword
-        )
-          return null;
+      {pageEntityList.map(({ page, widgets, actions }) => {
         return (
           <ExplorerPageEntity
             key={page.pageId}

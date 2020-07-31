@@ -73,28 +73,23 @@ const navigation: IBreadcrumbProps[] = [
 export const EditorHeader = (props: EditorHeaderProps) => {
   const { currentApplicationId, currentPageId, isPublishing } = props;
   const dispatch = useDispatch();
-  const publishApp = useCallback(() => {
-    if (currentApplicationId) {
-      dispatch(publishApplication(currentApplicationId));
-
-      const appName = currentApplication ? currentApplication.name : "";
-      AnalyticsUtil.logEvent("PUBLISH_APP", {
-        appId: currentApplicationId,
-        appName,
-      });
-    }
-  }, [dispatch]);
-
-  const currentPageName = useSelector((state: AppState) => {
-    return state.ui.editor.currentPageName;
-  });
-
   const isSaving = useSelector(getIsPageSaving);
   const currentApplication = useSelector((state: AppState) => {
     return state.ui.applications.currentApplication;
   });
 
   const pages = useSelector(getPageList);
+  const appName = currentApplication?.name || "";
+  const publishApp = useCallback(() => {
+    if (currentApplicationId) {
+      dispatch(publishApplication(currentApplicationId));
+
+      AnalyticsUtil.logEvent("PUBLISH_APP", {
+        appId: currentApplicationId,
+        appName,
+      });
+    }
+  }, [dispatch, appName, currentApplicationId]);
 
   const selectedPageName = pages?.find(
     page => page.pageId === props.currentPageId,

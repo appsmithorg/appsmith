@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, ReactNode } from "react";
+import React, { useMemo, useCallback, ReactNode, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
@@ -119,7 +119,7 @@ export type WidgetEntityProps = {
   isDefaultExpanded?: boolean;
 };
 
-export const WidgetEntity = (props: WidgetEntityProps) => {
+export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const params = useParams<ExplorerURLParams>();
   const { navigateToWidget, isWidgetSelected } = useWidget(
     props.widgetProps.widgetId,
@@ -141,6 +141,14 @@ export const WidgetEntity = (props: WidgetEntityProps) => {
     ));
   }
 
+  const contextMenu = (
+    <WidgetContextMenu
+      widgetId={props.widgetProps.widgetId}
+      parentId={props.widgetProps.parentId}
+      className={EntityClassNames.ACTION_CONTEXT_MENU}
+    />
+  );
+
   return (
     <Entity
       key={props.widgetProps.widgetId}
@@ -158,19 +166,13 @@ export const WidgetEntity = (props: WidgetEntityProps) => {
         (!!props.searchKeyword && !!props.widgetProps.children) ||
         !!props.isDefaultExpanded
       }
-      contextMenu={
-        props.pageId === params?.pageId && (
-          <WidgetContextMenu
-            widgetId={props.widgetProps.widgetId}
-            parentId={props.widgetProps.parentId}
-            className={EntityClassNames.ACTION_CONTEXT_MENU}
-          />
-        )
-      }
+      contextMenu={props.pageId === params?.pageId && contextMenu}
     >
       {children}
     </Entity>
   );
-};
+});
+
+WidgetEntity.displayName = "WidgetEntity";
 
 export default WidgetEntity;

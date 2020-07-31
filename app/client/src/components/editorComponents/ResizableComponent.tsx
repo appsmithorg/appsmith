@@ -38,6 +38,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
 
 export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
   paddingOffset: number;
@@ -47,7 +48,9 @@ export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
 export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
-  const { updateWidget, occupiedSpaces } = useContext(EditorContext);
+  const { updateWidget } = useContext(EditorContext);
+  const occupiedSpaces = useSelector(getOccupiedSpaces);
+
   const { updateDropTargetRows, persistDropTargetRows } = useContext(
     DropTargetContext,
   );

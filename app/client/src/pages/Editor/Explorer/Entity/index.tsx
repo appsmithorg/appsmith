@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect, memo } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import CollapseToggle from "./CollapseToggle";
@@ -76,8 +76,7 @@ export type EntityProps = {
   runActionOnExpand?: boolean;
 };
 
-/* eslint-disable react/display-name */
-export const Entity = memo((props: EntityProps) => {
+export const Entity = (props: EntityProps) => {
   const [isOpen, open] = useState(!props.disabled && !!props.isDefaultExpanded);
   const isUpdating = useEntityUpdateState(props.entityId);
   const isEditing = useEntityEditState(props.entityId);
@@ -139,6 +138,8 @@ export const Entity = memo((props: EntityProps) => {
       </Collapse>
     </Wrapper>
   );
-});
+};
+
+Entity.displayName = "Entity";
 
 export default Entity;

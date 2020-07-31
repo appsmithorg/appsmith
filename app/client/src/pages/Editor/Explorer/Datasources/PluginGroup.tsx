@@ -3,8 +3,7 @@ import Entity from "../Entity";
 import { Plugin } from "api/PluginApi";
 import { Datasource } from "api/DatasourcesApi";
 import { getPluginIcon } from "../ExplorerIcons";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
+import { getDatasourceIdFromURL } from "../helpers";
 import ExplorerDatasourceEntity from "./DatasourceEntity";
 
 type DatasourcePluginGroupProps = {
@@ -14,13 +13,13 @@ type DatasourcePluginGroupProps = {
   searchKeyword?: string;
 };
 export const DatasourcePluginGroup = (props: DatasourcePluginGroupProps) => {
-  const params = useParams<ExplorerURLParams>();
   const pluginIcon = getPluginIcon(props.plugin);
+  const datasourceIdFromURL = getDatasourceIdFromURL();
   const currentGroup =
-    !!params.datasourceId &&
+    !!datasourceIdFromURL &&
     props.datasources
       .map((datasource: Datasource) => datasource.id)
-      .indexOf(params.datasourceId) > -1;
+      .indexOf(datasourceIdFromURL) > -1;
 
   return (
     <Entity

@@ -23,7 +23,7 @@ import PositionedContainer from "components/designSystems/appsmith/PositionedCon
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
 import { PositionTypes } from "constants/WidgetConstants";
-
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import {
   BASE_WIDGET_VALIDATION,
@@ -51,6 +51,8 @@ abstract class BaseWidget<
   T extends WidgetProps,
   K extends WidgetState
 > extends Component<T, K> {
+  static contextType = EditorContext;
+
   // Needed to send a default no validation option. In case a widget needs
   // validation implement this in the widget class again
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -128,6 +130,7 @@ abstract class BaseWidget<
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   componentDidUpdate(prevProps: T) {}
 
   componentDidMount(): void {}

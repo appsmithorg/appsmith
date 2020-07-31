@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, memo } from "react";
 import { useSelector } from "react-redux";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
@@ -121,7 +121,7 @@ const StyledLink = styled(Link)`
   }
 `;
 
-export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
+export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
@@ -178,6 +178,8 @@ export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
       {childNode}
     </Entity>
   );
-};
+});
+
+ExplorerWidgetGroup.displayName = "ExplorerWidgetGroup";
 
 export default ExplorerWidgetGroup;

@@ -30,8 +30,4 @@ const Canvas = memo((props: CanvasProps) => {
 
 Canvas.displayName = "Canvas";
 
-// Canvas.whyDidYouRender = {
-//   logOnDifferentValues: false,
-// };
-
 export default Canvas;

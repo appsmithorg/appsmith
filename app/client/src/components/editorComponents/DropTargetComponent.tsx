@@ -31,6 +31,7 @@ import {
   useWidgetSelection,
   useCanvasSnapRowsUpdateHook,
 } from "utils/hooks/dragResizeHooks";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -76,8 +77,8 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
 
-  const { updateWidget, occupiedSpaces } = useContext(EditorContext);
-
+  const { updateWidget } = useContext(EditorContext);
+  const occupiedSpaces = useSelector(getOccupiedSpaces);
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );

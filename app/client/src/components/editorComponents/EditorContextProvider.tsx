@@ -1,8 +1,6 @@
 import React, { Context, createContext, ReactNode } from "react";
 import { connect } from "react-redux";
 
-import { AppState } from "reducers";
-
 import { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
@@ -13,7 +11,6 @@ import { ExecuteActionPayload } from "constants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 
-import { getOccupiedSpaces } from "selectors/editorSelectors";
 import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
@@ -52,7 +49,6 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
     updateWidget,
     updateWidgetProperty,
     updateWidgetMetaProperty,
-    occupiedSpaces,
     disableDrag,
     children,
     resetChildrenMetaProperty,
@@ -64,7 +60,6 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
         updateWidget,
         updateWidgetProperty,
         updateWidgetMetaProperty,
-        occupiedSpaces,
         disableDrag,
         resetChildrenMetaProperty,
       }}
@@ -72,18 +67,6 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
       {children}
     </EditorContext.Provider>
   );
-};
-
-/**
- * TODO<Satbir>: If a property is created here, it is only available
- * in editor mode. If you need a property in published app, it
- * has to be copied in src/pages/AppViewer/index.tsx file as well.
- * Rework to avoid duplicating the property.
- */
-const mapStateToProps = (state: AppState) => {
-  return {
-    occupiedSpaces: getOccupiedSpaces(state),
-  };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -122,7 +105,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(EditorContextProvider);
+export default connect(null, mapDispatchToProps)(EditorContextProvider);

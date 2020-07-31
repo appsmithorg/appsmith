@@ -14,33 +14,13 @@ import {
   DataTree,
   DataTreeAction,
 } from "entities/DataTree/dataTreeFactory";
-import { Page } from "constants/ReduxActionConstants";
 import { compact } from "lodash";
 import { Datasource } from "api/DatasourcesApi";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { evaluateDataTreeWithFunctions } from "selectors/dataTreeSelectors";
 import { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-
-const usePages = () => {
-  const pageList: Page[] = useSelector((state: AppState) => {
-    return state.entities.pageList.pages;
-  });
-  const defaultPageId = useSelector(
-    (state: AppState) => state.entities.pageList.defaultPageId,
-  );
-
-  const pages: Array<Page & { ENTITY_TYPE: ENTITY_TYPE }> = pageList.map(
-    (page: Page) => {
-      return {
-        ...page,
-        ENTITY_TYPE: ENTITY_TYPE.PAGE,
-        isDefault: page.pageId === defaultPageId,
-      };
-    },
-  );
-  return pages;
-};
+import log from "loglevel";
 
 const findWidgets = (widgets: WidgetProps, keyword: string) => {
   if (widgets.children) {
@@ -74,8 +54,9 @@ export const useFilteredEntities = (
   const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
 
   const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
-
-  const pages = usePages();
+  const pages = useSelector((state: AppState) => {
+    return state.entities.pageList.pages;
+  });
 
   const currentPageId = useSelector((state: AppState) => {
     return state.entities.pageList.currentPageId;
@@ -106,7 +87,6 @@ export const useFilteredEntities = (
     const widgetTree = CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets,
     });
-    widgetTree.ENTITY_TYPE = ENTITY_TYPE.WIDGET;
     widgetTree.pageId = currentPageId;
 
     return searchKeyword !== null
@@ -120,7 +100,6 @@ export const useFilteredEntities = (
       .filter((pageId: string) => pageId !== currentPageId)
       .map((pageId: string) => {
         const tree = allPageDSLs[pageId];
-        tree.ENTITY_TYPE = ENTITY_TYPE.WIDGET;
         tree.pageId = pageId;
 
         return searchKeyword !== null
@@ -214,7 +193,7 @@ export const useFilteredEntities = (
   );
 
   const stop = performance.now();
-  console.log("Calculations took", stop - start);
+  log.debug("Explorer hook props calculations took", stop - start, "ms");
   return {
     widgets: allWidgetEntities,
     actions: actionEntities as DataTreeAction[],

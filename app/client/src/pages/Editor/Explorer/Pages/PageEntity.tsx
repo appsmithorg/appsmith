@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, memo } from "react";
 import { Page } from "constants/ReduxActionConstants";
 import { WidgetTree } from "../Widgets/WidgetEntity";
 import { GenericAction } from "entities/Action";
@@ -21,33 +21,35 @@ type ExplorerPageEntityProps = {
   step: number;
   searchKeyword?: string;
 };
-export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
+export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
+  const switchPage = useCallback(() => {
+    if (!props.isCurrentPage && !!params.applicationId) {
+      history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
+    }
+  }, [props.isCurrentPage, props.page.pageId, params.applicationId]);
 
+  const contextMenu = (
+    <PageContextMenu
+      key={props.page.pageId}
+      applicationId={params.applicationId}
+      pageId={props.page.pageId}
+      name={props.page.pageName}
+      className={EntityClassNames.ACTION_CONTEXT_MENU}
+      isDefaultPage={props.page.isDefault}
+    />
+  );
   return (
     <Entity
-      key={props.page.pageId}
       icon={pageIcon}
       name={props.page.pageName}
       step={props.step}
-      action={() =>
-        !props.isCurrentPage &&
-        params.applicationId &&
-        history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId))
-      }
+      action={switchPage}
       entityId={props.page.pageId}
       active={props.isCurrentPage}
       isDefaultExpanded={props.isCurrentPage || !!props.searchKeyword}
       updateEntityName={updatePage}
-      contextMenu={
-        <PageContextMenu
-          applicationId={params.applicationId}
-          pageId={props.page.pageId}
-          name={props.page.pageName}
-          className={EntityClassNames.ACTION_CONTEXT_MENU}
-          isDefaultPage={props.page.isDefault}
-        />
-      }
+      contextMenu={contextMenu}
     >
       {!(!props.widgets && props.searchKeyword) && (
         <ExplorerWidgetGroup
@@ -65,6 +67,8 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       )}
     </Entity>
   );
-};
+});
+
+ExplorerPageEntity.displayName = "ExplorerPageEntity";
 
 export default ExplorerPageEntity;

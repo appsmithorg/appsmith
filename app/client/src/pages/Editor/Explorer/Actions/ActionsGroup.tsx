@@ -1,7 +1,7 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback, memo } from "react";
 import ExplorerActionEntity from "./ActionEntity";
 import { Page } from "constants/ReduxActionConstants";
-import { ExplorerURLParams } from "../helpers";
+import { ExplorerURLParams, getActionIdFromURL } from "../helpers";
 import { ActionGroupConfig } from "./helpers";
 import { useParams } from "react-router";
 import { GenericAction, ApiActionConfig } from "entities/Action";
@@ -16,7 +16,7 @@ type ExplorerActionsGroupProps = {
   config: ActionGroupConfig;
   page: Page;
 };
-export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
+export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   let childNode: ReactNode = props.actions.map((action: GenericAction) => {
     const url = props.config?.getURL(
@@ -24,8 +24,8 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
       props.page.pageId,
       action.actionId,
     );
-    const active =
-      params?.apiId === action.actionId || params?.queryId === action.actionId;
+    const actionId = getActionIdFromURL();
+    const active = actionId === action.actionId;
 
     let method = undefined;
     method = (action.config as ApiActionConfig).httpMethod;
@@ -54,6 +54,15 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
       </EntityPlaceholder>
     );
   }
+
+  const switchToCreateActionPage = useCallback(() => {
+    const path = props.config?.generateCreatePageURL(
+      params?.applicationId,
+      props.page.pageId,
+      props.page.pageId,
+    );
+    history.push(path);
+  }, [props.config, props.page.pageId, params]);
   return (
     <Entity
       icon={props.config?.icon}
@@ -61,14 +70,7 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
       entityId={props.page.pageId + "_" + props.config?.type}
       step={props.step}
       disabled={!!props.searchKeyword && (!childNode || !props.actions.length)}
-      createFn={() => {
-        const path = props.config?.generateCreatePageURL(
-          params?.applicationId,
-          props.page.pageId,
-          props.page.pageId,
-        );
-        history.push(path);
-      }}
+      createFn={switchToCreateActionPage}
       isDefaultExpanded={
         props.config?.isGroupActive(params, props.page.pageId) ||
         !!props.searchKeyword
@@ -78,6 +80,8 @@ export const ExplorerActionsGroup = (props: ExplorerActionsGroupProps) => {
       {childNode}
     </Entity>
   );
-};
+});
+
+ExplorerActionsGroup.displayName = "ExplorerActionsGroup";
 
 export default ExplorerActionsGroup;

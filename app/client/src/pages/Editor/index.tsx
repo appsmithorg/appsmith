@@ -87,14 +87,19 @@ class Editor extends Component<EditorProps> {
     }
   }
 
-  shouldComponentUpdate(nextProps: EditorProps) {
+  shouldComponentUpdate(
+    nextProps: EditorProps,
+    nextState: { isDialogOpen: boolean; registered: boolean },
+  ) {
     return (
       nextProps.currentPageId !== this.props.currentPageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
       nextProps.isEditorLoading !== this.props.isEditorLoading ||
-      nextProps.errorPublishing !== this.props.errorPublishing
+      nextProps.errorPublishing !== this.props.errorPublishing ||
+      nextState.isDialogOpen !== this.state.isDialogOpen ||
+      nextState.registered !== this.state.registered
     );
   }
 
