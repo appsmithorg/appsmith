@@ -52,7 +52,6 @@ type EditorProps = {
   isEditorInitialized: boolean;
   editorLoadingError: boolean;
   errorPublishing: boolean;
-  isPageSwitching: boolean;
   createModal: () => void;
   currentApplication?: ApplicationPayload;
 } & RouteComponentProps<BuilderRouteParams>;
