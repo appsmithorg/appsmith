@@ -1,10 +1,15 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
@@ -12,6 +17,7 @@ import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,13 +53,40 @@ public class UserController extends BaseController<UserService, User, String> {
         this.userSignup = userSignup;
     }
 
-    @PostMapping
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
                                           @RequestHeader(name = "Origin", required = false) String originHeader,
                                           ServerWebExchange exchange) {
         return userSignup.signup(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<User>> createFormEncoded(ServerWebExchange exchange) {
+        return exchange.getFormData()
+                .map(formData -> {
+                    final User user = new User();
+                    user.setEmail(formData.getFirst(FieldName.EMAIL));
+                    user.setPassword(formData.getFirst("password"));
+                    if (formData.containsKey(FieldName.NAME)) {
+                        user.setName(formData.getFirst(FieldName.NAME));
+                    }
+                    if (formData.containsKey("source")) {
+                        user.setSource(LoginSource.valueOf(formData.getFirst("source")));
+                    }
+                    if (formData.containsKey("state")) {
+                        user.setState(UserState.valueOf(formData.getFirst("state")));
+                    }
+                    if (formData.containsKey("isEnabled")) {
+                        user.setIsEnabled(Boolean.valueOf(formData.getFirst("isEnabled")));
+                    }
+                    return user;
+                })
+                .flatMap(user -> create(user, null, exchange))
+                .onErrorMap(error ->
+                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to read HTTP message"));
     }
 
     @PutMapping("/switchOrganization/{orgId}")
