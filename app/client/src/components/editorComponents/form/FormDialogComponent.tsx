@@ -22,6 +22,7 @@ const TriggerWrapper = styled.div``;
 
 type FormDialogComponentProps = {
   isOpen?: boolean;
+  canOutsideClickClose?: boolean;
   orgId?: string;
   title: string;
   Form: any;
@@ -55,7 +56,9 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
       </TriggerWrapper>
 
       <StyledDialog
-        canOutsideClickClose={false}
+        canOutsideClickClose={
+          props.canOutsideClickClose ? props.canOutsideClickClose : false
+        }
         canEscapeKeyClose={false}
         title={props.title}
         onClose={onClose}

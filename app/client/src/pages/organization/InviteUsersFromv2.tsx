@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, createRef } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
-import copy from "copy-to-clipboard";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
@@ -28,37 +27,8 @@ import {
 import history from "utils/history";
 import { Colors } from "constants/Colors";
 import { isEmail } from "utils/formhelpers";
-import { StyledSwitch } from "components/propertyControls/StyledControls";
-import Spinner from "components/editorComponents/Spinner";
+import ShareWithPublic from "./ShareWithPublic";
 import Divider from "components/editorComponents/Divider";
-import { getDefaultPageId } from "sagas/SagaUtils";
-import { getApplicationViewerPageURL } from "constants/routes";
-
-const ShareWithPublicOption = styled.div`
-   {
-    display: flex;
-    padding: 10px 0px;
-    justify-content: space-between;
-  }
-`;
-
-const ShareTitle = styled.div`
-  font-size: ${props => props.theme.fontSizes[4]}px;
-  font-weight: bold;
-  padding-bottom: 10px;
-`;
-
-const ShareToggle = styled.div`
-   {
-    &&& label {
-      margin-bottom: 0px;
-    }
-    &&& div {
-      margin-right: 5px;
-    }
-    display: flex;
-  }
-`;
 
 const OrgInviteTitle = styled.div`
   font-weight: bold;
@@ -70,9 +40,14 @@ const StyledForm = styled.form`
   background: white;
   padding: ${props => props.theme.spaces[5]}px;
   &&& {
+    .wrapper > div {
+      width: 70%;
+    }
     .bp3-input {
-      width: calc(100vh - 285px);
       box-shadow: none;
+    }
+    .bp3-button {
+      padding-top: 5px;
     }
   }
   .manageUsers {
@@ -114,7 +89,7 @@ const UserList = styled.div`
 const StyledButton = styled(Button)`
   &&&.${Classes.BUTTON} {
     width: 83px;
-    height: 41px;
+    height: 31px;
     border-radius: 0px;
   }
 `;
@@ -183,52 +158,17 @@ const InviteUsersForm = (props: any) => {
     fetchCurrentOrg(props.orgId);
   }, [props.orgId, fetchUser, fetchAllRoles, fetchCurrentOrg]);
 
-  const defaultPageId = getDefaultPageId(currentApplicationDetails.pages);
-  const viewApplicationURL = getApplicationViewerPageURL(
-    applicationId,
-    defaultPageId,
-  );
-
   return (
     <>
       {applicationId && (
         <>
-          <ShareWithPublicOption>
-            <div>
-              <ShareTitle>Share a link to this application.</ShareTitle>
-              <ShareToggle>
-                {currentApplicationDetails && (
-                  <StyledSwitch
-                    onChange={() => {
-                      changeAppViewAccess(
-                        applicationId,
-                        !currentApplicationDetails.isPublic,
-                      );
-                    }}
-                    disabled={isChangingViewAccess || isFetchingApplication}
-                    checked={currentApplicationDetails.isPublic}
-                    large
-                  />
-                )}
-                Allow access without login
-                {(isChangingViewAccess || isFetchingApplication) && (
-                  <Spinner size={20} />
-                )}
-              </ShareToggle>
-            </div>
-            <Button
-              size="large"
-              text="Copy Link"
-              filled
-              icon={"duplicate"}
-              intent="primary"
-              onClick={() => {
-                copy(
-                  `${window.location.origin.toString()}${viewApplicationURL}`,
-                );
-              }}
-            />
-          </ShareWithPublicOption>
+          <ShareWithPublic
+            changeAppViewAccess={changeAppViewAccess}
+            isFetchingApplication={isFetchingApplication}
+            currentApplicationDetails={currentApplicationDetails}
+            applicationId={applicationId}
+            isChangingViewAccess={isChangingViewAccess}
+          />
           <Divider />
           <OrgInviteTitle>Invite Users to {currentOrg?.name} </OrgInviteTitle>
         </>
@@ -260,7 +200,7 @@ const InviteUsersForm = (props: any) => {
               name="role"
               placeholder="Select a role"
               options={props.roles}
-              size="large"
+              size="small"
               outline={false}
               data-cy="t--invite-role-input"
             />
