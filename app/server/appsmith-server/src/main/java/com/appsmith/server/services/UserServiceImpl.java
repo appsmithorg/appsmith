@@ -560,7 +560,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         List<String> usernames = inviteUsersDTO.getUsernames();
 
         if (usernames == null || usernames.isEmpty()) {
-            return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
         }
 
         if (inviteUsersDTO.getRoleName() == null || inviteUsersDTO.getRoleName().isEmpty()) {
