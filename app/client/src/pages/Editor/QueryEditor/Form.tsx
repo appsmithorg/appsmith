@@ -430,7 +430,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           )}
         </div>
 
-        {!_.isNil(undefined) ? (
+        {!_.isNil(editorConfig) ? (
           _.map(editorConfig, renderEachConfig)
         ) : (
           <ErrorMessage>An unexpected error occurred</ErrorMessage>
