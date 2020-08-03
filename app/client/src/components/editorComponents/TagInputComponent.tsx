@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { TagInput } from "@blueprintjs/core";
 import {
@@ -46,12 +46,18 @@ type TagInputProps = {
  */
 const TagInputComponent = (props: TagInputProps) => {
   const _values =
-    props.input.value &&
-    props.input.value.length > 0 &&
-    props.input.value.split(",");
+    props.input.value && props.input.value.length > 0
+      ? props.input.value.split(",")
+      : [];
 
   const [values, setValues] = useState<string[]>(_values || []);
   const [currentValue, setCurrentValue] = useState<string>("");
+
+  useEffect(() => {
+    if (_values.length === 0 && values.length > 0) {
+      setValues([]);
+    }
+  }, [_values, values]);
 
   const commitValues = (newValues: string[]) => {
     setValues(newValues);
@@ -121,6 +127,7 @@ const TagInputComponent = (props: TagInputProps) => {
         tagProps={{
           round: true,
         }}
+        large={false}
       />
     </TagInputWrapper>
   );

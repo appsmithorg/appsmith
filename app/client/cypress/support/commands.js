@@ -37,9 +37,7 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgSectionBtn)
-    .first()
-    .click({ force: true });
+  cy.get(".t--org-name").click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -79,9 +77,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgSection.concat(orgName).concat(")"))
-    .first()
-    .click({ force: true });
+  cy.get(".t--org-name").click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -103,9 +99,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgSection.concat(orgName).concat(")"))
-    .first()
-    .click({ force: true });
+  cy.get(".t--org-name").click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -125,7 +119,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
     200,
   );
   cy.contains(email);
-  cy.get(homePage.manageUsers).click({ force: true });
+  cy.get(".bp3-icon-small-cross").click({ force: true });
   cy.xpath(homePage.appHome)
     .should("be.visible")
     .click();

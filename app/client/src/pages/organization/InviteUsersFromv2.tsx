@@ -225,17 +225,17 @@ const InviteUsersForm = (props: any) => {
             );
           })}
         </UserList>
-        <Button
-          className="manageUsers"
-          text="Manage Users"
-          filled
-          intent="primary"
-          onClick={() => {
-            pathRegex.test(currentPath)
-              ? onCancel()
-              : history.push(`/org/${props.orgId}/settings`);
-          }}
-        />
+        {!pathRegex.test(currentPath) && (
+          <Button
+            className="manageUsers"
+            text="Manage Users"
+            filled
+            intent="primary"
+            onClick={() => {
+              history.push(`/org/${props.orgId}/settings`);
+            }}
+          />
+        )}
       </StyledForm>
     </>
   );
