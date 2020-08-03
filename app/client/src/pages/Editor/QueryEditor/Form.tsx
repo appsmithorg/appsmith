@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover } from "@blueprintjs/core";
+import { Icon, Popover, Spinner } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -38,6 +38,11 @@ import {
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
 
+import FormControlFactory from "utils/FormControlFactory";
+import QueryConfigResponse from "mockResponses/QueryConfigResponse";
+import { ControlProps } from "components/formControls/BaseControl";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+
 const QueryFormContainer = styled.div`
   padding: 20px 32px;
   width: 100%;
@@ -49,24 +54,11 @@ const QueryFormContainer = styled.div`
     line-height: 20px;
     margin-top: 15px;
   }
-
-  .textAreaStyles {
-    border-radius: 4px;
-    border: 1px solid #d0d7dd;
-    font-size: 14px;
-    height: calc(100vh / 4);
-  }
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
     color: #2e3d49;
     margin-top: 15px;
-  }
-
-  && {
-    .CodeMirror-lines {
-      padding: 16px 20px;
-    }
   }
 
   .queryInput {
@@ -185,13 +177,6 @@ const Container = styled.div`
   }
 `;
 
-const StyledCheckbox = styled(CheckboxField)`
-  &&& {
-    font-size: 14px;
-    margin-top: 10px;
-  }
-`;
-
 const StyledOpenDocsIcon = styled(Icon)`
   svg {
     width: 12px;
@@ -213,10 +198,13 @@ const CollapsibleWrapper = styled.div`
   width: 200px;
 `;
 
+const LoadingContainer = styled(CenteredWrapper)`
+  height: 50%;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
-  createTemplate: (template: any) => void;
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
@@ -230,6 +218,8 @@ type QueryFormProps = {
   location: {
     state: any;
   };
+  editorConfig: [];
+  loadingFormConfigs: boolean;
 };
 
 type ReduxProps = {
@@ -256,11 +246,12 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     applicationId,
     dataSources,
     executedQueryData,
-    createTemplate,
     runErrorMessage,
     pluginId,
     responseType,
     documentationLink,
+    loadingFormConfigs,
+    editorConfig,
   } = props;
 
   const [showTemplateMenu, setMenuVisibility] = useState(true);
@@ -328,6 +319,14 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       </>
     );
   };
+
+  if (loadingFormConfigs) {
+    return (
+      <LoadingContainer>
+        <Spinner size={30} />
+      </LoadingContainer>
+    );
+  }
 
   return (
     <QueryFormContainer>
@@ -431,41 +430,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           )}
         </div>
 
-        {isNewQuery && showTemplateMenu && pluginId ? (
-          <TemplateMenu
-            createTemplate={templateString => {
-              setMenuVisibility(false);
-              createTemplate(templateString);
-            }}
-            pluginId={pluginId}
-          />
-        ) : isSQL ? (
-          <div>
-            <DynamicTextField
-              size={EditorSize.EXTENDED}
-              name="actionConfiguration.body"
-              dataTreePath={`${props.actionName}.config.body`}
-              className="textAreaStyles"
-              mode={EditorModes.SQL_WITH_BINDING}
-            />
-          </div>
-        ) : (
-          <div>
-            <DynamicTextField
-              size={EditorSize.EXTENDED}
-              name="actionConfiguration.body"
-              dataTreePath={`${props.actionName}.config.body`}
-              className="textAreaStyles"
-              mode={EditorModes.JSON_WITH_BINDING}
-            />
-          </div>
-        )}
-        <StyledCheckbox
-          intent="primary"
-          name="executeOnLoad"
-          align="left"
-          label="Run on Page Load"
-        />
+        {!_.isNil(editorConfig)
+          ? _.map(editorConfig, renderEachConfig)
+          : undefined}
       </form>
 
       {dataSources.length === 0 && (
@@ -503,6 +470,24 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       )}
     </QueryFormContainer>
   );
+};
+
+const renderEachConfig = (section: any): any => {
+  return _.map(section.children, (propertyControlOrSection: ControlProps) => {
+    if ("children" in propertyControlOrSection) {
+      return renderEachConfig(propertyControlOrSection);
+    } else {
+      try {
+        return FormControlFactory.createControl(
+          { ...propertyControlOrSection },
+          {},
+          false,
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  });
 };
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);

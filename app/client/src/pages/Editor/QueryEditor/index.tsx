@@ -18,6 +18,7 @@ import {
   getPlugins,
   getPluginImages,
   getDBDatasources,
+  getAction,
 } from "selectors/entitiesSelector";
 import {
   PLUGIN_PACKAGE_DBS,
@@ -40,7 +41,6 @@ const LoadingContainer = styled(CenteredWrapper)`
 type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
-  createTemplate: (template: string) => void;
 };
 
 type ReduxStateProps = {
@@ -55,6 +55,8 @@ type ReduxStateProps = {
   isMoving: boolean;
   isCopying: boolean;
   pluginImages: Record<string, string>;
+  editorConfig: [];
+  loadingFormConfigs: boolean;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -77,7 +79,6 @@ class QueryEditor extends React.Component<Props> {
     const {
       dataSources,
       queryPane,
-      createTemplate,
       match: {
         params: { queryId },
       },
@@ -88,6 +89,8 @@ class QueryEditor extends React.Component<Props> {
       isMoving,
       isCopying,
       runErrorMessage,
+      loadingFormConfigs,
+      editorConfig,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 
@@ -124,7 +127,8 @@ class QueryEditor extends React.Component<Props> {
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
             dataSources={dataSources}
-            createTemplate={createTemplate}
+            editorConfig={editorConfig}
+            loadingFormConfigs={loadingFormConfigs}
             DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
             executedQueryData={executedQueryData[queryId]}
             runErrorMessage={runErrorMessage[queryId]}
@@ -144,9 +148,12 @@ class QueryEditor extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
+const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { runErrorMessage } = state.ui.queryPane;
+  const { plugins } = state.entities;
+  const { editorConfigs, loadingFormConfigs } = plugins;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
+  const queryAction = getAction(state, props.match.params.queryId);
 
   return {
     pluginImages: getPluginImages(state),
@@ -157,6 +164,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     executedQueryData: state.ui.queryPane.runQuerySuccessData,
     queryPane: state.ui.queryPane,
     formData,
+    editorConfig: editorConfigs[queryAction?.pluginId ?? ""],
+    loadingFormConfigs,
     isCreating: state.ui.apiPane.isCreating,
     isMoving: state.ui.apiPane.isMoving,
     isCopying: state.ui.apiPane.isCopying,
@@ -167,9 +176,6 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   runAction: (actionId: string) => dispatch(runAction(actionId)),
-  createTemplate: (template: any) => {
-    dispatch(change(QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template));
-  },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(QueryEditor);

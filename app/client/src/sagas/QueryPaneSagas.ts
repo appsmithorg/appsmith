@@ -21,9 +21,15 @@ import {
 import { initialize } from "redux-form";
 import { AppState } from "reducers";
 import { changeQuery } from "actions/queryPaneActions";
-import { getAction } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getPlugins,
+  getPluginEditorConfigs,
+  getDatasource,
+} from "selectors/entitiesSelector";
 import { RestAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
+import { fetchPluginForm } from "actions/pluginActions";
 
 const getActions = (state: AppState) =>
   state.entities.actions.map(a => a.config);
@@ -62,6 +68,9 @@ function* initQueryPaneSaga(
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
+  const state = yield select();
+  const editorConfigs = state.entities.plugins.editorConfigs;
+
   // Typescript says Element does not have blur function but it does;
   document.activeElement &&
     "blur" in document.activeElement &&
@@ -79,6 +88,10 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   if (!action) {
     history.push(QUERIES_EDITOR_URL(applicationId, pageId));
     return;
+  }
+
+  if (!editorConfigs[action.pluginId]) {
+    yield put(fetchPluginForm({ id: action.pluginId }));
   }
 
   const URL = QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
@@ -100,6 +113,15 @@ function* formValueChangeSaga(
       value: actionPayload.payload,
     }),
   );
+
+  if (field === "datasource.id") {
+    const editorConfigs = yield select(getPluginEditorConfigs);
+    const datasource = yield select(getDatasource, actionPayload.payload);
+
+    if (!editorConfigs[datasource.pluginId]) {
+      yield put(fetchPluginForm({ id: datasource.pluginId }));
+    }
+  }
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
