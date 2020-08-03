@@ -58,7 +58,7 @@ public class UserController extends BaseController<UserService, User, String> {
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
                                           @RequestHeader(name = "Origin", required = false) String originHeader,
                                           ServerWebExchange exchange) {
-        return userSignup.signup(resource, exchange)
+        return userSignup.signupAndLogin(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

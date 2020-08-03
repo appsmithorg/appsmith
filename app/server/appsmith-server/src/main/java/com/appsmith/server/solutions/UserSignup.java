@@ -28,7 +28,16 @@ public class UserSignup {
 
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
 
-    public Mono<User> signup(User user, ServerWebExchange exchange) {
+    /**
+     * This function does the sign-up flow of the given user object as a new user, and then logs that user. After the
+     * login is successful, the authentication success handlers will be called directly.
+     * This needed to be pulled out into a separate solution class since it was creating a circular autowiring error if
+     * placed inside UserService.
+     * @param user User object representing the new user to be signed-up and then logged-in.
+     * @param exchange ServerWebExchange object with details of the current web request.
+     * @return Mono of User, published the saved user object with a non-null value for its `getId()`.
+     */
+    public Mono<User> signupAndLogin(User user, ServerWebExchange exchange) {
         return Mono
                 .zip(
                         userService.createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin()),
