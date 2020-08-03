@@ -5,18 +5,25 @@ is_command_present() {
   type "$1" >/dev/null 2>&1
 }
 
-check_ports() {
-    ports=
+check_ports_available() {
+    echo "Going to check ports"
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        ports=$(sudo netstat -anp tcp | egrep "*.80"|"*.443" | grep LISTEN)
-    elif
-        ports=$(sudo netstat -anp tcp | egrep "*.80"|"*.443" | grep LISTEN)
+        echo "In the darwin"
+        ports=$(sudo netstat -anp tcp | grep -e "*.80" -e "*.443" | grep LISTEN)
+        echo "In here"
+        echo $ports
+    else
+        echo "In the linux"
+        ports=$(sudo netstat -tupln tcp | grep -e "*.80" -e "*.443" | grep LISTEN)
     fi
 
-    if [ -z "$ports" ]; then
-        return true
+    echo "Got ports"
+    echo $ports
+    
+    if [[ -z "$ports" ]]; then
+        ports_available=1
     else
-        return false
+        ports_available=0
     fi
 }
 
@@ -125,7 +132,11 @@ if [[ $desired_os -eq 0 ]];then
     exit
 fi
 
-if ! check_ports ;then
+echo ""
+check_ports_available
+echo ""
+
+if [[ $ports_available -eq 0 ]]; then
     echo ""
     echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service that may be running on these ports"
