@@ -36,6 +36,9 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
       }
       &.selected-row {
         background: ${Colors.POLAR};
+        &:hover {
+          background: ${Colors.POLAR};
+        }
       }
       &:hover {
         background: ${Colors.ATHENS_GRAY};

@@ -34,14 +34,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
-      // columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
-      // onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
-      // onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
+      filteredTableData: VALIDATION_TYPES.TABLE_DATA,
     };
   }
   static getDerivedPropertiesMap() {
     return {
-      selectedRow: "{{this.tableData[this.selectedRowIndex]}}",
+      filteredTableData:
+        "{{!this.onSearchTextChanged ? this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText.toUpperCase())) : this.tableData}}",
+      selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
     };
   }
 
@@ -51,6 +51,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: undefined,
       selectedRowIndex: -1,
       searchText: "",
+      // The following meta property is used for rendering the table.
+      filteredTableData: [],
     };
   }
 
@@ -120,8 +122,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           width: 150,
           minWidth: 60,
           draggable: true,
-          Cell: () => {
+          Cell: (props: any) => {
             return renderActions({
+              isSelected: props.row.isSelected,
               columnActions: columnActions,
               onCommandClick: this.onCommandClick,
             });
@@ -197,26 +200,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return updatedTableData;
   };
 
-  searchTableData = (tableData: object[]) => {
-    if (!tableData || !tableData.length) {
-      return [];
-    }
-    const searchKey =
-      this.props.searchText !== undefined
-        ? this.props.searchText.toString().toUpperCase()
-        : "";
-    return tableData.filter((item: object) => {
-      return Object.values(item)
-        .join(", ")
-        .toUpperCase()
-        .includes(searchKey);
-    });
-  };
-
   getPageView() {
-    const { tableData, hiddenColumns } = this.props;
+    const { tableData, hiddenColumns, filteredTableData } = this.props;
     const tableColumns = this.getTableColumns(tableData);
-    const filteredTableData = this.searchTableData(tableData);
+    // Use the filtered data to render the table.
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&

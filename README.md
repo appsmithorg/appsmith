@@ -4,26 +4,30 @@
     </a>
   <br>
   <p>
-    <h3>A better way to build internal tools</h3>
+    <h3>Open source alternative to Power Apps, Salesforce Lightning platform, and Retool</h3>
   </p>
   <p>
   </p>
   <p>
 
-[![GitHub release](https://img.shields.io/github/release/getappsmith/appsmith/all?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
+[![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
 [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
 
-  </p>
+</p>
   <p>
-    <sub>Built with ❤︎ & empathy</sub>
+    <sub>Built with empathy, not just ❤︎ </sub>
   </p>
 </div>
 
 -----------------
-Appsmith is a fast, easy and secure way to build and maintain internal tools. Appsmith helps you build custom UI [**without HTML/CSS**], connect to your **APIs / databases** and securely share your applications. 
-The user interface is designed to make config customisation easy while allowing you to write code whenever logic is involved.
+Appsmith is a fast, easy, and secure way to build any custom internal tools. Using Appsmith is easy. 
+1. Create a page using pre-built UI components like table, charts, and forms.
+2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.
+3. Then deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
+
+Do all this **without HTML/CSS**, and writing any custom integrations.
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/readme/static/demo.gif)
 
@@ -37,7 +41,7 @@ Appsmith provides a better way of building internal tools by visualising them as
 
 ## Features
 
-* **Build custom UI**: Drag & drop, resize and style widgets **without HTLM / CSS**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui)
+* **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui)
 * **Query data**: Query & update your database directly from the UI. Supports **postgres, mongo, REST & GraphQL APIs**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/displaying-api-data)
 * **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows
 * **Data Workflows**: Simple configuration to create flows when users interact with the UI. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/calling-apis-from-widgets)

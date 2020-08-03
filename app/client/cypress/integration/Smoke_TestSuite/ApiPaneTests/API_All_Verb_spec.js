@@ -30,9 +30,10 @@ describe("API Panel Test Functionality", function() {
         .click({ force: true })
         .focus()
         .type(json, { force: true });
+      cy.WaitAutoSave();
+      cy.RunAPI();
+      cy.validateRequest(testdata.baseUrl2, testdata.methodput, testdata.Put);
     });
-    cy.WaitAutoSave();
-    cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
     cy.ResponseCheck("updatedAt");
@@ -55,9 +56,10 @@ describe("API Panel Test Functionality", function() {
         .click({ force: true })
         .focus()
         .type(json, { force: true });
+      cy.WaitAutoSave();
+      cy.RunAPI();
+      cy.validateRequest(testdata.baseUrl2, testdata.methodpost, testdata.Post);
     });
-    cy.WaitAutoSave();
-    cy.RunAPI();
     cy.ResponseStatusCheck("201 CREATED");
     cy.log("Response code check successful");
     cy.ResponseCheck("createdAt");
@@ -80,9 +82,14 @@ describe("API Panel Test Functionality", function() {
         .click({ force: true })
         .focus()
         .type(json, { force: true });
+      cy.WaitAutoSave();
+      cy.RunAPI();
+      cy.validateRequest(
+        testdata.baseUrl2,
+        testdata.methodpatch,
+        testdata.Patch,
+      );
     });
-    cy.WaitAutoSave();
-    cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
     cy.ResponseCheck("updatedAt");
@@ -101,6 +108,11 @@ describe("API Panel Test Functionality", function() {
     );
     cy.WaitAutoSave();
     cy.RunAPI();
+    cy.validateRequest(
+      testdata.baseUrl2,
+      testdata.methodpatch,
+      testdata.Delete,
+    );
     cy.ResponseStatusCheck("204 NO_CONTENT");
     cy.log("Response code check successful");
   });
@@ -110,7 +122,9 @@ describe("API Panel Test Functionality", function() {
     cy.CreateAPI(apiname);
     cy.log("Creation of API Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
+    cy.WaitAutoSave();
     cy.RunAPI();
+    cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get);
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
     cy.ResponseCheck(testdata.responsetext);
@@ -119,12 +133,22 @@ describe("API Panel Test Functionality", function() {
     cy.selectPaginationType(apiwidget.paginationWithUrl);
     cy.enterUrl(apiname, apiwidget.panigationNextUrl, testdata.nextUrl);
     cy.clickTest(apiwidget.TestNextUrl);
+    cy.validateRequest(
+      testdata.baseUrl,
+      testdata.methods.concat(testdata.next),
+      testdata.Get,
+    );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
     cy.ResponseCheck("Josh M Krantz");
     cy.log("Response data check successful");
     cy.enterUrl(apiname, apiwidget.panigationPrevUrl, testdata.prevUrl);
     cy.clickTest(apiwidget.TestPreUrl);
+    cy.validateRequest(
+      testdata.baseUrl,
+      testdata.methods.concat(testdata.prev),
+      testdata.Get,
+    );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
     cy.ResponseCheck(testdata.responsetext);
@@ -135,7 +159,9 @@ describe("API Panel Test Functionality", function() {
     cy.CreateAPI("ThirdAPI");
     cy.log("Creation of API Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.queryAndValue);
+    cy.WaitAutoSave();
     cy.RunAPI();
+    cy.validateRequest(testdata.baseUrl, testdata.queryAndValue, testdata.Get);
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
     cy.ResponseCheck(testdata.responsetext3);
@@ -153,7 +179,9 @@ describe("API Panel Test Functionality", function() {
       testdata.queryKey,
       testdata.queryValue,
     );
+    cy.WaitAutoSave();
     cy.RunAPI();
+    cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get);
     cy.ResponseStatusCheck("5000");
     cy.log("Response code check successful");
     cy.ResponseCheck("Invalid value for Content-Type");
