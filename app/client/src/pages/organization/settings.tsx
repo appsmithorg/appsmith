@@ -61,13 +61,19 @@ const StyledDropDown = styled.div`
 `;
 
 const StyledTableWrapped = styled(TableWrapper)`
-  width: 100%;
+  min-height: 0px;
   height: auto;
-  font-size: 14px;
+  .tableWrap {
+    display: flex;
+    flex: 1;
+  }
   .table {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: auto;
     .tbody {
       overflow: auto;
-      height: auto;
     }
   }
 `;
