@@ -16,6 +16,8 @@ const initialState: UsersReduxState = {
   list: [],
   users: [],
   error: "",
+  current: undefined,
+  currentUser: undefined,
 };
 
 const usersReducer = createReducer(initialState, {

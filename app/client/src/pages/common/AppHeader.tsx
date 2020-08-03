@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { getCurrentUser } from "actions/authActions";
 import PageHeader from "pages/common/PageHeader";
+import LoginHeader from "pages/common/LoginHeader";
 import { Route, Switch } from "react-router";
 import {
   APP_VIEW_URL,
@@ -31,7 +32,7 @@ class AppHeader extends React.Component<Props, any> {
         <Switch>
           <Route path={BUILDER_URL} component={NoRender} />
           <Route path={APP_VIEW_URL} component={NoRender} />
-          <Route path={USER_AUTH_URL} component={PageHeader} />
+          <Route path={USER_AUTH_URL} component={LoginHeader} />
           <Route path={BASE_URL} component={PageHeader} />
         </Switch>
       </React.Fragment>
