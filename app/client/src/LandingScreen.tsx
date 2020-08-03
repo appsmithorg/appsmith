@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { Redirect } from "react-router";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
-import PageLoadingScreen from "pages/common/PageLoadingScreen";
+import PageLoadingBar from "pages/common/PageLoadingBar";
 import ServerUnavailable from "pages/common/ServerUnavailable";
 
 type Props = {
@@ -24,7 +24,7 @@ const LandingScreen = (props: Props) => {
   if (props.authError && props.authError.length) {
     return <ServerUnavailable />;
   }
-  return <PageLoadingScreen displayName={"Appsmith"} />;
+  return <PageLoadingBar />;
 };
 
 const mapStateToProps = (state: AppState) => ({

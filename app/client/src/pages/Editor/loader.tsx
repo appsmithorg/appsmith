@@ -1,16 +1,23 @@
-import React, { lazy, Suspense } from "react";
-import Loader from "pages/common/Loader";
+import React from "react";
+import PageLoadingBar from "pages/common/PageLoadingBar";
 
-const Page = lazy(() => import(/* webpackChunkName: "Editor" */ "./index"));
-const loadingIndicator = <Loader />;
+class EditorLoader extends React.PureComponent<any, { Page: any }> {
+  constructor(props: any) {
+    super(props);
 
-class EditorLoader extends React.PureComponent {
+    this.state = {
+      Page: null,
+    };
+  }
+
+  componentDidMount() {
+    import(/* webpackChunkName: "editor" */ "./index").then(module => {
+      this.setState({ Page: module.default });
+    });
+  }
   render() {
-    return (
-      <Suspense fallback={loadingIndicator}>
-        <Page />
-      </Suspense>
-    );
+    const { Page } = this.state;
+    return Page ? <Page {...this.props} /> : <PageLoadingBar />;
   }
 }
 

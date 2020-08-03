@@ -1,5 +1,5 @@
 import React from "react";
-import PageLoadingScreen from "pages/common/PageLoadingScreen";
+import PageLoadingBar from "pages/common/PageLoadingBar";
 
 class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   constructor(props: any) {
@@ -11,7 +11,7 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
-    import(/* webpackChunkName: "Applications" */ "./index").then(module => {
+    import(/* webpackChunkName: "applications" */ "./index").then(module => {
       this.setState({ Page: module.default });
     });
   }
@@ -19,11 +19,7 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   render() {
     const { Page } = this.state;
 
-    return Page ? (
-      <Page {...this.props} />
-    ) : (
-      <PageLoadingScreen displayName={"Applications"} />
-    );
+    return Page ? <Page {...this.props} /> : <PageLoadingBar />;
   }
 }
 

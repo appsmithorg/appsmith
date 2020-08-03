@@ -1,5 +1,5 @@
 import React from "react";
-import PageLoadingScreen from "pages/common/PageLoadingScreen";
+import PageLoadingBar from "pages/common/PageLoadingBar";
 
 class AppViewerLoader extends React.PureComponent<any, { Page: any }> {
   constructor(props: any) {
@@ -18,11 +18,7 @@ class AppViewerLoader extends React.PureComponent<any, { Page: any }> {
 
   render() {
     const { Page } = this.state;
-    return Page ? (
-      <Page {...this.props} />
-    ) : (
-      <PageLoadingScreen displayName={"App view"} />
-    );
+    return Page ? <Page {...this.props} /> : <PageLoadingBar />;
   }
 }
 
