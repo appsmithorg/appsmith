@@ -117,7 +117,6 @@ class Editor extends Component<EditorProps> {
     if (!this.props.match.params.applicationId) {
       return <Redirect to="/applications" />;
     }
-    if (!this.props.isEditorInitialized || !this.state.registered) return null;
     return (
       <DndProvider
         backend={TouchBackend}
@@ -142,7 +141,9 @@ class Editor extends Component<EditorProps> {
             isPublishing={this.props.isPublishing}
             createModal={this.props.createModal}
           />
-          <MainContainer />
+          {this.props.isEditorInitialized && this.state.registered && (
+            <MainContainer />
+          )}
           <Dialog
             isOpen={this.state.isDialogOpen}
             canOutsideClickClose={true}
