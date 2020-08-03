@@ -5,6 +5,21 @@ is_command_present() {
   type "$1" >/dev/null 2>&1
 }
 
+check_ports() {
+    ports=
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        ports=$(sudo netstat -anp tcp | egrep "*.80"|"*.443" | grep LISTEN)
+    elif
+        ports=$(sudo netstat -anp tcp | egrep "*.80"|"*.443" | grep LISTEN)
+    fi
+
+    if [ -z "$ports" ]; then
+        return true
+    else
+        return false
+    fi
+}
+
 install_docker() {
     if [[ $package_manager -eq apt-get ]];then
         echo "++++++++++++++++++++++++"
@@ -106,6 +121,16 @@ echo ""
 if [[ $desired_os -eq 0 ]];then
     echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
     echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
+    echo -e "Exiting for now. Bye! \U1F44B"
+    exit
+fi
+
+if ! check_ports ;then
+    echo ""
+    echo "+++++++++++ ERROR ++++++++++++++++++++++"
+    echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service that may be running on these ports"
+    echo "++++++++++++++++++++++++++++++++++++++++"
+    echo ""
     echo -e "Exiting for now. Bye! \U1F44B"
     exit
 fi
