@@ -179,10 +179,10 @@ if [[ "$setup_encryption" = "true" ]];then
 fi
 
 echo ""
-read -p 'Are you installing appsmith on your local machine? [Y/n]: ' local_install
-local_install=${local_install:-Y}
+read -p 'Are you installing appsmith on a cloud instance? [N/y]: ' cloud_install
+cloud_install=${cloud_install:-N}
 setup_ssl="n"
-if [ $local_install == "N" -o $local_install == "n" -o $local_install == "no" -o $local_install == "No" ];then
+if [ $cloud_install == "Y" -o $cloud_install == "y" -o $cloud_install == "yes" -o $cloud_install == "Yes" ];then
     read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
     setup_domain=${setup_domain:-Y}
     if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
@@ -282,5 +282,6 @@ echo "Your installation is complete. Please run the following command to ensure 
 echo "              cd $install_dir && sudo docker-compose ps -a"
 echo -e "Peace out \U1F596"
 echo ""
+echo "Your application is running on http://localhost"
 echo "Need help troubleshooting?"
 echo "Join our discord server https://discord.com/invite/rBTTVJp"
