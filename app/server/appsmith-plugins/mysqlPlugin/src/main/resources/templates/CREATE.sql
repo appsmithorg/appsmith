@@ -1,4 +1,8 @@
 INSERT INTO users
-  (id, name, gender, avatar, email, address, role)
+  (name, gender, email)
 VALUES
-  (?, ?, ?, ?, ?, ?, ?);
+  (
+    '{{nameInput.text}}',
+    '{{genderDropdown.selectedOptionValue}}',
+    '{{nameInput.text}}'
+  );
