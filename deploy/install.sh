@@ -134,7 +134,7 @@ if [ $fresh_install == "N" -o $fresh_install == "n" -o $fresh_install == "no" -o
         auto_generate_encryption="false"
     fi
 elif [ $fresh_install == "Y" -o $fresh_install == "y" -o $fresh_install == "yes" -o $fresh_install == "Yes" ];then
-    echo "Appsmith needs to configure a mongo db to run"
+    echo "Appsmith needs to create a mongo db"
     mongo_host="mongo"
     mongo_database="appsmith"
     read -p 'Set the mongo root user: ' mongo_root_user
@@ -179,21 +179,24 @@ if [[ "$setup_encryption" = "true" ]];then
 fi
 
 echo ""
-read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
-setup_domain=${setup_domain:-Y}
-if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
-    echo ""
-    echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
-    echo "Please update your DNS records with your domain registrar"
-    echo "You can read more about this in our Documentation"
-    echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
-    echo "+++++++++++++++++++++++++++++++++++++++++++++++"
-    echo ""
-    echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
-    read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
-    setup_ssl=${setup_ssl:-Y}
-else
-    setup_ssl="n"
+read -p 'Are you installing appsmith on your local machine? [Y/n]: ' local_install
+local_install=${local_install:-Y}
+setup_ssl="n"
+if [ $local_install == "N" -o $local_install == "n" -o $local_install == "no" -o $local_install == "No" ];then
+    read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
+    setup_domain=${setup_domain:-Y}
+    if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
+        echo ""
+        echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
+        echo "Please update your DNS records with your domain registrar"
+        echo "You can read more about this in our Documentation"
+        echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
+        echo "+++++++++++++++++++++++++++++++++++++++++++++++"
+        echo ""
+        echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
+        read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
+        setup_ssl=${setup_ssl:-Y}
+    fi
 fi
 
 if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
