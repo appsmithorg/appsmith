@@ -124,8 +124,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 })
                 .flatMap(plugin ->
                         getTemplates(plugin)
-                            .doOnSuccess(plugin::setTemplates)
-                            .thenReturn(plugin)
+                                .doOnSuccess(plugin::setTemplates)
+                                .thenReturn(plugin)
                 );
     }
 
@@ -168,7 +168,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
         //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
         Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
-                                                                                pluginDTO.getPluginId());
+                pluginDTO.getPluginId());
 
         return organizationMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, pluginDTO.getPluginId())))
@@ -296,13 +296,28 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     @Override
     public Mono<Map> getFormConfig(String pluginId) {
         if (!formCache.containsKey(pluginId)) {
-            final Mono<Map> resourceMono = loadPluginResource(pluginId, "form.json", "editor.json")
+            final Mono<Map> formMono = loadPluginResource(pluginId, "form.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId)
                     )
                     .onErrorMap(Exceptions::unwrap)
                     .cache();
+            final Mono<Map> editorMono = loadPluginResource(pluginId, "editor.json")
+                    .doOnError(throwable ->
+                            // Remove this pluginId from the cache so it is tried again next time.
+                            formCache.remove(pluginId)
+                    )
+                    .onErrorMap(Exceptions::unwrap)
+                    .cache();
+
+            Mono<Map> resourceMono = Mono.zip(formMono, editorMono)
+                    .map(tuple -> {
+                        Map formMap = tuple.getT1();
+                        Map editorMap = tuple.getT2();
+                        formMap.putAll(editorMap);
+                        return formMap;
+                    });
 
             formCache.put(pluginId, resourceMono);
         }
@@ -367,34 +382,21 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<Map> loadPluginResource(String pluginId, String formPath, String editorPath) {
+    public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
                 .flatMap(plugin -> {
-                    InputStream formResourceStream = pluginManager
+                    InputStream resourceAsStream = pluginManager
                             .getPlugin(plugin.getPackageName())
                             .getPluginClassLoader()
-                            .getResourceAsStream(formPath);
+                            .getResourceAsStream(resourcePath);
 
-                    InputStream editorResourceStream = pluginManager
-                            .getPlugin(plugin.getPackageName())
-                            .getPluginClassLoader()
-                            .getResourceAsStream(editorPath);
-
-                    if (formResourceStream == null) {
+                    if (resourceAsStream == null) {
                         return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "Form Resource not found"));
                     }
 
-                    if (editorResourceStream == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "Editor Resource not found"));
-                    }
-
                     try {
-                        Map formMap = objectMapper.readValue(formResourceStream, Map.class);
-                        Map editorMap = objectMapper.readValue(editorResourceStream, Map.class);
-
-                        formMap.putAll(editorMap);
-
-                        return Mono.just(formMap);
+                        Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
+                        return Mono.just(resourceMap);
                     } catch (IOException e) {
                         return Mono.error(e);
                     }
