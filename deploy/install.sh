@@ -258,11 +258,9 @@ if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
 fi
 
 # Role - Folder
-for directory_name in nginx certbot mongo/db opa/config
+for directory_name in nginx certbot/conf certbot/www mongo/db
 do
-  if [[ ! -d "$install_dir/data/$directory_name" ]];then
     mkdir -p "$install_dir/data/$directory_name"
-  fi
 done
 
 echo "Generating the configuration files from the templates"
