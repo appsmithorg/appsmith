@@ -23,7 +23,6 @@ import { AppState } from "reducers";
 import { changeQuery } from "actions/queryPaneActions";
 import {
   getAction,
-  getPlugins,
   getPluginEditorConfigs,
   getDatasource,
 } from "selectors/entitiesSelector";
@@ -66,8 +65,10 @@ function* initQueryPaneSaga(
   yield put(changeQuery(id));
 }
 
-function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
-  const { id } = actionPayload.payload;
+function* changeQuerySaga(
+  actionPayload: ReduxAction<{ id: string; newQuery?: boolean }>,
+) {
+  const { id, newQuery } = actionPayload.payload;
   const state = yield select();
   const editorConfigs = state.entities.plugins.editorConfigs;
 
@@ -94,7 +95,12 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     yield put(fetchPluginForm({ id: action.pluginId }));
   }
 
-  const URL = QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
+  const URL = QUERIES_EDITOR_ID_URL(
+    applicationId,
+    pageId,
+    id,
+    newQuery ? { new: "true" } : undefined,
+  );
   yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
   history.push(URL);
 }
@@ -126,17 +132,8 @@ function* formValueChangeSaga(
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   const { id, pluginType } = actionPayload.payload;
-  const action = yield select(getAction, id);
-  const data = { ...action };
   if (pluginType === "DB") {
-    yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    history.replace(
-      QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
-        new: true,
-      }),
-    );
+    yield put(changeQuery(id, true));
   }
 }
 

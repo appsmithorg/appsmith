@@ -264,7 +264,7 @@ function* createDatasourceFromFormSaga(
         type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
         payload: {
           id: actionPayload.payload.pluginId,
-          form: formConfigResponse.data.form,
+          ...formConfigResponse.data,
         },
       });
 

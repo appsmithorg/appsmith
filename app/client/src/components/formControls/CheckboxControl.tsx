@@ -1,4 +1,4 @@
-import React, { Props } from "react";
+import React from "react";
 import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";

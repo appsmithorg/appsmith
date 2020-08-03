@@ -19,10 +19,7 @@ import {
   getDBDatasources,
   getAction,
 } from "selectors/entitiesSelector";
-import {
-  PLUGIN_PACKAGE_DBS,
-  QUERY_BODY_FIELD,
-} from "constants/QueryEditorConstants";
+import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";

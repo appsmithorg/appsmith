@@ -5,7 +5,6 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { Plugin } from "api/PluginApi";
-import QueryConfigResponse from "mockResponses/QueryConfigResponse";
 
 export interface PluginFormPayload {
   id: string;
@@ -68,7 +67,7 @@ const pluginsReducer = createReducer(initialState, {
       },
       editorConfigs: {
         ...state.editorConfigs,
-        [action.payload.id]: QueryConfigResponse,
+        [action.payload.id]: action.payload.editor,
       },
     };
   },

@@ -9,9 +9,9 @@ const queryConfigResponse = [
         controlType: "QUERY_DYNAMIC_TEXT",
       },
       {
-        label: "Run on Page Load",
-        configProperty: "executeOnLoad",
-        controlType: "CHECKBOX",
+        label: "Label",
+        configProperty: "property",
+        controlType: "INPUT_TEXT",
       },
     ],
   },

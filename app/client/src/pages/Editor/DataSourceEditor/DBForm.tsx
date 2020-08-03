@@ -6,7 +6,6 @@ import { Spinner } from "@blueprintjs/core";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Collapsible from "./Collapsible";
 import history from "utils/history";
-import FormLabel from "components/editorComponents/FormLabel";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
 import { ControlProps } from "components/formControls/BaseControl";
@@ -391,7 +390,6 @@ class DatasourceDBEditor extends React.Component<
             } else {
               try {
                 const {
-                  label,
                   controlType,
                   isRequired,
                   configProperty,
@@ -418,12 +416,6 @@ class DatasourceDBEditor extends React.Component<
 
                 return (
                   <div key={configProperty} style={{ marginTop: "16px" }}>
-                    {controlType !== "KEYVALUE_ARRAY" &&
-                      controlType !== "SWITCH" && (
-                        <FormLabel>
-                          {label} {isRequired && "*"}
-                        </FormLabel>
-                      )}
                     {FormControlFactory.createControl(
                       config,
                       {},

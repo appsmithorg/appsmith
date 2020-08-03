@@ -1,6 +1,10 @@
-import React, { useState } from "react";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
-import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
+import React from "react";
+import {
+  formValueSelector,
+  InjectedFormProps,
+  reduxForm,
+  Field,
+} from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
 import { Icon, Popover, Spinner } from "@blueprintjs/core";
 import {
@@ -13,7 +17,6 @@ import {
 import _ from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-import TemplateMenu from "./TemplateMenu";
 import Button from "components/editorComponents/Button";
 import FormRow from "components/editorComponents/FormRow";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -27,11 +30,6 @@ import { RestAction } from "entities/Action";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import {
-  EditorModes,
-  EditorSize,
-} from "components/editorComponents/CodeEditor/EditorConfig";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import {
   getPluginResponseTypes,
@@ -39,9 +37,9 @@ import {
 } from "selectors/entitiesSelector";
 
 import FormControlFactory from "utils/FormControlFactory";
-import QueryConfigResponse from "mockResponses/QueryConfigResponse";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { SwitchField } from "components/formControls/SwitchControl";
 
 const QueryFormContainer = styled.div`
   padding: 20px 32px;
@@ -58,7 +56,7 @@ const QueryFormContainer = styled.div`
     font-size: 14px;
     line-height: 20px;
     color: #2e3d49;
-    margin-top: 15px;
+    margin-top: 5px;
   }
 
   .queryInput {
@@ -67,6 +65,12 @@ const QueryFormContainer = styled.div`
   }
   span.bp3-popover-target {
     display: initial !important;
+  }
+
+  .executeOnLoad {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
   }
 `;
 
@@ -247,14 +251,12 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     dataSources,
     executedQueryData,
     runErrorMessage,
-    pluginId,
     responseType,
     documentationLink,
     loadingFormConfigs,
     editorConfig,
   } = props;
 
-  const [showTemplateMenu, setMenuVisibility] = useState(true);
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
 
@@ -267,8 +269,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   }
 
   const isSQL = responseType === "TABLE";
-  const isNewQuery =
-    new URLSearchParams(window.location.search).get("new") === "true";
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (
@@ -435,6 +435,14 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         ) : (
           <ErrorMessage>An unexpected error occurred</ErrorMessage>
         )}
+
+        <div className="executeOnLoad">
+          <Field
+            name="executeOnLoad"
+            component={SwitchField}
+            label={"Run on Page Load"}
+          />
+        </div>
       </form>
 
       {dataSources.length === 0 && (
@@ -480,10 +488,15 @@ const renderEachConfig = (section: any): any => {
       return renderEachConfig(propertyControlOrSection);
     } else {
       try {
-        return FormControlFactory.createControl(
-          { ...propertyControlOrSection },
-          {},
-          false,
+        const { configProperty } = propertyControlOrSection;
+        return (
+          <div key={configProperty} style={{ marginTop: "8px" }}>
+            {FormControlFactory.createControl(
+              { ...propertyControlOrSection },
+              {},
+              false,
+            )}
+          </div>
         );
       } catch (e) {
         console.log(e);
