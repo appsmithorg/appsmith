@@ -496,7 +496,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         }
                         return repository.save(savedUser);
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY));
+                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
                 })
                 .switchIfEmpty(userCreate(user))
                 .flatMap(savedUser -> sendWelcomeEmail(savedUser, finalOriginHeader));
@@ -599,7 +599,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 log.debug("Going to send email to user {} informing that the user has been added to new organization {}",
                                         existingUser.getEmail(), organization.getName());
                                 params.put("inviteUrl", originHeader);
-                                Mono<Void> emailMono = emailSender.sendMail(existingUser.getEmail(),
+                                Mono<String> emailMono = emailSender.sendMail(existingUser.getEmail(),
                                         "Appsmith: You have been added to a new organization",
                                         USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
 
@@ -673,7 +673,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                     params.put("token", createdUser.getInviteToken());
                     params.put("inviteUrl", inviteUrl);
-                    Mono<Void> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
+                    Mono<String> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
 
                     // We have sent out the emails. Just send back the saved user.
                     return emailMono

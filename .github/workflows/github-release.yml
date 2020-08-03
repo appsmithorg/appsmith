@@ -2,10 +2,9 @@ name: Appsmith Github Release Workflow
 
 on:
   push:
-    branches: master
     # Only trigger if a tag has been created and pushed to this branch
     tags:
-      - 'v*'
+      - v*
 
 jobs:
   build-client:
@@ -21,7 +20,7 @@ jobs:
     - name: Use Node.js 10.16.3
       uses: actions/setup-node@v1
       with:
-      node-version: '10.16.3'
+        node-version: '10.16.3'
         
     # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
     - name: Cache npm dependencies
@@ -57,13 +56,19 @@ jobs:
     - name: Push production image to Docker Hub with commit tag
       run: |
         docker build -t appsmith/appsmith-editor:${{steps.get_version.outputs.tag}}  .
+        
+        # Only build & tag with latest if the tag doesn't contain beta
+        if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+          docker build -t appsmith/appsmith-editor:latest  .
+        fi
+        
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-editor
 
   build-server:
     runs-on: ubuntu-latest
     defaults:
-    run:
+      run:
         working-directory: app/server
 
     steps:
@@ -99,6 +104,12 @@ jobs:
     - name: Push image to Docker Hub
       run: |
         docker build -t appsmith/appsmith-server:${{steps.get_version.outputs.tag}} .
+
+        # Only build & tag with latest if the tag doesn't contain beta
+        if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+          docker build -t appsmith/appsmith-server:latest .
+        fi
+
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-server
 
@@ -110,6 +121,21 @@ jobs:
 
     steps:
     # Creating the release on Github
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+
+    # If the tag has the string "beta", then mark the Github release as a pre-release
+    - name: Get the version
+      id: get_prerelease
+      run: |
+        STATUS=false
+        if [[ ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+          STATUS=true
+        fi
+
+        echo ::set-output name=status::${STATUS}
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -119,5 +145,5 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         draft: false
-        prerelease: false    
+        prerelease: ${{steps.get_prerelease.outputs.status}}
         
