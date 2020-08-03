@@ -62,7 +62,7 @@ check_os() {
 
     os_name=`cat /etc/*-release | egrep "^NAME="`
     os_name="${os_name#*=}"
-    echo $os_name
+
     case "${os_name}" in
         \"Ubuntu*\")
             desired_os=1
@@ -290,18 +290,23 @@ if [[ ! -z $custom_domain ]]; then
     echo "Running init-letsencrypt.sh...."
     sudo ./init-letsencrypt.sh
 else
-    echo "No domain found. Skipping generation of LetsEncrypt certificate."
+    echo "No domain found. Skipping generation of SSL certificate."
 fi
 
-echo "Updating the container images"
+echo "Pulling the latest container images"
 sudo docker-compose pull
 echo "Starting the Appsmith containers"
 sudo docker-compose -f docker-compose.yml up -d --remove-orphans
 echo ""
-echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors"
-echo "              cd $install_dir && sudo docker-compose ps -a"
-echo -e "Peace out \U1F596"
+echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
+echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
+echo ""
+echo "cd $install_dir && sudo docker-compose ps -a"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
 echo ""
 echo "Your application is running on http://localhost"
+echo ""
 echo "Need help troubleshooting?"
 echo "Join our discord server https://discord.com/invite/rBTTVJp"
+echo ""
+echo -e "Peace out \U1F596"
