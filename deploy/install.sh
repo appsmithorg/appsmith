@@ -134,7 +134,7 @@ if [ $fresh_install == "N" -o $fresh_install == "n" -o $fresh_install == "no" -o
         auto_generate_encryption="false"
     fi
 elif [ $fresh_install == "Y" -o $fresh_install == "y" -o $fresh_install == "yes" -o $fresh_install == "Yes" ];then
-    echo "Appsmith needs to configure a mongo db to run"
+    echo "Appsmith needs to create a mongo db"
     mongo_host="mongo"
     mongo_database="appsmith"
     read -p 'Set the mongo root user: ' mongo_root_user
@@ -179,8 +179,8 @@ if [[ "$setup_encryption" = "true" ]];then
 fi
 
 echo ""
-read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
-setup_domain=${setup_domain:-Y}
+read -p 'Do you have a custom domain that you would like to link? (Only for cloud installations) [N/y]: ' setup_domain
+setup_domain=${setup_domain:-N}
 if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
     echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
@@ -190,10 +190,8 @@ if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $
     echo "+++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
-    read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
+    read -p '(Your DNS records must be updated for us to proceed) [Y/n]: ' setup_ssl
     setup_ssl=${setup_ssl:-Y}
-else
-    setup_ssl="n"
 fi
 
 if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
@@ -279,5 +277,6 @@ echo "Your installation is complete. Please run the following command to ensure 
 echo "              cd $install_dir && sudo docker-compose ps -a"
 echo -e "Peace out \U1F596"
 echo ""
+echo "Your application is running on http://localhost"
 echo "Need help troubleshooting?"
 echo "Join our discord server https://discord.com/invite/rBTTVJp"
