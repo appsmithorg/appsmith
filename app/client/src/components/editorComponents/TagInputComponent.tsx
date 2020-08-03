@@ -127,7 +127,7 @@ const TagInputComponent = (props: TagInputProps) => {
         tagProps={{
           round: true,
         }}
-        large
+        large={false}
       />
     </TagInputWrapper>
   );

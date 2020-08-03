@@ -35,10 +35,12 @@ import { RenderModes } from "constants/WidgetConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { fetchPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 type EditorProps = {
   currentPageName?: string;
   isSaving: boolean;
+  currentOrgId: string;
   currentApplicationId?: string;
   currentPageId?: string;
   publishApplication: Function;
@@ -142,6 +144,7 @@ class Editor extends Component<EditorProps> {
             currentApplication={this.props.currentApplication}
             isPublishing={this.props.isPublishing}
             createModal={this.props.createModal}
+            orgId={this.props.currentOrgId}
           />
           <MainContainer />
           <Dialog
@@ -181,6 +184,7 @@ class Editor extends Component<EditorProps> {
 const mapStateToProps = (state: AppState) => ({
   currentPageName: state.ui.editor.currentPageName,
   isSaving: getIsPageSaving(state),
+  currentOrgId: getCurrentOrgId(state),
   currentApplicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   currentPageId: getCurrentPageId(state),

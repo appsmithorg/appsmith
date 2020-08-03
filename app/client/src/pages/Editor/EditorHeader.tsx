@@ -8,8 +8,12 @@ import {
   BUILDER_PAGE_URL,
   PAGE_LIST_EDITOR_URL,
 } from "constants/routes";
+import {
+  PERMISSION_TYPE,
+  isPermitted,
+} from "pages/Applications/permissionHelpers";
 import { Directions } from "utils/helpers";
-
+import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
@@ -24,7 +28,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Skin } from "constants/DefaultTheme";
 import { HelpModal } from "components/designSystems/appsmith/help/HelpModal";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
-import ShareApplicationForm from "pages/Editor/ShareApplicationForm";
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -68,6 +71,7 @@ type EditorHeaderProps = {
   currentPageId?: string;
   isPublishing: boolean;
   publishedTime?: string;
+  orgId: string;
   currentApplicationId?: string;
   createModal: () => void;
 };
@@ -77,9 +81,20 @@ const navigation: IBreadcrumbProps[] = [
   { icon: "page-layout", text: "", current: true },
 ];
 export const EditorHeader = (props: EditorHeaderProps) => {
-  const selectedPageName = props.pages?.find(
-    page => page.pageId === props.currentPageId,
-  )?.pageName;
+  const {
+    currentApplication,
+    isSaving,
+    pageSaveError,
+    onPublish,
+    pages,
+    currentPageId,
+    isPublishing,
+    orgId,
+    currentApplicationId,
+  } = props;
+
+  const selectedPageName = pages?.find(page => page.pageId === currentPageId)
+    ?.pageName;
 
   const pageSelectorData: CustomizedDropdownProps = {
     sections: [
@@ -97,21 +112,15 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             ),
             onSelect: () =>
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: PAGE_LIST_EDITOR_URL(
-                  props.currentApplicationId,
-                  props.currentPageId,
-                ),
+                path: PAGE_LIST_EDITOR_URL(currentApplicationId, currentPageId),
               }),
           },
         ],
       },
       {
-        options: props.pages
-          ? props.pages.map(page => {
-              const url = BUILDER_PAGE_URL(
-                props.currentApplicationId,
-                page.pageId,
-              );
+        options: pages
+          ? pages.map(page => {
+              const url = BUILDER_PAGE_URL(currentApplicationId, page.pageId);
               return {
                 content: page.pageName,
                 onSelect: () => {
@@ -125,7 +134,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
                   });
                 },
                 shouldCloseDropdown: true,
-                active: page.pageId === props.currentPageId,
+                active: page.pageId === currentPageId,
               };
             })
           : [],
@@ -139,43 +148,51 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   };
 
   let saveStatusMessage = "";
-  if (props.isSaving) {
+  if (isSaving) {
     saveStatusMessage = "Saving...";
   }
-  if (!props.isSaving && !props.pageSaveError) {
+  if (!isSaving && !pageSaveError) {
     saveStatusMessage = "All changes saved";
   }
+  const applicationPermissions = currentApplication?.userPermissions
+    ? currentApplication.userPermissions
+    : [];
 
   return (
     <StyledHeader>
       <StretchedBreadCrumb items={navigation} minVisibleItems={3} />
       <CustomizedDropdown {...pageSelectorData} />
       <ShareButton>
-        <FormDialogComponent
-          trigger={
-            <Button
-              text="Share"
-              intent="primary"
-              outline
-              size="small"
-              className="t--application-share-btn"
-            />
-          }
-          Form={ShareApplicationForm}
-          title={
-            props.currentApplication
-              ? props.currentApplication.name
-              : "Share Application"
-          }
-        />
+        {isPermitted(
+          applicationPermissions,
+          PERMISSION_TYPE.MANAGE_APPLICATION,
+        ) && (
+          <FormDialogComponent
+            trigger={
+              <Button
+                text="Share"
+                intent="primary"
+                outline
+                size="small"
+                className="t--application-share-btn"
+              />
+            }
+            Form={InviteUsersFormv2}
+            orgId={orgId}
+            applicationId={currentApplicationId}
+            title={
+              currentApplication ? currentApplication.name : "Share Application"
+            }
+          />
+        )}
       </ShareButton>
 
       <LoadingContainer>{saveStatusMessage}</LoadingContainer>
       <PreviewPublishSection>
         <Button
-          onClick={props.onPublish}
+          onClick={onPublish}
           text="Publish"
-          loading={props.isPublishing}
+          loading={isPublishing}
           intent="primary"
           filled
           size="small"

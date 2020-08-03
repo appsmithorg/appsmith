@@ -279,10 +279,10 @@ class Applications extends Component<
                           filled
                         />
                       }
+                      canOutsideClickClose={true}
                       Form={InviteUsersFormv2}
                       orgId={organization.id}
                       title={`Invite Users to ${organization.name}`}
-                      setMaxWidth
                     />
                   </OrgDropDown>
                 )}
