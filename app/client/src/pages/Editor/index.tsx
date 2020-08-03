@@ -141,9 +141,7 @@ class Editor extends Component<EditorProps> {
             isPublishing={this.props.isPublishing}
             createModal={this.props.createModal}
           />
-          {this.props.isEditorInitialized && this.state.registered && (
-            <MainContainer />
-          )}
+          <MainContainer />
           <Dialog
             isOpen={this.state.isDialogOpen}
             canOutsideClickClose={true}

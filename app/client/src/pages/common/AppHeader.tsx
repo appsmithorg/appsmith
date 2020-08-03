@@ -31,7 +31,7 @@ class AppHeader extends React.Component<Props, any> {
         <Switch>
           <Route path={BUILDER_URL} component={NoRender} />
           <Route path={APP_VIEW_URL} component={NoRender} />
-          <Route path={USER_AUTH_URL} component={NoRender} />
+          <Route path={USER_AUTH_URL} component={PageHeader} />
           <Route path={BASE_URL} component={PageHeader} />
         </Switch>
       </React.Fragment>
