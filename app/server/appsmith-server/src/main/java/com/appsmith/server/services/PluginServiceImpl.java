@@ -373,7 +373,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     templates.put(filename.replaceFirst("\\.\\w+$", ""), templateContent);
                 }
             } catch (IOException e) {
-                log.error("Error loading template " + filename + " for plugin " + plugin.getId());
+                log.error("Error loading template {} for plugin {}", filename, plugin.getId());
                 throw Exceptions.propagate(e);
             }
         }
@@ -398,7 +398,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                         Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
                         return Mono.just(resourceMap);
                     } catch (IOException e) {
-                        return Mono.error(e);
+                        log.error("Error loading resource JSON for pluginId {} and resourcePath {}", pluginId, resourcePath, e);
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage()));
                     }
                 });
     }
