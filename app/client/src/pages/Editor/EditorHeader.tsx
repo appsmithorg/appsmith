@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import {
-  BASE_URL,
   APPLICATIONS_URL,
   BUILDER_PAGE_URL,
   PAGE_LIST_EDITOR_URL,
@@ -76,7 +75,7 @@ type EditorHeaderProps = {
   createModal: () => void;
 };
 const navigation: IBreadcrumbProps[] = [
-  { href: BASE_URL, icon: "home", text: "Home" },
+  { href: APPLICATIONS_URL, icon: "home", text: "Home" },
   { href: APPLICATIONS_URL, icon: "folder-close", text: "Applications" },
   { icon: "page-layout", text: "", current: true },
 ];
@@ -199,7 +198,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           className="t--application-publish-btn"
         />
       </PreviewPublishSection>
-      <HelpModal></HelpModal>
+      <HelpModal />
     </StyledHeader>
   );
 };
