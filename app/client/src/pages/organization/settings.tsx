@@ -250,10 +250,10 @@ export const OrgSettings = (props: PageProps) => {
               filled
             />
           }
+          canOutsideClickClose={true}
           Form={InviteUsersFormv2}
           orgId={orgId}
           title={`Invite Users to ${currentOrgName}`}
-          setMaxWidth
         />
       </PageSectionHeader>
       {props.isFetchAllUsers && props.isFetchAllRoles ? (
