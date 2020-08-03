@@ -551,20 +551,20 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return
      */
     @Override
-    public Mono<List<User>> inviteUser(InviteUsersDTO inviteUsersDTO, String originHeader) {
+    public Flux<User> inviteUser(InviteUsersDTO inviteUsersDTO, String originHeader) {
 
         if (originHeader == null || originHeader.isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
         List<String> usernames = inviteUsersDTO.getUsernames();
 
         if (usernames == null || usernames.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         }
 
         if (inviteUsersDTO.getRoleName() == null || inviteUsersDTO.getRoleName().isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
         }
 
         Mono<Organization> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), MANAGE_ORGANIZATIONS)
@@ -624,7 +624,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 });
 
         // Add organization id to each invited user
-        Mono<List<User>> usersUpdatedWithOrgMono = inviteUsersFlux
+        Flux<User> usersUpdatedWithOrgMono = inviteUsersFlux
                 .flatMap(user -> Mono.zip(Mono.just(user), organizationMono))
                 // zipping with organizationMono to ensure that the orgId is checked before updating the user object.
                 .flatMap(tuple -> {
@@ -641,13 +641,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                     //Lets save the updated user object
                     return repository.save(invitedUser);
-                })
-                .collectList();
+                });
 
         // Trigger the flow to first add the users to the organization and then update each user with the organizationId
         // added to the user's list of organizations.
         return organizationWithUsersAddedMono
-                .then(usersUpdatedWithOrgMono);
+                .thenMany(usersUpdatedWithOrgMono);
     }
 
     private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Map<String, String> params) {

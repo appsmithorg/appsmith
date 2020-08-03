@@ -303,7 +303,8 @@ public class OrganizationServiceTest {
                     inviteUsersDTO.setOrgId(organization1.getId());
                     inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
 
-                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                            .collectList();
                 })
                 .cache();
 
@@ -362,7 +363,8 @@ public class OrganizationServiceTest {
                     inviteUsersDTO.setOrgId(organization1.getId());
                     inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
 
-                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                            .collectList();
                 })
                 .cache();
 
@@ -434,7 +436,8 @@ public class OrganizationServiceTest {
                     inviteUsersDTO.setOrgId(organization1.getId());
                     inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
-                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                            .collectList();
                 })
                 .cache();
 
@@ -822,7 +825,8 @@ public class OrganizationServiceTest {
                     inviteUsersDTO.setOrgId(organization1.getId());
                     inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
-                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                            .collectList();
                 })
                 .cache();
 
