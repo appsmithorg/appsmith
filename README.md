@@ -4,7 +4,7 @@
     </a>
   <br>
   <p>
-    <h3>A better way to build internal tools</h3>
+    <h3>Open source alternative to Power Apps, Salesforce Lightning platform, and Retool</h3>
   </p>
   <p>
   </p>
@@ -22,8 +22,12 @@
 </div>
 
 -----------------
-Appsmith is a fast, easy and secure way to build and maintain internal tools. Appsmith helps you build custom UI [**without HTML/CSS**], connect to your **APIs / databases** and securely share your applications. 
-The user interface is designed to make config customisation easy while allowing you to write code whenever logic is involved.
+Appsmith is a fast, easy, and secure way to build any custom internal tools. Using Appsmith is easy. 
+1. Create a page using pre-built UI components like table, charts, and forms.
+2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.
+3. Then deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
+
+Do all this **without HTML/CSS**, and writing any custom integrations.
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/readme/static/demo.gif)
 

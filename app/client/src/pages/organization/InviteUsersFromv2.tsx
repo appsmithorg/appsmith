@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, createRef } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import TagListField from "components/editorComponents/form/fields/TagListField";
@@ -11,6 +11,7 @@ import {
   getDefaultRole,
   getRolesForField,
   getAllUsers,
+  getCurrentOrg,
 } from "selectors/organizationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
@@ -26,14 +27,27 @@ import {
 import history from "utils/history";
 import { Colors } from "constants/Colors";
 import { isEmail } from "utils/formhelpers";
+import ShareWithPublic from "./ShareWithPublic";
+import Divider from "components/editorComponents/Divider";
+
+const OrgInviteTitle = styled.div`
+  font-weight: bold;
+  padding: 10px 0px;
+`;
+
 const StyledForm = styled.form`
   width: 100%;
   background: white;
   padding: ${props => props.theme.spaces[5]}px;
   &&& {
+    .wrapper > div {
+      width: 70%;
+    }
     .bp3-input {
-      width: calc(100vh - 285px);
       box-shadow: none;
+    }
+    .bp3-button {
+      padding-top: 5px;
     }
   }
   .manageUsers {
@@ -75,7 +89,7 @@ const UserList = styled.div`
 const StyledButton = styled(Button)`
   &&&.${Classes.BUTTON} {
     width: 83px;
-    height: 41px;
+    height: 31px;
     border-radius: 0px;
   }
 `;
@@ -126,6 +140,13 @@ const InviteUsersForm = (props: any) => {
     fetchAllRoles,
     valid,
     onCancel,
+    isFetchingApplication,
+    isChangingViewAccess,
+    currentApplicationDetails,
+    changeAppViewAccess,
+    applicationId,
+    fetchCurrentOrg,
+    currentOrg,
   } = props;
 
   const currentPath = useLocation().pathname;
@@ -134,70 +155,89 @@ const InviteUsersForm = (props: any) => {
   useEffect(() => {
     fetchUser(props.orgId);
     fetchAllRoles(props.orgId);
-  }, [props.orgId, fetchUser, fetchAllRoles]);
+    fetchCurrentOrg(props.orgId);
+  }, [props.orgId, fetchUser, fetchAllRoles, fetchCurrentOrg]);
 
   return (
-    <StyledForm
-      onSubmit={handleSubmit((values: any, dispatch: any) => {
-        validateFormValues(values);
-        return inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
-      })}
-    >
-      {submitSucceeded && (
-        <FormMessage intent="primary" message={INVITE_USERS_SUBMIT_SUCCESS} />
+    <>
+      {applicationId && (
+        <>
+          <ShareWithPublic
+            changeAppViewAccess={changeAppViewAccess}
+            isFetchingApplication={isFetchingApplication}
+            currentApplicationDetails={currentApplicationDetails}
+            applicationId={applicationId}
+            isChangingViewAccess={isChangingViewAccess}
+          />
+          <Divider />
+          <OrgInviteTitle>Invite Users to {currentOrg?.name} </OrgInviteTitle>
+        </>
       )}
-      {submitFailed && error && <FormMessage intent="danger" message={error} />}
-      <StyledInviteFieldGroup>
-        <div className="wrapper">
-          <TagListField
-            name="users"
-            placeholder="Enter email address"
-            type="email"
-            label="Emails"
-            intent="success"
-            data-cy="t--invite-email-input"
+
+      <StyledForm
+        onSubmit={handleSubmit((values: any, dispatch: any) => {
+          validateFormValues(values);
+          return inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
+        })}
+      >
+        {submitSucceeded && (
+          <FormMessage intent="primary" message={INVITE_USERS_SUBMIT_SUCCESS} />
+        )}
+        {submitFailed && error && (
+          <FormMessage intent="danger" message={error} />
+        )}
+        <StyledInviteFieldGroup>
+          <div className="wrapper">
+            <TagListField
+              name="users"
+              placeholder="Enter email address"
+              type="email"
+              label="Emails"
+              intent="success"
+              data-cy="t--invite-email-input"
+            />
+            <SelectField
+              name="role"
+              placeholder="Select a role"
+              options={props.roles}
+              size="small"
+              outline={false}
+              data-cy="t--invite-role-input"
+            />
+          </div>
+          <StyledButton
+            className="t--invite-user-btn"
+            disabled={!valid}
+            text="Invite"
+            filled
+            intent="primary"
+            loading={submitting && !(submitFailed && !anyTouched)}
+            type="submit"
           />
-          <SelectField
-            name="role"
-            placeholder="Select a role"
-            options={props.roles}
-            size="large"
-            outline={false}
-            data-cy="t--invite-role-input"
-          />
-        </div>
-        <StyledButton
-          className="t--invite-user-btn"
-          disabled={!valid}
-          text="Invite"
+        </StyledInviteFieldGroup>
+        <UserList style={{ justifyContent: "space-between" }}>
+          {allUsers.map((user: { username: string; roleName: string }) => {
+            return (
+              <div className="user" key={user.username}>
+                <div>{user.username}</div>
+                <div>{user.roleName}</div>
+              </div>
+            );
+          })}
+        </UserList>
+        <Button
+          className="manageUsers"
+          text="Manage Users"
           filled
           intent="primary"
-          loading={submitting && !(submitFailed && !anyTouched)}
-          type="submit"
+          onClick={() => {
+            pathRegex.test(currentPath)
+              ? onCancel()
+              : history.push(`/org/${props.orgId}/settings`);
+          }}
         />
-      </StyledInviteFieldGroup>
-      <UserList style={{ justifyContent: "space-between" }}>
-        {allUsers.map((user: { username: string; roleName: string }) => {
-          return (
-            <div className="user" key={user.username}>
-              <div>{user.username}</div>
-              <div>{user.roleName}</div>
-            </div>
-          );
-        })}
-      </UserList>
-      <Button
-        className="manageUsers"
-        text="Manage Users"
-        filled
-        intent="primary"
-        onClick={() => {
-          pathRegex.test(currentPath)
-            ? onCancel()
-            : history.push(`/org/${props.orgId}/settings`);
-        }}
-      />
-    </StyledForm>
+      </StyledForm>
+    </>
   );
 };
 
@@ -207,12 +247,23 @@ export default connect(
       roles: getRolesForField(state),
       defaultRole: getDefaultRole(state),
       allUsers: getAllUsers(state),
+      currentOrg: getCurrentOrg(state),
+      currentApplicationDetails: state.ui.applications.currentApplication,
+      isFetchingApplication: state.ui.applications.isFetchingApplication,
+      isChangingViewAccess: state.ui.applications.isChangingViewAccess,
     };
   },
   (dispatch: any) => ({
     fetchAllRoles: (orgId: string) =>
       dispatch({
         type: ReduxActionTypes.FETCH_ALL_ROLES_INIT,
+        payload: {
+          orgId,
+        },
+      }),
+    fetchCurrentOrg: (orgId: string) =>
+      dispatch({
+        type: ReduxActionTypes.FETCH_CURRENT_ORG,
         payload: {
           orgId,
         },
@@ -224,11 +275,23 @@ export default connect(
           orgId,
         },
       }),
+    changeAppViewAccess: (applicationId: string, publicAccess: boolean) =>
+      dispatch({
+        type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,
+        payload: {
+          applicationId,
+          publicAccess,
+        },
+      }),
   }),
 )(
   reduxForm<
     InviteUsersToOrgFormValues,
-    { fetchAllRoles: (orgId: string) => void; roles?: any }
+    {
+      fetchAllRoles: (orgId: string) => void;
+      roles?: any;
+      applicationId?: string;
+    }
   >({
     validate,
     form: INVITE_USERS_TO_ORG_FORM,
