@@ -14,9 +14,6 @@ public class SessionUserServiceImpl implements SessionUserService {
     @Override
     public Mono<User> getCurrentUser() {
         return ReactiveSecurityContextHolder.getContext()
-                .doOnNext(context -> {
-                    log.info("Security context for current user lookup {} {}", context.hashCode(), context);
-                })
                 .map(SecurityContext::getAuthentication)
                 .map(auth -> (User) auth.getPrincipal());
     }
