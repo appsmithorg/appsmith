@@ -179,24 +179,19 @@ if [[ "$setup_encryption" = "true" ]];then
 fi
 
 echo ""
-read -p 'Are you installing appsmith on a cloud instance? [N/y]: ' cloud_install
-cloud_install=${cloud_install:-N}
-setup_ssl="n"
-if [ $cloud_install == "Y" -o $cloud_install == "y" -o $cloud_install == "yes" -o $cloud_install == "Yes" ];then
-    read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
-    setup_domain=${setup_domain:-Y}
-    if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
-        echo ""
-        echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
-        echo "Please update your DNS records with your domain registrar"
-        echo "You can read more about this in our Documentation"
-        echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
-        echo "+++++++++++++++++++++++++++++++++++++++++++++++"
-        echo ""
-        echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
-        read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
-        setup_ssl=${setup_ssl:-Y}
-    fi
+read -p 'Do you have a custom domain that you would like to link? (Only for cloud installations) [N/y]: ' setup_domain
+setup_domain=${setup_domain:-N}
+if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
+    echo ""
+    echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
+    echo "Please update your DNS records with your domain registrar"
+    echo "You can read more about this in our Documentation"
+    echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
+    echo "+++++++++++++++++++++++++++++++++++++++++++++++"
+    echo ""
+    echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
+    read -p '(Your DNS records must be updated for us to proceed) [Y/n]: ' setup_ssl
+    setup_ssl=${setup_ssl:-Y}
 fi
 
 if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
