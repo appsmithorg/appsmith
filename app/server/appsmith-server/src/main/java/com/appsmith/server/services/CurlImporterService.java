@@ -20,7 +20,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -38,6 +37,8 @@ public class CurlImporterService extends BaseApiImporter {
     private static final String ARG_COOKIE = "--cookie";
     private static final String ARG_USER = "--user";
     private static final String ARG_USER_AGENT = "--user-agent";
+
+    private static final String CONTENT_TYPE_URLENCODED = "application/x-www-form-urlencoded";
 
     private final ActionService actionService;
     private final PluginService pluginService;
@@ -265,7 +266,7 @@ public class CurlImporterService extends BaseApiImporter {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
         final List<Property> headers = new ArrayList<>();
-        boolean isContentTypeSet = false;
+        String contentType = null;
         final List<String> dataParts = new ArrayList<>();
 
         String state = null;
@@ -286,7 +287,7 @@ public class CurlImporterService extends BaseApiImporter {
                 // The `token` is next to `--header`.
                 final String[] parts = token.split(":\\s*", 2);
                 if ("content-type".equalsIgnoreCase(parts[0])) {
-                    isContentTypeSet = true;
+                    contentType = parts[1];
                 }
                 headers.add(new Property(parts[0], parts[1]));
 
@@ -296,14 +297,7 @@ public class CurlImporterService extends BaseApiImporter {
 
             } else if ("--data-urlencode".equals(state)) {
                 // The `token` is next to `--data-urlencode`.
-                if (token.startsWith("=")) {
-                    dataParts.add(urlEncode(token.substring(1)));
-                } else if (token.contains("=")) {
-                    final String[] parts = token.split("=", 2);
-                    dataParts.add(parts[0] + "=" + urlEncode(parts[1]));
-                } else {
-                    dataParts.add(urlEncode(token));
-                }
+                dataParts.add(token);
 
             } else if (ARG_COOKIE.equals(state)) {
                 // The `token` is next to `--data-cookie`.
@@ -341,8 +335,9 @@ public class CurlImporterService extends BaseApiImporter {
 
         }
 
-        if (!isContentTypeSet && !dataParts.isEmpty()) {
-            headers.add(new Property("Content-Type", "application/x-www-form-urlencoded"));
+        if (contentType == null && !dataParts.isEmpty()) {
+            contentType = CONTENT_TYPE_URLENCODED;
+            headers.add(new Property("Content-Type", contentType));
         }
 
         if (!headers.isEmpty()) {
@@ -350,7 +345,18 @@ public class CurlImporterService extends BaseApiImporter {
         }
 
         if (!dataParts.isEmpty()) {
-            actionConfiguration.setBody(StringUtils.join(dataParts, '&'));
+            if (CONTENT_TYPE_URLENCODED.equals(contentType)) {
+                final ArrayList<Property> formPairs = new ArrayList<>();
+                actionConfiguration.setBodyFormData(formPairs);
+                for (String part : dataParts) {
+                    final String[] parts = part.split("=", 2);
+                    formPairs.add(new Property(parts[0], parts.length > 1 ? parts[1] : ""));
+                }
+
+            } else {
+                actionConfiguration.setBody(StringUtils.join(dataParts, '&'));
+
+            }
         }
 
         if (actionConfiguration.getHttpMethod() == null) {
@@ -404,7 +410,4 @@ public class CurlImporterService extends BaseApiImporter {
         return "";
     }
 
-    private static String urlEncode(String text) {
-        return URLEncoder.encode(text, StandardCharsets.UTF_8);
-    }
 }
