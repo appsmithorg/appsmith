@@ -5,25 +5,14 @@ is_command_present() {
   type "$1" >/dev/null 2>&1
 }
 
-check_ports_available() {
-    echo "Going to check ports"
+# This function checks if the relevant ports required by appsmith are available or not
+# The script should error out incase they aren't available
+check_ports_occupied() {
+    ports_occupied=0
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "In the darwin"
-        ports=$(sudo netstat -anp tcp | grep -e "*.80" -e "*.443" | grep LISTEN)
-        echo "In here"
-        echo $ports
+        ports_occupied=`sudo netstat -anp tcp | grep -e "*.80" -e "*.443" | grep LISTEN | wc -l | cut -d " " -f 8`
     else
-        echo "In the linux"
-        ports=$(sudo netstat -tupln tcp | grep -e "*.80" -e "*.443" | grep LISTEN)
-    fi
-
-    echo "Got ports"
-    echo $ports
-    
-    if [[ -z "$ports" ]]; then
-        ports_available=1
-    else
-        ports_available=0
+        ports_occupied=`sudo netstat -tupln tcp | grep -e "*.80" -e "*.443" | grep LISTEN | wc -l | cut -d " " -f 8`
     fi
 }
 
@@ -132,14 +121,11 @@ if [[ $desired_os -eq 0 ]];then
     exit
 fi
 
-echo ""
-check_ports_available
-echo ""
+check_ports_occupied
 
-if [[ $ports_available -eq 0 ]]; then
-    echo ""
+if [[ $ports_occupied -ne 0 ]]; then
     echo "+++++++++++ ERROR ++++++++++++++++++++++"
-    echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service that may be running on these ports"
+    echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo -e "Exiting for now. Bye! \U1F44B"
@@ -217,6 +203,9 @@ fi
 echo ""
 read -p 'Do you have a custom domain that you would like to link? (Only for cloud installations) [N/y]: ' setup_domain
 setup_domain=${setup_domain:-N}
+# Setting default value for the setup_ssl variable. Without this, the script errors out in the if condition later
+setup_ssl='N'
+
 if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
     echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
@@ -230,7 +219,7 @@ if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $
     setup_ssl=${setup_ssl:-Y}
 fi
 
-if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
+if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ]; then
 	read -p 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
 fi
 
