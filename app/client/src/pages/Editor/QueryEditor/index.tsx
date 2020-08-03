@@ -1,14 +1,13 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import { getFormValues, change } from "redux-form";
+import { getFormValues } from "redux-form";
 import styled from "styled-components";
 import { QueryEditorRouteParams } from "constants/routes";
 import QueryEditorForm from "./Form";
 import QueryHomeScreen from "./QueryHomeScreen";
 import { deleteAction, runAction } from "actions/actionActions";
 import { AppState } from "reducers";
-import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin } from "api/PluginApi";
 import { Datasource } from "api/DatasourcesApi";
@@ -164,7 +163,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     executedQueryData: state.ui.queryPane.runQuerySuccessData,
     queryPane: state.ui.queryPane,
     formData,
-    editorConfig: editorConfigs[queryAction?.pluginId ?? ""],
+    editorConfig: queryAction?.pluginId
+      ? editorConfigs[queryAction.pluginId]
+      : [],
     loadingFormConfigs,
     isCreating: state.ui.apiPane.isCreating,
     isMoving: state.ui.apiPane.isMoving,
