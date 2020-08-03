@@ -190,7 +190,7 @@ class Applications extends Component<
         trigger: {
           icon: "ORG_ICON",
           content: (
-            <DropDownTrigger>
+            <DropDownTrigger className="t--org-name">
               {orgName} <Icon icon="chevron-down" color={"black"} />
             </DropDownTrigger>
           ),
