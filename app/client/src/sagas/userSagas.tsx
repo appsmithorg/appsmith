@@ -15,7 +15,7 @@ import UserApi, {
   SwitchUserOrgRequest,
   AddUserToOrgRequest,
 } from "api/UserApi";
-import { AUTH_LOGIN_URL } from "constants/routes";
+import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -78,6 +78,14 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      if (window.location.pathname === BASE_URL) {
+        if (response.data.isAnonymous) {
+          history.replace(AUTH_LOGIN_URL);
+        } else {
+          history.replace(APPLICATIONS_URL);
+        }
+      }
+
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,

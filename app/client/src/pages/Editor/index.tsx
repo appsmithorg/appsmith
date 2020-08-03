@@ -54,7 +54,6 @@ type EditorProps = {
   isEditorInitialized: boolean;
   editorLoadingError: boolean;
   errorPublishing: boolean;
-  isPageSwitching: boolean;
   createModal: () => void;
   currentApplication?: ApplicationPayload;
 } & RouteComponentProps<BuilderRouteParams>;
@@ -120,7 +119,6 @@ class Editor extends Component<EditorProps> {
     if (!this.props.match.params.applicationId) {
       return <Redirect to="/applications" />;
     }
-    if (!this.props.isEditorInitialized || !this.state.registered) return null;
     return (
       <DndProvider
         backend={TouchBackend}

@@ -199,7 +199,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@applications").should(
+  cy.wait("@getUser").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -249,9 +249,7 @@ Cypress.Commands.add("Deletepage", Pagename => {
 });
 
 Cypress.Commands.add("LogOut", () => {
-  cy.request("POST", "/api/v1/logout").then(response => {
-    expect(response.status).equal(200);
-  });
+  cy.request("POST", "/api/v1/logout");
 });
 
 Cypress.Commands.add("NavigateToHome", () => {
@@ -871,9 +869,7 @@ Cypress.Commands.add("DeleteAppByApi", () => {
 
     if (appId != null) {
       cy.log(appId + "appId");
-      cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
-        expect(response.status).equal(200);
-      });
+      cy.request("DELETE", "api/v1/applications/" + appId);
     }
   });
 });
@@ -1338,6 +1334,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/organizations").as("createOrg");
   cy.route("POST", "/api/v1/users/invite").as("postInvite");
   cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
+  cy.route("GET", "/api/v1/users/me").as("getUser");
 });
 
 Cypress.Commands.add("alertValidate", text => {
