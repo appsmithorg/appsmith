@@ -1,15 +1,19 @@
 import React, { Suspense } from "react";
 import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
-import { Router, Switch } from "react-router-dom";
+import { Redirect, Router, Switch } from "react-router-dom";
 import AppRoute from "pages/common/AppRoute";
 import {
   APP_VIEW_URL,
   APPLICATIONS_URL,
+  AUTH_LOGIN_URL,
+  BASE_LOGIN_URL,
+  BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_URL,
   ORG_URL,
   PAGE_NOT_FOUND_URL,
+  SIGN_UP_URL,
   USER_AUTH_URL,
   USERS_URL,
 } from "constants/routes";
@@ -38,6 +42,8 @@ class AppRouter extends React.Component<any, any> {
               component={LandingScreen}
               name={"App"}
             />
+            <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
+            <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
             <AppRoute
               path={ORG_URL}
               component={OrganizationLoader}
