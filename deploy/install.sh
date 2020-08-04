@@ -5,6 +5,17 @@ is_command_present() {
   type "$1" >/dev/null 2>&1
 }
 
+# This function checks if the relevant ports required by appsmith are available or not
+# The script should error out incase they aren't available
+check_ports_occupied() {
+    ports_occupied=0
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        ports_occupied=`sudo netstat -anp tcp | grep -e "*.80" -e "*.443" | grep LISTEN | wc -l | cut -d " " -f 8`
+    else
+        ports_occupied=`sudo netstat -tupln tcp | grep -e "*.80" -e "*.443" | grep LISTEN | wc -l | cut -d " " -f 8`
+    fi
+}
+
 install_docker() {
     if [[ $package_manager -eq apt-get ]];then
         echo "++++++++++++++++++++++++"
@@ -51,7 +62,7 @@ check_os() {
 
     os_name=`cat /etc/*-release | egrep "^NAME="`
     os_name="${os_name#*=}"
-    echo $os_name
+
     case "${os_name}" in
         \"Ubuntu*\")
             desired_os=1
@@ -106,6 +117,17 @@ echo ""
 if [[ $desired_os -eq 0 ]];then
     echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
     echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
+    echo -e "Exiting for now. Bye! \U1F44B"
+    exit
+fi
+
+check_ports_occupied
+
+if [[ $ports_occupied -ne 0 ]]; then
+    echo "+++++++++++ ERROR ++++++++++++++++++++++"
+    echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
+    echo "++++++++++++++++++++++++++++++++++++++++"
+    echo ""
     echo -e "Exiting for now. Bye! \U1F44B"
     exit
 fi
@@ -181,6 +203,9 @@ fi
 echo ""
 read -p 'Do you have a custom domain that you would like to link? (Only for cloud installations) [N/y]: ' setup_domain
 setup_domain=${setup_domain:-N}
+# Setting default value for the setup_ssl variable. Without this, the script errors out in the if condition later
+setup_ssl='N'
+
 if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
     echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
@@ -194,7 +219,7 @@ if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $
     setup_ssl=${setup_ssl:-Y}
 fi
 
-if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
+if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ]; then
 	read -p 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
 fi
 
@@ -233,11 +258,9 @@ if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
 fi
 
 # Role - Folder
-for directory_name in nginx certbot mongo/db opa/config
+for directory_name in nginx certbot/conf certbot/www mongo/db
 do
-  if [[ ! -d "$install_dir/data/$directory_name" ]];then
     mkdir -p "$install_dir/data/$directory_name"
-  fi
 done
 
 echo "Generating the configuration files from the templates"
@@ -265,18 +288,24 @@ if [[ ! -z $custom_domain ]]; then
     echo "Running init-letsencrypt.sh...."
     sudo ./init-letsencrypt.sh
 else
-    echo "No domain found. Skipping generation of LetsEncrypt certificate."
+    echo "No domain found. Skipping generation of SSL certificate."
 fi
 
-echo "Updating the container images"
+echo "Pulling the latest container images"
 sudo docker-compose pull
 echo "Starting the Appsmith containers"
 sudo docker-compose -f docker-compose.yml up -d --remove-orphans
 echo ""
-echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors"
-echo "              cd $install_dir && sudo docker-compose ps -a"
-echo -e "Peace out \U1F596"
+echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
+echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
+echo ""
+echo "cd $install_dir && sudo docker-compose ps -a"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
+echo ""
+echo "Your application is running on http://localhost"
 echo ""
 echo "Your application is running on http://localhost"
 echo "Need help troubleshooting?"
 echo "Join our discord server https://discord.com/invite/rBTTVJp"
+echo ""
+echo -e "Peace out \U1F596"

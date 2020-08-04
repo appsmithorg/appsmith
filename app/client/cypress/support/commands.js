@@ -37,9 +37,7 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgSectionBtn)
-    .first()
-    .click({ force: true });
+  cy.get(".t--org-name").click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -79,9 +77,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgSection.concat(orgName).concat(")"))
-    .first()
-    .click({ force: true });
+  cy.get(".t--org-name").click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -103,9 +99,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgSection.concat(orgName).concat(")"))
-    .first()
-    .click({ force: true });
+  cy.get(".t--org-name").click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -125,7 +119,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
     200,
   );
   cy.contains(email);
-  cy.get(homePage.manageUsers).click({ force: true });
+  cy.get(".bp3-icon-small-cross").click({ force: true });
   cy.xpath(homePage.appHome)
     .should("be.visible")
     .click();
@@ -205,7 +199,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@applications").should(
+  cy.wait("@getUser").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -255,9 +249,7 @@ Cypress.Commands.add("Deletepage", Pagename => {
 });
 
 Cypress.Commands.add("LogOut", () => {
-  cy.request("POST", "/api/v1/logout").then(response => {
-    expect(response.status).equal(200);
-  });
+  cy.request("POST", "/api/v1/logout");
 });
 
 Cypress.Commands.add("NavigateToHome", () => {
@@ -877,9 +869,7 @@ Cypress.Commands.add("DeleteAppByApi", () => {
 
     if (appId != null) {
       cy.log(appId + "appId");
-      cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
-        expect(response.status).equal(200);
-      });
+      cy.request("DELETE", "api/v1/applications/" + appId);
     }
   });
 });
@@ -1344,6 +1334,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/organizations").as("createOrg");
   cy.route("POST", "/api/v1/users/invite").as("postInvite");
   cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
+  cy.route("GET", "/api/v1/users/me").as("getUser");
 });
 
 Cypress.Commands.add("alertValidate", text => {

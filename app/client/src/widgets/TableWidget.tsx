@@ -276,7 +276,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             super.updateWidgetProperty("columnOrder", columnOrder);
           }}
           columnSizeMap={this.props.columnSizeMap}
-          resetSelectedRowIndex={this.resetSelectedRowIndex}
           disableDrag={(disable: boolean) => {
             this.disableDrag(disable);
           }}
