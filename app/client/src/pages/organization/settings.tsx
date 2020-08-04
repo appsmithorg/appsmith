@@ -225,6 +225,9 @@ export const OrgSettings = (props: PageProps) => {
     prepareRow,
   } = useTable(
     {
+      // Todo(Tejaswani) please resolve this type error
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
       columns,
       data,
       manualPagination: true,

@@ -20,9 +20,8 @@ export const resetAuthExpiration = () => {
 };
 
 export const hasAuthExpired = async () => {
-  const expireBy: string = await store.getItem(STORAGE_KEYS.AUTH_EXPIRATION);
-  if (expireBy && moment().isAfter(moment(expireBy))) {
-    return true;
-  }
-  return false;
+  const expireBy: string | null = await store.getItem(
+    STORAGE_KEYS.AUTH_EXPIRATION,
+  );
+  return !!(expireBy && moment().isAfter(moment(expireBy)));
 };
