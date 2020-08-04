@@ -107,7 +107,7 @@ export const EditableText = (props: EditableTextProps) => {
     if (!isInvalid) {
       props.onTextChanged(_value);
     } else {
-      setValue(props.defaultValue);
+      setValue(_value);
     }
     setIsEditing(false);
   };
@@ -133,7 +133,10 @@ export const EditableText = (props: EditableTextProps) => {
       }
       minimal={!!props.minimal}
     >
-      <ErrorTooltip isOpen={!!error} message={errorMessage as string}>
+      <ErrorTooltip
+        isOpen={!!error && isEditing}
+        message={errorMessage as string}
+      >
         <TextContainer isValid={!error} minimal={!!props.minimal}>
           <BlueprintEditableText
             disabled={!isEditing}
