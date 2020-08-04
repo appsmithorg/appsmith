@@ -101,10 +101,6 @@ const StyledTitle = styled.p`
   margin: 8px 0;
 `;
 
-const StyledTitle = styled.p`
-  margin: 8px 0;
-`;
-
 interface Props {
   theme: EditorTheme;
   isOpen: boolean;
