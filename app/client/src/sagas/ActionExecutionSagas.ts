@@ -437,10 +437,17 @@ function* runActionSaga(
         type: ReduxActionTypes.RUN_ACTION_SUCCESS,
         payload: { [actionId]: payload },
       });
-      AppToaster.show({
-        message: "Action ran successfully",
-        type: ToastType.SUCCESS,
-      });
+      if (payload.statusCode[0] === "2") {
+        AppToaster.show({
+          message: "Action ran successfully",
+          type: ToastType.SUCCESS,
+        });
+      } else {
+        AppToaster.show({
+          message: "Action returned an error response",
+          type: ToastType.WARNING,
+        });
+      }
     } else {
       let error = "An unexpected error occurred";
       if (response.data.body) {

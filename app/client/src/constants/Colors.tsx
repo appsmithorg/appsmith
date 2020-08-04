@@ -13,6 +13,8 @@ export const Colors: Record<string, string> = {
   LIGHT_GREYISH_BLUE: "#B0BFCB",
   SUNGLOW: "#FFCB33",
   SOFT_ORANGE: "#f7c75b",
+  BINDING_COLOR: "#ffcc99",
+  BINDING_COLOR_LT: "#063289",
   PURE_ORANGE: "#ffb100",
 
   BLACK: "#000000",

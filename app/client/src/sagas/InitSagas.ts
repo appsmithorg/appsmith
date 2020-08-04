@@ -136,15 +136,15 @@ export function* initializeAppViewerSaga(
     take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
   ]);
+
+  yield put({
+    type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+  });
   if ("serviceWorker" in navigator) {
     yield put({
       type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
     });
   }
-
-  yield put({
-    type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
-  });
 }
 
 export default function* watchInitSagas() {

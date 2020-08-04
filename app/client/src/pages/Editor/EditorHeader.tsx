@@ -2,12 +2,16 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
 import {
-  BASE_URL,
   APPLICATIONS_URL,
   BUILDER_PAGE_URL,
   PAGE_LIST_EDITOR_URL,
 } from "constants/routes";
+import {
+  PERMISSION_TYPE,
+  isPermitted,
+} from "pages/Applications/permissionHelpers";
 import { Directions } from "utils/helpers";
+import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import CustomizedDropdown, {
@@ -21,12 +25,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Skin } from "constants/DefaultTheme";
 import { HelpModal } from "components/designSystems/appsmith/help/HelpModal";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
-import ShareApplicationForm from "pages/Editor/ShareApplicationForm";
 import { useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import { getIsPageSaving } from "selectors/editorSelectors";
 import { getPageList } from "selectors/appViewSelectors";
 import { publishApplication } from "actions/applicationActions";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -66,12 +70,13 @@ type EditorHeaderProps = {
   currentApplicationId?: string;
 };
 const navigation: IBreadcrumbProps[] = [
-  { href: BASE_URL, icon: "home", text: "Home" },
+  { href: APPLICATIONS_URL, icon: "home", text: "Home" },
   { href: APPLICATIONS_URL, icon: "folder-close", text: "Applications" },
   { icon: "page-layout", text: "", current: true },
 ];
 export const EditorHeader = (props: EditorHeaderProps) => {
   const { currentApplicationId, currentPageId, isPublishing } = props;
+  const orgId = useSelector(getCurrentOrgId);
   const dispatch = useDispatch();
   const isSaving = useSelector(getIsPageSaving);
   const currentApplication = useSelector((state: AppState) => {
@@ -150,27 +155,37 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     if (isSaving) return "Saving...";
     return "All changes saved";
   }, [isSaving]);
+  const applicationPermissions = currentApplication?.userPermissions
+    ? currentApplication.userPermissions
+    : [];
 
   return (
     <StyledHeader>
       <StretchedBreadCrumb items={navigation} minVisibleItems={3} />
       <CustomizedDropdown {...pageSelectorData} />
       <ShareButton>
-        <FormDialogComponent
-          trigger={
-            <Button
-              text="Share"
-              intent="primary"
-              outline
-              size="small"
-              className="t--application-share-btn"
-            />
-          }
-          Form={ShareApplicationForm}
-          title={
-            currentApplication ? currentApplication.name : "Share Application"
-          }
-        />
+        {isPermitted(
+          applicationPermissions,
+          PERMISSION_TYPE.MANAGE_APPLICATION,
+        ) && (
+          <FormDialogComponent
+            trigger={
+              <Button
+                text="Share"
+                intent="primary"
+                outline
+                size="small"
+                className="t--application-share-btn"
+              />
+            }
+            Form={InviteUsersFormv2}
+            orgId={orgId}
+            applicationId={currentApplicationId}
+            title={
+              currentApplication ? currentApplication.name : "Share Application"
+            }
+          />
+        )}
       </ShareButton>
 
       <LoadingContainer>{saveStatusMessage}</LoadingContainer>
@@ -185,7 +200,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           className="t--application-publish-btn"
         />
       </PreviewPublishSection>
-      <HelpModal></HelpModal>
+      <HelpModal />
     </StyledHeader>
   );
 };

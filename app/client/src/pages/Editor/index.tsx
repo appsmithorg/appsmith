@@ -31,6 +31,7 @@ import {
 } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -40,6 +41,7 @@ type EditorProps = {
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
   errorPublishing: boolean;
+  currentApplication?: ApplicationPayload;
 } & RouteComponentProps<BuilderRouteParams>;
 
 @HotkeysTarget
