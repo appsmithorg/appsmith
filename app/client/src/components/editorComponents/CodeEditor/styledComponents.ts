@@ -17,7 +17,7 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     font-size: 90%;
     font-family: monospace;
     max-height: 20em;
-    width: 300px;
+    width: 250px;
     overflow-y: auto;
     background: ${props =>
       props.editorTheme === EditorTheme.DARK ? "#090A0F" : "#ffffff"};
@@ -38,7 +38,7 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     cursor: pointer;
     display: flex;
     align-items: center;
-    font-size: 14px;
+    font-size: 12px;
   }
 
   li.CodeMirror-hint-active {
@@ -133,7 +133,27 @@ export const EditorWrapper = styled.div<{
   flex-direction: row;
   text-transform: none;
   && {
-    .binding-highlight {
+    .CodeMirror-cursor {
+      border-right: none;
+      border-left-color: ${props =>
+        props.editorTheme === EditorTheme.DARK
+          ? props.theme.colors.textOnDarkBG
+          : props.theme.colors.textDefault} !important
+    }
+    .cm-s-duotone-light.CodeMirror {
+      background: #ffffff;
+      color: #000000 !important;
+      & {
+        span.cm-operator {
+          color: ${props => props.theme.colors.textDefault};
+        }
+      }
+     }
+    .cm-s-duotone-dark.CodeMirror {
+      background: #182026;
+      color: #FFFFFF;
+    }
+    .binding-brackets {
       color: ${props =>
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.bindingTextDark
@@ -219,15 +239,16 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   theme: Theme;
   isActive: boolean;
   isNotHover: boolean;
+  isError: boolean;
 }>`
   width: 100%;
   height: 100%;
   flex: 1;
   position: relative;
-  border: ${props => (props.skin === Skin.DARK ? "1px solid" : "none")};
+  border: 1px solid;
   border-radius: 2px;
   border-color: ${props =>
-    props.isActive && props.skin === Skin.DARK
+    !props.isError && props.isActive && props.skin === Skin.DARK
       ? Colors.ALABASTER
       : "transparent"};
   > span:first-of-type {
@@ -236,8 +257,10 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     right: 0px;
   }
   &:hover {
-    border: ${props =>
-      props.skin === Skin.DARK ? "1px solid " + Colors.ALABASTER : "none"};
+    border-color: ${props =>
+      !props.isError && props.skin === Skin.DARK
+        ? Colors.ALABASTER
+        : "transparent"};
     .lightning-menu {
       background: ${props =>
         !props.isNotHover

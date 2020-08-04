@@ -376,7 +376,7 @@ export const theme: Theme = {
   },
   evaluatedValuePopup: {
     width: 300,
-    height: 400,
+    height: 500,
   },
   drawerWidth: "80%",
   colors: {
@@ -414,8 +414,8 @@ export const theme: Theme = {
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
     notification: Colors.JAFFA,
-    bindingTextDark: Colors.SOFT_ORANGE,
-    bindingText: Colors.PURE_ORANGE,
+    bindingTextDark: Colors.BINDING_COLOR,
+    bindingText: Colors.BINDING_COLOR_LT,
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
   },
