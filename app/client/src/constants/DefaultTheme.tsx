@@ -376,7 +376,7 @@ export const theme: Theme = {
   },
   evaluatedValuePopup: {
     width: 300,
-    height: 400,
+    height: 500,
   },
   drawerWidth: "80%",
   colors: {
