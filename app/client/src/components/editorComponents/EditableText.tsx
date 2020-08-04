@@ -108,6 +108,7 @@ export const EditableText = (props: EditableTextProps) => {
       props.onTextChanged(_value);
     } else {
       setValue(_value);
+      setIsEditing(true);
     }
     setIsEditing(false);
   };
