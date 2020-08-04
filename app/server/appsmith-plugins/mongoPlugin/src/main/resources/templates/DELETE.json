@@ -3,7 +3,7 @@
   "deletes": [
     {
       "q": {
-        "id": "{{usersTable.selectedRow.id}}"
+        "id": "{{ usersTable.selectedRow.id }}"
       },
       "limit": 1
     }

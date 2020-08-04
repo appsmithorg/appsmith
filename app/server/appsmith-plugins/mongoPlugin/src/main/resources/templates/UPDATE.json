@@ -5,7 +5,7 @@
       "q": {
         "id": 10
       },
-      "u": { "$set": { "status": "{{statusDropdown.selectedOptionValue}}" } }
+      "u": { "$set": { "status": "{{ statusDropdown.selectedOptionValue }}" } }
     }
   ]
 }
