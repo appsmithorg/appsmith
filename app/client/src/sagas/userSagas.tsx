@@ -82,6 +82,7 @@ export function* getCurrentUserSaga() {
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
         } else {
+          AnalyticsUtil.identifyUser(response.data.username, response.data);
           history.replace(APPLICATIONS_URL);
         }
       }
