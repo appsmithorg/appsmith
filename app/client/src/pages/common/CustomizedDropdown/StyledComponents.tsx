@@ -9,7 +9,7 @@ export const DropdownTrigger = styled.div<{ skin: Skin }>`
   width: 100%;
   & > div > div,
   & > div > span {
-    margin-right: 20px;
+    margin-right: 10px;
   }
   &&& button {
     width: 100%;

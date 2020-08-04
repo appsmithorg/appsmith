@@ -101,6 +101,10 @@ const StyledTitle = styled.p`
   margin: 8px 0;
 `;
 
+const StyledTitle = styled.p`
+  margin: 8px 0;
+`;
+
 interface Props {
   theme: EditorTheme;
   isOpen: boolean;
@@ -169,7 +173,7 @@ const PopoverContent = (props: PopoverContentProps) => {
       className="t--CodeEditor-evaluatedValue"
     >
       {props.hasError && (
-        <ErrorText>{`This value does not evaluate to type "${props.expected}". Transform the value using JS inside '{{ }}'`}</ErrorText>
+        <ErrorText>{`This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}</ErrorText>
       )}
       {!props.hasError && props.expected && (
         <React.Fragment>

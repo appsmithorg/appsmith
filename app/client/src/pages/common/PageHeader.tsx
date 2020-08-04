@@ -1,5 +1,5 @@
 import React from "react";
-import { useHistory, Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
@@ -9,10 +9,9 @@ import DropdownProps from "./CustomizedDropdown/HeaderDropdownData";
 import { AppState } from "reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import Logo from "assets/images/appsmith_logo.png";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { useEffect } from "react";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
+import history from "utils/history";
 
 const StyledPageHeader = styled(StyledHeader)`
   width: 100%;
@@ -32,15 +31,16 @@ const LogoContainer = styled.div`
 
 type PageHeaderProps = {
   user?: User;
-  fetchCurrentUser: () => void;
 };
 
 export const PageHeader = (props: PageHeaderProps) => {
-  const { user, fetchCurrentUser } = props;
-  const history = useHistory();
-  useEffect(() => {
-    fetchCurrentUser();
-  }, [fetchCurrentUser]);
+  const { user } = props;
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  let loginUrl = AUTH_LOGIN_URL;
+  if (queryParams.has("redirectTo")) {
+    loginUrl += `?redirectTo=${queryParams.get("redirectTo")}`;
+  }
 
   return (
     <StyledPageHeader>
@@ -49,19 +49,21 @@ export const PageHeader = (props: PageHeaderProps) => {
           <img className="logoimg" src={Logo} alt="Appsmith Logo" />
         </Link>
       </LogoContainer>
-      <StyledDropDownContainer>
-        {user && user.username !== ANONYMOUS_USERNAME ? (
-          <CustomizedDropdown {...DropdownProps(user, user.username)} />
-        ) : (
-          <Button
-            filled
-            text="Sign In"
-            intent={"primary"}
-            size="small"
-            onClick={() => history.push(AUTH_LOGIN_URL)}
-          />
-        )}
-      </StyledDropDownContainer>
+      {user && (
+        <StyledDropDownContainer>
+          {user.username === ANONYMOUS_USERNAME ? (
+            <Button
+              filled
+              text="Sign In"
+              intent={"primary"}
+              size="small"
+              onClick={() => history.push(loginUrl)}
+            />
+          ) : (
+            <CustomizedDropdown {...DropdownProps(user, user.username)} />
+          )}
+        </StyledDropDownContainer>
+      )}
     </StyledPageHeader>
   );
 };
@@ -70,8 +72,4 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  fetchCurrentUser: () => dispatch({ type: ReduxActionTypes.FETCH_USER_INIT }),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(PageHeader);
+export default connect(mapStateToProps)(PageHeader);
