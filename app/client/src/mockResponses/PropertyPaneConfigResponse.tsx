@@ -51,9 +51,27 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           },
           {
             id: "6.1.3",
+            helpText: "Sets the format of the selected date",
+            propertyName: "dateFormat",
+            label: "Date Format",
+            controlType: "DROP_DOWN",
+            isJSConvertible: true,
+            options: [
+              { label: "YYYY-MM-DD", value: "YYYY-MM-DD" },
+              { label: "YYYY-MM-DD HH:mm", value: "YYYY-MM-DD HH:mm" },
+              {
+                label: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                value: "YYYY-MM-DDTHH:mm:ss.sssZ",
+              },
+              { label: "DD/MM/YYYY", value: "DD/MM/YYYY" },
+              { label: "DD/MM/YYYY HH:mm", value: "DD/MM/YYYY HH:mm" },
+            ],
+          },
+          {
+            id: "6.1.6",
             propertyName: "isRequired",
             label: "Required",
-            helpText: "Disables a form submit button when this widget is empty",
+            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
           },
           {
@@ -116,27 +134,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Visible",
             controlType: "SWITCH",
           },
-          {
-            id: "7.1.4",
-            helpText: "Enable PDF Export",
-            propertyName: "exportPDF",
-            label: "PDF Export",
-            controlType: "SWITCH",
-          },
-          {
-            id: "7.1.5",
-            helpText: "Enable Excel Export",
-            propertyName: "exportExcel",
-            label: "Excel Export",
-            controlType: "SWITCH",
-          },
-          {
-            id: "7.1.6",
-            helpText: "Enable CSV Export",
-            propertyName: "exportCsv",
-            label: "CSV Export",
-            controlType: "SWITCH",
-          },
         ],
       },
       {
@@ -164,6 +161,13 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             helpText: "Triggers an action when a table page is changed",
             propertyName: "onPageChange",
             label: "onPageChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            id: "7.2.4",
+            propertyName: "onSearchTextChanged",
+            label: "onSearchTextChanged",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
@@ -225,12 +229,11 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "INPUT_TEXT",
           },
           {
-            id: "10.1.4",
-            helpText: "Disables a form submit button when this widget is empty",
+            id: "10.1.7",
             propertyName: "isRequired",
             label: "Required",
+            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
-            isJSConvertible: true,
           },
           {
             id: "10.1.5",
@@ -239,6 +242,13 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
+          },
+          {
+            id: "10.1.6",
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
           },
         ],
       },
@@ -316,26 +326,11 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Chart Type",
             controlType: "DROP_DOWN",
             options: [
-              {
-                label: "Line Chart",
-                value: "LINE_CHART",
-              },
-              {
-                label: "Bar Chart",
-                value: "BAR_CHART",
-              },
-              {
-                label: "Pie Chart",
-                value: "PIE_CHART",
-              },
-              {
-                label: "Column Chart",
-                value: "COLUMN_CHART",
-              },
-              {
-                label: "Area Chart",
-                value: "AREA_CHART",
-              },
+              { label: "Line Chart", value: "LINE_CHART" },
+              { label: "Bar Chart", value: "BAR_CHART" },
+              { label: "Pie Chart", value: "PIE_CHART" },
+              { label: "Column Chart", value: "COLUMN_CHART" },
+              { label: "Area Chart", value: "AREA_CHART" },
             ],
             isJSConvertible: true,
           },
@@ -399,14 +394,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Modal Type",
             controlType: "DROP_DOWN",
             options: [
-              {
-                label: "Form Modal",
-                value: "MODAL_LARGE",
-              },
-              {
-                label: "Alert Modal",
-                value: "MODAL_SMALL",
-              },
+              { label: "Form Modal", value: "MODAL_LARGE" },
+              { label: "Alert Modal", value: "MODAL_SMALL" },
             ],
           },
           {
@@ -430,27 +419,21 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Data Type",
             controlType: "DROP_DOWN",
             options: [
-              {
-                label: "Text",
-                value: "TEXT",
-              },
-              {
-                label: "Number",
-                value: "NUMBER",
-              },
-              {
-                label: "Password",
-                value: "PASSWORD",
-              },
-              {
-                label: "Phone Number",
-                value: "PHONE_NUMBER",
-              },
-              {
-                label: "Email",
-                value: "EMAIL",
-              },
+              { label: "Text", value: "TEXT" },
+              { label: "Number", value: "NUMBER" },
+              { label: "Password", value: "PASSWORD" },
+              { label: "Phone Number", value: "PHONE_NUMBER" },
+              { label: "Email", value: "EMAIL" },
             ],
+          },
+          {
+            id: "4.1.4",
+            helpText:
+              "Sets the default text of the widget. The text is updated if the default text changes",
+            propertyName: "defaultText",
+            label: "Default Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter default text",
           },
           {
             id: "4.1.3",
@@ -459,15 +442,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Placeholder",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter placeholder text",
-          },
-          {
-            id: "4.1.4",
-            helpText:
-              "Sets the default text of the widget. The text is updated if the default text changes",
-            propertyName: "defaultText",
-            label: "Default Input",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter default text",
           },
           {
             id: "4.1.5",
@@ -490,12 +464,11 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             inputType: "TEXT",
           },
           {
-            id: "4.1.7",
+            id: "4.1.10",
             propertyName: "isRequired",
             label: "Required",
-            helpText: "Disables a form submit button when this widget is empty",
+            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
-            isJSConvertible: true,
           },
           {
             id: "4.1.8",
@@ -543,14 +516,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Selection Type",
             controlType: "DROP_DOWN",
             options: [
-              {
-                label: "Single Select",
-                value: "SINGLE_SELECT",
-              },
-              {
-                label: "Multi Select",
-                value: "MULTI_SELECT",
-              },
+              { label: "Single Select", value: "SINGLE_SELECT" },
+              { label: "Multi Select", value: "MULTI_SELECT" },
             ],
           },
           {
@@ -571,12 +538,11 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             placeholderText: "Enter option value",
           },
           {
-            id: "8.1.5",
+            id: "8.1.8",
             propertyName: "isRequired",
             label: "Required",
-            helpText: "Disables a form submit button when this widget is empty",
+            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
-            isJSConvertible: true,
           },
           {
             id: "8.1.6",
@@ -585,6 +551,13 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
+          },
+          {
+            id: "8.1.7",
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
           },
         ],
       },
@@ -623,18 +596,9 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             helpText: "Changes the style of the button",
             controlType: "DROP_DOWN",
             options: [
-              {
-                label: "Primary Button",
-                value: "PRIMARY_BUTTON",
-              },
-              {
-                label: "Secondary Button",
-                value: "SECONDARY_BUTTON",
-              },
-              {
-                label: "Danger Button",
-                value: "DANGER_BUTTON",
-              },
+              { label: "Primary Button", value: "PRIMARY_BUTTON" },
+              { label: "Secondary Button", value: "SECONDARY_BUTTON" },
+              { label: "Danger Button", value: "DANGER_BUTTON" },
             ],
           },
           {
@@ -780,27 +744,10 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "DROP_DOWN",
             helpText: "Changes the style of the button",
             options: [
-              {
-                label: "Primary Button",
-                value: "PRIMARY_BUTTON",
-              },
-              {
-                label: "Secondary Button",
-                value: "SECONDARY_BUTTON",
-              },
-              {
-                label: "Danger Button",
-                value: "DANGER_BUTTON",
-              },
+              { label: "Primary Button", value: "PRIMARY_BUTTON" },
+              { label: "Secondary Button", value: "SECONDARY_BUTTON" },
+              { label: "Danger Button", value: "DANGER_BUTTON" },
             ],
-          },
-          {
-            id: "1.1.3",
-            propertyName: "isDisabled",
-            label: "Disabled",
-            controlType: "SWITCH",
-            helpText: "Disables clicks to this widget",
-            isJSConvertible: true,
           },
           {
             id: "1.1.4",
@@ -808,6 +755,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Visible",
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "1.1.3",
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables clicks to this widget",
             isJSConvertible: true,
           },
         ],
@@ -915,48 +870,23 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "MULTI_SELECT",
             placeholderText: "Select file types",
             options: [
-              {
-                label: "Any File",
-                value: "*",
-              },
-              {
-                label: "Images",
-                value: "image/*",
-              },
-              {
-                label: "Videos",
-                value: "video/*",
-              },
-              {
-                label: "Audio",
-                value: "audio/*",
-              },
-              {
-                label: "Text",
-                value: "text/*",
-              },
-              {
-                label: "MS Word",
-                value: ".doc",
-              },
-              {
-                label: "JPEG",
-                value: "image/jpeg",
-              },
-              {
-                label: "PNG",
-                value: ".png",
-              },
+              { label: "Any File", value: "*" },
+              { label: "Images", value: "image/*" },
+              { label: "Videos", value: "video/*" },
+              { label: "Audio", value: "audio/*" },
+              { label: "Text", value: "text/*" },
+              { label: "MS Word", value: ".doc" },
+              { label: "JPEG", value: "image/jpeg" },
+              { label: "PNG", value: ".png" },
             ],
             isJSConvertible: true,
           },
           {
-            id: "11.1.5",
+            id: "11.1.9",
             propertyName: "isRequired",
             label: "Required",
+            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
-            helpText: "Disables a form submit button when this widget is empty",
-            isJSConvertible: true,
           },
           {
             id: "11.1.6",
@@ -975,6 +905,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "INPUT_TEXT",
             placeholderText: 'Enter [ "url1", "url2" ]',
             inputType: "TEXT",
+          },
+          {
+            id: "11.1.8",
+            propertyName: "isDisabled",
+            label: "Disable",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
           },
         ],
       },
@@ -1017,10 +955,17 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             isJSConvertible: true,
           },
           {
-            id: "9.1.3",
+            id: "9.1.6",
             propertyName: "isRequired",
             label: "Required",
-            helpText: "Disables a form submit button when this widget is empty",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+          },
+          {
+            id: "9.1.5",
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
           },
@@ -1030,14 +975,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Disabled",
             controlType: "SWITCH",
             helpText: "Disables input to this widget",
-            isJSConvertible: true,
-          },
-          {
-            id: "9.1.5",
-            propertyName: "isVisible",
-            label: "Visible",
-            helpText: "Controls the visibility of the widget",
-            controlType: "SWITCH",
             isJSConvertible: true,
           },
         ],
@@ -1107,18 +1044,9 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Text Align",
             controlType: "DROP_DOWN",
             options: [
-              {
-                label: "Left",
-                value: "LEFT",
-              },
-              {
-                label: "Center",
-                value: "CENTER",
-              },
-              {
-                label: "Right",
-                value: "RIGHT",
-              },
+              { label: "Left", value: "LEFT" },
+              { label: "Center", value: "CENTER" },
+              { label: "Right", value: "RIGHT" },
             ],
           },
           {
@@ -1128,18 +1056,9 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Text Style",
             controlType: "DROP_DOWN",
             options: [
-              {
-                label: "Heading",
-                value: "HEADING",
-              },
-              {
-                label: "Label",
-                value: "LABEL",
-              },
-              {
-                label: "Body",
-                value: "BODY",
-              },
+              { label: "Heading", value: "HEADING" },
+              { label: "Label", value: "LABEL" },
+              { label: "Body", value: "BODY" },
             ],
           },
           {
@@ -1161,7 +1080,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
       },
     ],
   },
-  name: "propertyPane",
 };
 
 export default PropertyPaneConfigResponse;
