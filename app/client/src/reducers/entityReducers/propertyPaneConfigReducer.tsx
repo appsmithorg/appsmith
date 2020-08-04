@@ -1,10 +1,12 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import PropertyPaneConfigResponse from "mockResponses/PropertyPaneConfigResponse";
 import { PropertyControlPropsType } from "components/propertyControls";
 import { WidgetType } from "constants/WidgetConstants";
 
 const initialState: PropertyPaneConfigState = {
   configVersion: 0,
+  config: PropertyPaneConfigResponse.config,
 };
 
 export interface PropertySection {

@@ -131,7 +131,7 @@ describe("Create new org and share with a user", function() {
     );
     cy.SearchApp(appid);
     cy.get("#loading").should("not.exist");
-    cy.wait("@getPropertyPane");
-    cy.get("@getPropertyPane").should("have.property", "status", 200);
+    // cy.wait("@getPropertyPane");
+    // cy.get("@getPropertyPane").should("have.property", "status", 200);
   });
 });
