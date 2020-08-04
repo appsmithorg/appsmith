@@ -77,6 +77,7 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
         autoFocus={false}
         hoverOpenDelay={1000}
         content={LIGHTNING_MENU_DATA_TOOLTIP}
+        openOnTargetFocus={false}
       >
         <IconWrapper {...iconProps}>
           <LightningIcon />
