@@ -40,6 +40,7 @@ type HighlightedCodeProps = {
   skin?: Skin;
   multiline?: boolean;
   onClick?: () => void;
+  className?: string;
 };
 /* eslint-disable react/display-name */
 export const HighlightedCode = forwardRef(
@@ -66,6 +67,7 @@ export const HighlightedCode = forwardRef(
         skin={props.skin || Skin.DARK}
         onClick={props.onClick}
         ref={ref}
+        className={props.className}
       >
         {!props.multiline && (
           <code ref={codeRef} className={language}>

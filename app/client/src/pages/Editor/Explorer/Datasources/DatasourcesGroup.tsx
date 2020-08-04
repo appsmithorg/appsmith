@@ -48,6 +48,7 @@ export const ExplorerDatasourcesGroup = (
     <Entity
       entityId="DataSources"
       step={props.step}
+      className="group plugins"
       name="DataSources"
       icon={datasourceIcon}
       active={

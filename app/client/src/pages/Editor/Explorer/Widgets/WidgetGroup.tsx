@@ -166,6 +166,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     <Entity
       key={props.pageId + "_widgets"}
       icon={widgetIcon}
+      className="group widgets"
       step={props.step}
       name="Widgets"
       disabled={!props.widgets && !!props.searchKeyword}

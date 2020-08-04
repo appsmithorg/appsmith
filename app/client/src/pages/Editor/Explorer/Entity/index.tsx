@@ -10,7 +10,12 @@ import Loader from "./Loader";
 import { Classes } from "@blueprintjs/core";
 
 export enum EntityClassNames {
-  ACTION_CONTEXT_MENU = "action-entity",
+  CONTEXT_MENU = "entity-context-menu",
+  ADD_BUTTON = "t--entity-add-btn",
+  NAME = "t--entity-name",
+  COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
+  WRAPPER = "t--entity",
+  PROPERTY = "t--entity-property",
 }
 
 const Wrapper = styled.div<{ active: boolean }>`
@@ -45,7 +50,7 @@ const EntityItem = styled.div<{
     justify-content: center;
     align-items: center;
   }
-  &&&& .${EntityClassNames.ACTION_CONTEXT_MENU} {
+  &&&& .${EntityClassNames.CONTEXT_MENU} {
     display: block;
     width: 100%;
     height: 100%;
@@ -54,13 +59,14 @@ const EntityItem = styled.div<{
     align-items: center;
     visibility: hidden;
   }
-  &&&&:hover .${EntityClassNames.ACTION_CONTEXT_MENU} {
+  &&&&:hover .${EntityClassNames.CONTEXT_MENU} {
     visibility: visible;
   }
 `;
 
 export type EntityProps = {
   entityId: string;
+  className?: string;
   name: string;
   children?: ReactNode;
   icon: ReactNode;
@@ -111,7 +117,10 @@ export const Entity = (props: EntityProps) => {
   };
 
   return (
-    <Wrapper active={!!props.active}>
+    <Wrapper
+      active={!!props.active}
+      className={`${EntityClassNames.WRAPPER} ${props.className}`}
+    >
       <EntityItem
         active={!!props.active}
         onClick={handleClick}
@@ -123,16 +132,21 @@ export const Entity = (props: EntityProps) => {
           isVisible={!!props.children}
           onClick={toggleChildren}
           disabled={!!props.disabled}
+          className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
         />
         {props.icon}
         <EntityName
           entityId={props.entityId}
+          className={`${EntityClassNames.NAME}`}
           name={props.name}
           isEditing={!!props.updateEntityName && isEditing}
           updateEntityName={updateNameCallback}
           searchKeyword={props.searchKeyword}
         />
-        <AddButton onClick={props.createFn} />
+        <AddButton
+          onClick={props.createFn}
+          className={`${EntityClassNames.ADD_BUTTON}`}
+        />
         {props.contextMenu}
         <Loader isVisible={isUpdating} />
       </EntityItem>

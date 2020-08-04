@@ -8,6 +8,7 @@ export const CollapseToggle = (props: {
   isVisible: boolean;
   onClick: () => void;
   disabled: boolean;
+  className: string;
 }) => {
   const handleClick = (e: any) => {
     props.onClick();
@@ -20,6 +21,7 @@ export const CollapseToggle = (props: {
   if (!props.isVisible) return <span></span>;
   return (
     <Icon
+      className={props.className}
       icon={icon}
       onClick={handleClick}
       color={props.disabled ? Colors.SLATE_GRAY : Colors.WHITE}

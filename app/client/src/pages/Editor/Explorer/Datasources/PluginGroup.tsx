@@ -24,6 +24,7 @@ export const DatasourcePluginGroup = (props: DatasourcePluginGroupProps) => {
   return (
     <Entity
       entityId="Plugin"
+      className="group datasources"
       icon={pluginIcon}
       name={props.plugin?.name || "Unknown Plugin"}
       active={currentGroup}

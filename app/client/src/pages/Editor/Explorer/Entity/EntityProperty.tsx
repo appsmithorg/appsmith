@@ -12,6 +12,7 @@ import { scrollbarDark } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 
 import { ContextMenuPopoverModifiers } from "../helpers";
+import { EntityClassNames } from ".";
 
 const StyledValue = styled.pre<{ step: number }>`
   & {
@@ -165,12 +166,14 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
   };
 
   let propertyValue = (
-    <StyledValue step={props.step}>{transformedValue(props.value)}</StyledValue>
+    <StyledValue className="value" step={props.step}>
+      {transformedValue(props.value)}
+    </StyledValue>
   );
   if (showPopup) {
     propertyValue = (
       <React.Fragment>
-        <StyledValue step={props.step}>
+        <StyledValue step={props.step} className="value">
           {transformedValue(props.value)}
         </StyledValue>
         <Popover
@@ -197,8 +200,9 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
   }
 
   return (
-    <Wrapper step={props.step}>
+    <Wrapper step={props.step} className={`${EntityClassNames.PROPERTY}`}>
       <HighlightedCode
+        className="binding"
         ref={propertyRef}
         onClick={copyBindingToClipboard}
         codeText={codeText}

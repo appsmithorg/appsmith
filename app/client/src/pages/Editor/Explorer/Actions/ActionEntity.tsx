@@ -59,7 +59,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     <ActionEntityContextMenu
       id={props.action.actionId}
       name={props.action.name}
-      className={EntityClassNames.ACTION_CONTEXT_MENU}
+      className={EntityClassNames.CONTEXT_MENU}
       pageId={props.pageId}
     />
   );
@@ -76,6 +76,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       updateEntityName={getUpdateActionNameReduxAction}
       searchKeyword={props.searchKeyword}
       contextMenu={contextMenu}
+      className="action"
     >
       {getActionProperties(props.action, props.step + 1)}
     </Entity>

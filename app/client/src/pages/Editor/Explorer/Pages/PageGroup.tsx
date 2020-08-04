@@ -60,6 +60,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
   return (
     <Entity
       name="Pages"
+      className="group pages"
       icon={pageGroupIcon}
       isDefaultExpanded
       action={noop}

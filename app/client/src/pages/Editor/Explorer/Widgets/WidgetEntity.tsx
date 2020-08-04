@@ -145,13 +145,14 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     <WidgetContextMenu
       widgetId={props.widgetProps.widgetId}
       parentId={props.widgetProps.parentId}
-      className={EntityClassNames.ACTION_CONTEXT_MENU}
+      className={EntityClassNames.CONTEXT_MENU}
     />
   );
 
   return (
     <Entity
       key={props.widgetProps.widgetId}
+      className="widget"
       icon={getWidgetIcon(props.widgetProps.type)}
       name={props.widgetProps.widgetName}
       action={navigateToWidget}

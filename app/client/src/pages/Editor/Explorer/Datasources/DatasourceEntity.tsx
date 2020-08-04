@@ -33,6 +33,7 @@ export const ExplorerDatasourceEntity = (
   return (
     <Entity
       entityId={props.datasource.id}
+      className="datasource"
       key={props.datasource.id}
       icon={queryIcon}
       name={props.datasource.name}
@@ -43,7 +44,7 @@ export const ExplorerDatasourceEntity = (
       contextMenu={
         <DataSourceContextMenu
           datasourceId={props.datasource.id}
-          className={EntityClassNames.ACTION_CONTEXT_MENU}
+          className={EntityClassNames.CONTEXT_MENU}
         />
       }
     />

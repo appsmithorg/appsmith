@@ -35,7 +35,7 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
       applicationId={params.applicationId}
       pageId={props.page.pageId}
       name={props.page.pageName}
-      className={EntityClassNames.ACTION_CONTEXT_MENU}
+      className={EntityClassNames.CONTEXT_MENU}
       isDefaultPage={props.page.isDefault}
     />
   );
@@ -43,6 +43,7 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
     <Entity
       icon={pageIcon}
       name={props.page.pageName}
+      className="page"
       step={props.step}
       action={switchPage}
       entityId={props.page.pageId}

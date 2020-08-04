@@ -1,4 +1,4 @@
-import React, { forwardRef, Ref, useEffect } from "react";
+import React, { forwardRef, Ref } from "react";
 import { Icon, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";

@@ -8,7 +8,10 @@ const Wrapper = styled(EntityTogglesWrapper)`
     }
   }
 `;
-export const EntityAddButton = (props: { onClick?: () => void }) => {
+export const EntityAddButton = (props: {
+  onClick?: () => void;
+  className?: string;
+}) => {
   const handleClick = (e: any) => {
     props.onClick && props.onClick();
     e.stopPropagation();
@@ -16,7 +19,7 @@ export const EntityAddButton = (props: { onClick?: () => void }) => {
   if (!props.onClick) return null;
   else {
     return (
-      <Wrapper onClick={handleClick}>
+      <Wrapper onClick={handleClick} className={props.className}>
         <span>+</span>
       </Wrapper>
     );

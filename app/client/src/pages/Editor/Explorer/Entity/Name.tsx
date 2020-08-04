@@ -56,6 +56,7 @@ export interface EntityNameProps {
   updateEntityName: (name: string) => void;
   entityId: string;
   searchKeyword?: string;
+  className?: string;
 }
 
 export const EntityName = (props: EntityNameProps) => {
@@ -145,12 +146,15 @@ export const EntityName = (props: EntityNameProps) => {
 
   if (!props.isEditing)
     return (
-      <Wrapper onDoubleClick={enterEditMode}>{searchHighlightedName}</Wrapper>
+      <Wrapper className={props.className} onDoubleClick={enterEditMode}>
+        {searchHighlightedName}
+      </Wrapper>
     );
   return (
     <Wrapper>
       <EditableText
         type="text"
+        className={`${props.className} editing`}
         defaultValue={name}
         placeholder="Name"
         onTextChanged={handleAPINameChange}

@@ -67,6 +67,7 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
     <Entity
       icon={props.config?.icon}
       name={props.config?.groupName || "Actions"}
+      className={`group ${props.config?.groupName.toLowerCase()}`}
       entityId={props.page.pageId + "_" + props.config?.type}
       step={props.step}
       disabled={!!props.searchKeyword && (!childNode || !props.actions.length)}
