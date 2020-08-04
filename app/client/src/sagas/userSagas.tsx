@@ -78,11 +78,11 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      AnalyticsUtil.identifyUser(response.data.username, response.data);
       if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
         } else {
-          AnalyticsUtil.identifyUser(response.data.username, response.data);
           history.replace(APPLICATIONS_URL);
         }
       }
