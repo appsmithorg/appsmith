@@ -31,7 +31,12 @@ import {
 } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
-import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
+import history from "utils/history";
+import {
+  ENTITY_EXPLORER_SEARCH_ID,
+  ENTITY_EXPLORER_SEARCH_LOCATION_HASH,
+} from "constants/Explorer";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -55,8 +60,18 @@ class Editor extends Component<EditorProps> {
           label="Search entities"
           onKeyDown={(e: any) => {
             //TODO(abhinav): make this id into a constant.
-            const el = document.getElementById("entity-explorer-search");
-            el?.focus();
+            const el = document.getElementById(ENTITY_EXPLORER_SEARCH_ID);
+            if (!el) {
+              history.push(
+                `${BUILDER_PAGE_URL(
+                  this.props.currentApplicationId,
+                  this.props.currentPageId,
+                )}${ENTITY_EXPLORER_SEARCH_LOCATION_HASH}`,
+              );
+            } else {
+              el?.focus();
+            }
+
             e.preventDefault();
             e.stopPropagation();
           }}

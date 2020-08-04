@@ -1,4 +1,4 @@
-import React, { useRef, MutableRefObject } from "react";
+import React, { useRef, MutableRefObject, useEffect } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import { useFilteredEntities } from "./hooks";
@@ -7,6 +7,8 @@ import ExplorerPageGroup from "./Pages/PageGroup";
 import ExplorerDatasourcesGroup from "./Datasources/DatasourcesGroup";
 import { scrollbarDark } from "constants/DefaultTheme";
 import { NonIdealState, Classes } from "@blueprintjs/core";
+import { ENTITY_EXPLORER_SEARCH_LOCATION_HASH } from "constants/Explorer";
+import { useLocation } from "react-router";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -34,6 +36,13 @@ const EntityExplorer = () => {
     searchKeyword,
     clearSearch,
   } = useFilteredEntities(searchInputRef);
+
+  const location = useLocation();
+  useEffect(() => {
+    if (location.hash === ENTITY_EXPLORER_SEARCH_LOCATION_HASH) {
+      searchInputRef.current?.focus();
+    }
+  }, [location, searchInputRef]);
 
   const explorerPageGroup = (
     <ExplorerPageGroup

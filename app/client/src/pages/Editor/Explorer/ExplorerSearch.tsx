@@ -1,7 +1,8 @@
-import React, { forwardRef, Ref } from "react";
+import React, { forwardRef, Ref, useEffect } from "react";
 import { Icon, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 
 const ExplorerSearchWrapper = styled.div`
   display: grid;
@@ -51,7 +52,7 @@ export const ExplorerSearch = forwardRef(
       <ExplorerSearchWrapper>
         <Icon icon="search" iconSize={12} />
         <input
-          id="entity-explorer-search"
+          id={ENTITY_EXPLORER_SEARCH_ID}
           type="text"
           placeholder="Search entities..."
           ref={ref}
