@@ -92,8 +92,9 @@ const ErrorText = styled.p`
   margin: 5px 0;
   padding: 5px;
   border-radius: 2px;
-  background-color: rgba(235, 87, 87, 0.2);
-  color: ${props => props.theme.colors.error};
+  font-size: 13px;
+  background-color: rgba(226, 44, 4, 0.1);
+  color: ${props => props.theme.colors.errorMessage};
 `;
 
 const StyledTitle = styled.p`
@@ -168,7 +169,7 @@ const PopoverContent = (props: PopoverContentProps) => {
       className="t--CodeEditor-evaluatedValue"
     >
       {props.hasError && (
-        <ErrorText>{`This value does not evaluate to type "${props.expected}"`}</ErrorText>
+        <ErrorText>{`This value does not evaluate to type "${props.expected}". Transform the value using JS inside '{{ }}'`}</ErrorText>
       )}
       {!props.hasError && props.expected && (
         <React.Fragment>
