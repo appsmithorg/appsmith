@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import {
+  reduxForm,
+  InjectedFormProps,
+  formValueSelector,
+  Field,
+} from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
@@ -26,6 +31,7 @@ import EmbeddedDatasourcePathField from "components/editorComponents/form/fields
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
+import { SwitchField } from "components/formControls/SwitchControl";
 
 const Form = styled.form`
   display: flex;
@@ -45,6 +51,15 @@ const Form = styled.form`
       padding: 0;
       width: 100%;
     }
+  }
+
+  .executeOnLoad {
+    ${FormLabel} {
+      padding: 0px;
+    }
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
   }
 `;
 
@@ -209,6 +224,13 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           </DatasourceWrapper>
         </FormRow>
       </MainConfiguration>
+      <div className="executeOnLoad">
+        <Field
+          name="executeOnLoad"
+          component={SwitchField}
+          label={"Run on Page Load"}
+        />
+      </div>
       <SecondaryWrapper>
         <TabbedViewContainer>
           <BaseTabbedView
