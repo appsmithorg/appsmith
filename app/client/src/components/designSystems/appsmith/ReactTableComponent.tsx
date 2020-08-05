@@ -92,6 +92,8 @@ interface ReactTableComponentProps {
   handleReorderColumn: Function;
   searchTableData: (searchKey: any) => void;
   columns: ReactTableColumnProps[];
+  compactMode?: string;
+  updateCompactMode: (compactMode: string) => void;
 }
 
 const ReactTableComponent = (props: ReactTableComponentProps) => {
@@ -310,6 +312,8 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         props.disableDrag(false);
       }}
       searchTableData={debounce(props.searchTableData, 500)}
+      compactMode={props.compactMode}
+      updateCompactMode={props.updateCompactMode}
     />
   );
 };

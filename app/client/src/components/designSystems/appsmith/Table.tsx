@@ -53,6 +53,8 @@ interface TableProps {
   enableDrag: () => void;
   searchTableData: (searchKey: any) => void;
   columnActions?: ColumnAction[];
+  compactMode?: string;
+  updateCompactMode: (compactMode: string) => void;
 }
 
 export const Table = (props: TableProps) => {
@@ -129,6 +131,8 @@ export const Table = (props: TableProps) => {
         hiddenColumns={props.hiddenColumns}
         updateHiddenColumns={props.updateHiddenColumns}
         displayColumnActions={props.displayColumnActions}
+        compactMode={props.compactMode}
+        updateCompactMode={props.updateCompactMode}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">

@@ -280,6 +280,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.disableDrag(disable);
           }}
           searchTableData={this.handleSearchTable}
+          compactMode={this.props.compactMode}
+          updateCompactMode={(compactMode: string) => {
+            super.updateWidgetMetaProperty("compactMode", compactMode);
+          }}
         />
       </Suspense>
     );
@@ -385,6 +389,7 @@ export interface TableWidgetProps extends WidgetProps {
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: { [key: string]: { type: string; format: string } };
   columnSizeMap?: { [key: string]: number };
+  compactMode?: string;
 }
 
 export default TableWidget;
