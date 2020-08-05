@@ -255,12 +255,14 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
   }
 `;
 
-export const TableHeaderWrapper = styled.div`
+export const TableHeaderWrapper = styled.div<{
+  serverSidePaginationEnabled: boolean;
+}>`
   display: flex;
   align-items: center;
   width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  min-width: 700px;
+  min-width: ${props => (props.serverSidePaginationEnabled ? 450 : 700)}px;
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div`

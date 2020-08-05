@@ -76,7 +76,9 @@ interface TableHeaderProps {
 
 const TableHeader = (props: TableHeaderProps) => {
   return (
-    <TableHeaderWrapper>
+    <TableHeaderWrapper
+      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+    >
       <SearchComponent
         value={props.searchKey}
         placeholder="Search..."
