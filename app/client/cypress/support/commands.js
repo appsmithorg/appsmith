@@ -1363,7 +1363,7 @@ Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
     .should("be.visible")
     .children("p")
     .should("contain.text", "Expected Data Type")
-    .should("contain.text", "Current Value:")
+    .should("contain.text", "Evaluated Value")
     .siblings("pre")
     .should("have.text", expectedType);
 });
