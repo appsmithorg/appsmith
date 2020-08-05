@@ -396,7 +396,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       text: "Submit",
                       buttonStyle: "PRIMARY_BUTTON",
                       disabledWhenInvalid: true,
-                      resetFormOnClick: false,
+                      resetFormOnClick: true,
                     },
                   },
                   {
