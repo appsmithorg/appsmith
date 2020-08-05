@@ -175,8 +175,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               }
               if (isValidDate) {
                 tableRow[accessor] = moment(value).format(format);
-              } else {
+              } else if (value) {
                 tableRow[accessor] = "Invalid Value";
+              } else {
+                tableRow[accessor] = "";
               }
               break;
             case ColumnTypes.TIME:
@@ -189,8 +191,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               }
               if (isValidTime) {
                 tableRow[accessor] = moment(value).format("HH:mm");
-              } else {
+              } else if (value) {
                 tableRow[accessor] = "Invalid Value";
+              } else {
+                tableRow[accessor] = "";
               }
               break;
             default:
