@@ -5,6 +5,8 @@ import {
 } from "components/designSystems/appsmith/TableStyledWrappers";
 import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
+import { CompactModeTypes } from "components/designSystems/appsmith/TableCompactMode";
+import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -59,7 +61,11 @@ const Table = (props: TableProps) => {
   );
 
   return (
-    <StyledTableWrapped width={200} height={200}>
+    <StyledTableWrapped
+      width={200}
+      height={200}
+      tableSizes={TABLE_SIZES[CompactModeTypes.DEFAULT]}
+    >
       <div className="tableWrap">
         <div {...getTableProps()} className="table">
           {headerGroups.map((headerGroup: any, index: number) => (

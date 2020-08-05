@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Icon } from "@blueprintjs/core";
 import { TableWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import { CompactModeTypes } from "components/designSystems/appsmith/TableCompactMode";
+import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { AppState } from "reducers";
 import {
   getAllUsers,
@@ -265,7 +267,11 @@ export const OrgSettings = (props: PageProps) => {
       {props.isFetchAllUsers && props.isFetchAllRoles ? (
         <Spinner size={30} />
       ) : (
-        <StyledTableWrapped width={200} height={200}>
+        <StyledTableWrapped
+          width={200}
+          height={200}
+          tableSizes={TABLE_SIZES[CompactModeTypes.DEFAULT]}
+        >
           <div className="tableWrap">
             <div {...getTableProps()} className="table">
               {headerGroups.map((headerGroup: any, index: number) => (

@@ -15,12 +15,29 @@ import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import {
+  CompactMode,
+  CompactModeTypes,
+} from "components/designSystems/appsmith/TableCompactMode";
 
-export enum TABLE_SIZES {
-  COLUMN_HEADER_HEIGHT = 52,
-  TABLE_HEADER_HEIGHT = 61,
-  ROW_HEIGHT = 52,
-}
+export type TableSizes = {
+  COLUMN_HEADER_HEIGHT: number;
+  TABLE_HEADER_HEIGHT: number;
+  ROW_HEIGHT: number;
+};
+
+export const TABLE_SIZES: { [key: string]: TableSizes } = {
+  [CompactModeTypes.DEFAULT]: {
+    COLUMN_HEADER_HEIGHT: 52,
+    TABLE_HEADER_HEIGHT: 61,
+    ROW_HEIGHT: 52,
+  },
+  [CompactModeTypes.SHORT]: {
+    COLUMN_HEADER_HEIGHT: 52,
+    TABLE_HEADER_HEIGHT: 61,
+    ROW_HEIGHT: 40,
+  },
+};
 
 interface TableProps {
   width: number;
@@ -53,8 +70,8 @@ interface TableProps {
   enableDrag: () => void;
   searchTableData: (searchKey: any) => void;
   columnActions?: ColumnAction[];
-  compactMode?: string;
-  updateCompactMode: (compactMode: string) => void;
+  compactMode?: CompactMode;
+  updateCompactMode: (compactMode: CompactMode) => void;
 }
 
 export const Table = (props: TableProps) => {
@@ -72,6 +89,7 @@ export const Table = (props: TableProps) => {
   const columns = React.useMemo(() => props.columns, [
     JSON.stringify(props.columns),
     JSON.stringify(props.columnActions),
+    JSON.stringify(props.compactMode),
   ]);
   const {
     getTableProps,
@@ -105,11 +123,20 @@ export const Table = (props: TableProps) => {
   }
   const subPage = page.slice(startIndex, endIndex);
   const selectedRowIndex = props.selectedRowIndex;
+  const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
+  /* Subtracting 9px to handling widget padding */
+  const tableRowHeight =
+    (props.height -
+      (tableSizes.COLUMN_HEADER_HEIGHT + tableSizes.TABLE_HEADER_HEIGHT + 9)) /
+    props.pageSize;
+  console.log("tableRowHeight", tableRowHeight);
   return (
     <TableWrapper
       width={props.width}
       height={props.height}
+      tableSizes={tableSizes}
       id={`table${props.widgetId}`}
+      tableRowHeight={tableRowHeight}
     >
       <TableHeader
         tableData={props.data}

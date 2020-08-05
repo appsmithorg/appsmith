@@ -49,26 +49,33 @@ const OptionWrapper = styled.div<{ selected?: boolean }>`
   }
 `;
 
-interface TableCompactModeProps {
-  compactMode?: string;
-  updateCompactMode: (mode: string) => void;
-}
-
-type CompactMode = {
-  title: string;
-  value: string;
+export const CompactModeTypes: Record<string, string> = {
+  SHORT: "SHORT",
+  DEFAULT: "DEFAULT",
 };
 
-const CompactModes: CompactMode[] = [
+export type CompactMode = keyof typeof CompactModeTypes;
+
+type CompactModeItem = {
+  title: string;
+  value: CompactMode;
+};
+
+const CompactModes: CompactModeItem[] = [
   {
     title: "Short",
-    value: "short",
+    value: CompactModeTypes.SHORT,
   },
   {
     title: "Default",
-    value: "default",
+    value: CompactModeTypes.DEFAULT,
   },
 ];
+
+interface TableCompactModeProps {
+  compactMode?: CompactMode;
+  updateCompactMode: (mode: string) => void;
+}
 
 const TableCompactMode = (props: TableCompactModeProps) => {
   const [selected, selectMenu] = React.useState(false);
@@ -92,7 +99,7 @@ const TableCompactMode = (props: TableCompactModeProps) => {
         <Tooltip
           autoFocus={false}
           hoverOpenDelay={1000}
-          content="Hidden Fields"
+          content="Row Height"
           position="top"
         >
           <IconWrapper
@@ -105,7 +112,7 @@ const TableCompactMode = (props: TableCompactModeProps) => {
         </Tooltip>
       </TableIconWrapper>
       <DropDownWrapper>
-        {CompactModes.map((item: CompactMode, index: number) => {
+        {CompactModes.map((item: CompactModeItem, index: number) => {
           return (
             <OptionWrapper
               selected={
@@ -115,6 +122,7 @@ const TableCompactMode = (props: TableCompactModeProps) => {
               onClick={() => {
                 props.updateCompactMode(item.value);
               }}
+              className={Classes.POPOVER_DISMISS}
             >
               {item.title}
             </OptionWrapper>

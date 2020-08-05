@@ -12,7 +12,9 @@ import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
-import TableCompactMode from "components/designSystems/appsmith/TableCompactMode";
+import TableCompactMode, {
+  CompactMode,
+} from "components/designSystems/appsmith/TableCompactMode";
 import { Colors } from "constants/Colors";
 
 const PageNumberInputWrapper = styled(NumericInput)`
@@ -73,8 +75,8 @@ interface TableHeaderProps {
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   displayColumnActions: boolean;
-  compactMode?: string;
-  updateCompactMode: (compactMode: string) => void;
+  compactMode?: CompactMode;
+  updateCompactMode: (compactMode: CompactMode) => void;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
