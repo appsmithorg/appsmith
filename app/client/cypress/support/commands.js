@@ -617,7 +617,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("New Modal")
+    .contains("Open Modal")
     .click();
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -1362,7 +1362,7 @@ Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
     .children("p")
-    .should("contain.text", "Expected type:")
+    .should("contain.text", "Expected Data Type")
     .should("contain.text", "Current Value:")
     .siblings("pre")
     .should("have.text", expectedType);
