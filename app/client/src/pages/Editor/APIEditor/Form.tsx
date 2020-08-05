@@ -60,6 +60,7 @@ const Form = styled.form`
     display: flex;
     justify-content: flex-end;
     margin-top: 10px;
+    margin-right: 7px;
   }
 `;
 
@@ -209,6 +210,13 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             />
           </ActionButtons>
         </FormRow>
+        <div className="executeOnLoad">
+          <Field
+            name="executeOnLoad"
+            component={SwitchField}
+            label={"Run on Page Load"}
+          />
+        </div>
         <FormRow>
           <DropdownField
             placeholder="Method"
@@ -224,13 +232,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           </DatasourceWrapper>
         </FormRow>
       </MainConfiguration>
-      <div className="executeOnLoad">
-        <Field
-          name="executeOnLoad"
-          component={SwitchField}
-          label={"Run on Page Load"}
-        />
-      </div>
       <SecondaryWrapper>
         <TabbedViewContainer>
           <BaseTabbedView
