@@ -387,6 +387,7 @@ export const theme: Theme = {
     secondaryDarker: Colors.CONCRETE,
     secondaryDarkest: Colors.MERCURY,
     error: Colors.RED,
+    errorMessage: Colors.ERROR_RED,
     info: Colors.SLATE_GRAY,
     hover: Colors.POLAR,
     inputActiveBorder: Colors.HIT_GRAY,
