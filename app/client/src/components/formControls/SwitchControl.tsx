@@ -4,29 +4,38 @@ import { StyledSwitch } from "./StyledControls";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
 import { Field, WrappedFieldProps } from "redux-form";
+import styled from "styled-components";
 
 type Props = WrappedFieldProps & SwitchControlProps;
 
-class SwitchField extends React.Component<Props> {
+const StyledFormLabel = styled(FormLabel)`
+  margin-bottom: 0px;
+`;
+
+const SwitchWrapped = styled.div`
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  .bp3-control {
+    margin-bottom: 0px;
+  }
+`;
+
+export class SwitchField extends React.Component<Props> {
   render() {
     const { label, isRequired, input } = this.props;
 
     return (
-      <div
-        style={{
-          flexDirection: "row",
-          display: "flex",
-        }}
-      >
-        <FormLabel>
+      <SwitchWrapped>
+        <StyledFormLabel>
           {label} {isRequired && "*"}
-        </FormLabel>
+        </StyledFormLabel>
         <StyledSwitch
           checked={input.value}
           onChange={value => input.onChange(value)}
           large
         />
-      </div>
+      </SwitchWrapped>
     );
   }
 }
