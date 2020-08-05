@@ -13,7 +13,7 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     overflow: hidden;
     list-style: none;
     margin: 0;
-    padding: 5px;
+    padding: 0px 0px;
     font-size: 90%;
     font-family: monospace;
     max-height: 20em;
@@ -25,35 +25,32 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     border-color: ${props =>
       props.editorTheme === EditorTheme.DARK ? "#535B62" : "#EBEFF2"}
     box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
-    border-radius: 4px;
+    border-radius: 1px;
   }
 
   .CodeMirror-hint {
-    height: 32px;
-    padding: 3px;
-    margin: 0;
-    white-space: pre;
+    height: 25px;
     color: ${props =>
       props.editorTheme === EditorTheme.DARK ? "#F4F4F4" : "#1E242B"};
     cursor: pointer;
     display: flex;
     align-items: center;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   li.CodeMirror-hint-active {
     background: ${props =>
       props.editorTheme === EditorTheme.DARK
-        ? "rgba(244,244,244,0.1)"
-        : "rgba(128,136,141,0.1)"};
-    border-radius: 4px;
+        ? "rgba(244,244,244,0.2)"
+        : "rgba(128,136,141,0.2)"};
+    border-radius: 1px;
   }
   .CodeMirror-Tern-completion {
     padding-left: 22px !important;
   }
   .CodeMirror-Tern-completion:before {
     left: 4px !important;
-    bottom: 7px !important;
+    bottom: 4px !important;
     line-height: 15px !important;
   }
   .CodeMirror-Tern-tooltip {
@@ -68,7 +65,8 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
         : "#1E242B"} !important;
     max-height: 150px;
     width: 250px;
-    padding: 12px !important;
+    font-size: 12px;
+    padding: 5px !important;
     border: 1px solid !important;
     border-color: ${props =>
       props.editorTheme === EditorTheme.DARK
