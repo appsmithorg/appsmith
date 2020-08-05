@@ -257,12 +257,17 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
 
 export const TableHeaderWrapper = styled.div<{
   serverSidePaginationEnabled: boolean;
+  width: number;
 }>`
   display: flex;
   align-items: center;
   width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  min-width: ${props => (props.serverSidePaginationEnabled ? 450 : 700)}px;
+  min-width: ${props =>
+    props.serverSidePaginationEnabled ? 450 : props.width < 700 ? 525 : 700}px;
+  .show-page-items {
+    display: ${props => (props.width < 700 ? "none" : "flex")};
+  }
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div`

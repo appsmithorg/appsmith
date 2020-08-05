@@ -110,6 +110,7 @@ export const Table = (props: TableProps) => {
       id={`table${props.widgetId}`}
     >
       <TableHeader
+        width={props.width}
         tableData={props.data}
         tableColumns={props.columns}
         searchTableData={props.searchTableData}
