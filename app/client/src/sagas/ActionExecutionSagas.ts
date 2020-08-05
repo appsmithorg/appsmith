@@ -442,7 +442,7 @@ function* runActionSaga(
         type: ReduxActionTypes.RUN_ACTION_SUCCESS,
         payload: { [actionId]: payload },
       });
-      if (payload.statusCode[0] === "2") {
+      if (payload.isExecutionSuccess) {
         AppToaster.show({
           message: "Action ran successfully",
           type: ToastType.SUCCESS,
