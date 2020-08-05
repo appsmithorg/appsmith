@@ -9,6 +9,7 @@ describe("Table Widget Functionality", function() {
   });
 
   it("Table Widget Functionality", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("tablewidget");
 
     /**

@@ -2,12 +2,14 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../locators/ViewWidgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/ChartTextDsl.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Text-Chart Binding Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
   it("Text-Chart Binding Functionality View", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", JSON.stringify(this.data.chartInputValidate));
     cy.get(commonlocators.TextInside).should(

@@ -9,6 +9,7 @@ describe("Text Widget Functionality", function() {
   });
 
   beforeEach(() => {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
   });
 

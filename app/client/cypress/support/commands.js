@@ -304,20 +304,17 @@ Cypress.Commands.add("ResponseCheck", textTocheck => {
 });
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
-  cy.get(pages.apiEditorIcon)
+  cy.xpath(pages.addEntityAPI)
     .should("be.visible")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
 });
 
 Cypress.Commands.add("CreateAPI", apiname => {
-  cy.get(apiwidget.createApiOnSideBar)
-    .first()
-    .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.apiTxt).click();
+  cy.get(apiwidget.ApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -530,13 +527,12 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
-  cy.get(apiwidget.createApiOnSideBar)
-    .first()
-    .click({ force: true });
+  cy.xpath(pages.addEntityAPI).click();
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.get(apiwidget.ApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -1022,11 +1018,8 @@ Cypress.Commands.add("tabVerify", (index, text) => {
     .should("be.visible");
 });
 
-Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.get(datasourceEditor.datasourceEditorIcon).click({ force: true });
-});
-
 Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
+  /*
   cy.wait("@getPluginForm").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1037,10 +1030,11 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
     "response.body.responseMeta.status",
     201,
   );
+  */
 });
 
 Cypress.Commands.add("NavigateToApiEditor", () => {
-  cy.get(pages.apiEditorIcon).click({ force: true });
+  cy.xpath(pages.addEntityAPI).click({ force: true });
 });
 
 Cypress.Commands.add("testCreateApiButton", () => {
@@ -1085,11 +1079,11 @@ Cypress.Commands.add("importCurl", () => {
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.get(datasourceEditor.datasourceEditorIcon).click({ force: true });
+  cy.xpath(datasourceEditor.addDatasourceEntity).click({ force: true });
 });
 
 Cypress.Commands.add("NavigateToQueryEditor", () => {
-  cy.get(queryEditor.queryEditorIcon).click({ force: true });
+  cy.xpath(queryEditor.addQueryEntity).click({ force: true });
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {

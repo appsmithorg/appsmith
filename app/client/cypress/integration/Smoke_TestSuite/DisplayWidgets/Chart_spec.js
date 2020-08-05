@@ -7,9 +7,13 @@ describe("Chart Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Chart Widget Functionality", function() {
-    cy.openPropertyPane("chartwidget");
 
+  beforeEach(() => {
+    cy.get(pages.widgetsEditor).click();
+    cy.openPropertyPane("chartwidget");
+  });
+
+  it("Chart Widget Functionality", function() {
     /**
      * @param{Text} Random Text
      * @param{ChartWidget}Mouseover
@@ -66,28 +70,24 @@ describe("Chart Widget Functionality", function() {
     cy.get(commonlocators.editPropCrossButton).click();
   });
   it("Chart Widget Functionality To Unchecked Visible Widget", function() {
-    cy.openPropertyPane("chartwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("not.be.visible");
     cy.get(publish.backToEditor).click();
   });
   it("Chart Widget Functionality To Check Visible Widget", function() {
-    cy.openPropertyPane("chartwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("be.visible");
     cy.get(publish.backToEditor).click();
   });
   it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function() {
-    cy.openPropertyPane("chartwidget");
     cy.togglebarDisable(commonlocators.horizontalScroll);
     cy.PublishtheApp();
     cy.get(publish.horizontalTab).should("not.visible");
     cy.get(publish.backToEditor).click();
   });
   it("Chart Widget Functionality To Check Horizontal Scroll Visible", function() {
-    cy.openPropertyPane("chartwidget");
     cy.togglebar(commonlocators.horizontalScroll);
     cy.PublishtheApp();
     cy.get(publish.horizontalTab)
