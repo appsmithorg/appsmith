@@ -2,4 +2,7 @@ blank_issues_enabled: false
 contact_links:
   - name: 🤔 Questions and Help
     url: https://discord.com/invite/rBTTVJp
-    about: This issue tracker is not for support questions. Please refer to the Appsmith community's help and discussion forums.
+    about: Reach out to us on discord or our github discussions page.
+  - name: 📞 Dedicated Support
+    url: https://mail.google.com/mail/u/0/?view=cm&fs=1&to=support@appsmith.com&tf=1
+    about: Write to us if you'd like dedicated support using appsmith
