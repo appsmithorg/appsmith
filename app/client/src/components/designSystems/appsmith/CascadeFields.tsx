@@ -218,6 +218,7 @@ type CascadeFieldState = {
   value: any;
   operator: Operator;
   conditions: DropdownOption[];
+  showConditions: boolean;
   showInput: boolean;
   showDateInput: boolean;
   isDeleted: boolean;
@@ -234,6 +235,14 @@ const getConditions = (props: CascadeFieldProps) => {
   } else {
     return new Array<DropdownOption>(0);
   }
+};
+
+const showConditionsField = (props: CascadeFieldProps) => {
+  const columnValue = props.column || "";
+  const filteredColumn = props.columns.filter((column: DropdownOption) => {
+    return columnValue === column.value;
+  });
+  return !!filteredColumn.length;
 };
 
 const showInputField = (
@@ -263,6 +272,7 @@ const showDateInputField = (
 };
 
 function calculateInitialState(props: CascadeFieldProps) {
+  const showConditions = showConditionsField(props);
   const conditions = getConditions(props);
   const showInput = showInputField(props, conditions);
   const showDateInput = showDateInputField(props, conditions);
@@ -272,6 +282,7 @@ function calculateInitialState(props: CascadeFieldProps) {
     condition: props.condition,
     value: props.value,
     conditions: conditions,
+    showConditions: showConditions,
     showInput: showInput,
     showDateInput: showDateInput,
     isDeleted: false,
@@ -309,6 +320,7 @@ function CaseCaseFieldReducer(
         ...state,
         column: action.payload.value,
         conditions: typeOperatorsMap[action.payload.type],
+        showConditions: true,
         isUpdate: true,
       };
     case CascadeFieldActionTypes.SELECT_CONDITION:
@@ -411,6 +423,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
     operator,
     column,
     condition,
+    showConditions,
     value,
     showInput,
     showDateInput,
@@ -446,14 +459,16 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
           placeholder="Attribute"
         />
       </DropdownWrapper>
-      <DropdownWrapper width={120}>
-        <RenderOptions
-          columns={conditions}
-          selectItem={selectCondition}
-          value={condition}
-          placeholder="Is"
-        />
-      </DropdownWrapper>
+      {showConditions ? (
+        <DropdownWrapper width={120}>
+          <RenderOptions
+            columns={conditions}
+            selectItem={selectCondition}
+            value={condition}
+            placeholder="Is"
+          />
+        </DropdownWrapper>
+      ) : null}
       {showInput ? (
         <StyledInputGroup
           placeholder="Enter value"
