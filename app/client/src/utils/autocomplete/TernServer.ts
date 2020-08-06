@@ -18,6 +18,7 @@ const hintDelay = 1700;
 
 type Completion = Hint & {
   origin: string;
+  type: DataType;
   data: {
     doc: string;
   };
@@ -30,6 +31,15 @@ type TernDoc = {
   name: string;
   changed: { to: number; from: number } | null;
 };
+
+export type DataType =
+  | "OBJECT"
+  | "NUMBER"
+  | "ARRAY"
+  | "FUNCTION"
+  | "BOOLEAN"
+  | "STRING"
+  | "UNKNOWN";
 
 type ArgHints = {
   start: CodeMirror.Position;
@@ -118,6 +128,7 @@ class TernServer {
         className: className,
         data: completion,
         origin: completion.origin,
+        type: this.getDataType(completion.type),
       });
     }
     completions = this.sortCompletions(completions);
@@ -168,7 +179,12 @@ class TernServer {
     // Add data tree completions before others
     const dataTreeCompletions = completions
       .filter(c => c.origin === "dataTree")
-      .sort((a, b) => {
+      .sort((a: Completion, b: Completion) => {
+        if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
+          return 1;
+        } else if (a.type !== "FUNCTION" && b.type === "FUNCTION") {
+          return -1;
+        }
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       });
     const docCompletetions = completions.filter(c => c.origin === "[doc]");
@@ -176,6 +192,16 @@ class TernServer {
       c => c.origin !== "dataTree" && c.origin !== "[doc]",
     );
     return [...docCompletetions, ...dataTreeCompletions, ...otherCompletions];
+  }
+
+  getDataType(type: string): DataType {
+    if (type === "?") return "UNKNOWN";
+    else if (type === "number") return "NUMBER";
+    else if (type === "string") return "STRING";
+    else if (type === "bool") return "BOOLEAN";
+    else if (/^fn\(/.test(type)) return "FUNCTION";
+    else if (/^\[/.test(type)) return "ARRAY";
+    else return "OBJECT";
   }
 
   typeToIcon(type: string) {
