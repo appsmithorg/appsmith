@@ -1,13 +1,16 @@
 {
-    "pagesIcon": ".t--nav-link-manage-pages",
+    "pagesIcon": ".t--entity-name:contains('Pages')",
     "commonWidgets": ".t--page-sidebar-CommonWidgets",
     "formWidgets": ".t--page-sidebar-FormWidgets",
     "viewWidgets": ".t--page-sidebar-ViewWidgets",
     "widgetsEditor": ".t--nav-link-widgets-editor",
-    "AddPage": " .t--add-page-btn",
+    "AddPage": "//div[contains(@class,'t--entity group pages')]//div[contains(@class,'t--entity-add-btn')]",
     "editInput": "input.bp3-editable-text-input",
     "Menuaction": ".bp3-overlay-open>.bp3-transition-container",
     "Delete": ":nth-child(2) > .bp3-menu-item",
     "apiEditorIcon": ".t--nav-link-api-editor",
-    "addEntityAPI": "//div[contains(@class,'t--entity group apis')]//div[contains(@class,'t--entity-add-btn')]"
+    "addEntityAPI": "//div[contains(@class,'t--entity group apis')]//div[contains(@class,'t--entity-add-btn')]",
+    "entityWidget": ".t--entity-name:contains('Widgets')",
+    "entityTable": ".t--entity-name:contains('Table1')",
+    "entiryText": ".t--entity-name:contains('Text1')"
   }

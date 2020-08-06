@@ -2,6 +2,7 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../locators/ViewWidgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/displayWidgetDsl.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Chart Widget Functionality", function() {
   before(() => {

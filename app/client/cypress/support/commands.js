@@ -314,10 +314,10 @@ Cypress.Commands.add("CreateAPI", apiname => {
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.ApiName).click();
+  cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
-    .type(apiname)
+    .type(apiname, { force: true })
     .should("have.value", apiname)
     .blur();
   cy.WaitAutoSave();
@@ -796,7 +796,7 @@ Cypress.Commands.add("DeleteModal", () => {
 
 Cypress.Commands.add("Createpage", Pagename => {
   cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(pages.AddPage).click();
+  cy.xpath(pages.AddPage).click();
   cy.get(pages.editInput)
     .type(Pagename)
     .type("{Enter}");

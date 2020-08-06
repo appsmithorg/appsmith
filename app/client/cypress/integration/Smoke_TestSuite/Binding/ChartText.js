@@ -17,6 +17,7 @@ describe("Text-Chart Binding Functionality", function() {
       JSON.stringify(this.data.chartInputValidate),
     );
     cy.closePropertyPane();
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("chartwidget");
     cy.get(viewWidgetsPage.chartType)
       .find(commonlocators.dropdownbuttonclick)
