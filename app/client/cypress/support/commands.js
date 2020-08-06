@@ -164,6 +164,11 @@ Cypress.Commands.add("CreateApp", appname => {
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
+  cy.wait("@getPagesForApp").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
