@@ -150,7 +150,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                       intent="none"
                       outline
                       size="small"
-                      className="t--application-share-btn share-button"
+                      className="t--application-share-btn"
                       icon={
                         <HeaderIcons.SHARE
                           color={Colors.WHITE}
