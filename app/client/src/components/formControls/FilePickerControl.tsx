@@ -10,6 +10,7 @@ import Dashboard from "@uppy/dashboard";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
+import FormLabel from "components/editorComponents/FormLabel";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -120,10 +121,13 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   }
 
   render() {
-    const { configProperty } = this.props;
+    const { configProperty, label, isRequired } = this.props;
 
     return (
       <React.Fragment>
+        <FormLabel>
+          {label} {isRequired && "*"}
+        </FormLabel>
         <Field name={configProperty} component={FieldFileInput} />
       </React.Fragment>
     );

@@ -3,6 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { InputType } from "widgets/InputWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
+import FormLabel from "components/editorComponents/FormLabel";
 
 export function InputText(props: {
   label: string;
@@ -14,10 +15,13 @@ export function InputText(props: {
   isRequired?: boolean;
   name: string;
 }) {
-  const { name, placeholder, dataType } = props;
+  const { name, placeholder, dataType, label, isRequired } = props;
 
   return (
     <div style={{ width: "50vh" }}>
+      <FormLabel>
+        {label} {isRequired && "*"}
+      </FormLabel>
       <TextField
         name={name}
         placeholder={placeholder}
