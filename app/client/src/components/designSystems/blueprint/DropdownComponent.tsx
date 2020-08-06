@@ -228,6 +228,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               filterable={true}
               itemRenderer={this.renderSingleSelectItem}
               onItemSelect={this.onItemSelect}
+              disabled={this.props.disabled}
               popoverProps={{
                 minimal: true,
                 usePortal: true,
