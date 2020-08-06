@@ -182,9 +182,14 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
 
         // Only show propertypane if this is a new widget.
         // If it is not a new widget, then let the DraggableComponent handle it.
-        showPropertyPane &&
-          updateWidgetParams.payload.newWidgetId &&
-          showPropertyPane(updateWidgetParams.payload.newWidgetId);
+        // Give evaluations a second to complete.
+        setTimeout(
+          () =>
+            showPropertyPane &&
+            updateWidgetParams.payload.newWidgetId &&
+            showPropertyPane(updateWidgetParams.payload.newWidgetId),
+          100,
+        );
 
         // Select the widget if it is a new widget
         selectWidget && selectWidget(widget.widgetId);

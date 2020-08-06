@@ -41,11 +41,7 @@ import Spinner from "components/editorComponents/Spinner";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
-import {
-  createNewApiAction,
-  setCurrentCategory,
-  setLastUsedEditorPage,
-} from "actions/apiPaneActions";
+import { createNewApiAction, setCurrentCategory } from "actions/apiPaneActions";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { CURL } from "constants/ApiConstants";
@@ -285,42 +281,6 @@ const CardList = styled.div`
   }
 `;
 
-// const NoCollections = styled.div`
-//   padding-top: 52px;
-//   padding-bottom: 50px;
-//   text-align: center;
-//   width: 438px;
-//   margin: 0 auto;
-//   color: #666666;
-//   font-size: 14px;
-//   line-height: 24px;
-// `;
-//
-// const ImportedApisCard = styled.div`
-//   flex: 1;
-//   display: inline-flex;
-//   flex-wrap: wrap;
-//   margin-left: -10px;
-//   justify-content: flex-start;
-//   text-align: center;
-//   border-radius: 4px;
-//
-//   .importedApiIcon {
-//     display: flex;
-//     height: 30px;
-//     width: 30px;
-//     margin-right: 15px;
-//     color: ${Colors.OXFORD_BLUE};
-//   }
-//   .eachImportedApiCard {
-//     margin: 10px;
-//     width: 225px;
-//     height: 60px;
-//     display: flex;
-//     flex-wrap: wrap;
-//   }
-// `;
-
 const DropdownSelect = styled.div`
   font-size: 14px;
   float: right;
@@ -376,7 +336,6 @@ type ApiHomeScreenProps = {
   isSwitchingCategory: boolean;
   createNewApiAction: (pageId: string) => void;
   setCurrentCategory: (category: string) => void;
-  setLastUsedEditorPage: (path: string) => void;
   previouslySetCategory: string;
   fetchProvidersError: boolean;
 };
@@ -419,7 +378,6 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
         page: 1,
       });
     }
-    this.props.setLastUsedEditorPage(this.props.match.url);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -853,8 +811,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
   setCurrentCategory: (category: string) =>
     dispatch(setCurrentCategory(category)),
-  setLastUsedEditorPage: (path: string) =>
-    dispatch(setLastUsedEditorPage(path)),
 });
 
 export default connect(

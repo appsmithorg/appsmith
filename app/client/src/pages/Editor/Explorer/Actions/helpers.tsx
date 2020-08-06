@@ -27,6 +27,7 @@ export type ActionGroupConfig = {
   ) => string;
   getIcon: (method?: string) => ReactNode;
   isGroupActive: (params: ExplorerURLParams, pageId: string) => boolean;
+  isGroupExpanded: (params: ExplorerURLParams, pageId: string) => boolean;
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -53,6 +54,10 @@ export const ACTION_PLUGIN_MAP: Array<
         isGroupActive: (params: ExplorerURLParams, pageId: string) =>
           window.location.pathname ===
           API_EDITOR_URL(params.applicationId, pageId),
+        isGroupExpanded: (params: ExplorerURLParams, pageId: string) =>
+          window.location.pathname.indexOf(
+            API_EDITOR_URL(params.applicationId, pageId),
+          ) > -1,
       };
     case PluginType.DB:
       return {
@@ -69,6 +74,10 @@ export const ACTION_PLUGIN_MAP: Array<
         isGroupActive: (params: ExplorerURLParams, pageId: string) =>
           window.location.pathname ===
           QUERIES_EDITOR_URL(params.applicationId, pageId),
+        isGroupExpanded: (params: ExplorerURLParams, pageId: string) =>
+          window.location.pathname.indexOf(
+            QUERIES_EDITOR_URL(params.applicationId, pageId),
+          ) > -1,
       };
     default:
       return undefined;

@@ -40,6 +40,7 @@ export const Colors: Record<string, string> = {
   JUNGLE_GREEN_DARKER: "#30A481",
   EUCALYPTUS: "#218358",
   RED: "#CE4257",
+  ERROR_RED: "#E22C2C",
   PURPLE: "#6871EF",
   OXFORD_BLUE: "#2E3D49",
   FRENCH_PASS: "#BBE8FE",

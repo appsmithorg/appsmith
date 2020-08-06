@@ -189,11 +189,12 @@ export type UpdateActionPropertyActionPayload = {
 
 export const updateActionProperty = (
   payload: UpdateActionPropertyActionPayload,
-) =>
-  batchAction({
+) => {
+  return batchAction({
     type: ReduxActionTypes.UPDATE_ACTION_PROPERTY,
     payload,
   });
+};
 
 export default {
   createAction: createActionRequest,

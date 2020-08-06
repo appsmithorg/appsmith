@@ -372,11 +372,11 @@ const baseOptions: any = [
     value: ActionType.showAlert,
   },
   {
-    label: "Open Popup",
+    label: "Open Modal",
     value: ActionType.showModal,
   },
   {
-    label: "Close Popup",
+    label: "Close Modal",
     value: ActionType.closeModal,
   },
 ];
@@ -760,7 +760,7 @@ function useModalDropdownList() {
 
   let finalList: TreeDropdownOption[] = [
     {
-      label: "Open Popup",
+      label: "New Modal",
       value: "Modal",
       id: "create",
       className: "t--create-modal-btn",

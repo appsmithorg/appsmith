@@ -124,6 +124,7 @@ function* generateChildWidgets(
       widget.widgetId,
     );
   }
+  widget.parentId = parent.widgetId;
   return { widgetId: widget.widgetId, widgets };
 }
 
@@ -148,7 +149,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       parent.children.push(childWidgetPayload.widgetId);
     }
     widgets[parent.widgetId] = parent;
-
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     console.log(error);
@@ -229,6 +229,7 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
       widgets[parent.widgetId] = parent;
       // Add to new parent
       widgets[newParentId].children.push(widgetId);
+      widgets[widgetId].parentId = newParentId;
     }
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {

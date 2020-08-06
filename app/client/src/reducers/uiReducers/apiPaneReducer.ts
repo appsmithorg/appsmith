@@ -8,34 +8,24 @@ import { RestAction } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/actionActions";
 
 const initialState: ApiPaneReduxState = {
-  lastUsed: "",
   isCreating: false,
   isFetching: false,
-  isMoving: false,
-  isCopying: false,
   isRunning: {},
   isSaving: {},
   isDeleting: {},
   isDirty: {},
   currentCategory: "",
-  lastUsedEditorPage: "",
-  lastSelectedPage: "",
   extraformData: {},
 };
 
 export interface ApiPaneReduxState {
-  lastUsed: string; // NR
   isCreating: boolean; // RR
   isFetching: boolean; // RR
-  isMoving: boolean; // NR
-  isCopying: boolean; // NR
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>; // RN
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
   currentCategory: string;
-  lastUsedEditorPage: string; // NR
-  lastSelectedPage: string; // NR
   extraformData: Record<string, any>;
 }
 
@@ -177,41 +167,7 @@ const apiPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
-  [ReduxActionTypes.MOVE_ACTION_INIT]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isMoving: true,
-  }),
-  [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isMoving: false,
-  }),
-  [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isMoving: false,
-  }),
-  [ReduxActionTypes.COPY_ACTION_INIT]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isCopying: true,
-  }),
-  [ReduxActionTypes.COPY_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isCopying: false,
-  }),
-  [ReduxActionErrorTypes.COPY_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isCopying: false,
-  }),
-  [ReduxActionTypes.API_PANE_CHANGE_API]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ id: string }>,
-  ) => ({
-    ...state,
-    lastUsed: action.payload.id,
-  }),
-  [ReduxActionTypes.FETCH_PAGE_SUCCESS]: (state: ApiPaneReduxState) => ({
-    ...state,
-    lastUsed: "",
-  }),
+
   [ReduxActionTypes.SET_CURRENT_CATEGORY]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ category: string }>,
@@ -219,20 +175,7 @@ const apiPaneReducer = createReducer(initialState, {
     ...state,
     currentCategory: action.payload.category,
   }),
-  [ReduxActionTypes.SET_LAST_USED_EDITOR_PAGE]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ path: string }>,
-  ) => ({
-    ...state,
-    lastUsedEditorPage: action.payload.path,
-  }),
-  [ReduxActionTypes.SET_LAST_SELECTED_PAGE_PAGE]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ selectedPageId: string }>,
-  ) => ({
-    ...state,
-    lastSelectedPage: action.payload.selectedPageId,
-  }),
+
   [ReduxActionTypes.SET_EXTRA_FORMDATA]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string; values: {} }>,

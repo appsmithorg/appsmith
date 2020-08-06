@@ -2,7 +2,7 @@
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
 import _ from "lodash";
-import { all, select, put, takeEvery, take, call } from "redux-saga/effects";
+import { all, select, put, takeEvery, call } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -22,7 +22,6 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  getProviderTemplatesURL,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
@@ -30,14 +29,10 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getIsEditorInitialized,
-  getLastSelectedPage,
   getDataSources,
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
-import { AppState } from "reducers";
 import { Property } from "api/ActionAPI";
-import { changeApi } from "actions/apiPaneActions";
 import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
@@ -48,52 +43,6 @@ import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-
-const getLastUsedAction = (state: AppState) => state.ui.apiPane.lastUsed;
-const getLastUsedEditorPage = (state: AppState) =>
-  state.ui.apiPane.lastUsedEditorPage;
-const getLastUsedProvider = (state: AppState) =>
-  state.ui.providers.lastUsedProviderId;
-const getApiCreationStatus = (state: AppState) => state.ui.apiPane.isCreating;
-
-function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
-  const isInitialized = yield select(getIsEditorInitialized);
-  while (!isInitialized) {
-    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
-  }
-  const urlId = actionPayload.payload.id;
-  const lastUsedId = yield select(getLastUsedAction);
-  const lastUsedProviderId = yield select(getLastUsedProvider);
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
-  const lastUsedEditorPage = yield select(getLastUsedEditorPage);
-  const isCreating = yield select(getApiCreationStatus);
-  let lastSelectedPage = yield select(getLastSelectedPage);
-  if (lastSelectedPage === "") {
-    lastSelectedPage = pageId;
-  }
-
-  let id = "";
-  if (urlId) {
-    id = urlId;
-  } else if (lastUsedId) {
-    id = lastUsedId;
-  }
-
-  if (isCreating) return;
-
-  if (lastUsedProviderId && lastUsedEditorPage.includes("provider")) {
-    history.push(
-      getProviderTemplatesURL(
-        applicationId,
-        pageId,
-        lastUsedProviderId + `/?importTo=${lastSelectedPage}`,
-      ),
-    );
-  } else {
-    yield put(changeApi(id));
-  }
-}
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -181,15 +130,6 @@ function* initializeExtraFormDataSaga() {
 
 function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  // Typescript says Element does not have blur function but it does;
-  document.activeElement &&
-    "blur" in document.activeElement &&
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    document.activeElement.blur();
-  if (!id) {
-    return;
-  }
   const action = yield select(getAction, id);
   if (!action) return;
 
@@ -422,7 +362,6 @@ function* handleApiNameChangeFailureSaga(
 
 export default function* root() {
   yield all([
-    takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
