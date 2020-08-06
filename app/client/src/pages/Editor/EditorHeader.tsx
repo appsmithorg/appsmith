@@ -175,7 +175,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
       );
     } else {
       saveStatusMessage = (
-        <HeaderIcons.SAVE_FAILURE color={"#36AB80"} height={20} width={20} />
+        <HeaderIcons.SAVE_FAILURE color={"#F69D2C"} height={20} width={20} />
       );
     }
   }

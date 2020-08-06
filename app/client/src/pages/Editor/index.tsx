@@ -92,29 +92,6 @@ class Editor extends Component<EditorProps> {
       isDialogOpen: false,
     });
   };
-  handlePublish = () => {
-    if (this.props.currentApplicationId) {
-      this.props.publishApplication(this.props.currentApplicationId);
-
-      const appName = this.props.currentApplication
-        ? this.props.currentApplication.name
-        : "";
-      AnalyticsUtil.logEvent("PUBLISH_APP", {
-        appId: this.props.currentApplicationId,
-        appName: appName,
-      });
-    }
-  };
-  handleCreatePage = (pageName: string) => {
-    this.props.createPage(this.props.currentApplicationId, pageName);
-  };
-  redirectToPage = (pageId: string) => {
-    if (this.props.currentApplicationId) {
-      this.props.history.push(
-        BUILDER_PAGE_URL(this.props.currentApplicationId, pageId),
-      );
-    }
-  };
   public render() {
     if (!this.props.match.params.applicationId) {
       return <Redirect to="/applications" />;
@@ -131,19 +108,6 @@ class Editor extends Component<EditorProps> {
             <meta charSet="utf-8" />
             <title>Editor | Appsmith</title>
           </Helmet>
-          <EditorHeader
-            isSaving={this.props.isSaving}
-            pageName={this.props.currentPageName}
-            onPublish={this.handlePublish}
-            onCreatePage={this.handleCreatePage}
-            pages={this.props.pages}
-            currentPageId={this.props.currentPageId}
-            currentApplicationId={this.props.currentApplicationId}
-            currentApplication={this.props.currentApplication}
-            isPublishing={this.props.isPublishing}
-            createModal={this.props.createModal}
-            orgId={this.props.currentOrgId}
-          />
           <MainContainer />
           <Dialog
             isOpen={this.state.isDialogOpen}
@@ -198,14 +162,6 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (applicationId: string, pageId: string) =>
       dispatch(initEditor(applicationId, pageId)),
-    publishApplication: (applicationId: string) => {
-      dispatch({
-        type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-        payload: {
-          applicationId,
-        },
-      });
-    },
     previewPage: (pageId: string, layoutId: string) => {
       dispatch({
         type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
