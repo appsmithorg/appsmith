@@ -29,9 +29,10 @@ import { Colors } from "constants/Colors";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   background: ${Colors.OXFORD_BLUE};
-  height: ${props => (props.hasPages ? "78px" : "48px")};
+  height: ${props => (props.hasPages ? "90px" : "48px")};
   color: white;
   flex-direction: column;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const HeaderRow = styled.div<{ justify: string }>`
