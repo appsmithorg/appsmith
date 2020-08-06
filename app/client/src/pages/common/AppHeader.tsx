@@ -11,6 +11,7 @@ import {
   USER_AUTH_URL,
 } from "constants/routes";
 import { withRouter, RouteComponentProps } from "react-router";
+import AppViewerHeader from "pages/AppViewer/viewer/AppViewerHeader";
 
 type Props = { getCurrentUser: () => void } & RouteComponentProps;
 
@@ -31,7 +32,7 @@ class AppHeader extends React.Component<Props, any> {
       <React.Fragment>
         <Switch>
           <Route path={BUILDER_URL} component={NoRender} />
-          <Route path={APP_VIEW_URL} component={NoRender} />
+          <Route path={APP_VIEW_URL} component={AppViewerHeader} />
           <Route path={USER_AUTH_URL} component={LoginHeader} />
           <Route path={BASE_URL} component={PageHeader} />
         </Switch>

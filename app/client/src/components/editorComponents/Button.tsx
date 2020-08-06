@@ -10,6 +10,7 @@ import {
   Button as BlueprintButton,
   Intent as BlueprintIntent,
   IconName,
+  MaybeElement,
 } from "@blueprintjs/core";
 import { Direction, Directions } from "utils/helpers";
 
@@ -86,7 +87,7 @@ export type ButtonProps = {
   text?: string;
   onClick?: () => void;
   href?: string;
-  icon?: string;
+  icon?: string | MaybeElement;
   iconAlignment?: Direction;
   loading?: boolean;
   disabled?: boolean;
