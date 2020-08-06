@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
