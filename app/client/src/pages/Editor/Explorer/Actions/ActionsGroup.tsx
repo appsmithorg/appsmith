@@ -63,6 +63,7 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
     );
     history.push(path);
   }, [props.config, props.page.pageId, params]);
+
   return (
     <Entity
       icon={props.config?.icon}
@@ -73,7 +74,7 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
       disabled={!!props.searchKeyword && (!childNode || !props.actions.length)}
       createFn={switchToCreateActionPage}
       isDefaultExpanded={
-        props.config?.isGroupActive(params, props.page.pageId) ||
+        props.config?.isGroupExpanded(params, props.page.pageId) ||
         !!props.searchKeyword
       }
       active={props.config?.isGroupActive(params, props.page.pageId)}

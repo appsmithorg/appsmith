@@ -24,7 +24,7 @@ import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { changeApi, initApiPane } from "actions/apiPaneActions";
+import { changeApi } from "actions/apiPaneActions";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -35,8 +35,6 @@ interface ReduxStateProps {
   isRunning: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isCreating: boolean;
-  isMoving: boolean;
-  isCopying: boolean;
   apiName: string;
   currentApplication: UserApplication;
   currentPageName: string | undefined;
@@ -51,7 +49,6 @@ interface ReduxActionProps {
   runAction: (id: string, paginationField?: PaginationField) => void;
   deleteAction: (id: string, name: string) => void;
   changeAPIPage: (apiId: string) => void;
-  initApiPane: (apiId: string) => void;
 }
 
 function getPageName(pages: any, pageId: string) {
@@ -65,7 +62,7 @@ type Props = ReduxActionProps &
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount() {
-    this.props.initApiPane(this.props.match.params.apiId);
+    this.props.changeAPIPage(this.props.match.params.apiId);
   }
   handleDeleteClick = () => {
     const pageName = getPageName(
@@ -126,11 +123,9 @@ class ApiEditor extends React.Component<Props> {
       isRunning,
       isDeleting,
       isCreating,
-      isCopying,
-      isMoving,
       paginationType,
     } = this.props;
-    if (isCreating || isCopying || isMoving) {
+    if (isCreating) {
       return (
         <LoadingContainer>
           <Spinner size={30} />
@@ -180,7 +175,6 @@ class ApiEditor extends React.Component<Props> {
                     : ""
                 }
                 apiName={this.props.apiName}
-                location={this.props.location}
               />
             )}
 
@@ -213,13 +207,7 @@ class ApiEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
-  const {
-    isDeleting,
-    isRunning,
-    isCreating,
-    isMoving,
-    isCopying,
-  } = state.ui.apiPane;
+  const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
   return {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
@@ -233,8 +221,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isRunning,
     isDeleting,
     isCreating,
-    isMoving,
-    isCopying,
   };
 };
 
@@ -245,7 +231,6 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   changeAPIPage: (actionId: string) => dispatch(changeApi(actionId)),
-  initApiPane: (urlId?: string) => dispatch(initApiPane(urlId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApiEditor);

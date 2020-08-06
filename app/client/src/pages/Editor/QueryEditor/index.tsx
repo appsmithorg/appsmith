@@ -55,8 +55,6 @@ type ReduxStateProps = {
   pluginIds: Array<string> | undefined;
   executedQueryData: any;
   isCreating: boolean;
-  isMoving: boolean;
-  isCopying: boolean;
   pluginImages: Record<string, string>;
 };
 
@@ -97,8 +95,6 @@ class QueryEditor extends React.Component<Props> {
       pluginIds,
       executedQueryData,
       isCreating,
-      isMoving,
-      isCopying,
       runErrorMessage,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
@@ -109,7 +105,7 @@ class QueryEditor extends React.Component<Props> {
       );
     }
 
-    if (isCreating || isCopying || isMoving) {
+    if (isCreating) {
       return (
         <LoadingContainer>
           <Spinner size={30} />
@@ -169,8 +165,6 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     queryPane: state.ui.queryPane,
     formData,
     isCreating: state.ui.apiPane.isCreating,
-    isMoving: state.ui.apiPane.isMoving,
-    isCopying: state.ui.apiPane.isCopying,
   };
 };
 
