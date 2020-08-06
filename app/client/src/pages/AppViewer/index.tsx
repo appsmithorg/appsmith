@@ -96,7 +96,6 @@ class AppViewer extends Component<
   public render() {
     const { isInitialized, currentApplication } = this.props;
     const userPermissions = currentApplication?.userPermissions ?? [];
-    if (!isInitialized) return null;
 
     const items: SideNavItemProps[] | undefined =
       this.props.pages &&
@@ -110,7 +109,6 @@ class AppViewer extends Component<
         ),
         loading: false,
       }));
-    if (!this.state.registered) return null;
 
     return (
       <EditorContext.Provider
@@ -137,15 +135,17 @@ class AppViewer extends Component<
                 toggleCollapse={this.toggleCollapse}
               />
             </AppViewerSideNavWrapper>
-            <Switch>
-              <AppRoute
-                path={getApplicationViewerPageURL()}
-                exact
-                component={AppViewerPageContainer}
-                name={"AppViewerPageContainer"}
-                logDisable
-              />
-            </Switch>
+            {isInitialized && this.state.registered && (
+              <Switch>
+                <AppRoute
+                  path={getApplicationViewerPageURL()}
+                  exact
+                  component={AppViewerPageContainer}
+                  name={"AppViewerPageContainer"}
+                  logDisable
+                />
+              </Switch>
+            )}
           </AppViewerBody>
         </AppViewWrapper>
       </EditorContext.Provider>
