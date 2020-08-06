@@ -180,6 +180,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Tab 1", id: "tab1" },
         { label: "Tab 2", id: "tab2" },
       ],
+      shouldShowTabs: true,
       selectedTab: "Tab 1",
       blueprint: {
         view: [
