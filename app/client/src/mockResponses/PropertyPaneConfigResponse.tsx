@@ -290,6 +290,13 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "INPUT_TEXT",
           },
           {
+            "id": "16.1.3",
+            "propertyName": "shouldShowTabs",
+            "helpText": "Hides the tabs so that different widgets can be displayed based on the default tab",
+            "label": "Show Tabs",
+            "controlType": "SWITCH"
+          },
+          {
             id: "16.1.5",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
