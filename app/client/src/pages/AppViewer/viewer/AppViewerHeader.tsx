@@ -28,7 +28,7 @@ import { HeaderIcons } from "icons/HeaderIcons";
 import { Colors } from "constants/Colors";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
-  background: ${Colors.OXFORD_BLUE};
+  background: ${Colors.BALTIC_SEA};
   height: ${props => (props.hasPages ? "90px" : "48px")};
   color: white;
   flex-direction: column;
@@ -84,7 +84,7 @@ const PageTab = styled(NavLink)`
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  background-color: rgb(69, 80, 90);
+  background-color: rgb(49, 48, 51);
   && span {
     font-weight: 500;
     font-size: 12px;
@@ -148,7 +148,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                     <ShareButton
                       text="Share"
                       intent="none"
-                      outline={false}
+                      outline
                       size="small"
                       className="t--application-share-btn share-button"
                       icon={
