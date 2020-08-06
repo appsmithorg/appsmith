@@ -52,16 +52,6 @@ const Form = styled.form`
       width: 100%;
     }
   }
-
-  .executeOnLoad {
-    ${FormLabel} {
-      padding: 0px;
-    }
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 10px;
-    margin-right: 7px;
-  }
 `;
 
 const MainConfiguration = styled.div`
@@ -122,6 +112,16 @@ const RequestParamsWrapper = styled.div`
 
 const HeadersSection = styled.div`
   margin-bottom: 32px;
+`;
+
+const SwitchWrapper = styled.div`
+  ${FormLabel} {
+    padding: 0px;
+  }
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  margin-right: 7px;
 `;
 
 interface APIFormProps {
@@ -210,13 +210,13 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             />
           </ActionButtons>
         </FormRow>
-        <div className="executeOnLoad">
+        <SwitchWrapper>
           <Field
             name="executeOnLoad"
             component={SwitchField}
             label={"Run on Page Load"}
           />
-        </div>
+        </SwitchWrapper>
         <FormRow>
           <DropdownField
             placeholder="Method"
