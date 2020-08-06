@@ -27,5 +27,5 @@ type DropdownProps = CommonComponentProps & {
 };
 
 export default function Button(props: DropdownProps) {
-  return "";
+  return null;
 }
