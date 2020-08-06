@@ -13,7 +13,6 @@ import {
   isPermitted,
 } from "pages/Applications/permissionHelpers";
 import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
-import { PageListPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -81,7 +80,7 @@ const PageName = styled.span`
   opacity: 0.5;
 `;
 
-const LoadingContainer = styled.div`
+const SaveStatusContainer = styled.div`
   margin: 0 10px;
   border: 1px solid rgb(95, 105, 116);
   border-radius: 50%;
@@ -126,16 +125,12 @@ type EditorHeaderProps = {
   currentApplication?: ApplicationPayload;
   isSaving?: boolean;
   pageSaveError?: boolean;
-  currentPageName?: string;
-  onPublish: () => void;
-  onCreatePage: (name: string) => void;
-  pages?: PageListPayload;
-  currentPageId?: string;
+  pageName?: string;
+  pageId?: string;
   isPublishing: boolean;
   publishedTime?: string;
   orgId: string;
-  currentApplicationId?: string;
-  createModal: () => void;
+  applicationId?: string;
   publishApplication: (appId: string) => void;
 };
 
@@ -144,37 +139,36 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     currentApplication,
     isSaving,
     pageSaveError,
-    currentPageId,
+    pageId,
     isPublishing,
     orgId,
-    currentApplicationId,
-    currentPageName,
+    applicationId,
+    pageName,
     publishApplication,
   } = props;
 
   const handlePublish = () => {
-    if (currentApplicationId) {
-      publishApplication(currentApplicationId);
+    if (applicationId) {
+      publishApplication(applicationId);
 
       const appName = currentApplication ? currentApplication.name : "";
       AnalyticsUtil.logEvent("PUBLISH_APP", {
-        appId: currentApplicationId,
-        appName: appName,
+        appId: applicationId,
+        appName,
       });
     }
   };
 
-  let saveStatusMessage: React.ReactNode = "";
+  let saveStatusIcon: React.ReactNode;
   if (isSaving) {
-    saveStatusMessage = <ThreeDotLoading />;
-  }
-  if (!isSaving) {
+    saveStatusIcon = <ThreeDotLoading />;
+  } else {
     if (!pageSaveError) {
-      saveStatusMessage = (
+      saveStatusIcon = (
         <HeaderIcons.SAVE_SUCCESS color={"#36AB80"} height={20} width={20} />
       );
     } else {
-      saveStatusMessage = (
+      saveStatusIcon = (
         <HeaderIcons.SAVE_FAILURE color={"#F69D2C"} height={20} width={20} />
       );
     }
@@ -192,11 +186,13 @@ export const EditorHeader = (props: EditorHeaderProps) => {
       </HeaderSection>
       <HeaderSection flex-direction={"row"}>
         <ApplicationName>{currentApplication?.name}&nbsp;</ApplicationName>
-        <PageName>{currentPageName}&nbsp;</PageName>
+        <PageName>{pageName}&nbsp;</PageName>
       </HeaderSection>
       <HeaderSection>
-        <LoadingContainer>{saveStatusMessage}</LoadingContainer>
+        <SaveStatusContainer>{saveStatusIcon}</SaveStatusContainer>
         <ShareButton
+          target="_blank"
+          href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=feedback@appsmith.com&tf=1"
           text="Feedback"
           intent="none"
           outline
@@ -229,7 +225,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             }
             Form={InviteUsersFormv2}
             orgId={orgId}
-            applicationId={currentApplicationId}
+            applicationId={applicationId}
             title={
               currentApplication ? currentApplication.name : "Share Application"
             }
@@ -252,10 +248,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             trigger={
               <DeployLinkButton icon="caret-down" filled intent="primary" />
             }
-            link={getApplicationViewerPageURL(
-              currentApplicationId,
-              currentPageId,
-            )}
+            link={getApplicationViewerPageURL(applicationId, pageId)}
           />
         </DeploySection>
       </HeaderSection>
@@ -266,13 +259,13 @@ export const EditorHeader = (props: EditorHeaderProps) => {
 };
 
 const mapStateToProps = (state: AppState) => ({
-  currentPageName: state.ui.editor.currentPageName,
+  pageName: state.ui.editor.currentPageName,
   isSaving: getIsPageSaving(state),
-  currentOrgId: getCurrentOrgId(state),
-  currentApplicationId: getCurrentApplicationId(state),
+  orgId: getCurrentOrgId(state),
+  applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
-  currentPageId: getCurrentPageId(state),
+  pageId: getCurrentPageId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

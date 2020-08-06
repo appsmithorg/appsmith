@@ -6,59 +6,39 @@ import { withRouter, RouteComponentProps } from "react-router-dom";
 import {
   BuilderRouteParams,
   getApplicationViewerPageURL,
-  BUILDER_PAGE_URL,
 } from "constants/routes";
 import { AppState } from "reducers";
-import EditorHeader from "./EditorHeader";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getPageList,
-  getIsPublishingApplication,
   getPublishingError,
-  getIsPageSaving,
   getIsEditorLoading,
   getLoadingError,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import {
-  ReduxActionTypes,
-  PageListPayload,
-  ApplicationPayload,
-} from "constants/ReduxActionConstants";
 import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
-import { RenderModes } from "constants/WidgetConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { fetchPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 type EditorProps = {
-  currentPageName?: string;
-  isSaving: boolean;
-  currentOrgId: string;
   currentApplicationId?: string;
   currentPageId?: string;
-  publishApplication: Function;
-  previewPage: Function;
   initEditor: Function;
-  createPage: Function;
   fetchPage: (pageId: string) => void;
-  pages: PageListPayload;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
   editorLoadingError: boolean;
   errorPublishing: boolean;
-  createModal: () => void;
-  currentApplication?: ApplicationPayload;
-} & RouteComponentProps<BuilderRouteParams>;
+};
 
-class Editor extends Component<EditorProps> {
+type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
+
+class Editor extends Component<Props> {
   public state = {
     isDialogOpen: false,
     registered: false,
@@ -73,7 +53,7 @@ class Editor extends Component<EditorProps> {
       this.props.initEditor(applicationId, pageId);
     }
   }
-  componentDidUpdate(previously: EditorProps) {
+  componentDidUpdate(previously: Props) {
     if (
       previously.isPublishing &&
       !(this.props.isPublishing || this.props.errorPublishing)
@@ -144,15 +124,9 @@ class Editor extends Component<EditorProps> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  currentPageName: state.ui.editor.currentPageName,
-  isSaving: getIsPageSaving(state),
-  currentOrgId: getCurrentOrgId(state),
   currentApplicationId: getCurrentApplicationId(state),
-  currentApplication: state.ui.applications.currentApplication,
   currentPageId: getCurrentPageId(state),
-  pages: getPageList(state),
   errorPublishing: getPublishingError(state),
-  isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   editorLoadingError: getLoadingError(state),
@@ -162,33 +136,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (applicationId: string, pageId: string) =>
       dispatch(initEditor(applicationId, pageId)),
-    previewPage: (pageId: string, layoutId: string) => {
-      dispatch({
-        type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-        payload: {
-          pageId,
-          layoutId,
-        },
-      });
-    },
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
-    createPage: (applicationId: string, name: string) => {
-      dispatch({
-        type: ReduxActionTypes.CREATE_PAGE_INIT,
-        payload: {
-          applicationId,
-          name,
-        },
-      });
-    },
-    // TODO(abhinav): get the render mode from context
-    createModal: () =>
-      dispatch({
-        type: ReduxActionTypes.CREATE_MODAL_INIT,
-        payload: {
-          renderMode: RenderModes.CANVAS,
-        },
-      }),
   };
 };
 
