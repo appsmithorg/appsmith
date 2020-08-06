@@ -1,7 +1,10 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserState;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.UserService;
@@ -59,6 +62,34 @@ public class UserSignup {
                             .onAuthenticationSuccess(webFilterExchange, authentication)
                             .thenReturn(savedUser);
                 });
+    }
+
+    /**
+     * Creates a new user and logs them in, with the user details taken from the POST body, read as form-data.
+     * @param exchange The `ServerWebExchange` instance representing the request.
+     * @return Publisher of the created user object, with an `id` value.
+     */
+    public Mono<User> signupAndLoginFromFormData(ServerWebExchange exchange) {
+        return exchange.getFormData()
+                .map(formData -> {
+                    final User user = new User();
+                    user.setEmail(formData.getFirst(FieldName.EMAIL));
+                    user.setPassword(formData.getFirst("password"));
+                    if (formData.containsKey(FieldName.NAME)) {
+                        user.setName(formData.getFirst(FieldName.NAME));
+                    }
+                    if (formData.containsKey("source")) {
+                        user.setSource(LoginSource.valueOf(formData.getFirst("source")));
+                    }
+                    if (formData.containsKey("state")) {
+                        user.setState(UserState.valueOf(formData.getFirst("state")));
+                    }
+                    if (formData.containsKey("isEnabled")) {
+                        user.setIsEnabled(Boolean.valueOf(formData.getFirst("isEnabled")));
+                    }
+                    return user;
+                })
+                .flatMap(user -> signupAndLogin(user, exchange));
     }
 
 }

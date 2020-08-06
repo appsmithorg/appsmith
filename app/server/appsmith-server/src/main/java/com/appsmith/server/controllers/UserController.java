@@ -1,10 +1,7 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -65,26 +62,8 @@ public class UserController extends BaseController<UserService, User, String> {
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<User>> createFormEncoded(ServerWebExchange exchange) {
-        return exchange.getFormData()
-                .map(formData -> {
-                    final User user = new User();
-                    user.setEmail(formData.getFirst(FieldName.EMAIL));
-                    user.setPassword(formData.getFirst("password"));
-                    if (formData.containsKey(FieldName.NAME)) {
-                        user.setName(formData.getFirst(FieldName.NAME));
-                    }
-                    if (formData.containsKey("source")) {
-                        user.setSource(LoginSource.valueOf(formData.getFirst("source")));
-                    }
-                    if (formData.containsKey("state")) {
-                        user.setState(UserState.valueOf(formData.getFirst("state")));
-                    }
-                    if (formData.containsKey("isEnabled")) {
-                        user.setIsEnabled(Boolean.valueOf(formData.getFirst("isEnabled")));
-                    }
-                    return user;
-                })
-                .flatMap(user -> create(user, null, exchange))
+        return userSignup.signupAndLoginFromFormData(exchange)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null))
                 .onErrorMap(error ->
                         new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to read HTTP message"));
     }
