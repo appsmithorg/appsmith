@@ -163,6 +163,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
     id: string;
     label: string;
   }>;
+  shouldShowTabs: boolean;
   children: T[];
   snapColumns?: number;
   snapRows?: number;
