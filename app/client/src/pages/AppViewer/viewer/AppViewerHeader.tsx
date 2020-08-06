@@ -24,9 +24,11 @@ import { getPageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { HeaderIcons } from "icons/HeaderIcons";
+import { Colors } from "constants/Colors";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
-  background: #2e3d49;
+  background: ${Colors.OXFORD_BLUE};
   height: ${props => (props.hasPages ? "78px" : "48px")};
   color: white;
   flex-direction: column;
@@ -45,9 +47,6 @@ const HeaderSection = styled.div<{ justify: string }>`
   flex: 1;
   align-items: center;
   justify-content: ${props => props.justify};
-  &&&&.bp3-button {
-    color: white;
-  }
 `;
 
 const AppsmithLogoImg = styled.img`
@@ -57,12 +56,13 @@ const AppsmithLogoImg = styled.img`
 const BackToEditorButton = styled(Button)`
   max-width: 200px;
   height: 32px;
-  margin: 5px;
+  margin: 5px 10px;
 `;
 
 const ShareButton = styled(Button)`
   height: 32px;
-  margin: 5px;
+  margin: 5px 10px;
+  color: white !important;
 `;
 
 const StyledApplicationName = styled.span`
@@ -147,9 +147,16 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                     <ShareButton
                       text="Share"
                       intent="none"
-                      outline
+                      outline={false}
                       size="small"
-                      className="t--application-share-btn"
+                      className="t--application-share-btn share-button"
+                      icon={
+                        <HeaderIcons.SHARE
+                          color={Colors.WHITE}
+                          width={13}
+                          height={13}
+                        />
+                      }
                     />
                   }
                   Form={InviteUsersFormv2}
