@@ -166,8 +166,17 @@ Cypress.Commands.add("CreateApp", appname => {
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPropertyPane");
-  cy.get("@getPropertyPane").should("have.property", "status", 200);
+  // cy.wait("@getPagesForApp").should(
+  //   "have.nested.property",
+  //   "response.body.responseMeta.status",
+  //   200,
+  // );
+  // cy.wait("@getPagesForApp").should(
+  //   "have.nested.property",
+  //   "response.body.responseMeta.status",
+  //   200,
+  // );
+  cy.get("h2").contains("Drag and drop a widget here");
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
