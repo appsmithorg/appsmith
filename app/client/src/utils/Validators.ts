@@ -20,7 +20,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     if (_.isUndefined(value) || value === null) {
       return {
         isValid: true,
-        parsed: undefined,
+        parsed: parsed,
         message: "",
       };
     }
