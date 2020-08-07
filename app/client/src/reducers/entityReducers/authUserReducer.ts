@@ -3,13 +3,15 @@ import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
 
 export type AuthUserState = {
-  name: string;
+  username: string;
+  email: string;
   id: string;
   role: string;
 };
 
 const initialState: AuthUserState = {
-  name: "",
+  username: "",
+  email: "",
   id: "",
   role: "",
 };
@@ -21,7 +23,8 @@ const authUserReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      name: action.payload.username,
+      username: action.payload.username,
+      email: action.payload.email,
       id: action.payload.id,
     };
   },
