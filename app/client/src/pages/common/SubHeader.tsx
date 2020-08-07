@@ -17,7 +17,17 @@ const StyledAddButton = styled(Button)<IIconProps>`
     outline: none;
   }
 `;
-const SearchContainer = styled.div``;
+const SearchContainer = styled.div`
+  flex-grow: 1;
+  .bp3-control-group {
+    display: block;
+  }
+  && {
+    .bp3-input {
+      width: 40%;
+    }
+  }
+`;
 
 type SubHeaderProps = {
   add?: {

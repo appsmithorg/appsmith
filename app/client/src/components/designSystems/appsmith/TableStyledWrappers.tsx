@@ -90,6 +90,9 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     color: ${Colors.OXFORD_BLUE};
     font-weight: 500;
     padding-left: 10px;
+    &.sorted {
+      padding-left: 5px;
+    }
   }
   .draggable-header {
     cursor: pointer;
@@ -297,4 +300,8 @@ export const TableIconWrapper = styled.div<{
   &:hover {
     background: ${Colors.ATHENS_GRAY};
   }
+`;
+
+export const SortIconWrapper = styled.div<{ rotate: boolean }>`
+  transform: ${props => (props.rotate ? "rotate(180deg)" : "none")};
 `;
