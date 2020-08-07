@@ -41,7 +41,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       filteredTableData:
-        "{{!this.onSearchTextChanged ? this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText.toUpperCase())) : this.tableData}}",
+        "{{!this.onSearchTextChanged ? this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText ? this.searchText.toUpperCase() : '')) : this.tableData}}",
       selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
     };
   }
