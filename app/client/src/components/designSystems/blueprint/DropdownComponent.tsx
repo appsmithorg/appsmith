@@ -260,6 +260,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                 onRemove: this.onItemRemoved,
                 tagProps: { minimal: true },
                 // inputProps: { readOnly: true },
+                disabled: this.props.disabled,
                 rightElement: <Icon icon={IconNames.CHEVRON_DOWN} />,
               }}
               onItemSelect={this.onItemSelect}
