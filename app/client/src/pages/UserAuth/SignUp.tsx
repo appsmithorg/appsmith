@@ -9,7 +9,7 @@ import {
   AuthCardBody,
   AuthCardFooter,
   AuthCardNavLink,
-  SpacedForm,
+  SpacedSubmitForm,
   FormActions,
   AuthCardContainer,
 } from "./StyledComponents";
@@ -40,7 +40,7 @@ import Button from "components/editorComponents/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
-import { signupFormSubmitHandler, SignupFormValues } from "./helpers";
+import { SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { getAppsmithConfigs } from "configs";
@@ -85,7 +85,6 @@ const validate = (values: SignupFormValues) => {
 export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
   const {
     error,
-    handleSubmit,
     submitting,
     submitFailed,
     submitSucceeded,
@@ -113,7 +112,7 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
         <h5>{SIGNUP_PAGE_SUBTITLE}</h5>
       </AuthCardHeader>
       <AuthCardBody>
-        <SpacedForm onSubmit={handleSubmit(signupFormSubmitHandler)}>
+        <SpacedSubmitForm method="POST" action="/api/v1/users">
           <FormGroup
             intent={error ? "danger" : "none"}
             label={SIGNUP_PAGE_EMAIL_INPUT_LABEL}
@@ -151,7 +150,7 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
               }}
             />
           </FormActions>
-        </SpacedForm>
+        </SpacedSubmitForm>
         {SocialLoginList.length > 0 && <Divider />}
         <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
       </AuthCardBody>
