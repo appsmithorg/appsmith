@@ -49,10 +49,15 @@ const OptionWrapper = styled.div<{ selected?: boolean }>`
   }
 `;
 
-export const CompactModeTypes: Record<string, string> = {
-  SHORT: "SHORT",
-  DEFAULT: "DEFAULT",
-};
+// export const CompactModeTypes: Record<string, string> = {
+//   SHORT: "SHORT",
+//   DEFAULT: "DEFAULT",
+// };
+
+export enum CompactModeTypes {
+  SHORT = "SHORT",
+  DEFAULT = "DEFAULT",
+}
 
 export type CompactMode = keyof typeof CompactModeTypes;
 
@@ -74,7 +79,7 @@ const CompactModes: CompactModeItem[] = [
 
 interface TableCompactModeProps {
   compactMode?: CompactMode;
-  updateCompactMode: (mode: string) => void;
+  updateCompactMode: (mode: CompactMode) => void;
 }
 
 const TableCompactMode = (props: TableCompactModeProps) => {
@@ -82,7 +87,6 @@ const TableCompactMode = (props: TableCompactModeProps) => {
   return (
     <Popover
       minimal
-      usePortal
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
       position={Position.BOTTOM}

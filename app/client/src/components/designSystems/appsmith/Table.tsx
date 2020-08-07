@@ -74,23 +74,22 @@ interface TableProps {
   updateCompactMode: (compactMode: CompactMode) => void;
 }
 
+const defaultColumn = {
+  minWidth: 30,
+  width: 150,
+  maxWidth: 400,
+};
+
 export const Table = (props: TableProps) => {
-  const defaultColumn = React.useMemo(
-    () => ({
-      minWidth: 30,
-      width: 150,
-      maxWidth: 400,
-    }),
-    [],
-  );
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
-  const columns = React.useMemo(() => props.columns, [
-    JSON.stringify(props.columns),
-    JSON.stringify(props.columnActions),
-    JSON.stringify(props.compactMode),
-  ]);
+  const columnMemoKey = JSON.stringify({
+    columns: props.columns,
+    columnActions: props.columnActions,
+    compactMode: props.compactMode,
+  });
+  const columns = React.useMemo(() => props.columns, [columnMemoKey]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -129,7 +128,6 @@ export const Table = (props: TableProps) => {
     (props.height -
       (tableSizes.COLUMN_HEADER_HEIGHT + tableSizes.TABLE_HEADER_HEIGHT + 9)) /
     props.pageSize;
-  console.log("tableRowHeight", tableRowHeight);
   return (
     <TableWrapper
       width={props.width}
