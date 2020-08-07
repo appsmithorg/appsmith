@@ -191,7 +191,11 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     <HeaderWrapper>
       <HeaderSection>
         <Link to={APPLICATIONS_URL}>
-          <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+          <AppsmithLogoImg
+            src={AppsmithLogo}
+            alt="Appsmith logo"
+            className="t--appsmith-logo"
+          />
         </Link>
       </HeaderSection>
       <HeaderSection flex-direction={"row"}>

@@ -22,7 +22,7 @@
   "scrollView": ".t--property-control-scrollcontents input",
   "InputforText": ".t--property-control-text .CodeMirror-code",
   "TextInside": ".bp3-ui-text span",
-  "homeIcon": ".bp3-icon.bp3-icon-home",
+  "homeIcon": ".t--appsmith-logo",
   "typeWidgetName": ".bp3-editable-text-editing>input",
   "requiredCheckbox": ".t--property-control-required input[type='checkbox']",
   "visibleCheckbox": ".t--property-control-visible input[type='checkbox']",
