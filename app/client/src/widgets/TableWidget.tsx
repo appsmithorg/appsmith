@@ -232,10 +232,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (pageSize !== this.props.pageSize) {
       super.updateWidgetMetaProperty("pageSize", pageSize);
     }
-    console.log({
-      search: this.props.searchText,
-      defaultSearch: this.props.defaultSearchText,
-    });
     // /*
     return (
       <Suspense fallback={<Skeleton />}>

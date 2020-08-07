@@ -39,8 +39,8 @@ export const StyledText = styled(Text)<{
   justify-content: flex-start;
   align-items: ${props => (props.scroll ? "flex-start" : "center")};
   &.bp3-heading {
-    font-weight: ${props => props.theme.fontWeights[3]};
-    font-size: ${props => props.theme.fontSizes[4]}px;
+    font-weight: ${props => props.theme.fontWeights[4]};
+    font-size: 21px;
   }
   &.bp3-ui-text {
     ${labelStyle}
@@ -87,32 +87,17 @@ class TextComponent extends React.Component<TextComponentProps> {
     const { textStyle, text, ellipsize, textAlign } = this.props;
     return (
       <TextContainer>
-        {textStyle === "HEADING" ? (
-          <h3 className={this.getTextClass(textStyle)}>
-            <StyledText
-              scroll={!!this.props.shouldScroll}
-              textAlign={textAlign}
-              ellipsize={ellipsize}
-            >
-              <Interweave
-                content={text}
-                matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
-              />
-            </StyledText>
-          </h3>
-        ) : (
-          <StyledText
-            scroll={!!this.props.shouldScroll}
-            textAlign={textAlign}
-            className={this.getTextClass(textStyle)}
-            ellipsize={ellipsize}
-          >
-            <Interweave
-              content={text}
-              matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
-            />
-          </StyledText>
-        )}
+        <StyledText
+          scroll={!!this.props.shouldScroll}
+          textAlign={textAlign}
+          className={this.getTextClass(textStyle)}
+          ellipsize={ellipsize}
+        >
+          <Interweave
+            content={text}
+            matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
+          />
+        </StyledText>
       </TextContainer>
     );
   }
