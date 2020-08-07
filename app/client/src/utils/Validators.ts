@@ -6,16 +6,9 @@ import {
   Validator,
 } from "constants/WidgetValidation";
 import moment from "moment";
-import {
-  WIDGET_TYPE_VALIDATION_ERROR,
-  // NAVIGATE_TO_VALIDATION_ERROR,
-} from "constants/messages";
-// import { modalGetter } from "components/editorComponents/actioncreator/ActionCreator";
+import { WIDGET_TYPE_VALIDATION_ERROR } from "constants/messages";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-// import { PageListPayload } from "constants/ReduxActionConstants";
-// import { isDynamicValue } from "./DynamicBindingUtils";
-// const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
 export const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.TEXT]: (
@@ -28,6 +21,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: true,
         parsed: "",
+        transformed: parsed,
         message: "",
       };
     }

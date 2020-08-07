@@ -68,11 +68,12 @@ class RichTextEditorWidget extends BaseWidget<
   };
 
   getPageView() {
+    console.log(this.props);
     return (
       <Suspense fallback={<Skeleton />}>
         <RichtextEditorComponent
           onValueChange={this.onValueChange}
-          defaultValue={this.props.text}
+          defaultValue={this.props.text || this.props.defaultText}
           widgetId={this.props.widgetId}
           placeholder={this.props.placeholder}
           key={this.props.widgetId}
