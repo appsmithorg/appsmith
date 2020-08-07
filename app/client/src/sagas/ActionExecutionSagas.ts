@@ -82,8 +82,6 @@ function* navigateActionSaga(
     pageList,
     (page: Page) => page.pageName === action.pageNameOrUrl,
   );
-  console.log({ page, pageList, action });
-  debugger;
   if (page) {
     AnalyticsUtil.logEvent("NAVIGATE", {
       pageName: action.pageNameOrUrl,
@@ -98,7 +96,6 @@ function* navigateActionSaga(
             page.pageId,
             action.params,
           );
-    console.log({ path });
     history.push(path);
     if (event.callback) event.callback({ success: true });
   } else {
