@@ -110,11 +110,9 @@ export const EditableText = (props: EditableTextProps) => {
       setIsEditing(false);
     } else {
       AppToaster.show({
-        message: "Invalid name. Reverting...",
+        message: "Invalid name",
         type: "error",
       });
-      setValue(props.defaultValue);
-      setIsEditing(false);
     }
   };
 
