@@ -35,7 +35,7 @@ Do all this **without HTML/CSS**, and writing any custom integrations.
 
 ## Example Applications
 
-* [Customer Support Dashboard](https://release.app.appsmith.com/applications/5f16dc95adaa0f0f594fd662/pages/5f16dc95adaa0f0f594fd664#utm_source=github&utm_medium=homepage)
+* [Customer Support Dashboard](https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2aeb2580ca1f6faaed4e4c#utm_source=github&utm_medium=homepage)
 
 
 ## Why Appsmith?

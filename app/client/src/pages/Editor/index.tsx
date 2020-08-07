@@ -8,19 +8,17 @@ import {
   BUILDER_PAGE_URL,
 } from "constants/routes";
 import { AppState } from "reducers";
-import EditorHeader from "./EditorHeader";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getIsPublishingApplication,
   getPublishingError,
   getIsEditorLoading,
   getIsEditorInitialized,
+  getIsPublishingApplication,
 } from "selectors/editorSelectors";
-
 import {
   Dialog,
   Classes,
@@ -31,12 +29,11 @@ import {
 } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
-import history from "utils/history";
 import {
   ENTITY_EXPLORER_SEARCH_ID,
   ENTITY_EXPLORER_SEARCH_LOCATION_HASH,
 } from "constants/Explorer";
+import history from "utils/history";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -46,11 +43,11 @@ type EditorProps = {
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
   errorPublishing: boolean;
-  currentApplication?: ApplicationPayload;
-} & RouteComponentProps<BuilderRouteParams>;
+};
 
+type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 @HotkeysTarget
-class Editor extends Component<EditorProps> {
+class Editor extends Component<Props> {
   public renderHotkeys() {
     return (
       <Hotkeys>
@@ -93,7 +90,7 @@ class Editor extends Component<EditorProps> {
       this.props.initEditor(applicationId, pageId);
     }
   }
-  componentDidUpdate(previously: EditorProps) {
+  componentDidUpdate(previously: Props) {
     if (
       previously.isPublishing &&
       !(this.props.isPublishing || this.props.errorPublishing)
@@ -105,7 +102,7 @@ class Editor extends Component<EditorProps> {
   }
 
   shouldComponentUpdate(
-    nextProps: EditorProps,
+    nextProps: Props,
     nextState: { isDialogOpen: boolean; registered: boolean },
   ) {
     return (
@@ -125,14 +122,6 @@ class Editor extends Component<EditorProps> {
       isDialogOpen: false,
     });
   };
-
-  redirectToPage = (pageId: string) => {
-    if (this.props.currentApplicationId) {
-      this.props.history.push(
-        BUILDER_PAGE_URL(this.props.currentApplicationId, pageId),
-      );
-    }
-  };
   public render() {
     if (!this.props.isEditorInitialized || !this.state.registered) return null;
     return (
@@ -147,11 +136,6 @@ class Editor extends Component<EditorProps> {
             <meta charSet="utf-8" />
             <title>Editor | Appsmith</title>
           </Helmet>
-          <EditorHeader
-            currentPageId={this.props.currentPageId}
-            currentApplicationId={this.props.currentApplicationId}
-            isPublishing={this.props.isPublishing}
-          />
           <MainContainer />
           <Dialog
             isOpen={this.state.isDialogOpen}

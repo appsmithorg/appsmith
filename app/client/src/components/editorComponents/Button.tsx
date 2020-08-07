@@ -10,8 +10,11 @@ import {
   Button as BlueprintButton,
   Intent as BlueprintIntent,
   IconName,
+  MaybeElement,
+  IButtonProps,
 } from "@blueprintjs/core";
 import { Direction, Directions } from "utils/helpers";
+import { omit } from "lodash";
 
 const outline = css`
   &&&&&& {
@@ -20,14 +23,7 @@ const outline = css`
   }
 `;
 
-const buttonStyles = css<{
-  outline?: string;
-  intent?: Intent;
-  filled?: string;
-  fluid?: boolean;
-  skin?: Skin;
-  iconAlignment?: Direction;
-}>`
+const buttonStyles = css<Partial<ButtonProps>>`
   ${BlueprintButtonIntentsCSS}
   &&&& {
     padding: ${props =>
@@ -60,22 +56,20 @@ const buttonStyles = css<{
   }
   ${props => (props.outline ? outline : "")}
 `;
-const StyledButton = styled(BlueprintButton)<{
-  outline?: string;
-  intent?: Intent;
-  filled?: string;
-  skin?: Skin;
-  iconAlignment?: Direction;
-}>`
+const StyledButton = styled((props: IButtonProps & Partial<ButtonProps>) => (
+  <BlueprintButton
+    {...omit(props, ["iconAlignment", "fluid", "filled", "outline"])}
+  />
+))`
   ${buttonStyles}
 `;
-const StyledAnchorButton = styled(BlueprintAnchorButton)<{
-  outline?: string;
-  intent?: Intent;
-  filled?: string;
-  skin?: Skin;
-  iconAlignment?: Direction;
-}>`
+const StyledAnchorButton = styled(
+  (props: IButtonProps & Partial<ButtonProps>) => (
+    <BlueprintButton
+      {...omit(props, ["iconAlignment", "fluid", "filled", "outline"])}
+    />
+  ),
+)`
   ${buttonStyles}
 `;
 
@@ -86,7 +80,7 @@ export type ButtonProps = {
   text?: string;
   onClick?: () => void;
   href?: string;
-  icon?: string;
+  icon?: string | MaybeElement;
   iconAlignment?: Direction;
   loading?: boolean;
   disabled?: boolean;
@@ -95,6 +89,7 @@ export type ButtonProps = {
   className?: string;
   fluid?: boolean;
   skin?: Skin;
+  target?: string;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -112,8 +107,8 @@ export const Button = (props: ButtonProps) => {
   const baseProps = {
     text: props.text,
     minimal: !props.filled,
-    outline: props.outline ? props.outline.toString() : undefined,
-    filled: props.filled ? props.filled.toString() : undefined,
+    outline: !!props.outline,
+    filled: !!props.filled,
     intent: props.intent as BlueprintIntent,
     large: props.size === "large",
     small: props.size === "small",
@@ -121,7 +116,7 @@ export const Button = (props: ButtonProps) => {
     disabled: props.disabled,
     type: props.type,
     className: props.className,
-    fluid: props.fluid ? props.fluid.toString() : undefined,
+    fluid: !!props.fluid,
     skin: props.skin,
     iconAlignment: props.iconAlignment ? props.iconAlignment : undefined,
   };
@@ -132,6 +127,7 @@ export const Button = (props: ButtonProps) => {
         rightIcon={rightIcon}
         {...baseProps}
         href={props.href}
+        target={props.target}
       />
     );
   } else
