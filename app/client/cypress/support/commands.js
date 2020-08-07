@@ -746,6 +746,7 @@ Cypress.Commands.add("testCodeMirror", value => {
           force: true,
           parseSpecialCharSequences: false,
         });
+      cy.wait(200);
       cy.get(".CodeMirror textarea")
         .first()
         .should("have.value", value);
