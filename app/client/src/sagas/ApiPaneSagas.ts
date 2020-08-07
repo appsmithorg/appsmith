@@ -145,6 +145,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   //   document.activeElement.blur();
   const { id } = actionPayload.payload;
   const action = yield select(getAction, id);
+  console.groupEnd();
   if (!action) return;
 
   yield put(initialize(API_EDITOR_FORM_NAME, action));
