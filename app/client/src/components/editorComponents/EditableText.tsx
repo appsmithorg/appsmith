@@ -8,6 +8,7 @@ import _ from "lodash";
 import Edit from "assets/images/EditPen.svg";
 import ErrorTooltip from "./ErrorTooltip";
 import { Colors } from "constants/Colors";
+import { AppToaster } from "components/editorComponents/ToastComponent";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -108,7 +109,12 @@ export const EditableText = (props: EditableTextProps) => {
       props.onTextChanged(_value);
       setIsEditing(false);
     } else {
-      setValue(_value);
+      AppToaster.show({
+        message: "Invalid name. Reverting...",
+        type: "error",
+      });
+      setValue(props.defaultValue);
+      setIsEditing(false);
     }
   };
 
