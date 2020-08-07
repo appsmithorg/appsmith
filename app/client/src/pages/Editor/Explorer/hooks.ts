@@ -182,6 +182,7 @@ export const useFilteredEntities = (
 
   const clearSearch = useCallback(() => {
     const el: HTMLInputElement | null = ref.current;
+
     if (el && el.value.trim().length > 0) {
       el.value = "";
       el?.dispatchEvent(event);

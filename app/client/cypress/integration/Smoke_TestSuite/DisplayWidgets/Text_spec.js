@@ -15,15 +15,15 @@ describe("Text Widget Functionality", function() {
   });
 
   it("Text-TextStyle Heading, Text Name Validation", function() {
-    //Changing the text label
-    cy.testCodeMirror(this.data.TextLabelValue);
-
     //changing the Text Name and verifying
     cy.widgetText(
       this.data.TextName,
       widgetsPage.textWidget,
       widgetsPage.textWidget + " " + commonlocators.widgetNameTag,
     );
+
+    //Changing the text label
+    cy.testCodeMirror(this.data.TextLabelValue);
 
     cy.ChangeTextStyle(
       this.data.TextHeading,

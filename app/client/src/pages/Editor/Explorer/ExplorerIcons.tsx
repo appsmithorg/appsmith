@@ -10,6 +10,7 @@ import {
   HTTP_METHODS,
   HTTP_METHOD_COLOR_MAP,
 } from "constants/ApiEditorConstants";
+import { Icon } from "@blueprintjs/core";
 
 const ENTITY_ICON_SIZE = 14;
 
@@ -29,6 +30,10 @@ export const pageIcon = (
     height={ENTITY_ICON_SIZE}
     color={Colors.ALTO}
   />
+);
+
+export const homePageIcon = (
+  <Icon icon="home" iconSize={ENTITY_ICON_SIZE} color={Colors.JUNGLE_GREEN} />
 );
 
 const WidgetIcon = MenuIcons.WIDGETS_COLORED_ICON;
