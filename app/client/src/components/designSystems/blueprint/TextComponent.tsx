@@ -87,17 +87,32 @@ class TextComponent extends React.Component<TextComponentProps> {
     const { textStyle, text, ellipsize, textAlign } = this.props;
     return (
       <TextContainer>
-        <StyledText
-          scroll={!!this.props.shouldScroll}
-          textAlign={textAlign}
-          className={this.getTextClass(textStyle)}
-          ellipsize={ellipsize}
-        >
-          <Interweave
-            content={text}
-            matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
-          />
-        </StyledText>
+        {textStyle === "HEADING" ? (
+          <h3 className={this.getTextClass(textStyle)}>
+            <StyledText
+              scroll={!!this.props.shouldScroll}
+              textAlign={textAlign}
+              ellipsize={ellipsize}
+            >
+              <Interweave
+                content={text}
+                matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
+              />
+            </StyledText>
+          </h3>
+        ) : (
+          <StyledText
+            scroll={!!this.props.shouldScroll}
+            textAlign={textAlign}
+            className={this.getTextClass(textStyle)}
+            ellipsize={ellipsize}
+          >
+            <Interweave
+              content={text}
+              matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
+            />
+          </StyledText>
+        )}
       </TextContainer>
     );
   }
