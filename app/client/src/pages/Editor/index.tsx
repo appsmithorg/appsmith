@@ -26,6 +26,7 @@ import {
   Hotkey,
   Hotkeys,
   HotkeysTarget,
+  Spinner,
 } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
@@ -34,6 +35,7 @@ import {
   ENTITY_EXPLORER_SEARCH_LOCATION_HASH,
 } from "constants/Explorer";
 import history from "utils/history";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -123,7 +125,13 @@ class Editor extends Component<Props> {
     });
   };
   public render() {
-    if (!this.props.isEditorInitialized || !this.state.registered) return null;
+    if (!this.props.isEditorInitialized || !this.state.registered) {
+      return (
+        <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
+          <Spinner />
+        </CenteredWrapper>
+      );
+    }
     return (
       <DndProvider
         backend={TouchBackend}

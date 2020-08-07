@@ -7,7 +7,7 @@ import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 const ExplorerSearchWrapper = styled.div`
   display: grid;
   grid-template-columns: 30px 1fr 30px;
-  margin: 0;
+  margin-bottom: 5px;
   height: 48px;
   justify-content: flex-start;
   align-items: center;
@@ -25,25 +25,41 @@ const ExplorerSearchWrapper = styled.div`
       display: flex;
       justify-content: center;
       align-items: center;
-      &:last-of-type:hover {
-        color: ${Colors.WHITE};
+      &:last-of-type {
+        color: ${Colors.MINE_SHAFT};
       }
     }
     input {
+      display: flex;
+      border: none;
       background: none;
-      border: 1px solid transparent;
-      padding: 5px 10px;
-      margin-left: 10px;
+      padding: 0px 10px 0px 10px;
       color: ${Colors.WHITE};
       &::placeholder {
         color: ${Colors.DOVE_GRAY};
       }
       &:focus {
         background: ${Colors.COD_GRAY};
-        border-color: ${Colors.TIA_MARIA};
+        & ~ div.underline {
+          width: 100%;
+        }
+        & ~ .${Classes.ICON} {
+          color: ${Colors.WHITE};
+        }
       }
     }
   }
+`;
+
+const Underline = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 0%;
+  height: 1px;
+  background: ${Colors.TIA_MARIA};
+  bottom: 0;
+  transition: width 0.3s ease-in;
 `;
 /*eslint-disable react/display-name */
 export const ExplorerSearch = forwardRef(
@@ -58,6 +74,7 @@ export const ExplorerSearch = forwardRef(
           ref={ref}
         />
         <Icon icon="cross" iconSize={12} onClick={props.clear} />
+        <Underline className="underline" />
       </ExplorerSearchWrapper>
     );
   },

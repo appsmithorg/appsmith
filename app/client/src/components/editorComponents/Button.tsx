@@ -65,7 +65,7 @@ const StyledButton = styled((props: IButtonProps & Partial<ButtonProps>) => (
 `;
 const StyledAnchorButton = styled(
   (props: IButtonProps & Partial<ButtonProps>) => (
-    <BlueprintButton
+    <BlueprintAnchorButton
       {...omit(props, ["iconAlignment", "fluid", "filled", "outline"])}
     />
   ),

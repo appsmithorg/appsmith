@@ -2,7 +2,7 @@ import React, { useCallback, memo } from "react";
 import { Page } from "constants/ReduxActionConstants";
 import { WidgetTree } from "../Widgets/WidgetEntity";
 import Entity, { EntityClassNames } from "../Entity";
-import { pageIcon } from "../ExplorerIcons";
+import { pageIcon, homePageIcon } from "../ExplorerIcons";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { getActionGroups } from "../Actions/helpers";
@@ -39,9 +39,10 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
       isDefaultPage={props.page.isDefault}
     />
   );
+  const icon = props.page.isDefault ? homePageIcon : pageIcon;
   return (
     <Entity
-      icon={pageIcon}
+      icon={icon}
       name={props.page.pageName}
       className="page"
       step={props.step}

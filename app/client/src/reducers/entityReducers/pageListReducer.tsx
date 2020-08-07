@@ -59,7 +59,16 @@ const pageListReducer = createReducer(initialState, {
       state.applicationId === action.payload.applicationId &&
       state.defaultPageId !== action.payload.pageId
     ) {
-      return { ...state, defaultPageId: action.payload.pageId };
+      const pageList = state.pages.map(page => {
+        if (page.pageId === state.defaultPageId) page.isDefault = false;
+        if (page.pageId === action.payload.pageId) page.isDefault = true;
+        return page;
+      });
+      return {
+        ...state,
+        pages: pageList,
+        defaultPageId: action.payload.pageId,
+      };
     }
     return state;
   },
