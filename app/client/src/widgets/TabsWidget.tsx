@@ -2,11 +2,12 @@ import React from "react";
 import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory, { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { generateReactKey } from "utils/generators";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
+import { EventType } from "constants/ActionConstants";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -21,6 +22,14 @@ class TabsWidget extends BaseWidget<
 
   onTabChange = (tabId: string) => {
     this.updateWidgetMetaProperty("selectedTabId", tabId);
+    if (this.props.onTabSelected) {
+      super.executeAction({
+        dynamicString: this.props.onTabSelected,
+        event: {
+          type: EventType.ON_TAB_CHANGE,
+        },
+      });
+    }
   };
 
   static getDerivedPropertiesMap() {
@@ -32,6 +41,12 @@ class TabsWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedTab: "defaultTab",
+    };
+  }
+
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onTabSelected: true,
     };
   }
 
@@ -175,6 +190,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
   shouldShowTabs: boolean;
   children: T[];
   snapColumns?: number;
+  onTabSelected?: string;
   snapRows?: number;
   defaultTab: string;
   selectedTabId: string;
