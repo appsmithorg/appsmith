@@ -73,7 +73,9 @@ export const Table = (props: TableProps) => {
     columns: props.columns,
     actions: props.columnActions,
   });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const data = React.useMemo(() => props.data, [dataString]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const columns = React.useMemo(() => props.columns, [columnString]);
   const pageCount = Math.ceil(data.length / props.pageSize) || 1;
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;

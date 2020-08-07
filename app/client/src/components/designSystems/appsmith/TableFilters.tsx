@@ -14,7 +14,7 @@ import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledW
 import Button from "components/editorComponents/Button";
 import CascadeFields, {
   Operator,
-  operators,
+  OperatorTypes,
 } from "components/designSystems/appsmith/CascadeFields";
 import { isString } from "lodash";
 import moment from "moment";
@@ -66,7 +66,7 @@ const TableFilters = (props: TableFilterProps) => {
     if (filters.length === 0) {
       filters.push({
         column: "",
-        operator: "or",
+        operator: OperatorTypes.OR,
         value: "",
         condition: "",
       });
@@ -76,7 +76,7 @@ const TableFilters = (props: TableFilterProps) => {
 
   const addFilter = () => {
     const updatedFilters = [...props.filters];
-    let operator = operators.or;
+    let operator: Operator = OperatorTypes.OR;
     if (updatedFilters.length >= 2) {
       operator = updatedFilters[1].operator;
     }

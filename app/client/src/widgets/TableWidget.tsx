@@ -27,6 +27,10 @@ import {
   compare,
 } from "components/designSystems/appsmith/TableFilters";
 import moment from "moment";
+import {
+  OperatorTypes,
+  Operator,
+} from "components/designSystems/appsmith/CascadeFields";
 
 function sortTableFunction(
   tableData: object[],
@@ -277,15 +281,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { filters } = this.props;
     return tableData.filter((item: { [key: string]: any }) => {
       if (!filters || filters.length === 0) return true;
-      const filterOperator = filters.length >= 2 ? filters[1].operator : "";
-      let filter = filterOperator === "and" ? true : false;
+      const filterOperator: Operator =
+        filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
+      let filter = filterOperator === OperatorTypes.AND ? true : false;
       for (let i = 0; i < filters.length; i++) {
         const filterValue = compare(
           item[filters[i].column],
           filters[i].value,
           filters[i].condition,
         );
-        if (filterOperator === "and") {
+        if (filterOperator === OperatorTypes.AND) {
           filter = filter && filterValue;
         } else {
           filter = filter || filterValue;

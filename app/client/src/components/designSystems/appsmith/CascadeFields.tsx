@@ -75,17 +75,18 @@ const DropdownTrigger = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  &&& div {
-    width: 100%;
-    color: ${Colors.OXFORD_BLUE};
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-right: 5px;
-  }
   &&& span {
     margin-right: 0;
   }
+`;
+
+const AutoToolTipComponentWrapper = styled(AutoToolTipComponent)`
+  width: 100%;
+  color: ${Colors.OXFORD_BLUE};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 5px;
 `;
 
 const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
@@ -136,18 +137,36 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
+  number: [
+    { label: "is equal to", value: "isEqualTo", type: "input" },
+    { label: "not equal to", value: "notEqualTo", type: "input" },
+    { label: "greater than", value: "greaterThan", type: "input" },
+    {
+      label: "greater than or equal to",
+      value: "greaterThanEqualTo",
+      type: "input",
+    },
+    { label: "less than", value: "lessThan", type: "input" },
+    {
+      label: "less than or equal to",
+      value: "lessThanEqualTo",
+      type: "input",
+    },
+    { label: "empty", value: "empty", type: "" },
+    { label: "not empty", value: "notEmpty", type: "" },
+  ],
 };
 
-export type Operator = "or" | "and";
+export enum OperatorTypes {
+  OR = "OR",
+  AND = "AND",
+}
 
-export const operators: { [key: string]: Operator } = {
-  or: "or",
-  and: "and",
-};
+export type Operator = keyof typeof OperatorTypes;
 
 const operatorOptions: DropdownOption[] = [
-  { label: "or", value: "or", type: "" },
-  { label: "and", value: "and", type: "" },
+  { label: "or", value: OperatorTypes.OR, type: "" },
+  { label: "and", value: OperatorTypes.AND, type: "" },
 ];
 
 const RenderOptions = (props: {
@@ -177,11 +196,9 @@ const RenderOptions = (props: {
     trigger: {
       content: (
         <DropdownTrigger>
-          <div>
-            <AutoToolTipComponent title={selectedValue}>
-              {selectedValue}
-            </AutoToolTipComponent>
-          </div>
+          <AutoToolTipComponentWrapper title={selectedValue}>
+            {selectedValue}
+          </AutoToolTipComponentWrapper>
           <Icon icon="chevron-down" iconSize={16} color={Colors.SLATE_GRAY} />
         </DropdownTrigger>
       ),
@@ -362,8 +379,9 @@ const CascadeField = (props: CascadeFieldProps) => {
 };
 
 const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
+  const { index, removeFilter, applyFilter } = props;
   const [state, dispatch] = React.useReducer(CaseCaseFieldReducer, props.state);
-  const removeFilter = () => {
+  const handleRemoveFilter = () => {
     dispatch({ type: CascadeFieldActionTypes.DELETE_FILTER });
   };
   const selectColumn = (column: DropdownOption) => {
@@ -393,18 +411,18 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
   const selectOperator = (option: DropdownOption) => {
     dispatch({
       type: CascadeFieldActionTypes.SELECT_OPERATOR,
-      payload: operators[option.value],
+      payload: OperatorTypes[option.value as Operator],
     });
   };
 
   useEffect(() => {
     const { operator, column, condition, value, isDeleted, isUpdate } = state;
     if (!isDeleted && isUpdate) {
-      props.applyFilter({ operator, column, condition, value }, props.index);
+      applyFilter({ operator, column, condition, value }, index);
     } else if (isDeleted) {
-      props.removeFilter(props.index);
+      removeFilter(index);
     }
-  }, [state]);
+  }, [state, index, applyFilter, removeFilter]);
 
   useEffect(() => {
     dispatch({
@@ -426,12 +444,12 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
   return (
     <FieldWrapper>
       <StyledRemoveIcon
-        onClick={removeFilter}
+        onClick={handleRemoveFilter}
         height={16}
         width={16}
-        color="#4A545B"
+        color={Colors.RIVER_BED}
       />
-      {props.index === 1 ? (
+      {index === 1 ? (
         <DropdownWrapper width={75}>
           <RenderOptions
             columns={operatorOptions}
@@ -441,9 +459,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
           />
         </DropdownWrapper>
       ) : (
-        <LabelWrapper>
-          {props.index === 0 ? "Where" : props.operator}
-        </LabelWrapper>
+        <LabelWrapper>{index === 0 ? "Where" : props.operator}</LabelWrapper>
       )}
       <DropdownWrapper width={150}>
         <RenderOptions
