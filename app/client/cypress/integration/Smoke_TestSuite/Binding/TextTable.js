@@ -4,6 +4,12 @@ const dsl = require("../../../fixtures/TextTabledsl.json");
 const pages = require("../../../locators/Pages.json");
 
 describe("Text-Table Binding Functionality", function() {
+  Cypress.on("uncaught:exception", (err, runnable) => {
+    // returning false here prevents Cypress from
+    // failing the test
+    return false;
+  });
+
   before(() => {
     cy.addDsl(dsl);
   });
@@ -37,8 +43,8 @@ describe("Text-Table Binding Functionality", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
-    cy.isSelectRow(2);
     cy.get(pages.widgetsEditor).click();
+    cy.isSelectRow(2);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.selectedRow.email}}");
     /**

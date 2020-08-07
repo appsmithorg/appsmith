@@ -12,5 +12,6 @@
     "addEntityAPI": "//div[contains(@class,'t--entity group apis')]//div[contains(@class,'t--entity-add-btn')]",
     "entityWidget": ".t--entity-name:contains('Widgets')",
     "entityTable": ".t--entity-name:contains('Table1')",
-    "entiryText": ".t--entity-name:contains('Text1')"
+    "entityText": ".t--entity-name:contains('Text1')",
+    "entityExplorer": ".t--nav-link-entity-explorer"
   }

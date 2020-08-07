@@ -57,5 +57,7 @@
   "singleSelectMenuItem": ".bp3-menu-item.single-select div",
   "selectMenuItem": ".bp3-menu li>a>div",
   "evaluatedType": ".t--CodeEditor-evaluatedValue>pre",
-  "evaluatedCurrentValue": ".t--CodeEditor-evaluatedValue div pre"
+  "evaluatedCurrentValue": ".t--CodeEditor-evaluatedValue div pre",
+  "entityExplorersearch": "#entity-explorer-search",
+  "entitySearchResult": ".t--entity-name:contains('"
 }
