@@ -8,6 +8,7 @@ import {
   PopoverInteractionKind,
   Icon,
   IPopoverSharedProps,
+  MaybeElement,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { MenuIcons } from "icons/MenuIcons";
@@ -51,8 +52,8 @@ export type CustomizedDropdownProps = {
   modifiers?: IPopoverSharedProps["modifiers"];
 };
 
-export const getIcon = (icon?: string, intent?: Intent) => {
-  if (icon) {
+export const getIcon = (icon?: string | MaybeElement, intent?: Intent) => {
+  if (icon && typeof icon === "string") {
     if (MenuIcons[icon]) {
       return MenuIcons[icon]({
         color: IntentColors[intent || "secondary"],
