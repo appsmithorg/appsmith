@@ -574,6 +574,7 @@ export const theme: Theme = {
     FontFamilies.DMSans,
     FontFamilies.AppsmithWidget,
     FontFamilies.FiraCode,
+    FontFamilies.HomePageRedesign,
   ],
   borders: [
     {

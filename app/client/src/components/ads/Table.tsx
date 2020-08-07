@@ -88,7 +88,7 @@ function Table(props: any) {
     headerGroups,
     rows,
     prepareRow,
-  } = useTable({ columns, data, disableSortRemove: true }, useSortBy);
+  } = useTable({ columns, data }, useSortBy);
 
   return (
     <Styles>
@@ -102,7 +102,7 @@ function Table(props: any) {
                   key={index}
                 >
                   {column.render("Header")}
-                  {column.canSort ? (
+                  {column.isSorted ? (
                     column.isSortedDesc ? (
                       " 🔼"
                     ) : (

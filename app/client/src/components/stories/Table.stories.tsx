@@ -10,36 +10,28 @@ export default {
 
 const columns = [
   {
-    width: 1000,
     Header: "NAME",
     accessor: "col1", // accessor is the "key" in the data
-    disableSortBy: true,
   },
   {
     Header: "EMAIL ID",
     accessor: "col2",
-    disableSortBy: true,
   },
   {
     Header: "ROLE",
     accessor: "col3",
-    disableSortBy: false,
-    width: 50,
   },
   {
     Header: "ACCESS LEVEL",
     accessor: "col4",
-    disableSortBy: true,
   },
   {
     Header: "STATUS",
     accessor: "col5",
-    disableSortBy: false,
   },
   {
     Header: "DELETE",
     accessor: "col6",
-    disableSortBy: true,
   },
 ];
 
