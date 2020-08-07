@@ -242,11 +242,9 @@ public class RestApiPlugin extends BasePlugin {
                 ));
             }
 
-            Object requestBodyAsObject = null;
-
             if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
                 try {
-                    requestBodyAsObject = objectFromJson(requestBodyAsString);
+                    objectFromJson(requestBodyAsString);
                 } catch (JsonSyntaxException e) {
                     return Mono.error(new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
@@ -255,14 +253,10 @@ public class RestApiPlugin extends BasePlugin {
                 }
             }
 
-            if (requestBodyAsObject == null) {
-                requestBodyAsObject = requestBodyAsString;
-            }
-
             return webClient
                     .method(httpMethod)
                     .uri(uri)
-                    .body(BodyInserters.fromObject(requestBodyAsObject))
+                    .body(BodyInserters.fromObject(requestBodyAsString))
                     .exchange()
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                     .flatMap(response -> {
