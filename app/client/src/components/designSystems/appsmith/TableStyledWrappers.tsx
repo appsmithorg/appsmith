@@ -1,4 +1,4 @@
-import styled, { AnyStyledComponent } from "styled-components";
+import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 
