@@ -9,7 +9,6 @@ import QueryHomeScreen from "./QueryHomeScreen";
 import { deleteAction, runAction } from "actions/actionActions";
 import { AppState } from "reducers";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { Plugin } from "api/PluginApi";
 import { Datasource } from "api/DatasourcesApi";
 import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
@@ -64,7 +63,7 @@ type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
 
 class QueryEditor extends React.Component<Props> {
   componentDidMount() {
-    this.props.initQueryPane(QUERY_CONSTANT, this.props.match.params.queryId);
+    this.props.changeQueryPage(this.props.match.params.queryId);
   }
   handleDeleteClick = () => {
     const { queryId } = this.props.match.params;

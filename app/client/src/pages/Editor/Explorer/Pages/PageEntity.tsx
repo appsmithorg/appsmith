@@ -1,7 +1,6 @@
 import React, { useCallback, memo } from "react";
 import { Page } from "constants/ReduxActionConstants";
 import { WidgetTree } from "../Widgets/WidgetEntity";
-import { GenericAction } from "entities/Action";
 import Entity, { EntityClassNames } from "../Entity";
 import { pageIcon } from "../ExplorerIcons";
 import { useParams } from "react-router";
@@ -12,12 +11,13 @@ import history from "utils/history";
 import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
+import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 
 type ExplorerPageEntityProps = {
   page: Page;
   isCurrentPage: boolean;
   widgets?: WidgetTree;
-  actions: GenericAction[];
+  actions: DataTreeAction[];
   step: number;
   searchKeyword?: string;
 };

@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { apiIcon, queryIcon, MethodTag } from "../ExplorerIcons";
-import { PluginType, GenericAction } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import { QUERIES_EDITOR_URL, API_EDITOR_URL } from "constants/routes";
 import {
@@ -13,6 +13,7 @@ import {
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerActionsGroup from "./ActionsGroup";
 import { ExplorerURLParams } from "../helpers";
+import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 
 export type ActionGroupConfig = {
   groupName: string;
@@ -89,14 +90,14 @@ export const ACTION_PLUGIN_MAP: Array<
 // APIs, Queries, etc.
 export const getActionGroups = (
   page: Page,
-  actions: GenericAction[],
+  actions: DataTreeAction[],
   step: number,
   searchKeyword?: string,
 ) => {
   return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
     if (!config) return null;
     const entries = actions.filter(
-      (entry: GenericAction) => entry.pluginType === config?.type,
+      (entry: DataTreeAction) => entry.pluginType === config?.type,
     );
     if (entries.length === 0 && !!searchKeyword) return null;
 
