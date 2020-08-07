@@ -60,7 +60,7 @@ export interface DataTreeWidget extends WidgetProps {
 
 export interface DataTreeAppsmith {
   user: AuthUserState;
-  url: UrlDataState;
+  URL: UrlDataState;
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
 }
 
@@ -207,7 +207,7 @@ export class DataTreeFactory {
     dataTree.appsmith = {
       ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
       user: authUser,
-      url,
+      URL: url,
     };
     return dataTree;
   }
