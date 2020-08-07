@@ -4,13 +4,14 @@ import { Page } from "constants/ReduxActionConstants";
 import { ExplorerURLParams, getActionIdFromURL } from "../helpers";
 import { ActionGroupConfig } from "./helpers";
 import { useParams } from "react-router";
-import { GenericAction, ApiActionConfig } from "entities/Action";
+import { ApiActionConfig } from "entities/Action";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import history from "utils/history";
+import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 
 type ExplorerActionsGroupProps = {
-  actions: GenericAction[];
+  actions: DataTreeAction[];
   step: number;
   searchKeyword?: string;
   config: ActionGroupConfig;
@@ -18,7 +19,7 @@ type ExplorerActionsGroupProps = {
 };
 export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
   const params = useParams<ExplorerURLParams>();
-  let childNode: ReactNode = props.actions.map((action: GenericAction) => {
+  let childNode: ReactNode = props.actions.map((action: DataTreeAction) => {
     const url = props.config?.getURL(
       params.applicationId,
       props.page.pageId,

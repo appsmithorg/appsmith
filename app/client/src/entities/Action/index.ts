@@ -1,5 +1,4 @@
 import { Datasource } from "api/DatasourcesApi";
-import { DataTreeAction } from "../DataTree/dataTreeFactory";
 
 export enum PluginType {
   API = "API",
@@ -90,11 +89,3 @@ export interface RapidApiAction extends Action {
 export interface QueryAction extends Action {
   actionConfiguration: Partial<QueryActionConfig>;
 }
-
-// export interface GenericAction {
-//   isLoading: boolean;
-//   config: RestAction | RapidApiAction | QueryAction;
-//   data?: any;
-// }
-
-export type GenericAction = DataTreeAction;

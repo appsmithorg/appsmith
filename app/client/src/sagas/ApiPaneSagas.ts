@@ -1,7 +1,7 @@
 /**
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
-import _ from "lodash";
+import { get, omit } from "lodash";
 import { all, select, put, takeEvery, call } from "redux-saga/effects";
 import {
   ReduxAction,
@@ -117,18 +117,35 @@ function* initializeExtraFormDataSaga() {
   const { extraformData } = state.ui.apiPane;
   const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
-  const headers = _.get(values, "actionConfiguration.headers");
+  const headers = get(
+    values,
+    "actionConfiguration.headers",
+    DEFAULT_API_ACTION.actionConfiguration?.headers,
+  );
 
+  const queryParameters = get(values, "actionConfiguration.queryParameters");
   if (!extraformData[values.id]) {
-    if (headers) {
+    yield put(
+      change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
+    );
+    if (queryParameters.length === 0)
       yield put(
-        change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
+        change(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.queryParameters",
+          DEFAULT_API_ACTION.actionConfiguration?.queryParameters,
+        ),
       );
-    }
   }
 }
 
 function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
+  // // Typescript says Element does not have blur function but it does;
+  // document.activeElement &&
+  //   "blur" in document.activeElement &&
+  //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  //   // @ts-ignore
+  //   document.activeElement.blur();
   const { id } = actionPayload.payload;
   const action = yield select(getAction, id);
   if (!action) return;
@@ -188,11 +205,11 @@ function* updateFormFields(
       }
     }
   } else if (field.includes("actionConfiguration.headers")) {
-    const actionConfigurationHeaders = _.get(
+    const actionConfigurationHeaders = get(
       values,
       "actionConfiguration.headers",
     );
-    const apiId = _.get(values, "id");
+    const apiId = get(values, "id");
     let displayFormat;
 
     if (actionConfigurationHeaders) {
@@ -234,7 +251,7 @@ function* formValueChangeSaga(
     actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
     actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
   ) {
-    const value = _.get(values, field);
+    const value = get(values, field);
     yield put(
       setActionProperty({
         actionId: values.id,
@@ -264,7 +281,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   const data = { ...action };
 
   if (pluginType === "API") {
-    yield put(initialize(API_EDITOR_FORM_NAME, _.omit(data, "name")));
+    yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     history.push(

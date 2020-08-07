@@ -9,13 +9,13 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { Page } from "constants/ReduxActionConstants";
 import { WidgetTree } from "../Widgets/WidgetEntity";
-import { GenericAction } from "entities/Action";
 import ExplorerPageEntity from "./PageEntity";
+import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 
 type ExplorerPageGroupProps = {
   pages: Page[];
   widgets?: (WidgetTree | undefined)[];
-  actions: GenericAction[];
+  actions: DataTreeAction[];
   currentPageId?: string;
   searchKeyword?: string;
   step: number;
@@ -41,7 +41,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
             (tree?: WidgetTree) => tree && tree.pageId === page.pageId,
           );
           const actions = props.actions.filter(
-            (action: GenericAction & { pageId?: string }) =>
+            (action: DataTreeAction & { pageId?: string }) =>
               action.pageId === page.pageId,
           );
           if (
