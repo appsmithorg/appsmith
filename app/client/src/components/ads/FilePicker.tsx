@@ -3,8 +3,14 @@ import styled from "styled-components";
 import Button, { Category, Size } from "./Button";
 import axios from "axios";
 import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg";
+import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
+import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 
-const StyledDiv = styled("div")<{ isUploaded: boolean }>`
+const StyledDiv = styled("div")<{
+  isUploaded: boolean;
+  isActive: boolean;
+  canDrop: boolean;
+}>`
   width: 320px;
   height: 190px;
   background-color: rgba(35, 35, 36, 0.8);
@@ -14,6 +20,17 @@ const StyledDiv = styled("div")<{ isUploaded: boolean }>`
     display: none;
   }
 
+  .drag-drop-text {
+    margin: ${props => props.theme.spaces[6]}px 0
+      ${props => props.theme.spaces[6]}px 0;
+    font-size: ${props => props.theme.typography.p2.fontSize}px;
+    line-height: ${props => props.theme.typography.p2.lineHeight}px;
+    font-weight: normal;
+    font-style: normal;
+    color: ${props => props.theme.colors.blackShades[7]};
+    font-family: ${props => props.theme.fonts[3]};
+  }
+
   .bg-image {
     width: 100%;
     height: 100%;
@@ -21,7 +38,6 @@ const StyledDiv = styled("div")<{ isUploaded: boolean }>`
     place-items: center;
     background-repeat: no-repeat;
     background-size: cover;
-    /* background-size: 320px 190px; */
   }
 
   .file-description {
@@ -62,11 +78,9 @@ const StyledDiv = styled("div")<{ isUploaded: boolean }>`
   }
 
   .button-wrapper {
-    text-align: center;
-
-    svg {
-      margin-bottom: 10px;
-    }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .hoverDiv {
@@ -96,9 +110,22 @@ const StyledDiv = styled("div")<{ isUploaded: boolean }>`
   }
 `;
 
-function FilePicker() {
-  const [filee, setFilee] = useState<any>({ name: "", size: 0 });
+function FilePickerComponent() {
+  const [filee, setFilee] = useState<{ name: string; size: number }>({
+    name: "",
+    size: 0,
+  });
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
+  const [{ canDrop, isOver }, drop] = useDrop({
+    accept: [NativeTypes.FILE],
+    drop(item, monitor) {
+      onDrop(monitor);
+    },
+    collect: monitor => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
@@ -112,17 +139,26 @@ function FilePicker() {
     }
   }, []);
 
-  function ButtonClick(e: any) {
-    e.preventDefault();
+  function ButtonClick(event: React.MouseEvent<HTMLElement>) {
+    event.preventDefault();
     if (inputRef.current) {
       inputRef.current.click();
     }
   }
 
-  function handlee(el: any) {
-    console.log("e", el.target.files);
-    const file = el.target.files[0];
-    setFilee({ name: file.name, size: Math.floor(file.size / 1024) });
+  function onDrop(monitor: DropTargetMonitor) {
+    if (monitor) {
+      const files = monitor.getItem().files;
+      fileUploader(files);
+    }
+  }
+
+  function fileUploader(files: FileList | null) {
+    const file = files && files[0];
+
+    if (file) {
+      setFilee({ name: file.name, size: Math.floor(file.size / 1024) });
+    }
 
     if (bgRef.current) {
       bgRef.current.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
@@ -139,7 +175,9 @@ function FilePicker() {
     /* set form data and send api request */
     const formData = new FormData();
     formData.append("upload_preset", "zrawdjtc");
-    formData.append("file", file);
+    if (file) {
+      formData.append("file", file);
+    }
 
     axios
       .post(
@@ -149,7 +187,7 @@ function FilePicker() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          onUploadProgress: function(progressEvent: any) {
+          onUploadProgress: function(progressEvent: ProgressEvent) {
             const uploadPercentage = Math.round(
               (progressEvent.loaded / progressEvent.total) * 100,
             );
@@ -177,25 +215,34 @@ function FilePicker() {
 
   function removeImage() {
     if (fileContainerRef.current && bgRef.current) {
-      fileContainerRef.current.style.display = "block";
+      fileContainerRef.current.style.display = "flex";
       bgRef.current.style.backgroundImage = "url('')";
       bgRef.current.style.backgroundColor = "rgba(35,35,36,0.8)";
       setIsUploaded(false);
     }
   }
 
+  const isActive = canDrop && isOver;
+
   return (
-    <StyledDiv isUploaded={isUploaded}>
+    <StyledDiv
+      isActive={isActive}
+      canDrop={canDrop}
+      isUploaded={isUploaded}
+      ref={drop}
+    >
       <div ref={bgRef} className="bg-image">
         <div className="button-wrapper" ref={fileContainerRef}>
           <UploadIcon />
+          {/* will change below span with text component */}
+          <span className="drag-drop-text">Drag & Drop files to upload or</span>
           <form>
             <input
               type="file"
               id="fileElem"
               multiple={false}
               ref={inputRef}
-              onChange={el => handlee(el)}
+              onChange={el => fileUploader(el.target.files)}
             />
             <Button
               text={"Browse"}
@@ -225,6 +272,14 @@ function FilePicker() {
         ></Button>
       </div>
     </StyledDiv>
+  );
+}
+
+function FilePicker() {
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <FilePickerComponent />
+    </DndProvider>
   );
 }
 
