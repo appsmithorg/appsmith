@@ -67,6 +67,7 @@ class RichTextEditorWidget extends BaseWidget<
   };
 
   getPageView() {
+    console.log(this.props.text);
     return (
       <Suspense fallback={<Skeleton />}>
         <RichtextEditorComponent
