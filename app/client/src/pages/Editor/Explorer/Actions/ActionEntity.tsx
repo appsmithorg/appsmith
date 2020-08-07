@@ -2,10 +2,10 @@ import React, { ReactNode, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history from "utils/history";
-import { GenericAction } from "@appsmith/entities/Action";
 import { saveActionName } from "actions/actionActions";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import EntityProperty from "../Entity/EntityProperty";
+import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -41,7 +41,7 @@ const getActionProperties = (action: any, step: number) => {
 };
 
 type ExplorerActionEntityProps = {
-  action: GenericAction;
+  action: DataTreeAction;
   url: string;
   icon: ReactNode;
   active: boolean;
