@@ -6,6 +6,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { generateReactKey } from "utils/generators";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import _ from "lodash";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -14,13 +15,25 @@ class TabsWidget extends BaseWidget<
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       tabs: VALIDATION_TYPES.TABS_DATA,
-      selectedTab: VALIDATION_TYPES.SELECTED_TAB,
+      defaultTab: VALIDATION_TYPES.SELECTED_TAB,
     };
   }
 
   onTabChange = (tabId: string) => {
     this.updateWidgetMetaProperty("selectedTabId", tabId);
   };
+
+  static getDerivedPropertiesMap() {
+    return {
+      selectedTab: `{{_.find(this.tabs, { id: this.selectedTabId }).label}}`,
+    };
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      selectedTab: "defaultTab",
+    };
+  }
 
   getPageView() {
     return (
@@ -125,27 +138,23 @@ class TabsWidget extends BaseWidget<
         }
       }
     }
-    if (this.props.selectedTab) {
-      if (this.props.selectedTab !== prevProps.selectedTab) {
-        let selectedTabId = "";
-        for (let index = 0; index < this.props.tabs.length; index++) {
-          if (this.props.tabs[index].label === this.props.selectedTab) {
-            selectedTabId = this.props.tabs[index].id;
-          }
-        }
+    if (this.props.defaultTab) {
+      if (this.props.defaultTab !== prevProps.defaultTab) {
+        const selectedTab = _.find(this.props.tabs, {
+          label: this.props.defaultTab,
+        });
+        const selectedTabId = selectedTab ? selectedTab.id : undefined;
         this.updateWidgetMetaProperty("selectedTabId", selectedTabId);
       }
     }
   }
 
   componentDidMount() {
-    if (this.props.selectedTab) {
-      let selectedTabId = "";
-      for (let index = 0; index < this.props.tabs.length; index++) {
-        if (this.props.tabs[index].label === this.props.selectedTab) {
-          selectedTabId = this.props.tabs[index].id;
-        }
-      }
+    if (this.props.defaultTab) {
+      const selectedTab = _.find(this.props.tabs, {
+        label: this.props.defaultTab,
+      });
+      const selectedTabId = selectedTab ? selectedTab.id : undefined;
       this.updateWidgetMetaProperty("selectedTabId", selectedTabId);
     }
   }
@@ -167,7 +176,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
   children: T[];
   snapColumns?: number;
   snapRows?: number;
-  selectedTab: string;
+  defaultTab: string;
   selectedTabId: string;
 }
 
