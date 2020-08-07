@@ -121,9 +121,9 @@ const TableHeader = (props: TableHeaderProps) => {
       )}
       {!props.serverSidePaginationEnabled && (
         <PaginationWrapper>
-          <RowWrapper>
-            Showing {props.currentPageIndex + 1}-{props.pageCount} items
-          </RowWrapper>
+          {/*<RowWrapper>*/}
+          {/*  Showing {props.currentPageIndex + 1}-{props.pageCount} items*/}
+          {/*</RowWrapper>*/}
           <PaginationItemWrapper
             disabled={props.currentPageIndex === 0}
             onClick={() => {
