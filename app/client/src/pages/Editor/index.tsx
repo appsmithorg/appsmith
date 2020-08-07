@@ -18,6 +18,7 @@ import {
   getIsEditorLoading,
   getLoadingError,
   getIsEditorInitialized,
+  getIsPublishingApplication,
 } from "selectors/editorSelectors";
 import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
@@ -126,6 +127,7 @@ class Editor extends Component<Props> {
 const mapStateToProps = (state: AppState) => ({
   currentApplicationId: getCurrentApplicationId(state),
   currentPageId: getCurrentPageId(state),
+  isPublishing: getIsPublishingApplication(state),
   errorPublishing: getPublishingError(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),

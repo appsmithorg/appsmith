@@ -52,9 +52,13 @@ const Spinner = styled.div`
   }
 `;
 
-const ThreeDotLoading = () => {
+type Props = {
+  className?: string;
+};
+
+const ThreeDotLoading = (props: Props) => {
   return (
-    <Spinner>
+    <Spinner className={props.className}>
       <div className="bounce1" />
       <div className="bounce2" />
       <div className="bounce3" />

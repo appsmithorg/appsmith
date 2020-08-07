@@ -161,15 +161,25 @@ export const EditorHeader = (props: EditorHeaderProps) => {
 
   let saveStatusIcon: React.ReactNode;
   if (isSaving) {
-    saveStatusIcon = <ThreeDotLoading />;
+    saveStatusIcon = <ThreeDotLoading className="t--save-status-is-saving" />;
   } else {
     if (!pageSaveError) {
       saveStatusIcon = (
-        <HeaderIcons.SAVE_SUCCESS color={"#36AB80"} height={20} width={20} />
+        <HeaderIcons.SAVE_SUCCESS
+          color={"#36AB80"}
+          height={20}
+          width={20}
+          className="t--save-status-success"
+        />
       );
     } else {
       saveStatusIcon = (
-        <HeaderIcons.SAVE_FAILURE color={"#F69D2C"} height={20} width={20} />
+        <HeaderIcons.SAVE_FAILURE
+          color={"#F69D2C"}
+          height={20}
+          width={20}
+          className={"t--save-status-error"}
+        />
       );
     }
   }
@@ -189,7 +199,9 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         <PageName>{pageName}&nbsp;</PageName>
       </HeaderSection>
       <HeaderSection>
-        <SaveStatusContainer>{saveStatusIcon}</SaveStatusContainer>
+        <SaveStatusContainer className={"t--save-status-container"}>
+          {saveStatusIcon}
+        </SaveStatusContainer>
         <ShareButton
           target="_blank"
           href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=feedback@appsmith.com&tf=1"
