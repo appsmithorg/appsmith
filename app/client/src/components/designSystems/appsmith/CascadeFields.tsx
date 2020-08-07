@@ -299,13 +299,7 @@ export enum CascadeFieldActionTypes {
   DELETE_FILTER = "DELETE_FILTER",
 }
 
-type CascadeFieldAction =
-  | "SELECT_COLUMN"
-  | "SELECT_CONDITION"
-  | "CHANGE_VALUE"
-  | "SELECT_OPERATOR"
-  | "UPDATE_FILTER"
-  | "DELETE_FILTER";
+type CascadeFieldAction = keyof typeof CascadeFieldActionTypes;
 
 function CaseCaseFieldReducer(
   state: CascadeFieldState,
