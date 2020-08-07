@@ -73,7 +73,7 @@ class RichTextEditorWidget extends BaseWidget<
       <Suspense fallback={<Skeleton />}>
         <RichtextEditorComponent
           onValueChange={this.onValueChange}
-          defaultValue={this.props.text || this.props.defaultText}
+          defaultValue={this.props.text || ""}
           widgetId={this.props.widgetId}
           placeholder={this.props.placeholder}
           key={this.props.widgetId}
