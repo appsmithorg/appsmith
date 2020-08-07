@@ -35,6 +35,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
       filteredTableData: VALIDATION_TYPES.TABLE_DATA,
+      defaultSearchText: VALIDATION_TYPES.TEXT,
     };
   }
   static getDerivedPropertiesMap() {
@@ -50,9 +51,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo: 1,
       pageSize: undefined,
       selectedRowIndex: -1,
-      searchText: "",
+      searchText: undefined,
       // The following meta property is used for rendering the table.
       filteredTableData: [],
+    };
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      searchText: "defaultSearchText",
     };
   }
 
@@ -225,6 +232,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (pageSize !== this.props.pageSize) {
       super.updateWidgetMetaProperty("pageSize", pageSize);
     }
+    console.log({
+      search: this.props.searchText,
+      defaultSearch: this.props.defaultSearchText,
+    });
     // /*
     return (
       <Suspense fallback={<Skeleton />}>
@@ -372,6 +383,7 @@ export interface TableWidgetProps extends WidgetProps {
   prevPageKey?: string;
   label: string;
   searchText: string;
+  defaultSearchText: string;
   tableData: object[];
   onPageChange?: string;
   pageSize: number;
