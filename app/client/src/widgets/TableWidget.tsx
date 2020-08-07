@@ -24,6 +24,55 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 
+function sortTableFunction(
+  tableData: object[],
+  columns: ReactTableColumnProps[],
+  sortedColumn: string,
+  sortOrder: boolean,
+) {
+  const columnType =
+    columns.find(
+      (column: ReactTableColumnProps) => column.accessor === sortedColumn,
+    )?.metaProperties?.type || ColumnTypes.TEXT;
+  return tableData.sort(
+    (a: { [key: string]: any }, b: { [key: string]: any }) => {
+      if (a[sortedColumn] !== undefined && b[sortedColumn] !== undefined) {
+        switch (columnType) {
+          case ColumnTypes.CURRENCY:
+          case ColumnTypes.NUMBER:
+            return sortOrder
+              ? Number(a[sortedColumn]) > Number(b[sortedColumn])
+                ? 1
+                : -1
+              : Number(b[sortedColumn]) > Number(a[sortedColumn])
+              ? 1
+              : -1;
+          case ColumnTypes.DATE:
+            return sortOrder
+              ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
+                ? 1
+                : -1
+              : moment(b[sortedColumn]).isAfter(a[sortedColumn])
+              ? 1
+              : -1;
+          default:
+            return sortOrder
+              ? a[sortedColumn].toString().toUpperCase() >
+                b[sortedColumn].toString().toUpperCase()
+                ? 1
+                : -1
+              : b[sortedColumn].toString().toUpperCase() >
+                a[sortedColumn].toString().toUpperCase()
+              ? 1
+              : -1;
+        }
+      } else {
+        return sortOrder ? 1 : 0;
+      }
+    },
+  );
+}
+
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -76,6 +125,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
     if (tableData.length) {
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
+      const sortedColumn = this.props.sortedColumn;
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
         const columnName: string =
@@ -95,6 +145,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           minWidth: 60,
           draggable: true,
           isHidden: false,
+          isAscOrder:
+            sortedColumn && sortedColumn.column === i
+              ? sortedColumn.asc
+              : undefined,
           metaProperties: {
             isHidden: isHidden,
             type: columnType.type,
@@ -142,9 +196,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   transformData = (tableData: object[], columns: ReactTableColumnProps[]) => {
+    let sortedTableData = [];
+    if (this.props.sortedColumn) {
+      const sortedColumn = this.props.sortedColumn.column;
+      const sortOrder = this.props.sortedColumn.asc;
+      sortedTableData = sortTableFunction(
+        tableData,
+        columns,
+        sortedColumn,
+        sortOrder,
+      );
+    } else {
+      sortedTableData = [...tableData];
+    }
     const updatedTableData = [];
-    for (let row = 0; row < tableData.length; row++) {
-      const data: { [key: string]: any } = tableData[row];
+    for (let row = 0; row < sortedTableData.length; row++) {
+      const data: { [key: string]: any } = sortedTableData[row];
       const tableRow: { [key: string]: any } = {};
       for (let colIndex = 0; colIndex < columns.length; colIndex++) {
         const column = columns[colIndex];
@@ -280,6 +347,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.disableDrag(disable);
           }}
           searchTableData={this.handleSearchTable}
+          sortTableColumn={(column: string, asc: boolean) => {
+            this.resetSelectedRowIndex();
+            super.updateWidgetMetaProperty("sortedColumn", {
+              column: column,
+              asc: asc,
+            });
+          }}
         />
       </Suspense>
     );
@@ -385,6 +459,10 @@ export interface TableWidgetProps extends WidgetProps {
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: { [key: string]: { type: string; format: string } };
   columnSizeMap?: { [key: string]: number };
+  sortedColumn?: {
+    column: string;
+    asc: boolean;
+  };
 }
 
 export default TableWidget;
