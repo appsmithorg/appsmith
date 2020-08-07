@@ -8,7 +8,6 @@ import {
   LOGIN_FORM_PASSWORD_FIELD_NAME,
 } from "constants/forms";
 import { FORGOT_PASSWORD_URL, SIGN_UP_URL } from "constants/routes";
-import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 import {
   LOGIN_PAGE_SUBTITLE,
   LOGIN_PAGE_TITLE,
@@ -48,6 +47,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { TncPPLinks } from "./SignUp";
+import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
@@ -87,6 +87,11 @@ export const Login = (props: LoginFormProps) => {
     showError = true;
   }
 
+  let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
+  if (queryParams.has("redirectTo")) {
+    loginURL += `?redirectUrl=${queryParams.get("redirectTo")}`;
+  }
+
   let forgotPasswordURL = `${FORGOT_PASSWORD_URL}`;
   if (props.emailValue && !isEmptyString(props.emailValue)) {
     forgotPasswordURL += `?email=${props.emailValue}`;
@@ -112,7 +117,7 @@ export const Login = (props: LoginFormProps) => {
         <h5>{LOGIN_PAGE_SUBTITLE}</h5>
       </AuthCardHeader>
       <AuthCardBody>
-        <SpacedSubmitForm method="POST" action={"/api/v1/" + LOGIN_SUBMIT_PATH}>
+        <SpacedSubmitForm method="POST" action={loginURL}>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
@@ -158,7 +163,7 @@ export const Login = (props: LoginFormProps) => {
         {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
       </AuthCardNavLink>
       <AuthCardFooter>
-        <TncPPLinks></TncPPLinks>
+        <TncPPLinks />
       </AuthCardFooter>
     </AuthCardContainer>
   );

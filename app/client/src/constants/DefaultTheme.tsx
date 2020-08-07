@@ -376,7 +376,7 @@ export const theme: Theme = {
   },
   evaluatedValuePopup: {
     width: 300,
-    height: 400,
+    height: 500,
   },
   drawerWidth: "80%",
   colors: {
@@ -387,6 +387,7 @@ export const theme: Theme = {
     secondaryDarker: Colors.CONCRETE,
     secondaryDarkest: Colors.MERCURY,
     error: Colors.RED,
+    errorMessage: Colors.ERROR_RED,
     info: Colors.SLATE_GRAY,
     hover: Colors.POLAR,
     inputActiveBorder: Colors.HIT_GRAY,
@@ -414,8 +415,8 @@ export const theme: Theme = {
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
     notification: Colors.JAFFA,
-    bindingTextDark: Colors.SOFT_ORANGE,
-    bindingText: Colors.PURE_ORANGE,
+    bindingTextDark: Colors.BINDING_COLOR,
+    bindingText: Colors.BINDING_COLOR_LT,
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
   },
@@ -563,6 +564,24 @@ export const theme: Theme = {
     },
   },
 };
+
+export const scrollbarLight = css`
+  scrollbar-color: ${props => props.theme.colors.paneText}
+
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneText, 0.3)};
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.paneText};
+    border-radius: ${props => props.theme.radii[1]}px;
+  }
+`;
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
 export default styled;

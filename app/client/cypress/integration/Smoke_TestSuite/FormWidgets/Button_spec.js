@@ -29,7 +29,7 @@ describe("Button Widget Functionality", function() {
     cy.EvaluateDataType("string");
     cy.EvaluateCurrentValue(this.data.ButtonLabel);
 
-    cy.xpath(homePage.homePageID).contains("All changes saved");
+    cy.assertPageSave();
 
     //Verify the Button name and label
     cy.get(widgetsPage.buttonWidget).trigger("mouseover");
