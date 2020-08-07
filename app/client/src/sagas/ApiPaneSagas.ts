@@ -117,14 +117,22 @@ function* initializeExtraFormDataSaga() {
   const { extraformData } = state.ui.apiPane;
   const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
-  const headers = _.get(values, "actionConfiguration.headers");
-
+  const headers =
+    _.get(values, "actionConfiguration.headers") ||
+    DEFAULT_API_ACTION.actionConfiguration?.headers;
+  const queryParameters = _.get(values, "actionConfiguration.queryParameters");
   if (!extraformData[values.id]) {
-    if (headers) {
+    yield put(
+      change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
+    );
+    if (queryParameters.length === 0)
       yield put(
-        change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
+        change(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.queryParameters",
+          DEFAULT_API_ACTION.actionConfiguration?.queryParameters,
+        ),
       );
-    }
   }
 }
 
