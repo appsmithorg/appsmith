@@ -59,16 +59,12 @@ function Hit(props: any) {
       }}
     >
       <div className="hit-name t--docHitTitle">
-        <StyledDocumentIcon
-          width={11.2}
-          height={14}
-          color="#181F24"
-        ></StyledDocumentIcon>
+        <StyledDocumentIcon width={11.2} height={14} color="#181F24" />
         <Highlight attribute="title" hit={props.hit} />
         <StyledOpenLinkIcon
           className="t--docOpenLink open-link"
           color={"#181F24"}
-        ></StyledOpenLinkIcon>
+        />
       </div>
     </div>
   );
@@ -79,6 +75,7 @@ Hit.propTypes = {
 };
 
 const Header = styled.div`
+  padding: 5px;
   position: absolute;
   width: 100%;
   border-top-right-radius: 3px;
@@ -217,29 +214,10 @@ const StyledPoweredBy = styled(PoweredBy)`
 `;
 
 export default function DocumentationSearch(props: { hitsPerPage: number }) {
-  const dispatch = useDispatch();
   const defaultRefinement = useSelector(getDefaultRefinement);
   if (!algolia.enabled) return null;
   return (
     <SearchContainer className="ais-InstantSearch t--docSearchModal">
-      <Icon
-        className="t--docsMinimize"
-        style={{
-          position: "absolute",
-          top: 4,
-          right: 6,
-          padding: 8,
-          cursor: "pointer",
-          zIndex: 1,
-        }}
-        icon="minus"
-        color="white"
-        iconSize={14}
-        onClick={() => {
-          dispatch(setHelpModalVisibility(false));
-          dispatch(setHelpDefaultRefinement(""));
-        }}
-      ></Icon>
       <div
         style={{
           height: "100%",
@@ -252,35 +230,9 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
         >
           <Configure hitsPerPage={props.hitsPerPage} />
           <Header>
-            <h3
-              style={{
-                padding: "0 69px",
-                marginTop: "14px",
-                marginBottom: "14px",
-                lineHeight: "14px",
-              }}
-            >
-              <span
-                style={{
-                  textAlign: "center",
-                  color: "white",
-                  position: "relative",
-                  fontWeight: 500,
-                  fontSize: "14px",
-                  lineHeight: "14px",
-                  letterSpacing: "0.2px",
-                  margin: "0 auto",
-                  width: "121px",
-                }}
-              >
-                Documentation
-              </span>
-            </h3>
-            <StyledPoweredBy></StyledPoweredBy>
-            <SearchBox defaultRefinement={defaultRefinement}></SearchBox>
+            <StyledPoweredBy />
+            <SearchBox defaultRefinement={defaultRefinement} />
           </Header>
-
-          <Hits hitComponent={Hit as any} />
         </InstantSearch>
       </div>
     </SearchContainer>
