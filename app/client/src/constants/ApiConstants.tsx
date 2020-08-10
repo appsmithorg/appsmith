@@ -20,6 +20,7 @@ export const GoogleOAuthURL = `${OAuthURL}/google`;
 export const GithubOAuthURL = `${OAuthURL}/github`;
 
 export const LOGIN_SUBMIT_PATH = "login";
+export const SIGNUP_SUBMIT_PATH = "users";
 
 export interface APIException {
   error: number;
