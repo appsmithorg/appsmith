@@ -1,8 +1,13 @@
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
+import { TableSizes } from "components/designSystems/appsmith/Table";
 
-export const TableWrapper = styled.div<{ width: number; height: number }>`
+export const TableWrapper = styled.div<{
+  width: number;
+  height: number;
+  tableSizes: TableSizes;
+  tableRowHeight?: number;
+}>`
   width: 100%;
   height: 100%;
   background: white;
@@ -24,7 +29,8 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     position: relative;
     overflow-y: auto;
     /* Subtracting 9px to handling widget padding */
-    height: ${props => props.height - TABLE_SIZES.TABLE_HEADER_HEIGHT - 9}px;
+    height: ${props =>
+      props.height - props.tableSizes.TABLE_HEADER_HEIGHT - 9}px;
     .thead,
     .tbody {
       overflow: hidden;
@@ -77,8 +83,14 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
       background: ${Colors.ATHENS_GRAY_DARKER};
     }
     .td {
-      height: 52px;
-      line-height: 52px;
+      height: ${props =>
+        props.tableRowHeight
+          ? props.tableRowHeight
+          : props.tableSizes.ROW_HEIGHT}px;
+      line-height: ${props =>
+        props.tableRowHeight
+          ? props.tableRowHeight
+          : props.tableSizes.ROW_HEIGHT}px;
       padding: 0 10px;
     }
   }
@@ -263,7 +275,7 @@ export const TableHeaderWrapper = styled.div<{
   width: number;
 }>`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
   min-width: ${props =>
@@ -276,7 +288,7 @@ export const TableHeaderWrapper = styled.div<{
 export const CommonFunctionsMenuWrapper = styled.div`
   display: flex;
   align-items: center;
-  height: 100%;
+  height: 60px;
 `;
 
 export const RowWrapper = styled.div`

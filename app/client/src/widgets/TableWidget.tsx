@@ -20,6 +20,10 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/ValidationFactory";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import {
+  CompactMode,
+  CompactModeTypes,
+} from "components/designSystems/appsmith/TableCompactMode";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
@@ -245,8 +249,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               }
               if (isValidDate) {
                 tableRow[accessor] = moment(value).format(format);
-              } else {
+              } else if (value) {
                 tableRow[accessor] = "Invalid Value";
+              } else {
+                tableRow[accessor] = "";
               }
               break;
             case ColumnTypes.TIME:
@@ -259,8 +265,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               }
               if (isValidTime) {
                 tableRow[accessor] = moment(value).format("HH:mm");
-              } else {
+              } else if (value) {
                 tableRow[accessor] = "Invalid Value";
+              } else {
+                tableRow[accessor] = "";
               }
               break;
             default:
@@ -289,12 +297,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    const pageSize = Math.floor(
+    const tableSizes =
+      TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
+    let pageSize = Math.floor(
       (componentHeight -
-        TABLE_SIZES.TABLE_HEADER_HEIGHT -
-        TABLE_SIZES.COLUMN_HEADER_HEIGHT) /
-        TABLE_SIZES.ROW_HEIGHT,
+        tableSizes.TABLE_HEADER_HEIGHT -
+        tableSizes.COLUMN_HEADER_HEIGHT) /
+        tableSizes.ROW_HEIGHT,
     );
+    if (
+      componentHeight -
+        (tableSizes.TABLE_HEADER_HEIGHT +
+          tableSizes.COLUMN_HEADER_HEIGHT +
+          tableSizes.ROW_HEIGHT * pageSize) >
+      10
+    )
+      pageSize += 1;
 
     if (pageSize !== this.props.pageSize) {
       super.updateWidgetMetaProperty("pageSize", pageSize);
@@ -354,6 +372,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.disableDrag(disable);
           }}
           searchTableData={this.handleSearchTable}
+          compactMode={this.props.compactMode}
+          updateCompactMode={(compactMode: CompactMode) => {
+            super.updateWidgetMetaProperty("compactMode", compactMode);
+          }}
           sortTableColumn={(column: string, asc: boolean) => {
             this.resetSelectedRowIndex();
             super.updateWidgetMetaProperty("sortedColumn", {
@@ -467,6 +489,7 @@ export interface TableWidgetProps extends WidgetProps {
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: { [key: string]: { type: string; format: string } };
   columnSizeMap?: { [key: string]: number };
+  compactMode?: CompactMode;
   sortedColumn?: {
     column: string;
     asc: boolean;

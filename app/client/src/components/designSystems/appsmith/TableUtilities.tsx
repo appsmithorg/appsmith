@@ -347,7 +347,9 @@ export const renderCell = (
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
-      if (!isString(value)) {
+      if (!value) {
+        return <CellWrapper isHidden={isHidden}></CellWrapper>;
+      } else if (!isString(value)) {
         return (
           <CellWrapper isHidden={isHidden}>
             <div>Invalid Image </div>
@@ -384,7 +386,9 @@ export const renderCell = (
       );
     case ColumnTypes.VIDEO:
       const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
-      if (isString(value) && youtubeRegex.test(value)) {
+      if (!value) {
+        return <CellWrapper isHidden={isHidden}></CellWrapper>;
+      } else if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper isHidden={isHidden} className="video-cell">
             <VideoComponent url={value} />
