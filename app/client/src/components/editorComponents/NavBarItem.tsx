@@ -57,7 +57,7 @@ const ItemContainer = styled.div`
         background: ${Colors.TUNDORA};
         color: ${props => props.theme.colors.textOnDarkBG};
         & > div {
-          background-color: ${props => props.theme.colors.primary};
+          background-color: ${props => props.theme.colors.primaryOld};
           svg path {
             fill: ${props => props.theme.colors.textOnDarkBG};
           }

@@ -24,7 +24,7 @@ const Dropdown = Select.ofType<ContextDropdownOption>();
 
 const StyledMenuItem = styled(MenuItem)`
   &&&&.bp3-menu-item:hover {
-    background: ${props => props.theme.colors.primary};
+    background: ${props => props.theme.colors.primaryOld};
     color: ${props => props.theme.colors.textOnDarkBG};
   }
   &&&.bp3-menu-item.bp3-intent-danger:hover {
