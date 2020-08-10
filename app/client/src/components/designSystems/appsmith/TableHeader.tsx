@@ -10,11 +10,12 @@ import {
 } from "./TableStyledWrappers";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
-import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+import TableFilters, {
+  ReactTableFilter,
+} from "components/designSystems/appsmith/TableFilters";
+import { ReactTableColumnProps, CompactMode } from "widgets/TableWidget";
 import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
-import TableCompactMode, {
-  CompactMode,
-} from "components/designSystems/appsmith/TableCompactMode";
+import TableCompactMode from "components/designSystems/appsmith/TableCompactMode";
 import { Colors } from "constants/Colors";
 
 const PageNumberInputWrapper = styled(NumericInput)`
@@ -74,6 +75,8 @@ interface TableHeaderProps {
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
+  filters?: ReactTableFilter[];
+  applyFilter: (filters: ReactTableFilter[]) => void;
   displayColumnActions: boolean;
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
@@ -92,6 +95,11 @@ const TableHeader = (props: TableHeaderProps) => {
         onSearch={props.searchTableData}
       />
       <CommonFunctionsMenuWrapper>
+        <TableFilters
+          columns={props.columns}
+          filters={props.filters}
+          applyFilter={props.applyFilter}
+        />
         <TableDataDownload
           data={props.tableData}
           columns={props.tableColumns}

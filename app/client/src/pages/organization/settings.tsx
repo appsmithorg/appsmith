@@ -2,8 +2,7 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Icon } from "@blueprintjs/core";
 import { TableWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
-import { CompactModeTypes } from "components/designSystems/appsmith/TableCompactMode";
-import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
+import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
 import { AppState } from "reducers";
 import {
   getAllUsers,

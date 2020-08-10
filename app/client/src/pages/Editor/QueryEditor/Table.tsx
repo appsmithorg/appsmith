@@ -5,8 +5,7 @@ import {
 } from "components/designSystems/appsmith/TableStyledWrappers";
 import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
-import { CompactModeTypes } from "components/designSystems/appsmith/TableCompactMode";
-import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
+import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
 
 interface TableProps {
   data: Record<string, any>[];
