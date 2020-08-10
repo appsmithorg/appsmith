@@ -97,7 +97,9 @@ const useWidgetExpandList = (
         // Keep including the parent until we reach the main container
         while (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
           widgetIdsExpandList.push(widgetId);
-          widgetId = canvasWidgets[widgetId].parentId;
+          if (canvasWidgets[widgetId] && canvasWidgets[widgetId].parentId)
+            widgetId = canvasWidgets[widgetId].parentId;
+          else break;
         }
       }
     }
