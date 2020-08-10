@@ -47,13 +47,13 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   -ms-overflow-style: none;
   background-color: ${props => THEMES[props.colorTheme].backgroundColor};
   color: ${props => THEMES[props.colorTheme].textColor};
-  padding: 15px;
+  padding: 10px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 4px;
 `;
 
 const CurrentValueWrapper = styled.div`
-  max-height: 150px;
+  max-height: 300px;
   overflow-y: auto;
   ::-webkit-scrollbar {
     display: none;
@@ -63,12 +63,14 @@ const CurrentValueWrapper = styled.div`
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   padding: 10px;
+  margin: 0px 0px;
   background-color: ${props => THEMES[props.colorTheme].editorBackground};
   color: ${props => THEMES[props.colorTheme].editorColor};
   overflow: scroll;
   ::-webkit-scrollbar {
     display: none;
   }
+  font-size: 14px;
   -ms-overflow-style: none;
   white-space: pre-wrap;
 `;
@@ -81,15 +83,22 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
   ::-webkit-scrollbar {
     display: none;
   }
+  font-size: 12px;
+  margin: 5px 0;
   -ms-overflow-style: none;
 `;
 
 const ErrorText = styled.p`
-  margin: 10px 0;
+  margin: 5px 0;
   padding: 5px;
   border-radius: 2px;
-  background-color: rgba(235, 87, 87, 0.2);
-  color: ${props => props.theme.colors.error};
+  font-size: 13px;
+  background-color: rgba(226, 44, 4, 0.1);
+  color: ${props => props.theme.colors.errorMessage};
+`;
+
+const StyledTitle = styled.p`
+  margin: 8px 0;
 `;
 
 interface Props {
@@ -123,13 +132,13 @@ const CurrentValueViewer = (props: {
       Array.isArray(props.evaluatedValue)
     ) {
       const reactJsonProps = {
-        theme: props.theme === EditorTheme.DARK ? "monokai" : "rjv-default",
+        theme: props.theme === EditorTheme.DARK ? "summerfruit" : "rjv-default",
         name: null,
         enableClipboard: false,
         displayObjectSize: false,
         displayDataTypes: false,
         style: {
-          fontSize: "14px",
+          fontSize: "12px",
         },
         collapsed: 2,
         collapseStringsAfterLength: 20,
@@ -145,7 +154,7 @@ const CurrentValueViewer = (props: {
   }
   return (
     <React.Fragment>
-      <p>Current Value:</p>
+      <StyledTitle>Evaluated Value</StyledTitle>
       <CurrentValueWrapper>{content}</CurrentValueWrapper>
     </React.Fragment>
   );
@@ -160,11 +169,11 @@ const PopoverContent = (props: PopoverContentProps) => {
       className="t--CodeEditor-evaluatedValue"
     >
       {props.hasError && (
-        <ErrorText>{`This value does not evaluate to type "${props.expected}"`}</ErrorText>
+        <ErrorText>{`This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}</ErrorText>
       )}
-      {props.expected && (
+      {!props.hasError && props.expected && (
         <React.Fragment>
-          <p>Expected type:</p>
+          <StyledTitle>Expected Data Type</StyledTitle>
           <TypeText colorTheme={props.theme}>{props.expected}</TypeText>
         </React.Fragment>
       )}
@@ -207,7 +216,7 @@ const EvaluatedValuePopup = (props: Props) => {
             expected={props.expected}
             evaluatedValue={props.evaluatedValue}
             hasError={props.hasError}
-            theme={props.theme}
+            theme={EditorTheme.DARK}
             onMouseLeave={() => {
               setContentHovered(false);
             }}

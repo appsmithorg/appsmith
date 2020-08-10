@@ -93,7 +93,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Organization> organizationMono = organizationService.findById(organizationId);
+        Mono<Organization> organizationMono = organizationService.getById(organizationId);
 
         return organizationMono
                 .flatMapMany(org -> {
@@ -124,8 +124,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 })
                 .flatMap(plugin ->
                         getTemplates(plugin)
-                            .doOnSuccess(plugin::setTemplates)
-                            .thenReturn(plugin)
+                                .doOnSuccess(plugin::setTemplates)
+                                .thenReturn(plugin)
                 );
     }
 
@@ -168,7 +168,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
         //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
         Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
-                                                                                pluginDTO.getPluginId());
+                pluginDTO.getPluginId());
 
         return organizationMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, pluginDTO.getPluginId())))
@@ -215,7 +215,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                                         .subscribe();
                             })
                             //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the organization
-                            .then(organizationService.findById(pluginDTO.getOrganizationId()))
+                            .then(organizationService.getById(pluginDTO.getOrganizationId()))
                             .flatMap(organization -> {
 
                                 List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
@@ -296,17 +296,14 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     @Override
     public Mono<Map> getFormConfig(String pluginId) {
         if (!formCache.containsKey(pluginId)) {
-            final Mono<Map> mono = loadPluginResource(pluginId, "form.json")
-                    .flatMap(jsonStream -> Mono.fromSupplier(() -> {
-                        try {
-                            return new ObjectMapper().readValue(jsonStream, Map.class);
-                        } catch (IOException e) {
-                            log.error("Error loading form JSON for plugin " + pluginId, e);
-                            throw Exceptions.propagate(
-                                    new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage())
-                            );
-                        }
-                    }))
+            final Mono<Map> formMono = loadPluginResource(pluginId, "form.json")
+                    .doOnError(throwable ->
+                            // Remove this pluginId from the cache so it is tried again next time.
+                            formCache.remove(pluginId)
+                    )
+                    .onErrorMap(Exceptions::unwrap)
+                    .cache();
+            final Mono<Map> editorMono = loadPluginResource(pluginId, "editor.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId)
@@ -314,7 +311,15 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     .onErrorMap(Exceptions::unwrap)
                     .cache();
 
-            formCache.put(pluginId, mono);
+            Mono<Map> resourceMono = Mono.zip(formMono, editorMono)
+                    .map(tuple -> {
+                        Map formMap = tuple.getT1();
+                        Map editorMap = tuple.getT2();
+                        formMap.putAll(editorMap);
+                        return formMap;
+                    });
+
+            formCache.put(pluginId, resourceMono);
         }
 
         return formCache.get(pluginId);
@@ -368,7 +373,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     templates.put(filename.replaceFirst("\\.\\w+$", ""), templateContent);
                 }
             } catch (IOException e) {
-                log.error("Error loading template " + filename + " for plugin " + plugin.getId());
+                log.error("Error loading template {} for plugin {}", filename, plugin.getId());
                 throw Exceptions.propagate(e);
             }
         }
@@ -377,19 +382,25 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<InputStream> loadPluginResource(String pluginId, String resourcePath) {
+    public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
                 .flatMap(plugin -> {
-                    InputStream formResourceStream = pluginManager
+                    InputStream resourceAsStream = pluginManager
                             .getPlugin(plugin.getPackageName())
                             .getPluginClassLoader()
                             .getResourceAsStream(resourcePath);
 
-                    if (formResourceStream == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "Resource not found"));
+                    if (resourceAsStream == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "Form Resource not found"));
                     }
 
-                    return Mono.just(formResourceStream);
+                    try {
+                        Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
+                        return Mono.just(resourceMap);
+                    } catch (IOException e) {
+                        log.error("Error loading resource JSON for pluginId {} and resourcePath {}", pluginId, resourcePath, e);
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage()));
+                    }
                 });
     }
 }

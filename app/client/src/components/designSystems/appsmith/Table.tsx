@@ -69,7 +69,7 @@ export const Table = (props: TableProps) => {
   const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
   const columns = React.useMemo(() => props.columns, [
     JSON.stringify(props.columns),
-    props.columnActions,
+    JSON.stringify(props.columnActions),
   ]);
   const {
     getTableProps,
