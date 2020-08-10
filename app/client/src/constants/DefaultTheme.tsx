@@ -376,7 +376,7 @@ export const theme: Theme = {
   },
   evaluatedValuePopup: {
     width: 300,
-    height: 400,
+    height: 500,
   },
   drawerWidth: "80%",
   colors: {
@@ -387,6 +387,7 @@ export const theme: Theme = {
     secondaryDarker: Colors.CONCRETE,
     secondaryDarkest: Colors.MERCURY,
     error: Colors.RED,
+    errorMessage: Colors.ERROR_RED,
     info: Colors.SLATE_GRAY,
     hover: Colors.POLAR,
     inputActiveBorder: Colors.HIT_GRAY,
@@ -566,7 +567,7 @@ export const theme: Theme = {
 
 export const scrollbarLight = css`
   scrollbar-color: ${props => props.theme.colors.paneText}
-    
+
   scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 6px;

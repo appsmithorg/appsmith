@@ -8,6 +8,7 @@ import QueryEditorForm from "./Form";
 import QueryHomeScreen from "./QueryHomeScreen";
 import { deleteAction, runAction } from "actions/actionActions";
 import { AppState } from "reducers";
+import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin } from "api/PluginApi";
 import { Datasource } from "api/DatasourcesApi";
@@ -53,6 +54,7 @@ type ReduxStateProps = {
   pluginImages: Record<string, string>;
   editorConfig: [];
   loadingFormConfigs: boolean;
+  isEditorInitialized: boolean;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -87,6 +89,7 @@ class QueryEditor extends React.Component<Props> {
       runErrorMessage,
       loadingFormConfigs,
       editorConfig,
+      isEditorInitialized,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 
@@ -96,7 +99,7 @@ class QueryEditor extends React.Component<Props> {
       );
     }
 
-    if (isCreating || isCopying || isMoving) {
+    if (isCreating || isCopying || isMoving || !isEditorInitialized) {
       return (
         <LoadingContainer>
           <Spinner size={30} />
@@ -167,6 +170,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isCreating: state.ui.apiPane.isCreating,
     isMoving: state.ui.apiPane.isMoving,
     isCopying: state.ui.apiPane.isCopying,
+    isEditorInitialized: getIsEditorInitialized(state),
   };
 };
 

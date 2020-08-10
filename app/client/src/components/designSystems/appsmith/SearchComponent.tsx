@@ -19,26 +19,43 @@ const SearchInputWrapper = styled(InputGroup)`
   width: 250px;
 `;
 
-const SearchComponent = (props: SearchProps) => {
-  const [value, setValue] = React.useState(props.value);
-  const handleSearch = (
+class SearchComponent extends React.Component<
+  SearchProps,
+  { localValue: string }
+> {
+  constructor(props: SearchProps) {
+    super(props);
+    this.state = {
+      localValue: props.value,
+    };
+  }
+  componentDidUpdate(prevProps: Readonly<SearchProps>) {
+    // Reset local state if the value has updated via default value
+    if (prevProps.value !== this.props.value) {
+      this.setState({ localValue: this.props.value });
+    }
+  }
+
+  handleSearch = (
     event:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     const search = event.target.value;
-    setValue(search);
-    props.onSearch(search);
+    this.setState({ localValue: search });
+    this.props.onSearch(search);
   };
-  return (
-    <SearchInputWrapper
-      leftIcon="search"
-      type="search"
-      onChange={handleSearch}
-      placeholder={props.placeholder}
-      value={value}
-    />
-  );
-};
+  render() {
+    return (
+      <SearchInputWrapper
+        leftIcon="search"
+        type="search"
+        onChange={this.handleSearch}
+        placeholder={this.props.placeholder}
+        value={this.state.localValue}
+      />
+    );
+  }
+}
 
 export default SearchComponent;

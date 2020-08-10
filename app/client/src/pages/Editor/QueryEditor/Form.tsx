@@ -435,7 +435,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         ) : (
           <ErrorMessage>An unexpected error occurred</ErrorMessage>
         )}
-
         <div className="executeOnLoad">
           <Field
             name="executeOnLoad"

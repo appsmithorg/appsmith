@@ -16,7 +16,6 @@ const SwitchWrapped = styled.div`
   flex-direction: row;
   display: flex;
   align-items: center;
-
   .bp3-control {
     margin-bottom: 0px;
   }

@@ -53,7 +53,6 @@ const DBForm = styled.div`
   margin-right: 0px;
   max-height: 93vh;
   overflow: auto;
-
   .backBtn {
     padding-bottom: 1px;
     cursor: pointer;

@@ -261,3 +261,6 @@ export const isActionDirty = (id: string) =>
   createSelector([getActionDirtyState], actionDirtyMap => {
     return id in actionDirtyMap && actionDirtyMap[id];
   });
+
+export const getAuthUser = (state: AppState) => state.entities.authUser;
+export const getUrl = (state: AppState) => state.entities.url;
