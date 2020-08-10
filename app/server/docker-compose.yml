@@ -34,18 +34,6 @@ services:
     networks:
       - appsmith
 
-  opa:
-    image: openpolicyagent/opa
-    command: "run --server -c /config/config.yml"
-    volumes:
-      - ./appsmith-server/src/main/resources/opa/:/config
-    environment:
-      - APPSMITH_SERVER_URL=http://appsmith-internal-server:8080/public
-    ports:
-      - "8181:8181"
-    networks:
-      - appsmith
-
 networks:
   appsmith:
     driver: bridge

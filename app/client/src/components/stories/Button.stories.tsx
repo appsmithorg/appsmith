@@ -2,7 +2,6 @@ import React from "react";
 import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { action } from "@storybook/addon-actions";
 
 export default {
   title: "Button",
@@ -27,6 +26,5 @@ export const withDynamicProps = () => (
     isLoading={boolean("Loading", false)}
     isDisabled={boolean("Disabled", false)}
     text={text("text", "Get")}
-    onClick={action("Button Clicked")}
   ></Button>
 );

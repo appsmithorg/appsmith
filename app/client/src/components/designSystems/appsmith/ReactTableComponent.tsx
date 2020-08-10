@@ -71,7 +71,6 @@ interface ReactTableComponentProps {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   updatePageNo: Function;
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
-  resetSelectedRowIndex: Function;
   nextPageClick: Function;
   prevPageClick: Function;
   pageNo: number;
@@ -271,8 +270,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   ) => {
     if (!isSelected) {
       props.onRowClick(row.original, row.index);
-    } else {
-      props.resetSelectedRowIndex();
     }
   };
 

@@ -175,8 +175,7 @@ class AnalyticsUtil {
         userData: {
           userId: userData.id,
           email: userData.email,
-          currentOrgId: userData.currentOrganization.id,
-          currentOrgName: userData.currentOrganization.name,
+          currentOrgId: userData.currentOrganizationId,
           appId: appId,
           appName: app ? app.name : undefined,
         },
@@ -194,7 +193,11 @@ class AnalyticsUtil {
     AnalyticsUtil.user = userData;
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
-      windowDoc.analytics.identify(userId, userData);
+      windowDoc.analytics.identify(userId, {
+        email: userData.email,
+        name: userData.name,
+        userId: userId,
+      });
     }
   }
 

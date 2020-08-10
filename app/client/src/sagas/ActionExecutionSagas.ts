@@ -1,4 +1,5 @@
 import {
+  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -77,7 +78,10 @@ function* navigateActionSaga(
 ) {
   const pageList = yield select(getPageList);
   const applicationId = yield select(getCurrentApplicationId);
-  const page = _.find(pageList, { pageName: action.pageNameOrUrl });
+  const page = _.find(
+    pageList,
+    (page: Page) => page.pageName === action.pageNameOrUrl,
+  );
   if (page) {
     AnalyticsUtil.logEvent("NAVIGATE", {
       pageName: action.pageNameOrUrl,
@@ -272,6 +276,11 @@ export function* executeActionSaga(
           event.callback({ success: false });
         }
       }
+      AppToaster.show({
+        message:
+          api.name + " failed to execute. Please check it's configuration",
+        type: "error",
+      });
     } else {
       if (onSuccess) {
         yield put(
@@ -437,10 +446,17 @@ function* runActionSaga(
         type: ReduxActionTypes.RUN_ACTION_SUCCESS,
         payload: { [actionId]: payload },
       });
-      AppToaster.show({
-        message: "Action ran successfully",
-        type: ToastType.SUCCESS,
-      });
+      if (payload.isExecutionSuccess) {
+        AppToaster.show({
+          message: "Action ran successfully",
+          type: ToastType.SUCCESS,
+        });
+      } else {
+        AppToaster.show({
+          message: "Action returned an error response",
+          type: ToastType.WARNING,
+        });
+      }
     } else {
       let error = "An unexpected error occurred";
       if (response.data.body) {
