@@ -166,8 +166,7 @@ Cypress.Commands.add("CreateApp", appname => {
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPropertyPane");
-  cy.get("@getPropertyPane").should("have.property", "status", 200);
+  cy.get("h2").contains("Drag and drop a widget here");
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
@@ -617,7 +616,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Open Popup")
+    .contains("Open Modal")
     .click();
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -629,7 +628,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .children()
     .contains(modalType)
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 
   // changing the model name verify
   cy.widgetText(
@@ -650,21 +649,21 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(widgetsPage.textAlign + " .bp3-menu-item")
     .contains("Center")
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("CheckWidgetProperties", checkboxCss => {
   cy.get(checkboxCss).check({
     force: true,
   });
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("UncheckWidgetProperties", checkboxCss => {
   cy.get(checkboxCss).uncheck({
     force: true,
   });
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add(
@@ -708,7 +707,7 @@ Cypress.Commands.add("PublishtheApp", () => {
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   cy.wait(2000);
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
   cy.get('a[class="bp3-button"]')
@@ -746,6 +745,7 @@ Cypress.Commands.add("testCodeMirror", value => {
           force: true,
           parseSpecialCharSequences: false,
         });
+      cy.wait(200);
       cy.get(".CodeMirror textarea")
         .first()
         .should("have.value", value);
@@ -781,14 +781,14 @@ Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("ClearDate", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Clear")
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("DeleteModal", () => {
@@ -1362,8 +1362,8 @@ Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
     .children("p")
-    .should("contain.text", "Expected type:")
-    .should("contain.text", "Current Value:")
+    .should("contain.text", "Expected Data Type")
+    .should("contain.text", "Evaluated Value")
     .siblings("pre")
     .should("have.text", expectedType);
 });
@@ -1452,4 +1452,8 @@ Cypress.Commands.add("callApi", apiname => {
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
     .click();
+});
+
+Cypress.Commands.add("assertPageSave", () => {
+  cy.get(commonlocators.saveStatusSuccess);
 });

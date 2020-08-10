@@ -33,6 +33,11 @@ Do all this **without HTML/CSS**, and writing any custom integrations.
 
 ------------------
 
+## Example Applications
+
+* [Customer Support Dashboard](https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79#utm_source=github&utm_medium=homepage)
+
+
 ## Why Appsmith?
 
 If we're building an internal tool, our obvious choices are to use an admin panel or if we happen to be blessed with HTML/CSS skills, we might **"bootstrap"** a new project. While this may seem like a great idea at first, internal tools almost always require a ton of iterations and eventually we reach a point where we're either spending a lot of time customising the admin panel or the UI terrifies users so much, they prefer [holding our hand](https://giphy.com/gifs/agentm-agent-m-1gg6pvaqHBv56/fullscreen) every time they try to use it.
@@ -58,9 +63,9 @@ Appsmith provides a better way of building internal tools by visualising them as
 
 If you have encountered a bug or need to get in touch with us, you can contact us using one of the following channels:
 
+* Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
+* Community & Support: [Discord](https://discord.gg/rBTTVJp)
 * Documentation: [Documentation](https://docs.appsmith.com)
-* Support & feedback: [Discord](https://discord.gg/rBTTVJp)
-* Issue & bug tracking: [GitHub issues](https://github.com/appsmithOrg/appsmith/issues)
 
 We are committed to fostering an open and welcoming environment in the community. Please see the [Code of Conduct](CODE_OF_CONDUCT.md).
 

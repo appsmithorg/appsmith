@@ -78,6 +78,7 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      AnalyticsUtil.identifyUser(response.data.username, response.data);
       if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
@@ -85,7 +86,6 @@ export function* getCurrentUserSaga() {
           history.replace(APPLICATIONS_URL);
         }
       }
-
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
