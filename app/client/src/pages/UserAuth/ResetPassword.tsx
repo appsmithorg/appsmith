@@ -12,7 +12,7 @@ import FormMessage, {
   FormMessageProps,
   MessageAction,
 } from "components/editorComponents/form/FormMessage";
-import Spinner from "components/ads/Spinner";
+import Spinner from "components/editorComponents/Spinner";
 import Button from "components/editorComponents/Button";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import StyledForm from "components/editorComponents/Form";

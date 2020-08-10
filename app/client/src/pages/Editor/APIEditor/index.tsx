@@ -25,7 +25,7 @@ import {
 import { Plugin } from "api/PluginApi";
 import { RapidApiAction, RestAction, PaginationType } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
-import Spinner from "components/ads/Spinner";
+import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
