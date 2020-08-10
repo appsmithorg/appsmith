@@ -2,7 +2,7 @@ import React from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { IconName, Icon } from "./Icon";
-import NewSpinner from "./NewSpinner";
+import Spinner from "./Spinner";
 import {
   mediumButton,
   smallButton,
@@ -94,7 +94,7 @@ function hexToRgb(
 //   return new tinycolor(color).lighten(intensity).toString();
 // };
 
-const rgbaIntensity = (color: string, alpha: number) => {
+const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
 };
@@ -168,7 +168,7 @@ const stateStyles = (
         break;
       case Category.secondary:
         if (props.variant) {
-          bgColorSecondary = rgbaIntensity(
+          bgColorSecondary = hexToRgba(
             props.theme.colors[props.variant].main,
             0.1,
           );
@@ -177,7 +177,7 @@ const stateStyles = (
         }
         break;
       case Category.tertiary:
-        bgColorTertiary = rgbaIntensity(props.theme.colors.tertiary.main, 0.1);
+        bgColorTertiary = hexToRgba(props.theme.colors.tertiary.main, 0.1);
         borderColorTertiary = props.theme.colors.tertiary.main;
         txtColorTertiary = props.theme.colors.tertiary.main;
         break;
@@ -193,7 +193,7 @@ const stateStyles = (
         break;
       case Category.secondary:
         if (props.variant) {
-          bgColorSecondary = rgbaIntensity(
+          bgColorSecondary = hexToRgba(
             props.theme.colors[props.variant].main,
             0.1,
           );
@@ -202,7 +202,7 @@ const stateStyles = (
         }
         break;
       case Category.tertiary:
-        bgColorTertiary = rgbaIntensity(props.theme.colors.tertiary.main, 0.1);
+        bgColorTertiary = hexToRgba(props.theme.colors.tertiary.main, 0.1);
         borderColorTertiary = props.theme.colors.tertiary.light;
         txtColorTertiary = props.theme.colors.tertiary.light;
         break;
@@ -282,11 +282,8 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
 const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   border: none;
   outline: none;
-  text-transform: uppercase;;
-  background-color: ${props => {
-    console.log(".................", props);
-    return btnColorStyles(props, "main").bgColor;
-  }};
+  text-transform: uppercase;
+  background-color: ${props => btnColorStyles(props, "main").bgColor};
   color: ${props => btnColorStyles(props, "main").txtColor};
   border: ${props => btnColorStyles(props, "main").border};
   border-radius: ${props => props.theme.radii[0]};
@@ -295,38 +292,38 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   padding: ${props => btnFontStyles(props).padding};
   .ads-icon {
     margin-right: ${props =>
-      props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
-    path {  
+        props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
+      path {
       fill: ${props => btnColorStyles(props, "main").txtColor};
     }
   }
   &:hover {
-    background-color: ${props => btnColorStyles(props, "hover").bgColor}
+    background-color: ${props => btnColorStyles(props, "hover").bgColor};
     color: ${props => btnColorStyles(props, "hover").txtColor};
     border: ${props => btnColorStyles(props, "hover").border};
     cursor: ${props =>
       props.isLoading || props.isDisabled ? `not-allowed` : `pointer`};
     .ads-icon {
       margin-right: ${props =>
-        props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
-      path {  
+          props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
+        path {
         fill: ${props => btnColorStyles(props, "hover").txtColor};
       }
     }
-  };
+  }
   font-style: normal;
   &:active {
-    background-color: ${props => btnColorStyles(props, "active").bgColor}
+    background-color: ${props => btnColorStyles(props, "active").bgColor};
     color: ${props => btnColorStyles(props, "active").txtColor};
     border: ${props => btnColorStyles(props, "active").border};
-    cursor:  ${props =>
+    cursor: ${props =>
       props.isLoading || props.isDisabled ? `not-allowed` : `pointer`};
     .ads-icon {
-      path {  
+      path {
         fill: ${props => btnColorStyles(props, "active").txtColor};
       }
     }
-  };
+  }
   display: flex;
   position: relative;
   .new-spinner {
@@ -375,7 +372,7 @@ function Button(props: ButtonProps) {
 
       {props.text ? (props.isLoading ? TextLoadingState : props.text) : null}
 
-      {props.isLoading ? <NewSpinner size={props.size} /> : null}
+      {props.isLoading ? <Spinner size={props.size} /> : null}
     </StyledButton>
   );
 }

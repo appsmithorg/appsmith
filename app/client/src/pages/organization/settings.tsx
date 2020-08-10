@@ -61,13 +61,19 @@ const StyledDropDown = styled.div`
 `;
 
 const StyledTableWrapped = styled(TableWrapper)`
-  width: 100%;
+  min-height: 0px;
   height: auto;
-  font-size: 14px;
+  .tableWrap {
+    display: flex;
+    flex: 1;
+  }
   .table {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: auto;
     .tbody {
       overflow: auto;
-      height: auto;
     }
   }
 `;
@@ -250,10 +256,10 @@ export const OrgSettings = (props: PageProps) => {
               filled
             />
           }
+          canOutsideClickClose={true}
           Form={InviteUsersFormv2}
           orgId={orgId}
           title={`Invite Users to ${currentOrgName}`}
-          setMaxWidth
         />
       </PageSectionHeader>
       {props.isFetchAllUsers && props.isFetchAllRoles ? (

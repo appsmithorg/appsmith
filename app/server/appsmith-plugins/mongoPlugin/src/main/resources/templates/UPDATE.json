@@ -5,12 +5,7 @@
       "q": {
         "id": 10
       },
-      "u": {
-        "name": "Updated Sam",
-        "email": [
-          "updates@appsmith.com"
-        ]
-      }
+      "u": { "$set": { "status": "{{ statusDropdown.selectedOptionValue }}" } }
     }
   ]
 }

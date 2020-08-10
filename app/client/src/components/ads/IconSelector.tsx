@@ -6,5 +6,5 @@ type IconSelectorProps = CommonComponentProps & {
 };
 
 export default function IconSelector(props: IconSelectorProps) {
-  return "";
+  return null;
 }

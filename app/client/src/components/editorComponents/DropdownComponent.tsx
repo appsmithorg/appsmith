@@ -114,6 +114,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
     }
     return "";
   };
+
   render() {
     return (
       <StyledDropdown

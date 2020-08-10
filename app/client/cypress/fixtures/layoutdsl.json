@@ -139,7 +139,7 @@
                                      "id": "tab2"
                                  }
                              ],
-                             "selectedTab": "Tab 1",
+                             "defaultTab": "Tab 1",
                              "blueprint": {
                                  "view": [
                                      {
@@ -187,6 +187,7 @@
                              "leftColumn": 5,
                              "rightColumn": 13,
                              "topRow": 0,
+                             "shouldShowTabs": true,
                              "bottomRow": 7,
                              "parentId": "xe6a0w50jz",
                              "widgetId": "wuzxcyyjma",

@@ -5,5 +5,5 @@ type ColorSelectorProps = CommonComponentProps & {
 };
 
 export default function ColorSelector(props: ColorSelectorProps) {
-  return "";
+  return null;
 }

@@ -456,38 +456,46 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .flatMap(obj -> obj)
                 .map(obj -> (ActionExecutionResult) obj);
 
-                // Populate the actionExecution result by setting the cached response and saving it to the DB
-                return actionExecutionResultMono.flatMap(result -> {
-                            Mono<ActionExecutionResult> resultMono = Mono.just(result);
-                            if (actionFromDto.getId() == null) {
-                                // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
-                                return resultMono;
-                            }
+        // Populate the actionExecution result by setting the cached response and saving it to the DB
+        return actionExecutionResultMono
+                .flatMap(result -> {
+                    Mono<ActionExecutionResult> resultMono = Mono.just(result);
+                    if (actionFromDto.getId() == null) {
+                        // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
+                        return resultMono;
+                    }
 
-                            Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
-                                    //If the action is found in the db (i.e. it is not a dry run, save the cached response
-                                    .flatMap(action -> {
-                                        // If the plugin execution result is successful, then cache response body in
-                                        // the action and save it.
-                                        if (result.getIsExecutionSuccess()) {
-                                            // Save the result only if body exists in the body. e.g. Even though 204
-                                            // is an execution success, there would be no body expected.
-                                            if (result.getBody() != null) {
-                                                action.setCacheResponse(result.getBody().toString());
-                                                return repository.save(action);
-                                            }
-                                            // No result body exists. Return the action as is.
-                                            return Mono.just(action);
-                                        }
-                                        log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
-                                        return Mono.just(action);
-                                    });
-                            return actionFromDbMono.zipWith(resultMono)
-                                    .map(tuple -> {
-                                        ActionExecutionResult executionResult = tuple.getT2();
-                                        return executionResult;
-                                    });
-                        });
+                    Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
+                            //If the action is found in the db (i.e. it is not a dry run, save the cached response
+                            .flatMap(action -> {
+                                // If the plugin execution result is successful, then cache response body in
+                                // the action and save it.
+                                if (Boolean.TRUE.equals(result.getIsExecutionSuccess())) {
+                                    // Save the result only if body exists in the body. e.g. Even though 204
+                                    // is an execution success, there would be no body expected.
+                                    if (result.getBody() != null) {
+                                        action.setCacheResponse(result.getBody().toString());
+                                        return repository.save(action);
+                                    }
+                                    // No result body exists. Return the action as is.
+                                    return Mono.just(action);
+                                }
+                                log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
+                                return Mono.just(action);
+                            });
+                    return actionFromDbMono.zipWith(resultMono)
+                            .map(tuple -> {
+                                ActionExecutionResult executionResult = tuple.getT2();
+                                return executionResult;
+                            });
+                })
+                .onErrorResume(AppsmithException.class, error -> {
+                    ActionExecutionResult result = new ActionExecutionResult();
+                    result.setIsExecutionSuccess(false);
+                    result.setStatusCode(error.getAppErrorCode().toString());
+                    result.setBody(error.getMessage());
+                    return Mono.just(result);
+                });
     }
 
     @Override
