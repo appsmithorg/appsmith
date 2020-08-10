@@ -37,6 +37,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -106,6 +109,9 @@ public class ExamplesOrganizationClonerTests {
 
     @Autowired
     private LayoutActionService layoutActionService;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     private Plugin installedPlugin;
 
@@ -505,7 +511,7 @@ public class ExamplesOrganizationClonerTests {
                                 layout.setDsl(new JSONObject(Map.of("text", "draft {{ newPageAction.data }}")));
                                 layout.setPublishedDsl(new JSONObject(Map.of("text", "published {{ newPageAction.data }}")));
                                 final DslActionDTO actionDTO = new DslActionDTO();
-                                final HashSet<DslActionDTO> dslActionDTOS = new HashSet(List.of(actionDTO));
+                                final HashSet<DslActionDTO> dslActionDTOS = new HashSet<>(List.of(actionDTO));
                                 layout.setLayoutOnLoadActions(List.of(dslActionDTOS));
                                 newPage.getLayouts().add(layout);
 
@@ -590,14 +596,11 @@ public class ExamplesOrganizationClonerTests {
                             "second application"
                     );
 
-                    final Page newPage = pageService
-                            .findByApplicationId(
-                                    data.applications.stream().filter(app -> app.getName().equals("first application")).findFirst().get().getId(),
-                                    READ_APPLICATIONS
-                            )
-                            .filter(page -> "A New Page".equals(page.getName()))
-                            .blockFirst();
-                    assertThat(newPage.getName()).isEqualTo("A New Page");
+                    final Application firstApplication = data.applications.stream().filter(app -> app.getName().equals("first application")).findFirst().get();
+                    final Page newPage = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("name").is("A New Page")), Page.class);
+                    final String actionId = newPage.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
+                    final Action newPageAction = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), Action.class);
+                    assertThat(newPageAction.getOrganizationId()).isEqualTo(data.organization.getId());
 
                     assertThat(data.datasources).hasSize(2);
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
