@@ -50,7 +50,7 @@ const PageListItemWrapper = styled.div<{ active: boolean }>`
         white-space: nowrap;
       }
       & div > svg > path:first-of-type {
-        fill: ${props => props.theme.colors.primary};
+        fill: ${props => props.theme.colors.primaryOld};
       }
     }
     & .more {

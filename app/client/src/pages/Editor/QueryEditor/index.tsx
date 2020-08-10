@@ -8,7 +8,7 @@ import QueryEditorForm from "./Form";
 import QueryHomeScreen from "./QueryHomeScreen";
 import { deleteAction, runAction } from "actions/actionActions";
 import { AppState } from "reducers";
-import { getDataSources } from "selectors/editorSelectors";
+import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin } from "api/PluginApi";
 import { Datasource } from "api/DatasourcesApi";
@@ -26,6 +26,7 @@ import {
 import { QueryAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { changeQuery, initQueryPane } from "actions/queryPaneActions";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -41,6 +42,8 @@ type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   createTemplate: (template: string) => void;
+  changeQueryPage: (queryId: string) => void;
+  initQueryPane: (pluginType: string, queryId: string) => void;
 };
 
 type ReduxStateProps = {
@@ -52,9 +55,8 @@ type ReduxStateProps = {
   pluginIds: Array<string> | undefined;
   executedQueryData: any;
   isCreating: boolean;
-  isMoving: boolean;
-  isCopying: boolean;
   pluginImages: Record<string, string>;
+  isEditorInitialized: boolean;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -62,6 +64,9 @@ type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
 type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
 
 class QueryEditor extends React.Component<Props> {
+  componentDidMount() {
+    this.props.changeQueryPage(this.props.match.params.queryId);
+  }
   handleDeleteClick = () => {
     const { queryId } = this.props.match.params;
     const { formData } = this.props;
@@ -72,6 +77,12 @@ class QueryEditor extends React.Component<Props> {
     const { match } = this.props;
     this.props.runAction(match.params.queryId);
   };
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.match.params.queryId !== this.props.match.params.queryId) {
+      this.props.changeQueryPage(this.props.match.params.queryId);
+    }
+  }
 
   render() {
     const {
@@ -85,9 +96,8 @@ class QueryEditor extends React.Component<Props> {
       pluginIds,
       executedQueryData,
       isCreating,
-      isMoving,
-      isCopying,
       runErrorMessage,
+      isEditorInitialized,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 
@@ -97,7 +107,7 @@ class QueryEditor extends React.Component<Props> {
       );
     }
 
-    if (isCreating || isCopying || isMoving) {
+    if (isCreating || !isEditorInitialized) {
       return (
         <LoadingContainer>
           <Spinner size={30} />
@@ -111,7 +121,6 @@ class QueryEditor extends React.Component<Props> {
       value: dataSource.id,
       image: pluginImages[dataSource.pluginId],
     }));
-
     return (
       <React.Fragment>
         {queryId ? (
@@ -158,8 +167,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     queryPane: state.ui.queryPane,
     formData,
     isCreating: state.ui.apiPane.isCreating,
-    isMoving: state.ui.apiPane.isMoving,
-    isCopying: state.ui.apiPane.isCopying,
+    isEditorInitialized: getIsEditorInitialized(state),
   };
 };
 
@@ -170,6 +178,11 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   createTemplate: (template: any) => {
     dispatch(change(QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template));
   },
+  changeQueryPage: (queryId: string) => {
+    dispatch(changeQuery(queryId));
+  },
+  initQueryPane: (pluginType: string, queryId: string) =>
+    dispatch(initQueryPane(pluginType, queryId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(QueryEditor);

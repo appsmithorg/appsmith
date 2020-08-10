@@ -4,8 +4,11 @@ import Table from "components/designSystems/appsmith/Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
 import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
-import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
-import { ColumnTypes, ReactTableColumnProps } from "widgets/TableWidget";
+import {
+  ColumnTypes,
+  ReactTableColumnProps,
+  ReactTableFilter,
+} from "widgets/TableWidget";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;

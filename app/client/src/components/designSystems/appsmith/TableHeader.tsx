@@ -77,11 +77,15 @@ interface TableHeaderProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   displayColumnActions: boolean;
+  width: number;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
   return (
-    <TableHeaderWrapper>
+    <TableHeaderWrapper
+      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      width={props.width}
+    >
       <SearchComponent
         value={props.searchKey}
         placeholder="Search..."
@@ -131,7 +135,7 @@ const TableHeader = (props: TableHeaderProps) => {
       )}
       {!props.serverSidePaginationEnabled && (
         <PaginationWrapper>
-          <RowWrapper>
+          <RowWrapper className="show-page-items">
             Showing {props.currentPageIndex + 1}-{props.pageCount} items
           </RowWrapper>
           <PaginationItemWrapper

@@ -56,12 +56,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
       filteredTableData: VALIDATION_TYPES.TABLE_DATA,
+      defaultSearchText: VALIDATION_TYPES.TEXT,
     };
   }
   static getDerivedPropertiesMap() {
     return {
       filteredTableData:
-        "{{!this.onSearchTextChanged ? this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText.toUpperCase())) : this.tableData}}",
+        "{{!this.onSearchTextChanged ? this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText ? this.searchText.toUpperCase() : '')) : this.tableData}}",
       selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
     };
   }
@@ -71,9 +72,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo: 1,
       pageSize: undefined,
       selectedRowIndex: -1,
-      searchText: "",
+      searchText: undefined,
       // The following meta property is used for rendering the table.
       filteredTableData: [],
+    };
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      searchText: "defaultSearchText",
     };
   }
 
@@ -473,6 +480,7 @@ export interface TableWidgetProps extends WidgetProps {
   prevPageKey?: string;
   label: string;
   searchText: string;
+  defaultSearchText: string;
   tableData: object[];
   onPageChange?: string;
   pageSize: number;
