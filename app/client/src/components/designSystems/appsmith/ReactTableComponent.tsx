@@ -7,6 +7,7 @@ import {
   getMenuOptions,
   getAllTableColumnKeys,
 } from "components/designSystems/appsmith/TableUtilities";
+import { CompactMode } from "components/designSystems/appsmith/TableCompactMode";
 
 export enum ColumnTypes {
   CURRENCY = "currency",
@@ -95,6 +96,8 @@ interface ReactTableComponentProps {
   handleReorderColumn: Function;
   searchTableData: (searchKey: any) => void;
   columns: ReactTableColumnProps[];
+  compactMode?: CompactMode;
+  updateCompactMode: (compactMode: CompactMode) => void;
 }
 
 const ReactTableComponent = (props: ReactTableComponentProps) => {
@@ -322,6 +325,8 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         props.disableDrag(false);
       }}
       searchTableData={debounce(props.searchTableData, 500)}
+      compactMode={props.compactMode}
+      updateCompactMode={props.updateCompactMode}
     />
   );
 };
