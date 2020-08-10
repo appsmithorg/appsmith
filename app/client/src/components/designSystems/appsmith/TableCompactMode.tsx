@@ -49,11 +49,6 @@ const OptionWrapper = styled.div<{ selected?: boolean }>`
   }
 `;
 
-// export const CompactModeTypes: Record<string, string> = {
-//   SHORT: "SHORT",
-//   DEFAULT: "DEFAULT",
-// };
-
 export enum CompactModeTypes {
   SHORT = "SHORT",
   DEFAULT = "DEFAULT",
