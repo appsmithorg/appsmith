@@ -50,6 +50,7 @@ function* syncApiParamsSaga(
 ) {
   const field = actionPayload.meta.field;
   const value = actionPayload.payload;
+  const padQueryParams = { key: "", value: "" };
 
   if (field === "actionConfiguration.path") {
     if (value.indexOf("?") > -1) {
@@ -58,6 +59,11 @@ function* syncApiParamsSaga(
         const keyValue = p.split("=");
         return { key: keyValue[0], value: keyValue[1] || "" };
       });
+      if (params.length < 2) {
+        while (params.length < 2) {
+          params.push(padQueryParams);
+        }
+      }
       yield put(
         autofill(
           API_EDITOR_FORM_NAME,
@@ -77,14 +83,14 @@ function* syncApiParamsSaga(
         autofill(
           API_EDITOR_FORM_NAME,
           "actionConfiguration.queryParameters",
-          [],
+          Array(2).fill(padQueryParams),
         ),
       );
       yield put(
         setActionProperty({
           actionId: actionId,
           propertyName: "actionConfiguration.queryParameters",
-          value: [],
+          value: Array(2).fill(padQueryParams),
         }),
       );
     }
