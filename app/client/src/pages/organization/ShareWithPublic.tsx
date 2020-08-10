@@ -2,7 +2,7 @@ import React, { createRef, useState } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { StyledSwitch } from "components/propertyControls/StyledControls";
-import Spinner from "components/ads/Spinner";
+import Spinner from "components/editorComponents/Spinner";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { getDefaultPageId } from "sagas/SagaUtils";
 import { getApplicationViewerPageURL } from "constants/routes";

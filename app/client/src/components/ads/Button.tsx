@@ -2,7 +2,7 @@ import React from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { IconName, Icon } from "./Icon";
-import NewSpinner from "./NewSpinner";
+import Spinner from "./Spinner";
 import {
   mediumButton,
   smallButton,
@@ -372,7 +372,7 @@ function Button(props: ButtonProps) {
 
       {props.text ? (props.isLoading ? TextLoadingState : props.text) : null}
 
-      {props.isLoading ? <NewSpinner size={props.size} /> : null}
+      {props.isLoading ? <Spinner size={props.size} /> : null}
     </StyledButton>
   );
 }
