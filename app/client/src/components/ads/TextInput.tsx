@@ -1,7 +1,7 @@
 import React from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
-import { ThemeProp, rgbaIntensity } from "./Button";
+import { ThemeProp, hexToRgba } from "./Button";
 import AdsText, { TextType } from "./Text";
 
 export type TextInputProps = CommonComponentProps & {
@@ -23,7 +23,7 @@ const setStyles = (props: TextInputProps & ThemeProp) => {
     borderColor = props.theme.colors.blackShades[2];
   }
   if (props.hasError || !props.validator(props.value).isValid) {
-    bgColor = rgbaIntensity(props.theme.colors.danger.main, 0.1);
+    bgColor = hexToRgba(props.theme.colors.danger.main, 0.1);
     color = props.theme.colors.danger.main;
     borderColor = props.theme.colors.danger.main;
   }
