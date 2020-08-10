@@ -71,7 +71,7 @@ class ResultPagination extends React.Component<Props> {
                 let activePage = undefined;
                 if (currentPage === page) {
                   activePage = {
-                    borderColor: theme.colors.primary,
+                    borderColor: theme.colors.primaryOld,
                   };
                 }
                 return (

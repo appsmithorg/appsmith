@@ -1,5 +1,9 @@
 import { createSelector } from "reselect";
-import { getActionsForCurrentPage } from "./entitiesSelector";
+import {
+  getActionsForCurrentPage,
+  getAuthUser,
+  getUrl,
+} from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
@@ -8,42 +12,15 @@ import * as log from "loglevel";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 
-// TODO Commenting out for now as it is causing performance issues
-// function getQueryParams() {
-//   const urlParams = new URLSearchParams(window.location.search);
-//   const keys = urlParams.keys();
-//   let key = keys.next().value;
-//   const queryParams: Record<string, string> = {};
-//   while (key) {
-//     queryParams[key] = urlParams.get(key) as string;
-//     key = keys.next().value;
-//   }
-//   return queryParams;
-// }
-//
-// const getUrlParams = createSelector(
-//   getQueryParams,
-//   (queryParams: Record<string, string>): DataTreeUrl => {
-//     return {
-//       host: window.location.host,
-//       hostname: window.location.hostname,
-//       queryParams: queryParams,
-//       protocol: window.location.protocol,
-//       pathname: window.location.pathname,
-//       port: window.location.port,
-//       href: window.location.href,
-//       hash: window.location.hash,
-//     };
-//   },
-// );
-//
 export const getUnevaluatedDataTree = (withFunctions?: boolean) =>
   createSelector(
     getActionsForCurrentPage,
     getWidgets,
     getWidgetsMeta,
     getPageList,
-    (actions, widgets, widgetsMeta, pageListPayload) => {
+    getAuthUser,
+    getUrl,
+    (actions, widgets, widgetsMeta, pageListPayload, authUser, url) => {
       const pageList = pageListPayload || [];
       return DataTreeFactory.create(
         {
@@ -51,6 +28,8 @@ export const getUnevaluatedDataTree = (withFunctions?: boolean) =>
           widgets,
           widgetsMeta,
           pageList,
+          authUser,
+          url,
         },
         withFunctions,
       );

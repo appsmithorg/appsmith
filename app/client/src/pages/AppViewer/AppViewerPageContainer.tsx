@@ -56,7 +56,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
             <Icon
               iconSize={theme.fontSizes[9]}
               icon="page-layout"
-              color={theme.colors.primary}
+              color={theme.colors.primaryOld}
             />
           }
           title="This page seems to be blank"

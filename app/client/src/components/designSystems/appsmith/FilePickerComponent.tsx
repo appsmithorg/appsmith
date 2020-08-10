@@ -33,6 +33,7 @@ class FilePickerComponent extends React.Component<
           loading={this.props.isLoading}
           text={label}
           onClick={this.openModal}
+          disabled={this.props.isDisabled}
         />
       </React.Fragment>
     );

@@ -86,7 +86,6 @@ export function* getCurrentUserSaga() {
           history.replace(APPLICATIONS_URL);
         }
       }
-
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
