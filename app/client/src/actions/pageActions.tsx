@@ -11,6 +11,7 @@ import {
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { UrlDataState } from "@appsmith/reducers/entityReducers/urlReducer";
 
 export const fetchPageList = (
   applicationId: string,
@@ -170,5 +171,14 @@ export const updateWidget = (
   return {
     type: ReduxActionTypes["WIDGET_" + operation],
     payload: { widgetId, ...payload },
+  };
+};
+
+export const setUrlData = (
+  payload: UrlDataState,
+): ReduxAction<UrlDataState> => {
+  return {
+    type: ReduxActionTypes.SET_URL_DATA,
+    payload,
   };
 };

@@ -260,7 +260,7 @@ export const TableHeaderWrapper = styled.div`
   align-items: center;
   width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  min-width: 700px;
+  overflow-y: scroll;
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div`

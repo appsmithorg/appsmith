@@ -116,7 +116,7 @@ const DropdownStyles = createGlobalStyle`
             top: -2px;
             position: absolute;
             content: "";
-            background: ${props => props.theme.colors.primary};
+            background: ${props => props.theme.colors.primaryOld};
             border-radius: 4px 0 0 4px;
             width: 4px;
             height:100%;
@@ -135,9 +135,9 @@ const DropdownStyles = createGlobalStyle`
         }&
       }
       .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${props => props.theme.colors.primary};
+        background: ${props => props.theme.colors.primaryOld};
         color: ${props => props.theme.colors.textOnDarkBG};
-        border-color: ${props => props.theme.colors.primary};
+        border-color: ${props => props.theme.colors.primaryOld};
       }
     }
   }
@@ -228,6 +228,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               filterable={true}
               itemRenderer={this.renderSingleSelectItem}
               onItemSelect={this.onItemSelect}
+              disabled={this.props.disabled}
               popoverProps={{
                 minimal: true,
                 usePortal: true,
@@ -259,6 +260,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                 onRemove: this.onItemRemoved,
                 tagProps: { minimal: true },
                 // inputProps: { readOnly: true },
+                disabled: this.props.disabled,
                 rightElement: <Icon icon={IconNames.CHEVRON_DOWN} />,
               }}
               onItemSelect={this.onItemSelect}

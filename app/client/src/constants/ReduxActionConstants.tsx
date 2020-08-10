@@ -246,6 +246,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   POPULATE_PAGEDSLS_SUCCESS: "POPULATE_PAGEDSLS_SUCCESS",
   FETCH_PAGE_DSL_INIT: "FETCH_PAGE_DSL_INIT",
   FETCH_PAGE_DSL_SUCCESS: "FETCH_PAGE_DSL_SUCCESS",
+  SET_URL_DATA: "SET_URL_DATA",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

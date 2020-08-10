@@ -62,7 +62,7 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
     rect {
       fill: ${props =>
         props.active
-          ? props.theme.colors.primary
+          ? props.theme.colors.primaryOld
           : props.theme.colors.paneIcon};
     }
   }
@@ -107,7 +107,7 @@ export const StyledDropDownContainer = styled.div`
           top: -2px;
           position: absolute;
           content: "";
-          background: ${props => props.theme.colors.primary};
+          background: ${props => props.theme.colors.primaryOld};
           border-radius: 4px 0 0 4px;
           width: 4px;
           height: 100%;
@@ -261,7 +261,7 @@ export const StyledMultiSelectDropDown = styled(MultiSelectDropDown)`
 
 export const StyledSwitch = styled(Switch)`
   &&&&& input:checked ~ span {
-    background: ${props => props.theme.colors.primary};
+    background: ${props => props.theme.colors.primaryOld};
   }
 `;
 
@@ -299,7 +299,7 @@ export const StyledDatePicker = styled(DateInput)`
 
 export const StyledPropertyPaneButton = styled(Button)`
   &&&& {
-    background-color: ${props => props.theme.colors.info};
+    background-color: ${props => props.theme.colors.infoOld};
     color: #ffffff;
     margin-top: 4px;
     .bp3-icon {

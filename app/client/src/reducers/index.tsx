@@ -31,6 +31,8 @@ import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
 import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
+import { AuthUserState } from "reducers/entityReducers/authUserReducer";
+import { UrlDataState } from "reducers/entityReducers/urlReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -73,5 +75,7 @@ export interface AppState {
     pageList: PageListReduxState;
     plugins: PluginDataState;
     meta: MetaState;
+    authUser: AuthUserState;
+    url: UrlDataState;
   };
 }
