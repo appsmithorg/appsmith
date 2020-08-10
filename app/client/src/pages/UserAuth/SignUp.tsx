@@ -28,8 +28,6 @@ import {
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
   PRIVACY_POLICY_LINK,
   TERMS_AND_CONDITIONS_LINK,
-  SIGNUP_PAGE_SUCCESS,
-  SIGNUP_PAGE_SUCCESS_LOGIN_BUTTON_TEXT,
   FORM_VALIDATION_PASSWORD_RULE,
 } from "constants/messages";
 import FormMessage from "components/editorComponents/form/FormMessage";
@@ -44,7 +42,7 @@ import { SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { getAppsmithConfigs } from "configs";
-import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
+import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
 const {
   enableGithubOAuth,
   enableGoogleOAuth,
@@ -84,14 +82,7 @@ const validate = (values: SignupFormValues) => {
 };
 
 export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
-  const {
-    error,
-    submitting,
-    submitFailed,
-    submitSucceeded,
-    pristine,
-    valid,
-  } = props;
+  const { error, submitting, submitFailed, pristine, valid } = props;
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
@@ -103,19 +94,6 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
 
   return (
     <AuthCardContainer>
-      {submitSucceeded && (
-        <FormMessage
-          intent="success"
-          message={SIGNUP_PAGE_SUCCESS}
-          actions={[
-            {
-              url: AUTH_LOGIN_URL,
-              text: SIGNUP_PAGE_SUCCESS_LOGIN_BUTTON_TEXT,
-              intent: "success",
-            },
-          ]}
-        />
-      )}
       {submitFailed && error && <FormMessage intent="danger" message={error} />}
       <AuthCardHeader>
         <h1>{SIGNUP_PAGE_TITLE}</h1>
@@ -165,7 +143,7 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
         <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
       </AuthCardBody>
       <AuthCardFooter>
-        <TncPPLinks></TncPPLinks>
+        <TncPPLinks />
       </AuthCardFooter>
       <AuthCardNavLink to={AUTH_LOGIN_URL}>
         {SIGNUP_PAGE_LOGIN_LINK_TEXT}
