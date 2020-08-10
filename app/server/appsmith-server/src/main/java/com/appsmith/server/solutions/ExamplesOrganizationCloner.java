@@ -37,8 +37,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExamplesOrganizationCloner {
 
-    public static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
-
     private final OrganizationService organizationService;
     private final OrganizationRepository organizationRepository;
     private final DatasourceService datasourceService;
