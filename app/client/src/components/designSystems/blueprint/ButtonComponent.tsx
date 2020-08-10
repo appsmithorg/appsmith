@@ -17,7 +17,7 @@ const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
     if (props.accent === "secondary") {
       return props.theme.colors.OXFORD_BLUE;
     }
-    return props.theme.colors[props.accent];
+    return props.theme.colors[AccentColorMap[props.accent]];
   }
 };
 
@@ -27,6 +27,11 @@ const ButtonColorStyles = css<ButtonStyleProps>`
     fill: ${getButtonColorStyles};
   }
 `;
+const AccentColorMap: Record<ButtonStyleName, string> = {
+  primary: "primaryOld",
+  secondary: "secondaryOld",
+  error: "error",
+};
 
 const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
   <Button {..._.omit(props, ["accent", "filled"])} />
@@ -37,11 +42,13 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
     height: 100%;
     transition: background-color 0.2s;
     background-color: ${props =>
-      props.filled && props.accent && props.theme.colors[props.accent]};
+      props.filled &&
+      props.accent &&
+      props.theme.colors[AccentColorMap[props.accent]]};
     border: 1px solid
       ${props =>
         props.accent
-          ? props.theme.colors[props.accent]
+          ? props.theme.colors[AccentColorMap[props.accent]]
           : props.theme.colors.secondary};
     border-radius: 4px;
     font-weight: ${props => props.theme.fontWeights[2]};
@@ -60,13 +67,13 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
       background-color: ${props => {
         if (!props.filled) return props.theme.colors.secondaryDarker;
         if (props.accent !== "secondary" && props.accent) {
-          return darkenHover(props.theme.colors[props.accent]);
+          return darkenHover(props.theme.colors[AccentColorMap[props.accent]]);
         }
       }};
       border-color: ${props => {
         if (!props.filled) return;
         if (props.accent !== "secondary" && props.accent) {
-          return darkenHover(props.theme.colors[props.accent]);
+          return darkenHover(props.theme.colors[AccentColorMap[props.accent]]);
         }
       }};
     }
@@ -75,13 +82,13 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
       background-color: ${props => {
         if (!props.filled) return props.theme.colors.secondaryDarkest;
         if (props.accent !== "secondary" && props.accent) {
-          return darkenActive(props.theme.colors[props.accent]);
+          return darkenActive(props.theme.colors[AccentColorMap[props.accent]]);
         }
       }};
       border-color: ${props => {
         if (!props.filled) return;
         if (props.accent !== "secondary" && props.accent) {
-          return darkenActive(props.theme.colors[props.accent]);
+          return darkenActive(props.theme.colors[AccentColorMap[props.accent]]);
         }
       }};
     }
@@ -91,6 +98,7 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
     }
   }
 `;
+
 export type ButtonStyleName = "primary" | "secondary" | "error";
 
 type ButtonStyleProps = {

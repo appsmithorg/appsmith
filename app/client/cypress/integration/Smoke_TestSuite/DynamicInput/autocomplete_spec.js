@@ -66,6 +66,7 @@ describe("Dynamic input autocomplete", () => {
       .focus();
     cy.assertEvaluatedValuePopup("string");
 
+    cy.NavigateToEntityExplorer();
     // Test on api pane
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createapi).click({ force: true });

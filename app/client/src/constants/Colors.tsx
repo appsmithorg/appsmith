@@ -19,9 +19,14 @@ export const Colors: Record<string, string> = {
 
   BLACK: "#000000",
   BLACK_PEARL: "#040627",
+  CODE_GRAY: "#090707",
   SHARK: "#21282C",
+  SHARK2: "#232324",
+  MINE_SHAFT: "#262626",
   DEEP_SPACE: "#272E32",
   OUTER_SPACE: "#363E44",
+  TUNDORA: "#404040",
+  DOVE_GRAY: "#6D6D6D",
   SLATE_GRAY: "#768896",
   PORCELAIN: "#EBEEF0",
   HIT_GRAY: "#A1ACB3",
@@ -33,7 +38,9 @@ export const Colors: Record<string, string> = {
   GREEN: "#29CCA3",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
+  EUCALYPTUS: "#218358",
   RED: "#CE4257",
+  ERROR_RED: "#E22C2C",
   PURPLE: "#6871EF",
   OXFORD_BLUE: "#2E3D49",
   FRENCH_PASS: "#BBE8FE",
@@ -47,6 +54,7 @@ export const Colors: Record<string, string> = {
   BLUE_CHARCOAL: "#23292E",
   TROUT: "#4C565E",
   JAFFA_DARK: "#EF7541",
+  TIA_MARIA: "#CB4810",
   SOLID_MERCURY: "#E5E5E5",
   TROUT_DARK: "#535B62",
   ALABASTER: "#F9F8F8",
@@ -54,6 +62,7 @@ export const Colors: Record<string, string> = {
   GRAY: "#828282",
   ATHENS_GRAY_DARKER: "#F8F9FA",
   POMEGRANATE: "#F44336",
+  BALTIC_SEA: "#1A191C",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

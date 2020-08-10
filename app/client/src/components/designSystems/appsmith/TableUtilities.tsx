@@ -4,6 +4,7 @@ import {
   MenuColumnWrapper,
   CellWrapper,
   ActionWrapper,
+  SortIconWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import {
@@ -16,6 +17,9 @@ import VideoComponent from "components/designSystems/appsmith/VideoComponent";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import TableColumnMenuPopup from "./TableColumnMenu";
+import { ControlIcons } from "icons/ControlIcons";
+import { AnyStyledComponent } from "styled-components";
+import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 
 interface MenuOptionProps {
@@ -307,6 +311,31 @@ export const getMenuOptions = (props: MenuOptionProps) => {
         }
       },
     },
+    {
+      content: (
+        <MenuColumnWrapper selected={props.columnType === ColumnTypes.NUMBER}>
+          <Icon
+            icon="numerical"
+            iconSize={12}
+            color={
+              props.columnType === ColumnTypes.NUMBER
+                ? Colors.WHITE
+                : Colors.OXFORD_BLUE
+            }
+          />
+          <div className="title">Number</div>
+        </MenuColumnWrapper>
+      ),
+      closeOnClick: true,
+      isSelected: props.columnType === ColumnTypes.NUMBER,
+      onClick: (columnIndex: number, isSelected: boolean) => {
+        if (isSelected) {
+          props.updateColumnType(columnIndex, "");
+        } else {
+          props.updateColumnType(columnIndex, ColumnTypes.NUMBER);
+        }
+      },
+    },
   ];
   return columnMenuOptions;
 };
@@ -528,13 +557,27 @@ export const renderEmptyRows = (
   );
 };
 
+const SortIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+  padding: 0;
+  position: relative;
+  top: 3px;
+  cursor: pointer;
+  svg {
+    path {
+      fill: ${props => props.theme.colors.secondary};
+    }
+  }
+`;
+
 export const TableHeaderCell = (props: {
   columnName: string;
   columnIndex: number;
   isHidden: boolean;
+  isAscOrder?: boolean;
   displayColumnActions: boolean;
   handleColumnNameUpdate: (columnIndex: number, name: string) => void;
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
+  sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: Function;
   column: any;
 }) => {
@@ -544,6 +587,12 @@ export const TableHeaderCell = (props: {
     props.handleColumnNameUpdate(columnIndex, columName);
     toggleRenameColumn(false);
   };
+  const handleDoubleClick = () => {
+    props.sortTableColumn(
+      props.columnIndex,
+      props.isAscOrder === undefined ? true : !props.isAscOrder,
+    );
+  };
   if (column.isResizing) {
     props.handleResizeColumn(
       props.columnIndex,
@@ -551,7 +600,16 @@ export const TableHeaderCell = (props: {
     );
   }
   return (
-    <div {...column.getHeaderProps()} className="th header-reorder">
+    <div
+      {...column.getHeaderProps()}
+      className="th header-reorder"
+      onDoubleClick={handleDoubleClick}
+    >
+      {props.isAscOrder !== undefined ? (
+        <SortIconWrapper rotate={!props.isAscOrder}>
+          <SortIcon height={16} width={16} />
+        </SortIconWrapper>
+      ) : null}
       {renameColumn && (
         <RenameColumn
           value={props.columnName}
@@ -560,7 +618,15 @@ export const TableHeaderCell = (props: {
         />
       )}
       {!renameColumn && (
-        <div className={!props.isHidden ? "draggable-header" : "hidden-header"}>
+        <div
+          className={
+            !props.isHidden
+              ? `draggable-header ${
+                  props.isAscOrder !== undefined ? "sorted" : ""
+                }`
+              : "hidden-header"
+          }
+        >
           {column.render("Header")}
         </div>
       )}

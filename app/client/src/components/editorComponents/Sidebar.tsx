@@ -1,108 +1,32 @@
-import React from "react";
-import { Switch } from "react-router";
+import React, { memo } from "react";
+import { Switch, Route } from "react-router";
 import styled from "styled-components";
-import {
-  API_EDITOR_URL,
-  BUILDER_URL,
-  API_EDITOR_ID_URL,
-  PAGE_LIST_EDITOR_URL,
-  DATA_SOURCES_EDITOR_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
-  getCurlImportPageURL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  getProviderTemplatesURL,
-} from "constants/routes";
-
+import { WIDGETS_URL } from "constants/routes";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
-import QuerySidebar from "pages/Editor/QuerySidebar";
-import DataSourceSidebar from "pages/Editor/DataSourceSidebar";
-import ApiSidebar from "pages/Editor/ApiSidebar";
-import PageListSidebar from "pages/Editor/PageListSidebar";
-import AppRoute from "pages/common/AppRoute";
+import ExplorerSidebar from "pages/Editor/Explorer";
 
 const SidebarWrapper = styled.div`
-  background-color: ${props => props.theme.colors.paneBG};
-  padding: 5px 0;
+  padding: 0px 0 0 6px;
   color: ${props => props.theme.colors.textOnDarkBG};
   overflow-y: auto;
 `;
 
-export const Sidebar = () => {
+export const Sidebar = memo(() => {
   return (
     <SidebarWrapper className="t--sidebar">
       <Switch>
-        <AppRoute
+        <Route
           exact
-          path={BUILDER_URL}
+          path={WIDGETS_URL()}
           component={WidgetSidebar}
           name={"WidgetSidebar"}
         />
-        <AppRoute
-          exact
-          path={API_EDITOR_URL()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
-        />
-        <AppRoute
-          exact
-          path={API_EDITOR_ID_URL()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
-        />
-        <AppRoute
-          exact
-          path={PAGE_LIST_EDITOR_URL()}
-          component={PageListSidebar}
-          name={"PageListSidebar"}
-        />
-        <AppRoute
-          exact
-          path={getCurlImportPageURL()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
-        />
-        <AppRoute
-          exact
-          path={getProviderTemplatesURL()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
-        />
-
-        <AppRoute
-          exact
-          path={API_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
-        />
-        <AppRoute
-          exact
-          path={QUERIES_EDITOR_URL()}
-          component={QuerySidebar}
-          name={"QuerySidebar"}
-        />
-        <AppRoute
-          exact
-          path={QUERIES_EDITOR_ID_URL()}
-          component={QuerySidebar}
-          name={"QuerySidebar"}
-        />
-        <AppRoute
-          exact
-          path={DATA_SOURCES_EDITOR_URL()}
-          component={DataSourceSidebar}
-          name="DataSourceSidebar"
-        />
-        <AppRoute
-          exact
-          path={DATA_SOURCES_EDITOR_ID_URL()}
-          component={DataSourceSidebar}
-          name="DataSourceSidebar"
-        />
+        <Route component={ExplorerSidebar} name={"ExplorerSidebar"} />
       </Switch>
     </SidebarWrapper>
   );
-};
+});
+
+Sidebar.displayName = "Sidebar";
 
 export default Sidebar;

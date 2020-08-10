@@ -2,6 +2,7 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/displayWidgetDsl.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Text Widget Functionality", function() {
   before(() => {
@@ -9,19 +10,20 @@ describe("Text Widget Functionality", function() {
   });
 
   beforeEach(() => {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
   });
 
   it("Text-TextStyle Heading, Text Name Validation", function() {
-    //Changing the text label
-    cy.testCodeMirror(this.data.TextLabelValue);
-
     //changing the Text Name and verifying
     cy.widgetText(
       this.data.TextName,
       widgetsPage.textWidget,
       widgetsPage.textWidget + " " + commonlocators.widgetNameTag,
     );
+
+    //Changing the text label
+    cy.testCodeMirror(this.data.TextLabelValue);
 
     cy.ChangeTextStyle(
       this.data.TextHeading,

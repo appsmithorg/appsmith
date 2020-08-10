@@ -55,6 +55,7 @@ interface TableProps {
   columnNameMap?: { [key: string]: string };
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
+  sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: Function;
   selectTableRow: (
     row: { original: object; index: number },
@@ -137,6 +138,7 @@ export const Table = (props: TableProps) => {
       tableRowHeight={tableRowHeight}
     >
       <TableHeader
+        width={props.width}
         tableData={props.data}
         tableColumns={props.columns}
         searchTableData={props.searchTableData}
@@ -184,6 +186,8 @@ export const Table = (props: TableProps) => {
                       handleColumnNameUpdate={props.handleColumnNameUpdate}
                       getColumnMenu={props.getColumnMenu}
                       handleResizeColumn={props.handleResizeColumn}
+                      sortTableColumn={props.sortTableColumn}
+                      isAscOrder={column.isAscOrder}
                     />
                   );
                 })}

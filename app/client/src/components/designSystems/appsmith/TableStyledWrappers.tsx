@@ -102,6 +102,9 @@ export const TableWrapper = styled.div<{
     color: ${Colors.OXFORD_BLUE};
     font-weight: 500;
     padding-left: 10px;
+    &.sorted {
+      padding-left: 5px;
+    }
   }
   .draggable-header {
     cursor: pointer;
@@ -267,12 +270,19 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
   }
 `;
 
-export const TableHeaderWrapper = styled.div`
+export const TableHeaderWrapper = styled.div<{
+  serverSidePaginationEnabled: boolean;
+  width: number;
+}>`
   display: flex;
   align-items: flex-end;
   width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  min-width: 700px;
+  min-width: ${props =>
+    props.serverSidePaginationEnabled ? 450 : props.width < 700 ? 525 : 700}px;
+  .show-page-items {
+    display: ${props => (props.width < 700 ? "none" : "flex")};
+  }
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div`
@@ -309,4 +319,8 @@ export const TableIconWrapper = styled.div<{
   &:hover {
     background: ${Colors.ATHENS_GRAY};
   }
+`;
+
+export const SortIconWrapper = styled.div<{ rotate: boolean }>`
+  transform: ${props => (props.rotate ? "rotate(180deg)" : "none")};
 `;

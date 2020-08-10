@@ -5,6 +5,7 @@ import React, {
   Context,
   createContext,
   useEffect,
+  memo,
 } from "react";
 import styled from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
@@ -30,6 +31,7 @@ import {
   useWidgetSelection,
   useCanvasSnapRowsUpdateHook,
 } from "utils/hooks/dragResizeHooks";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -70,15 +72,15 @@ export const DropTargetContext: Context<{
   persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
-export const DropTargetComponent = (props: DropTargetComponentProps) => {
+export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const canDropTargetExtend = props.canExtend;
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
 
-  const { updateWidget, occupiedSpaces } = useContext(EditorContext);
-
+  const { updateWidget } = useContext(EditorContext);
+  const occupiedSpaces = useSelector(getOccupiedSpaces);
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.editor.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -180,9 +182,14 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
 
         // Only show propertypane if this is a new widget.
         // If it is not a new widget, then let the DraggableComponent handle it.
-        showPropertyPane &&
-          updateWidgetParams.payload.newWidgetId &&
-          showPropertyPane(updateWidgetParams.payload.newWidgetId);
+        // Give evaluations a second to complete.
+        setTimeout(
+          () =>
+            showPropertyPane &&
+            updateWidgetParams.payload.newWidgetId &&
+            showPropertyPane(updateWidgetParams.payload.newWidgetId),
+          100,
+        );
 
         // Select the widget if it is a new widget
         selectWidget && selectWidget(widget.widgetId);
@@ -285,6 +292,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
-};
+});
 
 export default DropTargetComponent;

@@ -16,6 +16,7 @@ export enum ColumnTypes {
   VIDEO = "video",
   IMAGE = "image",
   TEXT = "text",
+  NUMBER = "number",
 }
 
 export interface TableColumnMetaProps {
@@ -31,6 +32,7 @@ export interface ReactTableColumnProps {
   minWidth: number;
   draggable: boolean;
   isHidden?: boolean;
+  isAscOrder?: boolean;
   metaProperties?: TableColumnMetaProps;
   Cell: (props: any) => JSX.Element;
 }
@@ -72,6 +74,7 @@ interface ReactTableComponentProps {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   updatePageNo: Function;
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
+  sortTableColumn: (column: string, asc: boolean) => void;
   nextPageClick: Function;
   prevPageClick: Function;
   pageNo: number;
@@ -259,6 +262,14 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     props.updateColumnType(columnTypeMap);
   };
 
+  const sortTableColumn = (columnIndex: number, asc: boolean) => {
+    const column = props.columns[columnIndex];
+    const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+    if (columnType !== ColumnTypes.IMAGE && columnType !== ColumnTypes.VIDEO) {
+      props.sortTableColumn(column.accessor, asc);
+    }
+  };
+
   const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
     const column = props.columns[columnIndex];
     const columnSizeMap = props.columnSizeMap || {};
@@ -294,6 +305,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       getColumnMenu={getColumnMenu}
       handleColumnNameUpdate={handleColumnNameUpdate}
       handleResizeColumn={debounce(handleResizeColumn, 300)}
+      sortTableColumn={sortTableColumn}
       selectTableRow={selectTableRow}
       pageNo={props.pageNo - 1}
       updatePageNo={props.updatePageNo}
