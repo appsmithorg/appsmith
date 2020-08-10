@@ -2,7 +2,6 @@ import * as styledComponents from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
-import _ from "lodash";
 import { Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
@@ -41,6 +40,25 @@ export enum Skin {
   LIGHT,
   DARK,
 }
+
+export const scrollbarDark = css`
+  scrollbar-color: ${props => props.theme.colors.paneCard}
+    ${props => props.theme.colors.paneBG};
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.paneCard};
+    border-radius: ${props => props.theme.radii[1]}px;
+  }
+`;
 
 export const BlueprintControlTransform = css`
   && {
@@ -366,9 +384,11 @@ export const getColorWithOpacity = (color: Color, opacity: number) => {
 
 export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
   const values: string[] = [];
-  _.forIn(border, (value, key) => {
-    values.push(key === "thickness" ? value + "px" : value);
-  });
+  if (border) {
+    for (const [key, value] of Object.entries(border)) {
+      values.push(key === "thickness" ? value + "px" : value.toString());
+    }
+  }
   return values.join(" ");
 };
 
@@ -570,12 +590,8 @@ export const theme: Theme = {
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
   },
-  lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
-  fonts: [
-    FontFamilies.DMSans,
-    FontFamilies.AppsmithWidget,
-    FontFamilies.FiraCode,
-  ],
+  lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
+  fonts: [FontFamilies.DMSans, FontFamilies.FiraCode],
   borders: [
     {
       thickness: 1,

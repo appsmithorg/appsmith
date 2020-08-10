@@ -29,6 +29,13 @@ export const changeDatasource = (payload: Datasource) => {
   };
 };
 
+export const switchDatasource = (id: string) => {
+  return {
+    type: ReduxActionTypes.SWITCH_DATASOURCE,
+    payload: { datasourceId: id },
+  };
+};
+
 export const testDatasource = (payload: Partial<Datasource>) => {
   return {
     type: ReduxActionTypes.TEST_DATASOURCE_INIT,

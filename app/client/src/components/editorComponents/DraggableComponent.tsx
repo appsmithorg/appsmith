@@ -53,13 +53,13 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   // This state tells us which widget is selected
   // The value is the widgetId of the selected widget
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.editor.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
 
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
   const focusedWidget = useSelector(
-    (state: AppState) => state.ui.editor.focusedWidget,
+    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
 
   // This state tells us whether a `ResizableComponent` is resizing

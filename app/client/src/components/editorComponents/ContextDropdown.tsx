@@ -12,6 +12,8 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlIconName, ControlIcons } from "icons/ControlIcons";
 import { noop } from "utils/AppsmithUtils";
 import { Intent } from "constants/DefaultTheme";
+import { IconProps } from "constants/IconConstants";
+import { Colors } from "constants/Colors";
 
 export type ContextDropdownOption = DropdownOption & {
   onSelect: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
@@ -39,6 +41,7 @@ type ContextDropdownProps = {
     iconSize?: number;
     text?: string;
     placeholder?: string;
+    color?: string;
   };
 };
 
@@ -74,10 +77,10 @@ export const ContextDropdown = (props: ContextDropdownProps) => {
   let trigger: ReactNode;
   if (props.toggle.type === "icon" && props.toggle.icon) {
     const TriggerElement = ControlIcons[props.toggle.icon];
-    const TriggerElementProps = {
-      style: { display: "flex" },
+    const TriggerElementProps: IconProps = {
       width: props.toggle.iconSize,
       height: props.toggle.iconSize,
+      color: props.toggle.color || Colors.SLATE_GRAY,
     };
     trigger = <TriggerElement {...TriggerElementProps} />;
   }
