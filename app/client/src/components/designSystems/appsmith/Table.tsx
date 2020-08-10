@@ -7,37 +7,18 @@ import {
   useRowSelect,
 } from "react-table";
 import { TableWrapper } from "./TableStyledWrappers";
-import {
-  ReactTableColumnProps,
-  ColumnMenuOptionProps,
-} from "./ReactTableComponent";
+import { ColumnMenuOptionProps } from "./ReactTableComponent";
+import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { ReactTableColumnProps } from "widgets/TableWidget";
 import {
+  TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
-} from "components/designSystems/appsmith/TableCompactMode";
-
-export type TableSizes = {
-  COLUMN_HEADER_HEIGHT: number;
-  TABLE_HEADER_HEIGHT: number;
-  ROW_HEIGHT: number;
-};
-
-export const TABLE_SIZES: { [key: string]: TableSizes } = {
-  [CompactModeTypes.DEFAULT]: {
-    COLUMN_HEADER_HEIGHT: 52,
-    TABLE_HEADER_HEIGHT: 61,
-    ROW_HEIGHT: 52,
-  },
-  [CompactModeTypes.SHORT]: {
-    COLUMN_HEADER_HEIGHT: 52,
-    TABLE_HEADER_HEIGHT: 61,
-    ROW_HEIGHT: 40,
-  },
-};
+} from "widgets/TableWidget";
 
 interface TableProps {
   width: number;
@@ -70,6 +51,8 @@ interface TableProps {
   disableDrag: () => void;
   enableDrag: () => void;
   searchTableData: (searchKey: any) => void;
+  filters?: ReactTableFilter[];
+  applyFilter: (filters: ReactTableFilter[]) => void;
   columnActions?: ColumnAction[];
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
@@ -82,15 +65,20 @@ const defaultColumn = {
 };
 
 export const Table = (props: TableProps) => {
-  const pageCount = Math.ceil(props.data.length / props.pageSize);
-  const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
-  const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
-  const columnMemoKey = JSON.stringify({
+  const dataString = JSON.stringify(props.data);
+  const columnString = JSON.stringify({
     columns: props.columns,
+    actions: props.columnActions,
     columnActions: props.columnActions,
     compactMode: props.compactMode,
   });
-  const columns = React.useMemo(() => props.columns, [columnMemoKey]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const data = React.useMemo(() => props.data, [dataString]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const columns = React.useMemo(() => props.columns, [columnString]);
+
+  const pageCount = Math.ceil(props.data.length / props.pageSize);
+  const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
     getTableProps,
     getTableBodyProps,
@@ -157,6 +145,8 @@ export const Table = (props: TableProps) => {
         })}
         hiddenColumns={props.hiddenColumns}
         updateHiddenColumns={props.updateHiddenColumns}
+        filters={props.filters}
+        applyFilter={props.applyFilter}
         displayColumnActions={props.displayColumnActions}
         compactMode={props.compactMode}
         updateCompactMode={props.updateCompactMode}

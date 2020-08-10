@@ -4,7 +4,6 @@ import {
   Classes,
   PopoverInteractionKind,
   Position,
-  Icon,
   Tooltip,
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
@@ -12,6 +11,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactComponent as CompactIcon } from "assets/icons/control/compact.svg";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import { CompactMode, CompactModeTypes } from "widgets/TableWidget";
 
 const DropDownWrapper = styled.div`
   display: flex;
@@ -48,13 +48,6 @@ const OptionWrapper = styled.div<{ selected?: boolean }>`
     background: ${Colors.POLAR};
   }
 `;
-
-export enum CompactModeTypes {
-  SHORT = "SHORT",
-  DEFAULT = "DEFAULT",
-}
-
-export type CompactMode = keyof typeof CompactModeTypes;
 
 type CompactModeItem = {
   title: string;

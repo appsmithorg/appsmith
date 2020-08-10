@@ -1,18 +1,16 @@
-import React, { Suspense } from "react";
+import React, { Suspense, lazy } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
-import ReactTableComponent, {
-  ReactTableColumnProps,
-  ColumnTypes,
-} from "components/designSystems/appsmith/ReactTableComponent";
 import {
+  compare,
   getAllTableColumnKeys,
   renderCell,
   renderActions,
   reorderColumns,
+  sortTableFunction,
+  ConditionFunctions,
 } from "components/designSystems/appsmith/TableUtilities";
-import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { RenderModes } from "constants/WidgetConstants";
 import {
@@ -20,63 +18,51 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/ValidationFactory";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import {
-  CompactMode,
-  CompactModeTypes,
-} from "components/designSystems/appsmith/TableCompactMode";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
+const ReactTableComponent = lazy(() =>
+  import("components/designSystems/appsmith/ReactTableComponent"),
+);
 
-function sortTableFunction(
-  tableData: object[],
-  columns: ReactTableColumnProps[],
-  sortedColumn: string,
-  sortOrder: boolean,
-) {
-  const columnType =
-    columns.find(
-      (column: ReactTableColumnProps) => column.accessor === sortedColumn,
-    )?.metaProperties?.type || ColumnTypes.TEXT;
-  return tableData.sort(
-    (a: { [key: string]: any }, b: { [key: string]: any }) => {
-      if (a[sortedColumn] !== undefined && b[sortedColumn] !== undefined) {
-        switch (columnType) {
-          case ColumnTypes.CURRENCY:
-          case ColumnTypes.NUMBER:
-            return sortOrder
-              ? Number(a[sortedColumn]) > Number(b[sortedColumn])
-                ? 1
-                : -1
-              : Number(b[sortedColumn]) > Number(a[sortedColumn])
-              ? 1
-              : -1;
-          case ColumnTypes.DATE:
-            return sortOrder
-              ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
-                ? 1
-                : -1
-              : moment(b[sortedColumn]).isAfter(a[sortedColumn])
-              ? 1
-              : -1;
-          default:
-            return sortOrder
-              ? a[sortedColumn].toString().toUpperCase() >
-                b[sortedColumn].toString().toUpperCase()
-                ? 1
-                : -1
-              : b[sortedColumn].toString().toUpperCase() >
-                a[sortedColumn].toString().toUpperCase()
-              ? 1
-              : -1;
-        }
-      } else {
-        return sortOrder ? 1 : 0;
-      }
-    },
-  );
+export type TableSizes = {
+  COLUMN_HEADER_HEIGHT: number;
+  TABLE_HEADER_HEIGHT: number;
+  ROW_HEIGHT: number;
+};
+
+export enum CompactModeTypes {
+  SHORT = "SHORT",
+  DEFAULT = "DEFAULT",
 }
 
+export const TABLE_SIZES: { [key: string]: TableSizes } = {
+  [CompactModeTypes.DEFAULT]: {
+    COLUMN_HEADER_HEIGHT: 52,
+    TABLE_HEADER_HEIGHT: 61,
+    ROW_HEIGHT: 52,
+  },
+  [CompactModeTypes.SHORT]: {
+    COLUMN_HEADER_HEIGHT: 52,
+    TABLE_HEADER_HEIGHT: 61,
+    ROW_HEIGHT: 40,
+  },
+};
+
+export enum ColumnTypes {
+  CURRENCY = "currency",
+  TIME = "time",
+  DATE = "date",
+  VIDEO = "video",
+  IMAGE = "image",
+  TEXT = "text",
+  NUMBER = "number",
+}
+
+export enum OperatorTypes {
+  OR = "OR",
+  AND = "AND",
+}
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -131,7 +117,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       columnNameMap,
       columnSizeMap,
       columnTypeMap,
-      widgetId,
       columnActions,
     } = this.props;
     if (tableData.length) {
@@ -282,11 +267,38 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return updatedTableData;
   };
 
+  filterTableData = (tableData: object[]) => {
+    if (!tableData || !tableData.length) {
+      return [];
+    }
+    const { filters } = this.props;
+    return tableData.filter((item: { [key: string]: any }) => {
+      if (!filters || filters.length === 0) return true;
+      const filterOperator: Operator =
+        filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
+      let filter = filterOperator === OperatorTypes.AND ? true : false;
+      for (let i = 0; i < filters.length; i++) {
+        const filterValue = compare(
+          item[filters[i].column],
+          filters[i].value,
+          filters[i].condition,
+        );
+        if (filterOperator === OperatorTypes.AND) {
+          filter = filter && filterValue;
+        } else {
+          filter = filter || filterValue;
+        }
+      }
+      return filter;
+    });
+  };
+
   getPageView() {
     const { tableData, hiddenColumns, filteredTableData } = this.props;
     const tableColumns = this.getTableColumns(tableData);
     // Use the filtered data to render the table.
-    const transformedData = this.transformData(filteredTableData, tableColumns);
+    const filterData = this.filterTableData(filteredTableData);
+    const transformedData = this.transformData(filterData, tableColumns);
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
       this.props.serverSidePaginationEnabled) as boolean;
@@ -372,6 +384,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.disableDrag(disable);
           }}
           searchTableData={this.handleSearchTable}
+          filters={this.props.filters}
+          applyFilter={(filters: ReactTableFilter[]) => {
+            super.updateWidgetProperty("filters", filters);
+          }}
           compactMode={this.props.compactMode}
           updateCompactMode={(compactMode: CompactMode) => {
             super.updateWidgetMetaProperty("compactMode", compactMode);
@@ -470,6 +486,32 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 }
 
+export type CompactMode = keyof typeof CompactModeTypes;
+export type Condition = keyof typeof ConditionFunctions | "";
+export type Operator = keyof typeof OperatorTypes;
+export interface ReactTableFilter {
+  column: string;
+  operator: Operator;
+  condition: Condition;
+  value: any;
+}
+export interface TableColumnMetaProps {
+  isHidden: boolean;
+  format?: string;
+  type: string;
+}
+export interface ReactTableColumnProps {
+  Header: string;
+  accessor: string;
+  width: number;
+  minWidth: number;
+  draggable: boolean;
+  isHidden?: boolean;
+  isAscOrder?: boolean;
+  metaProperties?: TableColumnMetaProps;
+  Cell: (props: any) => JSX.Element;
+}
+
 export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
@@ -489,6 +531,7 @@ export interface TableWidgetProps extends WidgetProps {
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: { [key: string]: { type: string; format: string } };
   columnSizeMap?: { [key: string]: number };
+  filters?: ReactTableFilter[];
   compactMode?: CompactMode;
   sortedColumn?: {
     column: string;
