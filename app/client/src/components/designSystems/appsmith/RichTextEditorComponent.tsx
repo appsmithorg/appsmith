@@ -32,11 +32,11 @@ export const RichtextEditorComponent = (
     }
   }, [props.isDisabled]);
 
-  useEffect(() => {
-    if (editorInstance !== null) {
-      editorInstance.setContent(props.defaultValue, { format: "html" });
-    }
-  }, [props.defaultValue]);
+  // useEffect(() => {
+  //   if (editorInstance !== null) {
+  //     editorInstance.setContent(props.defaultValue, { format: "html" });
+  //   }
+  // }, [props.defaultValue]);
   useEffect(() => {
     const onChange = debounce(props.onValueChange, 200);
     (window as any).tinyMCE.init({
