@@ -35,7 +35,7 @@ public class PluginServiceTest {
 
     @Test
     public void checkPluginExecutor() {
-        Mono<Object> executeMono = pluginExecutor.execute(new Object(), new DatasourceConfiguration(), new ActionConfiguration());
+        Mono<ActionExecutionResult> executeMono = pluginExecutor.execute(new Object(), new DatasourceConfiguration(), new ActionConfiguration());
 
         StepVerifier
                 .create(executeMono)

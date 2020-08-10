@@ -6,6 +6,7 @@ import { debounce } from "lodash";
 import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import {
   ColumnTypes,
+  CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
 } from "widgets/TableWidget";
@@ -71,6 +72,8 @@ interface ReactTableComponentProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
+  compactMode?: CompactMode;
+  updateCompactMode: (compactMode: CompactMode) => void;
 }
 
 const ReactTableComponent = (props: ReactTableComponentProps) => {
@@ -299,6 +302,8 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       searchTableData={debounce(props.searchTableData, 500)}
       filters={props.filters}
       applyFilter={props.applyFilter}
+      compactMode={props.compactMode}
+      updateCompactMode={props.updateCompactMode}
     />
   );
 };

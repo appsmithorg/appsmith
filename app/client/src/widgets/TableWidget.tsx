@@ -25,11 +25,29 @@ const ReactTableComponent = lazy(() =>
   import("components/designSystems/appsmith/ReactTableComponent"),
 );
 
-export enum TABLE_SIZES {
-  COLUMN_HEADER_HEIGHT = 52,
-  TABLE_HEADER_HEIGHT = 61,
-  ROW_HEIGHT = 52,
+export type TableSizes = {
+  COLUMN_HEADER_HEIGHT: number;
+  TABLE_HEADER_HEIGHT: number;
+  ROW_HEIGHT: number;
+};
+
+export enum CompactModeTypes {
+  SHORT = "SHORT",
+  DEFAULT = "DEFAULT",
 }
+
+export const TABLE_SIZES: { [key: string]: TableSizes } = {
+  [CompactModeTypes.DEFAULT]: {
+    COLUMN_HEADER_HEIGHT: 52,
+    TABLE_HEADER_HEIGHT: 61,
+    ROW_HEIGHT: 52,
+  },
+  [CompactModeTypes.SHORT]: {
+    COLUMN_HEADER_HEIGHT: 52,
+    TABLE_HEADER_HEIGHT: 61,
+    ROW_HEIGHT: 40,
+  },
+};
 
 export enum ColumnTypes {
   CURRENCY = "currency",
@@ -216,8 +234,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               }
               if (isValidDate) {
                 tableRow[accessor] = moment(value).format(format);
-              } else {
+              } else if (value) {
                 tableRow[accessor] = "Invalid Value";
+              } else {
+                tableRow[accessor] = "";
               }
               break;
             case ColumnTypes.TIME:
@@ -230,8 +250,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               }
               if (isValidTime) {
                 tableRow[accessor] = moment(value).format("HH:mm");
-              } else {
+              } else if (value) {
                 tableRow[accessor] = "Invalid Value";
+              } else {
+                tableRow[accessor] = "";
               }
               break;
             default:
@@ -287,12 +309,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    const pageSize = Math.floor(
+    const tableSizes =
+      TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
+    let pageSize = Math.floor(
       (componentHeight -
-        TABLE_SIZES.TABLE_HEADER_HEIGHT -
-        TABLE_SIZES.COLUMN_HEADER_HEIGHT) /
-        TABLE_SIZES.ROW_HEIGHT,
+        tableSizes.TABLE_HEADER_HEIGHT -
+        tableSizes.COLUMN_HEADER_HEIGHT) /
+        tableSizes.ROW_HEIGHT,
     );
+    if (
+      componentHeight -
+        (tableSizes.TABLE_HEADER_HEIGHT +
+          tableSizes.COLUMN_HEADER_HEIGHT +
+          tableSizes.ROW_HEIGHT * pageSize) >
+      10
+    )
+      pageSize += 1;
 
     if (pageSize !== this.props.pageSize) {
       super.updateWidgetMetaProperty("pageSize", pageSize);
@@ -355,6 +387,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
             super.updateWidgetProperty("filters", filters);
+          }}
+          compactMode={this.props.compactMode}
+          updateCompactMode={(compactMode: CompactMode) => {
+            super.updateWidgetMetaProperty("compactMode", compactMode);
           }}
           sortTableColumn={(column: string, asc: boolean) => {
             this.resetSelectedRowIndex();
@@ -450,6 +486,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 }
 
+export type CompactMode = keyof typeof CompactModeTypes;
 export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
 export interface ReactTableFilter {
@@ -495,6 +532,7 @@ export interface TableWidgetProps extends WidgetProps {
   columnTypeMap?: { [key: string]: { type: string; format: string } };
   columnSizeMap?: { [key: string]: number };
   filters?: ReactTableFilter[];
+  compactMode?: CompactMode;
   sortedColumn?: {
     column: string;
     asc: boolean;

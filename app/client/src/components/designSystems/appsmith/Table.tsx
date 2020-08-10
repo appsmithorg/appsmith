@@ -14,6 +14,11 @@ import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ReactTableColumnProps } from "widgets/TableWidget";
+import {
+  TABLE_SIZES,
+  CompactMode,
+  CompactModeTypes,
+} from "widgets/TableWidget";
 
 interface TableProps {
   width: number;
@@ -49,27 +54,30 @@ interface TableProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   columnActions?: ColumnAction[];
+  compactMode?: CompactMode;
+  updateCompactMode: (compactMode: CompactMode) => void;
 }
 
+const defaultColumn = {
+  minWidth: 30,
+  width: 150,
+  maxWidth: 400,
+};
+
 export const Table = (props: TableProps) => {
-  const defaultColumn = React.useMemo(
-    () => ({
-      minWidth: 30,
-      width: 150,
-      maxWidth: 400,
-    }),
-    [],
-  );
   const dataString = JSON.stringify(props.data);
   const columnString = JSON.stringify({
     columns: props.columns,
     actions: props.columnActions,
+    columnActions: props.columnActions,
+    compactMode: props.compactMode,
   });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const data = React.useMemo(() => props.data, [dataString]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const columns = React.useMemo(() => props.columns, [columnString]);
-  const pageCount = Math.ceil(data.length / props.pageSize) || 1;
+
+  const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
     getTableProps,
@@ -103,11 +111,19 @@ export const Table = (props: TableProps) => {
   }
   const subPage = page.slice(startIndex, endIndex);
   const selectedRowIndex = props.selectedRowIndex;
+  const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
+  /* Subtracting 9px to handling widget padding */
+  const tableRowHeight =
+    (props.height -
+      (tableSizes.COLUMN_HEADER_HEIGHT + tableSizes.TABLE_HEADER_HEIGHT + 9)) /
+    props.pageSize;
   return (
     <TableWrapper
       width={props.width}
       height={props.height}
+      tableSizes={tableSizes}
       id={`table${props.widgetId}`}
+      tableRowHeight={tableRowHeight}
     >
       <TableHeader
         width={props.width}
@@ -132,6 +148,8 @@ export const Table = (props: TableProps) => {
         filters={props.filters}
         applyFilter={props.applyFilter}
         displayColumnActions={props.displayColumnActions}
+        compactMode={props.compactMode}
+        updateCompactMode={props.updateCompactMode}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">

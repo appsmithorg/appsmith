@@ -31,8 +31,11 @@ public class CustomFormLoginServiceImpl implements ReactiveUserDetailsService {
     public Mono<UserDetails> findByUsername(String username) {
         return repository.findByEmail(username)
                 .switchIfEmpty(Mono.error(new UsernameNotFoundException("Unable to find username: " + username)))
-                // This object cast is required to ensure that we send the right object type back to Spring framework.
-                // Doesn't work without this.
-                .map(user -> (UserDetails) user);
+                .onErrorMap(error -> {
+                    log.error("Can't find user {}", username);
+                    return error;
+                })
+                // This seemingly useless call to `.map` is required to Java's type checker to compile.
+                .map(user -> user);
     }
 }

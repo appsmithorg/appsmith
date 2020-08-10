@@ -13,8 +13,9 @@ import TableColumnsVisibility from "components/designSystems/appsmith/TableColum
 import TableFilters, {
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableFilters";
-import { ReactTableColumnProps } from "widgets/TableWidget";
+import { ReactTableColumnProps, CompactMode } from "widgets/TableWidget";
 import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
+import TableCompactMode from "components/designSystems/appsmith/TableCompactMode";
 import { Colors } from "constants/Colors";
 
 const PageNumberInputWrapper = styled(NumericInput)`
@@ -77,6 +78,8 @@ interface TableHeaderProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   displayColumnActions: boolean;
+  compactMode?: CompactMode;
+  updateCompactMode: (compactMode: CompactMode) => void;
   width: number;
 }
 
@@ -109,6 +112,10 @@ const TableHeader = (props: TableHeaderProps) => {
             updateHiddenColumns={props.updateHiddenColumns}
           />
         )}
+        <TableCompactMode
+          compactMode={props.compactMode}
+          updateCompactMode={props.updateCompactMode}
+        />
       </CommonFunctionsMenuWrapper>
       {props.serverSidePaginationEnabled && (
         <PaginationWrapper>

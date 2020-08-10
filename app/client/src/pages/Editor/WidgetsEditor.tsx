@@ -78,7 +78,8 @@ const WidgetsEditor = () => {
     if (!isFetchingPage && window.location.hash.length > 0) {
       const widgetIdFromURLHash = window.location.hash.substr(1);
       flashElementById(widgetIdFromURLHash);
-      selectWidget(widgetIdFromURLHash);
+      if (document.getElementById(widgetIdFromURLHash))
+        selectWidget(widgetIdFromURLHash);
     }
   }, [isFetchingPage, selectWidget]);
 
