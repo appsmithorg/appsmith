@@ -2,7 +2,7 @@ import React from "react";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Divider from "components/editorComponents/Divider";
 import {
   AuthCardHeader,
@@ -44,6 +44,7 @@ import { SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { getAppsmithConfigs } from "configs";
+import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 const {
   enableGithubOAuth,
   enableGoogleOAuth,
@@ -91,6 +92,15 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
     pristine,
     valid,
   } = props;
+  const location = useLocation();
+
+  const queryParams = new URLSearchParams(location.search);
+
+  let signupURL = "/api/v1/" + SIGNUP_SUBMIT_PATH;
+  if (queryParams.has("redirectTo")) {
+    signupURL += `?redirectUrl=${queryParams.get("redirectTo")}`;
+  }
+
   return (
     <AuthCardContainer>
       {submitSucceeded && (
@@ -112,7 +122,7 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
         <h5>{SIGNUP_PAGE_SUBTITLE}</h5>
       </AuthCardHeader>
       <AuthCardBody>
-        <SpacedSubmitForm method="POST" action="/api/v1/users">
+        <SpacedSubmitForm method="POST" action={signupURL}>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={SIGNUP_PAGE_EMAIL_INPUT_LABEL}
