@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { TableSizes } from "widgets/TableWidget";
+import { scrollbarLight } from "constants/DefaultTheme";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -276,13 +277,14 @@ export const TableHeaderWrapper = styled.div<{
 }>`
   display: flex;
   align-items: flex-end;
-  width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  min-width: ${props =>
-    props.serverSidePaginationEnabled ? 450 : props.width < 700 ? 525 : 700}px;
+  width: ${props => props.width}px;
   .show-page-items {
     display: ${props => (props.width < 700 ? "none" : "flex")};
   }
+  overflow-x: ${props => (props.width < 600 ? "scroll" : "none")};
+  ${scrollbarLight};
+  height: 78px;
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div`
