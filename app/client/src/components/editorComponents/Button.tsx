@@ -96,6 +96,7 @@ export type ButtonProps = {
   className?: string;
   fluid?: boolean;
   skin?: Skin;
+  target?: string;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -133,6 +134,7 @@ export const Button = (props: ButtonProps) => {
         rightIcon={rightIcon}
         {...baseProps}
         href={props.href}
+        target={props.target}
       />
     );
   } else
