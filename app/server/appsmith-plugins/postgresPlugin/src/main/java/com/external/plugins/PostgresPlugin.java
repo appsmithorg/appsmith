@@ -63,9 +63,9 @@ public class PostgresPlugin extends BasePlugin {
     public static class PostgresPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<Object> execute(Object connection,
-                                    DatasourceConfiguration datasourceConfiguration,
-                                    ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(Object connection,
+                                                   DatasourceConfiguration datasourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
 
             Connection conn = (Connection) connection;
 
@@ -83,7 +83,7 @@ public class PostgresPlugin extends BasePlugin {
             String query = actionConfiguration.getBody();
 
             if (query == null) {
-                return pluginErrorMono("Missing required parameter: Query.");
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
             }
 
             List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -149,7 +149,7 @@ public class PostgresPlugin extends BasePlugin {
                 }
 
             } catch (SQLException e) {
-                return pluginErrorMono(e.getMessage());
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
 
             } finally {
                 if (resultSet != null) {
@@ -177,16 +177,12 @@ public class PostgresPlugin extends BasePlugin {
             return Mono.just(result);
         }
 
-        private Mono<Object> pluginErrorMono(Object... args) {
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, args));
-        }
-
         @Override
         public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return pluginErrorMono("Error loading Postgres JDBC Driver class.");
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading Postgres JDBC Driver class."));
             }
 
             String url;
@@ -233,7 +229,7 @@ public class PostgresPlugin extends BasePlugin {
                 return Mono.just(connection);
 
             } catch (SQLException e) {
-                return pluginErrorMono("Error connecting to Postgres.", e);
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error connecting to Postgres.", e));
 
             }
         }
