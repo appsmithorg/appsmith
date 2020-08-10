@@ -7,31 +7,13 @@ import {
   useRowSelect,
 } from "react-table";
 import { TableWrapper } from "./TableStyledWrappers";
-import {
-  ReactTableColumnProps,
-  ColumnMenuOptionProps,
-} from "./ReactTableComponent";
+import { ColumnMenuOptionProps } from "./ReactTableComponent";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-
-export enum TABLE_SIZES {
-  COLUMN_HEADER_HEIGHT = 52,
-  TABLE_HEADER_HEIGHT = 61,
-  ROW_HEIGHT = 52,
-}
-
-export enum ColumnTypes {
-  CURRENCY = "currency",
-  TIME = "time",
-  DATE = "date",
-  VIDEO = "video",
-  IMAGE = "image",
-  TEXT = "text",
-  NUMBER = "number",
-}
+import { ReactTableColumnProps } from "widgets/TableWidget";
 
 interface TableProps {
   width: number;

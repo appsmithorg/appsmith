@@ -7,11 +7,12 @@ import {
   SortIconWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { ColumnMenuOptionProps } from "components/designSystems/appsmith/ReactTableComponent";
 import {
-  ColumnMenuOptionProps,
   ReactTableColumnProps,
-} from "components/designSystems/appsmith/ReactTableComponent";
-import { ColumnTypes } from "components/designSystems/appsmith/Table";
+  ColumnTypes,
+  Condition,
+} from "widgets/TableWidget";
 import { isString, isNumber } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
 import Button from "components/editorComponents/Button";
@@ -21,6 +22,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import moment from "moment";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -690,3 +692,138 @@ export const reorderColumns = (
   }
   return reorderedColumns;
 };
+
+export function sortTableFunction(
+  tableData: object[],
+  columns: ReactTableColumnProps[],
+  sortedColumn: string,
+  sortOrder: boolean,
+) {
+  const columnType =
+    columns.find(
+      (column: ReactTableColumnProps) => column.accessor === sortedColumn,
+    )?.metaProperties?.type || ColumnTypes.TEXT;
+  return tableData.sort(
+    (a: { [key: string]: any }, b: { [key: string]: any }) => {
+      if (a[sortedColumn] !== undefined && b[sortedColumn] !== undefined) {
+        switch (columnType) {
+          case ColumnTypes.CURRENCY:
+          case ColumnTypes.NUMBER:
+            return sortOrder
+              ? Number(a[sortedColumn]) > Number(b[sortedColumn])
+                ? 1
+                : -1
+              : Number(b[sortedColumn]) > Number(a[sortedColumn])
+              ? 1
+              : -1;
+          case ColumnTypes.DATE:
+            return sortOrder
+              ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
+                ? 1
+                : -1
+              : moment(b[sortedColumn]).isAfter(a[sortedColumn])
+              ? 1
+              : -1;
+          default:
+            return sortOrder
+              ? a[sortedColumn].toString().toUpperCase() >
+                b[sortedColumn].toString().toUpperCase()
+                ? 1
+                : -1
+              : b[sortedColumn].toString().toUpperCase() >
+                a[sortedColumn].toString().toUpperCase()
+              ? 1
+              : -1;
+        }
+      } else {
+        return sortOrder ? 1 : 0;
+      }
+    },
+  );
+}
+
+export const ConditionFunctions: {
+  [key: string]: (a: any, b: any) => boolean;
+} = {
+  isExactly: (a: any, b: any) => {
+    return a === b;
+  },
+  empty: (a: any) => {
+    return a === "" || a === undefined || a === null;
+  },
+  notEmpty: (a: any) => {
+    return a !== "" && a !== undefined && a !== null;
+  },
+  notEqualTo: (a: any, b: any) => {
+    return a !== b;
+  },
+  lessThan: (a: any, b: any) => {
+    const numericB = Number(b);
+    const numericA = Number(a);
+    return numericA < numericB;
+  },
+  lessThanEqualTo: (a: any, b: any) => {
+    const numericB = Number(b);
+    const numericA = Number(a);
+    return numericA <= numericB;
+  },
+  greaterThan: (a: any, b: any) => {
+    const numericB = Number(b);
+    const numericA = Number(a);
+    return numericA > numericB;
+  },
+  greaterThanEqualTo: (a: any, b: any) => {
+    const numericB = Number(b);
+    const numericA = Number(a);
+    return numericA >= numericB;
+  },
+  contains: (a: any, b: any) => {
+    if (isString(a) && isString(b)) {
+      return a.includes(b);
+    }
+    return false;
+  },
+  doesNotContain: (a: any, b: any) => {
+    if (isString(a) && isString(b)) {
+      return !a.includes(b);
+    }
+    return false;
+  },
+  startsWith: (a: any, b: any) => {
+    if (isString(a) && isString(b)) {
+      return a.indexOf(b) === 0;
+    }
+    return false;
+  },
+  endsWith: (a: any, b: any) => {
+    if (isString(a) && isString(b)) {
+      return a.length === a.indexOf(b) + b.length;
+    }
+    return false;
+  },
+  is: (a: any, b: any) => {
+    return moment(a).isSame(moment(b), "d");
+  },
+  isNot: (a: any, b: any) => {
+    return !moment(a).isSame(moment(b), "d");
+  },
+  isAfter: (a: any, b: any) => {
+    return !moment(a).isAfter(moment(b), "d");
+  },
+  isBefore: (a: any, b: any) => {
+    return !moment(a).isBefore(moment(b), "d");
+  },
+};
+
+export function compare(a: any, b: any, condition: Condition) {
+  let result = true;
+  try {
+    const conditionFunction = ConditionFunctions[condition];
+    if (conditionFunction) {
+      result = conditionFunction(a, b);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+}

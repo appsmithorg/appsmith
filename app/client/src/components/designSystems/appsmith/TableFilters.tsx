@@ -9,15 +9,15 @@ import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
-import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import Button from "components/editorComponents/Button";
-import CascadeFields, {
+import CascadeFields from "components/designSystems/appsmith/CascadeFields";
+import {
+  ReactTableColumnProps,
+  Condition,
   Operator,
   OperatorTypes,
-} from "components/designSystems/appsmith/CascadeFields";
-import { isString } from "lodash";
-import moment from "moment";
+} from "widgets/TableWidget";
 
 const TableFilerWrapper = styled.div`
   display: flex;
@@ -179,91 +179,5 @@ const TableFilters = (props: TableFilterProps) => {
     </Popover>
   );
 };
-
-const ConditionFunctions: { [key: string]: (a: any, b: any) => boolean } = {
-  isExactly: (a: any, b: any) => {
-    return a === b;
-  },
-  empty: (a: any) => {
-    return a === "" || a === undefined || a === null;
-  },
-  notEmpty: (a: any) => {
-    return a !== "" && a !== undefined && a !== null;
-  },
-  notEqualTo: (a: any, b: any) => {
-    return a !== b;
-  },
-  lessThan: (a: any, b: any) => {
-    const numericB = Number(b);
-    const numericA = Number(a);
-    return numericA < numericB;
-  },
-  lessThanEqualTo: (a: any, b: any) => {
-    const numericB = Number(b);
-    const numericA = Number(a);
-    return numericA <= numericB;
-  },
-  greaterThan: (a: any, b: any) => {
-    const numericB = Number(b);
-    const numericA = Number(a);
-    return numericA > numericB;
-  },
-  greaterThanEqualTo: (a: any, b: any) => {
-    const numericB = Number(b);
-    const numericA = Number(a);
-    return numericA >= numericB;
-  },
-  contains: (a: any, b: any) => {
-    if (isString(a) && isString(b)) {
-      return a.includes(b);
-    }
-    return false;
-  },
-  doesNotContain: (a: any, b: any) => {
-    if (isString(a) && isString(b)) {
-      return !a.includes(b);
-    }
-    return false;
-  },
-  startsWith: (a: any, b: any) => {
-    if (isString(a) && isString(b)) {
-      return a.indexOf(b) === 0;
-    }
-    return false;
-  },
-  endsWith: (a: any, b: any) => {
-    if (isString(a) && isString(b)) {
-      return a.length === a.indexOf(b) + b.length;
-    }
-    return false;
-  },
-  is: (a: any, b: any) => {
-    return moment(a).isSame(moment(b), "d");
-  },
-  isNot: (a: any, b: any) => {
-    return !moment(a).isSame(moment(b), "d");
-  },
-  isAfter: (a: any, b: any) => {
-    return !moment(a).isAfter(moment(b), "d");
-  },
-  isBefore: (a: any, b: any) => {
-    return !moment(a).isBefore(moment(b), "d");
-  },
-};
-
-export type Condition = keyof typeof ConditionFunctions | "";
-
-export function compare(a: any, b: any, condition: Condition) {
-  let result = true;
-  try {
-    const conditionFunction = ConditionFunctions[condition];
-    if (conditionFunction) {
-      result = conditionFunction(a, b);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  return result;
-}
 
 export default TableFilters;

@@ -1,28 +1,11 @@
 import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import Table, { ColumnTypes } from "components/designSystems/appsmith/Table";
+import Table from "components/designSystems/appsmith/Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
 import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
-
-export interface TableColumnMetaProps {
-  isHidden: boolean;
-  format?: string;
-  type: string;
-}
-
-export interface ReactTableColumnProps {
-  Header: string;
-  accessor: string;
-  width: number;
-  minWidth: number;
-  draggable: boolean;
-  isHidden?: boolean;
-  isAscOrder?: boolean;
-  metaProperties?: TableColumnMetaProps;
-  Cell: (props: any) => JSX.Element;
-}
+import { ColumnTypes, ReactTableColumnProps } from "widgets/TableWidget";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;

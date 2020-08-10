@@ -1,20 +1,16 @@
-import React, { Suspense } from "react";
+import React, { Suspense, lazy } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
-import ReactTableComponent, {
-  ReactTableColumnProps,
-} from "components/designSystems/appsmith/ReactTableComponent";
 import {
+  compare,
   getAllTableColumnKeys,
   renderCell,
   renderActions,
   reorderColumns,
+  sortTableFunction,
+  ConditionFunctions,
 } from "components/designSystems/appsmith/TableUtilities";
-import {
-  TABLE_SIZES,
-  ColumnTypes,
-} from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { RenderModes } from "constants/WidgetConstants";
 import {
@@ -24,65 +20,31 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
-import {
-  ReactTableFilter,
-  compare,
-} from "components/designSystems/appsmith/TableFilters";
 import moment from "moment";
-import {
-  OperatorTypes,
-  Operator,
-} from "components/designSystems/appsmith/CascadeFields";
+const ReactTableComponent = lazy(() =>
+  import("components/designSystems/appsmith/ReactTableComponent"),
+);
 
-function sortTableFunction(
-  tableData: object[],
-  columns: ReactTableColumnProps[],
-  sortedColumn: string,
-  sortOrder: boolean,
-) {
-  const columnType =
-    columns.find(
-      (column: ReactTableColumnProps) => column.accessor === sortedColumn,
-    )?.metaProperties?.type || ColumnTypes.TEXT;
-  return tableData.sort(
-    (a: { [key: string]: any }, b: { [key: string]: any }) => {
-      if (a[sortedColumn] !== undefined && b[sortedColumn] !== undefined) {
-        switch (columnType) {
-          case ColumnTypes.CURRENCY:
-          case ColumnTypes.NUMBER:
-            return sortOrder
-              ? Number(a[sortedColumn]) > Number(b[sortedColumn])
-                ? 1
-                : -1
-              : Number(b[sortedColumn]) > Number(a[sortedColumn])
-              ? 1
-              : -1;
-          case ColumnTypes.DATE:
-            return sortOrder
-              ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
-                ? 1
-                : -1
-              : moment(b[sortedColumn]).isAfter(a[sortedColumn])
-              ? 1
-              : -1;
-          default:
-            return sortOrder
-              ? a[sortedColumn].toString().toUpperCase() >
-                b[sortedColumn].toString().toUpperCase()
-                ? 1
-                : -1
-              : b[sortedColumn].toString().toUpperCase() >
-                a[sortedColumn].toString().toUpperCase()
-              ? 1
-              : -1;
-        }
-      } else {
-        return sortOrder ? 1 : 0;
-      }
-    },
-  );
+export enum TABLE_SIZES {
+  COLUMN_HEADER_HEIGHT = 52,
+  TABLE_HEADER_HEIGHT = 61,
+  ROW_HEIGHT = 52,
 }
 
+export enum ColumnTypes {
+  CURRENCY = "currency",
+  TIME = "time",
+  DATE = "date",
+  VIDEO = "video",
+  IMAGE = "image",
+  TEXT = "text",
+  NUMBER = "number",
+}
+
+export enum OperatorTypes {
+  OR = "OR",
+  AND = "AND",
+}
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -479,6 +441,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getWidgetType(): WidgetType {
     return "TABLE_WIDGET";
   }
+}
+
+export type Condition = keyof typeof ConditionFunctions | "";
+export type Operator = keyof typeof OperatorTypes;
+export interface ReactTableFilter {
+  column: string;
+  operator: Operator;
+  condition: Condition;
+  value: any;
+}
+export interface TableColumnMetaProps {
+  isHidden: boolean;
+  format?: string;
+  type: string;
+}
+export interface ReactTableColumnProps {
+  Header: string;
+  accessor: string;
+  width: number;
+  minWidth: number;
+  draggable: boolean;
+  isHidden?: boolean;
+  isAscOrder?: boolean;
+  metaProperties?: TableColumnMetaProps;
+  Cell: (props: any) => JSX.Element;
 }
 
 export interface TableWidgetProps extends WidgetProps {

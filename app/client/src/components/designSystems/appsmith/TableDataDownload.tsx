@@ -3,7 +3,7 @@ import { IconWrapper } from "constants/IconConstants";
 import { Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-table.svg";
-import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+import { ReactTableColumnProps } from "widgets/TableWidget";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 
 interface TableDataDownloadProps {

@@ -10,20 +10,15 @@ import { Skin } from "constants/DefaultTheme";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
 import {
+  OperatorTypes,
+  Condition,
+  ColumnTypes,
+  Operator,
+} from "widgets/TableWidget";
+import {
   DropdownOption,
   ReactTableFilter,
-  Condition,
 } from "components/designSystems/appsmith/TableFilters";
-
-enum ColumnTypes {
-  CURRENCY = "currency",
-  TIME = "time",
-  DATE = "date",
-  VIDEO = "video",
-  IMAGE = "image",
-  TEXT = "text",
-  NUMBER = "number",
-}
 
 const StyledRemoveIcon = styled(
   ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
@@ -166,13 +161,6 @@ const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
     { label: "not empty", value: "notEmpty", type: "" },
   ],
 };
-
-export enum OperatorTypes {
-  OR = "OR",
-  AND = "AND",
-}
-
-export type Operator = keyof typeof OperatorTypes;
 
 const operatorOptions: DropdownOption[] = [
   { label: "or", value: OperatorTypes.OR, type: "" },
