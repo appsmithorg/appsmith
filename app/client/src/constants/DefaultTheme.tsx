@@ -46,9 +46,9 @@ export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL} {
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${props => props.theme.colors.primary};
+        background: ${props => props.theme.colors.primaryOld};
         box-shadow: none;
-        border: 2px solid ${props => props.theme.colors.primary};
+        border: 2px solid ${props => props.theme.colors.primaryOld};
       }
       & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
@@ -238,13 +238,18 @@ type PropertyPaneTheme = {
   dividerColor: Color;
 };
 
+export type NestedObjectOrArray<T> =
+  | Record<string, T | T[] | Record<string, T | T[]>>
+  | T
+  | T[];
 export type Theme = {
   radii: Array<number>;
   fontSizes: Array<number>;
   drawerWidth: string;
   spaces: Array<number>;
   fontWeights: Array<number>;
-  colors: Record<string, Color>;
+  colors: any;
+  typography: any;
   lineHeights: Array<number>;
   fonts: Array<FontFamily>;
   borders: ThemeBorder[];
@@ -341,6 +346,13 @@ export type Theme = {
       };
     };
   };
+  iconSizes: iconSizeType;
+};
+
+type iconSizeType = {
+  small: number;
+  medium: number;
+  large: number;
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -364,11 +376,104 @@ export const labelStyle = css`
   font-weight: ${props => props.theme.fontWeights[3]};
 `;
 
+// export const adsTheme: any = {
+//   space: [0, 3, 14, 7, 16, 11, 26, 10, 4, 26, 30, 36, 4, 6, 11],
+// };
+// 3, 7, 11, 26
+
+export const smallButton = css`
+  font-size: ${props => props.theme.typography.btnSmall.fontSize}px;
+  font-weight: ${props => props.theme.typography.btnSmall.fontWeight};
+  line-height: ${props => props.theme.typography.btnSmall.lineHeight}px;
+  letter-spacing: ${props => props.theme.typography.btnSmall.letterSpacing}px;
+`;
+
+export const mediumButton = css`
+  font-size: ${props => props.theme.typography.btnMedium.fontSize}px;
+  font-weight: ${props => props.theme.typography.btnMedium.fontWeight};
+  line-height: ${props => props.theme.typography.btnMedium.lineHeight}px;
+  letter-spacing: ${props => props.theme.typography.btnMedium.letterSpacing}px;
+`;
+
+export const largeButton = css`
+  font-size: ${props => props.theme.typography.btnLarge.fontSize}px;
+  font-weight: ${props => props.theme.typography.btnLarge.fontWeight};
+  line-height: ${props => props.theme.typography.btnLarge.lineHeight}px;
+  letter-spacing: ${props => props.theme.typography.btnLarge.letterSpacing}px;
+`;
+
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
   spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36],
   fontWeights: [0, 400, 500, 700],
+  typography: {
+    h1: {
+      fontSize: 20,
+      lineHeight: 27,
+    },
+    h2: {
+      fontSize: 18,
+      lineHeight: 25,
+    },
+    h3: {
+      fontSize: 17,
+      lineHeight: 22,
+    },
+    h4: {
+      fontSize: 16,
+      lineHeight: 21,
+      letterSpacing: -0.24,
+    },
+    h5: {
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.24,
+    },
+    h6: {
+      fontSize: 12,
+      lineHeight: 14,
+      letterSpacing: 0.8,
+    },
+    p1: {
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.24,
+    },
+    p2: {
+      fontSize: 13,
+      lineHeight: 17,
+      letterSpacing: -0.24,
+    },
+    p3: {
+      fontSize: 12,
+      lineHeight: 16,
+      letterSpacing: -0.221538,
+    },
+    btnLarge: {
+      fontSize: 13,
+      lineHeight: 15,
+      letterSpacing: 0.6,
+      fontWeight: 600,
+    },
+    btnMedium: {
+      fontSize: 12,
+      lineHeight: 14,
+      letterSpacing: 0.6,
+      fontWeight: 600,
+    },
+    btnSmall: {
+      fontSize: 11,
+      lineHeight: 13,
+      letterSpacing: 0.4,
+      fontWeight: 600,
+    },
+  },
+  iconSizes: {
+    small: 12,
+    medium: 14,
+    large: 15,
+  },
   propertyPane: {
     width: 270,
     height: 600,
@@ -380,15 +485,60 @@ export const theme: Theme = {
   },
   drawerWidth: "80%",
   colors: {
-    primary: Colors.GREEN,
+    blackShades: [
+      "#090707",
+      "#1A191C",
+      "#232324",
+      "#2B2B2B",
+      "#404040",
+      "#6D6D6D",
+      "#9F9F9F",
+      "#D4D4D4",
+      "#E9E9E9",
+      "#FFFFFF",
+    ],
+    tertiary: {
+      main: "#D4D4D4",
+      light: "#FFFFFF",
+      dark: "#2B2B2B",
+      darker: "#202021",
+    },
+    info: {
+      main: "#CB4810",
+      dark: "#8B2E05",
+      darker: "#A03C12",
+      darkest: "#2B2B2B",
+    },
+    success: {
+      main: "#218358",
+      light: "#30CF89",
+      dark: "#0F4B30",
+      darker: "#17211E",
+      darkest: "#293835",
+    },
+    warning: {
+      main: "#EABB0C",
+      light: "#FFD32E",
+      dark: "#886B00",
+      darker: "#2C271A",
+      darkest: "#2F2A1B",
+    },
+    danger: {
+      main: "#E22C2C",
+      light: "#FF4D4D",
+      dark: "#830C0C",
+      darker: "#2B1A1D",
+      darkest: "#462F32",
+    },
+    primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
     secondary: Colors.GEYSER_LIGHT,
     secondaryDarker: Colors.CONCRETE,
     secondaryDarkest: Colors.MERCURY,
     error: Colors.RED,
+    infoOld: Colors.SLATE_GRAY,
     errorMessage: Colors.ERROR_RED,
-    info: Colors.SLATE_GRAY,
     hover: Colors.POLAR,
     inputActiveBorder: Colors.HIT_GRAY,
     inputInactiveBG: Colors.AQUA_HAZE,
