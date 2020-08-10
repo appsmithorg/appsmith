@@ -411,44 +411,55 @@ export const theme: Theme = {
     h1: {
       fontSize: 20,
       lineHeight: 27,
+      letterSpacing: "normal",
     },
     h2: {
       fontSize: 18,
       lineHeight: 25,
+      letterSpacing: "normal",
+      fontWeight: 500,
     },
     h3: {
       fontSize: 17,
       lineHeight: 22,
+      letterSpacing: "normal",
+      fontWeight: 500,
     },
     h4: {
       fontSize: 16,
       lineHeight: 21,
       letterSpacing: -0.24,
+      fontWeight: 500,
     },
     h5: {
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.24,
+      fontWeight: 500,
     },
     h6: {
       fontSize: 12,
       lineHeight: 14,
       letterSpacing: 0.8,
+      fontWeight: 500,
     },
     p1: {
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.24,
+      fontWeight: "normal",
     },
     p2: {
       fontSize: 13,
       lineHeight: 17,
       letterSpacing: -0.24,
+      fontWeight: "normal",
     },
     p3: {
       fontSize: 12,
       lineHeight: 16,
       letterSpacing: -0.221538,
+      fontWeight: "normal",
     },
     btnLarge: {
       fontSize: 13,
@@ -575,6 +586,7 @@ export const theme: Theme = {
     FontFamilies.DMSans,
     FontFamilies.AppsmithWidget,
     FontFamilies.FiraCode,
+    FontFamilies.HomePageRedesign,
   ],
   borders: [
     {
