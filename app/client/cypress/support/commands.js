@@ -235,16 +235,13 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(homePage.deleteButton).click({ force: true });
 });
 
-Cypress.Commands.add("Deletepage", Pagename => {
-  cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(".t--page-sidebar-" + Pagename + "");
-  cy.get(
-    ".t--page-sidebar-" +
-      Pagename +
-      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
-  ).click({ force: true });
-  cy.get(pages.Menuaction).click({ force: true });
-  cy.get(pages.Delete).click({ force: true });
+Cypress.Commands.add("DeletepageFromSideBar", () => {
+  cy.xpath(pages.popover)
+    .last()
+    .click({ force: true });
+  cy.get(pages.deletePage)
+    .first()
+    .click({ force: true });
   cy.wait(2000);
 });
 
@@ -293,6 +290,16 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
   cy.get(
     commonlocators.entitySearchResult.concat(apiname2).concat("')"),
   ).should("not.be.visible");
+});
+
+Cypress.Commands.add("GlobalSearchEntity", apiname1 => {
+  cy.get(commonlocators.entityExplorersearch).should("be.visible");
+  cy.get("#entity-explorer-search")
+    .clear()
+    .type(apiname1);
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).should("be.visible");
 });
 
 Cypress.Commands.add("ResponseStatusCheck", statusCode => {
@@ -572,8 +579,8 @@ Cypress.Commands.add("MoveAPIToHome", apiname => {
 });
 
 Cypress.Commands.add("MoveAPIToPage", () => {
-  cy.get(apiwidget.popover)
-    .first()
+  cy.xpath(apiwidget.popover)
+    .last()
     .click({ force: true });
   cy.get(apiwidget.moveTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
@@ -584,9 +591,9 @@ Cypress.Commands.add("MoveAPIToPage", () => {
   );
 });
 
-Cypress.Commands.add("CopyAPIToHome", apiname => {
-  cy.get(apiwidget.popover)
-    .first()
+Cypress.Commands.add("CopyAPIToHome", () => {
+  cy.xpath(apiwidget.popover)
+    .last()
     .click({ force: true });
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
@@ -594,6 +601,18 @@ Cypress.Commands.add("CopyAPIToHome", apiname => {
     "have.nested.property",
     "response.body.responseMeta.status",
     201,
+  );
+});
+
+Cypress.Commands.add("DeleteAPIFromSideBar", () => {
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.delete).click({ force: true });
+  cy.wait("@deleteAction").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
   );
 });
 
@@ -815,7 +834,19 @@ Cypress.Commands.add("DeleteModal", () => {
 
 Cypress.Commands.add("Createpage", Pagename => {
   cy.get(pages.pagesIcon).click({ force: true });
-  cy.xpath(pages.AddPage).click();
+  cy.xpath(pages.AddPage)
+    .first()
+    .click();
+  cy.wait("@createPage").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+  cy.wait(2000);
+  cy.xpath(pages.popover)
+    .last()
+    .click({ force: true });
+  cy.get(pages.editName).click({ force: true });
   cy.get(pages.editInput)
     .type(Pagename)
     .type("{Enter}");
@@ -1348,6 +1379,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/users/invite").as("postInvite");
   cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
   cy.route("GET", "/api/v1/users/me").as("getUser");
+  cy.route("POST", "/api/v1/pages").as("createPage");
 });
 
 Cypress.Commands.add("alertValidate", text => {

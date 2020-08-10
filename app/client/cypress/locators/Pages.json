@@ -13,5 +13,8 @@
     "entityWidget": ".t--entity-name:contains('Widgets')",
     "entityTable": ".t--entity-name:contains('Table1')",
     "entityText": ".t--entity-name:contains('Text1')",
-    "entityExplorer": ".t--nav-link-entity-explorer"
+    "entityExplorer": ".t--nav-link-entity-explorer",
+    "popover": "//div[contains(@class,'t--entity page')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
+    "editName": ".single-select >div:contains('Edit Name')",
+    "deletePage": ".single-select >div:contains('Delete')"
   }
