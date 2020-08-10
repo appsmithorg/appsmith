@@ -216,7 +216,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     }
 
     @Override
-    public Mono<Organization> findById(String id) {
+    public Mono<Organization> getById(String id) {
         return findById(id, AclPermission.READ_ORGANIZATIONS);
     }
 

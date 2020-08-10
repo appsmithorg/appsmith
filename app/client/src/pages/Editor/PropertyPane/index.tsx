@@ -32,11 +32,11 @@ import PaneWrapper from "pages/common/PaneWrapper";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 
 const PropertySectionLabel = styled.div`
-  text-transform: uppercase;
   color: ${props => props.theme.colors.paneSectionLabel};
-  padding: ${props => props.theme.spaces[5]}px 0;
-  font-size: ${props => props.theme.fontSizes[2]}px;
+  padding: ${props => props.theme.spaces[2]}px 0;
+  font-size: ${props => props.theme.fontSizes[3]}px;
   display: flex;
+  font-weight: bold;
   justify-content: flex-start;
   align-items: center;
 `;

@@ -6,5 +6,5 @@ type ToggleProps = CommonComponentProps & {
 };
 
 export default function Toggle(props: ToggleProps) {
-  return "";
+  return null;
 }

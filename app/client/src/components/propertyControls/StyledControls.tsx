@@ -26,7 +26,7 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   align-items: center;
   flex-direction: ${props =>
     props.orientation === "VERTICAL" ? "column" : "row"};
-  padding: ${props => (props.isAction ? "0" : "8px 0 ")};
+  padding: ${props => (props.isAction ? "0" : "4px 0 ")};
   & > label {
     color: ${props => props.theme.colors.paneText};
     margin-bottom: ${props => props.theme.spaces[1]}px;
@@ -301,6 +301,7 @@ export const StyledPropertyPaneButton = styled(Button)`
   &&&& {
     background-color: ${props => props.theme.colors.infoOld};
     color: #ffffff;
+    margin-top: 4px;
     .bp3-icon {
       color: #ffffff;
       margin-right: 4px;
