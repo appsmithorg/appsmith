@@ -165,8 +165,8 @@ export const executeApiActionSuccess = (payload: {
   payload: payload,
 });
 
-export const saveApiName = (payload: { id: string; name: string }) => ({
-  type: ReduxActionTypes.SAVE_API_NAME,
+export const saveActionName = (payload: { id: string; name: string }) => ({
+  type: ReduxActionTypes.SAVE_ACTION_NAME_INIT,
   payload: payload,
 });
 
@@ -189,11 +189,12 @@ export type UpdateActionPropertyActionPayload = {
 
 export const updateActionProperty = (
   payload: UpdateActionPropertyActionPayload,
-) =>
-  batchAction({
+) => {
+  return batchAction({
     type: ReduxActionTypes.UPDATE_ACTION_PROPERTY,
     payload,
   });
+};
 
 export default {
   createAction: createActionRequest,

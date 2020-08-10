@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import WidgetFactory from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
@@ -11,7 +11,7 @@ interface CanvasProps {
 }
 
 // TODO(abhinav): get the render mode from context
-const Canvas = (props: CanvasProps) => {
+const Canvas = memo((props: CanvasProps) => {
   try {
     return (
       <React.Fragment>
@@ -26,6 +26,8 @@ const Canvas = (props: CanvasProps) => {
     console.log("Error rendering DSL", error);
     return null;
   }
-};
+});
+
+Canvas.displayName = "Canvas";
 
 export default Canvas;

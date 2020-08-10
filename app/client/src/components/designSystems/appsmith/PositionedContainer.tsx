@@ -30,6 +30,7 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
         width: props.style.componentWidth + (props.style.widthUnit || "px"),
         padding: padding + "px",
       }}
+      id={props.widgetId}
       //Before you remove: This is used by property pane to reference the element
       className={
         generateClassName(props.widgetId) +

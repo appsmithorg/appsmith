@@ -1,8 +1,10 @@
-import { all, put, takeLatest, take, select } from "redux-saga/effects";
+import { all, put, takeLatest, take, select, call } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
   InitializeEditorPayload,
+  Page,
+  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 
 import { fetchEditorConfigs } from "actions/configsActions";
@@ -13,6 +15,10 @@ import { fetchActions, fetchActionsForView } from "actions/actionActions";
 import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { AppState } from "reducers";
+import PageApi, { FetchPageResponse } from "api/PageApi";
+import { validateResponse } from "./ErrorSagas";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -57,6 +63,63 @@ function* initializeEditorSaga(
   yield put({
     type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
   });
+  yield call(populatePageDSLsSaga, pageId);
+}
+
+function* fetchPageDSLSaga(action: ReduxAction<{ pageId: string }>) {
+  try {
+    const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
+      id: action.payload.pageId,
+    });
+    const isValidResponse = yield validateResponse(fetchPageResponse);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+        payload: {
+          pageId: action.payload.pageId,
+          dsl: extractCurrentDSL(fetchPageResponse),
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.FETCH_PAGE_DSL_ERROR,
+      payload: {
+        pageId: action.payload.pageId,
+        error,
+        show: false,
+      },
+    });
+  }
+}
+
+export function* populatePageDSLsSaga(currentPageId: string) {
+  try {
+    yield put({
+      type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+    });
+    const pageIds: string[] = yield select((state: AppState) =>
+      state.entities.pageList.pages.map((page: Page) => page.pageId),
+    );
+    yield all(
+      pageIds.map((pageId: string) => {
+        return call(fetchPageDSLSaga, {
+          type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+          payload: { pageId },
+        });
+      }),
+    );
+    yield put({
+      type: ReduxActionTypes.POPULATE_PAGEDSLS_SUCCESS,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }
 
 export function* initializeAppViewerSaga(

@@ -164,7 +164,7 @@ export function* setDefaultApplicationPageSaga(
     const defaultPageId = yield select(
       (state: AppState) => state.entities.pageList.defaultPageId,
     );
-    if (defaultPageId !== action.payload.pageId) {
+    if (defaultPageId !== action.payload.id) {
       const request: SetDefaultPageRequest = action.payload;
       const response: ApiResponse = yield call(
         ApplicationApi.setDefaultApplicationPage,
@@ -173,10 +173,7 @@ export function* setDefaultApplicationPageSaga(
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
         yield put(
-          setDefaultApplicationPageSuccess(
-            request.pageId,
-            request.applicationId,
-          ),
+          setDefaultApplicationPageSuccess(request.id, request.applicationId),
         );
       }
     }

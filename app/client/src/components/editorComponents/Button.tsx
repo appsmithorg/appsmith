@@ -11,8 +11,10 @@ import {
   Intent as BlueprintIntent,
   IconName,
   MaybeElement,
+  IButtonProps,
 } from "@blueprintjs/core";
 import { Direction, Directions } from "utils/helpers";
+import { omit } from "lodash";
 
 const outline = css`
   &&&&&& {
@@ -21,14 +23,7 @@ const outline = css`
   }
 `;
 
-const buttonStyles = css<{
-  outline?: string;
-  intent?: Intent;
-  filled?: string;
-  fluid?: boolean;
-  skin?: Skin;
-  iconAlignment?: Direction;
-}>`
+const buttonStyles = css<Partial<ButtonProps>>`
   ${BlueprintButtonIntentsCSS}
   &&&& {
     padding: ${props =>
@@ -61,22 +56,20 @@ const buttonStyles = css<{
   }
   ${props => (props.outline ? outline : "")}
 `;
-const StyledButton = styled(BlueprintButton)<{
-  outline?: string;
-  intent?: Intent;
-  filled?: string;
-  skin?: Skin;
-  iconAlignment?: Direction;
-}>`
+const StyledButton = styled((props: IButtonProps & Partial<ButtonProps>) => (
+  <BlueprintButton
+    {...omit(props, ["iconAlignment", "fluid", "filled", "outline"])}
+  />
+))`
   ${buttonStyles}
 `;
-const StyledAnchorButton = styled(BlueprintAnchorButton)<{
-  outline?: string;
-  intent?: Intent;
-  filled?: string;
-  skin?: Skin;
-  iconAlignment?: Direction;
-}>`
+const StyledAnchorButton = styled(
+  (props: IButtonProps & Partial<ButtonProps>) => (
+    <BlueprintAnchorButton
+      {...omit(props, ["iconAlignment", "fluid", "filled", "outline"])}
+    />
+  ),
+)`
   ${buttonStyles}
 `;
 
@@ -114,8 +107,8 @@ export const Button = (props: ButtonProps) => {
   const baseProps = {
     text: props.text,
     minimal: !props.filled,
-    outline: props.outline ? props.outline.toString() : undefined,
-    filled: props.filled ? props.filled.toString() : undefined,
+    outline: !!props.outline,
+    filled: !!props.filled,
     intent: props.intent as BlueprintIntent,
     large: props.size === "large",
     small: props.size === "small",
@@ -123,7 +116,7 @@ export const Button = (props: ButtonProps) => {
     disabled: props.disabled,
     type: props.type,
     className: props.className,
-    fluid: props.fluid ? props.fluid.toString() : undefined,
+    fluid: !!props.fluid,
     skin: props.skin,
     iconAlignment: props.iconAlignment ? props.iconAlignment : undefined,
   };

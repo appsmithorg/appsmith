@@ -61,3 +61,29 @@ export const focusWidget = (
   type: ReduxActionTypes.FOCUS_WIDGET,
   payload: { widgetId },
 });
+
+export const showModal = (id: string) => {
+  return {
+    type: ReduxActionTypes.SHOW_MODAL,
+    payload: {
+      modalId: id,
+    },
+  };
+};
+
+export const closeAllModals = () => {
+  return {
+    type: ReduxActionTypes.CLOSE_MODAL,
+    payload: {},
+  };
+};
+
+export const forceOpenPropertyPane = (id: string) => {
+  return {
+    type: ReduxActionTypes.SHOW_PROPERTY_PANE,
+    payload: {
+      widgetId: id,
+      force: true,
+    },
+  };
+};
