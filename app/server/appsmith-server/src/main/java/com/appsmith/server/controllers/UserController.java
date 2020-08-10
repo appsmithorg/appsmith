@@ -5,8 +5,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
@@ -61,11 +59,8 @@ public class UserController extends BaseController<UserService, User, String> {
 
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<User>> createFormEncoded(ServerWebExchange exchange) {
-        return userSignup.signupAndLoginFromFormData(exchange)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null))
-                .onErrorMap(error ->
-                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to read HTTP message"));
+    public Mono<Void> createFormEncoded(ServerWebExchange exchange) {
+        return userSignup.signupAndLoginFromFormData(exchange);
     }
 
     @PutMapping("/switchOrganization/{orgId}")
