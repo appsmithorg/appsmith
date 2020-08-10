@@ -72,11 +72,15 @@ interface TableHeaderProps {
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   displayColumnActions: boolean;
+  width: number;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
   return (
-    <TableHeaderWrapper>
+    <TableHeaderWrapper
+      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      width={props.width}
+    >
       <SearchComponent
         value={props.searchKey}
         placeholder="Search..."
@@ -121,9 +125,9 @@ const TableHeader = (props: TableHeaderProps) => {
       )}
       {!props.serverSidePaginationEnabled && (
         <PaginationWrapper>
-          {/*<RowWrapper>*/}
-          {/*  Showing {props.currentPageIndex + 1}-{props.pageCount} items*/}
-          {/*</RowWrapper>*/}
+          <RowWrapper className="show-page-items">
+            Showing {props.currentPageIndex + 1}-{props.pageCount} items
+          </RowWrapper>
           <PaginationItemWrapper
             disabled={props.currentPageIndex === 0}
             onClick={() => {

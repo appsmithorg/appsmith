@@ -16,6 +16,7 @@ import { ReactComponent as CollapseIcon } from "assets/icons/control/collapse.sv
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
 import { ReactComponent as SettingsIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DragIcon } from "assets/icons/control/drag.svg";
+import { ReactComponent as SortIcon } from "assets/icons/control/sort-icon.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -110,6 +111,11 @@ export const ControlIcons: {
   COLLAPSE_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <CollapseIcon />
+    </IconWrapper>
+  ),
+  SORT_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <SortIcon />
     </IconWrapper>
   ),
 };
