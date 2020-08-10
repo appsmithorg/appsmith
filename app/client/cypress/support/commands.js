@@ -169,6 +169,7 @@ Cypress.Commands.add("CreateApp", appname => {
     "response.body.responseMeta.status",
     200,
   );
+  cy.get("h2").contains("Drag and drop a widget here");
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
@@ -630,7 +631,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .children()
     .contains(modalType)
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 
   // changing the model name verify
   cy.widgetText(
@@ -651,21 +652,21 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(widgetsPage.textAlign + " .bp3-menu-item")
     .contains("Center")
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("CheckWidgetProperties", checkboxCss => {
   cy.get(checkboxCss).check({
     force: true,
   });
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("UncheckWidgetProperties", checkboxCss => {
   cy.get(checkboxCss).uncheck({
     force: true,
   });
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add(
@@ -709,7 +710,7 @@ Cypress.Commands.add("PublishtheApp", () => {
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   cy.wait(2000);
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
   cy.get('a[class="bp3-button"]')
@@ -747,6 +748,7 @@ Cypress.Commands.add("testCodeMirror", value => {
           force: true,
           parseSpecialCharSequences: false,
         });
+      cy.wait(200);
       cy.get(".CodeMirror textarea")
         .first()
         .should("have.value", value);
@@ -782,14 +784,14 @@ Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("ClearDate", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Clear")
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("DeleteModal", () => {
@@ -1445,4 +1447,8 @@ Cypress.Commands.add("callApi", apiname => {
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
     .click();
+});
+
+Cypress.Commands.add("assertPageSave", () => {
+  cy.get(commonlocators.saveStatusSuccess);
 });

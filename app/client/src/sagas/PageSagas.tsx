@@ -16,6 +16,7 @@ import {
   deletePageSuccess,
   updateCurrentPage,
   fetchPublishedPageSuccess,
+  setUrlData,
 } from "actions/pageActions";
 import PageApi, {
   FetchPageResponse,
@@ -61,6 +62,7 @@ import {
   getExistingActionNames,
 } from "./selectors";
 import { clearCaches } from "utils/DynamicBindingUtils";
+import { UrlDataState } from "@appsmith/reducers/entityReducers/urlReducer";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -137,6 +139,8 @@ export function* fetchPageSaga(
     if (isValidResponse) {
       // Clear any existing caches
       clearCaches();
+      // Set url params
+      yield call(setDataUrl);
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       // Update the canvas
@@ -176,9 +180,15 @@ export function* fetchPublishedPageSaga(
     if (isValidResponse) {
       // Clear any existing caches
       clearCaches();
+      // Set url params
+      yield call(setDataUrl);
+      // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+      // Update the canvas
       yield put(updateCanvas(canvasWidgetsPayload));
+      // set current page
       yield put(updateCurrentPage(pageId));
+      // dispatch fetch page success
       yield put(
         fetchPublishedPageSuccess({
           dsl: response.data.layouts[0].dsl,
@@ -413,6 +423,32 @@ export function* updateCanvasWithDSL(
   };
   yield put(updateCanvas(canvasWidgetsPayload));
   yield put(fetchActionsForPage(pageId));
+}
+
+function getQueryParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const keys = urlParams.keys();
+  let key = keys.next().value;
+  const queryParams: Record<string, string> = {};
+  while (key) {
+    queryParams[key] = urlParams.get(key) as string;
+    key = keys.next().value;
+  }
+  return queryParams;
+}
+
+export function* setDataUrl() {
+  const urlData: UrlDataState = {
+    host: window.location.host,
+    hostname: window.location.hostname,
+    queryParams: getQueryParams(),
+    protocol: window.location.protocol,
+    pathname: window.location.pathname,
+    port: window.location.port,
+    href: window.location.href,
+    hash: window.location.hash,
+  };
+  yield put(setUrlData(urlData));
 }
 
 export default function* pageSagas() {
