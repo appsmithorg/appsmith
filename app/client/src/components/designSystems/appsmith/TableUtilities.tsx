@@ -10,8 +10,8 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import {
   ColumnMenuOptionProps,
   ReactTableColumnProps,
-  ColumnTypes,
 } from "components/designSystems/appsmith/ReactTableComponent";
+import { ColumnTypes } from "components/designSystems/appsmith/Table";
 import { isString, isNumber } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
 import Button from "components/editorComponents/Button";

@@ -23,6 +23,16 @@ export enum TABLE_SIZES {
   ROW_HEIGHT = 52,
 }
 
+export enum ColumnTypes {
+  CURRENCY = "currency",
+  TIME = "time",
+  DATE = "date",
+  VIDEO = "video",
+  IMAGE = "image",
+  TEXT = "text",
+  NUMBER = "number",
+}
+
 interface TableProps {
   width: number;
   height: number;

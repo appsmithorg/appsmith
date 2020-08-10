@@ -15,6 +15,16 @@ import {
   Condition,
 } from "components/designSystems/appsmith/TableFilters";
 
+enum ColumnTypes {
+  CURRENCY = "currency",
+  TIME = "time",
+  DATE = "date",
+  VIDEO = "video",
+  IMAGE = "image",
+  TEXT = "text",
+  NUMBER = "number",
+}
+
 const StyledRemoveIcon = styled(
   ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
 )`
@@ -89,8 +99,8 @@ const AutoToolTipComponentWrapper = styled(AutoToolTipComponent)`
   margin-right: 5px;
 `;
 
-const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
-  text: [
+const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
+  [ColumnTypes.TEXT]: [
     { label: "contains", value: "contains", type: "input" },
     { label: "does not contain", value: "doesNotContain", type: "input" },
     { label: "starts with", value: "startsWith", type: "input" },
@@ -99,7 +109,7 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  date: [
+  [ColumnTypes.DATE]: [
     { label: "is", value: "is", type: "date" },
     { label: "is before", value: "isBefore", type: "date" },
     { label: "is after", value: "isAfter", type: "date" },
@@ -107,19 +117,19 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  image: [
+  [ColumnTypes.IMAGE]: [
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  video: [
+  [ColumnTypes.VIDEO]: [
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  time: [
+  [ColumnTypes.TIME]: [
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  currency: [
+  [ColumnTypes.CURRENCY]: [
     { label: "is equal to", value: "isEqualTo", type: "input" },
     { label: "not equal to", value: "notEqualTo", type: "input" },
     { label: "greater than", value: "greaterThan", type: "input" },
@@ -137,7 +147,7 @@ const typeOperatorsMap: { [key: string]: DropdownOption[] } = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  number: [
+  [ColumnTypes.NUMBER]: [
     { label: "is equal to", value: "isEqualTo", type: "input" },
     { label: "not equal to", value: "notEqualTo", type: "input" },
     { label: "greater than", value: "greaterThan", type: "input" },
@@ -248,7 +258,8 @@ const getConditions = (props: CascadeFieldProps) => {
     return columnValue === column.value;
   });
   if (filteredColumn.length) {
-    return typeOperatorsMap[filteredColumn[0].type];
+    const type: ColumnTypes = filteredColumn[0].type as ColumnTypes;
+    return typeOperatorsMap[type];
   } else {
     return new Array<DropdownOption>(0);
   }
@@ -327,10 +338,11 @@ function CaseCaseFieldReducer(
 ) {
   switch (action.type) {
     case CascadeFieldActionTypes.SELECT_COLUMN:
+      const type: ColumnTypes = action.payload.type;
       return {
         ...state,
         column: action.payload.value,
-        conditions: typeOperatorsMap[action.payload.type],
+        conditions: typeOperatorsMap[type],
         showConditions: true,
         isUpdate: true,
       };

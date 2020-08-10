@@ -4,7 +4,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import ReactTableComponent, {
   ReactTableColumnProps,
-  ColumnTypes,
 } from "components/designSystems/appsmith/ReactTableComponent";
 import {
   getAllTableColumnKeys,
@@ -12,7 +11,10 @@ import {
   renderActions,
   reorderColumns,
 } from "components/designSystems/appsmith/TableUtilities";
-import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
+import {
+  TABLE_SIZES,
+  ColumnTypes,
+} from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { RenderModes } from "constants/WidgetConstants";
 import {

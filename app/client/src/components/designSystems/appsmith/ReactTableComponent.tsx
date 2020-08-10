@@ -1,20 +1,10 @@
 import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import Table from "./Table";
+import Table, { ColumnTypes } from "components/designSystems/appsmith/Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
 import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
-
-export enum ColumnTypes {
-  CURRENCY = "currency",
-  TIME = "time",
-  DATE = "date",
-  VIDEO = "video",
-  IMAGE = "image",
-  TEXT = "text",
-  NUMBER = "number",
-}
 
 export interface TableColumnMetaProps {
   isHidden: boolean;
