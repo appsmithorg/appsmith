@@ -147,9 +147,13 @@ const DropdownContainer = styled.div`
   ${BlueprintCSSTransform}
 `;
 
-const StyledMultiDropDown = styled(MultiDropDown)`
+const StyledMultiDropDown = styled(MultiDropDown)<{
+  hideCloseButtonIndex: number;
+  height: number;
+}>`
   div {
     flex: 1 1 auto;
+    max-height: ${props => props.height}px;
   }
   .${MultiSelectClasses.MULTISELECT} {
     position: relative;
@@ -170,6 +174,7 @@ const StyledMultiDropDown = styled(MultiDropDown)`
         overflow: hidden;
         padding: 2px 0;
       }
+
       .${Classes.TAG} {
         background: none;
         border: 1px solid #D0D7DD;
@@ -177,6 +182,22 @@ const StyledMultiDropDown = styled(MultiDropDown)`
         margin-bottom: 0;
         max-width: 100px;
       }
+
+      ${props =>
+        props.hideCloseButtonIndex >= 0 &&
+        `
+      .${Classes.TAG}:nth-child(${props.hideCloseButtonIndex}) {
+        .${Classes.ICON} {
+          align-self: center;
+          margin-right: 0px;
+          color: ${Colors.SLATE_GRAY};
+        }
+        button {
+          display: none;
+        }
+      }
+      `}
+      
       & > .${Classes.ICON} {
         align-self: center;
         margin-right: 10px;
@@ -198,11 +219,33 @@ const StyledCheckbox = styled(Checkbox)`
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
-    const selectedItems = this.props.selectedIndexArr
-      ? _.map(this.props.selectedIndexArr, index => {
-          return this.props.options[index];
-        })
-      : [];
+    let selectedItems = [];
+    if (this.props.lengthOfOverflowingItems > 0) {
+      selectedItems = this.props.selectedIndexArr
+        ? _.map(
+            this.props.selectedIndexArr.slice(
+              0,
+              this.props.selectedIndexArr.length -
+                (this.props.lengthOfOverflowingItems + 1),
+            ),
+            index => {
+              return this.props.options[index];
+            },
+          )
+        : [];
+      selectedItems.push({
+        label: `${this.props.lengthOfOverflowingItems + 1} more`,
+        value: "",
+      });
+    } else {
+      selectedItems = this.props.selectedIndexArr
+        ? _.map(this.props.selectedIndexArr, index => {
+            return this.props.options[index];
+          })
+        : [];
+    }
+    const hideCloseButtonIndex =
+      this.props.lengthOfOverflowingItems > 0 ? selectedItems.length : -1;
     return (
       <DropdownContainer>
         <DropdownStyles />
@@ -256,13 +299,22 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               tagRenderer={this.renderTag}
               itemRenderer={this.renderMultiSelectItem}
               selectedItems={selectedItems}
+              height={this.props.height}
               tagInputProps={{
                 onRemove: this.onItemRemoved,
-                tagProps: { minimal: true },
-                // inputProps: { readOnly: true },
+                tagProps: (value, index) => ({
+                  minimal: true,
+                  interactive:
+                    hideCloseButtonIndex - 1 === index ? true : false,
+                  rightIcon:
+                    hideCloseButtonIndex - 1 === index
+                      ? IconNames.CHEVRON_DOWN
+                      : undefined,
+                }),
                 disabled: this.props.disabled,
                 rightElement: <Icon icon={IconNames.CHEVRON_DOWN} />,
               }}
+              hideCloseButtonIndex={hideCloseButtonIndex}
               onItemSelect={this.onItemSelect}
               popoverProps={{
                 minimal: true,
@@ -367,6 +419,9 @@ export interface DropDownComponentProps extends ComponentProps {
   selectedIndexArr: number[];
   options: DropdownOption[];
   isLoading: boolean;
+  width: number;
+  height: number;
+  lengthOfOverflowingItems: number;
 }
 
 export default DropDownComponent;
