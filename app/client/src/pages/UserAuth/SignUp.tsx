@@ -82,10 +82,16 @@ const validate = (values: SignupFormValues) => {
 };
 
 export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
-  const { error, submitting, submitFailed, pristine, valid } = props;
+  const { error, submitting, pristine, valid } = props;
   const location = useLocation();
 
+  let showError = false;
+  let errorMessage = "";
   const queryParams = new URLSearchParams(location.search);
+  if (queryParams.get("error")) {
+    errorMessage = queryParams.get("error") || "";
+    showError = true;
+  }
 
   let signupURL = "/api/v1/" + SIGNUP_SUBMIT_PATH;
   if (queryParams.has("redirectTo")) {
@@ -94,7 +100,7 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
 
   return (
     <AuthCardContainer>
-      {submitFailed && error && <FormMessage intent="danger" message={error} />}
+      {showError && <FormMessage intent="danger" message={errorMessage} />}
       <AuthCardHeader>
         <h1>{SIGNUP_PAGE_TITLE}</h1>
         <h5>{SIGNUP_PAGE_SUBTITLE}</h5>
