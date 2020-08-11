@@ -24,7 +24,7 @@ const Styles = styled.div`
           font-size: ${props => props.theme.typography.h6.fontSize}px;
           line-height: ${props => props.theme.typography.h6.lineHeight}px;
           letter-spacing: ${props => props.theme.typography.h6.letterSpacing}px;
-          font-family: ${props => props.theme.fonts[3]};
+          font-family: ${props => props.theme.fonts[2]};
 
           svg {
             margin-left: ${props => props.theme.spaces[2]}px;
@@ -59,7 +59,7 @@ const Styles = styled.div`
           line-height: ${props => props.theme.typography.p1.lineHeight}px;
           letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
           font-weight: normal;
-          font-family: ${props => props.theme.fonts[3]};
+          font-family: ${props => props.theme.fonts[2]};
           border-bottom: 1px solid ${props => props.theme.colors.blackShades[3]};
         }
 
