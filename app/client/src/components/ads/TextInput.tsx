@@ -2,7 +2,7 @@ import React from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { ThemeProp, hexToRgba } from "./Button";
-import AdsText, { TextType } from "./Text";
+import Text, { TextType } from "./Text";
 
 export type TextInputProps = CommonComponentProps & {
   value: string;
@@ -80,9 +80,9 @@ const InputWrapper = styled.div`
 
 function TextInput(props: TextInputProps): JSX.Element {
   const ErrorMessage = (
-    <AdsText type={TextType.p3}>
+    <Text type={TextType.p3}>
       {props.validator ? props.validator(props.value).message : ""}
-    </AdsText>
+    </Text>
   );
 
   return (

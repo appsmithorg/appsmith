@@ -50,7 +50,7 @@ const StyledText = styled("span")<TextProps>`
   color: ${props => typeSelector(props)};
 `;
 
-AdsText.defaultProps = {
+Text.defaultProps = {
   type: TextType.p1,
   underline: false,
   italic: false,
@@ -60,8 +60,8 @@ AdsText.defaultProps = {
 - Use this component for text styles from h1-h6 and p1-p3.
 **/
 
-function AdsText(props: TextProps) {
+function Text(props: TextProps) {
   return <StyledText {...props}>{props.children}</StyledText>;
 }
 
-export default AdsText;
+export default Text;
