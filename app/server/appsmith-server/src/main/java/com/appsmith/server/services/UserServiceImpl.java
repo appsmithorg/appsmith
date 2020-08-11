@@ -66,7 +66,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s&email=%s";
-    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/createPassword?token=%s&email=%s";
+    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?token=%s&email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
     // We default the origin header to the production deployment of the client's URL
@@ -223,7 +223,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      *
      * @param email The email of the user whose password is being reset
      * @param token The one-time token provided to the user for resetting the password
-     * @return
+     * @return Publishes a boolean indicating whether the given token is valid for the given email address
      */
     @Override
     public Mono<Boolean> verifyPasswordResetToken(String email, String token) {
@@ -420,7 +420,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Mono<User> userCreate(User user) {
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
-        if (user.getIsEnabled() && LoginSource.FORM.equals(user.getSource())) {
+        if (user.isEnabled() && LoginSource.FORM.equals(user.getSource())) {
             if (user.getPassword() == null || user.getPassword().isBlank()) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
             }
@@ -460,8 +460,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * <p>
      * For new user invite flow, please {@link UserService#inviteUser(InviteUsersDTO, String)}
      *
-     * @param user
-     * @return
+     * @param user User object representing the user to be created/enabled.
+     * @return Publishes the user object, after having been saved.
      */
     @Override
     public Mono<User> createUserAndSendEmail(User user, String originHeader) {
@@ -476,7 +476,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
         return repository.findByEmail(user.getUsername())
                 .flatMap(savedUser -> {
-                    if (!savedUser.getIsEnabled()) {
+                    if (!savedUser.isEnabled()) {
                         // First enable the user
                         savedUser.setIsEnabled(true);
 
@@ -548,7 +548,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * 2. User exists :
      * a. Add user to the organization
      * b. Add organization to the user
-     * @return
+     * @return Publishes the invited users, after being saved with the new organization ID.
      */
     @Override
     public Flux<User> inviteUser(InviteUsersDTO inviteUsersDTO, String originHeader) {

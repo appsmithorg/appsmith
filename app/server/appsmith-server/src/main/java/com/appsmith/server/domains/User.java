@@ -103,7 +103,9 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     @Override
     public boolean isEnabled() {
-        return this.isEnabled;
+        // The `isEnabled` field is `Boolean` whereas we are returning `boolean` here. If `isEnabled` field value is
+        // `null`, this would throw a `NullPointerException`. Hence, checking equality with `Boolean.TRUE` instead.
+        return Boolean.TRUE.equals(this.isEnabled);
     }
 
     // TODO: Check the return value for the functions below to ensure that correct values are being returned
