@@ -15,6 +15,7 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
+import { isEmail } from "utils/formhelpers";
 import _ from "lodash";
 
 class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
@@ -115,8 +116,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
 
   getPageView() {
     const value = this.state.text || "";
-    const isInvalid =
+    let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+
+    if (this.props.inputType === "EMAIL" && !this.props.regex) {
+      isInvalid = !isEmail(value);
+    }
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
