@@ -247,6 +247,9 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<Map<String, String>> getUserRolesForOrganization(String orgId) {
+        if (orgId == null || orgId.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
 
         Mono<Organization> organizationMono = repository.findById(orgId, ORGANIZATION_INVITE_USERS);
         Mono<String> usernameMono = sessionUserService

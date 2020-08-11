@@ -49,7 +49,7 @@ public enum AclPermission {
     PUBLISH_APPLICATIONS("publish:applications", Application.class),
 
     // Making an application public permission at Organization level
-    MAKE_PUBLIC_APPLICATIONS("makeAppPublic:applications", Application.class),
+    MAKE_PUBLIC_APPLICATIONS("makePublic:applications", Application.class),
 
     MANAGE_PAGES("manage:pages", Page.class),
     READ_PAGES("read:pages", Page.class),

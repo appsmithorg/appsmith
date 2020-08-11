@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -34,9 +35,9 @@ public class OrganizationController extends BaseController<OrganizationService, 
      * This function would be used to fetch all possible user roles at organization level.
      * @return
      */
-    @GetMapping("/{orgId}/roles")
-    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForOrganization(@PathVariable String orgId) {
-        return service.getUserRolesForOrganization(orgId)
+    @GetMapping("/roles")
+    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForOrganization(@RequestParam String organizationId) {
+        return service.getUserRolesForOrganization(organizationId)
                 .map(permissions -> new ResponseDTO<>(HttpStatus.OK.value(), permissions, null));
     }
 
