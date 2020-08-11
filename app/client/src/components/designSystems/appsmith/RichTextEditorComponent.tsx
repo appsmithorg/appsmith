@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { debounce } from "lodash";
 import styled from "styled-components";
 const StyledRTEditor = styled.div`
@@ -23,6 +23,8 @@ export const RichtextEditorComponent = (
   props: RichtextEditorComponentProps,
 ) => {
   const [editorInstance, setEditorInstance] = useState(null as any);
+  /* Using editorContent as a variable to save editor content locally to verify against new content*/
+  const editorContent = useRef("");
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (editorInstance !== null) {
@@ -33,7 +35,10 @@ export const RichtextEditorComponent = (
   }, [props.isDisabled]);
 
   useEffect(() => {
-    if (editorInstance !== null) {
+    if (
+      editorInstance !== null &&
+      props.defaultValue !== editorContent.current
+    ) {
       editorInstance.setContent(props.defaultValue, { format: "html" });
     }
   }, [props.defaultValue]);
@@ -53,16 +58,20 @@ export const RichtextEditorComponent = (
         }, 300);
         editor
           .on("Change", () => {
+            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           })
           .on("Undo", () => {
+            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           })
           .on("Redo", () => {
+            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           })
           .on("KeyUp", () => {
             // console.log("change: ", editor.getContent())
+            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           });
         setEditorInstance(editor);
