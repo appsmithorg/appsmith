@@ -24,7 +24,7 @@ import {
   QUERY_BODY_FIELD,
 } from "constants/QueryEditorConstants";
 import { QueryAction } from "entities/Action";
-import Spinner from "components/ads/Spinner";
+import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeQuery, initQueryPane } from "actions/queryPaneActions";
 
