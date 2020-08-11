@@ -308,7 +308,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId)
                     )
-                    .onErrorMap(Exceptions::unwrap)
+                    .onErrorReturn(new HashMap())
                     .cache();
 
             Mono<Map> resourceMono = Mono.zip(formMono, editorMono)
@@ -391,7 +391,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                             .getResourceAsStream(resourcePath);
 
                     if (resourceAsStream == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "Form Resource not found"));
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "form resource " + resourcePath + " not found"));
                     }
 
                     try {
