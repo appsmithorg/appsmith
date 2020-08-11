@@ -52,7 +52,6 @@ const HelpIcon = HelpIcons.HELP_ICON;
 export function HelpModal() {
   const isHelpModalOpen = useSelector(getHelpModalOpen);
   const helpDimensions = useSelector(getHelpModalDimensions);
-  const helpModalOpen = useSelector(getHelpModalOpen);
   const dispatch = useDispatch();
   const layers = useContext(LayersContext);
 
@@ -80,10 +79,10 @@ export function HelpModal() {
       {algolia.enabled && (
         <HelpButton
           className="t--helpGlobalButton"
-          highlight={!helpModalOpen}
+          highlight={!isHelpModalOpen}
           layer={layers.help}
           onClick={() => {
-            dispatch(setHelpModalVisibility(!helpModalOpen));
+            dispatch(setHelpModalVisibility(!isHelpModalOpen));
           }}
         >
           <HelpIcon />

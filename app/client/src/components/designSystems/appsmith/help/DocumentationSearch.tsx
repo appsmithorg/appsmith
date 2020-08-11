@@ -9,18 +9,22 @@ import {
   PoweredBy,
 } from "react-instantsearch-dom";
 import "instantsearch.css/themes/algolia.css";
-import { useSelector } from "react-redux";
+import { connect } from "react-redux";
 import styled from "styled-components";
 import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { getDefaultRefinement } from "selectors/helpSelectors";
 import { getAppsmithConfigs } from "configs";
+import { AppState } from "reducers";
 
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
 const DocumentIcon = HelpIcons.DOCUMENT;
+const GithubIcon = HelpIcons.GITHUB;
+const ChatIcon = HelpIcons.CHAT;
+const DiscordIcon = HelpIcons.DISCORD;
 
 const StyledOpenLinkIcon = styled(OenLinkIcon)`
   position: absolute;
@@ -41,7 +45,33 @@ const StyledDocumentIcon = styled(DocumentIcon)`
   margin-top: 1px;
   position: absolute;
 `;
-function Hit(props: { hit: { path: string } }) {
+
+const StyledGithubIcon = styled(GithubIcon)`
+  margin-left: 14px;
+  margin-right: 10.8px;
+  margin-top: 1px;
+  position: absolute;
+`;
+
+const StyledChatIcon = styled(ChatIcon)`
+  &&& {
+    margin-left: 14px;
+    margin-right: 10.8px;
+    margin-top: 1px;
+    position: absolute;
+  }
+`;
+
+const StyledDiscordIcon = styled(DiscordIcon)`
+  &&& {
+    margin-left: 12px;
+    margin-right: 10.8px;
+    margin-top: 1px;
+    position: absolute;
+  }
+`;
+
+const Hit = (props: { hit: { path: string } }) => {
   return (
     <div
       className="t--docHit"
@@ -59,15 +89,31 @@ function Hit(props: { hit: { path: string } }) {
       </div>
     </div>
   );
-}
+};
 
-const Header = styled.div`
-  padding: 10px 0;
-  position: absolute;
-  width: 100%;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
-`;
+const HelpMenuItem = (props: {
+  item: { label: string; link: string; icon: React.ReactNode };
+}) => {
+  return (
+    <li className="ais-Hits-item">
+      <div
+        className="t--docHit"
+        onClick={() => {
+          window.open(props.item.link, "_blank");
+        }}
+      >
+        <div className="hit-name t--docHitTitle">
+          {props.item.icon}
+          <span className="ais-Highlight">{props.item.label}</span>
+          <StyledOpenLinkIcon
+            className="t--docOpenLink open-link"
+            color={"#181F24"}
+          />
+        </div>
+      </div>
+    </li>
+  );
+};
 
 const SearchContainer = styled.div`
   height: 100%;
@@ -91,8 +137,6 @@ const SearchContainer = styled.div`
   }
 
   .ais-Hits {
-    margin-top: 50px;
-    height: calc(100% - 50px);
     overflow: auto;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -189,6 +233,15 @@ const SearchContainer = styled.div`
   }
 `;
 
+const Header = styled.div`
+  padding: 10px 0;
+  position: absolute;
+  width: 100%;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+  height: 50px;
+`;
+
 const StyledPoweredBy = styled(PoweredBy)`
   position: absolute;
   right: 21px;
@@ -200,36 +253,109 @@ const StyledPoweredBy = styled(PoweredBy)`
   }
 `;
 
-const HelpFooter = styled.div`
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 15px 30px;
+const HelpContainer = styled.div`
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 `;
 
-export default function DocumentationSearch(props: { hitsPerPage: number }) {
-  const defaultRefinement = useSelector(getDefaultRefinement);
-  if (!algolia.enabled) return null;
-  return (
-    <SearchContainer className="ais-InstantSearch t--docSearchModal">
-      <div
-        style={{
-          overflow: "auto",
-        }}
-      >
+const HelpFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 10px;
+  height: 30px;
+  color: rgba(255, 255, 255, 0.7);
+`;
+
+const HelpBody = styled.div`
+  padding-top: 50px;
+  flex: 5;
+`;
+
+type Props = { hitsPerPage: number; defaultRefinement: string };
+type State = { showResults: boolean };
+
+const HELP_MENU_ITEMS = [
+  {
+    icon: <StyledDocumentIcon width={11.2} height={14} color="#181F24" />,
+    label: "Documentation",
+    link: "https://docs.appsmith.com/",
+  },
+  {
+    icon: <StyledGithubIcon width={11.2} height={14} color="#fff" />,
+    label: "Github Issues",
+    link: "https://github.com/appsmithorg/appsmith/issues",
+  },
+  {
+    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
+    label: "Chat with us",
+    link: "https://github.com/appsmithorg/appsmith/discussions",
+  },
+  {
+    icon: <StyledDiscordIcon width={16} height={16} />,
+    label: "Join our Discord",
+    link: "https://discord.gg/rBTTVJp",
+  },
+];
+
+class DocumentationSearch extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      showResults: props.defaultRefinement.length > 0,
+    };
+  }
+  onSearchValueChange = () => {
+    if (!this.state.showResults) {
+      this.setState({
+        showResults: true,
+      });
+    }
+  };
+  render() {
+    if (!algolia.enabled) return null;
+    return (
+      <SearchContainer className="ais-InstantSearch t--docSearchModal">
         <InstantSearch
           indexName={algolia.indexName}
           searchClient={searchClient}
         >
-          <Configure hitsPerPage={props.hitsPerPage} />
-          <Header>
-            <StyledPoweredBy />
-            <SearchBox defaultRefinement={defaultRefinement} />
-          </Header>
-          <Hits hitComponent={Hit as any} />
+          <Configure hitsPerPage={this.props.hitsPerPage} />
+          <HelpContainer>
+            <Header>
+              <StyledPoweredBy />
+              <SearchBox
+                onChange={this.onSearchValueChange}
+                defaultRefinement={this.props.defaultRefinement}
+              />
+            </Header>
+            <HelpBody>
+              {this.state.showResults ? (
+                <Hits hitComponent={Hit as any} />
+              ) : (
+                <ul className="ais-Hits-list">
+                  {HELP_MENU_ITEMS.map(item => (
+                    <HelpMenuItem key={item.label} item={item} />
+                  ))}
+                </ul>
+              )}
+            </HelpBody>
+            <HelpFooter>
+              <span>Appsmith v1.1</span>
+              <span>Released 8 hours ago</span>
+            </HelpFooter>
+          </HelpContainer>
         </InstantSearch>
-      </div>
-      <HelpFooter>
-        <p>Appsmith v1.1</p>
-      </HelpFooter>
-    </SearchContainer>
-  );
+      </SearchContainer>
+    );
+  }
 }
+
+const mapStateToProps = (state: AppState) => ({
+  defaultRefinement: getDefaultRefinement(state),
+});
+
+export default connect(mapStateToProps)(DocumentationSearch);
