@@ -133,7 +133,7 @@ public class UserController extends BaseController<UserService, User, String> {
      * @return List of new users who have been created/existing users who have been added to the organization.
      */
     @PostMapping("/invite")
-    public Mono<ResponseDTO<List<User>>> inviteUserNew(@RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
+    public Mono<ResponseDTO<List<User>>> inviteUser(@RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
         return service.inviteUser(inviteUsersDTO, originHeader).collectList()
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
