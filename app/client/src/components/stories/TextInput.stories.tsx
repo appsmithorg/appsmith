@@ -11,7 +11,7 @@ export default {
 
 const callValidator = () => {
   return {
-    isValid: false,
+    isValid: true,
     message: "This is a warning text for the above field.",
   };
 };

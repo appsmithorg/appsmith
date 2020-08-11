@@ -2,7 +2,7 @@ import React from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { ThemeProp, rgbaIntensity } from "./Button";
-import AdsText, { TextType } from "./Text";
+// import AdsText, { TextType } from "./Text";
 
 export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
@@ -35,11 +35,11 @@ const StyledInput = styled.input<TextInputProps>`
   border-radius: 0;
   outline: 0;
   box-shadow: none;
-  margin-bottom: ${props => props.theme.spaces[1]}px
+  margin-bottom: ${props => props.theme.spaces[1]}px;
   border: 1.2px solid ${props => setStyles(props).borderColor};
   font-family: ${props => props.theme.fonts[3]};
-  padding: ${props => props.theme.spaces[4]}px ${props =>
-  props.theme.spaces[6]}px;
+  padding: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[6]}px;
   background-color: ${props => setStyles(props).bgColor};
   color: ${props => setStyles(props).color};
   &::placeholder {
@@ -65,7 +65,8 @@ const InputWrapper = styled.div`
 
 const TextInput = (props: TextInputProps): JSX.Element => {
   const ErrorMessage = (
-    <AdsText type={TextType.p3}>{props.validator(props.value).message}</AdsText>
+    <span>{props.validator(props.value).message}</span>
+    // <AdsText type={TextType.p3}>{props.validator(props.value).message}</AdsText>
   );
 
   return (
