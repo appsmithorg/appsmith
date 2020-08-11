@@ -51,10 +51,15 @@ const AppInviteUsersForm = (props: any) => {
     currentOrg,
   } = props;
 
-  const userPermissions = currentOrg?.userPermissions ?? [];
-  const canShare = isPermitted(
-    userPermissions,
-    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+  const userOrgPermissions = currentOrg?.userPermissions ?? [];
+  const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
+  const canInviteToOrg = isPermitted(
+    userOrgPermissions,
+    PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
+  );
+  const canShareWithPublic = isPermitted(
+    userAppPermissions,
+    PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
 
   const getViewApplicationURL = () => {
@@ -72,7 +77,7 @@ const AppInviteUsersForm = (props: any) => {
 
   return (
     <>
-      {canShare ? (
+      {canShareWithPublic ? (
         <ShareWithPublicOption>
           Make the application public
           <ShareToggle>
@@ -96,13 +101,15 @@ const AppInviteUsersForm = (props: any) => {
           {currentApplicationDetails.isPublic && (
             <CopyToClipBoard copyText={getViewApplicationURL()} />
           )}
-          <OrgInviteUsersForm orgId={props.orgId} isApplicationInvite={true} />
         </ShareWithPublicOption>
       ) : (
         <>
           <Title>Get Shareable link for this for this application </Title>
           <CopyToClipBoard copyText={getViewApplicationURL()} />
         </>
+      )}
+      {canInviteToOrg && (
+        <OrgInviteUsersForm orgId={props.orgId} isApplicationInvite={true} />
       )}
     </>
   );

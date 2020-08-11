@@ -232,7 +232,7 @@ class Applications extends Component<
               <OrgSection className="t--org-section" key={index}>
                 {!isPermitted(
                   organization.userPermissions,
-                  PERMISSION_TYPE.MANAGE_ORGANIZATION,
+                  PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
                 ) ? (
                   <OrgName>
                     {MenuIcons.ORG_ICON({
