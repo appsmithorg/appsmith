@@ -83,7 +83,7 @@ const data = [
   },
 ];
 
-export const withDynamicProps = () => (
+export const AdsTable = () => (
   <div style={{ background: "#131216", padding: "50px" }}>
     <Table columns={columns} data={data}></Table>
   </div>

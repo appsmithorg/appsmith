@@ -17,8 +17,25 @@ const IconWrapper = styled.div<IconProps>`
   svg {
     width: ${props => sizeHandler(props)}px;
     height: ${props => sizeHandler(props)}px;
+    path {
+      fill: ${props => props.theme.colors.blackShades[4]};
+    }
   }
   visibility: ${props => (props.invisible ? "hidden" : "visible")};
+
+  &:hover {
+    cursor: pointer;
+    path {
+      fill: ${props => props.theme.colors.blackShades[6]};
+    }
+  }
+
+  &:active {
+    cursor: pointer;
+    path {
+      fill: ${props => props.theme.colors.blackShades[7]};
+    }
+  }
 `;
 
 export type IconProps = {

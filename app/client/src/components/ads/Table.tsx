@@ -65,6 +65,11 @@ const Styles = styled.div`
 
         &:hover {
           background-color: ${props => props.theme.colors.blackShades[4]};
+          .ads-icon {
+            path {
+              fill: ${props => props.theme.colors.blackShades[9]};
+            }
+          }
           td:first-child {
             color: ${props => props.theme.colors.blackShades[9]};
           }
