@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -130,7 +131,24 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Map<String, Policy> generateChildrenPoliciesFromOrganizationPolicies(Map<String, Policy> orgPolicyMap, User user, Class destinationEntity) {
+    public Map<String, Policy> generatePolicyFromPermissionForMultipleUsers(Set<AclPermission> permissions, List<User> users) {
+        Set<String> usernames = users.stream().map(user -> user.getUsername()).collect(Collectors.toSet());
+
+        return permissions.stream()
+                .map(perm -> {
+                    // Create a policy for the invited user using the permission as per the role
+                    Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
+                            .users(usernames).build();
+                    // Generate any and all lateral policies that might come with the current permission
+                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, usernames, null);
+                    policiesForUser.add(policyWithCurrentPermission);
+                    return policiesForUser;
+                })
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+    }
+
+    public Map<String, Policy> generateChildrenPoliciesFromOrganizationPolicies(Map<String, Policy> orgPolicyMap, Class destinationEntity) {
         Set<Policy> extractedInterestingPolicySet = new HashSet<>(orgPolicyMap.values())
                 .stream()
                 .filter(policy -> policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
@@ -176,7 +194,7 @@ public class PolicyUtils {
                 .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
     }
 
-    public Map<String, Policy> generatePagePoliciesFromApplicationPolicies(Map<String, Policy> applicationPolicyMap, User user) {
+    public Map<String, Policy> generatePagePoliciesFromApplicationPolicies(Map<String, Policy> applicationPolicyMap) {
         Set<Policy> extractedInterestingPolicySet = new HashSet<>(applicationPolicyMap.values())
                 .stream()
                 .filter(policy -> policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())
@@ -204,7 +222,7 @@ public class PolicyUtils {
                 .flatMapMany(updatedPages -> pageRepository.saveAll(updatedPages));
     }
 
-    public Map<String, Policy> generateActionPoliciesFromPagePolicies(Map<String, Policy> pagePolicyMap, User user) {
+    public Map<String, Policy> generateActionPoliciesFromPagePolicies(Map<String, Policy> pagePolicyMap) {
         Set<Policy> extractedInterestingPolicySet = new HashSet<>(pagePolicyMap.values())
                 .stream()
                 .filter(policy -> policy.getPermission().equals(MANAGE_PAGES.getValue())
