@@ -228,6 +228,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               filterable={true}
               itemRenderer={this.renderSingleSelectItem}
               onItemSelect={this.onItemSelect}
+              disabled={this.props.disabled}
               popoverProps={{
                 minimal: true,
                 usePortal: true,
@@ -259,6 +260,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                 onRemove: this.onItemRemoved,
                 tagProps: { minimal: true },
                 // inputProps: { readOnly: true },
+                disabled: this.props.disabled,
                 rightElement: <Icon icon={IconNames.CHEVRON_DOWN} />,
               }}
               onItemSelect={this.onItemSelect}

@@ -411,44 +411,55 @@ export const theme: Theme = {
     h1: {
       fontSize: 20,
       lineHeight: 27,
+      letterSpacing: "normal",
     },
     h2: {
       fontSize: 18,
       lineHeight: 25,
+      letterSpacing: "normal",
+      fontWeight: 500,
     },
     h3: {
       fontSize: 17,
       lineHeight: 22,
+      letterSpacing: "normal",
+      fontWeight: 500,
     },
     h4: {
       fontSize: 16,
       lineHeight: 21,
       letterSpacing: -0.24,
+      fontWeight: 500,
     },
     h5: {
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.24,
+      fontWeight: 500,
     },
     h6: {
       fontSize: 12,
       lineHeight: 14,
       letterSpacing: 0.8,
+      fontWeight: 500,
     },
     p1: {
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.24,
+      fontWeight: "normal",
     },
     p2: {
       fontSize: 13,
       lineHeight: 17,
       letterSpacing: -0.24,
+      fontWeight: "normal",
     },
     p3: {
       fontSize: 12,
       lineHeight: 16,
       letterSpacing: -0.221538,
+      fontWeight: "normal",
     },
     btnLarge: {
       fontSize: 13,
@@ -481,7 +492,7 @@ export const theme: Theme = {
   },
   evaluatedValuePopup: {
     width: 300,
-    height: 400,
+    height: 500,
   },
   drawerWidth: "80%",
   colors: {
@@ -538,6 +549,7 @@ export const theme: Theme = {
     secondaryDarkest: Colors.MERCURY,
     error: Colors.RED,
     infoOld: Colors.SLATE_GRAY,
+    errorMessage: Colors.ERROR_RED,
     hover: Colors.POLAR,
     inputActiveBorder: Colors.HIT_GRAY,
     inputInactiveBG: Colors.AQUA_HAZE,
@@ -564,8 +576,8 @@ export const theme: Theme = {
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
     notification: Colors.JAFFA,
-    bindingTextDark: Colors.SOFT_ORANGE,
-    bindingText: Colors.PURE_ORANGE,
+    bindingTextDark: Colors.BINDING_COLOR,
+    bindingText: Colors.BINDING_COLOR_LT,
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
   },
@@ -574,6 +586,7 @@ export const theme: Theme = {
     FontFamilies.DMSans,
     FontFamilies.AppsmithWidget,
     FontFamilies.FiraCode,
+    FontFamilies.HomePageRedesign,
   ],
   borders: [
     {
@@ -713,6 +726,24 @@ export const theme: Theme = {
     },
   },
 };
+
+export const scrollbarLight = css`
+  scrollbar-color: ${props => props.theme.colors.paneText}
+
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneText, 0.3)};
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.paneText};
+    border-radius: ${props => props.theme.radii[1]}px;
+  }
+`;
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
 export default styled;

@@ -17,11 +17,15 @@ import _ from "lodash";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { UserApplication } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getActionById, getCurrentPageName } from "selectors/editorSelectors";
+import {
+  getActionById,
+  getCurrentPageName,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { RapidApiAction, RestAction, PaginationType } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
-import Spinner from "components/ads/Spinner";
+import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
@@ -44,6 +48,7 @@ interface ReduxStateProps {
   pluginId: any;
   apiAction: RestAction | ActionData | RapidApiAction | undefined;
   paginationType: PaginationType;
+  isEditorInitialized: boolean;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -117,8 +122,9 @@ class ApiEditor extends React.Component<Props> {
       isCopying,
       isMoving,
       paginationType,
+      isEditorInitialized,
     } = this.props;
-    if (isCreating || isCopying || isMoving) {
+    if (isCreating || isCopying || isMoving || !isEditorInitialized) {
       return (
         <LoadingContainer>
           <Spinner size={30} />
@@ -223,6 +229,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isCreating,
     isMoving,
     isCopying,
+    isEditorInitialized: getIsEditorInitialized(state),
   };
 };
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
-import { ThemeProp, rgbaIntensity } from "./Button";
-// import AdsText, { TextType } from "./Text";
+import { ThemeProp, hexToRgba } from "./Button";
+import AdsText, { TextType } from "./Text";
 
 export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
@@ -23,7 +23,7 @@ const setStyles = (props: TextInputProps & ThemeProp) => {
     borderColor = props.theme.colors.blackShades[2];
   }
   if (props.hasError || !props.validator(props.value).isValid) {
-    bgColor = rgbaIntensity(props.theme.colors.danger.main, 0.1);
+    bgColor = hexToRgba(props.theme.colors.danger.main, 0.1);
     color = props.theme.colors.danger.main;
     borderColor = props.theme.colors.danger.main;
   }
@@ -65,8 +65,7 @@ const InputWrapper = styled.div`
 
 const TextInput = (props: TextInputProps): JSX.Element => {
   const ErrorMessage = (
-    <span>{props.validator(props.value).message}</span>
-    // <AdsText type={TextType.p3}>{props.validator(props.value).message}</AdsText>
+    <AdsText type={TextType.p3}>{props.validator(props.value).message}</AdsText>
   );
 
   return (

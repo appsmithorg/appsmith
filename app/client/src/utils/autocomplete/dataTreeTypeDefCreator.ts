@@ -7,6 +7,7 @@ import {
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
+
 let extraDefs: any = {};
 
 export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
@@ -29,6 +30,9 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
         def[entityName] = entityDefinitions.ACTION(entity);
+      }
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
+        def.appsmith = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
       }
     }
   });
