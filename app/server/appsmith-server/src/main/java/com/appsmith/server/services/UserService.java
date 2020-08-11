@@ -2,8 +2,9 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.InviteUserDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface UserService extends CrudService<User, String> {
@@ -28,5 +29,5 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> userCreate(User user);
 
-    Mono<User> inviteUser(InviteUserDTO inviteUserDTO, String originHeader);
+    Flux<User> inviteUser(InviteUsersDTO inviteUsersDTO, String originHeader);
 }

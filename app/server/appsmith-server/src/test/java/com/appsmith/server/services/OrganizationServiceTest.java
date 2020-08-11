@@ -9,7 +9,7 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
-import com.appsmith.server.dtos.InviteUserDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -29,9 +29,11 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -291,25 +293,28 @@ public class OrganizationServiceTest {
         Mono<Organization> seedOrganization = organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
-        Mono<User> userAddedToOrgMono = seedOrganization
+        Mono<List<User>> usersAddedToOrgMono = seedOrganization
                 .flatMap(organization1 -> {
                     // Add user to organization
-                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
-                    inviteUserDTO.setEmail("usertest@usertest.com");
-                    inviteUserDTO.setOrgId(organization1.getId());
-                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add("usertest@usertest.com");
+                    inviteUsersDTO.setUsernames(users);
+                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
 
-                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                            .collectList();
                 })
                 .cache();
 
-        Mono<Organization> orgAfterUpdateMono = userAddedToOrgMono
+        Mono<Organization> orgAfterUpdateMono = usersAddedToOrgMono
                 .then(seedOrganization);
 
         StepVerifier
-                .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
+                .create(Mono.zip(usersAddedToOrgMono, orgAfterUpdateMono))
                 .assertNext(tuple -> {
-                    User user = tuple.getT1();
+                    User user = tuple.getT1().get(0);
                     Organization org = tuple.getT2();
 
                     assertThat(org).isNotNull();
@@ -348,15 +353,18 @@ public class OrganizationServiceTest {
         Mono<Organization> seedOrganization = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
-        Mono<User> userAddedToOrgMono = seedOrganization
+        Mono<List<User>> userAddedToOrgMono = seedOrganization
                 .flatMap(organization1 -> {
                     // Add user to organization
-                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
-                    inviteUserDTO.setEmail("newEmailWhichShouldntExist@usertest.com");
-                    inviteUserDTO.setOrgId(organization1.getId());
-                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add("newEmailWhichShouldntExist@usertest.com");
+                    inviteUsersDTO.setUsernames(users);
+                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
 
-                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                            .collectList();
                 })
                 .cache();
 
@@ -366,12 +374,17 @@ public class OrganizationServiceTest {
         StepVerifier
                 .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
                 .assertNext(tuple -> {
-                    User user = tuple.getT1();
+                    User user = tuple.getT1().get(0);
                     Organization org = tuple.getT2();
+                    log.debug("org user roles : {}", org.getUserRoles());
 
                     assertThat(org).isNotNull();
                     assertThat(org.getName()).isEqualTo("Another Test Organization");
-                    assertThat(org.getUserRoles().get(0).getUsername()).isEqualTo("newEmailWhichShouldntExist@usertest.com");
+                    assertThat(org.getUserRoles().stream()
+                            .map(role -> role.getUsername())
+                            .filter(username -> username.equals("newEmailWhichShouldntExist@usertest.com"))
+                            .collect(Collectors.toSet())
+                    ).hasSize(1);
 
                     Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
                             .users(Set.of("api_user", "newEmailWhichShouldntExist@usertest.com"))
@@ -413,15 +426,18 @@ public class OrganizationServiceTest {
                 .create(organization)
                 .cache();
 
-        Mono<User> userAddedToOrgMono = organizationMono
+        Mono<List<User>> userAddedToOrgMono = organizationMono
                 .flatMap(organization1 -> {
                     // Add user to organization
-                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
-                    inviteUserDTO.setEmail("newEmailWhichShouldntExistAsViewer@usertest.com");
-                    inviteUserDTO.setOrgId(organization1.getId());
-                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add("newEmailWhichShouldntExistAsViewer@usertest.com");
+                    inviteUsersDTO.setUsernames(users);
+                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
-                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                            .collectList();
                 })
                 .cache();
 
@@ -433,12 +449,15 @@ public class OrganizationServiceTest {
         StepVerifier
                 .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
                 .assertNext(tuple -> {
-                    User user = tuple.getT1();
+                    User user = tuple.getT1().get(0);
                     Organization org = tuple.getT2();
 
                     assertThat(org).isNotNull();
                     assertThat(org.getName()).isEqualTo("Add Viewer to Test Organization");
-                    assertThat(org.getUserRoles().get(1).getUsername()).isEqualTo("newEmailWhichShouldntExistAsViewer@usertest.com");
+                    assertThat(org.getUserRoles().stream()
+                            .filter(role -> role.getUsername().equals("newEmailWhichShouldntExistAsViewer@usertest.com"))
+                            .collect(Collectors.toSet())
+                    ).hasSize(1);
 
                     Policy readOrgAppsPolicy = Policy.builder().permission(ORGANIZATION_READ_APPLICATIONS.getValue())
                             .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer@usertest.com"))
@@ -774,6 +793,82 @@ public class OrganizationServiceTest {
 
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This test tests for a multiple new users being added to an organzation as viewer.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addNewUsersBulkToOrganizationAsViewer() {
+        Organization organization = new Organization();
+        organization.setName("Add Bulk Viewers to Test Organization");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
+
+        Mono<Organization> organizationMono = organizationService
+                .create(organization)
+                .cache();
+
+        Mono<List<User>> userAddedToOrgMono = organizationMono
+                .flatMap(organization1 -> {
+                    // Add user to organization
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add("newEmailWhichShouldntExistAsViewer1@usertest.com");
+                    users.add("newEmailWhichShouldntExistAsViewer2@usertest.com");
+                    users.add("newEmailWhichShouldntExistAsViewer3@usertest.com");
+                    inviteUsersDTO.setUsernames(users);
+                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                            .collectList();
+                })
+                .cache();
+
+        Mono<Organization> readOrgMono = organizationRepository.findByName("Add Bulk Viewers to Test Organization");
+
+        Mono<Organization> orgAfterUpdateMono = userAddedToOrgMono
+                .then(readOrgMono);
+
+        StepVerifier
+                .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1().get(0);
+                    Organization org = tuple.getT2();
+
+                    assertThat(org).isNotNull();
+                    assertThat(org.getName()).isEqualTo("Add Bulk Viewers to Test Organization");
+                    assertThat(org.getUserRoles().stream()
+                            .map(userRole -> userRole.getUsername())
+                            .filter(username -> !username.equals("api_user"))
+                            .collect(Collectors.toSet())
+                    ).containsAll(Set.of("newEmailWhichShouldntExistAsViewer1@usertest.com", "newEmailWhichShouldntExistAsViewer2@usertest.com",
+                            "newEmailWhichShouldntExistAsViewer3@usertest.com"));
+
+                    Policy readOrgAppsPolicy = Policy.builder().permission(ORGANIZATION_READ_APPLICATIONS.getValue())
+                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer1@usertest.com",
+                                    "newEmailWhichShouldntExistAsViewer2@usertest.com",
+                                    "newEmailWhichShouldntExistAsViewer3@usertest.com"))
+                            .build();
+
+                    Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
+                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer1@usertest.com",
+                                    "newEmailWhichShouldntExistAsViewer2@usertest.com",
+                                    "newEmailWhichShouldntExistAsViewer3@usertest.com"))
+                            .build();
+
+                    assertThat(org.getPolicies()).isNotEmpty();
+                    assertThat(org.getPolicies()).containsAll(Set.of(readOrgAppsPolicy, readOrgPolicy));
+
+                    assertThat(user).isNotNull();
+                    assertThat(user.getIsEnabled()).isFalse();
+                    Set<String> organizationIds = user.getOrganizationIds();
+                    assertThat(organizationIds).contains(org.getId());
 
                 })
                 .verifyComplete();
