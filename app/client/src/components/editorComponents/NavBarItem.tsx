@@ -2,29 +2,21 @@ import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import NotificationIcon from "components/designSystems/appsmith/NotificationIcon";
-import { theme } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 type MenuBarItemProps = {
   icon: Function;
   path: string;
   title: string;
-  exact: boolean;
+  exact?: boolean;
   width: number;
   height: number;
   external?: boolean;
   className?: string;
   highlight?: boolean;
   onClick?: Function;
+  isActive: (currentPath: string, expectedPath: string) => boolean;
 };
-
-// const AnmiatedNotificationIcon = <NotificationIcon pla></NotificationIcon>
-
-const StyledNotificationIcon = styled(NotificationIcon)`
-  position: absolute;
-  top: -4px;
-  right: -3px;
-`;
 
 type Props = MenuBarItemProps;
 
@@ -39,8 +31,8 @@ const IconContainer = styled.div<{
   margin-bottom: 5px;
   background-color: ${props => props.theme.colors.menuButtonBGInactive};
   border-radius: ${props => props.theme.radii[1]}px;
-  height: ${props => props.height}px;
-  width: ${props => props.width}px;
+  width: ${props => props.width + 8}px;
+  height: ${props => props.width + 8}px;
   svg path {
     fill: ${props => props.theme.colors.menuIconColorInactive};
   }
@@ -57,17 +49,15 @@ const ItemContainer = styled.div`
       color: ${props => props.theme.colors.textOnDarkBG};
       font-size: ${props => props.theme.fontSizes[1]}px;
       cursor: pointer;
-      background-color: ${props => props.theme.colors.navBG};
       &:hover {
-        background-color: ${props => props.theme.colors.paneBG};
+        background: ${Colors.TUNDORA};
         text-decoration: none;
       }
-      color: ${props => props.theme.colors.menuButtonBGInactive};
       &.active {
-        background-color: ${props => props.theme.colors.paneBG};
+        background: ${Colors.TUNDORA};
         color: ${props => props.theme.colors.textOnDarkBG};
-        ${IconContainer} {
-          background-color: ${props => props.theme.colors.primary};
+        & > div {
+          background-color: ${props => props.theme.colors.primaryOld};
           svg path {
             fill: ${props => props.theme.colors.textOnDarkBG};
           }
@@ -82,30 +72,6 @@ const ItemContainer = styled.div`
   }
 `;
 
-const Anchor = styled.a`
-  width: 64px;
-  display: inline-block;
-`;
-
-const ExternalLink = function(props: any) {
-  return (
-    <Anchor
-      onClick={() => {
-        props.onClick && props.onClick();
-      }}
-      href={props.to}
-      className={props.className}
-      target="_blank"
-    >
-      {props.children}
-    </Anchor>
-  );
-};
-
-const DetailsContainer = styled.div`
-  position: relative;
-`;
-
 class NavBarItem extends React.Component<Props> {
   render(): React.ReactNode {
     const {
@@ -115,16 +81,18 @@ class NavBarItem extends React.Component<Props> {
       exact,
       width,
       height,
-      external,
-      highlight,
       onClick,
+      isActive,
     } = this.props;
-    const Link = external ? ExternalLink : NavLink;
+
     return (
       <ItemContainer>
-        <Link
+        <NavLink
           exact={exact}
           to={path}
+          isActive={(match, location) => {
+            return isActive(path, location.pathname);
+          }}
           className={this.props.className}
           onClick={() => {
             onClick && onClick();
@@ -133,21 +101,11 @@ class NavBarItem extends React.Component<Props> {
             });
           }}
         >
-          <DetailsContainer>
-            <IconContainer width={width} height={height}>
-              {icon({ width: width - 8, height: height - 8 })}
-            </IconContainer>
-            <span>{title}</span>
-            {highlight && (
-              <StyledNotificationIcon
-                animate
-                width={9}
-                height={9}
-                color={theme.colors.primary}
-              />
-            )}
-          </DetailsContainer>
-        </Link>
+          <IconContainer width={width} height={height}>
+            {icon({ width, height })}
+          </IconContainer>
+          <span>{title}</span>
+        </NavLink>
       </ItemContainer>
     );
   }

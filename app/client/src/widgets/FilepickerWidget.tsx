@@ -205,6 +205,7 @@ class FilePickerWidget extends BaseWidget<
         label={this.props.label}
         files={this.props.files || []}
         isLoading={this.props.isLoading}
+        isDisabled={this.props.isDisabled}
       />
     );
   }

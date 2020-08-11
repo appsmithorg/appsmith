@@ -1,8 +1,14 @@
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
+import { TableSizes } from "widgets/TableWidget";
+import { scrollbarLight } from "constants/DefaultTheme";
 
-export const TableWrapper = styled.div<{ width: number; height: number }>`
+export const TableWrapper = styled.div<{
+  width: number;
+  height: number;
+  tableSizes: TableSizes;
+  tableRowHeight?: number;
+}>`
   width: 100%;
   height: 100%;
   background: white;
@@ -24,7 +30,8 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     position: relative;
     overflow-y: auto;
     /* Subtracting 9px to handling widget padding */
-    height: ${props => props.height - TABLE_SIZES.TABLE_HEADER_HEIGHT - 9}px;
+    height: ${props =>
+      props.height - props.tableSizes.TABLE_HEADER_HEIGHT - 9}px;
     .thead,
     .tbody {
       overflow: hidden;
@@ -77,8 +84,14 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
       background: ${Colors.ATHENS_GRAY_DARKER};
     }
     .td {
-      height: 52px;
-      line-height: 52px;
+      height: ${props =>
+        props.tableRowHeight
+          ? props.tableRowHeight
+          : props.tableSizes.ROW_HEIGHT}px;
+      line-height: ${props =>
+        props.tableRowHeight
+          ? props.tableRowHeight
+          : props.tableSizes.ROW_HEIGHT}px;
       padding: 0 10px;
     }
   }
@@ -90,6 +103,9 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     color: ${Colors.OXFORD_BLUE};
     font-weight: 500;
     padding-left: 10px;
+    &.sorted {
+      padding-left: 5px;
+    }
   }
   .draggable-header {
     cursor: pointer;
@@ -255,18 +271,26 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
   }
 `;
 
-export const TableHeaderWrapper = styled.div`
+export const TableHeaderWrapper = styled.div<{
+  serverSidePaginationEnabled: boolean;
+  width: number;
+}>`
   display: flex;
-  align-items: center;
-  width: 100%;
+  align-items: flex-end;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  min-width: 700px;
+  width: ${props => props.width}px;
+  .show-page-items {
+    display: ${props => (props.width < 700 ? "none" : "flex")};
+  }
+  overflow-x: ${props => (props.width < 600 ? "scroll" : "none")};
+  ${scrollbarLight};
+  height: 78px;
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div`
   display: flex;
   align-items: center;
-  height: 100%;
+  height: 60px;
 `;
 
 export const RowWrapper = styled.div`
@@ -297,4 +321,8 @@ export const TableIconWrapper = styled.div<{
   &:hover {
     background: ${Colors.ATHENS_GRAY};
   }
+`;
+
+export const SortIconWrapper = styled.div<{ rotate: boolean }>`
+  transform: ${props => (props.rotate ? "rotate(180deg)" : "none")};
 `;

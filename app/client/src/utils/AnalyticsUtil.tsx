@@ -193,7 +193,11 @@ class AnalyticsUtil {
     AnalyticsUtil.user = userData;
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
-      windowDoc.analytics.identify(userId, userData);
+      windowDoc.analytics.identify(userId, {
+        email: userData.email,
+        name: userData.name,
+        userId: userId,
+      });
     }
   }
 

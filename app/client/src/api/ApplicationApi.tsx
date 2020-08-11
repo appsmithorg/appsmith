@@ -46,7 +46,7 @@ export interface CreateApplicationRequest {
 }
 
 export interface SetDefaultPageRequest {
-  pageId: string;
+  id: string;
   applicationId: string;
 }
 
@@ -87,7 +87,7 @@ class ApplicationApi extends Api {
   static changeAppViewAccessPath = (applicationId: string) =>
     `${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
-    `${ApplicationApi.baseURL}${request.applicationId}/page/${request.pageId}/makeDefault`;
+    `${ApplicationApi.baseURL}${request.applicationId}/page/${request.id}/makeDefault`;
   static publishApplication(
     publishApplicationRequest: PublishApplicationRequest,
   ): AxiosPromise<PublishApplicationResponse> {

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import {
   reduxForm,
@@ -15,7 +15,6 @@ import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField } from "api/ActionAPI";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
@@ -137,10 +136,6 @@ interface APIFormProps {
   actionConfigurationHeaders?: any;
   actionName: string;
   apiId: string;
-  location: {
-    pathname: string;
-  };
-  dispatch: any;
   apiName: string;
 }
 
@@ -153,7 +148,6 @@ export const NameWrapper = styled.div`
   input {
     margin: 0;
     box-sizing: border-box;
-    // border: 0;
   }
 `;
 
@@ -169,17 +163,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionConfigurationBody,
     httpMethodFromForm,
     actionName,
-    location,
-    dispatch,
   } = props;
-  useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.SET_LAST_USED_EDITOR_PAGE,
-      payload: {
-        path: location.pathname,
-      },
-    });
-  });
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
@@ -321,6 +305,5 @@ export default connect((state: AppState) => {
 })(
   reduxForm<RestAction, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
-    destroyOnUnmount: false,
   })(ApiEditorForm),
 );

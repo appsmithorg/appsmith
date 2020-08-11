@@ -65,7 +65,7 @@ const PageName = styled.h5<{ isMain: boolean }>`
   border-right: 4px solid;
   margin: 10px 0;
   border-color: ${props =>
-    props.isMain ? props.theme.colors.primary : "transparent"};
+    props.isMain ? props.theme.colors.primaryOld : "transparent"};
 `;
 
 const PageDropContainer = styled.div`

@@ -22,9 +22,8 @@ import { ExecuteActionPayload } from "constants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { PositionTypes } from "constants/WidgetConstants";
-
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import {
   BASE_WIDGET_VALIDATION,
@@ -131,6 +130,7 @@ abstract class BaseWidget<
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   componentDidUpdate(prevProps: T) {}
 
   componentDidMount(): void {}

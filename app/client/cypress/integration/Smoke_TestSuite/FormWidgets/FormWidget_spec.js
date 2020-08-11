@@ -2,12 +2,14 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/formdsl.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Form Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
   it("Form Widget Functionality", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("formwidget");
     /**
      * @param{Text} Random Text
@@ -43,6 +45,7 @@ describe("Form Widget Functionality", function() {
   });
   it("Form Widget Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("formwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
