@@ -231,9 +231,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                 .map(datasource -> {
                                     Datasource updatedDatasource;
                                     if (isPublic) {
-                                        updatedDatasource = (Datasource) policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                                        updatedDatasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
                                     } else {
-                                        updatedDatasource = (Datasource) policyUtils.removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
+                                        updatedDatasource = policyUtils.removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
                                     }
 
                                     return datasourceService.save(updatedDatasource);
@@ -251,9 +251,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     Application updatedApplication;
 
                     if (isPublic) {
-                        updatedApplication = (Application) policyUtils.addPoliciesToExistingObject(applicationPolicyMap, (Application) application);
+                        updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
                     } else {
-                        updatedApplication = (Application) policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, (Application) application);
+                        updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);
                     }
 
                     return repository.save(updatedApplication);

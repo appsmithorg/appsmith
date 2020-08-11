@@ -325,7 +325,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     Set<AclPermission> invitePermissions = inviteUser.getRole().getPermissions();
                     // Append the permissions to the application and return
                     Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(invitePermissions, inviteUser);
-                    return (Application) policyUtils.addPoliciesToExistingObject(policyMap, application);
+                    return policyUtils.addPoliciesToExistingObject(policyMap, application);
 
                     // Append the required permissions to all the pages
                     /**
