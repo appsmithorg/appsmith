@@ -7,7 +7,6 @@ import { createNewQueryName } from "utils/AppsmithUtils";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "api/DatasourcesApi";
-import history from "utils/history";
 import { createActionRequest } from "actions/actionActions";
 import { Page } from "constants/ReduxActionConstants";
 import {
@@ -129,7 +128,7 @@ type QueryHomeScreenProps = {
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   handleCreateNewQuery = (dataSourceId: string, params: string) => {
-    const { actions, pages, applicationId } = this.props;
+    const { actions, pages } = this.props;
     const pageId = new URLSearchParams(params).get("importTo");
     const page = pages.find(page => page.pageId === pageId);
 
@@ -139,9 +138,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
     if (pageId) {
       const newQueryName = createNewQueryName(actions, pageId);
 
-      history.push(
-        QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
-      );
       this.props.createAction({
         name: newQueryName,
         pageId,

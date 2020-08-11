@@ -12,13 +12,10 @@ describe("API Panel Test Functionality", function() {
     cy.SaveAndRunAPI();
     cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get);
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.get(apiwidget.createApiOnSideBar)
-      .first()
-      .click({ force: true });
-    cy.SearchAPIandClick("FirstAPI");
+    cy.SearchEntityandOpen("FirstAPI");
     cy.EditApiName("SecondAPI");
     cy.ClearSearch();
-    cy.SearchAPIandClick("SecondAPI");
+    cy.SearchEntityandOpen("SecondAPI");
     cy.DeleteAPI();
   });
 });

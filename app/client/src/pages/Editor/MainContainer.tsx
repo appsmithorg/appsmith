@@ -1,6 +1,6 @@
 import React from "react";
 import EditorsRouter from "./routes";
-import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 import WidgetsEditor from "./WidgetsEditor";
 import styled from "styled-components";
 
@@ -17,7 +17,7 @@ const EditorContainer = styled.div`
 const MainContainer = () => {
   return (
     <Container>
-      <Sidebar />
+      <Navbar />
       <EditorContainer>
         <EditorsRouter />
         <WidgetsEditor />
@@ -25,5 +25,7 @@ const MainContainer = () => {
     </Container>
   );
 };
+
+MainContainer.displayName = "MainContainer";
 
 export default MainContainer;

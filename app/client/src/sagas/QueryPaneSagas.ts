@@ -1,4 +1,3 @@
-import { take } from "lodash";
 import { all, select, put, takeEvery } from "redux-saga/effects";
 import {
   ReduxAction,
@@ -19,8 +18,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { initialize } from "redux-form";
-import { AppState } from "reducers";
-import { changeQuery } from "actions/queryPaneActions";
 import {
   getAction,
   getPluginEditorConfigs,
@@ -29,56 +26,18 @@ import {
 import { RestAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
+import { changeQuery } from "actions/queryPaneActions";
 
-const getActions = (state: AppState) =>
-  state.entities.actions.map(a => a.config);
-
-const getLastUsedAction = (state: AppState) => state.ui.queryPane.lastUsed;
-
-const getQueryCreationStatus = (state: AppState) =>
-  state.ui.queryPane.isCreating;
-
-function* initQueryPaneSaga(
-  actionPayload: ReduxAction<{
-    pluginType: string;
-    id?: string;
-  }>,
-) {
-  let actions = yield select(getActions);
-  while (!actions.length) {
-    yield take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS);
-    actions = yield select(getActions);
-  }
-  const urlId = actionPayload.payload.id;
-  const lastUsedId = yield select(getLastUsedAction);
-  const isCreating = yield select(getQueryCreationStatus);
-
-  let id = "";
-  if (urlId) {
-    id = urlId;
-  } else if (lastUsedId) {
-    id = lastUsedId;
-  }
-
-  if (isCreating) return;
-
-  yield put(changeQuery(id));
-}
-
-function* changeQuerySaga(
-  actionPayload: ReduxAction<{ id: string; newQuery?: boolean }>,
-) {
-  const { id, newQuery } = actionPayload.payload;
+function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
+  const { id } = actionPayload.payload;
   const state = yield select();
   const editorConfigs = state.entities.plugins.editorConfigs;
-
-  // Typescript says Element does not have blur function but it does;
-  document.activeElement &&
-    "blur" in document.activeElement &&
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    document.activeElement.blur();
-
+  // // Typescript says Element does not have blur function but it does;
+  // document.activeElement &&
+  //   "blur" in document.activeElement &&
+  //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  //   // @ts-ignore
+  //   document.activeElement.blur();
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   if (!applicationId || !pageId) {
@@ -95,14 +54,7 @@ function* changeQuerySaga(
     yield put(fetchPluginForm({ id: action.pluginId }));
   }
 
-  const URL = QUERIES_EDITOR_ID_URL(
-    applicationId,
-    pageId,
-    id,
-    newQuery ? { new: "true" } : undefined,
-  );
   yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
-  history.push(URL);
 }
 
 function* formValueChangeSaga(
@@ -131,9 +83,25 @@ function* formValueChangeSaga(
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
-  const { id, pluginType } = actionPayload.payload;
+  const { id, pluginType, pluginId } = actionPayload.payload;
+  const action = yield select(getAction, id);
+  const data = { ...action };
   if (pluginType === "DB") {
-    yield put(changeQuery(id, true));
+    const state = yield select();
+    const editorConfigs = state.entities.plugins.editorConfigs;
+
+    if (!editorConfigs[pluginId]) {
+      yield put(fetchPluginForm({ id: pluginId }));
+    }
+
+    yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.replace(
+      QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
+        new: "true",
+      }),
+    );
   }
 }
 
@@ -141,7 +109,6 @@ export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
     takeEvery(ReduxActionTypes.QUERY_PANE_CHANGE, changeQuerySaga),
-    takeEvery(ReduxActionTypes.INIT_QUERY_PANE, initQueryPaneSaga),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
