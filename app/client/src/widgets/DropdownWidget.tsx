@@ -1,6 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
@@ -113,13 +113,21 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       : [];
     const { componentWidth, componentHeight } = this.getComponentDimensions();
     const optionsLength = computedSelectedIndexArr.length;
+    let lengthOfOverflowingItems = -1;
+    const horizontalGaps = WIDGET_PADDING * 2 + 33;
+    const verticalGaps = WIDGET_PADDING * 2 + 4;
 
-    const maxItemsInARow = Math.ceil((componentWidth - 120) / 100);
-    const remainingHeight = componentHeight - 30;
-    const maxRowsInRemainingHeight = Math.ceil(remainingHeight / 30);
-    const totalFillableItems = maxRowsInRemainingHeight * maxItemsInARow;
+    const maxItemsInARow = Math.floor((componentWidth - horizontalGaps) / 100);
+    const totalRows = Math.floor((componentHeight - verticalGaps) / 22);
 
-    const lengthOfOverflowingItems = optionsLength - totalFillableItems;
+    const totalFillableItems =
+      totalRows > 0 ? totalRows * maxItemsInARow : maxItemsInARow;
+
+    lengthOfOverflowingItems = (totalFillableItems - (optionsLength + 1)) * -1;
+
+    if (maxItemsInARow < 0 || totalRows < 0 || totalFillableItems < 0) {
+      lengthOfOverflowingItems = -1;
+    }
 
     return (
       <DropDownComponent
