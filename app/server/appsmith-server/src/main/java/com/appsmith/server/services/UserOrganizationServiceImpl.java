@@ -246,7 +246,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "username"));
         }
 
-        Mono<Organization> organizationMono = organizationRepository.findById(orgId, MANAGE_ORGANIZATIONS);
+        Mono<Organization> organizationMono = organizationRepository
+                .findById(orgId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername());
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
