@@ -94,7 +94,7 @@ function hexToRgb(
 //   return new tinycolor(color).lighten(intensity).toString();
 // };
 
-const hexToRgba = (color: string, alpha: number) => {
+export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
 };
