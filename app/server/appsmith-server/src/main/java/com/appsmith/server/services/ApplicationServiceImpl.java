@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
@@ -176,7 +176,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
         return repository
-                .findById(id, MANAGE_APPLICATIONS)
+                .findById(id, MAKE_PUBLIC_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, id)))
                 .flatMap(application -> {
 

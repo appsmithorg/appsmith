@@ -44,13 +44,12 @@ public enum AclPermission {
     // Invitation related permissions
     ORGANIZATION_INVITE_USERS("inviteUsers:organization", Organization.class),
 
-    // Making an application public permission at Organization level
-    ORGANIZATION_PUBLIC_APP("makeAppPublic:orgApplications", Organization.class),
-
-
     MANAGE_APPLICATIONS("manage:applications", Application.class),
     READ_APPLICATIONS("read:applications", Application.class),
     PUBLISH_APPLICATIONS("publish:applications", Application.class),
+
+    // Making an application public permission at Organization level
+    MAKE_PUBLIC_APPLICATIONS("makeAppPublic:applications", Application.class),
 
     MANAGE_PAGES("manage:pages", Page.class),
     READ_PAGES("read:pages", Page.class),
