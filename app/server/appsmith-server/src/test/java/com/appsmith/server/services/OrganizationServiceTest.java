@@ -325,7 +325,7 @@ public class OrganizationServiceTest {
 
                     assertThat(org).isNotNull();
                     assertThat(org.getName()).isEqualTo("Spring Test Organization");
-                    assertThat(org.getUserRoles().get(0).getUsername()).isEqualTo("usertest@usertest.com");
+                    assertThat(org.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
 
                     Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
                             .users(Set.of("api_user", "usertest@usertest.com"))

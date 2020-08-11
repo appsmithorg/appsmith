@@ -35,6 +35,7 @@ public enum AppsmithError {
     DUPLICATE_KEY(409, 4024, "Duplicate key error"),
     USER_ALREADY_EXISTS_SIGNUP(409, 4025, "There is already an account registered with this username {0}. Please sign in."),
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access"),
+    ACTION_IS_NOT_AUTHORIZED(403, 4026, "The current user does not have the right permissions for this action"),
     INVALID_DATASOURCE_NAME(400, 4026, "Invalid datasource name. Check again."),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} with id {1}"),
     ACL_NO_RESOURCE_FOUND(404, 4028, "Unable to find {0} with id {1}. Either the asset doesn't exist or you don't have required permissions"),
