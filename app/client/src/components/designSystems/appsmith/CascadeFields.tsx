@@ -210,7 +210,11 @@ const RenderOptions = (props: {
       );
       if (selectedOptions && selectedOptions.length) {
         selectValue(selectedOptions[0].content);
+      } else {
+        selectValue(props.placeholder);
       }
+    } else {
+      selectValue(props.placeholder);
     }
   }, [props.value, configs.sections]);
   return <CustomizedDropdown {...configs} />;
@@ -330,6 +334,7 @@ function CaseCaseFieldReducer(
       return {
         ...state,
         column: action.payload.value,
+        condition: "",
         conditions: typeOperatorsMap[type],
         showConditions: true,
         isUpdate: true,
@@ -475,7 +480,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
             columns={conditions}
             selectItem={selectCondition}
             value={condition}
-            placeholder="Is"
+            placeholder=""
           />
         </DropdownWrapper>
       ) : null}
