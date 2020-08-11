@@ -21,7 +21,7 @@ import SubHeader from "pages/common/SubHeader";
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
-import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
+import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
 import { MenuIcons } from "icons/MenuIcons";
 import { DELETING_APPLICATION } from "constants/messages";
@@ -143,7 +143,7 @@ class Applications extends Component<
   }
 
   public render() {
-    const Form: any = InviteUsersFormv2;
+    const Form: any = OrgInviteUsersForm;
     const DropdownProps = (
       user: User,
       orgName: string,
@@ -280,7 +280,7 @@ class Applications extends Component<
                         />
                       }
                       canOutsideClickClose={true}
-                      Form={InviteUsersFormv2}
+                      Form={OrgInviteUsersForm}
                       orgId={organization.id}
                       title={`Invite Users to ${organization.name}`}
                     />

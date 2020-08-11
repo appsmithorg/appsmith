@@ -1,0 +1,137 @@
+import React, { useEffect } from "react";
+import styled from "styled-components";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
+import { getCurrentOrg } from "selectors/organizationSelectors";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "../Applications/permissionHelpers";
+import { getDefaultPageId } from "sagas/SagaUtils";
+import { getApplicationViewerPageURL } from "constants/routes";
+import OrgInviteUsersForm from "./OrgInviteUsersForm";
+import { StyledSwitch } from "components/propertyControls/StyledControls";
+import Spinner from "components/editorComponents/Spinner";
+
+const Title = styled.div`
+  font-weight: bold;
+  padding: 10px 0px;
+`;
+
+const ShareWithPublicOption = styled.div`
+   {
+    display: flex;
+    padding: 10px 0px;
+    justify-content: space-between;
+  }
+`;
+
+const ShareToggle = styled.div`
+   {
+    &&& label {
+      margin-bottom: 0px;
+    }
+    &&& div {
+      margin-right: 5px;
+    }
+    display: flex;
+  }
+`;
+
+const AppInviteUsersForm = (props: any) => {
+  const {
+    isFetchingApplication,
+    isChangingViewAccess,
+    currentApplicationDetails,
+    changeAppViewAccess,
+    applicationId,
+    fetchCurrentOrg,
+    currentOrg,
+  } = props;
+
+  const userPermissions = currentOrg?.userPermissions ?? [];
+  const canShare = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+  );
+
+  const getViewApplicationURL = () => {
+    const defaultPageId = getDefaultPageId(currentApplicationDetails.pages);
+    const appViewEndPoint = getApplicationViewerPageURL(
+      applicationId,
+      defaultPageId,
+    );
+    return window.location.origin.toString() + appViewEndPoint;
+  };
+
+  useEffect(() => {
+    fetchCurrentOrg(props.orgId);
+  }, [props.orgId, fetchCurrentOrg]);
+
+  return (
+    <>
+      {canShare ? (
+        <ShareWithPublicOption>
+          Make the application public
+          <ShareToggle>
+            {(isChangingViewAccess || isFetchingApplication) && (
+              <Spinner size={20} />
+            )}
+            {currentApplicationDetails && (
+              <StyledSwitch
+                onChange={() => {
+                  changeAppViewAccess(
+                    applicationId,
+                    !currentApplicationDetails.isPublic,
+                  );
+                }}
+                disabled={isChangingViewAccess || isFetchingApplication}
+                checked={currentApplicationDetails.isPublic}
+                large
+              />
+            )}
+          </ShareToggle>
+          {currentApplicationDetails.isPublic && (
+            <CopyToClipBoard copyText={getViewApplicationURL()} />
+          )}
+          <OrgInviteUsersForm orgId={props.orgId} isApplicationInvite={true} />
+        </ShareWithPublicOption>
+      ) : (
+        <>
+          <Title>Get Shareable link for this for this application </Title>
+          <CopyToClipBoard copyText={getViewApplicationURL()} />
+        </>
+      )}
+    </>
+  );
+};
+
+export default connect(
+  (state: AppState) => {
+    return {
+      currentOrg: getCurrentOrg(state),
+      currentApplicationDetails: state.ui.applications.currentApplication,
+      isFetchingApplication: state.ui.applications.isFetchingApplication,
+      isChangingViewAccess: state.ui.applications.isChangingViewAccess,
+    };
+  },
+  (dispatch: any) => ({
+    changeAppViewAccess: (applicationId: string, publicAccess: boolean) =>
+      dispatch({
+        type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,
+        payload: {
+          applicationId,
+          publicAccess,
+        },
+      }),
+    fetchCurrentOrg: (orgId: string) =>
+      dispatch({
+        type: ReduxActionTypes.FETCH_CURRENT_ORG,
+        payload: {
+          orgId,
+        },
+      }),
+  }),
+)(AppInviteUsersForm);
