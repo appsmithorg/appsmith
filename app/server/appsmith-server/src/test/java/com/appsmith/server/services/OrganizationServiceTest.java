@@ -32,6 +32,7 @@ import reactor.util.function.Tuple3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -250,17 +251,19 @@ public class OrganizationServiceTest {
                 .verifyComplete();
     }
 
-//    @Test
-//    public void getAllUserRolesForOrganizationDomain() {
-//        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForOrganization();
-//
-//        StepVerifier.create(userRolesForOrganization)
-//                .assertNext(roles -> {
-//                    assertThat(roles).isNotEmpty();
-//                    assertThat(roles).containsKeys("Administrator", "App Viewer", "Developer");
-//                })
-//                .verifyComplete();
-//    }
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAllUserRolesForOrganizationDomainAsAdministrator() {
+        Mono<Map<String, String>> userRolesForOrganization = organizationService.create(organization)
+                .flatMap(createdOrg -> organizationService.getUserRolesForOrganization(createdOrg.getId()));
+
+        StepVerifier.create(userRolesForOrganization)
+                .assertNext(roles -> {
+                    assertThat(roles).isNotEmpty();
+                    assertThat(roles).containsKeys("Administrator", "App Viewer", "Developer");
+                })
+                .verifyComplete();
+    }
 
     @Test
     @WithUserDetails(value = "api_user")
