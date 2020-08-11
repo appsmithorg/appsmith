@@ -314,6 +314,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
             userRole.setUsername(user.getUsername());
             userRole.setName(user.getName());
             userRole.setRole(role);
+            userRole.setRoleName(role.getName());
             newUserRoles.add(userRole);
         }
 
