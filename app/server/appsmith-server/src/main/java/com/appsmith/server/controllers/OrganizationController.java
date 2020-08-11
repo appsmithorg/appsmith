@@ -34,9 +34,9 @@ public class OrganizationController extends BaseController<OrganizationService, 
      * This function would be used to fetch all possible user roles at organization level.
      * @return
      */
-    @GetMapping("/roles")
-    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForOrganization() {
-        return service.getUserRolesForOrganization()
+    @GetMapping("/{orgId}/roles")
+    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForOrganization(@PathVariable String orgId) {
+        return service.getUserRolesForOrganization(orgId)
                 .map(permissions -> new ResponseDTO<>(HttpStatus.OK.value(), permissions, null));
     }
 

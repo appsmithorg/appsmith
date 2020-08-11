@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
@@ -31,7 +32,6 @@ import reactor.util.function.Tuple3;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,6 +75,9 @@ public class OrganizationServiceTest {
 
     @Autowired
     DatasourceRepository datasourceRepository;
+
+    @Autowired
+    RoleGraph roleGraph;
 
     Organization organization;
 
@@ -247,17 +250,17 @@ public class OrganizationServiceTest {
                 .verifyComplete();
     }
 
-    @Test
-    public void getAllUserRolesForOrganizationDomain() {
-        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForOrganization();
-
-        StepVerifier.create(userRolesForOrganization)
-                .assertNext(roles -> {
-                    assertThat(roles).isNotEmpty();
-                    assertThat(roles).containsKeys("Administrator", "App Viewer", "Developer");
-                })
-                .verifyComplete();
-    }
+//    @Test
+//    public void getAllUserRolesForOrganizationDomain() {
+//        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForOrganization();
+//
+//        StepVerifier.create(userRolesForOrganization)
+//                .assertNext(roles -> {
+//                    assertThat(roles).isNotEmpty();
+//                    assertThat(roles).containsKeys("Administrator", "App Viewer", "Developer");
+//                })
+//                .verifyComplete();
+//    }
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -870,6 +873,19 @@ public class OrganizationServiceTest {
                     Set<String> organizationIds = user.getOrganizationIds();
                     assertThat(organizationIds).contains(org.getId());
 
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void roles() {
+        List<AppsmithRole> roles = roleGraph.generateChildRoles("Administrator");
+
+        StepVerifier.create(Mono.just(roles))
+                .assertNext(appsmithRoles -> {
+                    assertThat(appsmithRoles).isNotNull();
+                    assertThat(appsmithRoles).hasSize(3);
                 })
                 .verifyComplete();
     }

@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static java.util.stream.Collectors.toMap;
@@ -241,7 +242,32 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     }
 
     @Override
-    public Mono<Map<String, String>> getUserRolesForOrganization() {
+    public Mono<Map<String, String>> getUserRolesForOrganization(String orgId) {
+
+        Mono<Organization> organizationMono = repository.findById(orgId, ORGANIZATION_INVITE_USERS);
+        Mono<String> usernameMono = sessionUserService
+                .getCurrentUser()
+                .map(user -> user.getUsername());
+
+//        Mono.zip(organizationMono, usernameMono)
+//                .map(tuple -> {
+//                    Organization organization = tuple.getT1();
+//                    String username = tuple.getT2();
+//
+//                    List<UserRole> userRoles = organization.getUserRoles();
+//                    if (userRoles == null || userRoles.isEmpty()) {
+//                        return Mono.empty();
+//                    }
+//
+//                    Optional<UserRole> optionalUserRole = userRoles.stream().filter(role -> role.getUsername().equals(username)).findFirst();
+//                    if (!optionalUserRole.isPresent()) {
+//                        return Mono.empty();
+//                    }
+//                    UserRole currentUserRole = optionalUserRole.get();
+//                    String roleName = currentUserRole.getRoleName();
+//
+//                });
+
         // Get all the roles for Organization entity from the enum AppsmithRole
         Map<String, String> appsmithRoles = Arrays.asList(AppsmithRole.values())
                 .stream()
