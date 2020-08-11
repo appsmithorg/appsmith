@@ -8,23 +8,17 @@ import {
   Configure,
   PoweredBy,
 } from "react-instantsearch-dom";
-
 import "instantsearch.css/themes/algolia.css";
-
-import PropTypes from "prop-types";
-import { Icon } from "@blueprintjs/core";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  setHelpModalVisibility,
-  setHelpDefaultRefinement,
-} from "actions/helpActions";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { getDefaultRefinement } from "selectors/helpSelectors";
 import { getAppsmithConfigs } from "configs";
+
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
+
 const OenLinkIcon = HelpIcons.OPEN_LINK;
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -47,15 +41,12 @@ const StyledDocumentIcon = styled(DocumentIcon)`
   margin-top: 1px;
   position: absolute;
 `;
-function Hit(props: any) {
+function Hit(props: { hit: { path: string } }) {
   return (
     <div
       className="t--docHit"
       onClick={() => {
-        window.open(
-          (props.hit.path as string).replace("master", HelpBaseURL),
-          "_blank",
-        );
+        window.open(props.hit.path.replace("master", HelpBaseURL), "_blank");
       }}
     >
       <div className="hit-name t--docHitTitle">
@@ -70,12 +61,8 @@ function Hit(props: any) {
   );
 }
 
-Hit.propTypes = {
-  hit: PropTypes.object.isRequired,
-};
-
 const Header = styled.div`
-  padding: 5px;
+  padding: 10px 0;
   position: absolute;
   width: 100%;
   border-top-right-radius: 3px;
@@ -104,8 +91,8 @@ const SearchContainer = styled.div`
   }
 
   .ais-Hits {
-    margin-top: 86px;
-    height: calc(100% - 86px);
+    margin-top: 50px;
+    height: calc(100% - 50px);
     overflow: auto;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -205,12 +192,17 @@ const SearchContainer = styled.div`
 const StyledPoweredBy = styled(PoweredBy)`
   position: absolute;
   right: 21px;
-  bottom: 23px;
+  top: 19px;
   z-index: 1;
 
   .ais-PoweredBy-text {
     display: none;
   }
+`;
+
+const HelpFooter = styled.div`
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 15px 30px;
 `;
 
 export default function DocumentationSearch(props: { hitsPerPage: number }) {
@@ -220,7 +212,6 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
     <SearchContainer className="ais-InstantSearch t--docSearchModal">
       <div
         style={{
-          height: "100%",
           overflow: "auto",
         }}
       >
@@ -233,8 +224,12 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
             <StyledPoweredBy />
             <SearchBox defaultRefinement={defaultRefinement} />
           </Header>
+          <Hits hitComponent={Hit as any} />
         </InstantSearch>
       </div>
+      <HelpFooter>
+        <p>Appsmith v1.1</p>
+      </HelpFooter>
     </SearchContainer>
   );
 }
