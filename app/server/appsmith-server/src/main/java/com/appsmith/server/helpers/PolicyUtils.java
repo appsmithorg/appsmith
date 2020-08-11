@@ -35,7 +35,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
 @Component
-public class PolicyUtils<T extends BaseDomain> {
+public class PolicyUtils {
 
     private final PolicyGenerator policyGenerator;
     private final ApplicationRepository applicationRepository;
@@ -55,7 +55,7 @@ public class PolicyUtils<T extends BaseDomain> {
         this.datasourceRepository = datasourceRepository;
     }
 
-    public T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
+    public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
         final Map<String, Policy> policyMap1 = new HashMap<>();
@@ -83,7 +83,7 @@ public class PolicyUtils<T extends BaseDomain> {
         return obj;
     }
 
-    public T removePoliciesFromExistingObject(Map<String, Policy> policyMap, T obj) {
+    public <T extends BaseDomain> T removePoliciesFromExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
         final Map<String, Policy> policyMap1 = new HashMap<>();
@@ -168,9 +168,9 @@ public class PolicyUtils<T extends BaseDomain> {
                 .switchIfEmpty(Mono.empty())
                 .map(datasource -> {
                     if (addPolicyToObject) {
-                        return (Datasource) addPoliciesToExistingObject(newPoliciesMap, (T) datasource);
+                        return addPoliciesToExistingObject(newPoliciesMap, datasource);
                     } else {
-                        return (Datasource) removePoliciesFromExistingObject(newPoliciesMap, (T) datasource);
+                        return removePoliciesFromExistingObject(newPoliciesMap, datasource);
                     }
                 })
                 .collectList()
@@ -185,9 +185,9 @@ public class PolicyUtils<T extends BaseDomain> {
                 .switchIfEmpty(Mono.empty())
                 .map(application -> {
                     if (addPolicyToObject) {
-                        return (Application) addPoliciesToExistingObject(newAppPoliciesMap, (T) application);
+                        return addPoliciesToExistingObject(newAppPoliciesMap, application);
                     } else {
-                        return (Application) removePoliciesFromExistingObject(newAppPoliciesMap, (T) application);
+                        return removePoliciesFromExistingObject(newAppPoliciesMap, application);
                     }
                 })
                 .collectList()
@@ -213,9 +213,9 @@ public class PolicyUtils<T extends BaseDomain> {
                 .switchIfEmpty(Mono.empty())
                 .map(page -> {
                     if (addPolicyToObject) {
-                        return (Page) addPoliciesToExistingObject(newPagePoliciesMap, (T) page);
+                        return addPoliciesToExistingObject(newPagePoliciesMap, page);
                     } else {
-                        return (Page) removePoliciesFromExistingObject(newPagePoliciesMap, (T) page);
+                        return removePoliciesFromExistingObject(newPagePoliciesMap, page);
                     }
                 })
                 .collectList()
@@ -241,9 +241,9 @@ public class PolicyUtils<T extends BaseDomain> {
                 .switchIfEmpty(Mono.empty())
                 .map(action -> {
                     if (addPolicyToObject) {
-                        return (Action) addPoliciesToExistingObject(newActionPoliciesMap, (T) action);
+                        return addPoliciesToExistingObject(newActionPoliciesMap, action);
                     } else {
-                        return (Action) removePoliciesFromExistingObject(newActionPoliciesMap, (T) action);
+                        return removePoliciesFromExistingObject(newActionPoliciesMap, action);
                     }
                 })
                 .map(action -> {
