@@ -2,14 +2,15 @@ package com.appsmith.server.acl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jgrapht.Graph;
-import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.appsmith.server.acl.AppsmithRole.APPLICATION_ADMIN;
 import static com.appsmith.server.acl.AppsmithRole.APPLICATION_VIEWER;
@@ -39,10 +40,16 @@ public class RoleGraph {
         hierarchyGraph.addEdge(APPLICATION_ADMIN, APPLICATION_VIEWER);
     }
 
-    public List<AppsmithRole> generateChildRoles(String roleName) {
+    public Set<AppsmithRole> generateHierarchicalRoles(String roleName) {
         AppsmithRole role = AppsmithRole.generateAppsmithRoleFromName(roleName);
-        List<AppsmithRole> appsmithRoles = Graphs.successorListOf(hierarchyGraph, role);
-        log.debug("Got roles : {}", appsmithRoles);
-        return appsmithRoles;
+
+        Set<AppsmithRole> childrenRoles = new HashSet<>();
+        childrenRoles.add(role);
+        BreadthFirstIterator<AppsmithRole, DefaultEdge> breadthFirstIterator = new BreadthFirstIterator<>(hierarchyGraph, role);
+        while(breadthFirstIterator.hasNext()) {
+            childrenRoles.add(breadthFirstIterator.next());
+        }
+
+        return childrenRoles;
     }
 }
