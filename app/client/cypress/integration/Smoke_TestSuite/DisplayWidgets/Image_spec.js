@@ -2,12 +2,15 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../locators/ViewWidgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/displayWidgetDsl.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Image Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
+
   it("Image Widget Functionality", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("imagewidget");
     /**
      * @param{Text} Random Text
@@ -40,6 +43,7 @@ describe("Image Widget Functionality", function() {
   });
   it("Image Widget Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("imagewidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -47,6 +51,7 @@ describe("Image Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Image Widget Functionality To Check Visible Widget", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("imagewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();

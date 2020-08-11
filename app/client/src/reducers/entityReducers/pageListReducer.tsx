@@ -12,15 +12,14 @@ const initialState: PageListReduxState = {
 const pageListReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_PAGE_INIT]: (
     state: PageListReduxState,
-    action: ReduxAction<{ pageId: string }>,
+    action: ReduxAction<{ id: string }>,
   ) => {
-    if (state.defaultPageId !== action.payload.pageId) {
-      const pages = state.pages.filter(
-        page => page.pageId !== action.payload.pageId,
-      );
+    if (state.defaultPageId !== action.payload.id) {
+      const pages = [
+        ...state.pages.filter(page => page.pageId !== action.payload.id),
+      ];
       return {
-        applicationId: state.applicationId,
-        defaultPageId: state.defaultPageId,
+        ...state,
         pages,
       };
     }
@@ -60,7 +59,16 @@ const pageListReducer = createReducer(initialState, {
       state.applicationId === action.payload.applicationId &&
       state.defaultPageId !== action.payload.pageId
     ) {
-      return { ...state, defaultPageId: action.payload.pageId };
+      const pageList = state.pages.map(page => {
+        if (page.pageId === state.defaultPageId) page.isDefault = false;
+        if (page.pageId === action.payload.pageId) page.isDefault = true;
+        return page;
+      });
+      return {
+        ...state,
+        pages: pageList,
+        defaultPageId: action.payload.pageId,
+      };
     }
     return state;
   },

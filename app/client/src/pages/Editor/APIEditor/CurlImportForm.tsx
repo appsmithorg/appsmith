@@ -14,7 +14,7 @@ import { Colors } from "constants/Colors";
 import Button from "components/editorComponents/Button";
 import CurlLogo from "assets/images/Curl-logo.svg";
 
-const CurlImportFormContainer = styled.form`
+const CurlImportFormContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -111,7 +111,6 @@ type Props = StateAndRouteProps &
 class CurlImportForm extends React.Component<Props> {
   render() {
     const { handleSubmit, history, isImportingCurl } = this.props;
-
     return (
       <React.Fragment>
         <Header>

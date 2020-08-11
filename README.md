@@ -37,6 +37,9 @@ Do all this **without HTML/CSS**, and writing any custom integrations.
 
 * [Customer Support Dashboard](https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79#utm_source=github&utm_medium=homepage)
 
+## Build & Deploy
+
+* [Docker](https://docs.appsmith.com/quick-start#docker)
 
 ## Why Appsmith?
 
@@ -54,10 +57,6 @@ Appsmith provides a better way of building internal tools by visualising them as
 * **Works with existing, live databases**: Connect directly to any Postgres & Mongo db
 * **Fine-grained access control**: Control who can edit / view your applications from a single control panel
 * **App management**: Build and organise multiple applications on a single platform
-
-## Build & Deploy
-
-* [Docker](https://docs.appsmith.com/quick-start#docker)
 
 ## Documentation & Support
 

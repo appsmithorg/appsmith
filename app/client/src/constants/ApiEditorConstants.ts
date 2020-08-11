@@ -1,7 +1,20 @@
 import { RestAction } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
+import { zipObject } from "lodash";
 
 export const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"];
+const HTTP_METHOD_COLORS = [
+  "#457AE6",
+  "#EABB0C",
+  "#5BB749",
+  "#E22C2C",
+  "#6D6D6D",
+];
+
+export const HTTP_METHOD_COLOR_MAP = zipObject(
+  HTTP_METHODS,
+  HTTP_METHOD_COLORS,
+);
 
 export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map(method => ({
   label: method,

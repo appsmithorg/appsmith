@@ -171,13 +171,11 @@ describe("API Panel Test Functionality", function() {
   it("API check with Invalid Header", function() {
     cy.CreateAPI("FourthAPI");
     cy.log("Creation of API Action successful");
-    cy.EnterSourceDetailsWithQueryParam(
+    cy.EnterSourceDetailsWithHeader(
       testdata.baseUrl,
       testdata.methods,
       testdata.headerKey,
       testdata.invalidValue,
-      testdata.queryKey,
-      testdata.queryValue,
     );
     cy.WaitAutoSave();
     cy.RunAPI();
