@@ -32,11 +32,13 @@ describe("Create a query with a postgres datasource, run, save and then delete t
     cy.runAndDeleteQuery();
 
     cy.NavigateToDatasourceEditor();
+    cy.get(".t--entity-name:contains(PostgreSQL)").click();
     cy.get("@createDatasource").then(httpResponse => {
-      const datasourceId = httpResponse.response.body.data.id;
+      const datasourceName = httpResponse.response.body.data.name;
 
-      cy.get(`[data-cy=${datasourceId}]`).click();
+      cy.get(`.t--entity-name:contains(${datasourceName})`).click();
     });
+
     cy.get(".t--delete-datasource").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",

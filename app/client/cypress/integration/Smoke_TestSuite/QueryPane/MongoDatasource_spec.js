@@ -33,10 +33,11 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.runAndDeleteQuery();
 
     cy.NavigateToDatasourceEditor();
+    cy.get(".t--entity-name:contains(MongoDB)").click();
     cy.get("@createDatasource").then(httpResponse => {
-      const datasourceId = httpResponse.response.body.data.id;
+      const datasourceName = httpResponse.response.body.data.name;
 
-      cy.get(`[data-cy=${datasourceId}]`).click();
+      cy.get(`.t--entity-name:contains(${datasourceName})`).click();
     });
     cy.get(".t--delete-datasource").click();
     cy.wait("@deleteDatasource").should(

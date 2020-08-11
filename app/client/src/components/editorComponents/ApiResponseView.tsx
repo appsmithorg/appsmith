@@ -39,7 +39,7 @@ const ResponseMetaInfo = styled.div`
 
 const StatusCodeText = styled(BaseText)<{ code: string }>`
   color: ${props =>
-    props.code.match(/2\d\d/) ? props.theme.colors.primary : Colors.RED};
+    props.code.match(/2\d\d/) ? props.theme.colors.primaryOld : Colors.RED};
 `;
 
 // const TableWrapper = styled.div`

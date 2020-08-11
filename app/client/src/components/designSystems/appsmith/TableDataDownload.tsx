@@ -3,7 +3,7 @@ import { IconWrapper } from "constants/IconConstants";
 import { Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-table.svg";
-import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+import { ReactTableColumnProps } from "widgets/TableWidget";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 
 interface TableDataDownloadProps {
@@ -23,6 +23,7 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
           if (column.metaProperties && !column.metaProperties.isHidden) {
             return column.Header;
           }
+          return null;
         })
         .filter(i => !!i),
     );
@@ -67,6 +68,15 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
     toggleButtonClick(false);
   };
 
+  if (props.columns.length === 0) {
+    return (
+      <TableIconWrapper disabled>
+        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+          <DownloadIcon />
+        </IconWrapper>
+      </TableIconWrapper>
+    );
+  }
   return (
     <TableIconWrapper
       onClick={() => {

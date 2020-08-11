@@ -469,7 +469,7 @@ export const generateWidgetProps = (
 
     const others = {};
     const props: ContainerWidgetProps<WidgetProps> = {
-      isVisible: true,
+      isVisible: WidgetTypes.MODAL_WIDGET === type ? undefined : true,
       ...widgetConfig,
       type,
       widgetName,

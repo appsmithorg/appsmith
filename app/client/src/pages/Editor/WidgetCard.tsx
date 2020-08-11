@@ -10,6 +10,7 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
+import { Colors } from "constants/Colors";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -17,10 +18,9 @@ type CardProps = {
 
 export const Wrapper = styled.div`
   padding: 10px 5px 10px 5px;
-  border-radius: ${props => props.theme.radii[1]}px;
-  background: ${props => props.theme.colors.paneCard};
-  border: 1px solid ${props => props.theme.colors.paneCard};
-  color: ${props => props.theme.colors.textOnDarkBG};
+  border-radius: 0px;
+  border: none;
+  color: ${Colors.ALTO};
   height: 72px;
   display: flex;
   align-items: center;
@@ -32,15 +32,16 @@ export const Wrapper = styled.div`
     justify-content: center;
   }
   &:hover {
-    background: #fff;
+    color: ${Colors.WHITE};
+    background: ${Colors.TUNDORA};
     cursor: grab;
-    color: ${props => props.theme.colors.textDefault};
+    color: ${Colors.WHITE};
     svg {
       path {
-        fill: ${props => props.theme.colors.textDefault};
+        fill: ${Colors.WHITE};
       }
       rect {
-        stroke: ${props => props.theme.colors.textDefault};
+        stroke: ${Colors.WHITE};
       }
     }
   }
@@ -57,7 +58,10 @@ export const IconLabel = styled.h5`
   font-weight: ${props => props.theme.fontWeights[1]};
   flex-shrink: 1;
   font-size: ${props => props.theme.fontSizes[1]}px;
-  line-height: ${props => props.theme.lineHeights[1]}px;
+  line-height: ${props => props.theme.lineHeights[2]}px;
+  &::selection {
+    background: none;
+  }
 `;
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -92,7 +96,7 @@ const WidgetCard = (props: CardProps) => {
   });
 
   const iconType: string = props.details.type;
-  const Icon = WidgetIcons[iconType]();
+  const Icon = WidgetIcons[iconType];
   const className = `t--widget-card-draggable-${props.details.type
     .split("_")
     .join("")
@@ -102,7 +106,7 @@ const WidgetCard = (props: CardProps) => {
       <DragPreviewImage connect={preview} src={blankImage} />
       <Wrapper ref={drag} className={className}>
         <div>
-          {Icon}
+          <Icon />
           <IconLabel>{props.details.widgetCardName}</IconLabel>
         </div>
       </Wrapper>

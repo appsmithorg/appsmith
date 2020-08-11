@@ -31,6 +31,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -65,14 +66,13 @@ public class RestApiPlugin extends BasePlugin {
     public static class RestApiPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<Object> execute(Object connection,
-                                    DatasourceConfiguration datasourceConfiguration,
-                                    ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(Object connection,
+                                                   DatasourceConfiguration datasourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
 
             ActionExecutionResult errorResult = new ActionExecutionResult();
             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
             errorResult.setIsExecutionSuccess(false);
-
 
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = datasourceConfiguration.getUrl() + path;
@@ -147,20 +147,19 @@ public class RestApiPlugin extends BasePlugin {
                         result.setStatusCode(statusCode.toString());
                         result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
 
-
                         // Convert the headers into json tree to store in the results
                         String headerInJsonString;
                         try {
                             headerInJsonString = objectMapper.writeValueAsString(headers);
                         } catch (JsonProcessingException e) {
-                            return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
+                            throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                         }
 
                         // Set headers in the result now
                         try {
                             result.setHeaders(objectMapper.readTree(headerInJsonString));
                         } catch (IOException e) {
-                            return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
+                            throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                         }
 
                         if (body != null) {
@@ -174,7 +173,7 @@ public class RestApiPlugin extends BasePlugin {
                                     String jsonBody = new String(body);
                                     result.setBody(objectMapper.readTree(jsonBody));
                                 } catch (IOException e) {
-                                    return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
+                                    throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||
@@ -191,7 +190,7 @@ public class RestApiPlugin extends BasePlugin {
                         return result;
                     })
                     .onErrorResume(e -> {
-                        errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage(e));
+                        errorResult.setBody(Exceptions.unwrap(e).getMessage());
                         errorResult.setRequest(actionExecutionRequest);
                         return Mono.just(errorResult);
                     });

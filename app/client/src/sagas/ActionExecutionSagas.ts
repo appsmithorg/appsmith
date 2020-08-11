@@ -1,4 +1,5 @@
 import {
+  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -77,7 +78,10 @@ function* navigateActionSaga(
 ) {
   const pageList = yield select(getPageList);
   const applicationId = yield select(getCurrentApplicationId);
-  const page = _.find(pageList, { pageName: action.pageNameOrUrl });
+  const page = _.find(
+    pageList,
+    (page: Page) => page.pageName === action.pageNameOrUrl,
+  );
   if (page) {
     AnalyticsUtil.logEvent("NAVIGATE", {
       pageName: action.pageNameOrUrl,

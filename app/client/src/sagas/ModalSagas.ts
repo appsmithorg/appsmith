@@ -25,6 +25,7 @@ import {
   getWidgetByName,
   getWidgetsMeta,
   getWidgetIdsByType,
+  getWidgetMetaProps,
 } from "sagas/selectors";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetMetaProperty } from "actions/metaActions";
@@ -89,7 +90,9 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   // Notice the empty payload.
   yield call(closeModalSaga, {
     type: ReduxActionTypes.CLOSE_MODAL,
-    payload: {},
+    payload: {
+      exclude: action.payload.modalId,
+    },
   });
 
   yield put({
@@ -98,12 +101,14 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
   yield put(focusWidget(action.payload.modalId));
 
-  // Then show the modal we would like to show.
-  yield put(
-    updateWidgetMetaProperty(action.payload.modalId, "isVisible", true),
-  );
-
-  yield delay(1);
+  const metaProps = yield select(getWidgetMetaProps, action.payload.modalId);
+  if (!metaProps || !metaProps.isVisible) {
+    // Then show the modal we would like to show.
+    yield put(
+      updateWidgetMetaProperty(action.payload.modalId, "isVisible", true),
+    );
+    yield delay(1000);
+  }
   yield put({
     type: ReduxActionTypes.SHOW_PROPERTY_PANE,
     payload: {
@@ -114,7 +119,9 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
 }
 
-export function* closeModalSaga(action: ReduxAction<{ modalName?: string }>) {
+export function* closeModalSaga(
+  action: ReduxAction<{ modalName?: string; exclude?: string }>,
+) {
   try {
     const { modalName } = action.payload;
     let widgetIds: string[] = [];
@@ -128,7 +135,6 @@ export function* closeModalSaga(action: ReduxAction<{ modalName?: string }>) {
       });
     } else {
       // If modalName is not provided, find all open modals
-
       // Get all meta prop records
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
 
@@ -147,6 +153,9 @@ export function* closeModalSaga(action: ReduxAction<{ modalName?: string }>) {
         }
       });
     }
+    widgetIds = action.payload.exclude
+      ? widgetIds.filter((id: string) => id !== action.payload.exclude)
+      : widgetIds;
     // If we have modals to close, set its isVisible to false to close.
     if (widgetIds) {
       yield all(
