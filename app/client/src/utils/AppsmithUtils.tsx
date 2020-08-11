@@ -31,7 +31,7 @@ export const appInitializer = () => {
   FeatureFlag.initialize(appsmithConfigs.featureFlag);
 
   if (appsmithConfigs.sentry.enabled) {
-    Sentry.init({ dsn: appsmithConfigs.sentry.apiKey });
+    Sentry.init(appsmithConfigs.sentry);
   }
   if (appsmithConfigs.hotjar.enabled) {
     const { id, sv } = appsmithConfigs.hotjar;
