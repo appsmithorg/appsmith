@@ -596,13 +596,13 @@ public class DatabaseChangelog {
         for (final Organization organization : organizations) {
             Set<String> adminUsernames = organization.getUserRoles()
                     .stream()
-                    .filter(role -> (role.getRoleName().equals(AppsmithRole.ORGANIZATION_ADMIN.getName())))
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
                     .map(role -> role.getUsername())
                     .collect(Collectors.toSet());
 
             Set<String> developerUsernames = organization.getUserRoles()
                     .stream()
-                    .filter(role -> (role.getRoleName().equals(AppsmithRole.ORGANIZATION_DEVELOPER.getName())))
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_DEVELOPER)))
                     .map(role -> role.getUsername())
                     .collect(Collectors.toSet());
 
@@ -635,19 +635,11 @@ public class DatabaseChangelog {
                     applicationPolicies = new HashSet<>();
                 }
 
-                Optional<Policy> publicAppPolicyOptional = applicationPolicies
-                        .stream()
-                        .filter(policy -> policy.getPermission().equals(MAKE_PUBLIC_APPLICATIONS.getValue())).findFirst();
+                Policy newPublicAppPolicy = Policy.builder().permission(MAKE_PUBLIC_APPLICATIONS.getValue())
+                        .users(adminUsernames).build();
+                applicationPolicies.add(newPublicAppPolicy);
+                application.setPolicies(applicationPolicies);
 
-                if (publicAppPolicyOptional.isPresent()) {
-                    Policy publicAppPolicy = publicAppPolicyOptional.get();
-                    publicAppPolicy.getUsers().addAll(adminUsernames);
-                } else {
-                    // this policy doesnt exist. create and add this to the policy set
-                    Policy newPublicAppPolicy = Policy.builder().permission(MAKE_PUBLIC_APPLICATIONS.getValue())
-                            .users(adminUsernames).build();
-                    application.getPolicies().add(newPublicAppPolicy);
-                }
                 mongoTemplate.save(application);
             }
         }
