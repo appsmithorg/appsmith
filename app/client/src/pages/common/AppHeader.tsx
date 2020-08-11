@@ -11,17 +11,11 @@ import {
   USER_AUTH_URL,
 } from "constants/routes";
 import { withRouter, RouteComponentProps } from "react-router";
+import AppViewerHeader from "pages/AppViewer/viewer/AppViewerHeader";
+import AppEditorHeader from "pages/Editor/EditorHeader";
 
 type Props = { getCurrentUser: () => void } & RouteComponentProps;
 
-const NoRender = () => {
-  return null;
-};
-/*
- * App header is rendered as the first thing in the app. This kicks off the auth check
- * Currently each path has rendered their own header but we can move that here to have
- * a consistent header experience
- */
 class AppHeader extends React.Component<Props, any> {
   componentDidMount() {
     this.props.getCurrentUser();
@@ -30,8 +24,8 @@ class AppHeader extends React.Component<Props, any> {
     return (
       <React.Fragment>
         <Switch>
-          <Route path={BUILDER_URL} component={NoRender} />
-          <Route path={APP_VIEW_URL} component={NoRender} />
+          <Route path={BUILDER_URL} component={AppEditorHeader} />
+          <Route path={APP_VIEW_URL} component={AppViewerHeader} />
           <Route path={USER_AUTH_URL} component={LoginHeader} />
           <Route path={BASE_URL} component={PageHeader} />
         </Switch>

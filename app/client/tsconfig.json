@@ -24,6 +24,7 @@
     "noEmit": true,
     "jsx": "react",
     "downlevelIteration": true,
+    "experimentalDecorators": true,
     "importHelpers": true,
     "typeRoots": [
       "./typings",

@@ -9,7 +9,7 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.InviteUserDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -342,12 +343,15 @@ public class UserServiceTest {
         organizationMono
                 .flatMap(organization1 -> {
                     // Add user to organization
-                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
-                    inviteUserDTO.setEmail(newUserEmail);
-                    inviteUserDTO.setOrgId(organization1.getId());
-                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add(newUserEmail);
+                    inviteUsersDTO.setUsernames(users);
+                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
-                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                            .collectList();
                 }).block();
 
         // Now Sign Up as the new user

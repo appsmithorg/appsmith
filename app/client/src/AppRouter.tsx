@@ -48,15 +48,8 @@ class AppRouter extends React.Component<any, any> {
               path={ORG_URL}
               component={OrganizationLoader}
               name={"Organisation"}
-              routeProtected
             />
-            <AppRoute
-              exact
-              path={USERS_URL}
-              component={Users}
-              name={"Users"}
-              routeProtected
-            />
+            <AppRoute exact path={USERS_URL} component={Users} name={"Users"} />
             <AppRoute
               path={USER_AUTH_URL}
               component={UserAuth}
@@ -67,19 +60,16 @@ class AppRouter extends React.Component<any, any> {
               path={APPLICATIONS_URL}
               component={ApplicationListLoader}
               name={"Home"}
-              routeProtected
             />
             <AppRoute
               path={BUILDER_URL}
               component={EditorLoader}
               name={"Editor"}
-              routeProtected
             />
             <AppRoute
               path={APP_VIEW_URL}
               component={AppViewerLoader}
               name={"AppViewer"}
-              routeProtected
               logDisable
             />
             <AppRoute

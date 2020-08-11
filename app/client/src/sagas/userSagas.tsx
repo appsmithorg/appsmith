@@ -78,6 +78,7 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      AnalyticsUtil.identifyUser(response.data.username, response.data);
       if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
@@ -85,7 +86,6 @@ export function* getCurrentUserSaga() {
           history.replace(APPLICATIONS_URL);
         }
       }
-
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
@@ -210,34 +210,25 @@ export function* inviteUser(
 
 export function* inviteUsers(
   action: ReduxActionWithPromise<{
-    data: { emails: string[]; orgId: string; roleName: string };
+    data: { usernames: string[]; orgId: string; roleName: string };
   }>,
 ) {
   const { data, resolve, reject } = action.payload;
   try {
-    const sagasToCall: any[] = [];
-
-    data.emails.forEach((email: string) => {
-      sagasToCall.push(
-        call(
-          inviteUser,
-          { email, orgId: data.orgId, roleName: data.roleName },
-          reject,
-        ),
-      );
+    const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
+      usernames: data.usernames,
+      orgId: data.orgId,
+      roleName: data.roleName,
     });
-    yield all(sagasToCall);
+    const isValidResponse = yield validateResponse(response);
+    if (!isValidResponse) {
+      let errorMessage = `${data.usernames}:  `;
+      errorMessage += getResponseErrorMessage(response);
+      yield call(reject, { _error: errorMessage });
+    }
     yield put({
       type: ReduxActionTypes.INVITE_USERS_TO_ORG_SUCCESS,
-      payload: {
-        inviteCount: sagasToCall.length,
-      },
-    });
-    yield put({
-      type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
-      payload: {
-        orgId: data.orgId,
-      },
+      payload: response.data,
     });
     yield call(resolve);
     yield put(reset(INVITE_USERS_TO_ORG_FORM));
