@@ -1,6 +1,6 @@
 import React from "react";
 import { CommonComponentProps } from "./common";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { ThemeProp, hexToRgba } from "./Button";
 import AdsText, { TextType } from "./Text";
 
