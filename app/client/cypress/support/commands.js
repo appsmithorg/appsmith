@@ -237,16 +237,13 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(homePage.deleteButton).click({ force: true });
 });
 
-Cypress.Commands.add("Deletepage", Pagename => {
-  cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(".t--page-sidebar-" + Pagename + "");
-  cy.get(
-    ".t--page-sidebar-" +
-      Pagename +
-      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
-  ).click({ force: true });
-  cy.get(pages.Menuaction).click({ force: true });
-  cy.get(pages.Delete).click({ force: true });
+Cypress.Commands.add("DeletepageFromSideBar", () => {
+  cy.xpath(pages.popover)
+    .last()
+    .click({ force: true });
+  cy.get(pages.deletePage)
+    .first()
+    .click({ force: true });
   cy.wait(2000);
 });
 
@@ -284,15 +281,27 @@ Cypress.Commands.add("SearchApp", appname => {
   // Wait added because after opening the application editor, sometimes it takes a little time.
 });
 
-Cypress.Commands.add("SearchAPI", (apiname1, apiname2) => {
-  cy.get("span:contains(".concat(apiname2).concat(")")).should("be.visible");
-  cy.get(apiwidget.searchApi)
-    .click({ force: true })
-    .type(apiname1, { force: true });
-  cy.get("span:contains(".concat(apiname1).concat(")")).should("be.visible");
-  cy.get("span:contains(".concat(apiname2).concat(")")).should(
-    "not.be.visible",
-  );
+Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
+  cy.get(commonlocators.entityExplorersearch).should("be.visible");
+  cy.get("#entity-explorer-search")
+    .clear()
+    .type(apiname1);
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).should("be.visible");
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname2).concat("')"),
+  ).should("not.be.visible");
+});
+
+Cypress.Commands.add("GlobalSearchEntity", apiname1 => {
+  cy.get(commonlocators.entityExplorersearch).should("be.visible");
+  cy.get("#entity-explorer-search")
+    .clear()
+    .type(apiname1);
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).should("be.visible");
 });
 
 Cypress.Commands.add("ResponseStatusCheck", statusCode => {
@@ -306,23 +315,27 @@ Cypress.Commands.add("ResponseCheck", textTocheck => {
 });
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
-  cy.get(pages.apiEditorIcon)
+  cy.xpath(pages.addEntityAPI)
+    .should("be.visible")
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
+});
+
+Cypress.Commands.add("NavigateToEntityExplorer", () => {
+  cy.get(pages.entityExplorer)
     .should("be.visible")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
 });
 
 Cypress.Commands.add("CreateAPI", apiname => {
-  cy.get(apiwidget.createApiOnSideBar)
-    .first()
-    .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.apiTxt).click();
+  cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
-    .type(apiname)
+    .type(apiname, { force: true })
     .should("have.value", apiname)
     .blur();
   cy.WaitAutoSave();
@@ -346,10 +359,10 @@ Cypress.Commands.add("CreateSubsequentAPI", apiname => {
 
 Cypress.Commands.add("EditApiName", apiname => {
   //cy.wait("@getUser");
-  cy.get(apiwidget.EditApiName).click();
+  cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
-    .type(apiname)
+    .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.WaitAutoSave();
 });
@@ -392,16 +405,21 @@ Cypress.Commands.add("SelectAction", action => {
 });
 
 Cypress.Commands.add("ClearSearch", () => {
-  cy.get(apiwidget.searchApi).clear();
+  cy.get(commonlocators.entityExplorersearch).should("be.visible");
+  cy.get(commonlocators.entityExplorersearch).clear();
 });
 
-Cypress.Commands.add("SearchAPIandClick", apiname1 => {
-  cy.get(apiwidget.searchApi)
-    .click({ force: true })
-    .type(apiname1, { force: true });
-  cy.get(".t--sidebar span:contains(".concat(apiname1).concat(")"))
-    .should("be.visible")
-    .click({ force: true });
+Cypress.Commands.add("SearchEntityandOpen", apiname1 => {
+  cy.get(commonlocators.entityExplorersearch).should("be.visible");
+  cy.get(commonlocators.entityExplorersearch)
+    .clear()
+    .type(apiname1);
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).should("be.visible");
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).click({ force: true });
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
@@ -532,16 +550,15 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
-  cy.get(apiwidget.createApiOnSideBar)
-    .first()
-    .click({ force: true });
+  cy.xpath(pages.addEntityAPI).click();
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
-    .type(apiname)
+    .type(apiname, { force: true })
     .should("have.value", apiname)
     .focus();
   cy.get(".bp3-popover-content").should($x => {
@@ -564,8 +581,8 @@ Cypress.Commands.add("MoveAPIToHome", apiname => {
 });
 
 Cypress.Commands.add("MoveAPIToPage", () => {
-  cy.get(apiwidget.popover)
-    .first()
+  cy.xpath(apiwidget.popover)
+    .last()
     .click({ force: true });
   cy.get(apiwidget.moveTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
@@ -576,9 +593,9 @@ Cypress.Commands.add("MoveAPIToPage", () => {
   );
 });
 
-Cypress.Commands.add("CopyAPIToHome", apiname => {
-  cy.get(apiwidget.popover)
-    .first()
+Cypress.Commands.add("CopyAPIToHome", () => {
+  cy.xpath(apiwidget.popover)
+    .last()
     .click({ force: true });
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
@@ -589,11 +606,27 @@ Cypress.Commands.add("CopyAPIToHome", apiname => {
   );
 });
 
-Cypress.Commands.add("DeleteAPI", apiname => {
-  cy.get(apiwidget.popover)
-    .first()
+Cypress.Commands.add("DeleteAPIFromSideBar", () => {
+  cy.xpath(apiwidget.popover)
+    .last()
     .click({ force: true });
   cy.get(apiwidget.delete).click({ force: true });
+  cy.wait("@deleteAction").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("DeleteAPI", apiname => {
+  cy.get(apiwidget.deleteAPI)
+    .first()
+    .click({ force: true });
+  cy.wait("@deleteAction").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
 
 Cypress.Commands.add("CreateModal", () => {
@@ -803,7 +836,19 @@ Cypress.Commands.add("DeleteModal", () => {
 
 Cypress.Commands.add("Createpage", Pagename => {
   cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(pages.AddPage).click();
+  cy.xpath(pages.AddPage)
+    .first()
+    .click();
+  cy.wait("@createPage").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+  cy.wait(2000);
+  cy.xpath(pages.popover)
+    .last()
+    .click({ force: true });
+  cy.get(pages.editName).click({ force: true });
   cy.get(pages.editInput)
     .type(Pagename)
     .type("{Enter}");
@@ -1025,11 +1070,8 @@ Cypress.Commands.add("tabVerify", (index, text) => {
     .should("be.visible");
 });
 
-Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.get(datasourceEditor.datasourceEditorIcon).click({ force: true });
-});
-
 Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
+  /*
   cy.wait("@getPluginForm").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1040,10 +1082,11 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
     "response.body.responseMeta.status",
     201,
   );
+  */
 });
 
 Cypress.Commands.add("NavigateToApiEditor", () => {
-  cy.get(pages.apiEditorIcon).click({ force: true });
+  cy.xpath(pages.addEntityAPI).click({ force: true });
 });
 
 Cypress.Commands.add("testCreateApiButton", () => {
@@ -1088,11 +1131,11 @@ Cypress.Commands.add("importCurl", () => {
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.get(datasourceEditor.datasourceEditorIcon).click({ force: true });
+  cy.xpath(datasourceEditor.addDatasourceEntity).click({ force: true });
 });
 
 Cypress.Commands.add("NavigateToQueryEditor", () => {
-  cy.get(queryEditor.queryEditorIcon).click({ force: true });
+  cy.xpath(queryEditor.addQueryEntity).click({ force: true });
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
@@ -1330,6 +1373,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/users/invite").as("postInvite");
   cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
   cy.route("GET", "/api/v1/users/me").as("getUser");
+  cy.route("POST", "/api/v1/pages").as("createPage");
 });
 
 Cypress.Commands.add("alertValidate", text => {
@@ -1395,11 +1439,9 @@ Cypress.Commands.add("ValidatePublishTableData", () => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
+  cy.NavigateToEntityExplorer();
   cy.NavigateToApiEditor();
-  cy.get("div[tabindex='0'] >div>span")
-    .contains("Api2")
-    .first()
-    .click();
+  cy.SearchEntityandOpen("Api2");
   cy.NavigateToPaginationTab();
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Menu, Button } from "@blueprintjs/core";
 import SideNavItem, { SideNavItemProps } from "./SideNavItem";

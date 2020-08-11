@@ -5,6 +5,8 @@ const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDragging: false,
   isResizing: false,
+  selectedWidget: undefined,
+  focusedWidget: undefined,
 };
 
 export const widgetDraggingReducer = createReducer(initialState, {
@@ -26,12 +28,26 @@ export const widgetDraggingReducer = createReducer(initialState, {
   ) => {
     return { ...state, ...action.payload };
   },
+  [ReduxActionTypes.SELECT_WIDGET]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetId?: string }>,
+  ) => {
+    return { ...state, selectedWidget: action.payload.widgetId };
+  },
+  [ReduxActionTypes.FOCUS_WIDGET]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetId?: string }>,
+  ) => {
+    return { ...state, focusedWidget: action.payload.widgetId };
+  },
 });
 
 export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
   isResizing: boolean;
+  selectedWidget?: string;
+  focusedWidget?: string;
 };
 
 export default widgetDraggingReducer;
