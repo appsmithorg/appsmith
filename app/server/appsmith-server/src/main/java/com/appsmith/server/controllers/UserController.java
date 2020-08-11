@@ -2,7 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.InviteUserDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.SessionUserService;
@@ -27,6 +27,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(Url.USER_URL)
@@ -124,16 +125,16 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     /**
-     * This function creates an invite for a new user to join the Appsmith platform. We require the Origin header
-     * in order to construct client facing URLs that will be sent to the user via email.
+     * This function creates an invite for new users to join an Appsmith organization. We require the Origin header
+     * in order to construct client facing URLs that will be sent to the users via email.
      *
-     * @param inviteUserDTO The inviteUserDto object for the new user being invited to the Appsmith platform
+     * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith organization
      * @param originHeader Origin header in the request
-     * @return The new user who has been created.
+     * @return List of new users who have been created/existing users who have been added to the organization.
      */
     @PostMapping("/invite")
-    public Mono<ResponseDTO<User>> inviteUserNew(@RequestBody InviteUserDTO inviteUserDTO, @RequestHeader("Origin") String originHeader) {
-        return service.inviteUser(inviteUserDTO, originHeader)
-                .map(resUser -> new ResponseDTO<>(HttpStatus.OK.value(), resUser, null));
+    public Mono<ResponseDTO<List<User>>> inviteUser(@RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
+        return service.inviteUser(inviteUsersDTO, originHeader).collectList()
+                .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 }
