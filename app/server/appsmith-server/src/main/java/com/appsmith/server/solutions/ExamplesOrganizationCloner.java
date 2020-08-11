@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
@@ -14,12 +13,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.OrganizationService;
@@ -44,8 +43,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ExamplesOrganizationCloner {
 
-    public static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
-
     private final OrganizationService organizationService;
     private final OrganizationRepository organizationRepository;
     private final DatasourceService datasourceService;
@@ -54,7 +51,7 @@ public class ExamplesOrganizationCloner {
     private final DatasourceRepository datasourceRepository;
     private final ApplicationRepository applicationRepository;
     private final ActionRepository actionRepository;
-    private final ConfigRepository configRepository;
+    private final ConfigService configService;
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final ApplicationPageService applicationPageService;
@@ -80,21 +77,18 @@ public class ExamplesOrganizationCloner {
             return Mono.empty();
         }
 
-        return configRepository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+        return configService.getTemplateOrganizationId()
                 .doOnSuccess(config -> {
                     if (config == null) {
                         // If the template organization could not be found, that's okay, the login should not fail. We
                         // will try again the next time the user logs in.
                         log.error(
-                                "Couldn't find config by name {}. Skipping creating example organization for user {}.",
-                                TEMPLATE_ORGANIZATION_CONFIG_NAME,
+                                "Template organization ID not found. Skipping creating example organization for user {}.",
                                 user.getEmail()
                         );
                     }
                 })
-                .flatMap(config ->
-                        cloneOrganizationForUser(config.getConfig().getAsString(FieldName.ORGANIZATION_ID), user)
-                );
+                .flatMap(templateOrganizationId -> cloneOrganizationForUser(templateOrganizationId, user));
     }
 
     /**
