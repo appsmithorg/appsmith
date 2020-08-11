@@ -2,7 +2,7 @@ import React from "react";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
-import { Link, useLocation } from "react-router-dom";
+import { Link, RouteComponentProps, useLocation, withRouter } from "react-router-dom";
 import Divider from "components/editorComponents/Divider";
 import {
   AuthCardHeader,
@@ -43,6 +43,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
+import { connect } from "react-redux";
+import { AppState } from "@appsmith/reducers";
 const {
   enableGithubOAuth,
   enableGoogleOAuth,
@@ -81,7 +83,9 @@ const validate = (values: SignupFormValues) => {
   return errors;
 };
 
-export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
+type SignUpFormProps = InjectedFormProps<SignupFormValues> & RouteComponentProps<{ email: string }>;
+
+export const SignUp = (props: SignUpFormProps) => {
   const { error, submitting, pristine, valid } = props;
   const location = useLocation();
 
@@ -158,8 +162,20 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
   );
 };
 
-export default reduxForm<SignupFormValues>({
-  validate,
-  form: SIGNUP_FORM_NAME,
-  touchOnBlur: true,
-})(SignUp);
+export default connect(
+  (state: AppState, props: SignUpFormProps) => {
+    const queryParams = new URLSearchParams(props.location.search);
+    return {
+      initialValues: {
+        email: queryParams.get("email"),
+      },
+    };
+  },
+  null,
+)(
+  reduxForm<SignupFormValues>({
+    validate,
+    form: SIGNUP_FORM_NAME,
+    touchOnBlur: true,
+  })(withRouter(SignUp)),
+);
