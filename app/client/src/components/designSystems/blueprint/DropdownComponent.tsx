@@ -56,6 +56,7 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     justify-content: space-between;
     box-shadow: none;
     background: white;
+    min-height: 32px;
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
@@ -153,7 +154,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
 }>`
   div {
     flex: 1 1 auto;
-    max-height: ${props => props.height}px;
+    max-height: ${props => props.height - WIDGET_PADDING * 2}px;
   }
   .${MultiSelectClasses.MULTISELECT} {
     position: relative;
@@ -168,6 +169,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
         justify-content: space-between;
         text-overflow: ellipsis;
         overflow: hidden;
+        min-height: 32px;
 
       .${Classes.TAG_INPUT_VALUES} {
         margin-top: 0;
@@ -206,6 +208,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
       .${Classes.INPUT_GHOST} {
         flex: 0 0 auto;
         margin: 0;
+        width: 60px;
       }
     }
   }
@@ -220,6 +223,7 @@ const StyledCheckbox = styled(Checkbox)`
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     let selectedItems = [];
+
     if (this.props.lengthOfOverflowingItems > 0) {
       selectedItems = this.props.selectedIndexArr
         ? _.map(
@@ -246,6 +250,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     }
     const hideCloseButtonIndex =
       this.props.lengthOfOverflowingItems > 0 ? selectedItems.length : -1;
+
     return (
       <DropdownContainer>
         <DropdownStyles />
