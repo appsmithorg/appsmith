@@ -289,7 +289,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     @Override
     public Mono<List<UserRole>> getOrganizationMembers(String orgId) {
         return repository
-                .findById(orgId, MANAGE_ORGANIZATIONS)
+                .findById(orgId, ORGANIZATION_INVITE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
                 .map(organization -> {
                     final List<UserRole> userRoles = organization.getUserRoles();

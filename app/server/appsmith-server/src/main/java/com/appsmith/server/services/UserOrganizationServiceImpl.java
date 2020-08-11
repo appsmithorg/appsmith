@@ -268,7 +268,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                         if (role.getUsername().equals(userRole.getUsername())) {
                             // User found in the organization.
 
-                            if (role.getRoleName().equals(userRole.getRoleName())) {
+                            if (role.getRole().equals(userRole)) {
                                 // No change in the role. Do nothing.
                                 Mono.just(userRole);
                             }
