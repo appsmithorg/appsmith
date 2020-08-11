@@ -84,6 +84,7 @@ const Wrapper = styled.div<{ step: number }>`
 
     & {
       code.${SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH} {
+        display: flex;
         white-space: pre-wrap;
         background: transparent;
         font-size: 11px;
@@ -91,6 +92,11 @@ const Wrapper = styled.div<{ step: number }>`
         text-shadow: none;
         padding-left: ${props =>
           props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
+        & span.token.property {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
       }
     }
 

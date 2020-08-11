@@ -7,7 +7,7 @@ describe("Test curl import flow", function() {
     cy.NavigateToApiEditor();
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
-      "curl -d {name:'morpheus',job:'leader'} -H Content-Type:application/json https://reqres.in/api/users",
+      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST https://reqres.in/api/users',
       {
         force: true,
         parseSpecialCharSequences: false,

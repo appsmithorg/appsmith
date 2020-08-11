@@ -80,4 +80,6 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
 
+### Cypress tests via Github Actions
 
+The cypress tests run via Github actions pull the `release` Docker image of the server to run as a service locally. This is to ensure that we don't face any network flakiness during tests.
