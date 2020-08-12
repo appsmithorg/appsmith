@@ -222,23 +222,23 @@ const StyledCheckbox = styled(Checkbox)`
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
+    const { selectedIndexArr } = this.props;
     let selectedItems = [];
 
     if (this.props.lengthOfOverflowingItems > 0) {
+      const selectedTagsToShow = this.props.selectedIndexArr.slice(
+        0,
+        this.props.selectedIndexArr.length -
+          (this.props.lengthOfOverflowingItems + 1),
+      );
+
       selectedItems = this.props.selectedIndexArr
-        ? _.map(
-            this.props.selectedIndexArr.slice(
-              0,
-              this.props.selectedIndexArr.length -
-                (this.props.lengthOfOverflowingItems + 1),
-            ),
-            index => {
-              return this.props.options[index];
-            },
-          )
+        ? _.map(selectedTagsToShow, index => {
+            return this.props.options[index];
+          })
         : [];
       selectedItems.push({
-        label: `${this.props.lengthOfOverflowingItems + 1} more`,
+        label: `${selectedIndexArr.length - selectedTagsToShow.length} more`,
         value: "",
       });
     } else {
