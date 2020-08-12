@@ -132,6 +132,7 @@ public class ApplicationServiceTest {
                 .create(applicationMono)
                 .assertNext(application -> {
                     assertThat(application).isNotNull();
+                    assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
                     assertThat(application.getPolicies()).isNotEmpty();
@@ -201,6 +202,7 @@ public class ApplicationServiceTest {
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
+                    assertThat(t.isAppIsExample()).isFalse();
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getName()).isEqualTo("validGetApplicationById-Test");
                 })
@@ -221,6 +223,7 @@ public class ApplicationServiceTest {
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
+                    assertThat(t.isAppIsExample()).isFalse();
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getName()).isEqualTo("validGetApplicationByName-Test");
                 })
@@ -248,6 +251,7 @@ public class ApplicationServiceTest {
                 .filter(t -> t.getName().equals("validGetApplications-Test"))
                 .forEach(t -> {
                     assertThat(t.getId()).isNotNull();
+                    assertThat(t.isAppIsExample()).isFalse();
                     assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getPolicies()).containsAll(Set.of(readAppPolicy));
                 });
@@ -329,6 +333,7 @@ public class ApplicationServiceTest {
 
                     Application application = orgAppDto.getApplications().get(0);
                     assertThat(application.getUserPermissions()).contains("read:applications");
+                    assertThat(application.isAppIsExample()).isFalse();
                 })
                 .verifyComplete();
 

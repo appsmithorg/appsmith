@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
@@ -29,4 +30,8 @@ public class Application extends BaseDomain {
     Boolean isPublic = false;
 
     List<ApplicationPage> pages;
+
+    @Transient
+    boolean appIsExample = false;
+
 }
