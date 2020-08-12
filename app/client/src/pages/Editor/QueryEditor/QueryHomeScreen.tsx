@@ -4,14 +4,10 @@ import { Icon, Card, Spinner } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
-import {
-  getPluginIdsOfPackageNames,
-  getPluginImages,
-} from "selectors/entitiesSelector";
+import { getPluginImages } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "api/DatasourcesApi";
 import { createActionRequest } from "actions/actionActions";
-import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { Page } from "constants/ReduxActionConstants";
 import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
@@ -118,7 +114,6 @@ type QueryHomeScreenProps = {
   pageId: string;
   createAction: (data: Partial<QueryAction>) => void;
   actions: ActionDataState;
-  pluginIds: Array<string> | undefined;
   isCreating: boolean;
   location: {
     search: string;
@@ -236,7 +231,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
   pluginImages: getPluginImages(state),
   actions: state.entities.actions,
   pages: state.entities.pageList.pages,
