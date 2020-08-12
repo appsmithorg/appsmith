@@ -13,7 +13,11 @@ import TableColumnsVisibility from "components/designSystems/appsmith/TableColum
 import TableFilters, {
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableFilters";
-import { ReactTableColumnProps, CompactMode } from "widgets/TableWidget";
+import {
+  ReactTableColumnProps,
+  CompactMode,
+  TableSizes,
+} from "widgets/TableWidget";
 import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
 import TableCompactMode from "components/designSystems/appsmith/TableCompactMode";
 import { Colors } from "constants/Colors";
@@ -26,7 +30,8 @@ const PageNumberInputWrapper = styled(NumericInput)`
     border: 1px solid ${Colors.GREEN};
     box-sizing: border-box;
     border-radius: 4px;
-    width: 32px;
+    width: 24px;
+    height: 24px;
     padding: 0 !important;
     text-align: center;
   }
@@ -81,6 +86,7 @@ interface TableHeaderProps {
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
   width: number;
+  tableSizes: TableSizes;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
@@ -94,7 +100,7 @@ const TableHeader = (props: TableHeaderProps) => {
         placeholder="Search..."
         onSearch={props.searchTableData}
       />
-      <CommonFunctionsMenuWrapper>
+      <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
         <TableFilters
           columns={props.columns}
           filters={props.filters}
