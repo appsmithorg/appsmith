@@ -1,7 +1,7 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import { getFormValues, change } from "redux-form";
+import { getFormValues } from "redux-form";
 import styled from "styled-components";
 import { QueryEditorRouteParams } from "constants/routes";
 import QueryEditorForm from "./Form";
@@ -18,15 +18,13 @@ import {
   getPlugins,
   getPluginImages,
   getDBDatasources,
+  getAction,
 } from "selectors/entitiesSelector";
-import {
-  PLUGIN_PACKAGE_DBS,
-  QUERY_BODY_FIELD,
-} from "constants/QueryEditorConstants";
+import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { changeQuery, initQueryPane } from "actions/queryPaneActions";
+import { changeQuery } from "actions/queryPaneActions";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -41,9 +39,7 @@ const LoadingContainer = styled(CenteredWrapper)`
 type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
-  createTemplate: (template: string) => void;
   changeQueryPage: (queryId: string) => void;
-  initQueryPane: (pluginType: string, queryId: string) => void;
 };
 
 type ReduxStateProps = {
@@ -56,6 +52,8 @@ type ReduxStateProps = {
   executedQueryData: any;
   isCreating: boolean;
   pluginImages: Record<string, string>;
+  editorConfig: [];
+  loadingFormConfigs: boolean;
   isEditorInitialized: boolean;
 };
 
@@ -88,7 +86,6 @@ class QueryEditor extends React.Component<Props> {
     const {
       dataSources,
       queryPane,
-      createTemplate,
       match: {
         params: { queryId },
       },
@@ -97,6 +94,8 @@ class QueryEditor extends React.Component<Props> {
       executedQueryData,
       isCreating,
       runErrorMessage,
+      loadingFormConfigs,
+      editorConfig,
       isEditorInitialized,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
@@ -133,7 +132,8 @@ class QueryEditor extends React.Component<Props> {
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
             dataSources={dataSources}
-            createTemplate={createTemplate}
+            editorConfig={editorConfig}
+            loadingFormConfigs={loadingFormConfigs}
             DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
             executedQueryData={executedQueryData[queryId]}
             runErrorMessage={runErrorMessage[queryId]}
@@ -153,9 +153,12 @@ class QueryEditor extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
+const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { runErrorMessage } = state.ui.queryPane;
+  const { plugins } = state.entities;
+  const { editorConfigs, loadingFormConfigs } = plugins;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
+  const queryAction = getAction(state, props.match.params.queryId);
 
   return {
     pluginImages: getPluginImages(state),
@@ -166,6 +169,10 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     executedQueryData: state.ui.queryPane.runQuerySuccessData,
     queryPane: state.ui.queryPane,
     formData,
+    editorConfig: queryAction?.pluginId
+      ? editorConfigs[queryAction.pluginId]
+      : [],
+    loadingFormConfigs,
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
   };
@@ -175,14 +182,9 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   runAction: (actionId: string) => dispatch(runAction(actionId)),
-  createTemplate: (template: any) => {
-    dispatch(change(QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template));
-  },
   changeQueryPage: (queryId: string) => {
     dispatch(changeQuery(queryId));
   },
-  initQueryPane: (pluginType: string, queryId: string) =>
-    dispatch(initQueryPane(pluginType, queryId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(QueryEditor);
