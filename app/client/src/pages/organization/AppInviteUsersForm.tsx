@@ -81,7 +81,7 @@ const AppInviteUsersForm = (props: any) => {
 
   return (
     <>
-      {canShareWithPublic ? (
+      {canShareWithPublic && (
         <>
           <ShareWithPublicOption>
             Make the application public
@@ -104,16 +104,11 @@ const AppInviteUsersForm = (props: any) => {
               )}
             </ShareToggle>
           </ShareWithPublicOption>
-          {currentApplicationDetails.isPublic && (
-            <CopyToClipBoard copyText={getViewApplicationURL()} />
-          )}
-        </>
-      ) : (
-        <>
-          <Title>Get Shareable link for this for this application </Title>
-          <CopyToClipBoard copyText={getViewApplicationURL()} />
         </>
       )}
+      <Title>Get Shareable link for this for this application </Title>
+      <CopyToClipBoard copyText={getViewApplicationURL()} />
+
       {canInviteToOrg && (
         <OrgInviteUsersForm orgId={props.orgId} isApplicationInvite={true} />
       )}

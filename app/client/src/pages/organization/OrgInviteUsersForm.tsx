@@ -27,6 +27,10 @@ import {
 import history from "utils/history";
 import { Colors } from "constants/Colors";
 import { isEmail } from "utils/formhelpers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "../Applications/permissionHelpers";
 
 const OrgInviteTitle = styled.div`
   font-weight: bold;
@@ -146,6 +150,12 @@ const OrgInviteUsersForm = (props: any) => {
   const currentPath = useLocation().pathname;
   const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
 
+  const userOrgPermissions = currentOrg?.userPermissions ?? [];
+  const canManage = isPermitted(
+    userOrgPermissions,
+    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+  );
+
   useEffect(() => {
     fetchUser(props.orgId);
     fetchAllRoles(props.orgId);
@@ -211,7 +221,7 @@ const OrgInviteUsersForm = (props: any) => {
             );
           })}
         </UserList>
-        {!pathRegex.test(currentPath) && (
+        {!pathRegex.test(currentPath) && canManage && (
           <Button
             className="manageUsers"
             text="Manage Users"
