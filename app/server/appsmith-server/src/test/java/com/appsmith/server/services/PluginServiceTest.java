@@ -11,9 +11,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
@@ -28,13 +28,18 @@ import static org.mockito.ArgumentMatchers.eq;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+/*
+ * The ClassMode BEFORE_EACH_TEST_METHOD is required to get the spy pluginService to reset before each test. Else
+ * the spies for each test interfere with each other. This increases the test time but unfortunately, that seems to be
+ * the only solution for now.
+ */
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class PluginServiceTest {
 
     @MockBean
     PluginExecutor pluginExecutor;
 
-    @Autowired
+    @SpyBean
     PluginService pluginService;
 
     @Before
@@ -54,23 +59,18 @@ public class PluginServiceTest {
                 })
                 .verifyComplete();
     }
-
-    /*
-     * The Mockito.spy used in the tests below is not implemented correctly. The spies seem to be sharing data across the
-     * tests. Refer to: https://dzone.com/articles/how-to-mock-spring-bean-version-2 on implementing this correctly
-     */
     
     // The datasource form config is mandatory for plugins. Hence we expect an error when that file is not present
     @Test
     public void getPluginFormWithNullFormConfig() {
-        PluginService pluginSpy = Mockito.spy(pluginService);
 
-        Mockito.when(pluginSpy.loadPluginResource(Mockito.anyString(), eq("form.json")))
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("form.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
-        Mockito.when(pluginSpy.loadPluginResource(Mockito.anyString(), eq("editor.json")))
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("editor.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
 
-        Mono<Map> formConfig = pluginSpy.getFormConfig("random-plugin-id");
+        Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
+
         StepVerifier.create(formConfig)
                 .expectError(AppsmithException.class)
                 .verify();
@@ -79,22 +79,43 @@ public class PluginServiceTest {
     // The editor form config is not mandatory for plugins. The function should return successfully even if it's not present
     @Test
     public void getPluginFormWithNullEditorConfig() {
-        PluginService pluginSpy = Mockito.spy(pluginService);
-
         Map formMap = new HashMap();
         formMap.put("form", new Object());
 
-        Mockito.when(pluginSpy.loadPluginResource(Mockito.anyString(), eq("form.json")))
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("form.json")))
                 .thenReturn(Mono.just(formMap));
-        Mockito.when(pluginSpy.loadPluginResource(Mockito.anyString(), eq("editor.json")))
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("editor.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
 
-        Mono<Map> formConfig = pluginSpy.getFormConfig("random-plugin-id");
+        Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
         StepVerifier.create(formConfig)
                 .assertNext(form -> {
                     assertThat(form).isNotNull();
                     assertThat(form.get("form")).isNotNull();
                     assertThat(form.get("editor")).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getPluginFormValid() {
+        Map formMap = new HashMap();
+        formMap.put("form", new Object());
+
+        Map editorMap = new HashMap();
+        editorMap.put("editor", new Object());
+
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("form.json")))
+                .thenReturn(Mono.just(formMap));
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("editor.json")))
+                .thenReturn(Mono.just(editorMap));
+
+        Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
+        StepVerifier.create(formConfig)
+                .assertNext(form -> {
+                    assertThat(form).isNotNull();
+                    assertThat(form.get("form")).isNotNull();
+                    assertThat(form.get("editor")).isNotNull();
                 })
                 .verifyComplete();
     }
