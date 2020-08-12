@@ -12,7 +12,7 @@ import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { HelpModal } from "components/designSystems/appsmith/help/HelpModal";
+import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import { Colors } from "constants/Colors";
 import AppsmithLogo from "assets/images/appsmith_logo_white.png";
@@ -257,7 +257,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           />
         </DeploySection>
       </HeaderSection>
-      {}
       <HelpModal />
     </HeaderWrapper>
   );
