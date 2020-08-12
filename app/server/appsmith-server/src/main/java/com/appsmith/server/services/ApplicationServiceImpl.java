@@ -80,6 +80,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         }
 
         return repository.findById(id, READ_APPLICATIONS)
+                .flatMap(this::setTransientFields)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
