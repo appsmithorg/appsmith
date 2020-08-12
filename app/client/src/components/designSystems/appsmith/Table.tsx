@@ -14,6 +14,7 @@ import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ReactTableColumnProps } from "widgets/TableWidget";
+import { Colors } from "constants/Colors";
 import {
   TABLE_SIZES,
   CompactMode,
@@ -119,6 +120,7 @@ export const Table = (props: TableProps) => {
       height={props.height}
       tableSizes={tableSizes}
       id={`table${props.widgetId}`}
+      backgroundColor={Colors.ATHENS_GRAY_DARKER}
     >
       <TableHeader
         width={props.width}

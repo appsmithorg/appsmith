@@ -40,13 +40,13 @@ export enum CompactModeTypes {
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 40,
+    TABLE_HEADER_HEIGHT: 45,
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 12,
   },
   [CompactModeTypes.SHORT]: {
     COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 40,
+    TABLE_HEADER_HEIGHT: 45,
     ROW_HEIGHT: 20,
     ROW_FONT_SIZE: 10,
   },
