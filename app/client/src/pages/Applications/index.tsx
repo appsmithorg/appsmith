@@ -230,46 +230,53 @@ class Applications extends Component<
 
             return (
               <OrgSection className="t--org-section" key={index}>
-                {!isPermitted(
-                  organization.userPermissions,
-                  PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
-                ) ? (
-                  <OrgName>
-                    {MenuIcons.ORG_ICON({
-                      color: IntentColors["secondary"],
-                      width: 16,
-                      height: 16,
-                    })}
-                    {organization.name}
-                  </OrgName>
-                ) : (
-                  <OrgDropDown>
-                    {this.props.currentUser && (
-                      <CustomizedDropdown
-                        {...DropdownProps(
-                          this.props.currentUser,
-                          organization.name,
-                          organization.id,
-                        )}
-                      />
-                    )}
+                <OrgDropDown>
+                  {!isPermitted(
+                    organization.userPermissions,
+                    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+                  ) ? (
+                    <OrgName>
+                      {MenuIcons.ORG_ICON({
+                        color: IntentColors["secondary"],
+                        width: 16,
+                        height: 16,
+                      })}
+                      {organization.name}
+                    </OrgName>
+                  ) : (
+                    <>
+                      {this.props.currentUser && (
+                        <CustomizedDropdown
+                          {...DropdownProps(
+                            this.props.currentUser,
+                            organization.name,
+                            organization.id,
+                          )}
+                        />
+                      )}
 
-                    <StyledDialog
-                      canOutsideClickClose={false}
-                      canEscapeKeyClose={false}
-                      title={`Invite Users to ${organization.name}`}
-                      onClose={() =>
-                        this.setState({
-                          selectedOrgId: "",
-                        })
-                      }
-                      isOpen={this.state.selectedOrgId === organization.id}
-                      setMaxWidth
-                    >
-                      <div className={Classes.DIALOG_BODY}>
-                        <Form orgId={organization.id} />
-                      </div>
-                    </StyledDialog>
+                      <StyledDialog
+                        canOutsideClickClose={false}
+                        canEscapeKeyClose={false}
+                        title={`Invite Users to ${organization.name}`}
+                        onClose={() =>
+                          this.setState({
+                            selectedOrgId: "",
+                          })
+                        }
+                        isOpen={this.state.selectedOrgId === organization.id}
+                        setMaxWidth
+                      >
+                        <div className={Classes.DIALOG_BODY}>
+                          <Form orgId={organization.id} />
+                        </div>
+                      </StyledDialog>
+                    </>
+                  )}
+                  {isPermitted(
+                    organization.userPermissions,
+                    PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
+                  ) && (
                     <FormDialogComponent
                       trigger={
                         <Button
@@ -284,8 +291,8 @@ class Applications extends Component<
                       orgId={organization.id}
                       title={`Invite Users to ${organization.name}`}
                     />
-                  </OrgDropDown>
-                )}
+                  )}
+                </OrgDropDown>
                 <ApplicationCardsWrapper key={organization.id}>
                   <FormDialogComponent
                     permissions={organization.userPermissions}

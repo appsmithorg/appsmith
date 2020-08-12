@@ -14,6 +14,7 @@ import { getApplicationViewerPageURL } from "constants/routes";
 import OrgInviteUsersForm from "./OrgInviteUsersForm";
 import { StyledSwitch } from "components/propertyControls/StyledControls";
 import Spinner from "components/editorComponents/Spinner";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 const Title = styled.div`
   font-weight: bold;
@@ -49,6 +50,7 @@ const AppInviteUsersForm = (props: any) => {
     applicationId,
     fetchCurrentOrg,
     currentOrg,
+    currentUser,
   } = props;
 
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
@@ -72,36 +74,40 @@ const AppInviteUsersForm = (props: any) => {
   };
 
   useEffect(() => {
-    fetchCurrentOrg(props.orgId);
-  }, [props.orgId, fetchCurrentOrg]);
+    if (currentUser.name !== "anonymousUser") {
+      fetchCurrentOrg(props.orgId);
+    }
+  }, [props.orgId, fetchCurrentOrg, currentUser.name]);
 
   return (
     <>
       {canShareWithPublic ? (
-        <ShareWithPublicOption>
-          Make the application public
-          <ShareToggle>
-            {(isChangingViewAccess || isFetchingApplication) && (
-              <Spinner size={20} />
-            )}
-            {currentApplicationDetails && (
-              <StyledSwitch
-                onChange={() => {
-                  changeAppViewAccess(
-                    applicationId,
-                    !currentApplicationDetails.isPublic,
-                  );
-                }}
-                disabled={isChangingViewAccess || isFetchingApplication}
-                checked={currentApplicationDetails.isPublic}
-                large
-              />
-            )}
-          </ShareToggle>
+        <>
+          <ShareWithPublicOption>
+            Make the application public
+            <ShareToggle>
+              {(isChangingViewAccess || isFetchingApplication) && (
+                <Spinner size={20} />
+              )}
+              {currentApplicationDetails && (
+                <StyledSwitch
+                  onChange={() => {
+                    changeAppViewAccess(
+                      applicationId,
+                      !currentApplicationDetails.isPublic,
+                    );
+                  }}
+                  disabled={isChangingViewAccess || isFetchingApplication}
+                  checked={currentApplicationDetails.isPublic}
+                  large
+                />
+              )}
+            </ShareToggle>
+          </ShareWithPublicOption>
           {currentApplicationDetails.isPublic && (
             <CopyToClipBoard copyText={getViewApplicationURL()} />
           )}
-        </ShareWithPublicOption>
+        </>
       ) : (
         <>
           <Title>Get Shareable link for this for this application </Title>
@@ -119,6 +125,7 @@ export default connect(
   (state: AppState) => {
     return {
       currentOrg: getCurrentOrg(state),
+      currentUser: getCurrentUser(state),
       currentApplicationDetails: state.ui.applications.currentApplication,
       isFetchingApplication: state.ui.applications.isFetchingApplication,
       isChangingViewAccess: state.ui.applications.isChangingViewAccess,
