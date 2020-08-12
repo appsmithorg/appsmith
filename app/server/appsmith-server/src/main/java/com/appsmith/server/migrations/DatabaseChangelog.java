@@ -2,6 +2,7 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -47,6 +48,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -574,6 +577,70 @@ public class DatabaseChangelog {
                     }
                     mongoTemplate.save(action);
                 }
+            }
+        }
+    }
+
+    @ChangeSet(order = "021", id = "invite-and-public-permissions", author = "")
+    public void giveInvitePermissionToOrganizationsAndPublicPermissionsToApplications(MongoTemplate mongoTemplate) {
+        final List<Organization> organizations = mongoTemplate.find(
+                query(where("userRoles").exists(true)),
+                Organization.class
+        );
+
+        final List<Application> applications = mongoTemplate.find(
+                query(where("policies").exists(true)),
+                Application.class
+        );
+
+        for (final Organization organization : organizations) {
+            Set<String> adminUsernames = organization.getUserRoles()
+                    .stream()
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
+                    .map(role -> role.getUsername())
+                    .collect(Collectors.toSet());
+
+            Set<String> developerUsernames = organization.getUserRoles()
+                    .stream()
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_DEVELOPER)))
+                    .map(role -> role.getUsername())
+                    .collect(Collectors.toSet());
+
+            // All the developers and administrators of the organization should be allowed to get invite permissions
+            Set<String> invitePermissionUsernames = new HashSet<>();
+            invitePermissionUsernames.addAll(developerUsernames);
+            invitePermissionUsernames.addAll(adminUsernames);
+
+            Set<Policy> policies = organization.getPolicies();
+            if (policies == null) {
+                policies = new HashSet<>();
+            }
+
+            Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
+                    .users(invitePermissionUsernames).build();
+
+            policies.add(inviteUserPolicy);
+            organization.setPolicies(policies);
+            mongoTemplate.save(organization);
+
+            // Update the applications with public view policy for all administrators of the organization
+            Set<Application> orgApplications = applications
+                    .stream()
+                    .filter(application -> application.getOrganizationId().equals(organization.getId()))
+                    .collect(Collectors.toSet());
+
+            for (final Application application : orgApplications) {
+                Set<Policy> applicationPolicies = application.getPolicies();
+                if (applicationPolicies == null) {
+                    applicationPolicies = new HashSet<>();
+                }
+
+                Policy newPublicAppPolicy = Policy.builder().permission(MAKE_PUBLIC_APPLICATIONS.getValue())
+                        .users(adminUsernames).build();
+                applicationPolicies.add(newPublicAppPolicy);
+                application.setPolicies(applicationPolicies);
+
+                mongoTemplate.save(application);
             }
         }
     }
