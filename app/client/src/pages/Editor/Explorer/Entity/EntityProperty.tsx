@@ -3,7 +3,12 @@ import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
-import { Popover, PopoverInteractionKind, Classes } from "@blueprintjs/core";
+import {
+  Popover,
+  PopoverInteractionKind,
+  Classes,
+  Icon,
+} from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
@@ -61,9 +66,15 @@ const Wrapper = styled.div<{ step: number }>`
       padding-top: 4px;
       padding-bottom: 4px;
       cursor: pointer;
+      & ~ span.${Classes.ICON} {
+        position: absolute;
+        right: 0;
+        top: 10px;
+        opacity: 0;
+      }
       &:hover {
         &:before {
-          content: "Copy";
+          content: "";
           background: ${Colors.TUNDORA};
           opacity: 0.5;
           position: absolute;
@@ -71,13 +82,10 @@ const Wrapper = styled.div<{ step: number }>`
           height: 100%;
           top: 0;
           width: 100%;
-          font-size: 12px;
-          color: white;
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          text-align: right;
           z-index: 1;
+        }
+        & ~ span.${Classes.ICON} {
+          opacity: 1;
         }
       }
     }
@@ -92,6 +100,7 @@ const Wrapper = styled.div<{ step: number }>`
         text-shadow: none;
         padding-left: ${props =>
           props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
+        padding-right: 20px;
         & span.token.property {
           overflow: hidden;
           white-space: nowrap;
@@ -214,6 +223,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
         codeText={codeText}
         language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
       />
+      <Icon icon="duplicate" iconSize={14} color={Colors.MAKO} />
       {propertyValue}
     </Wrapper>
   );
