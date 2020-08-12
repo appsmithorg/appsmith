@@ -629,22 +629,22 @@ Cypress.Commands.add("DeleteAPI", apiname => {
   );
 });
 
-Cypress.Commands.add("CreateModal", () => {
-  cy.get(modalWidgetPage.selectModal).click();
-  cy.get(modalWidgetPage.createModalButton).click({ force: true });
-  cy.get(modalWidgetPage.controlModalType)
-    .find(".bp3-button")
-    .click({ force: true })
-    .get("ul.bp3-menu")
-    .children()
-    .contains("Alert Modal")
-    .click();
-  cy.get(modalWidgetPage.controlModalType)
-    .find(".bp3-button > .bp3-button-text")
-    .should("have.text", "Alert Modal");
-  cy.get(commonlocators.editPropCrossButton).click();
-  cy.reload();
-});
+// Cypress.Commands.add("CreateModal", () => {
+//   cy.get(modalWidgetPage.selectModal).click();
+//   cy.get(modalWidgetPage.createModalButton).click({ force: true });
+//   cy.get(modalWidgetPage.controlModalType)
+//     .find(".bp3-button")
+//     .click({ force: true })
+//     .get("ul.bp3-menu")
+//     .children()
+//     .contains("Alert Modal")
+//     .click();
+//   cy.get(modalWidgetPage.controlModalType)
+//     .find(".bp3-button > .bp3-button-text")
+//     .should("have.text", "Alert Modal");
+//   cy.get(commonlocators.editPropCrossButton).click();
+//   cy.reload();
+// });
 
 Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(widgetsPage.buttonOnClick)
@@ -686,6 +686,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .contains("Center")
     .click();
   cy.assertPageSave();
+  cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
 
 Cypress.Commands.add("CheckWidgetProperties", checkboxCss => {
