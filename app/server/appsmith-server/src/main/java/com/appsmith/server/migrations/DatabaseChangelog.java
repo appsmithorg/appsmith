@@ -676,7 +676,7 @@ public class DatabaseChangelog {
                 })
                 .collect(Collectors.toList());
         final String jsonContent = StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource("examples-data.json").getInputStream(),
+                new DefaultResourceLoader().getResource("examples-organization.json").getInputStream(),
                 Charset.defaultCharset()
         );
 
@@ -777,13 +777,9 @@ public class DatabaseChangelog {
             );
         }
 
-        log.info("Saved organization '{}'.", organization.get("name"));
-
         Config config = new Config();
         config.setName("template-organization");
         config.setConfig(new JSONObject(Map.of("organizationId", organizationId)));
         mongoTemplate.insert(config);
-
-        log.info("Done");
-    }// */
+    }
 }
