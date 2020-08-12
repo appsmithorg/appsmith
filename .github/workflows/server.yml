@@ -89,29 +89,29 @@ jobs:
   # Check support request at: https://github.community/t/feature-request-conditional-required-checks/16761
   ui-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/server
     strategy:
       fail-fast: false
       matrix:
         job: [0, 1, 2, 3, 4, 5, 6]
     
     steps:
-      - name: Do nothing as this is a dummy step
+    # Checkout the code
+    - uses: actions/checkout@v2
+    
+    - name: Do nothing as this is a dummy step
         shell: bash
         run: |
-          echo "Dummy step"
+          exit 0
   
   package:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/server
 
     steps:
-      - name: Do nothing as this is a dummy step
+    # Checkout the code
+    - uses: actions/checkout@v2
+    
+    - name: Do nothing as this is a dummy step
         shell: bash
         run: |
-          echo "Dummy step"
+          exit 0
           
