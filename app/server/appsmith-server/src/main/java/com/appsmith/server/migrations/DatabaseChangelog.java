@@ -18,6 +18,7 @@ import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
@@ -51,6 +52,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -588,11 +590,6 @@ public class DatabaseChangelog {
                 Organization.class
         );
 
-        final List<Application> applications = mongoTemplate.find(
-                query(where("policies").exists(true)),
-                Application.class
-        );
-
         for (final Organization organization : organizations) {
             Set<String> adminUsernames = organization.getUserRoles()
                     .stream()
@@ -616,18 +613,24 @@ public class DatabaseChangelog {
                 policies = new HashSet<>();
             }
 
-            Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
-                    .users(invitePermissionUsernames).build();
+            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(ORGANIZATION_INVITE_USERS.getValue())).findFirst();
+            if (inviteUsersOptional.isPresent()) {
+                Policy inviteUserPolicy = inviteUsersOptional.get();
+                inviteUserPolicy.getUsers().addAll(invitePermissionUsernames);
+            } else {
+                // this policy doesnt exist. create and add this to the policy set
+                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
+                        .users(invitePermissionUsernames).build();
+                organization.getPolicies().add(inviteUserPolicy);
+            }
 
-            policies.add(inviteUserPolicy);
-            organization.setPolicies(policies);
             mongoTemplate.save(organization);
 
             // Update the applications with public view policy for all administrators of the organization
-            Set<Application> orgApplications = applications
-                    .stream()
-                    .filter(application -> application.getOrganizationId().equals(organization.getId()))
-                    .collect(Collectors.toSet());
+            List<Application> orgApplications = mongoTemplate.find(
+                    query(where(fieldName(QApplication.application.organizationId)).is(organization.getId())),
+                    Application.class
+            );
 
             for (final Application application : orgApplications) {
                 Set<Policy> applicationPolicies = application.getPolicies();
@@ -635,10 +638,16 @@ public class DatabaseChangelog {
                     applicationPolicies = new HashSet<>();
                 }
 
-                Policy newPublicAppPolicy = Policy.builder().permission(MAKE_PUBLIC_APPLICATIONS.getValue())
-                        .users(adminUsernames).build();
-                applicationPolicies.add(newPublicAppPolicy);
-                application.setPolicies(applicationPolicies);
+                Optional<Policy> makePublicAppOptional = applicationPolicies.stream().filter(policy -> policy.getPermission().equals(MAKE_PUBLIC_APPLICATIONS.getValue())).findFirst();
+                if (makePublicAppOptional.isPresent()) {
+                    Policy makePublicPolicy = makePublicAppOptional.get();
+                    makePublicPolicy.getUsers().addAll(adminUsernames);
+                } else {
+                    // this policy doesnt exist. create and add this to the policy set
+                    Policy newPublicAppPolicy = Policy.builder().permission(MAKE_PUBLIC_APPLICATIONS.getValue())
+                            .users(adminUsernames).build();
+                    application.getPolicies().add(newPublicAppPolicy);
+                }
 
                 mongoTemplate.save(application);
             }
