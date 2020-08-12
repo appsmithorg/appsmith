@@ -589,7 +589,7 @@ export const TableHeaderCell = (props: {
     props.handleColumnNameUpdate(columnIndex, columName);
     toggleRenameColumn(false);
   };
-  const handleDoubleClick = () => {
+  const handleSortColumn = () => {
     props.sortTableColumn(
       props.columnIndex,
       props.isAscOrder === undefined ? true : !props.isAscOrder,
@@ -605,7 +605,7 @@ export const TableHeaderCell = (props: {
     <div
       {...column.getHeaderProps()}
       className="th header-reorder"
-      onDoubleClick={handleDoubleClick}
+      onClick={handleSortColumn}
     >
       {props.isAscOrder !== undefined ? (
         <SortIconWrapper rotate={!props.isAscOrder}>
