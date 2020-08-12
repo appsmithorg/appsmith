@@ -8,6 +8,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
@@ -19,9 +20,9 @@ public enum AppsmithRole {
     APPLICATION_ADMIN("Application Administrator", "", Set.of(MANAGE_APPLICATIONS)),
     APPLICATION_VIEWER("Application Viewer", "",  Set.of(READ_APPLICATIONS)),
     ORGANIZATION_ADMIN("Administrator", "Can edit, view applications and invite other user to organization",
-            Set.of(MANAGE_ORGANIZATIONS)),
+            Set.of(MANAGE_ORGANIZATIONS, ORGANIZATION_INVITE_USERS)),
     ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications",  Set.of(READ_ORGANIZATIONS,
-            ORGANIZATION_MANAGE_APPLICATIONS, ORGANIZATION_READ_APPLICATIONS, ORGANIZATION_PUBLISH_APPLICATIONS)),
+            ORGANIZATION_MANAGE_APPLICATIONS, ORGANIZATION_READ_APPLICATIONS, ORGANIZATION_PUBLISH_APPLICATIONS, ORGANIZATION_INVITE_USERS)),
     ORGANIZATION_VIEWER("App Viewer", "Can view applications",  Set.of(READ_ORGANIZATIONS, ORGANIZATION_READ_APPLICATIONS));
 
     private Set<AclPermission> permissions;

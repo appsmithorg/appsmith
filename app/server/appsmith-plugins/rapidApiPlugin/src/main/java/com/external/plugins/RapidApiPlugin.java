@@ -24,6 +24,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -56,9 +57,9 @@ public class RapidApiPlugin extends BasePlugin {
         private static final String RAPID_API_KEY_VALUE = System.getenv("APPSMITH_RAPID_API_KEY_VALUE");
 
         @Override
-        public Mono<Object> execute(Object connection,
-                                    DatasourceConfiguration datasourceConfiguration,
-                                    ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(Object connection,
+                                                   DatasourceConfiguration datasourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
 
             if (StringUtils.isEmpty(RAPID_API_KEY_VALUE)) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "RapidAPI Key value not set."));
@@ -100,10 +101,10 @@ public class RapidApiPlugin extends BasePlugin {
                 }
             }
 
-            URI uri = null;
+            URI uri;
             try {
                 uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
-                System.out.println("Final URL is : " + uri.toString());
+                log.info("Final URL is : {}", uri);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
@@ -114,7 +115,7 @@ public class RapidApiPlugin extends BasePlugin {
                 // First set the header to specify the content type
                 webClientBuilder.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString());
 
-                Map<String, String> keyValueMap = new HashMap<String, String>();
+                Map<String, String> keyValueMap = new HashMap<>();
 
                 List<Property> bodyFormData = actionConfiguration.getBodyFormData();
                 String jsonString = null;
@@ -170,14 +171,14 @@ public class RapidApiPlugin extends BasePlugin {
                                 headerInJsonString = objectMapper.writeValueAsString(headers);
                             } catch (JsonProcessingException e) {
                                 e.printStackTrace();
-                                return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
+                                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                             }
                             try {
                                 // Set headers in the result now
                                 result.setHeaders(objectMapper.readTree(headerInJsonString));
                             } catch (IOException e) {
                                 e.printStackTrace();
-                                return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
+                                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                             }
                         }
 
@@ -194,7 +195,7 @@ public class RapidApiPlugin extends BasePlugin {
                                     result.setBody(objectMapper.readTree(jsonBody));
                                 } catch (IOException e) {
                                     e.printStackTrace();
-                                    return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
+                                    throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||
@@ -207,9 +208,17 @@ public class RapidApiPlugin extends BasePlugin {
                                 result.setBody(bodyString.trim());
                             }
                         }
+
                         return result;
                     })
-                    .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
+                    .onErrorMap(throwable -> {
+                        final Throwable actualException = Exceptions.unwrap(throwable);
+                        if (actualException instanceof AppsmithPluginException) {
+                            return actualException;
+                        } else {
+                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, actualException);
+                        }
+                    });
         }
 
         private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBody, int iteration) {

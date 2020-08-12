@@ -22,6 +22,12 @@ describe("Create a query with a postgres datasource, run, save and then delete t
         .click();
     });
 
+    cy.get("@getPluginForm").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
@@ -32,11 +38,13 @@ describe("Create a query with a postgres datasource, run, save and then delete t
     cy.runAndDeleteQuery();
 
     cy.NavigateToDatasourceEditor();
+    cy.get(".t--entity-name:contains(PostgreSQL)").click();
     cy.get("@createDatasource").then(httpResponse => {
-      const datasourceId = httpResponse.response.body.data.id;
+      const datasourceName = httpResponse.response.body.data.name;
 
-      cy.get(`[data-cy=${datasourceId}]`).click();
+      cy.get(`.t--entity-name:contains(${datasourceName})`).click();
     });
+
     cy.get(".t--delete-datasource").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",

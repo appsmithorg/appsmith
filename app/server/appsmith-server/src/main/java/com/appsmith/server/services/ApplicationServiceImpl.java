@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
@@ -48,6 +48,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final PageRepository pageRepository;
     private final PolicyUtils policyUtils;
     private final DatasourceService datasourceService;
+    private final ConfigService configService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -58,16 +59,18 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   AnalyticsService analyticsService,
                                   PageRepository pageRepository,
                                   PolicyUtils policyUtils,
-                                  DatasourceService datasourceService) {
+                                  DatasourceService datasourceService,
+                                  ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pageRepository = pageRepository;
         this.policyUtils = policyUtils;
         this.datasourceService = datasourceService;
+        this.configService = configService;
     }
 
     @Override
     public Flux<Application> get(MultiValueMap<String, String> params) {
-        return super.getWithPermission(params, READ_APPLICATIONS);
+        return setTransientFields(super.getWithPermission(params, READ_APPLICATIONS));
     }
 
     @Override
@@ -77,37 +80,43 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         }
 
         return repository.findById(id, READ_APPLICATIONS)
+                .flatMap(this::setTransientFields)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
     @Override
     public Mono<Application> findById(String id) {
-        return repository.findById(id);
+        return repository.findById(id)
+                .flatMap(this::setTransientFields);
     }
 
     @Override
     public Mono<Application> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission);
+        return repository.findById(id, aclPermission)
+                .flatMap(this::setTransientFields);
     }
 
     @Override
     public Mono<Application> findByIdAndOrganizationId(String id, String organizationId, AclPermission permission) {
-        return repository.findByIdAndOrganizationId(id, organizationId, permission);
+        return repository.findByIdAndOrganizationId(id, organizationId, permission)
+                .flatMap(this::setTransientFields);
     }
 
     @Override
     public Flux<Application> findByOrganizationId(String organizationId, AclPermission permission) {
-        return repository.findByOrganizationId(organizationId, permission);
+        return setTransientFields(repository.findByOrganizationId(organizationId, permission));
     }
 
     @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
-        return repository.findByName(name, permission);
+        return repository.findByName(name, permission)
+                .flatMap(this::setTransientFields);
     }
 
     @Override
     public Mono<Application> save(Application application) {
-        return repository.save(application);
+        return repository.save(application)
+                .flatMap(this::setTransientFields);
     }
 
     @Override
@@ -176,7 +185,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
         return repository
-                .findById(id, MANAGE_APPLICATIONS)
+                .findById(id, MAKE_PUBLIC_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, id)))
                 .flatMap(application -> {
 
@@ -204,8 +213,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         user.setIsAnonymous(true);
 
         Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(applicationPermission), user);
-        Map<String, Policy> pagePolicyMap = policyUtils.generatePagePoliciesFromApplicationPolicies(applicationPolicyMap, user);
-        Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap, user);
+        Map<String, Policy> pagePolicyMap = policyUtils.generatePagePoliciesFromApplicationPolicies(applicationPolicyMap);
+        Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap);
         Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
 
         Flux<Page> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
@@ -223,9 +232,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                 .map(datasource -> {
                                     Datasource updatedDatasource;
                                     if (isPublic) {
-                                        updatedDatasource = (Datasource) policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                                        updatedDatasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
                                     } else {
-                                        updatedDatasource = (Datasource) policyUtils.removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
+                                        updatedDatasource = policyUtils.removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
                                     }
 
                                     return datasourceService.save(updatedDatasource);
@@ -243,13 +252,28 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     Application updatedApplication;
 
                     if (isPublic) {
-                        updatedApplication = (Application) policyUtils.addPoliciesToExistingObject(applicationPolicyMap, (Application) application);
+                        updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
                     } else {
-                        updatedApplication = (Application) policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, (Application) application);
+                        updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);
                     }
 
                     return repository.save(updatedApplication);
                 });
 
+    }
+
+    private Mono<Application> setTransientFields(Application application) {
+        return setTransientFields(Flux.just(application)).last();
+    }
+
+    private Flux<Application> setTransientFields(Flux<Application> applicationsFlux) {
+        return configService.getTemplateOrganizationId()
+                .defaultIfEmpty("")
+                .cache()
+                .repeat()
+                .zipWith(applicationsFlux, (templateOrganizationId, application) -> {
+                    application.setAppIsExample(templateOrganizationId.equals(application.getOrganizationId()));
+                    return application;
+                });
     }
 }

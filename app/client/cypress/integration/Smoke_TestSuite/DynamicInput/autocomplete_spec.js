@@ -10,7 +10,6 @@ describe("Dynamic input autocomplete", () => {
     cy.addDsl(dsl);
   });
   it("opens autocomplete for bindings", () => {
-    cy.wait("@getPropertyPane");
     cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("buttonwidget");
     cy.get(dynamicInputLocators.input)
@@ -58,7 +57,6 @@ describe("Dynamic input autocomplete", () => {
   });
   it("opens current value popup", () => {
     // Test on widgets pane
-    cy.wait("@getPropertyPane");
     cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("buttonwidget");
     cy.get(dynamicInputLocators.input)
@@ -66,6 +64,7 @@ describe("Dynamic input autocomplete", () => {
       .focus();
     cy.assertEvaluatedValuePopup("string");
 
+    cy.NavigateToEntityExplorer();
     // Test on api pane
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createapi).click({ force: true });

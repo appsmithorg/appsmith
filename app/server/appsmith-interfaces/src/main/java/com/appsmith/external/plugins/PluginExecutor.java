@@ -1,6 +1,7 @@
 package com.appsmith.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import org.pf4j.ExtensionPoint;
@@ -20,7 +21,7 @@ public interface PluginExecutor extends ExtensionPoint {
      * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
      * @return ActionExecutionResult : This object is returned to the user which contains the result values from the execution.
      */
-    Mono<Object> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration);
+    Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration);
 
     /**
      * This function is responsible for creating the connection to the data source and returning the connection variable
