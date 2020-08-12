@@ -21,7 +21,7 @@ import SubHeader from "pages/common/SubHeader";
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
-import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
+import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
 import { MenuIcons } from "icons/MenuIcons";
 import { DELETING_APPLICATION } from "constants/messages";
@@ -143,7 +143,7 @@ class Applications extends Component<
   }
 
   public render() {
-    const Form: any = InviteUsersFormv2;
+    const Form: any = OrgInviteUsersForm;
     const DropdownProps = (
       user: User,
       orgName: string,
@@ -230,46 +230,53 @@ class Applications extends Component<
 
             return (
               <OrgSection className="t--org-section" key={index}>
-                {!isPermitted(
-                  organization.userPermissions,
-                  PERMISSION_TYPE.MANAGE_ORGANIZATION,
-                ) ? (
-                  <OrgName>
-                    {MenuIcons.ORG_ICON({
-                      color: IntentColors["secondary"],
-                      width: 16,
-                      height: 16,
-                    })}
-                    {organization.name}
-                  </OrgName>
-                ) : (
-                  <OrgDropDown>
-                    {this.props.currentUser && (
-                      <CustomizedDropdown
-                        {...DropdownProps(
-                          this.props.currentUser,
-                          organization.name,
-                          organization.id,
-                        )}
-                      />
-                    )}
+                <OrgDropDown>
+                  {!isPermitted(
+                    organization.userPermissions,
+                    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+                  ) ? (
+                    <OrgName>
+                      {MenuIcons.ORG_ICON({
+                        color: IntentColors["secondary"],
+                        width: 16,
+                        height: 16,
+                      })}
+                      {organization.name}
+                    </OrgName>
+                  ) : (
+                    <>
+                      {this.props.currentUser && (
+                        <CustomizedDropdown
+                          {...DropdownProps(
+                            this.props.currentUser,
+                            organization.name,
+                            organization.id,
+                          )}
+                        />
+                      )}
 
-                    <StyledDialog
-                      canOutsideClickClose={false}
-                      canEscapeKeyClose={false}
-                      title={`Invite Users to ${organization.name}`}
-                      onClose={() =>
-                        this.setState({
-                          selectedOrgId: "",
-                        })
-                      }
-                      isOpen={this.state.selectedOrgId === organization.id}
-                      setMaxWidth
-                    >
-                      <div className={Classes.DIALOG_BODY}>
-                        <Form orgId={organization.id} />
-                      </div>
-                    </StyledDialog>
+                      <StyledDialog
+                        canOutsideClickClose={false}
+                        canEscapeKeyClose={false}
+                        title={`Invite Users to ${organization.name}`}
+                        onClose={() =>
+                          this.setState({
+                            selectedOrgId: "",
+                          })
+                        }
+                        isOpen={this.state.selectedOrgId === organization.id}
+                        setMaxWidth
+                      >
+                        <div className={Classes.DIALOG_BODY}>
+                          <Form orgId={organization.id} />
+                        </div>
+                      </StyledDialog>
+                    </>
+                  )}
+                  {isPermitted(
+                    organization.userPermissions,
+                    PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
+                  ) && (
                     <FormDialogComponent
                       trigger={
                         <Button
@@ -280,12 +287,12 @@ class Applications extends Component<
                         />
                       }
                       canOutsideClickClose={true}
-                      Form={InviteUsersFormv2}
+                      Form={OrgInviteUsersForm}
                       orgId={organization.id}
                       title={`Invite Users to ${organization.name}`}
                     />
-                  </OrgDropDown>
-                )}
+                  )}
+                </OrgDropDown>
                 <ApplicationCardsWrapper key={organization.id}>
                   <FormDialogComponent
                     permissions={organization.userPermissions}
