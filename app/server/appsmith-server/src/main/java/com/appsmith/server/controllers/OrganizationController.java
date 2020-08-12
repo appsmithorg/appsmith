@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -35,8 +36,8 @@ public class OrganizationController extends BaseController<OrganizationService, 
      * @return
      */
     @GetMapping("/roles")
-    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForOrganization() {
-        return service.getUserRolesForOrganization()
+    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForOrganization(@RequestParam String organizationId) {
+        return service.getUserRolesForOrganization(organizationId)
                 .map(permissions -> new ResponseDTO<>(HttpStatus.OK.value(), permissions, null));
     }
 
