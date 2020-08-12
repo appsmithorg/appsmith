@@ -83,7 +83,6 @@ class DynamicTextControl extends BaseControl<
             dataTreePath={`${this.props.actionName}.config.body`}
             className="dynamic-text-field"
             mode={mode}
-            theme={EditorTheme.DARK}
           />
         )}
       </Wrapper>

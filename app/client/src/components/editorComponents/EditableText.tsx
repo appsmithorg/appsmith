@@ -8,6 +8,7 @@ import _ from "lodash";
 import Edit from "assets/images/EditPen.svg";
 import ErrorTooltip from "./ErrorTooltip";
 import { Colors } from "constants/Colors";
+import { AppToaster } from "components/editorComponents/ToastComponent";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -106,10 +107,13 @@ export const EditableText = (props: EditableTextProps) => {
     const isInvalid = props.isInvalid ? props.isInvalid(_value) : false;
     if (!isInvalid) {
       props.onTextChanged(_value);
+      setIsEditing(false);
     } else {
-      setValue(props.defaultValue);
+      AppToaster.show({
+        message: "Invalid name",
+        type: "error",
+      });
     }
-    setIsEditing(false);
   };
 
   const onInputchange = (_value: string) => {
