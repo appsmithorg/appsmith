@@ -638,7 +638,7 @@ public class DatabaseChangelog {
                     applicationPolicies = new HashSet<>();
                 }
 
-                Optional<Policy> makePublicAppOptional = policies.stream().filter(policy -> policy.getPermission().equals(ORGANIZATION_INVITE_USERS.getValue())).findFirst();
+                Optional<Policy> makePublicAppOptional = applicationPolicies.stream().filter(policy -> policy.getPermission().equals(MAKE_PUBLIC_APPLICATIONS.getValue())).findFirst();
                 if (makePublicAppOptional.isPresent()) {
                     Policy makePublicPolicy = makePublicAppOptional.get();
                     makePublicPolicy.getUsers().addAll(adminUsernames);
