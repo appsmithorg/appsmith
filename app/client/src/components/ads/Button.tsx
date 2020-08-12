@@ -1,5 +1,5 @@
 import React from "react";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, ThemeProp } from "./common";
 import styled from "styled-components";
 import { IconName, Icon } from "./Icon";
 import Spinner from "./Spinner";
@@ -7,12 +7,8 @@ import {
   mediumButton,
   smallButton,
   largeButton,
-  Theme,
 } from "../../constants/DefaultTheme";
-
-export type ThemeProp = {
-  theme: Theme;
-};
+import { hexToRgb } from "./common";
 
 export enum Category {
   primary = "primary",
@@ -64,35 +60,6 @@ type ButtonProps = CommonComponentProps & {
   icon?: IconName;
   size?: Size;
 };
-
-function hexToRgb(
-  hex: string,
-): {
-  r: number;
-  g: number;
-  b: number;
-} {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : {
-        r: -1,
-        g: -1,
-        b: -1,
-      };
-}
-
-// const darken = (color: Color, intensity: number) => {
-//   return new tinycolor(color).darken(intensity).toString();
-// };
-
-// const lighten = (color: Color, intensity: number) => {
-//   return new tinycolor(color).lighten(intensity).toString();
-// };
 
 export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);

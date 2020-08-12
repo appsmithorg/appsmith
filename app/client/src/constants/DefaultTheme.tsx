@@ -432,6 +432,7 @@ export const theme: Theme = {
       fontSize: 20,
       lineHeight: 27,
       letterSpacing: "normal",
+      fontWeight: 500,
     },
     h2: {
       fontSize: 18,
@@ -604,7 +605,6 @@ export const theme: Theme = {
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
     FontFamilies.DMSans,
-    FontFamilies.AppsmithWidget,
     FontFamilies.FiraCode,
     FontFamilies.HomePageRedesign,
   ],
