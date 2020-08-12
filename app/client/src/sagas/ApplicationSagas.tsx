@@ -114,6 +114,7 @@ export function* fetchApplicationListSaga() {
           id: application.id,
           pageCount: application.pages ? application.pages.length : 0,
           defaultPageId: getDefaultPageId(application.pages),
+          appIsExample: application.appIsExample,
         }),
       );
       yield put({
@@ -287,6 +288,7 @@ export function* createApplicationSaga(
           organizationId: response.data.organizationId,
           pageCount: response.data.pages ? response.data.pages.length : 0,
           defaultPageId: getDefaultPageId(response.data.pages),
+          appIsExample: response.data.appIsExample,
         };
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,

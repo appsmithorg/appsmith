@@ -4,6 +4,7 @@ export const getApplicationPayload = (): ApplicationPayload => ({
   id: generateReactKey(),
   name: generateReactKey(),
   organizationId: generateReactKey(),
+  appIsExample: false,
   pageCount: 4,
 });
 

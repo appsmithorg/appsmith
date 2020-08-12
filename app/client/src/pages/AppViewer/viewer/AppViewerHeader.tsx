@@ -4,7 +4,7 @@ import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo_white.png";
 import Button from "components/editorComponents/Button";
-import { EDIT_APP } from "constants/messages";
+import { EDIT_APP, FORK_APP } from "constants/messages";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -16,6 +16,7 @@ import {
 import {
   APPLICATIONS_URL,
   getApplicationViewerPageURL,
+  SIGN_UP_URL,
 } from "constants/routes";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -55,6 +56,12 @@ const AppsmithLogoImg = styled.img`
 `;
 
 const BackToEditorButton = styled(Button)`
+  max-width: 200px;
+  height: 32px;
+  margin: 5px 10px;
+`;
+
+const ForkButton = styled(Button)`
   max-width: 200px;
   height: 32px;
   margin: 5px 10px;
@@ -116,9 +123,40 @@ type AppViewerHeaderProps = {
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const { currentApplicationDetails, pages, currentOrgId } = props;
+  const isExampleApp = currentApplicationDetails?.appIsExample;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
+
+  const forkAppUrl = `${window.location.origin}${SIGN_UP_URL}?appId=${currentApplicationDetails?.id}`;
+
+  let CTA = null;
+
+  if (props.url && canEdit) {
+    CTA = (
+      <BackToEditorButton
+        className="t--back-to-editor"
+        href={props.url}
+        intent="primary"
+        icon="arrow-left"
+        iconAlignment="left"
+        text={EDIT_APP}
+        filled
+      />
+    );
+  } else if (isExampleApp) {
+    CTA = (
+      <ForkButton
+        className="t--fork-app"
+        href={forkAppUrl}
+        intent="primary"
+        icon="fork"
+        iconAlignment="left"
+        text={FORK_APP}
+        filled
+      />
+    );
+  }
 
   return (
     <HeaderWrapper hasPages={pages.length > 1}>
@@ -160,18 +198,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                 applicationId={currentApplicationDetails.id}
                 title={currentApplicationDetails.name}
               />
-
-              {props.url && canEdit && (
-                <BackToEditorButton
-                  className="t--back-to-editor"
-                  href={props.url}
-                  intent="primary"
-                  icon="arrow-left"
-                  iconAlignment="left"
-                  text={EDIT_APP}
-                  filled
-                />
-              )}
+              {CTA}
             </>
           )}
         </HeaderSection>
