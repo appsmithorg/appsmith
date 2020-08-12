@@ -1,12 +1,7 @@
 [build]
   [build.environment]
-    REACT_APP_SENTRY_DSN = "https://e5ddde2bbf98433eb0dfc0ed47241d28@o296332.ingest.sentry.io/4113637"
-    REACT_APP_HOTJAR_HJID = "1888019"
-    REACT_APP_HOTJAR_HJSV = "6"
     REACT_APP_OAUTH2_GOOGLE_CLIENT_ID = "enabled"
     REACT_APP_OAUTH2_GITHUB_CLIENT_ID = "enabled"
-    REACT_APP_SEGMENT_KEY = "9OnZ6LnDztuZZo4zXfoutEEBB2wftHUH"
-#    REACT_APP_MARKETPLACE_URL = "https://release-marketplace.appsmith.com"
     REACT_APP_OPTIMIZELY_KEY = "Jq3K2kVdvuvxecHyHbVYcj"
     REACT_APP_ALGOLIA_API_ID = "AZ2Z9CJSJ0"
     REACT_APP_ALGOLIA_API_KEY = "d113611dccb80ac14aaa72a6e3ac6d10"
@@ -18,6 +13,10 @@
 [context.production]
   [context.production.environment]
     REACT_APP_ENVIRONMENT = "PRODUCTION"
+    REACT_APP_SENTRY_ENVIRONMENT = "Production"
+    REACT_APP_HOTJAR_HJID = "1888019"
+    REACT_APP_HOTJAR_HJSV = "6"
+    REACT_APP_SEGMENT_KEY = "9OnZ6LnDztuZZo4zXfoutEEBB2wftHUH"
     REACT_APP_BASE_URL = "https://api.appsmith.com"
     APP_HOST = "app.appsmith.com"
     REACT_APP_SENTRY_DSN = "https://78e9c79f210f4f83ab6d96e097f47b6f@o296332.ingest.sentry.io/1546547"
@@ -35,6 +34,11 @@
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
     # Not adding an APP_HOST here because the URL is dynamic in nature and cannot be determined.
 
+[context.develop]
+  [context.develop.environment]
+    REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+    APP_HOST = "develop.app.appsmith.com"
 
 [[headers]]
   for = "/static/*"
