@@ -96,11 +96,13 @@ jobs:
     
     steps:
       - name: Do nothing as this is a dummy step
-        run: exit 0
+        shell: bash
+        run: echo "Dummy step"
   
   package:
     runs-on: ubuntu-latest
     steps:
       - name: Do nothing as this is a dummy step
-        run: exit 0
+        shell: bash
+        run: echo "Dummy step"
           
