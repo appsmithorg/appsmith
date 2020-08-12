@@ -158,7 +158,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap);
 
         //Now update the organization policies
-        Organization updatedOrganization = (Organization) policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
+        Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
 
         // Update the underlying application/page/action
@@ -221,7 +221,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap);
 
         //Now update the organization policies
-        Organization updatedOrganization = (Organization) policyUtils.removePoliciesFromExistingObject(orgPolicyMap, organization);
+        Organization updatedOrganization = policyUtils.removePoliciesFromExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
 
         // Update the underlying application/page/action
