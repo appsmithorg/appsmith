@@ -89,6 +89,9 @@ jobs:
   # Check support request at: https://github.community/t/feature-request-conditional-required-checks/16761
   ui-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/server
     strategy:
       fail-fast: false
       matrix:
@@ -97,12 +100,18 @@ jobs:
     steps:
       - name: Do nothing as this is a dummy step
         shell: bash
-        run: echo "Dummy step"
+        run: |
+          echo "Dummy step"
   
   package:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/server
+
     steps:
       - name: Do nothing as this is a dummy step
         shell: bash
-        run: echo "Dummy step"
+        run: |
+          echo "Dummy step"
           
