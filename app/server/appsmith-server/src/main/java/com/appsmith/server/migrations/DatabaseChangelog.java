@@ -28,7 +28,12 @@ import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import org.apache.commons.lang.ObjectUtils;
+import org.bson.types.ObjectId;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
@@ -37,11 +42,17 @@ import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StreamUtils;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -644,4 +655,135 @@ public class DatabaseChangelog {
             }
         }
     }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @ChangeSet(order = "021", id = "examples-organization", author = "")
+    public void examplesOrganization(MongoTemplate mongoTemplate, EncryptionService encryptionService) throws IOException {
+        final Map<String, String> plugins = new HashMap<>();
+
+        final List<Map<String, Object>> organizationPlugins = mongoTemplate
+                .find(query(where("defaultInstall").is(true)), Plugin.class)
+                .stream()
+                .map(plugin -> {
+                    assert plugin.getId() != null;
+                    plugins.put(plugin.getPackageName(), plugin.getId());
+                    return Map.of(
+                            "pluginId", plugin.getId(),
+                            "status", "FREE",
+                            FieldName.DELETED, false,
+                            "policies", Collections.emptyList()
+                    );
+                })
+                .collect(Collectors.toList());
+        final String jsonContent = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("examples-data.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+
+        final Map<String, Object> organization = new Gson().fromJson(jsonContent, HashMap.class);
+
+        final List<Map<String, Object>> datasources = (List) organization.remove("$datasources");
+        final List<Map<String, Object>> applications = (List) organization.remove("$applications");
+
+        organization.put("plugins", organizationPlugins);
+        organization.put(FieldName.CREATED_AT, Instant.now());
+        final Map<String, Object> insertedOrganization = mongoTemplate.insert(organization, mongoTemplate.getCollectionName(Organization.class));
+        final String organizationId = ((ObjectId) insertedOrganization.get("_id")).toHexString();
+
+        final Map<String, String> datasourceIdsByName = new HashMap<>();
+
+        for (final Map<String, Object> datasource : datasources) {
+            datasource.put("pluginId", plugins.get(datasource.remove("$pluginPackageName")));
+            final Map authentication = (Map) ((Map) datasource.get("datasourceConfiguration")).get("authentication");
+            final String plainPassword = (String) authentication.get("password");
+            authentication.put("password", encryptionService.encryptString(plainPassword));
+            datasource.put(FieldName.ORGANIZATION_ID, organizationId);
+            datasource.put(FieldName.CREATED_AT, Instant.now());
+            final Map<String, Object> insertedDatasource = mongoTemplate.insert(datasource, mongoTemplate.getCollectionName(Datasource.class));
+            datasourceIdsByName.put((String) datasource.get("name"), ((ObjectId) insertedDatasource.get("_id")).toHexString());
+        }
+
+        for (final Map<String, Object> application : applications) {
+            final List<Map<String, Object>> fullPages = (List) application.remove("$pages");
+            final List<Map<String, Object>> embeddedPages = new ArrayList<>();
+
+            application.put(FieldName.ORGANIZATION_ID, organizationId);
+            mongoTemplate.insert(application, mongoTemplate.getCollectionName(Application.class));
+            final String applicationId = ((ObjectId) application.get("_id")).toHexString();
+
+            for (final Map<String, Object> fullPage : fullPages) {
+                final boolean isDefault = (boolean) fullPage.remove("$isDefault");
+
+                final List<Map<String, Object>> actions = (List) ObjectUtils.defaultIfNull(
+                        fullPage.remove("$actions"), Collections.emptyList());
+
+                final List<Map<String, Object>> layouts = (List) fullPage.getOrDefault("layouts", Collections.emptyList());
+                for (final Map<String, Object> layout : layouts) {
+                    layout.put("_id", new ObjectId());
+                }
+
+                fullPage.put("applicationId", applicationId);
+                fullPage.put(FieldName.CREATED_AT, Instant.now());
+                final Map<String, Object> insertedPage = mongoTemplate.insert(fullPage, mongoTemplate.getCollectionName(Page.class));
+                final String pageId = ((ObjectId) insertedPage.get("_id")).toHexString();
+                embeddedPages.add(Map.of(
+                        "_id", pageId,
+                        "isDefault", isDefault
+                ));
+
+                final Map<String, String> actionIdsByName = new HashMap<>();
+                for (final Map<String, Object> action : actions) {
+                    final Map<String, Object> datasource = (Map) action.get("datasource");
+                    datasource.put("pluginId", plugins.get(datasource.remove("$pluginPackageName")));
+                    datasource.put(FieldName.ORGANIZATION_ID, organizationId);
+                    if (Boolean.FALSE.equals(datasource.remove("$isEmbedded"))) {
+                        datasource.put("_id", new ObjectId(datasourceIdsByName.get(datasource.get("name"))));
+                    }
+                    action.put(FieldName.ORGANIZATION_ID, organizationId);
+                    action.put("pageId", pageId);
+                    action.put("pluginId", plugins.get(action.remove("$pluginPackageName")));
+                    action.put(FieldName.CREATED_AT, Instant.now());
+                    final Map<String, Object> insertedAction = mongoTemplate.insert(action, mongoTemplate.getCollectionName(Action.class));
+                    actionIdsByName.put((String) action.get("name"), ((ObjectId) insertedAction.get("_id")).toHexString());
+                }
+
+                final List<Map<String, Object>> layouts1 = (List) insertedPage.get("layouts");
+                for (Map<String, Object> layout : layouts1) {
+                    final List<List<Map<String, Object>>> onLoadActions = (List) layout.getOrDefault("layoutOnLoadActions", Collections.emptyList());
+                    for (final List<Map<String, Object>> actionSet : onLoadActions) {
+                        for (final Map<String, Object> action : actionSet) {
+                            action.put("_id", new ObjectId(actionIdsByName.get(action.get("name"))));
+                        }
+                    }
+                    final List<List<Map<String, Object>>> onLoadActions2 = (List) layout.getOrDefault("publishedLayoutOnLoadActions", Collections.emptyList());
+                    for (final List<Map<String, Object>> actionSet : onLoadActions2) {
+                        for (final Map<String, Object> action : actionSet) {
+                            action.put("_id", new ObjectId(actionIdsByName.get(action.get("name"))));
+                        }
+                    }
+                }
+                mongoTemplate.updateFirst(
+                        query(where("_id").is(pageId)),
+                        update("layouts", layouts1),
+                        Page.class
+                );
+            }
+
+            application.put("pages", embeddedPages);
+            mongoTemplate.updateFirst(
+                    query(where("_id").is(applicationId)),
+                    update("pages", embeddedPages),
+                    Application.class
+            );
+        }
+
+        log.info("Saved organization '{}'.", organization.get("name"));
+
+        Config config = new Config();
+        config.setName("template-organization");
+        config.setConfig(new JSONObject(Map.of("organizationId", organizationId)));
+        mongoTemplate.insert(config);
+
+        log.info("Done");
+    }// */
 }
