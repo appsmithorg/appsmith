@@ -16,6 +16,11 @@ import { HelpBaseURL } from "constants/HelpConstants";
 import { getDefaultRefinement } from "selectors/helpSelectors";
 import { getAppsmithConfigs } from "configs";
 import { AppState } from "reducers";
+import {
+  setHelpDefaultRefinement,
+  setHelpModalVisibility,
+} from "actions/helpActions";
+import { Icon } from "@blueprintjs/core";
 
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
@@ -123,7 +128,7 @@ const SearchContainer = styled.div`
     position: relative;
     height: 30px;
     margin: 14px;
-    margin-top: 0;
+    margin-top: 10px;
   }
 
   .ais-SearchBox-form {
@@ -245,7 +250,7 @@ const Header = styled.div`
 const StyledPoweredBy = styled(PoweredBy)`
   position: absolute;
   right: 21px;
-  top: 19px;
+  top: 30px;
   z-index: 1;
 
   .ais-PoweredBy-text {
@@ -271,11 +276,11 @@ const HelpFooter = styled.div`
 `;
 
 const HelpBody = styled.div`
-  padding-top: 50px;
+  padding-top: 60px;
   flex: 5;
 `;
 
-type Props = { hitsPerPage: number; defaultRefinement: string };
+type Props = { hitsPerPage: number; defaultRefinement: string; dispatch: any };
 type State = { showResults: boolean };
 
 const HELP_MENU_ITEMS = [
@@ -319,6 +324,23 @@ class DocumentationSearch extends React.Component<Props, State> {
     if (!algolia.enabled) return null;
     return (
       <SearchContainer className="ais-InstantSearch t--docSearchModal">
+        <Icon
+          className="t--docsMinimize"
+          style={{
+            position: "absolute",
+            top: 6,
+            right: 10,
+            cursor: "pointer",
+            zIndex: 1,
+          }}
+          icon="minus"
+          color="white"
+          iconSize={14}
+          onClick={() => {
+            this.props.dispatch(setHelpModalVisibility(false));
+            this.props.dispatch(setHelpDefaultRefinement(""));
+          }}
+        />
         <InstantSearch
           indexName={algolia.indexName}
           searchClient={searchClient}
