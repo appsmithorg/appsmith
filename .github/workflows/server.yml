@@ -99,9 +99,9 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Do nothing as this is a dummy step
-        shell: bash
-        run: |
-          exit 0
+      shell: bash
+      run: |
+        exit 0
   
   package:
     runs-on: ubuntu-latest
@@ -111,7 +111,7 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Do nothing as this is a dummy step
-        shell: bash
-        run: |
-          exit 0
+      shell: bash
+      run: |
+        exit 0
           
