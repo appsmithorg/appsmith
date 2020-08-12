@@ -78,8 +78,10 @@ class OrgApi extends Api {
   ): AxiosPromise<FetchAllUsersResponse> {
     return Api.get(OrgApi.orgsURL + "/" + request.orgId + "/members");
   }
-  static fetchAllRoles(): AxiosPromise<FetchAllRolesResponse> {
-    return Api.get(OrgApi.orgsURL + "/roles");
+  static fetchAllRoles(
+    request: FetchAllRolesRequest,
+  ): AxiosPromise<FetchAllRolesResponse> {
+    return Api.get(OrgApi.orgsURL + `/roles?organizationId=${request.orgId}`);
   }
   static changeOrgUserRole(
     request: ChangeUserRoleRequest,
