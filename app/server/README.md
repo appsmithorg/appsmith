@@ -12,7 +12,7 @@ For example:
 $ ./build.sh -DskipTests
 ```
 
-This will 
+This script will perform the following steps:
 1. Compile the code
 2. Generate the jars for server & plugins
 3. Copy them into the `dist` directory
