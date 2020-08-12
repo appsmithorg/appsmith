@@ -23,6 +23,12 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
         .click();
     });
 
+    cy.get("@getPluginForm").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
