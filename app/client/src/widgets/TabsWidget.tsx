@@ -8,6 +8,7 @@ import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/ActionConstants";
+import { WidgetOperations } from "widgets/BaseWidget";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -122,7 +123,7 @@ class TabsWidget extends BaseWidget<
         children: [],
       },
     };
-    this.updateWidget("ADD_CHILD", this.props.widgetId, config);
+    this.updateWidget(WidgetOperations.ADD_CHILD, this.props.widgetId, config);
   };
 
   removeTabContainer = () => {
@@ -136,7 +137,7 @@ class TabsWidget extends BaseWidget<
         removedContainerWidgetId = children.widgetId;
       }
     }
-    this.updateWidget("REMOVE_CHILD", removedContainerWidgetId, {
+    this.updateWidget(WidgetOperations.DELETE, removedContainerWidgetId, {
       parentId: this.props.widgetId,
     });
   };
