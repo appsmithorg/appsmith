@@ -218,15 +218,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     return orgMono.map(org -> {
                         application.setOrganizationId(org.getId());
-                        // At the organization level, filter out all the application specific policies and apply them
-                        // to the new application that we are creating.
-                        Set<Policy> policySet = org.getPolicies().stream()
-                                .filter(policy ->
-                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
-                                ).collect(Collectors.toSet());
-
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Application.class);
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Organization.class, Application.class);
                         application.setPolicies(documentPolicies);
                         return application;
                     });

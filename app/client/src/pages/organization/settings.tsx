@@ -12,7 +12,7 @@ import {
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
+import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import Button from "components/editorComponents/Button";
 import { OrgUser, Org } from "constants/orgConstants";
 import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
@@ -258,7 +258,7 @@ export const OrgSettings = (props: PageProps) => {
             />
           }
           canOutsideClickClose={true}
-          Form={InviteUsersFormv2}
+          Form={OrgInviteUsersForm}
           orgId={orgId}
           title={`Invite Users to ${currentOrgName}`}
         />

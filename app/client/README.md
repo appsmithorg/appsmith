@@ -7,7 +7,7 @@
 - `cd internal-tools-client` Change directory to the project directory
 - `nvm install` Install the version of `node` and `npm` required by the project using `nvm`
 - `yarn` Install packages and run setup scripts
-- `yarn start` Deploy locally
+- `yarn start` Start the client locally using this
 
 > For more details on how to run this locally, please visit: [Notion Doc](https://www.notion.so/appsmith/How-to-run-the-code-e031545454874419b9f72cd51feb90ff)
 
