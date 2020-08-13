@@ -7,6 +7,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
+import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
@@ -161,7 +162,11 @@ class TabControl extends BaseControl<ControlProps> {
       ? JSON.parse(this.props.propertyValue)
       : this.props.propertyValue;
     const newTabId = generateReactKey({ prefix: "tab" });
-    tabs.push({ id: newTabId, label: `Tab ${tabs.length + 1}` });
+    const newTabLabel = getNextEntityName(
+      "Tab ",
+      tabs.map(tab => tab.label),
+    );
+    tabs.push({ id: newTabId, label: newTabLabel });
     this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
   };
 

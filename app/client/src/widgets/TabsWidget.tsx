@@ -128,6 +128,7 @@ class TabsWidget extends BaseWidget<
 
   removeTabContainer = () => {
     let removedContainerWidgetId = "";
+    let removedTabId = "";
     const tabIds: string[] = this.props.tabs.map(tab => {
       return tab.id;
     });
@@ -135,7 +136,20 @@ class TabsWidget extends BaseWidget<
       const children = this.props.children[index];
       if (!tabIds.includes(children.tabId)) {
         removedContainerWidgetId = children.widgetId;
+        removedTabId = children.tabId;
       }
+    }
+    /* Selecting first tab as default tab when no tab is selected */
+    if (
+      this.props.tabs.length > 1 &&
+      removedTabId === this.props.selectedTabId
+    ) {
+      setTimeout(() => {
+        this.updateWidgetProperty(
+          "defaultTab",
+          this.props.tabs.filter(tab => tab.id !== removedTabId)[0].label,
+        );
+      }, 0);
     }
     this.updateWidget(WidgetOperations.DELETE, removedContainerWidgetId, {
       parentId: this.props.widgetId,
