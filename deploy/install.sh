@@ -104,6 +104,35 @@ overwrite_file() {
     fi
 }
 
+# This function prompts the user for an input for a non-empty Mongo root password. 
+read_mongo_password() {
+    read -sp 'Set the mongo password: ' mongo_root_password
+    while [[ -z $mongo_root_password ]] 
+    do
+        echo ""
+        echo ""
+        echo "+++++++++++ ERROR ++++++++++++++++++++++"
+        echo "The mongo password cannot be empty. Please input a valid password string."
+        echo "++++++++++++++++++++++++++++++++++++++++"
+        echo ""
+        read -sp 'Set the mongo password: ' mongo_root_password
+    done 
+}
+
+# This function prompts the user for an input for a non-empty Mongo username. 
+read_mongo_username() {
+    read -p 'Set the mongo root user: ' mongo_root_user
+    while [[ -z $mongo_root_user ]] 
+    do
+        echo ""
+        echo "+++++++++++ ERROR ++++++++++++++++++++++"
+        echo "The mongo username cannot be empty. Please input a valid username string."
+        echo "++++++++++++++++++++++++++++++++++++++++"
+        echo ""
+        read -p 'Set the mongo root user: ' mongo_root_user
+    done 
+}
+
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
 echo ""
 
@@ -130,6 +159,25 @@ if [[ $ports_occupied -ne 0 ]]; then
     echo ""
     echo -e "Exiting for now. Bye! \U1F44B"
     exit
+fi
+
+# Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
+if ! is_command_present docker ;then
+    if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
+        install_docker
+    else
+        echo ""
+        echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
+        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / Redhat / Cent OS"
+        echo "https://docs.docker.com/docker-for-mac/install/"
+        echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+        exit
+    fi
+fi
+
+# Starting docker service
+if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
+    start_docker
 fi
 
 read -p 'Installation Directory [appsmith]: ' install_dir
@@ -159,8 +207,11 @@ elif [ $fresh_install == "Y" -o $fresh_install == "y" -o $fresh_install == "yes"
     echo "Appsmith needs to create a mongo db"
     mongo_host="mongo"
     mongo_database="appsmith"
-    read -p 'Set the mongo root user: ' mongo_root_user
-    read -sp 'Set the mongo password: ' mongo_root_password
+    
+    # We invoke functions to read the mongo credentials from the user because they MUST be non-empty
+    read_mongo_username
+    read_mongo_password
+
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
 fi
@@ -237,25 +288,6 @@ curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/
 curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
 curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
-
-# Role - Docker
-if ! is_command_present docker ;then
-    if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
-        install_docker
-    else
-        echo ""
-        echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
-        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker will be installed automatically on Ubuntu / Redhat / Cent OS"
-        echo "https://docs.docker.com/docker-for-mac/install/"
-        echo "++++++++++++++++++++++++++++++++++++++++++++++++"
-        exit
-    fi
-fi
-
-# Starting docker service
-if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
-    start_docker
-fi
 
 # Role - Folder
 for directory_name in nginx certbot/conf certbot/www mongo/db
