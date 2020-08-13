@@ -282,8 +282,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             .findByEmail(user.getEmail())
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "token", token)))
                             .flatMap(passwordResetTokenRepository::delete)
-                            .thenReturn(userFromDb)
-                            .flatMap(repository::save)
+                            .then(repository.save(userFromDb))
                             .thenReturn(true);
                 });
     }

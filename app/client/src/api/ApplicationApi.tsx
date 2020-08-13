@@ -26,6 +26,7 @@ export interface ApplicationResponsePayload {
   name: string;
   organizationId: string;
   pages?: ApplicationPagePayload[];
+  appIsExample: boolean;
 }
 
 // export interface FetchApplicationResponse extends ApiResponse {
