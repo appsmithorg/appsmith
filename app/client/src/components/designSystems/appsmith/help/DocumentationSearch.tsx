@@ -292,8 +292,8 @@ const HELP_MENU_ITEMS = [
   },
   {
     icon: <StyledGithubIcon width={11.2} height={14} color="#fff" />,
-    label: "Github Issues",
-    link: "https://github.com/appsmithorg/appsmith/issues",
+    label: "Report a bug",
+    link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
     icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
