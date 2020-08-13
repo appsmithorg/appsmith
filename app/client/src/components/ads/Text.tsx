@@ -38,7 +38,7 @@ const typeSelector = (props: TextProps & ThemeProp): string => {
   return color;
 };
 
-export const Text = styled.span<TextProps>`
+const Text = styled.span<TextProps>`
   text-decoration: ${props => (props.underline ? "underline" : "unset")};
   font-style: ${props => (props.italic ? "italic" : "normal")};
   font-family: ${props => props.theme.fonts[2]};
@@ -49,3 +49,5 @@ export const Text = styled.span<TextProps>`
     props.theme.typography[props.type].letterSpacing}px;
   color: ${props => typeSelector(props)};
 `;
+
+export default Text;

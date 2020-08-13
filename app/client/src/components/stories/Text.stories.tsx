@@ -1,6 +1,6 @@
 import React from "react";
 import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
-import { Text, TextType } from "../ads/Text";
+import Text, { TextType } from "../ads/Text";
 import styled from "styled-components";
 
 export default {

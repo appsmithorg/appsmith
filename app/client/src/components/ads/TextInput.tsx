@@ -1,15 +1,8 @@
-import React, {
-  forwardRef,
-  Ref,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
 import { CommonComponentProps, hexToRgba } from "./common";
 import styled from "styled-components";
 import { theme } from "../../constants/DefaultTheme";
-import { Text, TextType } from "./Text";
+import Text, { TextType } from "./Text";
 
 export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
@@ -84,19 +77,20 @@ const InputWrapper = styled.div`
   }
 `;
 
-/* eslint-disable react/display-name */
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
+    const initialValidation = () => {
+      let validationObj = { isValid: true, message: "" };
+      if (props.defaultValue && props.validator) {
+        validationObj = props.validator(props.defaultValue);
+      }
+      return validationObj;
+    };
+
     const [validation, setValidation] = useState<{
       isValid: boolean;
       message: string;
-    }>({ isValid: true, message: "" });
-
-    useEffect(() => {
-      if (props.defaultValue) {
-        props.validator && setValidation(props.validator(props.defaultValue));
-      }
-    }, []);
+    }>(initialValidation());
 
     const inputStyle = useMemo(() => boxStyles(props, validation.isValid), [
       props.disabled,
@@ -134,5 +128,7 @@ const TextInput = forwardRef(
 TextInput.defaultProps = {
   fill: false,
 };
+
+TextInput.displayName = "TextInput";
 
 export default TextInput;
