@@ -39,7 +39,7 @@ function* fetchPluginFormSaga(actionPayload: ReduxAction<{ id: string }>) {
         type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
         payload: {
           id: actionPayload.payload.id,
-          form: response.data.form,
+          ...response.data,
         },
       });
     }

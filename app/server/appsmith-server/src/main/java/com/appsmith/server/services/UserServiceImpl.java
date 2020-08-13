@@ -2,6 +2,8 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
@@ -9,6 +11,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -44,8 +47,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
@@ -62,6 +65,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final PolicyUtils policyUtils;
     private final OrganizationRepository organizationRepository;
     private final UserOrganizationService userOrganizationService;
+    private final RoleGraph roleGraph;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -87,7 +91,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            ApplicationRepository applicationRepository,
                            PolicyUtils policyUtils,
                            OrganizationRepository organizationRepository,
-                           UserOrganizationService userOrganizationService) {
+                           UserOrganizationService userOrganizationService,
+                           RoleGraph roleGraph) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
@@ -99,6 +104,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.policyUtils = policyUtils;
         this.organizationRepository = organizationRepository;
         this.userOrganizationService = userOrganizationService;
+        this.roleGraph = roleGraph;
     }
 
     @Override
@@ -325,7 +331,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     Set<AclPermission> invitePermissions = inviteUser.getRole().getPermissions();
                     // Append the permissions to the application and return
                     Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(invitePermissions, inviteUser);
-                    return (Application) policyUtils.addPoliciesToExistingObject(policyMap, application);
+                    return policyUtils.addPoliciesToExistingObject(policyMap, application);
 
                     // Append the required permissions to all the pages
                     /**
@@ -567,11 +573,23 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
         }
 
-        Mono<Organization> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), MANAGE_ORGANIZATIONS)
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+
+        // Check if the current user has invite permissions
+        Mono<Organization> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), ORGANIZATION_INVITE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, inviteUsersDTO.getOrgId())))
+                .zipWith(currentUserMono)
+                .flatMap(tuple -> {
+                    Organization organization = tuple.getT1();
+                    User currentUser = tuple.getT2();
+
+                    // This code segment checks if the current user can invite for the invited role.
+
+                    return isUserPermittedToInviteForGivenRole(organization, currentUser.getUsername(), inviteUsersDTO.getRoleName())
+                            .thenReturn(organization);
+                })
                 .cache();
 
-        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         // Check if the invited user exists. If yes, return the user, else create a new user by triggering
         // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
@@ -682,6 +700,37 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 return Mono.just(createdUser);
                             });
                 });
+    }
+
+    private Mono<Boolean> isUserPermittedToInviteForGivenRole(Organization organization, String username, String invitedRoleName) {
+        List<UserRole> userRoles = organization.getUserRoles();
+
+        // The current organization has no members. Clearly the current user is also not present
+        if (userRoles == null || userRoles.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED));
+        }
+
+        Optional<UserRole> optionalUserRole = userRoles.stream().filter(role -> role.getUsername().equals(username)).findFirst();
+        // If the current user is not present in the organization, the user would also not be permitted to invite
+        if (!optionalUserRole.isPresent()) {
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED));
+        }
+
+        UserRole currentUserRole = optionalUserRole.get();
+        String currentUserRoleName = currentUserRole.getRoleName();
+
+        AppsmithRole invitedRole = AppsmithRole.generateAppsmithRoleFromName(invitedRoleName);
+
+        // Generate all the roles for which the current user can invite other users
+        Set<AppsmithRole> appsmithRoles = roleGraph.generateHierarchicalRoles(currentUserRoleName);
+
+        // If the role for which users are being invited is not in the list of permissible roles that the
+        // current user can invite for, throw an error
+        if (!appsmithRoles.contains(invitedRole)) {
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED));
+        }
+
+        return Mono.just(Boolean.TRUE);
     }
 
 }

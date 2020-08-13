@@ -18,6 +18,12 @@ import KeyValueInputControl, {
 import FilePickerControl, {
   FilePickerControlProps,
 } from "components/formControls/FilePickerControl";
+import DynamicTextControl, {
+  DynamicTextFieldProps,
+} from "components/formControls/DynamicTextFieldControl";
+import CheckboxControl, {
+  CheckboxControlProps,
+} from "components/formControls/CheckboxControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -49,6 +55,16 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder("KEY_VAL_INPUT", {
       buildPropertyControl(controlProps: KeyValueInputProps): JSX.Element {
         return <KeyValueInputControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_TEXT", {
+      buildPropertyControl(controlProps: DynamicTextFieldProps): JSX.Element {
+        return <DynamicTextControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("CHECKBOX", {
+      buildPropertyControl(controlProps: CheckboxControlProps): JSX.Element {
+        return <CheckboxControl {...controlProps} />;
       },
     });
   }

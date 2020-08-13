@@ -138,7 +138,7 @@ jobs:
         --env APPSMITH_REDIS_URL=redis://localhost:6379 \
         --env APPSMITH_ENCRYPTION_PASSWORD=password \
         --env APPSMITH_ENCRYPTION_SALT=salt \
-        appsmith/appsmith-server:latest
+        appsmith/appsmith-server:release
 
     - name: Installing Yarn serve
       run: |

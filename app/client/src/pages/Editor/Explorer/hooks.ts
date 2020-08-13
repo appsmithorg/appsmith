@@ -29,7 +29,10 @@ const findWidgets = (widgets: WidgetProps, keyword: string) => {
         findWidgets(widget, keyword),
       ),
     );
-    return widgets.children.length > 0 ? widgets : undefined;
+    return widgets.children.length > 0 ||
+      widgets.widgetName.toLowerCase().indexOf(keyword) > -1
+      ? widgets
+      : undefined;
   }
   if (widgets.widgetName.toLowerCase().indexOf(keyword) > -1) return widgets;
 };
