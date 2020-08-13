@@ -26,6 +26,22 @@ export const useShowPropertyPane = () => {
   );
 };
 
+export const useToggleEditWidgetName = () => {
+  const dispatch = useDispatch();
+  return useCallback(
+    (widgetId: string, enable: boolean) => {
+      dispatch({
+        type: ReduxActionTypes.TOGGLE_PROPERTY_PANE_WIDGET_NAME_EDIT,
+        payload: {
+          enable,
+          widgetId,
+        },
+      });
+    },
+    [dispatch],
+  );
+};
+
 export const useCanvasSnapRowsUpdateHook = () => {
   const dispatch = useDispatch();
   const updateCanvasSnapRows = useCallback(
