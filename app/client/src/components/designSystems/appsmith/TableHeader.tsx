@@ -88,6 +88,7 @@ const TableHeader = (props: TableHeaderProps) => {
     <TableHeaderWrapper
       serverSidePaginationEnabled={props.serverSidePaginationEnabled}
       width={props.width}
+      backgroundColor={Colors.WHITE}
     >
       <SearchComponent
         value={props.searchKey}
