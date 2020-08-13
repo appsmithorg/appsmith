@@ -386,7 +386,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           searchTableData={this.handleSearchTable}
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
-            super.updateWidgetProperty("filters", filters);
+            super.updateWidgetMetaProperty("filters", filters);
           }}
           compactMode={this.props.compactMode}
           updateCompactMode={(compactMode: CompactMode) => {
