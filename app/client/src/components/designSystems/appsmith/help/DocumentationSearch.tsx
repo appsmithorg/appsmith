@@ -23,7 +23,7 @@ import {
 import { Icon } from "@blueprintjs/core";
 import moment from "moment";
 
-const { algolia, appVersion } = getAppsmithConfigs();
+const { algolia, appVersion, cloudHosting } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
@@ -97,15 +97,18 @@ const Hit = (props: { hit: { path: string } }) => {
   );
 };
 
-const HelpMenuItem = (props: {
-  item: { label: string; link: string; icon: React.ReactNode };
+const DefaultHelpMenuItem = (props: {
+  item: { label: string; link?: string; id?: string; icon: React.ReactNode };
+  onSelect: Function;
 }) => {
   return (
     <li className="ais-Hits-item">
       <div
         className="t--docHit"
+        id={props.item.id}
         onClick={() => {
-          window.open(props.item.link, "_blank");
+          if (props.item.link) window.open(props.item.link, "_blank");
+          props.onSelect();
         }}
       >
         <div className="hit-name t--docHitTitle">
@@ -284,7 +287,14 @@ const HelpBody = styled.div`
 type Props = { hitsPerPage: number; defaultRefinement: string; dispatch: any };
 type State = { showResults: boolean };
 
-const HELP_MENU_ITEMS = [
+type HelpItem = {
+  label: string;
+  link?: string;
+  id?: string;
+  icon: React.ReactNode;
+};
+
+const HELP_MENU_ITEMS: HelpItem[] = [
   {
     icon: <StyledDocumentIcon width={11.2} height={14} color="#181F24" />,
     label: "Documentation",
@@ -307,6 +317,14 @@ const HELP_MENU_ITEMS = [
   },
 ];
 
+if (cloudHosting) {
+  HELP_MENU_ITEMS[2] = {
+    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
+    label: "Chat with us",
+    id: "intercom-trigger",
+  };
+}
+
 class DocumentationSearch extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -320,6 +338,10 @@ class DocumentationSearch extends React.Component<Props, State> {
         showResults: true,
       });
     }
+  };
+  handleClose = () => {
+    this.props.dispatch(setHelpModalVisibility(false));
+    this.props.dispatch(setHelpDefaultRefinement(""));
   };
   render() {
     if (!algolia.enabled) return null;
@@ -337,10 +359,7 @@ class DocumentationSearch extends React.Component<Props, State> {
           icon="minus"
           color="white"
           iconSize={14}
-          onClick={() => {
-            this.props.dispatch(setHelpModalVisibility(false));
-            this.props.dispatch(setHelpDefaultRefinement(""));
-          }}
+          onClick={this.handleClose}
         />
         <InstantSearch
           indexName={algolia.indexName}
@@ -361,7 +380,11 @@ class DocumentationSearch extends React.Component<Props, State> {
               ) : (
                 <ul className="ais-Hits-list">
                   {HELP_MENU_ITEMS.map(item => (
-                    <HelpMenuItem key={item.label} item={item} />
+                    <DefaultHelpMenuItem
+                      key={item.label}
+                      item={item}
+                      onSelect={this.handleClose}
+                    />
                   ))}
                 </ul>
               )}
