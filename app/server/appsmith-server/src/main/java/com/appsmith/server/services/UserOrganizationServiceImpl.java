@@ -152,10 +152,10 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         // Generate all the policies for Organization, Application, Page and Actions for the current user
         Set<AclPermission> rolePermissions = role.getPermissions();
         Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermission(rolePermissions, user);
-        Map<String, Policy> applicationPolicyMap = policyUtils.generateChildrenPoliciesFromOrganizationPolicies(orgPolicyMap, Application.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generateChildrenPoliciesFromOrganizationPolicies(orgPolicyMap, Datasource.class);
-        Map<String, Policy> pagePolicyMap = policyUtils.generatePagePoliciesFromApplicationPolicies(applicationPolicyMap);
-        Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Application.class);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
+        Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
+        Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
 
         //Now update the organization policies
         Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
@@ -215,10 +215,10 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         // Generate all the policies for Organization, Application, Page and Actions
         Set<AclPermission> rolePermissions = role.getPermissions();
         Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermission(rolePermissions, user);
-        Map<String, Policy> applicationPolicyMap = policyUtils.generateChildrenPoliciesFromOrganizationPolicies(orgPolicyMap, Application.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generateChildrenPoliciesFromOrganizationPolicies(orgPolicyMap, Datasource.class);
-        Map<String, Policy> pagePolicyMap = policyUtils.generatePagePoliciesFromApplicationPolicies(applicationPolicyMap);
-        Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Application.class);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
+        Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
+        Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
 
         //Now update the organization policies
         Organization updatedOrganization = policyUtils.removePoliciesFromExistingObject(orgPolicyMap, organization);
@@ -333,10 +333,10 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         // Generate all the policies for Organization, Application, Page and Actions for the current user
         Set<AclPermission> rolePermissions = role.getPermissions();
         Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermissionForMultipleUsers(rolePermissions, users);
-        Map<String, Policy> applicationPolicyMap = policyUtils.generateChildrenPoliciesFromOrganizationPolicies(orgPolicyMap, Application.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generateChildrenPoliciesFromOrganizationPolicies(orgPolicyMap, Datasource.class);
-        Map<String, Policy> pagePolicyMap = policyUtils.generatePagePoliciesFromApplicationPolicies(applicationPolicyMap);
-        Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Application.class);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
+        Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
+        Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
 
         //Now update the organization policies
         Organization updatedOrganization = (Organization) policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);

@@ -176,11 +176,11 @@ public class PolicyGenerator {
         return childPolicySet;
     }
 
-    public Set<Policy> getAllChildPolicies(Set<Policy> policySet, Class inheritingEntity, Class destinationEntity) {
+    public Set<Policy> getAllChildPolicies(Set<Policy> policySet, Class sourceEntity, Class destinationEntity) {
         Set<Policy> policies = policySet.stream()
                 .map(policy -> {
                     AclPermission aclPermission = AclPermission
-                            .getPermissionByValue(policy.getPermission(), inheritingEntity);
+                            .getPermissionByValue(policy.getPermission(), sourceEntity);
                     // Get all the child policies for the given policy and aclPermission
                     return getChildPolicies(policy, aclPermission, destinationEntity);
                 }).flatMap(Collection::stream)
