@@ -49,10 +49,8 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     [dispatch, widgets, setName, props.widgetId, props.title],
   );
   useEffect(() => {
-    if (updateError) {
-      setName(props.title);
-    }
-  }, [updateError, props.title]);
+    setName(props.title);
+  }, [props.title]);
 
   const exitEditMode = useCallback(() => {
     props.widgetId && toggleEditWidgetName(props.widgetId, false);
