@@ -1,9 +1,10 @@
-import React, { forwardRef, useCallback, useMemo } from "react";
+import React, { forwardRef, Ref, useCallback, useMemo } from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
-import Text, { TextType } from "./Text";
+// import Text, { TextType } from "./Text";
 import { hexToRgba } from "./Button";
 import { theme } from "../../constants/DefaultTheme";
+import { StyledText, TextType } from "./Text";
 
 export type TextInputProps = CommonComponentProps & {
   value: string;
@@ -87,43 +88,47 @@ const InputWrapper = styled.div`
   }
 `;
 
-const TextInput = (props: TextInputProps) => {
-  const mainState = useMemo(() => boxStyles(props, "main"), [
-    props.isDisabled,
-    props.validator,
-  ]);
-  const focusState = useMemo(() => boxStyles(props, "focus"), [
-    props.isDisabled,
-    props.validator,
-  ]);
+/* eslint-disable react/display-name */
+const TextInput = forwardRef(
+  (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
+    const mainState = useMemo(() => boxStyles(props, "main"), [
+      props.isDisabled,
+      props.validator,
+    ]);
+    const focusState = useMemo(() => boxStyles(props, "focus"), [
+      props.isDisabled,
+      props.validator,
+    ]);
 
-  const memoizedChangeHandler = useCallback(
-    el => props.onChange && props.onChange(el.target.value),
-    [props.value],
-  );
+    const memoizedChangeHandler = useCallback(
+      el => props.onChange && props.onChange(el.target.value),
+      [props.value],
+    );
 
-  const ErrorMessage = (
-    <Text type={TextType.P3}>
-      {props.validator ? props.validator(props.value).message : ""}
-    </Text>
-  );
+    const ErrorMessage = (
+      <StyledText type={TextType.P3}>
+        {props.validator ? props.validator(props.value).message : ""}
+      </StyledText>
+    );
 
-  return (
-    <InputWrapper>
-      <StyledInput
-        type="text"
-        mainState={mainState}
-        focusState={focusState}
-        {...props}
-        placeholder={props.placeholder ? props.placeholder : ""}
-        onChange={memoizedChangeHandler}
-      />
-      {props.validator && props.validator(props.value).isValid
-        ? null
-        : ErrorMessage}
-    </InputWrapper>
-  );
-};
+    return (
+      <InputWrapper>
+        <StyledInput
+          type="text"
+          ref={ref}
+          mainState={mainState}
+          focusState={focusState}
+          {...props}
+          placeholder={props.placeholder ? props.placeholder : ""}
+          onChange={memoizedChangeHandler}
+        />
+        {props.validator && props.validator(props.value).isValid
+          ? null
+          : ErrorMessage}
+      </InputWrapper>
+    );
+  },
+);
 
 TextInput.defaultProps = {
   fill: false,
