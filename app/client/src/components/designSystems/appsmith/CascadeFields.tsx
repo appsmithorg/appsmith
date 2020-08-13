@@ -45,15 +45,7 @@ const FieldWrapper = styled.div`
 
 const DropdownWrapper = styled.div<{ width: number }>`
   width: ${props => props.width}px;
-  height: 32px;
-  background: ${Colors.WHITE};
-  border: 1px solid #d3dee3;
-  box-sizing: border-box;
-  border-radius: 4px;
   margin-left: 10px;
-  font-size: 14px;
-  padding: 5px 12px 7px;
-  color: ${Colors.OXFORD_BLUE};
 `;
 
 const StyledInputGroup = styled(InputGroup)`
@@ -80,6 +72,15 @@ const DropdownTrigger = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  height: 32px;
+  background: ${Colors.WHITE};
+  border: 1px solid #d3dee3;
+  box-sizing: border-box;
+  border-radius: 4px;
+  font-size: 14px;
+  padding: 5px 12px 7px;
+  color: ${Colors.OXFORD_BLUE};
+  cursor: pointer;
   &&& span {
     margin-right: 0;
   }
