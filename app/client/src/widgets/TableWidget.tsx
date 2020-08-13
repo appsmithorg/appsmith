@@ -35,13 +35,14 @@ export type TableSizes = {
 export enum CompactModeTypes {
   SHORT = "SHORT",
   DEFAULT = "DEFAULT",
+  TALL = "TALL",
 }
 
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 38,
     TABLE_HEADER_HEIGHT: 45,
-    ROW_HEIGHT: 60,
+    ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 12,
   },
   [CompactModeTypes.SHORT]: {
@@ -49,6 +50,12 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     TABLE_HEADER_HEIGHT: 45,
     ROW_HEIGHT: 20,
     ROW_FONT_SIZE: 10,
+  },
+  [CompactModeTypes.TALL]: {
+    COLUMN_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 45,
+    ROW_HEIGHT: 60,
+    ROW_FONT_SIZE: 12,
   },
 };
 
@@ -389,9 +396,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           searchTableData={this.handleSearchTable}
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
-            super.updateWidgetProperty("filters", filters);
+            super.updateWidgetMetaProperty("filters", filters);
           }}
-          compactMode={this.props.compactMode}
+          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
             super.updateWidgetMetaProperty("compactMode", compactMode);
           }}
