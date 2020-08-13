@@ -225,11 +225,17 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     const { selectedIndexArr } = this.props;
     let selectedItems = [];
 
-    if (this.props.lengthOfOverflowingItems > 0) {
+    if (
+      this.props.lengthOfOverflowingItems > 0 &&
+      selectedIndexArr.length > 0
+    ) {
+      const sliceIndex =
+        this.props.selectedIndexArr.length -
+        (this.props.lengthOfOverflowingItems + 1);
+
       const selectedTagsToShow = this.props.selectedIndexArr.slice(
         0,
-        this.props.selectedIndexArr.length -
-          (this.props.lengthOfOverflowingItems + 1),
+        sliceIndex < 0 ? 0 : sliceIndex,
       );
 
       selectedItems = this.props.selectedIndexArr
