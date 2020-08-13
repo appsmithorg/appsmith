@@ -7,7 +7,6 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.ActionRepository;
@@ -26,13 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
 @Component
 public class PolicyUtils {
@@ -148,18 +140,6 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Map<String, Policy> generateChildrenPoliciesFromOrganizationPolicies(Map<String, Policy> orgPolicyMap, Class destinationEntity) {
-        Set<Policy> extractedInterestingPolicySet = new HashSet<>(orgPolicyMap.values())
-                .stream()
-                .filter(policy -> policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
-                        || policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue()))
-                .collect(Collectors.toSet());
-
-        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, Organization.class, destinationEntity)
-                .stream()
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-    }
-
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByOrgId(String orgId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
 
         return datasourceRepository
@@ -194,18 +174,6 @@ public class PolicyUtils {
                 .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
     }
 
-    public Map<String, Policy> generatePagePoliciesFromApplicationPolicies(Map<String, Policy> applicationPolicyMap) {
-        Set<Policy> extractedInterestingPolicySet = new HashSet<>(applicationPolicyMap.values())
-                .stream()
-                .filter(policy -> policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())
-                        || policy.getPermission().equals(READ_APPLICATIONS.getValue()))
-                .collect(Collectors.toSet());
-
-        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, Application.class, Page.class)
-                .stream()
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-    }
-
     public Flux<Page> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
 
         return pageRepository
@@ -220,18 +188,6 @@ public class PolicyUtils {
                 })
                 .collectList()
                 .flatMapMany(updatedPages -> pageRepository.saveAll(updatedPages));
-    }
-
-    public Map<String, Policy> generateActionPoliciesFromPagePolicies(Map<String, Policy> pagePolicyMap) {
-        Set<Policy> extractedInterestingPolicySet = new HashSet<>(pagePolicyMap.values())
-                .stream()
-                .filter(policy -> policy.getPermission().equals(MANAGE_PAGES.getValue())
-                        || policy.getPermission().equals(READ_PAGES.getValue()))
-                .collect(Collectors.toSet());
-
-        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, Page.class, Action.class)
-                .stream()
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
     public Flux<Action> updateWithPagePermissionsToAllItsActions(String pageId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
@@ -254,5 +210,15 @@ public class PolicyUtils {
                 })
                 .collectList()
                 .flatMapMany(updatedActions -> actionRepository.saveAll(updatedActions));
+    }
+
+    public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
+                                                                           Class sourceEntity,
+                                                                           Class destinationEntity) {
+        Set<Policy> extractedInterestingPolicySet = new HashSet<>(sourcePolicyMap.values());
+
+        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)
+                .stream()
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 }
