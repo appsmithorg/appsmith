@@ -8,5 +8,5 @@ type RadioProps = CommonComponentProps & {
 };
 
 export default function Radio(props: RadioProps) {
-  return "";
+  return null;
 }

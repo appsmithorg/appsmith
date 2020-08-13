@@ -46,7 +46,7 @@ export function* validateResponse(response: ApiResponse | any) {
       type: ReduxActionErrorTypes.API_ERROR,
       payload: {
         error: response.responseMeta.error,
-        show: false,
+        show: true,
       },
     });
     throw Error(response.responseMeta.error.message);
@@ -59,7 +59,7 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
-type ErrorPayloadType = { code?: number; message?: string; show?: boolean };
+type ErrorPayloadType = { code?: number; message?: string };
 let ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {};
@@ -93,9 +93,8 @@ export function* errorSaga(
   const message =
     error && error.message ? error.message : ActionErrorDisplayMap[type](error);
 
-  if (show && error && error.show) {
-    // error.code !== 401 IS A HACK!
-    // TODO(abhinav): Figure out a generic way
+  if (show && error) {
+    // TODO Make different error channels.
     AppToaster.show({ message, type: ToastType.ERROR });
   }
 

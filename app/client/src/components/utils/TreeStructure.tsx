@@ -35,9 +35,9 @@ const TreeStructureWrapper = styled.div`
 
   .tree li {
     margin: 0;
-    padding-left: 9px;
+    padding-left: 6px;
     line-height: 18px;
-    padding-top: 16px;
+    padding-top: 8px;
     position: relative;
   }
 

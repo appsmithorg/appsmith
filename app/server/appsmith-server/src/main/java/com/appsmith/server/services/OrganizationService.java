@@ -21,8 +21,6 @@ public interface OrganizationService extends CrudService<Organization, String> {
 
     Mono<Organization> create(Organization organization, User user);
 
-    Mono<Organization> findById(String id);
-
     Mono<Organization> findById(String id, AclPermission permission);
 
     Mono<Organization> save(Organization organization);

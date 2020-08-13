@@ -130,16 +130,16 @@ export const getApplicationViewerPageURL = (
 
 function convertToQueryParams(params: Record<string, string> = {}): string {
   const paramKeys = Object.keys(params);
-  let queryParams = "";
+  const queryParams: string[] = [];
   if (paramKeys) {
-    paramKeys.forEach((paramKey: string, index: number) => {
+    paramKeys.forEach((paramKey: string) => {
       const value = params[paramKey];
       if (paramKey && value) {
-        queryParams = queryParams + `&${paramKey}=${value}`;
+        queryParams.push(`${paramKey}=${value}`);
       }
     });
   }
-  return queryParams ? "?" + queryParams : "";
+  return queryParams.length ? "?" + queryParams.join("&") : "";
 }
 
 export const getCurlImportPageURL = (

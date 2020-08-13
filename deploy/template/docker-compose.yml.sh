@@ -38,8 +38,8 @@ services:
     env_file:
       - ./docker.env
       - ./encryption.env
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     links:
       - mongo
     depends_on:
@@ -49,8 +49,8 @@ services:
 
   mongo:
     image: mongo
-    ports:
-      - "27017:27017"
+    expose:
+      - "27017"
     environment:
       - MONGO_INITDB_DATABASE=appsmith
       - MONGO_INITDB_ROOT_USERNAME=$mongo_root_user
@@ -63,8 +63,8 @@ services:
 
   redis:
     image: redis
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     networks:
       - appsmith
 

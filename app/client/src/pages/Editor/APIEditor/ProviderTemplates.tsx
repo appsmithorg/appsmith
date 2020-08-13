@@ -29,7 +29,7 @@ import {
 } from "actions/providerActions";
 import { getDuplicateName } from "utils/AppsmithUtils";
 import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
-import Spinner from "components/ads/Spinner";
+import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 

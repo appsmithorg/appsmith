@@ -85,7 +85,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
         // is set in the cookie on the browser.
-        String redirectUrl = RedirectHelper.getRedirectUrl(exchange.getRequest().getHeaders());
+        String redirectUrl = RedirectHelper.getRedirectUrl(exchange.getRequest());
 
         URI defaultRedirectLocation = URI.create(redirectUrl);
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);

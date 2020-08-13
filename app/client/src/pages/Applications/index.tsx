@@ -44,7 +44,8 @@ import { IntentColors } from "constants/DefaultTheme";
 
 const OrgDropDown = styled.div`
   display: flex;
-  padding: 0px 30px;
+  padding: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[4]}px;
   font-size: ${props => props.theme.fontSizes[1]}px;
   justify-content: space-between;
 `;
@@ -61,12 +62,19 @@ const OrgSection = styled.div``;
 
 const OrgName = styled.div`
   display: flex;
-  font-size: ${props => props.theme.fontSizes[3]}px;
+  font-size: ${props => props.theme.fontSizes[4]}px;
+  font-weight: ${props => props.theme.fontWeights[3]};
   padding-top: ${props => props.theme.spaces[4]}px;
   padding-left: ${props => props.theme.spaces[6]}px;
-  & > div {
-    margin-right: 20px;
+  & > span {
+    margin-right: 10px;
   }
+`;
+
+const DropDownTrigger = styled.div`
+  font-size: ${props => props.theme.fontSizes[4]}px;
+  font-weight: ${props => props.theme.fontWeights[3]};
+  cursor: pointer;
 `;
 
 const ApplicationAddCardWrapper = styled(Card)`
@@ -181,7 +189,11 @@ class Applications extends Component<
         ],
         trigger: {
           icon: "ORG_ICON",
-          text: orgName,
+          content: (
+            <DropDownTrigger className="t--org-name">
+              {orgName} <Icon icon="chevron-down" color={"black"} />
+            </DropDownTrigger>
+          ),
           outline: false,
         },
         openDirection: Directions.DOWN,
@@ -206,7 +218,7 @@ class Applications extends Component<
             },
           }}
           search={{
-            placeholder: "Search",
+            placeholder: "Search App Name",
             queryFn: this.props.searchApplications,
           }}
         />
@@ -267,10 +279,10 @@ class Applications extends Component<
                           filled
                         />
                       }
+                      canOutsideClickClose={true}
                       Form={InviteUsersFormv2}
                       orgId={organization.id}
                       title={`Invite Users to ${organization.name}`}
-                      setMaxWidth
                     />
                   </OrgDropDown>
                 )}

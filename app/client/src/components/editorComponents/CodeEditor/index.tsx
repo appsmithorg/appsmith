@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import CodeMirror, { EditorConfiguration } from "codemirror";
 import "codemirror/lib/codemirror.css";
-import "codemirror/theme/monokai.css";
-import "codemirror/theme/neat.css";
+import "codemirror/theme/duotone-dark.css";
+import "codemirror/theme/duotone-light.css";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
@@ -286,6 +286,7 @@ class CodeEditor extends Component<Props, State> {
       <DynamicAutocompleteInputWrapper
         theme={this.props.theme}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
+        isError={hasError}
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
         isNotHover={this.state.isFocused || this.state.isOpened}
       >

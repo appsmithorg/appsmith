@@ -174,7 +174,7 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
                 .clientId(clientRegistration.getClientId())
                 .authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
                 .redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
-                .state(this.generateKey(exchange.getRequest().getHeaders()))
+                .state(this.generateKey(exchange.getRequest()))
                 .attributes(attributes)
                 .build();
     }
@@ -185,12 +185,12 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
      * based on the referer so as to transfer control back to it. If the referer is not available, we default to
      * redirecting to the server's index page.
      *
-     * @param httpHeaders
+     * @param request
      * @return
      */
-    private String generateKey(HttpHeaders httpHeaders) {
+    private String generateKey(ServerHttpRequest request) {
         String stateKey = this.stateGenerator.generateKey();
-        String redirectUrl = RedirectHelper.getRedirectUrl(httpHeaders);
+        String redirectUrl = RedirectHelper.getRedirectUrl(request);
         stateKey = stateKey + "," + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
         return stateKey;
     }

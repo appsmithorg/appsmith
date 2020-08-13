@@ -3,11 +3,13 @@ import styled, { css } from "styled-components";
 import { ComponentProps } from "./BaseComponent";
 import { TabsWidgetProps, TabContainerWidgetProps } from "widgets/TabsWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
+import { scrollbarLight } from "constants/DefaultTheme";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
   shouldScrollContents?: boolean;
   selectedTabId: string;
+  shouldShowTabs: boolean;
   onTabChange: (tabId: string) => void;
   tabs: Array<{
     id: string;
@@ -53,8 +55,13 @@ const ScrollableCanvasWrapper = styled.div<
 `;
 
 const TabsContainer = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  ${scrollbarLight};
+  background: ${props => props.theme.colors.builderBodyBG};
   && {
-    height: 32px;
+    height: 38px;
     width: 100%;
     display: flex;
     justify-content: flex-start;
@@ -106,22 +113,26 @@ const TabsComponent = (props: TabsComponentProps) => {
   }, [props.shouldScrollContents]);
   return (
     <TabsContainerWrapper ref={tabContainerRef}>
-      <TabsContainer>
-        {props.tabs &&
-          props.tabs.map((tab, index) => (
-            <StyledText
-              onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-                props.onTabChange(tab.id);
-                event.stopPropagation();
-              }}
-              selected={props.selectedTabId === tab.id}
-              key={index}
-            >
-              {tab.label}
-            </StyledText>
-          ))}
-        <StyledTab></StyledTab>
-      </TabsContainer>
+      {props.shouldShowTabs ? (
+        <TabsContainer>
+          {props.tabs &&
+            props.tabs.map((tab, index) => (
+              <StyledText
+                onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+                  props.onTabChange(tab.id);
+                  event.stopPropagation();
+                }}
+                selected={props.selectedTabId === tab.id}
+                key={index}
+              >
+                {tab.label}
+              </StyledText>
+            ))}
+          <StyledTab></StyledTab>
+        </TabsContainer>
+      ) : (
+        undefined
+      )}
       <ChildrenWrapper>
         <ScrollableCanvasWrapper
           {...props}

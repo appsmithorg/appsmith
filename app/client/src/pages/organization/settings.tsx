@@ -18,7 +18,7 @@ import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
 import styled from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { RouteComponentProps } from "react-router";
-import Spinner from "components/ads/Spinner";
+import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
@@ -61,13 +61,19 @@ const StyledDropDown = styled.div`
 `;
 
 const StyledTableWrapped = styled(TableWrapper)`
-  width: 100%;
+  min-height: 0px;
   height: auto;
-  font-size: 14px;
+  .tableWrap {
+    display: flex;
+    flex: 1;
+  }
   .table {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: auto;
     .tbody {
       overflow: auto;
-      height: auto;
     }
   }
 `;
@@ -250,10 +256,10 @@ export const OrgSettings = (props: PageProps) => {
               filled
             />
           }
+          canOutsideClickClose={true}
           Form={InviteUsersFormv2}
           orgId={orgId}
           title={`Invite Users to ${currentOrgName}`}
-          setMaxWidth
         />
       </PageSectionHeader>
       {props.isFetchAllUsers && props.isFetchAllRoles ? (

@@ -11,11 +11,16 @@ type DropdownOption = {
   children?: DropdownOption[];
 };
 
+export enum DropdownDisplayType {
+  TAGS = "TAGS",
+  CHECKBOXES = "CHECKBOXES",
+}
+
 type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selectHandler: (selectedValue: string) => void;
   selected?: DropdownOption;
-  multiselectDisplayType?: "TAGS" | "CHECKBOXES";
+  multiselectDisplayType?: DropdownDisplayType;
   checked?: boolean;
   multi?: boolean;
   autocomplete?: boolean;
@@ -27,5 +32,5 @@ type DropdownProps = CommonComponentProps & {
 };
 
 export default function Button(props: DropdownProps) {
-  return "";
+  return null;
 }

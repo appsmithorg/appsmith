@@ -9,6 +9,8 @@ import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ActionConfig, Property } from "entities/Action";
+import { AuthUserState } from "@appsmith/reducers/entityReducers/authUserReducer";
+import { UrlDataState } from "@appsmith/reducers/entityReducers/urlReducer";
 
 export type ActionDescription<T> = {
   type: string;
@@ -22,6 +24,7 @@ type ActionDispatcher<T, A extends string[]> = (
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
   WIDGET = "WIDGET",
+  APPSMITH = "APPSMITH",
 }
 
 export type RunActionPayload = {
@@ -55,11 +58,18 @@ export interface DataTreeWidget extends WidgetProps {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
+export interface DataTreeAppsmith {
+  user: AuthUserState;
+  URL: UrlDataState;
+  ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
+}
+
 export type DataTreeEntity =
   | DataTreeAction
   | DataTreeWidget
   | DataTreeUrl
   | PageListPayload
+  | DataTreeAppsmith
   | ActionDispatcher<any, any>;
 
 export type DataTree = {
@@ -71,12 +81,13 @@ type DataTreeSeed = {
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
   pageList: PageListPayload;
-  url?: DataTreeUrl;
+  url: DataTreeUrl;
+  authUser: AuthUserState;
 };
 
 export class DataTreeFactory {
   static create(
-    { actions, widgets, widgetsMeta, pageList }: DataTreeSeed,
+    { actions, widgets, widgetsMeta, pageList, authUser, url }: DataTreeSeed,
     // TODO(hetu)
     // temporary fix for not getting functions while normal evals which crashes the app
     // need to remove this after we get a proper solve
@@ -193,6 +204,11 @@ export class DataTreeFactory {
 
     dataTree.pageList = pageList;
     dataTree.actionPaths = actionPaths;
+    dataTree.appsmith = {
+      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
+      user: authUser,
+      URL: url,
+    };
     return dataTree;
   }
 }

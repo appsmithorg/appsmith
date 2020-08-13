@@ -194,21 +194,33 @@ public class CurlImporterServiceTest {
         );
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://loc");
-        assertBody(action, "all+of+this+exactly%2C+but+url+encoded+");
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("", "all of this exactly, but url encoded ")
+        );
 
         action = curlImporterService.curlToAction(
                 "curl --data-urlencode 'spaced name=all of this exactly, but url encoded' http://loc"
         );
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://loc");
-        assertBody(action, "spaced name=all+of+this+exactly%2C+but+url+encoded");
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("spaced name", "all of this exactly, but url encoded")
+        );
 
         action = curlImporterService.curlToAction(
                 "curl --data-urlencode 'awesome=details, all of this exactly, but url encoded' http://loc"
         );
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://loc");
-        assertBody(action, "awesome=details%2C+all+of+this+exactly%2C+but+url+encoded");
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("awesome", "details, all of this exactly, but url encoded")
+        );
     }
 
     @Test
@@ -477,14 +489,23 @@ public class CurlImporterServiceTest {
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
         assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
-        assertBody(action, "foo=bar");
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("foo", "bar")
+        );
 
         action = curlImporterService.curlToAction("curl -d \"foo=bar\" -d bar=baz https://api.sloths.com");
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
         assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
-        assertBody(action, "foo=bar&bar=baz");
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("foo", "bar"),
+                new Property("bar", "baz")
+        );
 
         action = curlImporterService.curlToAction("curl -H \"Accept: text/plain\" --header \"User-Agent: slothy\" https://api.sloths.com");
         assertMethod(action, HttpMethod.GET);
@@ -565,6 +586,20 @@ public class CurlImporterServiceTest {
         assertUrl(action, "http://dummy.restapiexample.com");
         assertPath(action, "/api/v1/create");
         assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}", "")
+        );
+    }
+
+    @Test
+    public void parseWithJson() throws AppsmithException {
+        Action action = curlImporterService.curlToAction("curl -X POST -H'Content-Type: application/json' -d '{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}' --url http://dummy.restapiexample.com/api/v1/create");
+        assertMethod(action, HttpMethod.POST);
+        assertUrl(action, "http://dummy.restapiexample.com");
+        assertPath(action, "/api/v1/create");
+        assertHeaders(action, new Property("Content-Type", "application/json"));
         assertBody(action, "{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
     }
 
@@ -586,6 +621,21 @@ public class CurlImporterServiceTest {
         assertPath(action, "/api/v1/create");
         assertHeaders(action, new Property("Accept", "application/json"), new Property("Content-Type", "application/json"));
         assertBody(action, "{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
+    }
+
+    @Test
+    public void parseMultipleData() throws AppsmithException {
+        Action action = curlImporterService.curlToAction("curl https://api.stripe.com/v1/refunds -d payment_intent=pi_Aabcxyz01aDfoo -d amount=1000");
+        assertMethod(action, HttpMethod.POST);
+        assertUrl(action, "https://api.stripe.com");
+        assertPath(action, "/v1/refunds");
+        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("payment_intent", "pi_Aabcxyz01aDfoo"),
+                new Property("amount", "1000")
+        );
     }
 
     @Test
@@ -635,6 +685,10 @@ public class CurlImporterServiceTest {
 
     private static void assertBody(Action action, String body) {
         assertThat(action.getActionConfiguration().getBody()).isEqualTo(body);
+    }
+
+    private static void assertBodyFormData(Action action, Property... params) {
+        assertThat(action.getActionConfiguration().getBodyFormData()).containsExactly(params);
     }
 
 }

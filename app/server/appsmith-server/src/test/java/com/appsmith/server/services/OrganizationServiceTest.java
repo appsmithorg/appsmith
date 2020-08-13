@@ -137,9 +137,8 @@ public class OrganizationServiceTest {
     public void getOrganizationInvalidId() {
         Mono<Organization> organizationMono = organizationService.getById("random-id");
         StepVerifier.create(organizationMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("resource", "random-id")))
-                .verify();
+                // This would not return any organization and would complete.
+                .verifyComplete();
     }
 
     @Test
@@ -161,7 +160,7 @@ public class OrganizationServiceTest {
         organization.setWebsite("https://example.com");
         organization.setSlug("test-for-get-name");
         Mono<Organization> createOrganization = organizationService.create(organization);
-        Mono<Organization> getOrganization = createOrganization.flatMap(t -> organizationService.findById(t.getId()));
+        Mono<Organization> getOrganization = createOrganization.flatMap(t -> organizationService.getById(t.getId()));
         StepVerifier.create(getOrganization)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
@@ -187,7 +186,7 @@ public class OrganizationServiceTest {
                     return t;
                 })
                 .flatMap(t -> organizationService.update(t.getId(), t))
-                .flatMap(t -> organizationService.findById(t.getId()));
+                .flatMap(t -> organizationService.getById(t.getId()));
 
         StepVerifier.create(updateOrganization)
                 .assertNext(t -> {

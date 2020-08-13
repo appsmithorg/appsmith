@@ -496,7 +496,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         }
                         return repository.save(savedUser);
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY));
+                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
                 })
                 .switchIfEmpty(userCreate(user))
                 .flatMap(savedUser -> sendWelcomeEmail(savedUser, finalOriginHeader));

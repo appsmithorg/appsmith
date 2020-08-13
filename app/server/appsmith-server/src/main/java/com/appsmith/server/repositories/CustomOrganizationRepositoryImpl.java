@@ -37,11 +37,4 @@ public class CustomOrganizationRepositoryImpl extends BaseAppsmithRepositoryImpl
         Criteria orgIdsCriteria = where(fieldName(QOrganization.organization.id)).in(orgIds);
         return queryAll(List.of(orgIdsCriteria), aclPermission);
     }
-
-    @Override
-    public Mono<Organization> findById(String id, AclPermission aclPermission) {
-        Criteria idCriteria = where(fieldName(QOrganization.organization.id)).is(id);
-
-        return queryOne(List.of(idCriteria), aclPermission);
-    }
 }

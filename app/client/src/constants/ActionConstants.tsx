@@ -36,6 +36,7 @@ export enum EventType {
   ON_OPTION_CHANGE = "ON_OPTION_CHANGE",
   ON_MARKER_CLICK = "ON_MARKER_CLICK",
   ON_CREATE_MARKER = "ON_CREATE_MARKER",
+  ON_TAB_CHANGE = "ON_TAB_CHANGE",
 }
 
 export type ActionType =

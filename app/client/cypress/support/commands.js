@@ -37,9 +37,7 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgSectionBtn)
-    .first()
-    .click({ force: true });
+  cy.get(".t--org-name").click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -79,9 +77,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgSection.concat(orgName).concat(")"))
-    .first()
-    .click({ force: true });
+  cy.get(".t--org-name").click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -103,9 +99,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgSection.concat(orgName).concat(")"))
-    .first()
-    .click({ force: true });
+  cy.get(".t--org-name").click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -125,7 +119,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
     200,
   );
   cy.contains(email);
-  cy.get(homePage.manageUsers).click({ force: true });
+  cy.get(".bp3-icon-small-cross").click({ force: true });
   cy.xpath(homePage.appHome)
     .should("be.visible")
     .click();
@@ -172,8 +166,7 @@ Cypress.Commands.add("CreateApp", appname => {
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPropertyPane");
-  cy.get("@getPropertyPane").should("have.property", "status", 200);
+  cy.get("h2").contains("Drag and drop a widget here");
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
@@ -205,7 +198,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@applications").should(
+  cy.wait("@getUser").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -255,9 +248,7 @@ Cypress.Commands.add("Deletepage", Pagename => {
 });
 
 Cypress.Commands.add("LogOut", () => {
-  cy.request("POST", "/api/v1/logout").then(response => {
-    expect(response.status).equal(200);
-  });
+  cy.request("POST", "/api/v1/logout");
 });
 
 Cypress.Commands.add("NavigateToHome", () => {
@@ -625,7 +616,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Open Popup")
+    .contains("Open Modal")
     .click();
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -637,7 +628,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .children()
     .contains(modalType)
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 
   // changing the model name verify
   cy.widgetText(
@@ -658,21 +649,21 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(widgetsPage.textAlign + " .bp3-menu-item")
     .contains("Center")
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("CheckWidgetProperties", checkboxCss => {
   cy.get(checkboxCss).check({
     force: true,
   });
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("UncheckWidgetProperties", checkboxCss => {
   cy.get(checkboxCss).uncheck({
     force: true,
   });
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add(
@@ -716,7 +707,7 @@ Cypress.Commands.add("PublishtheApp", () => {
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   cy.wait(2000);
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
   cy.get('a[class="bp3-button"]')
@@ -754,6 +745,7 @@ Cypress.Commands.add("testCodeMirror", value => {
           force: true,
           parseSpecialCharSequences: false,
         });
+      cy.wait(200);
       cy.get(".CodeMirror textarea")
         .first()
         .should("have.value", value);
@@ -789,14 +781,14 @@ Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("ClearDate", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Clear")
     .click();
-  cy.xpath(homePage.homePageID).contains("All changes saved");
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("DeleteModal", () => {
@@ -877,9 +869,7 @@ Cypress.Commands.add("DeleteAppByApi", () => {
 
     if (appId != null) {
       cy.log(appId + "appId");
-      cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
-        expect(response.status).equal(200);
-      });
+      cy.request("DELETE", "api/v1/applications/" + appId);
     }
   });
 });
@@ -1344,6 +1334,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/organizations").as("createOrg");
   cy.route("POST", "/api/v1/users/invite").as("postInvite");
   cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
+  cy.route("GET", "/api/v1/users/me").as("getUser");
 });
 
 Cypress.Commands.add("alertValidate", text => {
@@ -1371,8 +1362,8 @@ Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
     .children("p")
-    .should("contain.text", "Expected type:")
-    .should("contain.text", "Current Value:")
+    .should("contain.text", "Expected Data Type")
+    .should("contain.text", "Evaluated Value")
     .siblings("pre")
     .should("have.text", expectedType);
 });
@@ -1461,4 +1452,8 @@ Cypress.Commands.add("callApi", apiname => {
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
     .click();
+});
+
+Cypress.Commands.add("assertPageSave", () => {
+  cy.get(commonlocators.saveStatusSuccess);
 });

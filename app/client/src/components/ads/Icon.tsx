@@ -3,7 +3,7 @@ import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import styled from "styled-components";
 import { Size } from "./Button";
-import { sizeHandler } from "./NewSpinner";
+import { sizeHandler } from "./Spinner";
 
 export type IconName = "delete" | "user" | undefined;
 

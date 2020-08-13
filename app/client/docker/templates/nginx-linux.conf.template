@@ -5,7 +5,7 @@ server {
 
     gzip on;
     gzip_proxied any;
-    
+
     proxy_ssl_server_name on;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -22,7 +22,7 @@ server {
         sub_filter __APPSMITH_HOTJAR_HJSV__ '${APPSMITH_HOTJAR_HJSV}';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
         sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
-        sub_filter __APPSMITH_MARKETPLACE_URL__ '${APPSMITH_MARKETPLACE_URL}';
+        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '${APPSMITH_MARKETPLACE_ENABLED}';
         sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY}';
         sub_filter __APPSMITH_OPTIMIZELY_KEY__ '${APPSMITH_OPTIMIZELY_KEY}';
         sub_filter __APPSMITH_ALGOLIA_API_ID__ '${APPSMITH_ALGOLIA_API_ID}';
@@ -63,12 +63,12 @@ server {
 
     ssl_certificate /etc/certificate/dev.appsmith.com.pem;
     ssl_certificate_key /etc/certificate/dev.appsmith.com-key.pem;
-   
+
     # include /etc/letsencrypt/options-ssl-nginx.conf;
     # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
     gzip on;
 
-    proxy_ssl_server_name on;    
+    proxy_ssl_server_name on;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
     proxy_set_header X-Forwarded-Proto $scheme;
@@ -84,7 +84,7 @@ server {
         sub_filter __APPSMITH_HOTJAR_HJSV__ '${APPSMITH_HOTJAR_HJSV}';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
         sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
-        sub_filter __APPSMITH_MARKETPLACE_URL__ '${APPSMITH_MARKETPLACE_URL}';
+        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '${APPSMITH_MARKETPLACE_ENABLED}';
         sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY}';
         sub_filter __APPSMITH_OPTIMIZELY_KEY__ '${APPSMITH_OPTIMIZELY_KEY}';
         sub_filter __APPSMITH_ALGOLIA_API_ID__ '${APPSMITH_ALGOLIA_API_ID}';
@@ -94,7 +94,7 @@ server {
         sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY}';
         sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP}';
     }
-    
+
     location /f {
        proxy_pass https://cdn.optimizely.com/;
     }

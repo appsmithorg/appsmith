@@ -7,5 +7,5 @@ type TagProps = CommonComponentProps & {
 };
 
 export default function Tag(props: TagProps) {
-  return "";
+  return null;
 }

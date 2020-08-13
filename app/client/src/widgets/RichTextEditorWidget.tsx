@@ -22,6 +22,7 @@ class RichTextEditorWidget extends BaseWidget<
 > {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      text: VALIDATION_TYPES.TEXT,
       placeholder: VALIDATION_TYPES.TEXT,
       defaultValue: VALIDATION_TYPES.TEXT,
       isDisabled: VALIDATION_TYPES.BOOLEAN,
@@ -71,7 +72,7 @@ class RichTextEditorWidget extends BaseWidget<
       <Suspense fallback={<Skeleton />}>
         <RichtextEditorComponent
           onValueChange={this.onValueChange}
-          defaultValue={this.props.text}
+          defaultValue={this.props.text || ""}
           widgetId={this.props.widgetId}
           placeholder={this.props.placeholder}
           key={this.props.widgetId}

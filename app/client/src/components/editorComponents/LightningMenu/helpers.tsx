@@ -161,14 +161,6 @@ export const getLightningMenuOptions = (
 ) => {
   const options: CustomizedDropdownOption[] = [
     {
-      content: LIGHTNING_MENU_OPTION_TEXT,
-      disabled: false,
-      shouldCloseDropdown: true,
-      onSelect: () => {
-        updateDynamicInputValue("");
-      },
-    },
-    {
       content: (
         <CustomizedDropdown
           {...getApiOptions(

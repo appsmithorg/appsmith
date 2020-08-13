@@ -11,5 +11,5 @@ type TextProps = CommonComponentProps & {
 };
 
 export default function Text(props: TextProps) {
-  return "";
+  return null;
 }

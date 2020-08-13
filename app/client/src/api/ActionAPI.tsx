@@ -87,6 +87,7 @@ export interface ActionResponse {
   statusCode: string;
   duration: string;
   size: string;
+  isExecutionSuccess?: boolean;
 }
 
 export interface MoveActionRequest {

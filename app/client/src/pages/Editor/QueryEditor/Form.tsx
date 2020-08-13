@@ -1,6 +1,10 @@
 import React, { useState } from "react";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
-import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
+import {
+  formValueSelector,
+  InjectedFormProps,
+  reduxForm,
+  Field,
+} from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
 import { Icon, Popover } from "@blueprintjs/core";
 import {
@@ -37,6 +41,7 @@ import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
+import { SwitchField } from "components/formControls/SwitchControl";
 
 const QueryFormContainer = styled.div`
   padding: 20px 32px;
@@ -75,6 +80,12 @@ const QueryFormContainer = styled.div`
   }
   span.bp3-popover-target {
     display: initial !important;
+  }
+
+  .executeOnLoad {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
   }
 `;
 
@@ -182,13 +193,6 @@ const Container = styled.div`
     text-overflow: ellipsis;
     white-space: no-wrap;
     margin-left: 6px;
-  }
-`;
-
-const StyledCheckbox = styled(CheckboxField)`
-  &&& {
-    font-size: 14px;
-    margin-top: 10px;
   }
 `;
 
@@ -460,12 +464,13 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             />
           </div>
         )}
-        <StyledCheckbox
-          intent="primary"
-          name="executeOnLoad"
-          align="left"
-          label="Run on Page Load"
-        />
+        <div className="executeOnLoad">
+          <Field
+            name="executeOnLoad"
+            component={SwitchField}
+            label={"Run on Page Load"}
+          />
+        </div>
       </form>
 
       {dataSources.length === 0 && (

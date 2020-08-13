@@ -126,7 +126,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                 rel="noopener noreferrer"
                 href="https://docs.appsmith.com/third-party-services/google-maps"
               >
-                {"documentation"}
+                {" documentation "}
               </a>
               {"to configure API Keys"}
             </p>

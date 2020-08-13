@@ -10,5 +10,5 @@ type CheckboxProps = CommonComponentProps & {
 };
 
 export default function Checkbox(props: CheckboxProps) {
-  return "";
+  return null;
 }

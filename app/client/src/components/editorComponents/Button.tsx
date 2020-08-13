@@ -10,6 +10,7 @@ import {
   Button as BlueprintButton,
   Intent as BlueprintIntent,
   IconName,
+  MaybeElement,
 } from "@blueprintjs/core";
 import { Direction, Directions } from "utils/helpers";
 
@@ -86,7 +87,7 @@ export type ButtonProps = {
   text?: string;
   onClick?: () => void;
   href?: string;
-  icon?: string;
+  icon?: string | MaybeElement;
   iconAlignment?: Direction;
   loading?: boolean;
   disabled?: boolean;
@@ -95,6 +96,7 @@ export type ButtonProps = {
   className?: string;
   fluid?: boolean;
   skin?: Skin;
+  target?: string;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -132,6 +134,7 @@ export const Button = (props: ButtonProps) => {
         rightIcon={rightIcon}
         {...baseProps}
         href={props.href}
+        target={props.target}
       />
     );
   } else

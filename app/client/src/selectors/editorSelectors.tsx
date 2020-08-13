@@ -79,7 +79,7 @@ export const getCurrentApplicationId = (state: AppState) =>
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
-    pageList.pages.find(page => page.pageName === pageList.currentPageId)
+    pageList.pages.find(page => page.pageId === pageList.currentPageId)
       ?.pageName,
 );
 
