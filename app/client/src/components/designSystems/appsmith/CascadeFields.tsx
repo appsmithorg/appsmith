@@ -63,7 +63,7 @@ const StyledInputGroup = styled(InputGroup)`
   border-radius: 4px;
   color: ${Colors.OXFORD_BLUE};
   height: 32px;
-  width: 100px;
+  width: 150px;
   margin-left: 10px;
   input {
     box-shadow: none;
@@ -72,7 +72,7 @@ const StyledInputGroup = styled(InputGroup)`
 
 const DatePickerWrapper = styled.div`
   margin-left: 10px;
-  width: 100px;
+  width: 150px;
 `;
 
 const DropdownTrigger = styled.div`
@@ -163,8 +163,8 @@ const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
 };
 
 const operatorOptions: DropdownOption[] = [
-  { label: "or", value: OperatorTypes.OR, type: "" },
-  { label: "and", value: OperatorTypes.AND, type: "" },
+  { label: "OR", value: OperatorTypes.OR, type: "" },
+  { label: "AND", value: OperatorTypes.AND, type: "" },
 ];
 
 const RenderOptions = (props: {
@@ -459,7 +459,9 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
           />
         </DropdownWrapper>
       ) : (
-        <LabelWrapper>{index === 0 ? "Where" : props.operator}</LabelWrapper>
+        <LabelWrapper>
+          {index === 0 ? "Where" : OperatorTypes[props.operator]}
+        </LabelWrapper>
       )}
       <DropdownWrapper width={150}>
         <RenderOptions
@@ -470,7 +472,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
         />
       </DropdownWrapper>
       {showConditions ? (
-        <DropdownWrapper width={120}>
+        <DropdownWrapper width={200}>
           <RenderOptions
             columns={conditions}
             selectItem={selectCondition}
