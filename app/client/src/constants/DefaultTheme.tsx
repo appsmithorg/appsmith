@@ -591,7 +591,11 @@ export const theme: Theme = {
     lightningborder: Colors.ALABASTER,
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
-  fonts: [FontFamilies.DMSans, FontFamilies.FiraCode],
+  fonts: [
+    FontFamilies.DMSans,
+    FontFamilies.FiraCode,
+    FontFamilies.HomePageRedesign,
+  ],
   borders: [
     {
       thickness: 1,
