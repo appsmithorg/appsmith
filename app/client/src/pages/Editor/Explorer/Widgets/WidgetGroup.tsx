@@ -10,7 +10,7 @@ import {
 } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { BUILDER_PAGE_URL, WIDGETS_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { AppState } from "reducers";
