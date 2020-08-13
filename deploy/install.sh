@@ -133,6 +133,25 @@ read_mongo_username() {
     done 
 }
 
+wait_for_containers_start() {
+    timeout=$1
+    i=1
+    echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
+    # The do-while loop is important because for-loops don't work for dynamic values
+    while [[ $i -le $timeout ]]
+    do
+        status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/v1)
+        # echo $status_code
+        if [[ status_code -eq 401 ]]; then
+            break
+        else
+            echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
+        fi
+        ((i = i + 1))
+        sleep 1
+    done
+}
+
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
 echo ""
 
@@ -279,6 +298,8 @@ if [[ -z $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
+echo ""
+echo "Downloading the configuration templates ..."
 mkdir -p template
 ( cd template
 curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
@@ -295,6 +316,7 @@ do
     mkdir -p "$install_dir/data/$directory_name"
 done
 
+echo ""
 echo "Generating the configuration files from the templates"
 . ./template/nginx_app.conf.sh
 . ./template/docker-compose.yml.sh
@@ -327,15 +349,33 @@ echo "Pulling the latest container images"
 sudo docker-compose pull
 echo "Starting the Appsmith containers"
 sudo docker-compose -f docker-compose.yml up -d --remove-orphans
+
+# These echo statements are important for some reason. The script doesn't run successfully without them.
 echo ""
-echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
-echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
+echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
+wait_for_containers_start 60
 echo ""
-echo "cd $install_dir && sudo docker-compose ps -a"
-echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-echo ""
-echo "Need help troubleshooting?"
-echo "Join our discord server https://discord.com/invite/rBTTVJp"
-echo ""
-echo "Your application is running on http://localhost"
+
+if [[ $status_code -ne 401 ]]; then
+    echo "+++++++++++ ERROR ++++++++++++++++++++++"
+    echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
+    echo ""
+    echo "cd $install_dir && sudo docker-compose ps -a"
+    echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
+    echo "++++++++++++++++++++++++++++++++++++++++"
+    echo ""
+else 
+    echo ""
+    echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
+    echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
+    echo ""
+    echo "cd $install_dir && sudo docker-compose ps -a"
+    echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo ""
+    echo "Need help troubleshooting?"
+    echo "Join our Discord server https://discord.com/invite/rBTTVJp"
+    echo ""
+    echo "Your application is running on http://localhost"
+fi
+
 echo -e "Peace out \U1F596"
