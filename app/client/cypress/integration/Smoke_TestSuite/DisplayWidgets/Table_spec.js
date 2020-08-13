@@ -2,6 +2,7 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/tableWidgetDsl.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Table Widget Functionality", function() {
   before(() => {
@@ -9,6 +10,7 @@ describe("Table Widget Functionality", function() {
   });
 
   it("Table Widget Functionality", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("tablewidget");
 
     /**

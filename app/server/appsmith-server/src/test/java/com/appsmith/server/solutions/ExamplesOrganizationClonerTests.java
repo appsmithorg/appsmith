@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
@@ -7,9 +8,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
@@ -19,11 +22,14 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.EncryptionService;
+import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import org.bson.types.ObjectId;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +37,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -41,6 +51,7 @@ import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -95,6 +106,12 @@ public class ExamplesOrganizationClonerTests {
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
+
+    @Autowired
+    private LayoutActionService layoutActionService;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     private Plugin installedPlugin;
 
@@ -485,6 +502,27 @@ public class ExamplesOrganizationClonerTests {
                                 final String pageId1 = app.getPages().get(0).getId();
                                 final Datasource ds1Again = tuple1.getT3();
 
+                                final Page newPage = new Page();
+                                newPage.setName("A New Page");
+                                newPage.setApplicationId(app.getId());
+                                newPage.setLayouts(new ArrayList<>());
+                                final Layout layout = new Layout();
+                                layout.setId(new ObjectId().toString());
+                                layout.setDsl(new JSONObject(Map.of("text", "draft {{ newPageAction.data }}")));
+                                layout.setPublishedDsl(new JSONObject(Map.of("text", "published {{ newPageAction.data }}")));
+                                final DslActionDTO actionDTO = new DslActionDTO();
+                                final HashSet<DslActionDTO> dslActionDTOS = new HashSet<>(List.of(actionDTO));
+                                layout.setLayoutOnLoadActions(List.of(dslActionDTOS));
+                                newPage.getLayouts().add(layout);
+
+                                final Action newPageAction = new Action();
+                                newPageAction.setName("newPageAction");
+                                newPageAction.setOrganizationId(organization.getId());
+                                newPageAction.setDatasource(ds1Again);
+                                newPageAction.setPluginId(installedPlugin.getId());
+                                newPageAction.setActionConfiguration(new ActionConfiguration());
+                                newPageAction.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+
                                 final Action action1 = new Action();
                                 action1.setName("action1");
                                 action1.setPageId(pageId1);
@@ -518,6 +556,20 @@ public class ExamplesOrganizationClonerTests {
                                 action4.setPluginId(installedPlugin.getId());
 
                                 return Mono.when(
+                                        applicationPageService.createPage(newPage)
+                                                .flatMap(page -> {
+                                                    newPageAction.setPageId(page.getId());
+                                                    return applicationPageService.addPageToApplication(app, page, false)
+                                                            .then(actionCollectionService.createAction(newPageAction))
+                                                            .flatMap(savedAction -> {
+                                                                return layoutActionService.updateAction(savedAction.getId(), savedAction);
+                                                            })
+                                                            .then(pageService.findById(page.getId(), READ_PAGES));
+                                                })
+                                                .map(tuple2 -> {
+                                                    log.info("Created action and added page to app {}", tuple2);
+                                                    return tuple2;
+                                                }),
                                         actionCollectionService.createAction(action1),
                                         actionCollectionService.createAction(action2),
                                         actionCollectionService.createAction(action3),
@@ -525,6 +577,9 @@ public class ExamplesOrganizationClonerTests {
                                 );
                             })
                             .then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
+                })
+                .doOnError(error -> {
+                    log.error("Error preparing data for test", error);
                 })
                 .flatMap(this::loadOrganizationData);
 
@@ -541,14 +596,21 @@ public class ExamplesOrganizationClonerTests {
                             "second application"
                     );
 
+                    final Application firstApplication = data.applications.stream().filter(app -> app.getName().equals("first application")).findFirst().get();
+                    final Page newPage = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("name").is("A New Page")), Page.class);
+                    final String actionId = newPage.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
+                    final Action newPageAction = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), Action.class);
+                    assertThat(newPageAction.getOrganizationId()).isEqualTo(data.organization.getId());
+
                     assertThat(data.datasources).hasSize(2);
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
                             "datasource 1",
                             "datasource 2"
                     );
 
-                    assertThat(data.actions).hasSize(4);
+                    assertThat(data.actions).hasSize(5);
                     assertThat(map(data.actions, Action::getName)).containsExactlyInAnyOrder(
+                            "newPageAction",
                             "action1",
                             "action2",
                             "action3",

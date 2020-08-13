@@ -12,10 +12,12 @@ import { ReactComponent as DecreaseIcon } from "assets/icons/control/decrease.sv
 import { ReactComponent as DraggableIcon } from "assets/icons/control/draggable.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
-
+import { ReactComponent as CollapseIcon } from "assets/icons/control/collapse.svg";
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
 import { ReactComponent as SettingsIcon } from "assets/icons/control/settings.svg";
+import { ReactComponent as RemoveIcon } from "assets/icons/control/remove.svg";
 import { ReactComponent as DragIcon } from "assets/icons/control/drag.svg";
+import { ReactComponent as SortIcon } from "assets/icons/control/sort-icon.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -102,9 +104,24 @@ export const ControlIcons: {
       />
     </IconWrapper>
   ),
+  REMOVE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <RemoveIcon />
+    </IconWrapper>
+  ),
   DRAG_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <DragIcon />
+    </IconWrapper>
+  ),
+  COLLAPSE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CollapseIcon />
+    </IconWrapper>
+  ),
+  SORT_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <SortIcon />
     </IconWrapper>
   ),
 };

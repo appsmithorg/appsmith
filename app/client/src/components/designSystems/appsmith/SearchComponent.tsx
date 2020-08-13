@@ -17,6 +17,7 @@ const SearchInputWrapper = styled(InputGroup)`
   }
   margin: 14px 20px;
   width: 250px;
+  min-width: 150px;
 `;
 
 class SearchComponent extends React.Component<

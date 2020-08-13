@@ -72,6 +72,13 @@ const orgReducer = createReducer(initialState, {
       isFetchAllUsers: false,
     },
   }),
+  [ReduxActionTypes.INVITE_USERS_TO_ORG_SUCCESS]: (
+    state: OrgReduxState,
+    action: ReduxAction<OrgUser[]>,
+  ) => ({
+    ...state,
+    orgUsers: [...state.orgUsers, ...action.payload],
+  }),
   [ReduxActionTypes.FETCH_ALL_ROLES_SUCCESS]: (
     state: OrgReduxState,
     action: ReduxAction<Org[]>,

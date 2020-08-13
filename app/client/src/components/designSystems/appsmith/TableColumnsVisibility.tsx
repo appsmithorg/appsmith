@@ -11,8 +11,8 @@ import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactComponent as VisibleIcon } from "assets/icons/control/columns-visibility.svg";
-import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import Button from "components/editorComponents/Button";
+import { ReactTableColumnProps } from "widgets/TableWidget";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 
 const DropDownWrapper = styled.div`

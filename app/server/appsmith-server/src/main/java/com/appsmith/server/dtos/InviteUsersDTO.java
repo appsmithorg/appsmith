@@ -4,13 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
-public class InviteUserDTO {
+public class InviteUsersDTO {
 
     @NotNull
-    String email;
+    List<String> usernames;
 
     @NotNull
     String roleName;

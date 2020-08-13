@@ -2,15 +2,17 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.InviteUserDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,9 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(Url.USER_URL)
@@ -32,22 +36,32 @@ public class UserController extends BaseController<UserService, User, String> {
 
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
+    private final UserSignup userSignup;
 
     @Autowired
     public UserController(UserService service,
                           SessionUserService sessionUserService,
-                          UserOrganizationService userOrganizationService) {
+                          UserOrganizationService userOrganizationService,
+                          UserSignup userSignup) {
         super(service);
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
+        this.userSignup = userSignup;
     }
 
-    @PostMapping
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
-                                          @RequestHeader(name = "Origin", required = false) String originHeader) {
-        return service.createUserAndSendEmail(resource, originHeader)
+                                          @RequestHeader(name = "Origin", required = false) String originHeader,
+                                          ServerWebExchange exchange) {
+        return userSignup.signupAndLogin(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Void> createFormEncoded(ServerWebExchange exchange) {
+        return userSignup.signupAndLoginFromFormData(exchange);
     }
 
     @PutMapping("/switchOrganization/{orgId}")
@@ -111,16 +125,16 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     /**
-     * This function creates an invite for a new user to join the Appsmith platform. We require the Origin header
-     * in order to construct client facing URLs that will be sent to the user via email.
+     * This function creates an invite for new users to join an Appsmith organization. We require the Origin header
+     * in order to construct client facing URLs that will be sent to the users via email.
      *
-     * @param inviteUserDTO The inviteUserDto object for the new user being invited to the Appsmith platform
+     * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith organization
      * @param originHeader Origin header in the request
-     * @return The new user who has been created.
+     * @return List of new users who have been created/existing users who have been added to the organization.
      */
     @PostMapping("/invite")
-    public Mono<ResponseDTO<User>> inviteUserNew(@RequestBody InviteUserDTO inviteUserDTO, @RequestHeader("Origin") String originHeader) {
-        return service.inviteUser(inviteUserDTO, originHeader)
-                .map(resUser -> new ResponseDTO<>(HttpStatus.OK.value(), resUser, null));
+    public Mono<ResponseDTO<List<User>>> inviteUser(@RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
+        return service.inviteUser(inviteUsersDTO, originHeader).collectList()
+                .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 }

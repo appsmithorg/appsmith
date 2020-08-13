@@ -2,6 +2,7 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/displayWidgetDsl.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Text Widget Functionality", function() {
   before(() => {
@@ -9,6 +10,7 @@ describe("Text Widget Functionality", function() {
   });
 
   beforeEach(() => {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
   });
 

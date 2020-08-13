@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import {
   BuilderRouteParams,
   getApplicationViewerPageURL,
+  BUILDER_PAGE_URL,
 } from "constants/routes";
 import { AppState } from "reducers";
 import MainContainer from "./MainContainer";
@@ -16,30 +16,68 @@ import {
   getCurrentPageId,
   getPublishingError,
   getIsEditorLoading,
-  getLoadingError,
   getIsEditorInitialized,
   getIsPublishingApplication,
 } from "selectors/editorSelectors";
-import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
+import {
+  Dialog,
+  Classes,
+  AnchorButton,
+  Hotkey,
+  Hotkeys,
+  HotkeysTarget,
+  Spinner,
+} from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
-import { fetchPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
+import {
+  ENTITY_EXPLORER_SEARCH_ID,
+  ENTITY_EXPLORER_SEARCH_LOCATION_HASH,
+} from "constants/Explorer";
+import history from "utils/history";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 type EditorProps = {
   currentApplicationId?: string;
   currentPageId?: string;
   initEditor: Function;
-  fetchPage: (pageId: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
-  editorLoadingError: boolean;
   errorPublishing: boolean;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
-
+@HotkeysTarget
 class Editor extends Component<Props> {
+  public renderHotkeys() {
+    return (
+      <Hotkeys>
+        <Hotkey
+          global={true}
+          combo="meta + f"
+          label="Search entities"
+          onKeyDown={(e: any) => {
+            //TODO(abhinav): make this id into a constant.
+            const el = document.getElementById(ENTITY_EXPLORER_SEARCH_ID);
+            if (!el) {
+              history.push(
+                `${BUILDER_PAGE_URL(
+                  this.props.currentApplicationId,
+                  this.props.currentPageId,
+                )}${ENTITY_EXPLORER_SEARCH_LOCATION_HASH}`,
+              );
+            } else {
+              el?.focus();
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        />
+      </Hotkeys>
+    );
+  }
   public state = {
     isDialogOpen: false,
     registered: false,
@@ -63,9 +101,22 @@ class Editor extends Component<Props> {
         isDialogOpen: true,
       });
     }
-    if (this.props.match.params.pageId !== previously.match.params.pageId) {
-      this.props.fetchPage(this.props.match.params.pageId);
-    }
+  }
+
+  shouldComponentUpdate(
+    nextProps: Props,
+    nextState: { isDialogOpen: boolean; registered: boolean },
+  ) {
+    return (
+      nextProps.currentPageId !== this.props.currentPageId ||
+      nextProps.currentApplicationId !== this.props.currentApplicationId ||
+      nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
+      nextProps.isPublishing !== this.props.isPublishing ||
+      nextProps.isEditorLoading !== this.props.isEditorLoading ||
+      nextProps.errorPublishing !== this.props.errorPublishing ||
+      nextState.isDialogOpen !== this.state.isDialogOpen ||
+      nextState.registered !== this.state.registered
+    );
   }
 
   handleDialogClose = () => {
@@ -74,8 +125,12 @@ class Editor extends Component<Props> {
     });
   };
   public render() {
-    if (!this.props.match.params.applicationId) {
-      return <Redirect to="/applications" />;
+    if (!this.props.isEditorInitialized || !this.state.registered) {
+      return (
+        <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
+          <Spinner />
+        </CenteredWrapper>
+      );
     }
     return (
       <DndProvider
@@ -100,9 +155,7 @@ class Editor extends Component<Props> {
           >
             <div className={Classes.DIALOG_BODY}>
               <p>
-                {
-                  "Your awesome application is now published with the current changes!"
-                }
+                {"Your application is now published with the current changes!"}
               </p>
             </div>
             <div className={Classes.DIALOG_FOOTER}>
@@ -127,18 +180,16 @@ class Editor extends Component<Props> {
 const mapStateToProps = (state: AppState) => ({
   currentApplicationId: getCurrentApplicationId(state),
   currentPageId: getCurrentPageId(state),
-  isPublishing: getIsPublishingApplication(state),
   errorPublishing: getPublishingError(state),
+  isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
-  editorLoadingError: getLoadingError(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (applicationId: string, pageId: string) =>
       dispatch(initEditor(applicationId, pageId)),
-    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
   };
 };
 

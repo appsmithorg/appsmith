@@ -2,14 +2,14 @@ import React from "react";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Divider from "components/editorComponents/Divider";
 import {
   AuthCardHeader,
   AuthCardBody,
   AuthCardFooter,
   AuthCardNavLink,
-  SpacedForm,
+  SpacedSubmitForm,
   FormActions,
   AuthCardContainer,
 } from "./StyledComponents";
@@ -28,8 +28,6 @@ import {
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
   PRIVACY_POLICY_LINK,
   TERMS_AND_CONDITIONS_LINK,
-  SIGNUP_PAGE_SUCCESS,
-  SIGNUP_PAGE_SUCCESS_LOGIN_BUTTON_TEXT,
   FORM_VALIDATION_PASSWORD_RULE,
 } from "constants/messages";
 import FormMessage from "components/editorComponents/form/FormMessage";
@@ -40,10 +38,11 @@ import Button from "components/editorComponents/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
-import { signupFormSubmitHandler, SignupFormValues } from "./helpers";
+import { SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { getAppsmithConfigs } from "configs";
+import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
 const {
   enableGithubOAuth,
   enableGoogleOAuth,
@@ -83,37 +82,31 @@ const validate = (values: SignupFormValues) => {
 };
 
 export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
-  const {
-    error,
-    handleSubmit,
-    submitting,
-    submitFailed,
-    submitSucceeded,
-    pristine,
-    valid,
-  } = props;
+  const { error, submitting, pristine, valid } = props;
+  const location = useLocation();
+
+  let showError = false;
+  let errorMessage = "";
+  const queryParams = new URLSearchParams(location.search);
+  if (queryParams.get("error")) {
+    errorMessage = queryParams.get("error") || "";
+    showError = true;
+  }
+
+  let signupURL = "/api/v1/" + SIGNUP_SUBMIT_PATH;
+  if (queryParams.has("redirectTo")) {
+    signupURL += `?redirectUrl=${queryParams.get("redirectTo")}`;
+  }
+
   return (
     <AuthCardContainer>
-      {submitSucceeded && (
-        <FormMessage
-          intent="success"
-          message={SIGNUP_PAGE_SUCCESS}
-          actions={[
-            {
-              url: AUTH_LOGIN_URL,
-              text: SIGNUP_PAGE_SUCCESS_LOGIN_BUTTON_TEXT,
-              intent: "success",
-            },
-          ]}
-        />
-      )}
-      {submitFailed && error && <FormMessage intent="danger" message={error} />}
+      {showError && <FormMessage intent="danger" message={errorMessage} />}
       <AuthCardHeader>
         <h1>{SIGNUP_PAGE_TITLE}</h1>
         <h5>{SIGNUP_PAGE_SUBTITLE}</h5>
       </AuthCardHeader>
       <AuthCardBody>
-        <SpacedForm onSubmit={handleSubmit(signupFormSubmitHandler)}>
+        <SpacedSubmitForm method="POST" action={signupURL}>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={SIGNUP_PAGE_EMAIL_INPUT_LABEL}
@@ -151,12 +144,12 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
               }}
             />
           </FormActions>
-        </SpacedForm>
+        </SpacedSubmitForm>
         {SocialLoginList.length > 0 && <Divider />}
         <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
       </AuthCardBody>
       <AuthCardFooter>
-        <TncPPLinks></TncPPLinks>
+        <TncPPLinks />
       </AuthCardFooter>
       <AuthCardNavLink to={AUTH_LOGIN_URL}>
         {SIGNUP_PAGE_LOGIN_LINK_TEXT}

@@ -1,10 +1,29 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import PropertyPaneConfigResponse from "mockResponses/PropertyPaneConfigResponse";
 import { PropertyControlPropsType } from "components/propertyControls";
 import { WidgetType } from "constants/WidgetConstants";
+import { generateReactKey } from "utils/generators";
+
+const generateConfigWithIds = (config: PropertyConfig) => {
+  const addObjectId = (obj: any) => {
+    obj.id = generateReactKey();
+    if (obj.hasOwnProperty("children")) {
+      obj.children = obj.children.map(addObjectId);
+    }
+    return obj;
+  };
+  Object.keys(config).forEach((widgetType: string) => {
+    config[widgetType as WidgetType] = config[widgetType as WidgetType].map(
+      addObjectId,
+    );
+  });
+  return config;
+};
 
 const initialState: PropertyPaneConfigState = {
   configVersion: 0,
+  config: generateConfigWithIds(PropertyPaneConfigResponse.config),
 };
 
 export interface PropertySection {

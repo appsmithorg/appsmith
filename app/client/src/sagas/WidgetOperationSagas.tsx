@@ -11,7 +11,7 @@ import {
   updateAndSaveLayout,
 } from "actions/pageActions";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets, getWidget, getDefaultWidgetConfig } from "./selectors";
+import { getWidgets, getWidget } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
@@ -42,8 +42,9 @@ import { resetWidgetMetaProperty } from "actions/metaActions";
 import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import ValidationFactory from "utils/ValidationFactory";
+import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 
-function* getChildWidgetProps(
+function getChildWidgetProps(
   parent: ContainerWidgetProps<WidgetProps>,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
@@ -51,7 +52,7 @@ function* getChildWidgetProps(
   const { leftColumn, topRow, newWidgetId, props, type } = params;
   let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
-  const defaultConfig = yield select(getDefaultWidgetConfig, type);
+  const defaultConfig: any = WidgetConfigResponse.config[type];
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
     widgetName = getNextEntityName(defaultConfig.widgetName, widgetNames);
@@ -123,6 +124,7 @@ function* generateChildWidgets(
       widget.widgetId,
     );
   }
+  widget.parentId = parent.widgetId;
   return { widgetId: widget.widgetId, widgets };
 }
 
@@ -147,7 +149,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       parent.children.push(childWidgetPayload.widgetId);
     }
     widgets[parent.widgetId] = parent;
-
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     console.log(error);
@@ -228,6 +229,7 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
       widgets[parent.widgetId] = parent;
       // Add to new parent
       widgets[newParentId].children.push(widgetId);
+      widgets[widgetId].parentId = newParentId;
     }
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {

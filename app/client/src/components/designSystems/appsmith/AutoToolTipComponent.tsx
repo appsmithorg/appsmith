@@ -2,7 +2,7 @@ import React, { createRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Tooltip } from "@blueprintjs/core";
 
-const CellWrapper = styled.div<{ isHidden: boolean }>`
+const CellWrapper = styled.div<{ isHidden?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -34,7 +34,7 @@ const CellWrapper = styled.div<{ isHidden: boolean }>`
 `;
 
 const AutoToolTipComponent = (props: {
-  isHidden: boolean;
+  isHidden?: boolean;
   children: React.ReactNode;
   title: string;
 }) => {

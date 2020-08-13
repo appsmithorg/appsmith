@@ -53,10 +53,10 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
     (state: AppState) => state.ui.propertyPane,
   );
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.editor.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
   const focusedWidget = useSelector(
-    (state: AppState) => state.ui.editor.focusedWidget,
+    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
 
   const isResizing = useSelector(

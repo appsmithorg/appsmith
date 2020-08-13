@@ -27,7 +27,8 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Test_Validate the Api data is updated on Table widget", function() {
-    cy.get(pages.pagesIcon).click({ force: true });
+    //cy.get(pages.pagesIcon).click({ force: true });
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.get(commonlocators.editPropCrossButton).click();

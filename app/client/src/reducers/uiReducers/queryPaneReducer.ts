@@ -16,18 +16,18 @@ const initialState: QueryPaneReduxState = {
   isDeleting: {},
   runQuerySuccessData: {},
   runErrorMessage: {},
-  lastUsed: "",
+  lastUsed: "", // NR
 };
 
 export interface QueryPaneReduxState {
-  isFetching: boolean;
+  isFetching: boolean; // RR
   isRunning: Record<string, boolean>;
-  isSaving: Record<string, boolean>;
+  isSaving: Record<string, boolean>; // RR
   isDeleting: Record<string, boolean>;
   runQuerySuccessData: {};
   runErrorMessage: Record<string, string>;
-  lastUsed: string;
-  isCreating: boolean;
+  lastUsed: string; // NR
+  isCreating: boolean; // RR
 }
 
 const queryPaneReducer = createReducer(initialState, {

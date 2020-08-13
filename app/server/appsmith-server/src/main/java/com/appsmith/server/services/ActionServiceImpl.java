@@ -355,8 +355,17 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         // 4. Execute the query
-        Mono<ActionExecutionResult> actionExecutionResultMono = actionMono
-                .flatMap(action -> datasourceMono.zipWith(pluginExecutorMono, (datasource, pluginExecutor) -> {
+        Mono<ActionExecutionResult> actionExecutionResultMono = Mono
+                .zip(
+                        actionMono,
+                        datasourceMono,
+                        pluginExecutorMono
+                )
+                .flatMap(tuple -> {
+                    final Action action = tuple.getT1();
+                    final Datasource datasource = tuple.getT2();
+                    final PluginExecutor pluginExecutor = tuple.getT3();
+
                     DatasourceConfiguration datasourceConfigurationTemp;
                     ActionConfiguration actionConfigurationTemp;
                     //Do variable substitution before invoking the plugin
@@ -377,8 +386,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                         (oldValue, newValue) -> oldValue)
                                 );
 
-                        datasourceConfigurationTemp = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
-                        actionConfigurationTemp = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
+                        datasourceConfigurationTemp = variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
+                        actionConfigurationTemp = variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
                     } else {
                         datasourceConfigurationTemp = datasource.getDatasourceConfiguration();
                         actionConfigurationTemp = action.getActionConfiguration();
@@ -413,7 +422,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                             action.getPageId(), action.getId(), action.getName(), datasourceConfiguration,
                             actionConfiguration);
 
-                    Mono<Object> executionMono = Mono.just(datasource)
+                    Mono<ActionExecutionResult> executionMono = Mono.just(datasource)
                             .flatMap(datasourceContextService::getDatasourceContext)
                             // Now that we have the context (connection details), execute the action.
                             .flatMap(
@@ -452,9 +461,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 }
                                 return Mono.just(result);
                             });
-                }))
-                .flatMap(obj -> obj)
-                .map(obj -> (ActionExecutionResult) obj);
+                });
 
         // Populate the actionExecution result by setting the cached response and saving it to the DB
         return actionExecutionResultMono
@@ -483,11 +490,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
                                 return Mono.just(action);
                             });
-                    return actionFromDbMono.zipWith(resultMono)
-                            .map(tuple -> {
-                                ActionExecutionResult executionResult = tuple.getT2();
-                                return executionResult;
-                            });
+
+                    return actionFromDbMono.then(resultMono);
                 })
                 .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();

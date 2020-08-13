@@ -88,3 +88,21 @@ export const convertToCamelCase = (value: string, limit?: number) => {
     .join("_")
     .slice(0, limit || 30);
 };
+
+export const flashElement = (el: HTMLElement) => {
+  el.style.backgroundColor = "#FFCB33";
+  setTimeout(() => {
+    el.style.backgroundColor = "transparent";
+  }, 1000);
+};
+
+export const flashElementById = (id: string) => {
+  const el = document.getElementById(id);
+  el?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+    inline: "center",
+  });
+
+  if (el) flashElement(el);
+};

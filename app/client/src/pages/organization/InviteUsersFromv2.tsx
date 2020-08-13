@@ -35,6 +35,19 @@ const OrgInviteTitle = styled.div`
   padding: 10px 0px;
 `;
 
+const DropDownOption = styled.div`
+  padding: 10px 0;
+`;
+
+const OptionTitle = styled.div`
+  font-weight: bold;
+`;
+
+const OptionDescription = styled.div`
+  padding: 5px 0px;
+  max-width: 250px;
+`;
+
 const StyledForm = styled.form`
   width: 100%;
   background: white;
@@ -158,6 +171,19 @@ const InviteUsersForm = (props: any) => {
     fetchCurrentOrg(props.orgId);
   }, [props.orgId, fetchUser, fetchAllRoles, fetchCurrentOrg]);
 
+  const styledRoles = props.roles.map((role: any) => {
+    return {
+      id: role.id,
+      name: role.name,
+      content: (
+        <DropDownOption>
+          <OptionTitle>{role.name}</OptionTitle>
+          <OptionDescription>{role.description}</OptionDescription>
+        </DropDownOption>
+      ),
+    };
+  });
+
   return (
     <>
       {applicationId && (
@@ -199,7 +225,7 @@ const InviteUsersForm = (props: any) => {
             <SelectField
               name="role"
               placeholder="Select a role"
-              options={props.roles}
+              options={styledRoles}
               size="small"
               outline={false}
               data-cy="t--invite-role-input"

@@ -122,8 +122,6 @@ const ShareButton = styled(Button)`
 `;
 
 type EditorHeaderProps = {
-  currentApplication?: ApplicationPayload;
-  isSaving?: boolean;
   pageSaveError?: boolean;
   pageName?: string;
   pageId?: string;
@@ -131,6 +129,8 @@ type EditorHeaderProps = {
   publishedTime?: string;
   orgId: string;
   applicationId?: string;
+  currentApplication?: ApplicationPayload;
+  isSaving: boolean;
   publishApplication: (appId: string) => void;
 };
 

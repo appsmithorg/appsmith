@@ -119,9 +119,10 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
 }
 
-const CurrentValueViewer = (props: {
+export const CurrentValueViewer = (props: {
   theme: EditorTheme;
   evaluatedValue: any;
+  hideLabel?: boolean;
 }) => {
   let content = (
     <CodeWrapper colorTheme={props.theme}>{"undefined"}</CodeWrapper>
