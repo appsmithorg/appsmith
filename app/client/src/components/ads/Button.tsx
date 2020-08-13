@@ -1,5 +1,5 @@
 import React from "react";
-import { CommonComponentProps, ThemeProp } from "./common";
+import { CommonComponentProps, hexToRgba, ThemeProp } from "./common";
 import styled from "styled-components";
 import { IconName, Icon } from "./Icon";
 import Spinner from "./Spinner";
@@ -8,7 +8,6 @@ import {
   smallButton,
   largeButton,
 } from "../../constants/DefaultTheme";
-import { hexToRgb } from "./common";
 
 export enum Category {
   primary = "primary",
@@ -61,11 +60,6 @@ type ButtonProps = CommonComponentProps & {
   size?: Size;
 };
 
-export const hexToRgba = (color: string, alpha: number) => {
-  const value = hexToRgb(color);
-  return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
-};
-
 const stateStyles = (
   props: ThemeProp & ButtonProps,
   state: string,
@@ -80,7 +74,7 @@ const stateStyles = (
     borderColorTertiary,
     txtColorTertiary;
 
-  if (props.isLoading || props.isDisabled) {
+  if (props.isLoading || props.disabled) {
     switch (props.category) {
       case Category.primary:
         if (props.variant) {
@@ -269,7 +263,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     color: ${props => btnColorStyles(props, "hover").txtColor};
     border: ${props => btnColorStyles(props, "hover").border};
     cursor: ${props =>
-      props.isLoading || props.isDisabled ? `not-allowed` : `pointer`};
+      props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .ads-icon {
       margin-right: ${props =>
           props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
@@ -284,7 +278,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     color: ${props => btnColorStyles(props, "active").txtColor};
     border: ${props => btnColorStyles(props, "active").border};
     cursor: ${props =>
-      props.isLoading || props.isDisabled ? `not-allowed` : `pointer`};
+      props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .ads-icon {
       path {
         fill: ${props => btnColorStyles(props, "active").txtColor};
@@ -307,7 +301,7 @@ Button.defaultProps = {
   variant: Variant.success,
   size: Size.small,
   isLoading: false,
-  isDisabled: false,
+  disabled: false,
 };
 
 export const VisibilityWrapper = styled.div`

@@ -1,4 +1,3 @@
-import React from "react";
 import styled from "styled-components";
 import { ThemeProp } from "./common";
 
@@ -40,7 +39,7 @@ const typeSelector = (props: TextProps & ThemeProp): string => {
   return color;
 };
 
-const StyledText = styled("span")<TextProps>`
+export const StyledText = styled.span<TextProps>`
   text-decoration: ${props => (props.underline ? "underline" : "unset")};
   font-style: ${props => (props.italic ? "italic" : "normal")};
   font-family: ${props => props.theme.fonts[2]};
@@ -51,19 +50,3 @@ const StyledText = styled("span")<TextProps>`
     props.theme.typography[props.type].letterSpacing}px;
   color: ${props => typeSelector(props)};
 `;
-
-Text.defaultProps = {
-  type: TextType.P1,
-  underline: false,
-  italic: false,
-};
-
-/**
-- Use this component for text styles from h1-h6 and p1-p3.
-**/
-
-function Text(props: TextProps) {
-  return <StyledText {...props}>{props.children}</StyledText>;
-}
-
-export default Text;

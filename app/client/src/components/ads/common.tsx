@@ -3,7 +3,7 @@ import { Theme } from "../../constants/DefaultTheme";
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
   cypressSelector?: string;
-  isDisabled?: boolean; //default false
+  disabled?: boolean; //default false
 }
 
 export type ThemeProp = {
@@ -29,4 +29,9 @@ export const hexToRgb = (
         g: -1,
         b: -1,
       };
+};
+
+export const hexToRgba = (color: string, alpha: number) => {
+  const value = hexToRgb(color);
+  return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
 };
