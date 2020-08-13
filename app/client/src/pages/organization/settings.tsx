@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Icon } from "@blueprintjs/core";
 import { TableWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
+import { Colors } from "constants/Colors";
 import { AppState } from "reducers";
 import {
   getAllUsers,
@@ -64,19 +65,6 @@ const StyledDropDown = styled.div`
 const StyledTableWrapped = styled(TableWrapper)`
   min-height: 0px;
   height: auto;
-  .tableWrap {
-    display: flex;
-    flex: 1;
-  }
-  .table {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    height: auto;
-    .tbody {
-      overflow: auto;
-    }
-  }
 `;
 
 const StyledMenu = styled(Menu)`
@@ -190,6 +178,13 @@ export const OrgSettings = (props: PageProps) => {
   }));
   const data = React.useMemo(() => userTableData, [userTableData]);
 
+  const tableHeight = React.useMemo(() => {
+    const tableDataLength =
+      userTableData.length * TABLE_SIZES[CompactModeTypes.DEFAULT].ROW_HEIGHT +
+      TABLE_SIZES[CompactModeTypes.DEFAULT].COLUMN_HEADER_HEIGHT;
+    return tableDataLength < 200 ? tableDataLength : 200;
+  }, [userTableData]);
+
   const columns = React.useMemo(() => {
     return [
       {
@@ -238,7 +233,6 @@ export const OrgSettings = (props: PageProps) => {
     fetchAllRoles(orgId);
     fetchCurrentOrg(orgId);
   }, [orgId, fetchUser, fetchAllRoles, fetchCurrentOrg]);
-
   return (
     <React.Fragment>
       <PageSectionHeader>
@@ -268,8 +262,9 @@ export const OrgSettings = (props: PageProps) => {
       ) : (
         <StyledTableWrapped
           width={200}
-          height={200}
+          height={tableHeight}
           tableSizes={TABLE_SIZES[CompactModeTypes.DEFAULT]}
+          backgroundColor={Colors.ATHENS_GRAY_DARKER}
         >
           <div className="tableWrap">
             <div {...getTableProps()} className="table">
