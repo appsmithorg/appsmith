@@ -3,13 +3,10 @@ import Badge from "./Badge";
 import { Directions } from "utils/helpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
-import DropdownComponent, { CustomizedDropdownProps } from "./index";
+import { CustomizedDropdownProps } from "./index";
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import _ from "lodash";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { Button } from "@blueprintjs/core";
 
 const switchdropdown = (
   orgs: Org[],

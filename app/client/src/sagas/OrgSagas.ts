@@ -21,6 +21,7 @@ import OrgApi, {
   FetchAllRolesResponse,
   DeleteOrgUserRequest,
   ChangeUserRoleRequest,
+  FetchAllRolesRequest,
 } from "api/OrgApi";
 import { ApiResponse } from "api/ApiResponses";
 import { AppToaster } from "components/editorComponents/ToastComponent";
@@ -144,9 +145,13 @@ export function* deleteOrgUserSaga(action: ReduxAction<DeleteOrgUserRequest>) {
   }
 }
 
-export function* fetchAllRolesSaga(action: ReduxAction<DeleteOrgUserRequest>) {
+export function* fetchAllRolesSaga(action: ReduxAction<FetchAllRolesRequest>) {
   try {
-    const response: FetchAllRolesResponse = yield call(OrgApi.fetchAllRoles);
+    const request: FetchAllRolesRequest = action.payload;
+    const response: FetchAllRolesResponse = yield call(
+      OrgApi.fetchAllRoles,
+      request,
+    );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({

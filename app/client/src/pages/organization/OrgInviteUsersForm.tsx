@@ -1,14 +1,14 @@
-import React, { useEffect, useState, createRef } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
+import Divider from "components/editorComponents/Divider";
 import Button from "components/editorComponents/Button";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import {
-  getDefaultRole,
   getRolesForField,
   getAllUsers,
   getCurrentOrg,
@@ -27,8 +27,10 @@ import {
 import history from "utils/history";
 import { Colors } from "constants/Colors";
 import { isEmail } from "utils/formhelpers";
-import ShareWithPublic from "./ShareWithPublic";
-import Divider from "components/editorComponents/Divider";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "../Applications/permissionHelpers";
 
 const OrgInviteTitle = styled.div`
   font-weight: bold;
@@ -68,6 +70,7 @@ const StyledForm = styled.form`
     margin-top: 20px;
   }
 `;
+
 const StyledInviteFieldGroup = styled.div`
   display: flex;
   align-items: center;
@@ -140,7 +143,7 @@ const validate = (values: any) => {
   return errors;
 };
 
-const InviteUsersForm = (props: any) => {
+const OrgInviteUsersForm = (props: any) => {
   const {
     handleSubmit,
     allUsers,
@@ -152,18 +155,19 @@ const InviteUsersForm = (props: any) => {
     fetchUser,
     fetchAllRoles,
     valid,
-    onCancel,
-    isFetchingApplication,
-    isChangingViewAccess,
-    currentApplicationDetails,
-    changeAppViewAccess,
-    applicationId,
     fetchCurrentOrg,
     currentOrg,
+    isApplicationInvite,
   } = props;
 
   const currentPath = useLocation().pathname;
   const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
+
+  const userOrgPermissions = currentOrg?.userPermissions ?? [];
+  const canManage = isPermitted(
+    userOrgPermissions,
+    PERMISSION_TYPE.MANAGE_ORGANIZATION,
+  );
 
   useEffect(() => {
     fetchUser(props.orgId);
@@ -186,20 +190,12 @@ const InviteUsersForm = (props: any) => {
 
   return (
     <>
-      {applicationId && (
+      {isApplicationInvite && (
         <>
-          <ShareWithPublic
-            changeAppViewAccess={changeAppViewAccess}
-            isFetchingApplication={isFetchingApplication}
-            currentApplicationDetails={currentApplicationDetails}
-            applicationId={applicationId}
-            isChangingViewAccess={isChangingViewAccess}
-          />
           <Divider />
           <OrgInviteTitle>Invite Users to {currentOrg?.name} </OrgInviteTitle>
         </>
       )}
-
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values);
@@ -251,7 +247,7 @@ const InviteUsersForm = (props: any) => {
             );
           })}
         </UserList>
-        {!pathRegex.test(currentPath) && (
+        {!pathRegex.test(currentPath) && canManage && (
           <Button
             className="manageUsers"
             text="Manage Users"
@@ -271,12 +267,8 @@ export default connect(
   (state: AppState) => {
     return {
       roles: getRolesForField(state),
-      defaultRole: getDefaultRole(state),
       allUsers: getAllUsers(state),
       currentOrg: getCurrentOrg(state),
-      currentApplicationDetails: state.ui.applications.currentApplication,
-      isFetchingApplication: state.ui.applications.isFetchingApplication,
-      isChangingViewAccess: state.ui.applications.isChangingViewAccess,
     };
   },
   (dispatch: any) => ({
@@ -301,14 +293,6 @@ export default connect(
           orgId,
         },
       }),
-    changeAppViewAccess: (applicationId: string, publicAccess: boolean) =>
-      dispatch({
-        type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,
-        payload: {
-          applicationId,
-          publicAccess,
-        },
-      }),
   }),
 )(
   reduxForm<
@@ -317,9 +301,11 @@ export default connect(
       fetchAllRoles: (orgId: string) => void;
       roles?: any;
       applicationId?: string;
+      orgId?: string;
+      isApplicationInvite?: boolean;
     }
   >({
     validate,
     form: INVITE_USERS_TO_ORG_FORM,
-  })(InviteUsersForm),
+  })(OrgInviteUsersForm),
 );

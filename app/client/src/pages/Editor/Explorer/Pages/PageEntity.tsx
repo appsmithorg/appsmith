@@ -24,7 +24,7 @@ type ExplorerPageEntityProps = {
 export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
   const switchPage = useCallback(() => {
-    if (!props.isCurrentPage && !!params.applicationId) {
+    if (!!params.applicationId) {
       history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
     }
   }, [props.isCurrentPage, props.page.pageId, params.applicationId]);

@@ -227,8 +227,10 @@ export function* inviteUsers(
       yield call(reject, { _error: errorMessage });
     }
     yield put({
-      type: ReduxActionTypes.INVITE_USERS_TO_ORG_SUCCESS,
-      payload: response.data,
+      type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
+      payload: {
+        orgId: data.orgId,
+      },
     });
     yield call(resolve);
     yield put(reset(INVITE_USERS_TO_ORG_FORM));
