@@ -22,7 +22,7 @@ import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
 import { getPageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
-import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
+import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { Colors } from "constants/Colors";
@@ -119,10 +119,6 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
-  const canShare = isPermitted(
-    userPermissions,
-    PERMISSION_TYPE.MANAGE_APPLICATION,
-  );
 
   return (
     <HeaderWrapper hasPages={pages.length > 1}>
@@ -142,30 +138,29 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         <HeaderSection justify={"flex-end"}>
           {currentApplicationDetails && (
             <>
-              {canShare && (
-                <FormDialogComponent
-                  trigger={
-                    <ShareButton
-                      text="Share"
-                      intent="none"
-                      outline
-                      size="small"
-                      className="t--application-share-btn"
-                      icon={
-                        <HeaderIcons.SHARE
-                          color={Colors.WHITE}
-                          width={13}
-                          height={13}
-                        />
-                      }
-                    />
-                  }
-                  Form={InviteUsersFormv2}
-                  orgId={currentOrgId}
-                  applicationId={currentApplicationDetails.id}
-                  title={currentApplicationDetails.name}
-                />
-              )}
+              <FormDialogComponent
+                trigger={
+                  <ShareButton
+                    text="Share"
+                    intent="none"
+                    outline
+                    size="small"
+                    className="t--application-share-btn"
+                    icon={
+                      <HeaderIcons.SHARE
+                        color={Colors.WHITE}
+                        width={13}
+                        height={13}
+                      />
+                    }
+                  />
+                }
+                Form={AppInviteUsersForm}
+                orgId={currentOrgId}
+                applicationId={currentApplicationDetails.id}
+                title={currentApplicationDetails.name}
+              />
+
               {props.url && canEdit && (
                 <BackToEditorButton
                   className="t--back-to-editor"

@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
@@ -75,6 +76,9 @@ public class OrganizationServiceTest {
 
     @Autowired
     DatasourceRepository datasourceRepository;
+
+    @Autowired
+    RoleGraph roleGraph;
 
     Organization organization;
 
@@ -248,8 +252,10 @@ public class OrganizationServiceTest {
     }
 
     @Test
-    public void getAllUserRolesForOrganizationDomain() {
-        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForOrganization();
+    @WithUserDetails(value = "api_user")
+    public void getAllUserRolesForOrganizationDomainAsAdministrator() {
+        Mono<Map<String, String>> userRolesForOrganization = organizationService.create(organization)
+                .flatMap(createdOrg -> organizationService.getUserRolesForOrganization(createdOrg.getId()));
 
         StepVerifier.create(userRolesForOrganization)
                 .assertNext(roles -> {
@@ -319,7 +325,7 @@ public class OrganizationServiceTest {
 
                     assertThat(org).isNotNull();
                     assertThat(org.getName()).isEqualTo("Spring Test Organization");
-                    assertThat(org.getUserRoles().get(0).getUsername()).isEqualTo("usertest@usertest.com");
+                    assertThat(org.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
 
                     Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
                             .users(Set.of("api_user", "usertest@usertest.com"))
@@ -870,6 +876,52 @@ public class OrganizationServiceTest {
                     Set<String> organizationIds = user.getOrganizationIds();
                     assertThat(organizationIds).contains(org.getId());
 
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteRolesGivenAdministrator() {
+        Set<AppsmithRole> roles = roleGraph.generateHierarchicalRoles("Administrator");
+        AppsmithRole administratorRole = AppsmithRole.generateAppsmithRoleFromName("Administrator");
+        AppsmithRole developerRole = AppsmithRole.generateAppsmithRoleFromName("Developer");
+        AppsmithRole viewerRole = AppsmithRole.generateAppsmithRoleFromName("App Viewer");
+
+        StepVerifier.create(Mono.just(roles))
+                .assertNext(appsmithRoles -> {
+                    assertThat(appsmithRoles).isNotNull();
+                    assertThat(appsmithRoles).containsAll(Set.of(administratorRole, developerRole, viewerRole));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteRolesGivenDeveloper() {
+        Set<AppsmithRole> roles = roleGraph.generateHierarchicalRoles("Developer");
+        AppsmithRole developerRole = AppsmithRole.generateAppsmithRoleFromName("Developer");
+        AppsmithRole viewerRole = AppsmithRole.generateAppsmithRoleFromName("App Viewer");
+
+        StepVerifier.create(Mono.just(roles))
+                .assertNext(appsmithRoles -> {
+                    assertThat(appsmithRoles).isNotNull();
+                    assertThat(appsmithRoles).containsAll(Set.of(developerRole, viewerRole));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteRolesGivenViewer() {
+        Set<AppsmithRole> roles = roleGraph.generateHierarchicalRoles("App Viewer");
+        AppsmithRole viewerRole = AppsmithRole.generateAppsmithRoleFromName("App Viewer");
+
+        StepVerifier.create(Mono.just(roles))
+                .assertNext(appsmithRoles -> {
+                    assertThat(appsmithRoles).isNotNull();
+                    assertThat(appsmithRoles).hasSize(1);
+                    assertThat(appsmithRoles).containsAll(Set.of(viewerRole));
                 })
                 .verifyComplete();
     }

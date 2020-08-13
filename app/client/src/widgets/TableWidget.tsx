@@ -386,7 +386,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           searchTableData={this.handleSearchTable}
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
-            super.updateWidgetProperty("filters", filters);
+            super.updateWidgetMetaProperty("filters", filters);
           }}
           compactMode={this.props.compactMode}
           updateCompactMode={(compactMode: CompactMode) => {
@@ -407,6 +407,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
     this.resetSelectedRowIndex();
+    this.updateWidgetMetaProperty("pageNo", 1);
     super.updateWidgetMetaProperty("searchText", searchKey);
     if (onSearchTextChanged) {
       super.executeAction({

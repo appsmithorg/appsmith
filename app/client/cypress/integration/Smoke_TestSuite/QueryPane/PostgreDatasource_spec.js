@@ -22,6 +22,12 @@ describe("Create a query with a postgres datasource, run, save and then delete t
         .click();
     });
 
+    cy.get("@getPluginForm").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()

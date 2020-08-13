@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
+import { Colors, Color } from "constants/Colors";
 import { TableSizes } from "widgets/TableWidget";
 import { scrollbarLight } from "constants/DefaultTheme";
 
@@ -8,6 +8,7 @@ export const TableWrapper = styled.div<{
   height: number;
   tableSizes: TableSizes;
   tableRowHeight?: number;
+  backgroundColor?: Color;
 }>`
   width: 100%;
   height: 100%;
@@ -28,18 +29,34 @@ export const TableWrapper = styled.div<{
     border-spacing: 0;
     color: ${Colors.BLUE_BAYOUX};
     position: relative;
-    overflow-y: auto;
-    /* Subtracting 9px to handling widget padding */
-    height: ${props =>
-      props.height - props.tableSizes.TABLE_HEADER_HEIGHT - 9}px;
+    background: ${Colors.ATHENS_GRAY_DARKER};
     .thead,
     .tbody {
       overflow: hidden;
+    }
+    .tr:first-of-type {
+      width: calc(100% - 6px);
+    }
+    .tbody {
+      overflow-y: scroll;
+      /* Subtracting 9px to handling widget padding */
+      height: ${props =>
+        props.height -
+        props.tableSizes.TABLE_HEADER_HEIGHT -
+        props.tableSizes.COLUMN_HEADER_HEIGHT -
+        9}px;
+      ${scrollbarLight};
+      .tr {
+        width: 100%;
+      }
     }
     .tr {
       overflow: hidden;
       :nth-child(even) {
         background: ${Colors.ATHENS_GRAY_DARKER};
+      }
+      :nth-child(odd) {
+        background: ${Colors.WHITE};
       }
       &.selected-row {
         background: ${Colors.POLAR};
@@ -274,17 +291,19 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
 export const TableHeaderWrapper = styled.div<{
   serverSidePaginationEnabled: boolean;
   width: number;
+  backgroundColor?: Color;
 }>`
   display: flex;
-  align-items: flex-end;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
   width: ${props => props.width}px;
   .show-page-items {
     display: ${props => (props.width < 700 ? "none" : "flex")};
   }
-  overflow-x: ${props => (props.width < 600 ? "scroll" : "none")};
+  overflow-x: scroll;
+  overflow-y: hidden;
+  height: 60px;
+  min-height: 60px;
   ${scrollbarLight};
-  height: 78px;
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div`

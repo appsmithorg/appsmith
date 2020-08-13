@@ -8,11 +8,7 @@ import {
   APPLICATIONS_URL,
   getApplicationViewerPageURL,
 } from "constants/routes";
-import {
-  PERMISSION_TYPE,
-  isPermitted,
-} from "pages/Applications/permissionHelpers";
-import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
+import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -183,9 +179,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
       );
     }
   }
-  const applicationPermissions = currentApplication?.userPermissions
-    ? currentApplication.userPermissions
-    : [];
 
   return (
     <HeaderWrapper>
@@ -218,35 +211,31 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             <HeaderIcons.FEEDBACK color={Colors.WHITE} width={13} height={13} />
           }
         />
-        {isPermitted(
-          applicationPermissions,
-          PERMISSION_TYPE.MANAGE_APPLICATION,
-        ) && (
-          <FormDialogComponent
-            trigger={
-              <ShareButton
-                text="Share"
-                intent="none"
-                outline
-                size="small"
-                className="t--application-share-btn"
-                icon={
-                  <HeaderIcons.SHARE
-                    color={Colors.WHITE}
-                    width={13}
-                    height={13}
-                  />
-                }
-              />
-            }
-            Form={InviteUsersFormv2}
-            orgId={orgId}
-            applicationId={applicationId}
-            title={
-              currentApplication ? currentApplication.name : "Share Application"
-            }
-          />
-        )}
+        <FormDialogComponent
+          trigger={
+            <ShareButton
+              text="Share"
+              intent="none"
+              outline
+              size="small"
+              className="t--application-share-btn"
+              icon={
+                <HeaderIcons.SHARE
+                  color={Colors.WHITE}
+                  width={13}
+                  height={13}
+                />
+              }
+            />
+          }
+          canOutsideClickClose={true}
+          Form={AppInviteUsersForm}
+          orgId={orgId}
+          applicationId={applicationId}
+          title={
+            currentApplication ? currentApplication.name : "Share Application"
+          }
+        />
         <DeploySection>
           <DeployButton
             onClick={handlePublish}

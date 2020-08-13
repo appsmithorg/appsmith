@@ -16,13 +16,14 @@ class DynamicTextField extends React.Component<
       size?: EditorSize;
       tabBehaviour?: TabBehaviour;
       mode?: EditorModes;
+      theme?: EditorTheme;
     }
 > {
   render() {
     const editorProps = {
       mode: this.props.mode || EditorModes.TEXT_WITH_BINDING,
       tabBehaviour: this.props.tabBehaviour || TabBehaviour.INPUT,
-      theme: EditorTheme.LIGHT,
+      theme: this.props.theme || EditorTheme.LIGHT,
       size: this.props.size || EditorSize.COMPACT,
     };
     return <Field component={CodeEditor} {...this.props} {...editorProps} />;

@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
@@ -29,13 +30,14 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static java.util.stream.Collectors.toMap;
@@ -51,6 +53,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
     private final UserRepository userRepository;
+    private final RoleGraph roleGraph;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -64,7 +67,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
                                    UserOrganizationService userOrganizationService,
-                                   UserRepository userRepository) {
+                                   UserRepository userRepository,
+                                   RoleGraph roleGraph) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.settingService = settingService;
@@ -73,6 +77,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
         this.userRepository = userRepository;
+        this.roleGraph = roleGraph;
     }
 
     @Override
@@ -241,30 +246,50 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     }
 
     @Override
-    public Mono<Map<String, String>> getUserRolesForOrganization() {
-        // Get all the roles for Organization entity from the enum AppsmithRole
-        Map<String, String> appsmithRoles = Arrays.asList(AppsmithRole.values())
-                .stream()
-                .filter(role -> {
-                    Set<AclPermission> permissions = role.getPermissions();
-                    if (permissions != null && !permissions.isEmpty()) {
-                        for (AclPermission permission : permissions) {
-                            if (permission.getEntity().equals(Organization.class)) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                })
-                .collect(toMap(role -> role.getName(), AppsmithRole::getDescription));
+    public Mono<Map<String, String>> getUserRolesForOrganization(String orgId) {
+        if (orgId == null || orgId.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
 
-        return Mono.just(appsmithRoles);
+        Mono<Organization> organizationMono = repository.findById(orgId, ORGANIZATION_INVITE_USERS);
+        Mono<String> usernameMono = sessionUserService
+                .getCurrentUser()
+                .map(user -> user.getUsername());
+
+        return organizationMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
+                .zipWith(usernameMono)
+                .flatMap(tuple -> {
+                    Organization organization = tuple.getT1();
+                    String username = tuple.getT2();
+
+                    List<UserRole> userRoles = organization.getUserRoles();
+                    if (userRoles == null || userRoles.isEmpty()) {
+                        return Mono.empty();
+                    }
+
+                    Optional<UserRole> optionalUserRole = userRoles.stream().filter(role -> role.getUsername().equals(username)).findFirst();
+                    if (!optionalUserRole.isPresent()) {
+                        return Mono.empty();
+                    }
+
+                    UserRole currentUserRole = optionalUserRole.get();
+                    String roleName = currentUserRole.getRoleName();
+
+                    Set<AppsmithRole> appsmithRoles = roleGraph.generateHierarchicalRoles(roleName);
+
+                    Map<String, String> appsmithRolesMap =  appsmithRoles
+                            .stream()
+                            .collect(toMap(role -> role.getName(), AppsmithRole::getDescription));
+
+                    return Mono.just(appsmithRolesMap);
+                });
     }
 
     @Override
     public Mono<List<UserRole>> getOrganizationMembers(String orgId) {
         return repository
-                .findById(orgId, MANAGE_ORGANIZATIONS)
+                .findById(orgId, ORGANIZATION_INVITE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
                 .map(organization -> {
                     final List<UserRole> userRoles = organization.getUserRoles();
