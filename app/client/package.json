@@ -179,6 +179,7 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^2.3.0",
+    "js-base64": "^3.4.5",
     "mocha": "^7.1.0",
     "mocha-junit-reporter": "^1.23.3",
     "mochawesome": "^5.0.0",
