@@ -159,8 +159,13 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
         ) : (
           "  "
         )}
-        click the <strong>Widgets</strong> navigation menu icon on the left to
-        drag and drop widgets
+        click the{" "}
+        <React.Fragment>
+          <StyledLink to={WIDGETS_URL(params.applicationId, props.pageId)}>
+            Widgets
+          </StyledLink>
+        </React.Fragment>{" "}
+        navigation menu icon on the left to drag and drop widgets
       </EntityPlaceholder>
     );
   }
