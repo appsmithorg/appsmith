@@ -15,7 +15,7 @@ const Container = styled.div<{
         z-index: ${props => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: ${props => props.theme.headerHeight};
+      top: 0;
       right: 0;
       bottom: 0;
       height: 100vh;

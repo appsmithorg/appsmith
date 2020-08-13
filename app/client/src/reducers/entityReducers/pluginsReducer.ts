@@ -9,12 +9,14 @@ import { Plugin } from "api/PluginApi";
 export interface PluginFormPayload {
   id: string;
   form: [];
+  editor: [];
 }
 
 export interface PluginDataState {
   list: Plugin[];
   loading: boolean;
   formConfigs: Record<string, []>;
+  editorConfigs: Record<string, []>;
   loadingFormConfigs: boolean;
 }
 
@@ -22,6 +24,7 @@ const initialState: PluginDataState = {
   list: [],
   loading: false,
   formConfigs: {},
+  editorConfigs: {},
   loadingFormConfigs: false,
 };
 
@@ -61,6 +64,10 @@ const pluginsReducer = createReducer(initialState, {
       formConfigs: {
         ...state.formConfigs,
         [action.payload.id]: action.payload.form,
+      },
+      editorConfigs: {
+        ...state.editorConfigs,
+        [action.payload.id]: action.payload.editor,
       },
     };
   },

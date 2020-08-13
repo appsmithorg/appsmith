@@ -1,6 +1,8 @@
 [build]
   [build.environment]
 #    REACT_APP_SENTRY_DSN=
+#    REACT_APP_SENTRY_ENVIRONMENT=
+#    REACT_APP_SENTRY_RELEASE=
 #    REACT_APP_HOTJAR_HJID=
 #    REACT_APP_HOTJAR_HJSV=
 #    REACT_APP_OAUTH2_GOOGLE_CLIENT_ID=
@@ -32,6 +34,11 @@
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
     # Not adding an APP_HOST here because the URL is dynamic in nature and cannot be determined.
 
+[context.develop]
+  [context.develop.environment]
+    REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+    APP_HOST = "develop.app.appsmith.com"
 
 [[headers]]
   for = "/static/*"

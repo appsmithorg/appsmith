@@ -153,8 +153,6 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPropertyPane");
-  cy.get("@getPropertyPane").should("have.property", "status", 200);
 });
 
 Cypress.Commands.add("CreateApp", appname => {
@@ -166,6 +164,11 @@ Cypress.Commands.add("CreateApp", appname => {
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
+  cy.wait("@getPagesForApp").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
   cy.get("h2").contains("Drag and drop a widget here");
 });
 
@@ -626,22 +629,22 @@ Cypress.Commands.add("DeleteAPI", apiname => {
   );
 });
 
-Cypress.Commands.add("CreateModal", () => {
-  cy.get(modalWidgetPage.selectModal).click();
-  cy.get(modalWidgetPage.createModalButton).click({ force: true });
-  cy.get(modalWidgetPage.controlModalType)
-    .find(".bp3-button")
-    .click({ force: true })
-    .get("ul.bp3-menu")
-    .children()
-    .contains("Alert Modal")
-    .click();
-  cy.get(modalWidgetPage.controlModalType)
-    .find(".bp3-button > .bp3-button-text")
-    .should("have.text", "Alert Modal");
-  cy.get(commonlocators.editPropCrossButton).click();
-  cy.reload();
-});
+// Cypress.Commands.add("CreateModal", () => {
+//   cy.get(modalWidgetPage.selectModal).click();
+//   cy.get(modalWidgetPage.createModalButton).click({ force: true });
+//   cy.get(modalWidgetPage.controlModalType)
+//     .find(".bp3-button")
+//     .click({ force: true })
+//     .get("ul.bp3-menu")
+//     .children()
+//     .contains("Alert Modal")
+//     .click();
+//   cy.get(modalWidgetPage.controlModalType)
+//     .find(".bp3-button > .bp3-button-text")
+//     .should("have.text", "Alert Modal");
+//   cy.get(commonlocators.editPropCrossButton).click();
+//   cy.reload();
+// });
 
 Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(widgetsPage.buttonOnClick)
@@ -683,6 +686,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .contains("Center")
     .click();
   cy.assertPageSave();
+  cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
 
 Cypress.Commands.add("CheckWidgetProperties", checkboxCss => {
@@ -1319,14 +1323,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.route({
-    method: "GET",
-    url: "**/api/v1/configs/name/propertyPane",
-    status: 200,
-    response: "fixture:../fixtures/propertyPaneResponse.json",
-    delay: 100,
-  }).as("getPropertyPane");
-
   cy.route("GET", "/api/v1/datasources").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForApp");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
@@ -1376,7 +1372,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
   cy.route("POST", "/api/v1/users/invite").as("postInvite");
-  cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
+  cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
+    "getRoles",
+  );
   cy.route("GET", "/api/v1/users/me").as("getUser");
   cy.route("POST", "/api/v1/pages").as("createPage");
 });

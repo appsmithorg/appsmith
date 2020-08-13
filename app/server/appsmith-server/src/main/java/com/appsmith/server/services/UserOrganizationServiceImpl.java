@@ -158,7 +158,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap);
 
         //Now update the organization policies
-        Organization updatedOrganization = (Organization) policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
+        Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
 
         // Update the underlying application/page/action
@@ -221,7 +221,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap);
 
         //Now update the organization policies
-        Organization updatedOrganization = (Organization) policyUtils.removePoliciesFromExistingObject(orgPolicyMap, organization);
+        Organization updatedOrganization = policyUtils.removePoliciesFromExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
 
         // Update the underlying application/page/action
@@ -246,7 +246,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "username"));
         }
 
-        Mono<Organization> organizationMono = organizationRepository.findById(orgId, MANAGE_ORGANIZATIONS);
+        Mono<Organization> organizationMono = organizationRepository
+                .findById(orgId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername());
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
@@ -266,7 +268,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                         if (role.getUsername().equals(userRole.getUsername())) {
                             // User found in the organization.
 
-                            if (role.getRoleName().equals(userRole.getRoleName())) {
+                            if (role.getRole().equals(userRole)) {
                                 // No change in the role. Do nothing.
                                 Mono.just(userRole);
                             }
