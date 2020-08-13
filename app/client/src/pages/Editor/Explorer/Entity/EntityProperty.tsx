@@ -68,7 +68,7 @@ const Wrapper = styled.div<{ step: number }>`
       cursor: pointer;
       & ~ span.${Classes.ICON} {
         position: absolute;
-        right: 0;
+        right: 4px;
         top: 10px;
         opacity: 0;
       }
@@ -223,7 +223,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
         codeText={codeText}
         language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
       />
-      <Icon icon="duplicate" iconSize={14} color={Colors.MAKO} />
+      <Icon icon="duplicate" iconSize={14} color={Colors.ALTO} />
       {propertyValue}
     </Wrapper>
   );
