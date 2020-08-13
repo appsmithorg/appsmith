@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SyntheticEvent } from "react";
 import algoliasearch from "algoliasearch/lite";
 import {
   InstantSearch,
@@ -332,8 +332,15 @@ class DocumentationSearch extends React.Component<Props, State> {
       showResults: props.defaultRefinement.length > 0,
     };
   }
-  onSearchValueChange = () => {
-    if (!this.state.showResults) {
+  onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    const value = event.target.value;
+    if (value === "" && this.state.showResults) {
+      this.setState({
+        showResults: false,
+      });
+    } else if (value !== "" && !this.state.showResults) {
       this.setState({
         showResults: true,
       });
