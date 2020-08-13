@@ -1,13 +1,20 @@
-import React, { forwardRef, Ref, useCallback, useMemo } from "react";
+import React, {
+  forwardRef,
+  Ref,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { CommonComponentProps, hexToRgba } from "./common";
 import styled from "styled-components";
 import { theme } from "../../constants/DefaultTheme";
-import { StyledText, TextType } from "./Text";
+import { Text, TextType } from "./Text";
 
 export type TextInputProps = CommonComponentProps & {
-  value: string;
   placeholder?: string;
   fill?: boolean;
+  defaultValue?: string;
   validator?: (value: string) => { isValid: boolean; message: string };
   onChange?: (value: string) => void;
 };
@@ -18,7 +25,7 @@ type boxReturnType = {
   borderColor: string;
 };
 
-const boxStyles = (props: TextInputProps): boxReturnType => {
+const boxStyles = (props: TextInputProps, isValid: boolean): boxReturnType => {
   let bgColor = theme.colors.blackShades[0];
   let color = theme.colors.blackShades[9];
   let borderColor = theme.colors.blackShades[0];
@@ -28,7 +35,7 @@ const boxStyles = (props: TextInputProps): boxReturnType => {
     color = theme.colors.blackShades[6];
     borderColor = theme.colors.blackShades[2];
   }
-  if (props.validator && !props.validator(props.value).isValid) {
+  if (!isValid) {
     bgColor = hexToRgba(theme.colors.danger.main, 0.1);
     color = theme.colors.danger.main;
     borderColor = theme.colors.danger.main;
@@ -37,7 +44,7 @@ const boxStyles = (props: TextInputProps): boxReturnType => {
 };
 
 const StyledInput = styled.input<
-  TextInputProps & { inputStyle: boxReturnType }
+  TextInputProps & { inputStyle: boxReturnType; isValid: boolean }
 >`
   width: ${props => (props.fill ? "100%" : "260px")};
   border-radius: 0;
@@ -57,7 +64,7 @@ const StyledInput = styled.input<
   &:focus {
     border: 1px solid
       ${props =>
-        props.validator && props.validator(props.value).isValid
+        props.isValid
           ? props.theme.colors.info.main
           : props.theme.colors.danger.main};
     box-shadow: 0px 0px 0px 4px rgba(203, 72, 16, 0.18);
@@ -80,21 +87,31 @@ const InputWrapper = styled.div`
 /* eslint-disable react/display-name */
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
-    const inputStyle = useMemo(() => boxStyles(props), [
+    const [validation, setValidation] = useState<{
+      isValid: boolean;
+      message: string;
+    }>({ isValid: true, message: "" });
+
+    useEffect(() => {
+      if (props.defaultValue) {
+        props.validator && setValidation(props.validator(props.defaultValue));
+      }
+    }, []);
+
+    const inputStyle = useMemo(() => boxStyles(props, validation.isValid), [
       props.disabled,
-      props.validator,
+      validation,
     ]);
 
     const memoizedChangeHandler = useCallback(
-      el => props.onChange && props.onChange(el.target.value),
-      [props.value],
+      el => {
+        props.validator && setValidation(props.validator(el.target.value));
+        return props.onChange && props.onChange(el.target.value);
+      },
+      [props],
     );
 
-    const ErrorMessage = (
-      <StyledText type={TextType.P3}>
-        {props.validator ? props.validator(props.value).message : ""}
-      </StyledText>
-    );
+    const ErrorMessage = <Text type={TextType.P3}>{validation.message}</Text>;
 
     return (
       <InputWrapper>
@@ -102,13 +119,13 @@ const TextInput = forwardRef(
           type="text"
           ref={ref}
           inputStyle={inputStyle}
+          isValid={validation.isValid}
+          defaultValue={props.defaultValue}
           {...props}
           placeholder={props.placeholder ? props.placeholder : ""}
           onChange={memoizedChangeHandler}
         />
-        {props.validator && props.validator(props.value).isValid
-          ? null
-          : ErrorMessage}
+        {validation.isValid ? null : ErrorMessage}
       </InputWrapper>
     );
   },

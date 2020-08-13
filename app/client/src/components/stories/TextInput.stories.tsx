@@ -1,7 +1,7 @@
 import React from "react";
 import { withKnobs, boolean, text } from "@storybook/addon-knobs";
 import TextInput from "../ads/TextInput";
-// import { action } from "@storybook/addon-actions";
+import { action } from "@storybook/addon-actions";
 
 export default {
   title: "Text Input",
@@ -20,10 +20,10 @@ export const TextInputStory = () => (
   <div style={{ background: "#302D2D", height: "500px", padding: "100px" }}>
     <TextInput
       placeholder={text("placeholder", "Your name")}
-      value={text("value", "")}
-      isDisabled={boolean("isDisabled", false)}
+      disabled={boolean("disabled", false)}
       fill={boolean("fill", true)}
-      onChange={el => console.log(el)}
+      defaultValue={text("defaultValue", "This is valid")}
+      onChange={action("input value changed")}
       validator={() => callValidator1()}
     ></TextInput>
   </div>
@@ -40,10 +40,10 @@ export const ErrorTextInputStory = () => (
   <div style={{ background: "#302D2D", height: "500px", padding: "100px" }}>
     <TextInput
       placeholder={text("placeholder", "Your name")}
-      value={text("value", "")}
-      isDisabled={boolean("isDisabled", false)}
+      disabled={boolean("disabled", false)}
       fill={boolean("fill", true)}
       onChange={value => console.log(value)}
+      defaultValue={text("defaultValue", "This is wrong")}
       validator={() => callValidator2()}
     ></TextInput>
   </div>
