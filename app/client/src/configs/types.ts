@@ -61,4 +61,8 @@ export type AppsmithUIConfigs = {
 
   featureFlag?: FeatureFlagConfig;
   logLevel: LogLevelDesc;
+  appVersion: {
+    id: string;
+    releaseDate: string;
+  };
 };

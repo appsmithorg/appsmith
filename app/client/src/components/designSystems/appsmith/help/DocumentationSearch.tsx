@@ -21,8 +21,9 @@ import {
   setHelpModalVisibility,
 } from "actions/helpActions";
 import { Icon } from "@blueprintjs/core";
+import moment from "moment";
 
-const { algolia } = getAppsmithConfigs();
+const { algolia, appVersion } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
@@ -365,10 +366,12 @@ class DocumentationSearch extends React.Component<Props, State> {
                 </ul>
               )}
             </HelpBody>
-            <HelpFooter>
-              <span>Appsmith v1.1</span>
-              <span>Released 8 hours ago</span>
-            </HelpFooter>
+            {appVersion.id && (
+              <HelpFooter>
+                <span>Appsmith {appVersion.id}</span>
+                <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
+              </HelpFooter>
+            )}
           </HelpContainer>
         </InstantSearch>
       </SearchContainer>
