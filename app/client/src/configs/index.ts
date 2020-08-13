@@ -1,6 +1,10 @@
 import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
 type INJECTED_CONFIGS = {
-  sentry: string;
+  sentry: {
+    dsn: string;
+    release: string;
+    environment: string;
+  };
   hotjar: {
     id: string;
     sv: string;
@@ -27,9 +31,19 @@ declare global {
   }
 }
 
+const capitalizeText = (text: string) => {
+  const rest = text.slice(1);
+  const first = text[0].toUpperCase();
+  return `${first}${rest}`;
+};
+
 const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
   return {
-    sentry: process.env.REACT_APP_SENTRY_DSN || "",
+    sentry: {
+      dsn: process.env.REACT_APP_SENTRY_DSN || "",
+      release: process.env.REACT_APP_SENTRY_RELEASE || "",
+      environment: capitalizeText(process.env.NODE_ENV),
+    },
     hotjar: {
       id: process.env.REACT_APP_HOTJAR_HJID || "",
       sv: process.env.REACT_APP_HOTJAR_HJSV || "",
@@ -92,7 +106,19 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     return;
   };
 
-  const sentry = getConfig(ENV_CONFIG.sentry, APPSMITH_FEATURE_CONFIGS.sentry);
+  // const sentry = getConfig(ENV_CONFIG.sentry, APPSMITH_FEATURE_CONFIGS.sentry);
+  const sentryDSN = getConfig(
+    ENV_CONFIG.sentry.dsn,
+    APPSMITH_FEATURE_CONFIGS.sentry.dsn,
+  );
+  const sentryRelease = getConfig(
+    ENV_CONFIG.sentry.release,
+    APPSMITH_FEATURE_CONFIGS.sentry.release,
+  );
+  const sentryENV = getConfig(
+    APPSMITH_FEATURE_CONFIGS.sentry.environment,
+    ENV_CONFIG.sentry.environment,
+  );
   const segment = getConfig(
     ENV_CONFIG.segment,
     APPSMITH_FEATURE_CONFIGS.segment,
@@ -124,7 +150,12 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   );
 
   return {
-    sentry: { enabled: sentry.enabled, apiKey: sentry.value },
+    sentry: {
+      enabled: sentryDSN.enabled && sentryRelease.enabled && sentryENV.enabled,
+      dsn: sentryDSN.value,
+      release: sentryRelease.value,
+      environment: sentryENV.value,
+    },
     hotjar: {
       enabled: hotjarId.enabled && hotjarSV.enabled,
       id: hotjarId.value,

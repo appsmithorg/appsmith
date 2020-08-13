@@ -26,7 +26,9 @@ export type FeatureFlagConfig = {
 export type AppsmithUIConfigs = {
   sentry: {
     enabled: boolean;
-    apiKey: string;
+    dsn: string;
+    release: string;
+    environment: string;
   };
   hotjar: {
     enabled: boolean;
