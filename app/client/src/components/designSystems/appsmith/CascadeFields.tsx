@@ -217,7 +217,7 @@ const RenderOptions = (props: {
     } else {
       selectValue(props.placeholder);
     }
-  }, [props.value, configs.sections]);
+  }, [props.value, props.placeholder, configs.sections]);
   return <CustomizedDropdown {...configs} />;
 };
 
