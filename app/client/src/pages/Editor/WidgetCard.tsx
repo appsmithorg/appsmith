@@ -72,9 +72,6 @@ const WidgetCard = (props: CardProps) => {
   const showPropertyPane = useShowPropertyPane();
   const [, drag, preview] = useDrag({
     item: { ...props.details, widgetId },
-    collect: (monitor: DragSourceMonitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
     begin: () => {
       AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
         widgetType: props.details.type,

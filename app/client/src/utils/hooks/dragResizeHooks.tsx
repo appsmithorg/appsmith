@@ -66,11 +66,17 @@ export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
   return {
     setIsDragging: useCallback(
-      (isDragging: boolean) =>
+      (isDragging: boolean) => {
+        if (isDragging) {
+          document.body.classList.add("dragging");
+        } else {
+          document.body.classList.remove("dragging");
+        }
         dispatch({
           type: ReduxActionTypes.SET_WIDGET_DRAGGING,
           payload: { isDragging },
-        }),
+        });
+      },
       [dispatch],
     ),
     setIsResizing: useCallback(
