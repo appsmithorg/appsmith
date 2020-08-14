@@ -5,8 +5,14 @@ import axios from "axios";
 import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg";
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
+import Text, { TextType } from "./Text";
 
-const StyledDiv = styled("div")<{
+type FilePickerProps = {
+  onFileUploaded?: (fileUrl: string) => void;
+  onFileRemoved?: (file: any) => void;
+};
+
+const ContainerDiv = styled("div")<{
   isUploaded: boolean;
   isActive: boolean;
   canDrop: boolean;
@@ -23,12 +29,7 @@ const StyledDiv = styled("div")<{
   .drag-drop-text {
     margin: ${props => props.theme.spaces[6]}px 0
       ${props => props.theme.spaces[6]}px 0;
-    font-size: ${props => props.theme.typography.p2.fontSize}px;
-    line-height: ${props => props.theme.typography.p2.lineHeight}px;
-    font-weight: normal;
-    font-style: normal;
     color: ${props => props.theme.colors.blackShades[7]};
-    font-family: ${props => props.theme.fonts[3]};
   }
 
   .bg-image {
@@ -41,21 +42,13 @@ const StyledDiv = styled("div")<{
   }
 
   .file-description {
-    position: absolute;
     width: 95%;
-    bottom: 15px;
-    left: 7.5px;
+    margin-top: auto;
+    margin-bottom: ${props => props.theme.spaces[6] + 1}px;
   }
 
   .file-spec {
-    color: ${props => props.theme.colors.blackShades[9]};
-    font-weight: ${props => props.theme.fontWeights[2]};
-    font-size: ${props => props.theme.fontSizes[2]}px;
-    line-height: ${props => props.theme.lineHeights[1]}px;
-    letter-spacing: -0.18px;
-    font-family: ${props => props.theme.fonts[3]};
     margin-bottom: ${props => props.theme.spaces[2]}px;
-
     span {
       margin-right: ${props => props.theme.spaces[4]}px;
     }
@@ -83,7 +76,7 @@ const StyledDiv = styled("div")<{
     align-items: center;
   }
 
-  .hoverDiv {
+  .remove-button {
     display: none;
     position: absolute;
     bottom: 0;
@@ -104,14 +97,14 @@ const StyledDiv = styled("div")<{
   }
 
   &:hover {
-    .hoverDiv {
+    .remove-button {
       display: ${props => (props.isUploaded ? "block" : "none")};
     }
   }
 `;
 
-function FilePickerComponent() {
-  const [filee, setFilee] = useState<{ name: string; size: number }>({
+const FilePickerComponent = (props: FilePickerProps) => {
+  const [fileInfo, setFileInfo] = useState<{ name: string; size: number }>({
     name: "",
     size: 0,
   });
@@ -149,15 +142,16 @@ function FilePickerComponent() {
   function onDrop(monitor: DropTargetMonitor) {
     if (monitor) {
       const files = monitor.getItem().files;
-      fileUploader(files);
+      handleFileUpload(files);
     }
   }
 
-  function fileUploader(files: FileList | null) {
+  function handleFileUpload(files: FileList | null) {
     const file = files && files[0];
+    console.log("file", file);
 
     if (file) {
-      setFilee({ name: file.name, size: Math.floor(file.size / 1024) });
+      setFileInfo({ name: file.name, size: Math.floor(file.size / 1024) });
     }
 
     if (bgRef.current) {
@@ -191,7 +185,6 @@ function FilePickerComponent() {
             const uploadPercentage = Math.round(
               (progressEvent.loaded / progressEvent.total) * 100,
             );
-            console.log("upload percentage", uploadPercentage);
             if (progressRef.current) {
               progressRef.current.style.width = `${uploadPercentage}%`;
             }
@@ -205,27 +198,28 @@ function FilePickerComponent() {
           },
         },
       )
-      .then(function() {
-        console.log("SUCCESS!!");
+      .then(data => {
+        props.onFileUploaded && props.onFileUploaded(data.data.url);
       })
-      .catch(function() {
-        console.log("FAILURE!!");
+      .catch(error => {
+        console.error("error in file uploading", error);
       });
   }
 
-  function removeImage() {
+  function removeFile() {
     if (fileContainerRef.current && bgRef.current) {
       fileContainerRef.current.style.display = "flex";
       bgRef.current.style.backgroundImage = "url('')";
       bgRef.current.style.backgroundColor = "rgba(35,35,36,0.8)";
       setIsUploaded(false);
+      // props.onFileRemoved();
     }
   }
 
   const isActive = canDrop && isOver;
 
   return (
-    <StyledDiv
+    <ContainerDiv
       isActive={isActive}
       canDrop={canDrop}
       isUploaded={isUploaded}
@@ -234,15 +228,16 @@ function FilePickerComponent() {
       <div ref={bgRef} className="bg-image">
         <div className="button-wrapper" ref={fileContainerRef}>
           <UploadIcon />
-          {/* will change below span with text component */}
-          <span className="drag-drop-text">Drag & Drop files to upload or</span>
+          <Text type={TextType.P2} className="drag-drop-text">
+            Drag & Drop files to upload or
+          </Text>
           <form>
             <input
               type="file"
               id="fileElem"
               multiple={false}
               ref={inputRef}
-              onChange={el => fileUploader(el.target.files)}
+              onChange={el => handleFileUpload(el.target.files)}
             />
             <Button
               text={"Browse"}
@@ -252,35 +247,35 @@ function FilePickerComponent() {
             ></Button>
           </form>
         </div>
-      </div>
-      <div className="file-description" ref={fileDescRef} id="fileDesc">
-        <div className="file-spec">
-          <span>{filee.name}</span>
-          <span>{filee.size}KB</span>
+        <div className="file-description" ref={fileDescRef} id="fileDesc">
+          <div className="file-spec">
+            <Text type={TextType.H6}>{fileInfo.name}</Text>
+            <Text type={TextType.H6}>{fileInfo.size}KB</Text>
+          </div>
+          <div className="progress-container">
+            <div className="progress-inner" ref={progressRef}></div>
+          </div>
         </div>
-        <div className="progress-container">
-          <div className="progress-inner" ref={progressRef}></div>
-        </div>
       </div>
-      <div className="hoverDiv">
+      <div className="remove-button">
         <Button
           text={"remove"}
           icon={"delete"}
           size={Size.medium}
           category={Category.tertiary}
-          onClick={el => removeImage()}
+          onClick={el => removeFile()}
         ></Button>
       </div>
-    </StyledDiv>
+    </ContainerDiv>
   );
-}
+};
 
-function FilePicker() {
+const FilePicker = (props: FilePickerProps) => {
   return (
     <DndProvider backend={HTML5Backend}>
-      <FilePickerComponent />
+      <FilePickerComponent {...props} />
     </DndProvider>
   );
-}
+};
 
 export default FilePicker;
