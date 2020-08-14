@@ -112,7 +112,7 @@ type FileUploader = (
   onUpload: UploadCallback,
 ) => void;
 
-function CloudinaryUploader(
+export function CloudinaryUploader(
   file: any,
   setProgress: SetProgress,
   onUpload: UploadCallback,
