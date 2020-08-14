@@ -2,7 +2,6 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +26,6 @@ public class RedirectHelper {
     private static final String FORK_APP_ID_QUERY_PARAM = "appId";
 
     private final ApplicationService applicationService;
-    private final ApplicationRepository applicationRepository;
 
     /**
      * This function determines the redirect url that the browser should redirect to post-login. The priority order
@@ -44,12 +42,10 @@ public class RedirectHelper {
         HttpHeaders httpHeaders = request.getHeaders();
 
         if (queryParams != null && queryParams.getFirst(REDIRECT_URL_QUERY_PARAM) != null) {
-            String redirectUrl = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
-            if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://")) &&
-                    !StringUtils.isEmpty(httpHeaders.getOrigin())) {
-                redirectUrl = httpHeaders.getOrigin() + (StringUtils.isEmpty(redirectUrl) ? DEFAULT_REDIRECT_URL : redirectUrl);
-            }
-            return Mono.just(redirectUrl);
+            return Mono.just(fulfillRedirectUrl(
+                    queryParams.getFirst(REDIRECT_URL_QUERY_PARAM),
+                    httpHeaders
+            ));
 
         } else if (queryParams != null && queryParams.getFirst(FORK_APP_ID_QUERY_PARAM) != null) {
             final String forkAppId = queryParams.getFirst(FORK_APP_ID_QUERY_PARAM);
@@ -89,24 +85,14 @@ public class RedirectHelper {
 
     private static String getRedirectUrlFromHeader(HttpHeaders httpHeaders) {
         // First check if the custom redirect header is set
-        String redirectUrl = httpHeaders.getFirst(REDIRECT_URL_HEADER);
-
-        // If not, then try to get the redirect URL from Origin header.
-        // We append DEFAULT_REDIRECT_URL to the Origin header by default.
-        if (StringUtils.isEmpty(redirectUrl)) {
-            redirectUrl = DEFAULT_REDIRECT_URL;
-        }
-
-        if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://")) && !StringUtils.isEmpty(httpHeaders.getOrigin())) {
-            redirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
-        }
+        String redirectUrl = fulfillRedirectUrl(httpHeaders.getFirst(REDIRECT_URL_HEADER), httpHeaders);
 
         // If the redirect Url is still empty, construct the redirect Url from the Referrer header.
         if (StringUtils.isEmpty(redirectUrl)) {
             // If the header is still empty
             String refererHeader = httpHeaders.getFirst(Security.REFERER_HEADER);
             if (refererHeader != null && !refererHeader.isBlank()) {
-                URI uri = null;
+                URI uri;
                 try {
                     uri = new URI(refererHeader);
                     String authority = uri.getAuthority();
@@ -119,6 +105,22 @@ public class RedirectHelper {
                 redirectUrl = DEFAULT_REDIRECT_URL;
             }
         }
+
+        return redirectUrl;
+    }
+
+    private static String fulfillRedirectUrl(String redirectUrl, HttpHeaders httpHeaders) {
+        // If not, then try to get the redirect URL from Origin header.
+        // We append DEFAULT_REDIRECT_URL to the Origin header by default.
+        if (!StringUtils.hasText(redirectUrl)) {
+            redirectUrl = DEFAULT_REDIRECT_URL;
+        }
+
+        if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://"))
+                && !StringUtils.isEmpty(httpHeaders.getOrigin())) {
+            redirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
+        }
+
         return redirectUrl;
     }
 
