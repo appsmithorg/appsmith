@@ -10,6 +10,7 @@ import Text, { TextType } from "./Text";
 type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
   onFileRemoved?: (file: any) => void;
+  fileUploader?: FileUploader;
 };
 
 const ContainerDiv = styled("div")<{
@@ -103,6 +104,44 @@ const ContainerDiv = styled("div")<{
   }
 `;
 
+type SetProgress = (percentage: number) => void;
+type UploadCallback = (url: string) => void;
+type FileUploader = (
+  file: any,
+  setProgress: SetProgress,
+  onUpload: UploadCallback,
+) => void;
+
+function CloudinaryUploader(
+  file: any,
+  setProgress: SetProgress,
+  onUpload: UploadCallback,
+) {
+  const formData = new FormData();
+  formData.append("upload_preset", "zrawdjtc");
+  if (file) {
+    formData.append("file", file);
+  }
+  axios
+    .post("https://api.cloudinary.com/v1_1/dz7ahlubr/image/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: function(progressEvent: ProgressEvent) {
+        const uploadPercentage = Math.round(
+          (progressEvent.loaded / progressEvent.total) * 100,
+        );
+        setProgress(uploadPercentage);
+      },
+    })
+    .then(data => {
+      onUpload(data.data.url);
+    })
+    .catch(error => {
+      console.error("error in file uploading", error);
+    });
+}
+
 const FilePickerComponent = (props: FilePickerProps) => {
   const [fileInfo, setFileInfo] = useState<{ name: string; size: number }>({
     name: "",
@@ -146,6 +185,23 @@ const FilePickerComponent = (props: FilePickerProps) => {
     }
   }
 
+  function setProgress(uploadPercentage: number) {
+    if (progressRef.current) {
+      progressRef.current.style.width = `${uploadPercentage}%`;
+    }
+    if (uploadPercentage === 100) {
+      setIsUploaded(true);
+      if (fileDescRef.current && bgRef.current) {
+        fileDescRef.current.style.display = "none";
+        bgRef.current.style.opacity = "1";
+      }
+    }
+  }
+
+  function onUpload(url: string) {
+    props.onFileUploaded && props.onFileUploaded(url);
+  }
+
   function handleFileUpload(files: FileList | null) {
     const file = files && files[0];
     console.log("file", file);
@@ -167,43 +223,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
     }
 
     /* set form data and send api request */
-    const formData = new FormData();
-    formData.append("upload_preset", "zrawdjtc");
-    if (file) {
-      formData.append("file", file);
-    }
-
-    axios
-      .post(
-        "https://api.cloudinary.com/v1_1/dz7ahlubr/image/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          onUploadProgress: function(progressEvent: ProgressEvent) {
-            const uploadPercentage = Math.round(
-              (progressEvent.loaded / progressEvent.total) * 100,
-            );
-            if (progressRef.current) {
-              progressRef.current.style.width = `${uploadPercentage}%`;
-            }
-            if (uploadPercentage === 100) {
-              setIsUploaded(true);
-              if (fileDescRef.current && bgRef.current) {
-                fileDescRef.current.style.display = "none";
-                bgRef.current.style.opacity = "1";
-              }
-            }
-          },
-        },
-      )
-      .then(data => {
-        props.onFileUploaded && props.onFileUploaded(data.data.url);
-      })
-      .catch(error => {
-        console.error("error in file uploading", error);
-      });
+    props.fileUploader && props.fileUploader(file, setProgress, onUpload);
   }
 
   function removeFile() {
