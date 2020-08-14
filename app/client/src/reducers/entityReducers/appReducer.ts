@@ -14,7 +14,6 @@ export type AuthUserState = {
 };
 
 export type UrlDataState = {
-  urlString: string;
   queryParams: Record<string, string>;
   protocol: string;
   host: string;
@@ -22,7 +21,7 @@ export type UrlDataState = {
   port: string;
   pathname: string;
   hash: string;
-  href: string;
+  fullPath: string;
 };
 
 export type AppDataState = {
@@ -38,7 +37,6 @@ const initialState: AppDataState = {
     id: "",
   },
   url: {
-    urlString: "",
     queryParams: {},
     protocol: "",
     host: "",
@@ -46,7 +44,7 @@ const initialState: AppDataState = {
     port: "",
     pathname: "",
     hash: "",
-    href: "",
+    fullPath: "",
   },
 };
 

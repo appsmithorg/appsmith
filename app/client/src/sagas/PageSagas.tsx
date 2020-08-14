@@ -467,14 +467,13 @@ function getQueryParams() {
 
 export function* setDataUrl() {
   const urlData: UrlDataState = {
-    urlString: window.location.href,
+    fullPath: window.location.href,
     host: window.location.host,
     hostname: window.location.hostname,
     queryParams: getQueryParams(),
     protocol: window.location.protocol,
     pathname: window.location.pathname,
     port: window.location.port,
-    href: window.location.href,
     hash: window.location.hash,
   };
   yield put(setUrlData(urlData));
