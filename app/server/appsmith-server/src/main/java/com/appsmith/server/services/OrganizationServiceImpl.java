@@ -46,9 +46,7 @@ import static java.util.stream.Collectors.toMap;
 @Service
 public class OrganizationServiceImpl extends BaseService<OrganizationRepository, Organization, String> implements OrganizationService {
 
-    private final OrganizationRepository repository;
     private final SettingService settingService;
-    private final GroupService groupService;
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
@@ -63,16 +61,13 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    OrganizationRepository repository,
                                    SettingService settingService,
                                    AnalyticsService analyticsService,
-                                   GroupService groupService,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
                                    UserOrganizationService userOrganizationService,
                                    UserRepository userRepository,
                                    RoleGraph roleGraph) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.repository = repository;
         this.settingService = settingService;
-        this.groupService = groupService;
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
@@ -105,6 +100,20 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     }
 
     /**
+     * Creates the given organization as a personal organization for the given user. That is, the organization's name
+     * is changed to "[username]'s Personal Organization" and then created. The current value of the organization name
+     * is discarded.
+     * @param organization Organization object to be created.
+     * @param user User to whom this organization will belong to, as a personal organization.
+     * @return Publishes the saved organization.
+     */
+    @Override
+    public Mono<Organization> createPersonal(final Organization organization, User user) {
+        organization.setName(user.computeFirstName() + "'s Personal Organization");
+        return create(organization, user);
+    }
+
+    /**
      * This function does the following:
      * 1. Creates the organization for the user
      * 2. Installs all default plugins for the organization
@@ -112,10 +121,11 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
      * 4. Adds the user to the newly created organization
      * 5. Assigns the default groups to the user creating the organization
      *
-     * @param organization
-     * @param user
-     * @return
+     * @param organization Organization object to be created.
+     * @param user User to whom this organization will belong to.
+     * @return Publishes the saved organization.
      */
+    @Override
     public Mono<Organization> create(Organization organization, User user) {
         if (organization == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
@@ -123,9 +133,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
         // Does the user have permissions to create an organization?
         boolean isManageOrgPolicyPresent = user.getPolicies().stream()
-                .filter(policy -> policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue()))
-                .findFirst()
-                .isPresent();
+                .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue()));
 
         if (!isManageOrgPolicyPresent) {
             return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
@@ -254,7 +262,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         Mono<Organization> organizationMono = repository.findById(orgId, ORGANIZATION_INVITE_USERS);
         Mono<String> usernameMono = sessionUserService
                 .getCurrentUser()
-                .map(user -> user.getUsername());
+                .map(User::getUsername);
 
         return organizationMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
@@ -280,7 +288,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
                     Map<String, String> appsmithRolesMap =  appsmithRoles
                             .stream()
-                            .collect(toMap(role -> role.getName(), AppsmithRole::getDescription));
+                            .collect(toMap(AppsmithRole::getName, AppsmithRole::getDescription));
 
                     return Mono.just(appsmithRolesMap);
                 });

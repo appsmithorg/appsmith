@@ -453,10 +453,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     if (!StringUtils.hasText(templateOrganizationId)) {
                         // Since template organization is not configured, we create an empty personal organization.
                         final User savedUser = tuple.getT1();
-                        Organization personalOrg = new Organization();
-                        personalOrg.setName(savedUser.computeFirstName() + "'s Personal Organization");
-                        log.debug("Creating personal organization '{}' for user '{}'.", personalOrg.getSlug(), savedUser.getEmail());
-                        return organizationService.create(personalOrg, savedUser);
+                        log.debug("Creating blank personal organization for user '{}'.", savedUser.getEmail());
+                        return organizationService.createPersonal(new Organization(), savedUser);
                     }
 
                     return Mono.empty();
