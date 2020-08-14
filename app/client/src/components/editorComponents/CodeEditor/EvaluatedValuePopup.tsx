@@ -155,7 +155,7 @@ export const CurrentValueViewer = (props: {
   }
   return (
     <React.Fragment>
-      <StyledTitle>Evaluated Value</StyledTitle>
+      {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
       <CurrentValueWrapper>{content}</CurrentValueWrapper>
     </React.Fragment>
   );

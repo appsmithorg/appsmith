@@ -9,6 +9,7 @@ const initialState: PropertyPaneReduxState = {
   isVisible: false,
   widgetId: undefined,
   lastWidgetId: undefined,
+  isNew: false,
 };
 
 const propertyPaneReducer = createReducer(initialState, {
@@ -58,6 +59,14 @@ const propertyPaneReducer = createReducer(initialState, {
       lastWidgetId: state.widgetId,
     };
   },
+  [ReduxActionTypes.TOGGLE_PROPERTY_PANE_WIDGET_NAME_EDIT]: (
+    state: PropertyPaneReduxState,
+    action: ReduxAction<{ enable: boolean; widgetId: string }>,
+  ) => {
+    if (action.payload.widgetId === state.widgetId)
+      return { ...state, isNew: action.payload.enable };
+    return state;
+  },
 });
 
 export interface PropertyPaneReduxState {
@@ -65,6 +74,7 @@ export interface PropertyPaneReduxState {
   isVisible: boolean;
   lastWidgetId?: string;
   isVisibleBeforeAction?: boolean;
+  isNew: boolean;
 }
 
 export default propertyPaneReducer;
