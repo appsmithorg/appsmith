@@ -14,6 +14,7 @@ import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ReactTableColumnProps } from "widgets/TableWidget";
+import { Colors } from "constants/Colors";
 import {
   TABLE_SIZES,
   CompactMode,
@@ -113,17 +114,13 @@ export const Table = (props: TableProps) => {
   const selectedRowIndex = props.selectedRowIndex;
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   /* Subtracting 9px to handling widget padding */
-  const tableRowHeight =
-    (props.height -
-      (tableSizes.COLUMN_HEADER_HEIGHT + tableSizes.TABLE_HEADER_HEIGHT + 9)) /
-    props.pageSize;
   return (
     <TableWrapper
       width={props.width}
       height={props.height}
       tableSizes={tableSizes}
       id={`table${props.widgetId}`}
-      tableRowHeight={tableRowHeight}
+      backgroundColor={Colors.ATHENS_GRAY_DARKER}
     >
       <TableHeader
         width={props.width}
@@ -150,6 +147,7 @@ export const Table = (props: TableProps) => {
         displayColumnActions={props.displayColumnActions}
         compactMode={props.compactMode}
         updateCompactMode={props.updateCompactMode}
+        tableSizes={tableSizes}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">

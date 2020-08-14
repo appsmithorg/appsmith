@@ -401,6 +401,7 @@ export type ApplicationPayload = {
   defaultPageId?: string;
   isPublic?: boolean;
   userPermissions?: string[];
+  appIsExample: boolean;
 };
 
 export type OrganizationDetails = {

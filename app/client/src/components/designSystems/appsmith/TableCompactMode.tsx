@@ -63,6 +63,10 @@ const CompactModes: CompactModeItem[] = [
     title: "Default",
     value: CompactModeTypes.DEFAULT,
   },
+  {
+    title: "Tall",
+    value: CompactModeTypes.TALL,
+  },
 ];
 
 interface TableCompactModeProps {
