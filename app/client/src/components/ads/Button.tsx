@@ -1,5 +1,5 @@
 import React from "react";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, hexToRgba, ThemeProp } from "./common";
 import styled from "styled-components";
 import { IconName, Icon } from "./Icon";
 import Spinner from "./Spinner";
@@ -7,12 +7,7 @@ import {
   mediumButton,
   smallButton,
   largeButton,
-  Theme,
 } from "../../constants/DefaultTheme";
-
-export type ThemeProp = {
-  theme: Theme;
-};
 
 export enum Category {
   primary = "primary",
@@ -65,40 +60,6 @@ type ButtonProps = CommonComponentProps & {
   size?: Size;
 };
 
-function hexToRgb(
-  hex: string,
-): {
-  r: number;
-  g: number;
-  b: number;
-} {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : {
-        r: -1,
-        g: -1,
-        b: -1,
-      };
-}
-
-// const darken = (color: Color, intensity: number) => {
-//   return new tinycolor(color).darken(intensity).toString();
-// };
-
-// const lighten = (color: Color, intensity: number) => {
-//   return new tinycolor(color).lighten(intensity).toString();
-// };
-
-const hexToRgba = (color: string, alpha: number) => {
-  const value = hexToRgb(color);
-  return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
-};
-
 const stateStyles = (
   props: ThemeProp & ButtonProps,
   state: string,
@@ -113,7 +74,7 @@ const stateStyles = (
     borderColorTertiary,
     txtColorTertiary;
 
-  if (props.isLoading || props.isDisabled) {
+  if (props.isLoading || props.disabled) {
     switch (props.category) {
       case Category.primary:
         if (props.variant) {
@@ -302,7 +263,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     color: ${props => btnColorStyles(props, "hover").txtColor};
     border: ${props => btnColorStyles(props, "hover").border};
     cursor: ${props =>
-      props.isLoading || props.isDisabled ? `not-allowed` : `pointer`};
+      props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .ads-icon {
       margin-right: ${props =>
           props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
@@ -317,7 +278,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     color: ${props => btnColorStyles(props, "active").txtColor};
     border: ${props => btnColorStyles(props, "active").border};
     cursor: ${props =>
-      props.isLoading || props.isDisabled ? `not-allowed` : `pointer`};
+      props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .ads-icon {
       path {
         fill: ${props => btnColorStyles(props, "active").txtColor};
@@ -340,7 +301,7 @@ Button.defaultProps = {
   variant: Variant.success,
   size: Size.small,
   isLoading: false,
-  isDisabled: false,
+  disabled: false,
 };
 
 export const VisibilityWrapper = styled.div`
