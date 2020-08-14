@@ -19,7 +19,7 @@ import { Datasource } from "api/DatasourcesApi";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { evaluateDataTreeWithFunctions } from "selectors/dataTreeSelectors";
-import { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
 import log from "loglevel";
 
 const findWidgets = (widgets: WidgetProps, keyword: string) => {
