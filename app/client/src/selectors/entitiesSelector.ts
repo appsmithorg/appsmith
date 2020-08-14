@@ -14,17 +14,6 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
 
-export const getPluginIdOfName = (
-  state: AppState,
-  name: string,
-): string | undefined => {
-  const plugin = state.entities.plugins.list.find(
-    plugin => plugin.name === name,
-  );
-  if (!plugin) return undefined;
-  return plugin.id;
-};
-
 export const getPluginIdsOfNames = (
   state: AppState,
   names: Array<string>,
@@ -124,6 +113,8 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
 };
 
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
+export const getPluginEditorConfigs = (state: AppState) =>
+  state.entities.plugins.editorConfigs;
 
 export const getDBPlugins = createSelector(getPlugins, plugins =>
   plugins.filter(plugin => plugin.type === QUERY_CONSTANT),

@@ -35,6 +35,7 @@ export const getRolesForField = createSelector(getAllRoles, (roles?: any) => {
     return {
       id: role[0],
       name: role[0],
+      description: role[1],
     };
   });
 });

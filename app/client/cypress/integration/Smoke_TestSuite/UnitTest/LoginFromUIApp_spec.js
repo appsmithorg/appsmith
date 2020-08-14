@@ -7,14 +7,11 @@ describe("Login from UI and check the functionality", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appname);
     cy.get("#loading").should("not.exist");
-    cy.wait("@getPropertyPane");
-    cy.get("@getPropertyPane").should("have.property", "status", 200);
+
     cy.generateUUID().then(uid => {
       pageid = uid;
       cy.Createpage(pageid);
-      cy.NavigateToWidgets(pageid);
-      localStorage.setItem("PageName", pageid);
-      cy.Deletepage(pageid);
+      cy.DeletepageFromSideBar();
     });
     cy.wait("@deletePage");
     cy.get("@deletePage").should("have.property", "status", 200);

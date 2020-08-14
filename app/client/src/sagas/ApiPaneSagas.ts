@@ -1,8 +1,8 @@
 /**
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
-import _ from "lodash";
-import { all, select, put, takeEvery, take, call } from "redux-saga/effects";
+import { get, omit } from "lodash";
+import { all, select, put, takeEvery, call } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -22,7 +22,6 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  getProviderTemplatesURL,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
@@ -30,14 +29,10 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getIsEditorInitialized,
-  getLastSelectedPage,
   getDataSources,
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
-import { AppState } from "reducers";
 import { Property } from "api/ActionAPI";
-import { changeApi } from "actions/apiPaneActions";
 import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
@@ -49,58 +44,13 @@ import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 
-const getLastUsedAction = (state: AppState) => state.ui.apiPane.lastUsed;
-const getLastUsedEditorPage = (state: AppState) =>
-  state.ui.apiPane.lastUsedEditorPage;
-const getLastUsedProvider = (state: AppState) =>
-  state.ui.providers.lastUsedProviderId;
-const getApiCreationStatus = (state: AppState) => state.ui.apiPane.isCreating;
-
-function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
-  const isInitialized = yield select(getIsEditorInitialized);
-  while (!isInitialized) {
-    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
-  }
-  const urlId = actionPayload.payload.id;
-  const lastUsedId = yield select(getLastUsedAction);
-  const lastUsedProviderId = yield select(getLastUsedProvider);
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
-  const lastUsedEditorPage = yield select(getLastUsedEditorPage);
-  const isCreating = yield select(getApiCreationStatus);
-  let lastSelectedPage = yield select(getLastSelectedPage);
-  if (lastSelectedPage === "") {
-    lastSelectedPage = pageId;
-  }
-
-  let id = "";
-  if (urlId) {
-    id = urlId;
-  } else if (lastUsedId) {
-    id = lastUsedId;
-  }
-
-  if (isCreating) return;
-
-  if (lastUsedProviderId && lastUsedEditorPage.includes("provider")) {
-    history.push(
-      getProviderTemplatesURL(
-        applicationId,
-        pageId,
-        lastUsedProviderId + `/?importTo=${lastSelectedPage}`,
-      ),
-    );
-  } else {
-    yield put(changeApi(id));
-  }
-}
-
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
   actionId: string,
 ) {
   const field = actionPayload.meta.field;
   const value = actionPayload.payload;
+  const padQueryParams = { key: "", value: "" };
 
   if (field === "actionConfiguration.path") {
     if (value.indexOf("?") > -1) {
@@ -109,6 +59,11 @@ function* syncApiParamsSaga(
         const keyValue = p.split("=");
         return { key: keyValue[0], value: keyValue[1] || "" };
       });
+      if (params.length < 2) {
+        while (params.length < 2) {
+          params.push(padQueryParams);
+        }
+      }
       yield put(
         autofill(
           API_EDITOR_FORM_NAME,
@@ -128,14 +83,14 @@ function* syncApiParamsSaga(
         autofill(
           API_EDITOR_FORM_NAME,
           "actionConfiguration.queryParameters",
-          [],
+          Array(2).fill(padQueryParams),
         ),
       );
       yield put(
         setActionProperty({
           actionId: actionId,
           propertyName: "actionConfiguration.queryParameters",
-          value: [],
+          value: Array(2).fill(padQueryParams),
         }),
       );
     }
@@ -168,46 +123,40 @@ function* initializeExtraFormDataSaga() {
   const { extraformData } = state.ui.apiPane;
   const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
-  const headers = _.get(values, "actionConfiguration.headers");
+  const headers = get(
+    values,
+    "actionConfiguration.headers",
+    DEFAULT_API_ACTION.actionConfiguration?.headers,
+  );
 
+  const queryParameters = get(values, "actionConfiguration.queryParameters");
   if (!extraformData[values.id]) {
-    if (headers) {
+    yield put(
+      change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
+    );
+    if (queryParameters.length === 0)
       yield put(
-        change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
+        change(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.queryParameters",
+          DEFAULT_API_ACTION.actionConfiguration?.queryParameters,
+        ),
       );
-    }
   }
 }
 
-function* changeApiSaga(
-  actionPayload: ReduxAction<{ id: string; newApi?: boolean }>,
-) {
+function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
+  // // Typescript says Element does not have blur function but it does;
+  // document.activeElement &&
+  //   "blur" in document.activeElement &&
+  //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  //   // @ts-ignore
+  //   document.activeElement.blur();
   const { id } = actionPayload.payload;
-  const { newApi } = actionPayload.payload;
-  // Typescript says Element does not have blur function but it does;
-  document.activeElement &&
-    "blur" in document.activeElement &&
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    document.activeElement.blur();
-
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
-  if (!id) {
-    return;
-  }
   const action = yield select(getAction, id);
   if (!action) return;
 
   yield put(initialize(API_EDITOR_FORM_NAME, action));
-  history.push(
-    API_EDITOR_ID_URL(
-      applicationId,
-      pageId,
-      id,
-      newApi ? { new: "true" } : undefined,
-    ),
-  );
 
   yield call(initializeExtraFormDataSaga);
 
@@ -262,11 +211,11 @@ function* updateFormFields(
       }
     }
   } else if (field.includes("actionConfiguration.headers")) {
-    const actionConfigurationHeaders = _.get(
+    const actionConfigurationHeaders = get(
       values,
       "actionConfiguration.headers",
     );
-    const apiId = _.get(values, "id");
+    const apiId = get(values, "id");
     let displayFormat;
 
     if (actionConfigurationHeaders) {
@@ -308,7 +257,7 @@ function* formValueChangeSaga(
     actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
     actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
   ) {
-    const value = _.get(values, field);
+    const value = get(values, field);
     yield put(
       setActionProperty({
         actionId: values.id,
@@ -338,7 +287,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   const data = { ...action };
 
   if (pluginType === "API") {
-    yield put(initialize(API_EDITOR_FORM_NAME, _.omit(data, "name")));
+    yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     history.push(
@@ -436,10 +385,9 @@ function* handleApiNameChangeFailureSaga(
 
 export default function* root() {
   yield all([
-    takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
-    takeEvery(ReduxActionTypes.SAVE_API_NAME, handleApiNameChangeSaga),
+    takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
     takeEvery(
       ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
       handleApiNameChangeFailureSaga,

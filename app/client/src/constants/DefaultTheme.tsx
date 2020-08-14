@@ -2,7 +2,6 @@ import * as styledComponents from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
-import _ from "lodash";
 import { Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
@@ -41,6 +40,25 @@ export enum Skin {
   LIGHT,
   DARK,
 }
+
+export const scrollbarDark = css`
+  scrollbar-color: ${props => props.theme.colors.paneCard}
+    ${props => props.theme.colors.paneBG};
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.paneCard};
+    border-radius: ${props => props.theme.radii[1]}px;
+  }
+`;
 
 export const BlueprintControlTransform = css`
   && {
@@ -366,9 +384,11 @@ export const getColorWithOpacity = (color: Color, opacity: number) => {
 
 export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
   const values: string[] = [];
-  _.forIn(border, (value, key) => {
-    values.push(key === "thickness" ? value + "px" : value);
-  });
+  if (border) {
+    for (const [key, value] of Object.entries(border)) {
+      values.push(key === "thickness" ? value + "px" : value.toString());
+    }
+  }
   return values.join(" ");
 };
 
@@ -411,44 +431,56 @@ export const theme: Theme = {
     h1: {
       fontSize: 20,
       lineHeight: 27,
+      letterSpacing: "normal",
+      fontWeight: 500,
     },
     h2: {
       fontSize: 18,
       lineHeight: 25,
+      letterSpacing: "normal",
+      fontWeight: 500,
     },
     h3: {
       fontSize: 17,
       lineHeight: 22,
+      letterSpacing: "normal",
+      fontWeight: 500,
     },
     h4: {
       fontSize: 16,
       lineHeight: 21,
       letterSpacing: -0.24,
+      fontWeight: 500,
     },
     h5: {
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.24,
+      fontWeight: 500,
     },
     h6: {
       fontSize: 12,
       lineHeight: 14,
       letterSpacing: 0.8,
+      fontWeight: 500,
     },
     p1: {
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.24,
+      fontWeight: "normal",
     },
     p2: {
       fontSize: 13,
       lineHeight: 17,
       letterSpacing: -0.24,
+      fontWeight: "normal",
     },
     p3: {
       fontSize: 12,
       lineHeight: 16,
       letterSpacing: -0.221538,
+      fontWeight: "normal",
     },
     btnLarge: {
       fontSize: 13,
@@ -570,10 +602,9 @@ export const theme: Theme = {
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
   },
-  lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
+  lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
     FontFamilies.DMSans,
-    FontFamilies.AppsmithWidget,
     FontFamilies.FiraCode,
     FontFamilies.HomePageRedesign,
   ],
@@ -716,7 +747,7 @@ export const theme: Theme = {
   },
 };
 
-export const scrollbarLight = css`
+export const scrollbarLight = css<{ backgroundColor?: Color }>`
   scrollbar-color: ${props => props.theme.colors.paneText}
 
   scrollbar-width: thin;
@@ -726,7 +757,10 @@ export const scrollbarLight = css`
   }
   &::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px
-      ${props => getColorWithOpacity(props.theme.colors.paneText, 0.3)};
+      ${props =>
+        props.backgroundColor
+          ? props.backgroundColor
+          : getColorWithOpacity(props.theme.colors.paneText, 0.3)};
   }
   &::-webkit-scrollbar-thumb {
     background-color: ${props => props.theme.colors.paneText};

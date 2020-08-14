@@ -1,6 +1,7 @@
 import RealmExecutor from "./RealmExecutor";
 import moment from "moment-timezone";
 import { ActionDescription } from "entities/DataTree/dataTreeFactory";
+import { btoa, atob } from "js-base64";
 
 export type JSExecutorGlobal = Record<string, object>;
 export type JSExecutorResult = {
@@ -29,6 +30,14 @@ export const extraLibraries = [
   {
     accessor: "moment",
     lib: moment,
+  },
+  {
+    accessor: "btoa",
+    lib: btoa,
+  },
+  {
+    accessor: "atob",
+    lib: atob,
   },
 ];
 

@@ -1,5 +1,5 @@
-import React from "react";
-import _ from "lodash";
+import React, { useState } from "react";
+import { find, noop } from "lodash";
 import { DropdownOption } from "widgets/DropdownWidget";
 import {
   StyledPopover,
@@ -11,6 +11,7 @@ import {
   Button as BlueprintButton,
   PopoverInteractionKind,
   PopoverPosition,
+  IPopoverSharedProps,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 
@@ -33,6 +34,8 @@ type TreeDropdownProps = {
   ) => React.ReactNode;
   displayValue?: string;
   toggle?: React.ReactNode;
+  className?: string;
+  modifiers?: IPopoverSharedProps["modifiers"];
 };
 
 function getSelectedOption(
@@ -50,7 +53,7 @@ function getSelectedOption(
       if (option.value === selectedValue) {
         selectedOption = option;
       } else {
-        const childOption = _.find(option.children, {
+        const childOption = find(option.children, {
           value: selectedValue,
         });
         if (childOption) {
@@ -78,6 +81,8 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     optionTree,
   );
 
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       option.onSelect(option, props.onSelect);
@@ -97,13 +102,22 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         active={isSelected}
         key={option.value}
         icon={option.id === "create" ? "plus" : undefined}
-        onClick={option.children ? _.noop : () => handleSelect(option)}
+        onClick={
+          option.children
+            ? noop
+            : (e: any) => {
+                handleSelect(option);
+                setIsOpen(false);
+                e.stopPropagation();
+              }
+        }
         text={option.label}
         intent={option.intent}
         popoverProps={{
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
           position: PopoverPosition.RIGHT,
+          targetProps: { onClick: (e: any) => e.stopPropagation() },
         }}
       >
         {option.children && option.children.map(renderTreeOption)}
@@ -130,10 +144,21 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   );
   return (
     <StyledPopover
-      usePortal={true}
-      minimal={true}
+      isOpen={isOpen}
+      minimal
       content={menuItems}
       position={PopoverPosition.AUTO_END}
+      className={props.className}
+      modifiers={props.modifiers}
+      onClose={() => {
+        setIsOpen(false);
+      }}
+      targetProps={{
+        onClick: (e: any) => {
+          setIsOpen(true);
+          e.stopPropagation();
+        },
+      }}
     >
       {toggle ? toggle : defaultToggle}
     </StyledPopover>

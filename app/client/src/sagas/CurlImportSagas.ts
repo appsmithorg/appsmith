@@ -14,9 +14,10 @@ import { CURL_IMPORT_SUCCESS } from "constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { fetchActions } from "actions/actionActions";
 import { CURL } from "constants/ApiConstants";
-import { changeApi } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
+import { API_EDITOR_ID_URL } from "constants/routes";
+import history from "utils/history";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { type, pageId, name } = action.payload;
@@ -42,7 +43,6 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
       });
 
       yield put(fetchActions(applicationId));
-      const data = { ...response.data };
       yield take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS);
 
       AppToaster.show({
@@ -54,7 +54,7 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         payload: response.data,
       });
 
-      yield put(changeApi(data.id, true));
+      history.push(API_EDITOR_ID_URL(applicationId, pageId, response.data.id));
     }
   } catch (error) {
     yield put({

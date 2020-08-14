@@ -1,6 +1,7 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
@@ -8,6 +9,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -32,6 +34,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
@@ -72,6 +75,10 @@ public class SeedMongoData {
                 .users(Set.of(API_USER_EMAIL, TEST_USER_EMAIL))
                 .build();
 
+        Policy inviteUserOrgPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
+                .users(Set.of(API_USER_EMAIL))
+                .build();
+
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
@@ -106,9 +113,9 @@ public class SeedMongoData {
         };
         Object[][] orgData = {
                 {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", "spring-test-organization",
-                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy)},
+                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy, inviteUserOrgPolicy)},
                 {"Another Test Organization", "appsmith-another-test.com", "appsmith.com", "another-test-organization",
-                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy)}
+                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy, inviteUserOrgPolicy)}
         };
 
         Object[][] appData = {
@@ -173,6 +180,17 @@ public class SeedMongoData {
                             List<OrganizationPlugin> orgPlugins = new ArrayList<>();
                             orgPlugins.add(orgPlugin);
                             organization.setPlugins(orgPlugins);
+
+                            List<UserRole> userRoles = new ArrayList<>();
+                            UserRole userRole = new UserRole();
+                            String roleName = "Administrator";
+                            userRole.setRole(AppsmithRole.generateAppsmithRoleFromName(roleName));
+                            userRole.setUsername(API_USER_EMAIL);
+                            userRole.setRoleName(roleName);
+                            userRoles.add(userRole);
+                            organization.setUserRoles(userRoles);
+
+
                             log.debug("In the orgFlux. Create Organization: {}", organization);
                             return organization;
                         }).flatMap(organizationRepository::save)

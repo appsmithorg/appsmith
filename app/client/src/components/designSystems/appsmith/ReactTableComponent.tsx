@@ -1,38 +1,15 @@
 import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import Table from "./Table";
+import Table from "components/designSystems/appsmith/Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
+import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import {
-  getMenuOptions,
-  getAllTableColumnKeys,
-} from "components/designSystems/appsmith/TableUtilities";
-
-export enum ColumnTypes {
-  CURRENCY = "currency",
-  TIME = "time",
-  DATE = "date",
-  VIDEO = "video",
-  IMAGE = "image",
-  TEXT = "text",
-}
-
-export interface TableColumnMetaProps {
-  isHidden: boolean;
-  format?: string;
-  type: string;
-}
-
-export interface ReactTableColumnProps {
-  Header: string;
-  accessor: string;
-  width: number;
-  minWidth: number;
-  draggable: boolean;
-  isHidden?: boolean;
-  metaProperties?: TableColumnMetaProps;
-  Cell: (props: any) => JSX.Element;
-}
+  ColumnTypes,
+  CompactMode,
+  ReactTableColumnProps,
+  ReactTableFilter,
+} from "widgets/TableWidget";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -71,6 +48,7 @@ interface ReactTableComponentProps {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   updatePageNo: Function;
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
+  sortTableColumn: (column: string, asc: boolean) => void;
   nextPageClick: Function;
   prevPageClick: Function;
   pageNo: number;
@@ -91,13 +69,16 @@ interface ReactTableComponentProps {
   handleResizeColumn: Function;
   handleReorderColumn: Function;
   searchTableData: (searchKey: any) => void;
+  filters?: ReactTableFilter[];
+  applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
+  compactMode?: CompactMode;
+  updateCompactMode: (compactMode: CompactMode) => void;
 }
 
 const ReactTableComponent = (props: ReactTableComponentProps) => {
-  let dragged = -1;
-
   useEffect(() => {
+    let dragged = -1;
     const headers = Array.prototype.slice.call(
       document.querySelectorAll(`#table${props.widgetId} .draggable-header`),
     );
@@ -256,6 +237,14 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     props.updateColumnType(columnTypeMap);
   };
 
+  const sortTableColumn = (columnIndex: number, asc: boolean) => {
+    const column = props.columns[columnIndex];
+    const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+    if (columnType !== ColumnTypes.IMAGE && columnType !== ColumnTypes.VIDEO) {
+      props.sortTableColumn(column.accessor, asc);
+    }
+  };
+
   const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
     const column = props.columns[columnIndex];
     const columnSizeMap = props.columnSizeMap || {};
@@ -291,6 +280,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       getColumnMenu={getColumnMenu}
       handleColumnNameUpdate={handleColumnNameUpdate}
       handleResizeColumn={debounce(handleResizeColumn, 300)}
+      sortTableColumn={sortTableColumn}
       selectTableRow={selectTableRow}
       pageNo={props.pageNo - 1}
       updatePageNo={props.updatePageNo}
@@ -310,6 +300,10 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         props.disableDrag(false);
       }}
       searchTableData={debounce(props.searchTableData, 500)}
+      filters={props.filters}
+      applyFilter={props.applyFilter}
+      compactMode={props.compactMode}
+      updateCompactMode={props.updateCompactMode}
     />
   );
 };

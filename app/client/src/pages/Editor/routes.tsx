@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, ReactNode } from "react";
 import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import ApiEditor from "./APIEditor";
 import QueryEditor from "./QueryEditor";
@@ -13,8 +13,8 @@ import {
   QUERIES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_URL,
   DATA_SOURCES_EDITOR_ID_URL,
-  BUILDER_PAGE_URL,
   BUILDER_BASE_URL,
+  BUILDER_PAGE_URL,
   BuilderRouteParams,
   APIEditorRouteParams,
   getCurlImportPageURL,
@@ -23,6 +23,12 @@ import {
 } from "constants/routes";
 import styled from "styled-components";
 import AppRoute from "pages/common/AppRoute";
+import {
+  useShowPropertyPane,
+  useWidgetSelection,
+} from "utils/hooks/dragResizeHooks";
+import { closeAllModals } from "actions/widgetActions";
+import { useDispatch } from "react-redux";
 
 const Wrapper = styled.div<{ isVisible: boolean; showOnlySidebar?: boolean }>`
   position: absolute;
@@ -124,7 +130,7 @@ class EditorsRouter extends React.Component<
         }
         showOnlySidebar={this.state.showOnlySidebar}
       >
-        <DrawerWrapper
+        <PaneDrawer
           isVisible={this.state.isVisible}
           showOnlySidebar={this.state.showOnlySidebar}
           onClick={this.preventClose}
@@ -180,15 +186,43 @@ class EditorsRouter extends React.Component<
               name={"DataSourceEditor"}
             />
             <AppRoute
+              exact
               path={getProviderTemplatesURL()}
               component={ProviderTemplates}
               name={"ApiEditor"}
             />
           </Switch>
-        </DrawerWrapper>
+        </PaneDrawer>
       </Wrapper>
     );
   }
 }
+type PaneDrawerProps = {
+  isVisible: boolean;
+  showOnlySidebar: boolean;
+  onClick: (e: React.MouseEvent) => void;
+  children: ReactNode;
+};
+const PaneDrawer = (props: PaneDrawerProps) => {
+  const showPropertyPane = useShowPropertyPane();
+  const { selectWidget, focusWidget } = useWidgetSelection();
+  const dispatch = useDispatch();
+  useEffect(() => {
+    // This pane drawer is only open when NOT on canvas.
+    // De-select all widgets
+    // Un-focus all widgets
+    // Hide property pane
+    // Close all modals
+    if (props.isVisible) {
+      showPropertyPane();
+      selectWidget(undefined);
+      focusWidget(undefined);
+      dispatch(closeAllModals());
+    }
+  }, [dispatch, props.isVisible, selectWidget, showPropertyPane, focusWidget]);
+  return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;
+};
+
+PaneDrawer.displayName = "PaneDrawer";
 
 export default withRouter(EditorsRouter);

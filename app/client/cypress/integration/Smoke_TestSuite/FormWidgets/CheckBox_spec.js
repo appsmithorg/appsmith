@@ -3,12 +3,14 @@ const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/newFormDsl.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Checkbox Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
   it("Checkbox Widget Functionality", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("checkboxwidget");
     /**
      * @param{Text} Random Text
@@ -43,6 +45,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Disabled Widget", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("checkboxwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
@@ -50,6 +53,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Enabled Widget", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("checkboxwidget");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
@@ -57,6 +61,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Unchecked Visible Widget", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("checkboxwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -64,6 +69,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Visible Widget", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("checkboxwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();

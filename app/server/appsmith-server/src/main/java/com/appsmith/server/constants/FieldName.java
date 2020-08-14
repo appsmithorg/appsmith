@@ -50,4 +50,5 @@ public class FieldName {
             "        \"children\": []\n" +
             "}";
     public static String ANONYMOUS_USER = "anonymousUser";
+    public static String USERNAMES = "usernames";
 }

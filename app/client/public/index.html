@@ -53,7 +53,11 @@
     const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
     window.SENTRY_CONFIG = parseConfig("__APPSMITH_SENTRY_DSN__");
     window.APPSMITH_FEATURE_CONFIGS = {
-      sentry: parseConfig("__APPSMITH_SENTRY_DSN__"),
+      sentry: {
+        dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),
+        release: parseConfig("__APPSMITH_SENTRY_RELEASE__"),
+        environment: parseConfig("__APPSMITH_SENTRY_ENVIRONMENT__"),
+      },
       hotjar: {
         id: parseConfig("__APPSMITH_HOTJAR_HJID__"),
         sv: parseConfig("__APPSMITH_HOTJAR_HJSV__"),

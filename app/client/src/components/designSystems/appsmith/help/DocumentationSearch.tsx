@@ -25,7 +25,6 @@ import { getDefaultRefinement } from "selectors/helpSelectors";
 import { getAppsmithConfigs } from "configs";
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
-console.log({ algolia });
 const OenLinkIcon = HelpIcons.OPEN_LINK;
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -220,7 +219,6 @@ const StyledPoweredBy = styled(PoweredBy)`
 export default function DocumentationSearch(props: { hitsPerPage: number }) {
   const dispatch = useDispatch();
   const defaultRefinement = useSelector(getDefaultRefinement);
-  console.log({ algolia });
   if (!algolia.enabled) return null;
   return (
     <SearchContainer className="ais-InstantSearch t--docSearchModal">

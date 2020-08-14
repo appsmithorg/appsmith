@@ -111,18 +111,6 @@ const editorReducer = createReducer(initialState, {
       currentApplicationId,
     };
   },
-  [ReduxActionTypes.SELECT_WIDGET]: (
-    state: EditorReduxState,
-    action: ReduxAction<{ widgetId?: string }>,
-  ) => {
-    return { ...state, selectedWidget: action.payload.widgetId };
-  },
-  [ReduxActionTypes.FOCUS_WIDGET]: (
-    state: EditorReduxState,
-    action: ReduxAction<{ widgetId?: string }>,
-  ) => {
-    return { ...state, focusedWidget: action.payload.widgetId };
-  },
   [ReduxActionTypes.CREATE_PAGE_INIT]: (state: EditorReduxState) => {
     state.loadingStates.creatingPage = true;
     state.loadingStates.creatingPageError = false;
@@ -162,8 +150,6 @@ export interface EditorReduxState {
   pageWidgetId?: string;
   currentLayoutId?: string;
   currentPageName?: string;
-  selectedWidget?: string;
-  focusedWidget?: string;
   loadingStates: {
     saving: boolean;
     savingError: boolean;
