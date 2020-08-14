@@ -28,6 +28,7 @@ type INJECTED_CONFIGS = {
     id: string;
     releaseDate: string;
   };
+  intercomAppID: string;
 };
 declare global {
   interface Window {
@@ -88,6 +89,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       id: process.env.REACT_APP_VERSION_ID || "",
       releaseDate: process.env.REACT_APP_VERSION_RELEASE_DATE || "",
     },
+    intercomAppID: process.env.REACT_APP_INTERCOM_APP_ID || "",
   };
 };
 
@@ -202,5 +204,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     logLevel: ENV_CONFIG.logLevel || APPSMITH_FEATURE_CONFIGS.logLevel,
     enableTNCPP: ENV_CONFIG.enableTNCPP || APPSMITH_FEATURE_CONFIGS.enableTNCPP,
     appVersion: ENV_CONFIG.appVersion || APPSMITH_FEATURE_CONFIGS.appVersion,
+    intercomAppID:
+      ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
   };
 };

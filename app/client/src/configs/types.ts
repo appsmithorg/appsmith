@@ -65,4 +65,5 @@ export type AppsmithUIConfigs = {
     id: string;
     releaseDate: string;
   };
+  intercomAppID: string;
 };

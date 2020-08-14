@@ -46,6 +46,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         sub_filter __APPSMITH_TNC_PP__ '\''${APPSMITH_TNC_PP}'\'';
         sub_filter __APPSMITH_VERSION_ID__ '\''${APPSMITH_VERSION_ID}'\'';
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\''${APPSMITH_VERSION_RELEASE_DATE}'\'';
+        sub_filter __APPSMITH_INTERCOM_APP_ID__ '\''${APPSMITH_INTERCOM_APP_ID}'\'';
     }
 
     location /f {
@@ -100,6 +101,7 @@ $NGINX_SSL_CMNT        sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '\''${APPSMIT
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_TNC_PP__ '\''${APPSMITH_TNC_PP}'\'';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_VERSION_ID__ '\''${APPSMITH_VERSION_ID}'\'';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\''${APPSMITH_VERSION_RELEASE_DATE}'\'';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_INTERCOM_APP_ID__ '\''${APPSMITH_INTERCOM_APP_ID}'\'';
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /f {

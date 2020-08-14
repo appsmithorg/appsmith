@@ -40,7 +40,7 @@ import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 
-const { cloudHosting } = getAppsmithConfigs();
+const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -101,7 +101,7 @@ class Editor extends Component<Props> {
     if (cloudHosting) {
       window.Intercom("boot", {
         // eslint-disable-next-line @typescript-eslint/camelcase
-        app_id: "y10e7138",
+        app_id: intercomAppID,
         // eslint-disable-next-line @typescript-eslint/camelcase
         custom_launcher_selector: "#intercom-trigger",
         name: user?.username,
