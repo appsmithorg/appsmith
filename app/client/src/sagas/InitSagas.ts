@@ -67,7 +67,7 @@ function* initializeEditorSaga(
   yield put({
     type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
   });
-  yield call(populatePageDSLsSaga, pageId);
+  yield call(populatePageDSLsSaga);
 }
 
 function* fetchPageDSLSaga(action: ReduxAction<{ pageId: string }>) {
