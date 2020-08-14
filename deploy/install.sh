@@ -104,6 +104,54 @@ overwrite_file() {
     fi
 }
 
+# This function prompts the user for an input for a non-empty Mongo root password. 
+read_mongo_password() {
+    read -sp 'Set the mongo password: ' mongo_root_password
+    while [[ -z $mongo_root_password ]] 
+    do
+        echo ""
+        echo ""
+        echo "+++++++++++ ERROR ++++++++++++++++++++++"
+        echo "The mongo password cannot be empty. Please input a valid password string."
+        echo "++++++++++++++++++++++++++++++++++++++++"
+        echo ""
+        read -sp 'Set the mongo password: ' mongo_root_password
+    done 
+}
+
+# This function prompts the user for an input for a non-empty Mongo username. 
+read_mongo_username() {
+    read -p 'Set the mongo root user: ' mongo_root_user
+    while [[ -z $mongo_root_user ]] 
+    do
+        echo ""
+        echo "+++++++++++ ERROR ++++++++++++++++++++++"
+        echo "The mongo username cannot be empty. Please input a valid username string."
+        echo "++++++++++++++++++++++++++++++++++++++++"
+        echo ""
+        read -p 'Set the mongo root user: ' mongo_root_user
+    done 
+}
+
+wait_for_containers_start() {
+    timeout=$1
+    i=1
+    echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
+    # The do-while loop is important because for-loops don't work for dynamic values
+    while [[ $i -le $timeout ]]
+    do
+        status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/v1)
+        # echo $status_code
+        if [[ status_code -eq 401 ]]; then
+            break
+        else
+            echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
+        fi
+        ((i = i + 1))
+        sleep 1
+    done
+}
+
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
 echo ""
 
@@ -130,6 +178,25 @@ if [[ $ports_occupied -ne 0 ]]; then
     echo ""
     echo -e "Exiting for now. Bye! \U1F44B"
     exit
+fi
+
+# Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
+if ! is_command_present docker ;then
+    if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
+        install_docker
+    else
+        echo ""
+        echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
+        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / Redhat / Cent OS"
+        echo "https://docs.docker.com/docker-for-mac/install/"
+        echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+        exit
+    fi
+fi
+
+# Starting docker service
+if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
+    start_docker
 fi
 
 read -p 'Installation Directory [appsmith]: ' install_dir
@@ -159,8 +226,11 @@ elif [ $fresh_install == "Y" -o $fresh_install == "y" -o $fresh_install == "yes"
     echo "Appsmith needs to create a mongo db"
     mongo_host="mongo"
     mongo_database="appsmith"
-    read -p 'Set the mongo root user: ' mongo_root_user
-    read -sp 'Set the mongo password: ' mongo_root_password
+    
+    # We invoke functions to read the mongo credentials from the user because they MUST be non-empty
+    read_mongo_username
+    read_mongo_password
+
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
 fi
@@ -228,6 +298,8 @@ if [[ -z $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
+echo ""
+echo "Downloading the configuration templates ..."
 mkdir -p template
 ( cd template
 curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
@@ -238,31 +310,13 @@ curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/
 curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
-# Role - Docker
-if ! is_command_present docker ;then
-    if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
-        install_docker
-    else
-        echo ""
-        echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
-        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker will be installed automatically on Ubuntu / Redhat / Cent OS"
-        echo "https://docs.docker.com/docker-for-mac/install/"
-        echo "++++++++++++++++++++++++++++++++++++++++++++++++"
-        exit
-    fi
-fi
-
-# Starting docker service
-if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
-    start_docker
-fi
-
 # Role - Folder
 for directory_name in nginx certbot/conf certbot/www mongo/db
 do
     mkdir -p "$install_dir/data/$directory_name"
 done
 
+echo ""
 echo "Generating the configuration files from the templates"
 . ./template/nginx_app.conf.sh
 . ./template/docker-compose.yml.sh
@@ -295,15 +349,33 @@ echo "Pulling the latest container images"
 sudo docker-compose pull
 echo "Starting the Appsmith containers"
 sudo docker-compose -f docker-compose.yml up -d --remove-orphans
+
+# These echo statements are important for some reason. The script doesn't run successfully without them.
 echo ""
-echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
-echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
+echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
+wait_for_containers_start 60
 echo ""
-echo "cd $install_dir && sudo docker-compose ps -a"
-echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-echo ""
-echo "Need help troubleshooting?"
-echo "Join our discord server https://discord.com/invite/rBTTVJp"
-echo ""
-echo "Your application is running on http://localhost"
+
+if [[ $status_code -ne 401 ]]; then
+    echo "+++++++++++ ERROR ++++++++++++++++++++++"
+    echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
+    echo ""
+    echo "cd $install_dir && sudo docker-compose ps -a"
+    echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
+    echo "++++++++++++++++++++++++++++++++++++++++"
+    echo ""
+else 
+    echo ""
+    echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
+    echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
+    echo ""
+    echo "cd $install_dir && sudo docker-compose ps -a"
+    echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo ""
+    echo "Need help troubleshooting?"
+    echo "Join our Discord server https://discord.com/invite/rBTTVJp"
+    echo ""
+    echo "Your application is running on http://localhost"
+fi
+
 echo -e "Peace out \U1F596"
