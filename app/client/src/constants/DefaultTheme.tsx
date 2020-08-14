@@ -631,8 +631,8 @@ export const theme: Theme = {
     navItemHeight: 42,
   },
   card: {
-    minWidth: 282,
-    minHeight: 220,
+    minWidth: 150,
+    minHeight: 150,
     titleHeight: 48,
     divider: {
       thickness: 1,
