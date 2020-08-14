@@ -1,7 +1,7 @@
 const testdata = require("../../../fixtures/testdata.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../locators/explorerlocators.json");
-const pageid = "Page2";
+const pageid = "MyPage";
 
 describe("Entity explorer API pane related testcases", function() {
   it("Empty Message validation for Widgets/API/Queries", function() {
