@@ -71,6 +71,12 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public Flux<Application> findByClonedFromApplicationId(String organizationId, AclPermission permission) {
+        Criteria clonedFromCriteria = where(fieldName(QApplication.application.clonedFromApplicationId)).is(organizationId);
+        return queryAll(List.of(clonedFromCriteria), permission);
+    }
+
+    @Override
     public Mono<UpdateResult> addPageToApplication(Application application, Page page, boolean isDefault) {
         final ApplicationPage applicationPage = new ApplicationPage(page.getId(), isDefault);
         return mongoOperations.updateFirst(

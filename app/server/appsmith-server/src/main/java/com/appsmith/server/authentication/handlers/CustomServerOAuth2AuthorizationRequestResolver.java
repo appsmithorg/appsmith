@@ -73,26 +73,33 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
 
     private final CommonConfig commonConfig;
 
+    private final RedirectHelper redirectHelper;
+
     /**
      * Creates a new instance
-     *
-     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
+     *  @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
      * @param commonConfig
+     * @param redirectHelper
      */
-    public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository, CommonConfig commonConfig) {
+    public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
+                                                          CommonConfig commonConfig,
+                                                          RedirectHelper redirectHelper) {
         this(clientRegistrationRepository, new PathPatternParserServerWebExchangeMatcher(
-                DEFAULT_AUTHORIZATION_REQUEST_PATTERN), commonConfig);
+                DEFAULT_AUTHORIZATION_REQUEST_PATTERN), commonConfig, redirectHelper);
     }
 
     /**
      * Creates a new instance
-     *
-     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
+     *  @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
      * @param authorizationRequestMatcher  the matcher that determines if the request is a match and extracts the
      *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
+     * @param redirectHelper
      */
     public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
-                                                          ServerWebExchangeMatcher authorizationRequestMatcher, CommonConfig commonConfig) {
+                                                          ServerWebExchangeMatcher authorizationRequestMatcher,
+                                                          CommonConfig commonConfig,
+                                                          RedirectHelper redirectHelper) {
+        this.redirectHelper = redirectHelper;
         Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
         Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
         this.clientRegistrationRepository = clientRegistrationRepository;
@@ -118,7 +125,7 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
                     if (MISSING_VALUE_SENTINEL.equals(clientRegistration.getClientId())) {
                         return Mono.error(new AppsmithException(AppsmithError.OAUTH_NOT_AVAILABLE, clientRegistrationId));
                     } else {
-                        return Mono.just(authorizationRequest(exchange, clientRegistration));
+                        return authorizationRequest(exchange, clientRegistration);
                     }
                 });
     }
@@ -128,7 +135,7 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
                 .switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
     }
 
-    private OAuth2AuthorizationRequest authorizationRequest(ServerWebExchange exchange,
+    private Mono<OAuth2AuthorizationRequest> authorizationRequest(ServerWebExchange exchange,
                                                             ClientRegistration clientRegistration) {
         String redirectUriStr = expandRedirectUri(exchange.getRequest(), clientRegistration);
 
@@ -169,14 +176,14 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
                             + ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
         }
 
-
-        return builder
-                .clientId(clientRegistration.getClientId())
-                .authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-                .redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
-                .state(this.generateKey(exchange.getRequest()))
-                .attributes(attributes)
-                .build();
+        return generateKey(exchange.getRequest())
+                .map(key -> builder
+                        .clientId(clientRegistration.getClientId())
+                        .authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+                        .redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
+                        .state(key)
+                        .attributes(attributes)
+                        .build());
     }
 
     /**
@@ -188,11 +195,13 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
      * @param request
      * @return
      */
-    private String generateKey(ServerHttpRequest request) {
-        String stateKey = this.stateGenerator.generateKey();
-        String redirectUrl = RedirectHelper.getRedirectUrl(request);
-        stateKey = stateKey + "," + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
-        return stateKey;
+    private Mono<String> generateKey(ServerHttpRequest request) {
+        return redirectHelper.getRedirectUrl(request)
+                .map(redirectUrl -> {
+                    String stateKey = this.stateGenerator.generateKey();
+                    stateKey = stateKey + "," + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
+                    return stateKey;
+                });
     }
 
     /**

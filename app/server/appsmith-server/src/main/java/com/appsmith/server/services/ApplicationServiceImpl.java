@@ -108,6 +108,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
+    public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
+        return repository.findByClonedFromApplicationId(applicationId, permission);
+    }
+
+    @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
         return repository.findByName(name, permission)
                 .flatMap(this::setTransientFields);

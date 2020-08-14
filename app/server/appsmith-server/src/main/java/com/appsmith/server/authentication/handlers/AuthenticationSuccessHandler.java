@@ -23,8 +23,9 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class AuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
 
-    private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+    private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final RedirectHelper redirectHelper;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -44,10 +45,8 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 ? handleOAuth2Redirect(webFilterExchange)
                 : handleRedirect(webFilterExchange);
 
-        return Mono.when(
-                redirectionMono,
-                examplesOrganizationCloner.cloneExamplesOrganization()
-        );
+        return examplesOrganizationCloner.cloneExamplesOrganization()
+                .then(redirectionMono);
     }
 
     /**
@@ -85,9 +84,9 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
         // is set in the cookie on the browser.
-        String redirectUrl = RedirectHelper.getRedirectUrl(exchange.getRequest());
-
-        URI defaultRedirectLocation = URI.create(redirectUrl);
-        return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
+        return Mono.just(exchange.getRequest())
+                .flatMap(redirectHelper::getRedirectUrl)
+                .map(URI::create)
+                .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, redirectUri));
     }
 }

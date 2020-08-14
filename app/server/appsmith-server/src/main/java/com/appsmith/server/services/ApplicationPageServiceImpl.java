@@ -260,6 +260,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         // Clean the object so that it will be saved as a new application for the currently signed in user.
+        application.setClonedFromApplicationId(application.getId());
         application.setId(null);
         application.setPolicies(new HashSet<>());
         application.setPages(new ArrayList<>());
