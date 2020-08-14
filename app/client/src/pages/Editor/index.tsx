@@ -98,7 +98,7 @@ class Editor extends Component<Props> {
     if (applicationId && pageId) {
       this.props.initEditor(applicationId, pageId);
     }
-    if (cloudHosting) {
+    if (cloudHosting && intercomAppID) {
       window.Intercom("boot", {
         // eslint-disable-next-line @typescript-eslint/camelcase
         app_id: intercomAppID,
@@ -110,7 +110,7 @@ class Editor extends Component<Props> {
     }
   }
   componentDidUpdate(previously: Props) {
-    if (cloudHosting) window.Intercom("update");
+    if (cloudHosting && intercomAppID) window.Intercom("update");
     if (
       previously.isPublishing &&
       !(this.props.isPublishing || this.props.errorPublishing)
