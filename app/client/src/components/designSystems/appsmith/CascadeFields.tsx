@@ -19,6 +19,7 @@ import {
   DropdownOption,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableFilters";
+import { debounce } from "lodash";
 
 const StyledRemoveIcon = styled(
   ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
@@ -221,6 +222,29 @@ const RenderOptions = (props: {
   return <CustomizedDropdown {...configs} />;
 };
 
+const RenderInput = (props: {
+  value: string;
+  onChange: (value: string) => void;
+}) => {
+  const [value, setValue] = useState(props.value);
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setValue(value);
+    props.onChange(value);
+  };
+  useEffect(() => {
+    setValue(props.value);
+  }, [props.value]);
+  return (
+    <StyledInputGroup
+      placeholder="Enter value"
+      onChange={onChange}
+      type="text"
+      defaultValue={value}
+    />
+  );
+};
+
 type CascadeFieldProps = {
   columns: DropdownOption[];
   column: string;
@@ -402,10 +426,10 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
       payload: condition,
     });
   };
-  const onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onValueChange = (value: string) => {
     dispatch({
       type: CascadeFieldActionTypes.CHANGE_VALUE,
-      payload: event.target.value,
+      payload: value,
     });
   };
   const onDateSelected = (date: string) => {
@@ -436,7 +460,6 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
       payload: props,
     });
   }, [props]);
-
   const {
     operator,
     column,
@@ -488,12 +511,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
         </DropdownWrapper>
       ) : null}
       {showInput ? (
-        <StyledInputGroup
-          placeholder="Enter value"
-          onChange={onValueChange}
-          type="text"
-          defaultValue={value}
-        />
+        <RenderInput onChange={debounce(onValueChange, 500)} value={value} />
       ) : null}
       {showDateInput ? (
         <DatePickerWrapper>
