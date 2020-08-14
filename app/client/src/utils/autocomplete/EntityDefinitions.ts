@@ -233,4 +233,13 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Close a modal",
     "!type": "fn(modalName: string) -> void",
   },
+  btoa: {
+    "!doc":
+      'creates a base-64 encoded ASCII string from a "string" of binary data',
+    "!type": "fn(aString: string) -> string",
+  },
+  atob: {
+    "!doc": "decodes a base64 encoded string",
+    "!type": "fn(bString: string) -> string",
+  },
 };
