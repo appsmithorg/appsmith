@@ -13,6 +13,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.pf4j.PluginManager;
@@ -28,6 +29,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,6 +46,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -348,13 +351,27 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     private Map<String, String> loadTemplatesFromPlugin(Plugin plugin) {
+        final String manifestRaw;
+
+        try {
+            manifestRaw = StreamUtils.copyToString(
+                    pluginManager.getPlugin(plugin.getPackageName())
+                            .getPluginClassLoader()
+                            .getResourceAsStream("_manifest.json"),
+                    Charset.defaultCharset()
+            );
+        } catch (IOException e) {
+            log.error("Error loading plugin manifest for plugin '{}'.", plugin.getPackageName());
+            throw Exceptions.propagate(e);
+        }
+
+        final HashMap<String, Object> manifest = new Gson().fromJson(manifestRaw, HashMap.class);
+
         final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(
                 pluginManager
                         .getPlugin(plugin.getPackageName())
                         .getPluginClassLoader()
         );
-
-        final Map<String, String> templates = new HashMap<>();
 
         Resource[] resources;
         try {
@@ -364,21 +381,48 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             throw Exceptions.propagate(e);
         }
 
+        final Map<String, Map<String, String>> templates = new HashMap<>();
         for (final Resource resource : resources) {
             final String filename = resource.getFilename();
+
+            if (filename == null) {
+                log.warn("Null filename in a plugin template resource for plugin '{}'.", plugin.getPackageName());
+                continue;
+            }
+
+            final String templateContent;
+
             try {
-                final String templateContent = StreamUtils.copyToString(
+                templateContent = StreamUtils.copyToString(
                         resource.getInputStream(), Charset.defaultCharset());
-                if (filename != null) {
-                    templates.put(filename.replaceFirst("\\.\\w+$", ""), templateContent);
-                }
             } catch (IOException e) {
                 log.error("Error loading template {} for plugin {}", filename, plugin.getId());
                 throw Exceptions.propagate(e);
             }
+
+            if (!StringUtils.hasText(templateContent)) {
+                log.warn("Skipping empty plugin template '{}', in plugin '{}'.", filename, plugin.getPackageName());
+                continue;
+            }
+
+            final Map<String, String> template = new HashMap<>();
+            template.put("body", templateContent);
+            templates.put(filename, template);
+
         }
 
-        return templates;
+        final Map<String, String> orderedTemplates = new LinkedHashMap<>();
+
+        if (manifest.containsKey("templates")) {
+            for (final Map entry : (List<Map>) manifest.get("templates")) {
+                final String filename = (String) entry.get("file");
+                final Map<String, String> template = templates.get(filename);
+                template.put("title", (String) entry.get("title"));
+                orderedTemplates.put(template.get("title"), template.get("body"));
+            }
+        }
+
+        return orderedTemplates;
     }
 
     @Override

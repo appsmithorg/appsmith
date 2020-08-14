@@ -1,0 +1,20 @@
+{
+  "templates": [
+    {
+      "title": "Read",
+      "file": "READ.json"
+    },
+    {
+      "title": "Create",
+      "file": "CREATE.json"
+    },
+    {
+      "title": "Update",
+      "file": "UPDATE.json"
+    },
+    {
+      "title": "Delete",
+      "file": "DELETE.json"
+    }
+  ]
+}
