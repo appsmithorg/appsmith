@@ -24,10 +24,16 @@ type INJECTED_CONFIGS = {
     indexName: string;
   };
   logLevel: "debug" | "error";
+  appVersion: {
+    id: string;
+    releaseDate: string;
+  };
+  intercomAppID: string;
 };
 declare global {
   interface Window {
     APPSMITH_FEATURE_CONFIGS: INJECTED_CONFIGS;
+    Intercom: any;
   }
 }
 
@@ -79,6 +85,11 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     cloudHosting: process.env.REACT_APP_CLOUD_HOSTING
       ? process.env.REACT_APP_CLOUD_HOSTING.length > 0
       : false,
+    appVersion: {
+      id: process.env.REACT_APP_VERSION_ID || "",
+      releaseDate: process.env.REACT_APP_VERSION_RELEASE_DATE || "",
+    },
+    intercomAppID: process.env.REACT_APP_INTERCOM_APP_ID || "",
   };
 };
 
@@ -192,5 +203,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ),
     logLevel: ENV_CONFIG.logLevel || APPSMITH_FEATURE_CONFIGS.logLevel,
     enableTNCPP: ENV_CONFIG.enableTNCPP || APPSMITH_FEATURE_CONFIGS.enableTNCPP,
+    appVersion: ENV_CONFIG.appVersion || APPSMITH_FEATURE_CONFIGS.appVersion,
+    intercomAppID:
+      ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
   };
 };

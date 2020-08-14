@@ -66,6 +66,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final OrganizationRepository organizationRepository;
     private final UserOrganizationService userOrganizationService;
     private final RoleGraph roleGraph;
+    private final ConfigService configService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -92,7 +93,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            PolicyUtils policyUtils,
                            OrganizationRepository organizationRepository,
                            UserOrganizationService userOrganizationService,
-                           RoleGraph roleGraph) {
+                           RoleGraph roleGraph,
+                           ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
@@ -105,6 +107,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.organizationRepository = organizationRepository;
         this.userOrganizationService = userOrganizationService;
         this.roleGraph = roleGraph;
+        this.configService = configService;
     }
 
     @Override
@@ -429,30 +432,32 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             if (user.getPassword() == null || user.getPassword().isBlank()) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
             }
-            user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
-        Organization personalOrg = new Organization();
-        if (user.getName() == null) {
+        if (!StringUtils.hasText(user.getName())) {
             user.setName(user.getEmail());
         }
-
-        String personalOrganizationName = user.computeFirstName() + "'s Personal Organization";
-        personalOrg.setName(personalOrganizationName);
 
         // Set the permissions for the user
         user.getPolicies().addAll(crudUserPolicy(user));
 
         // Save the new user
-        Mono<User> savedUserMono = Mono.just(user)
+        return Mono.just(user)
                 .flatMap(this::validateObject)
-                .flatMap(repository::save);
+                .flatMap(repository::save)
+                .zipWith(configService.getTemplateOrganizationId().defaultIfEmpty(""))
+                .flatMap(tuple -> {
+                    final String templateOrganizationId = tuple.getT2();
 
-        return savedUserMono
-                .flatMap(savedUser -> {
-                    // Creating the personal workspace and assigning the default groups to the new user
-                    log.debug("Going to create organization: {} for user: {}", personalOrg, savedUser.getEmail());
-                    return organizationService.create(personalOrg, savedUser);
+                    if (!StringUtils.hasText(templateOrganizationId)) {
+                        // Since template organization is not configured, we create an empty personal organization.
+                        final User savedUser = tuple.getT1();
+                        log.debug("Creating blank personal organization for user '{}'.", savedUser.getEmail());
+                        return organizationService.createPersonal(new Organization(), savedUser);
+                    }
+
+                    return Mono.empty();
                 })
                 .then(repository.findByEmail(user.getUsername()))
                 .flatMap(analyticsService::trackNewUser);

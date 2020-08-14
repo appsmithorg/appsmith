@@ -26,7 +26,6 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PageService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
@@ -67,9 +66,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @DirtiesContext
 public class ExamplesOrganizationClonerTests {
-
-    @Autowired
-    UserService userService;
 
     @Autowired
     private ExamplesOrganizationCloner examplesOrganizationCloner;
@@ -161,7 +157,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
@@ -203,7 +199,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(1);
@@ -255,7 +251,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -310,7 +306,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
@@ -361,7 +357,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.datasources).hasSize(2);
@@ -437,7 +433,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -561,9 +557,7 @@ public class ExamplesOrganizationClonerTests {
                                                     newPageAction.setPageId(page.getId());
                                                     return applicationPageService.addPageToApplication(app, page, false)
                                                             .then(actionCollectionService.createAction(newPageAction))
-                                                            .flatMap(savedAction -> {
-                                                                return layoutActionService.updateAction(savedAction.getId(), savedAction);
-                                                            })
+                                                            .flatMap(savedAction -> layoutActionService.updateAction(savedAction.getId(), savedAction))
                                                             .then(pageService.findById(page.getId(), READ_PAGES));
                                                 })
                                                 .map(tuple2 -> {
@@ -578,16 +572,14 @@ public class ExamplesOrganizationClonerTests {
                             })
                             .then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
                 })
-                .doOnError(error -> {
-                    log.error("Error preparing data for test", error);
-                })
+                .doOnError(error -> log.error("Error preparing data for test", error))
                 .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Examples");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -596,10 +588,13 @@ public class ExamplesOrganizationClonerTests {
                             "second application"
                     );
 
-                    final Application firstApplication = data.applications.stream().filter(app -> app.getName().equals("first application")).findFirst().get();
+                    final Application firstApplication = data.applications.stream().filter(app -> app.getName().equals("first application")).findFirst().orElse(null);
+                    assert firstApplication != null;
                     final Page newPage = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("name").is("A New Page")), Page.class);
+                    assert newPage != null;
                     final String actionId = newPage.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
                     final Action newPageAction = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), Action.class);
+                    assert newPageAction != null;
                     assertThat(newPageAction.getOrganizationId()).isEqualTo(data.organization.getId());
 
                     assertThat(data.datasources).hasSize(2);
@@ -628,7 +623,7 @@ public class ExamplesOrganizationClonerTests {
         return applicationService
                 .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
                 .flatMap(application -> pageService.findByApplicationId(application.getId(), READ_PAGES))
-                .flatMap(page -> actionService.get(new LinkedMultiValueMap<String, String>(
+                .flatMap(page -> actionService.get(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
 }

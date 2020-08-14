@@ -63,6 +63,7 @@ public class ExampleApplicationsAreMarked {
                 .flatMap(tuple -> {
                     final Organization organization = tuple.getT1();
 
+                    assert organization.getId() != null;
                     Mockito.when(configService.getTemplateOrganizationId()).thenReturn(Mono.just(organization.getId()));
 
                     final Application app1 = new Application();
