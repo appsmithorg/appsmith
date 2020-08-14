@@ -1,5 +1,3 @@
-import { MenuIcons } from "icons/MenuIcons";
-
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
 export const PAGE_NOT_FOUND_URL = "/404";
@@ -48,6 +46,19 @@ export const BUILDER_PAGE_URL = (
   const queryParams = convertToQueryParams(params);
   return (
     `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit` + queryParams
+  );
+};
+
+export const WIDGETS_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  params?: Record<string, string>,
+): string => {
+  if (!pageId) return APPLICATIONS_URL;
+  const queryParams = convertToQueryParams(params);
+  return (
+    `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit/widgets` +
+    queryParams
   );
 };
 
@@ -130,16 +141,16 @@ export const getApplicationViewerPageURL = (
 
 function convertToQueryParams(params: Record<string, string> = {}): string {
   const paramKeys = Object.keys(params);
-  let queryParams = "";
+  const queryParams: string[] = [];
   if (paramKeys) {
-    paramKeys.forEach((paramKey: string, index: number) => {
+    paramKeys.forEach((paramKey: string) => {
       const value = params[paramKey];
       if (paramKey && value) {
-        queryParams = queryParams + `&${paramKey}=${value}`;
+        queryParams.push(`${paramKey}=${value}`);
       }
     });
   }
-  return queryParams ? "?" + queryParams : "";
+  return queryParams.length ? "?" + queryParams.join("&") : "";
 }
 
 export const getCurlImportPageURL = (
@@ -163,45 +174,6 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
     pageId,
   )}/queries?importTo=${selectedPageId}`;
 };
-
-export const EDITOR_ROUTES = [
-  {
-    icon: MenuIcons.WIDGETS_ICON,
-    path: BUILDER_PAGE_URL,
-    title: "Widgets",
-    className: "t--nav-link-widgets-editor",
-    exact: true,
-  },
-  {
-    icon: MenuIcons.APIS_ICON,
-    path: API_EDITOR_URL,
-    className: "t--nav-link-api-editor",
-    title: "APIs",
-    exact: false,
-  },
-  {
-    icon: MenuIcons.QUERIES_ICON,
-    className: "t--nav-link-query-editor",
-    path: QUERIES_EDITOR_URL,
-    title: "Queries",
-    exact: false,
-  },
-  {
-    icon: MenuIcons.DATASOURCES_ICON,
-    className: "t--nav-link-datasource-editor",
-    path: DATA_SOURCES_EDITOR_URL,
-    title: "Datasources",
-    exact: false,
-    allowed: true,
-  },
-  {
-    icon: MenuIcons.PAGES_ICON,
-    path: PAGE_LIST_EDITOR_URL,
-    className: "t--nav-link-manage-pages",
-    title: "Pages",
-    exact: true,
-  },
-];
 
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;

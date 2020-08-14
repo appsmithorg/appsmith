@@ -1,9 +1,7 @@
 {
   "find": "users",
   "filter": {
-    "id": {
-      "$gte": 10
-    }
+    "status": "{{ statusDropdown.selectedOptionValue }}"
   },
   "sort": {
     "id": 1

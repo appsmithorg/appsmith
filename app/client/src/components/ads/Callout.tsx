@@ -6,5 +6,5 @@ type CalloutProps = CommonComponentProps & {
 };
 
 export default function Callout(props: CalloutProps) {
-  return "";
+  return null;
 }

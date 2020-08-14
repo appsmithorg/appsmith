@@ -16,12 +16,13 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Table-Text, Validate Server Side Pagination of Paginate with Table Page No", function() {
-    cy.get(pages.pagesIcon).click({ force: true });
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("tablewidget");
     /**Bind Api1 with Table widget */
     cy.testJsontext("tabledata", "{{Api1.data.results}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     /**Bind Table with Textwidget with selected row */
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     cy.readTabledata("0", "1").then(tabData => {
@@ -65,12 +66,12 @@ describe("Test Create Api and Bind to Table widget", function() {
       parseSpecialCharSequences: false,
     });
     cy.WaitAutoSave();
-
-    cy.get(pages.pagesIcon).click({ force: true });
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     /** Bind the Table widget with Text widget*/
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", "{{Api2.data.results}}");
     cy.callApi("Api2");

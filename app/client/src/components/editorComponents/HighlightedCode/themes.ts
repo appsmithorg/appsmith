@@ -243,7 +243,7 @@ export const DARK = css`
   .token.constant,
   .token.symbol,
   .token.builtin {
-    color: hsl(53, 89%, 79%); /* #F9EE98 */
+    color: #29cca3;
   }
 
   .token.attr-name,

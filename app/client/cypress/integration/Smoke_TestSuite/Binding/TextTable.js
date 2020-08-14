@@ -1,12 +1,20 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/TextTabledsl.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Text-Table Binding Functionality", function() {
+  Cypress.on("uncaught:exception", (err, runnable) => {
+    // returning false here prevents Cypress from
+    // failing the test
+    return false;
+  });
+
   before(() => {
     cy.addDsl(dsl);
   });
   it("Text-Table Binding Functionality For Id", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("tablewidget");
     /**
      * @param(Index)  Provide index value to select the row.
@@ -35,6 +43,7 @@ describe("Text-Table Binding Functionality", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
+    cy.get(pages.widgetsEditor).click();
     cy.isSelectRow(2);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.selectedRow.email}}");
@@ -59,6 +68,7 @@ describe("Text-Table Binding Functionality", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.pageSize}}");
     cy.get(commonlocators.TableRow)
@@ -85,6 +95,7 @@ describe("Text-Table Binding Functionality", function() {
      * @param(Index)  Provide index value to select the row.
      */
     cy.isSelectRow(1);
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", JSON.stringify(this.data.textfun));
     /**

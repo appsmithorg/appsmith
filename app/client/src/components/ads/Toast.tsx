@@ -16,5 +16,5 @@ type ToastProps = CommonComponentProps & {
 };
 
 export default function Toast(props: ToastProps) {
-  return "";
+  return null;
 }

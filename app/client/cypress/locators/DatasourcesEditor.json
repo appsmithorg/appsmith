@@ -1,5 +1,5 @@
 {
-  "datasourceEditorIcon": ".t--nav-link-datasource-editor",
+  "datasourceEditorIcon": ".t--entity-name:contains('DataSources)",
   "host": "input[name='datasourceConfiguration.endpoints[0].host']",
   "port": "input[name='datasourceConfiguration.endpoints[0].port']",
   "databaseName": "input[name='datasourceConfiguration.authentication.databaseName']",
@@ -12,5 +12,6 @@
   "RESTAPI": ".t--plugin-name:contains('REST API')",
   "PostgreSQL": ".t--plugin-name:contains('PostgreSQL')",
   "sectionAuthentication": "[data-cy=section-Authentication]",
-  "sectionSSL": "[data-cy=section-SSL\\ \\(optional\\)]"
+  "sectionSSL": "[data-cy=section-SSL\\ \\(optional\\)]",
+  "addDatasourceEntity": "//div[contains(@class,'t--entity group plugins')]//div[contains(@class,'t--entity-add-btn')]"
 }

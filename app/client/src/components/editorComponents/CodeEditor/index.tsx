@@ -286,6 +286,7 @@ class CodeEditor extends Component<Props, State> {
       <DynamicAutocompleteInputWrapper
         theme={this.props.theme}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
+        isError={hasError}
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
         isNotHover={this.state.isFocused || this.state.isOpened}
       >

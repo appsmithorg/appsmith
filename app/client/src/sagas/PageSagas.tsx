@@ -16,6 +16,7 @@ import {
   deletePageSuccess,
   updateCurrentPage,
   fetchPublishedPageSuccess,
+  setUrlData,
 } from "actions/pageActions";
 import PageApi, {
   FetchPageResponse,
@@ -39,9 +40,10 @@ import {
   takeLatest,
   all,
   debounce,
+  takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import { PAGE_LIST_EDITOR_URL } from "constants/routes";
+import { BUILDER_PAGE_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets, getAllPageIds } from "./selectors";
@@ -61,6 +63,7 @@ import {
   getExistingActionNames,
 } from "./selectors";
 import { clearCaches } from "utils/DynamicBindingUtils";
+import { UrlDataState } from "@appsmith/reducers/entityReducers/urlReducer";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -129,20 +132,22 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { pageId } = pageRequestAction.payload;
+    const { id } = pageRequestAction.payload;
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-      pageId,
+      id,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       // Clear any existing caches
       clearCaches();
+      // Set url params
+      yield call(setDataUrl);
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       // Update the canvas
       yield put(updateCanvas(canvasWidgetsPayload));
       // set current page
-      yield put(updateCurrentPage(pageId));
+      yield put(updateCurrentPage(id));
       // dispatch fetch page success
       yield put(fetchPageSuccess());
       // Execute page load actions
@@ -176,9 +181,15 @@ export function* fetchPublishedPageSaga(
     if (isValidResponse) {
       // Clear any existing caches
       clearCaches();
+      // Set url params
+      yield call(setDataUrl);
+      // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+      // Update the canvas
       yield put(updateCanvas(canvasWidgetsPayload));
+      // set current page
       yield put(updateCurrentPage(pageId));
+      // dispatch fetch page success
       yield put(
         fetchPublishedPageSuccess({
           dsl: response.data.layouts[0].dsl,
@@ -217,6 +228,14 @@ function* savePageSaga() {
   const editorConfigs = yield select(getEditorConfigs) as any;
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
   try {
+    // Store the updated DSL in the pageDSLs reducer
+    yield put({
+      type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+      payload: {
+        pageId: savePageRequest.pageId,
+        dsl: savePageRequest.dsl,
+      },
+    });
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,
       savePageRequest,
@@ -282,6 +301,18 @@ export function* createPageSaga(
           layoutId: response.data.layouts[0].id,
         },
       });
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        payload: {
+          pageId: response.data.id,
+        },
+      });
+      history.push(
+        BUILDER_PAGE_URL(
+          createPageAction.payload.applicationId,
+          response.data.id,
+        ),
+      );
     }
   } catch (error) {
     yield put({
@@ -323,7 +354,7 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
     const applicationId = yield select(
       (state: AppState) => state.entities.pageList.applicationId,
     );
-    if (defaultPageId === request.pageId) {
+    if (defaultPageId === request.id) {
       throw Error("Cannot delete the home page.");
     } else {
       const response: ApiResponse = yield call(PageApi.deletePage, request);
@@ -331,23 +362,28 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
-      history.push(PAGE_LIST_EDITOR_URL(applicationId, defaultPageId));
+      const currentPageId = yield select(
+        (state: AppState) => state.entities.pageList.currentPageId,
+      );
+      if (currentPageId === action.payload.id)
+        history.push(BUILDER_PAGE_URL(applicationId, defaultPageId));
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_PAGE_ERROR,
       payload: {
-        error,
+        error: { message: error.message, show: true },
+        show: true,
       },
     });
   }
 }
 
 export function* updateWidgetNameSaga(
-  action: ReduxAction<{ widgetId: string; newName: string }>,
+  action: ReduxAction<{ id: string; newName: string }>,
 ) {
   try {
-    const { widgetName } = yield select(getWidgetName, action.payload.widgetId);
+    const { widgetName } = yield select(getWidgetName, action.payload.id);
     const layoutId = yield select(getCurrentLayoutId);
     const pageId = yield select(getCurrentPageId);
     const existingWidgetNames = yield select(getExistingWidgetNames);
@@ -415,6 +451,32 @@ export function* updateCanvasWithDSL(
   yield put(fetchActionsForPage(pageId));
 }
 
+function getQueryParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const keys = urlParams.keys();
+  let key = keys.next().value;
+  const queryParams: Record<string, string> = {};
+  while (key) {
+    queryParams[key] = urlParams.get(key) as string;
+    key = keys.next().value;
+  }
+  return queryParams;
+}
+
+export function* setDataUrl() {
+  const urlData: UrlDataState = {
+    host: window.location.host,
+    hostname: window.location.hostname,
+    queryParams: getQueryParams(),
+    protocol: window.location.protocol,
+    pathname: window.location.pathname,
+    port: window.location.port,
+    href: window.location.href,
+    hash: window.location.hash,
+  };
+  yield put(setUrlData(urlData));
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -423,7 +485,7 @@ export default function* pageSagas() {
       fetchPublishedPageSaga,
     ),
     takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
-    takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
+    takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),

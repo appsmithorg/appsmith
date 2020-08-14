@@ -2,11 +2,14 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/newFormDsl.json");
+const pages = require("../../../locators/Pages.json");
+
 describe("Radio Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
   it("Radio Widget Functionality", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("radiogroupwidget");
     /**
      * @param{Text} Random Text
@@ -56,6 +59,7 @@ describe("Radio Widget Functionality", function() {
   });
   it("Radio Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("radiogroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -63,6 +67,7 @@ describe("Radio Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Radio Functionality To Check Visible Widget", function() {
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("radiogroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();

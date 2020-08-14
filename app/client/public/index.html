@@ -53,14 +53,18 @@
     const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
     window.SENTRY_CONFIG = parseConfig("__APPSMITH_SENTRY_DSN__");
     window.APPSMITH_FEATURE_CONFIGS = {
-      sentry: parseConfig("__APPSMITH_SENTRY_DSN__"),
+      sentry: {
+        dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),
+        release: parseConfig("__APPSMITH_SENTRY_RELEASE__"),
+        environment: parseConfig("__APPSMITH_SENTRY_ENVIRONMENT__"),
+      },
       hotjar: {
         id: parseConfig("__APPSMITH_HOTJAR_HJID__"),
         sv: parseConfig("__APPSMITH_HOTJAR_HJSV__"),
       },
       enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__").length > 0,
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__").length > 0,
-      enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_URL__").length > 0,
+      enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__").length > 0,
       segment: parseConfig("__APPSMITH_SEGMENT_KEY__"),
       optimizely: parseConfig("__APPSMITH_OPTIMIZELY_KEY__"),
       enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__").length > 0,

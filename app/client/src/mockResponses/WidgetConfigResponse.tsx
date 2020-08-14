@@ -180,7 +180,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Tab 1", id: "tab1" },
         { label: "Tab 2", id: "tab2" },
       ],
-      selectedTab: "Tab 1",
+      shouldShowTabs: true,
+      defaultTab: "Tab 1",
       blueprint: {
         view: [
           {
@@ -218,7 +219,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       detachFromLayout: true,
       canOutsideClickClose: true,
       shouldScrollContents: true,
-      isVisible: false,
       widgetName: "Modal",
       children: [],
       blueprint: {
@@ -396,7 +396,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       text: "Submit",
                       buttonStyle: "PRIMARY_BUTTON",
                       disabledWhenInvalid: true,
-                      resetFormOnClick: false,
+                      resetFormOnClick: true,
                     },
                   },
                   {

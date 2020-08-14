@@ -22,5 +22,5 @@ type EditableTextProps = CommonComponentProps & {
 
 // Check EditableText Component
 export default function(props: EditableTextProps) {
-  return "";
+  return null;
 }

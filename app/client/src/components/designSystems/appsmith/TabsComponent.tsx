@@ -9,6 +9,7 @@ interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
   shouldScrollContents?: boolean;
   selectedTabId: string;
+  shouldShowTabs: boolean;
   onTabChange: (tabId: string) => void;
   tabs: Array<{
     id: string;
@@ -102,6 +103,7 @@ const StyledText = styled.div<TabProps>`
 `;
 
 const TabsComponent = (props: TabsComponentProps) => {
+  const { onTabChange, ...remainingProps } = props;
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
@@ -112,25 +114,29 @@ const TabsComponent = (props: TabsComponentProps) => {
   }, [props.shouldScrollContents]);
   return (
     <TabsContainerWrapper ref={tabContainerRef}>
-      <TabsContainer>
-        {props.tabs &&
-          props.tabs.map((tab, index) => (
-            <StyledText
-              onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-                props.onTabChange(tab.id);
-                event.stopPropagation();
-              }}
-              selected={props.selectedTabId === tab.id}
-              key={index}
-            >
-              {tab.label}
-            </StyledText>
-          ))}
-        <StyledTab></StyledTab>
-      </TabsContainer>
+      {props.shouldShowTabs ? (
+        <TabsContainer>
+          {props.tabs &&
+            props.tabs.map((tab, index) => (
+              <StyledText
+                onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+                  props.onTabChange(tab.id);
+                  event.stopPropagation();
+                }}
+                selected={props.selectedTabId === tab.id}
+                key={index}
+              >
+                {tab.label}
+              </StyledText>
+            ))}
+          <StyledTab></StyledTab>
+        </TabsContainer>
+      ) : (
+        undefined
+      )}
       <ChildrenWrapper>
         <ScrollableCanvasWrapper
-          {...props}
+          {...remainingProps}
           className={`${
             props.shouldScrollContents ? getCanvasClassName() : ""
           } ${generateClassName(props.widgetId)}`}

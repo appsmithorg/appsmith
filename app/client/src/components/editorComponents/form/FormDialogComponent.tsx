@@ -1,6 +1,5 @@
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
 import { Dialog, Classes } from "@blueprintjs/core";
 import { isPermitted } from "pages/Applications/permissionHelpers";
 
@@ -75,4 +74,4 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
   );
 };
 
-export default connect()(FormDialogComponent);
+export default FormDialogComponent;

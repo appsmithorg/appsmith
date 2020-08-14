@@ -29,7 +29,7 @@ public interface OrganizationService extends CrudService<Organization, String> {
 
     Flux<Organization> findByIdsIn(Set<String> ids,AclPermission permission);
 
-    Mono<Map<String, String>> getUserRolesForOrganization();
+    Mono<Map<String, String>> getUserRolesForOrganization(String orgId);
 
     Mono<List<UserRole>> getOrganizationMembers(String orgId);
 }

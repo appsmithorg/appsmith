@@ -1,4 +1,5 @@
 import React from "react";
+import "./wdyr";
 import { Helmet } from "react-helmet";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";

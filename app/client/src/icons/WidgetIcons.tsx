@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSXElementConstructor } from "react";
 import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as SpinnerIcon } from "assets/icons/widget/alert.svg";
 import { ReactComponent as ButtonIcon } from "assets/icons/widget/button.svg";
@@ -19,11 +19,11 @@ import { ReactComponent as RichTextEditorIcon } from "assets/icons/widget/rich-t
 import { ReactComponent as ChartIcon } from "assets/icons/widget/chart.svg";
 import { ReactComponent as FormIcon } from "assets/icons/widget/form.svg";
 import { ReactComponent as MapIcon } from "assets/icons/widget/map.svg";
-
+import { ReactComponent as ModalIcon } from "assets/icons/widget/modal.svg";
 /* eslint-disable react/display-name */
 
 export const WidgetIcons: {
-  [id: string]: Function;
+  [id: string]: JSXElementConstructor<IconProps>;
 } = {
   SPINNER_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
@@ -118,6 +118,11 @@ export const WidgetIcons: {
   MAP_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <MapIcon />
+    </IconWrapper>
+  ),
+  MODAL_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <ModalIcon />
     </IconWrapper>
   ),
 };

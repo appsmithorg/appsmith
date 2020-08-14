@@ -3,5 +3,6 @@
     "templateMenu": ".t--template-menu",
     "runQuery": ".t--run-query",
     "saveQuery": ".t--save-query",
-    "deleteQuery": ".t--delete-query"
+    "deleteQuery": ".t--delete-query",
+    "addQueryEntity": ".//div[contains(@class,'t--entity group queries')]//div[contains(@class,'t--entity-add-btn')]"
 }

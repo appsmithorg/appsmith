@@ -16,7 +16,6 @@ import {
   LIGHTNING_MENU_DATA_WIDGET,
   LIGHTNING_MENU_OPTION_HTML,
   LIGHTNING_MENU_OPTION_JS,
-  LIGHTNING_MENU_OPTION_TEXT,
   LIGHTNING_MENU_QUERY_CREATE_NEW,
   LIGHTNING_MENU_API_CREATE_NEW,
 } from "constants/messages";
@@ -161,14 +160,6 @@ export const getLightningMenuOptions = (
 ) => {
   const options: CustomizedDropdownOption[] = [
     {
-      content: LIGHTNING_MENU_OPTION_TEXT,
-      disabled: false,
-      shouldCloseDropdown: true,
-      onSelect: () => {
-        updateDynamicInputValue("");
-      },
-    },
-    {
       content: (
         <CustomizedDropdown
           {...getApiOptions(
@@ -200,6 +191,9 @@ export const getLightningMenuOptions = (
     },
   ];
   if (widgets.length > 0) {
+    widgets = widgets.sort((a: WidgetProps, b: WidgetProps) => {
+      return a.widgetName.toUpperCase() > b.widgetName.toUpperCase() ? 1 : -1;
+    });
     options.push({
       content: (
         <CustomizedDropdown

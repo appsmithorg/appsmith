@@ -27,3 +27,12 @@ export const fetchApplication = (applicationId: string) => {
     },
   };
 };
+
+export const publishApplication = (applicationId: string) => {
+  return {
+    type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
+    payload: {
+      applicationId,
+    },
+  };
+};

@@ -6,6 +6,7 @@ import { FormIcons } from "icons/FormIcons";
 import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import TextField from "components/editorComponents/form/fields/TextField";
 import { ControlType } from "constants/PropertyControlConstants";
+import FormLabel from "components/editorComponents/FormLabel";
 
 const FormRowWithLabel = styled.div`
   display: flex;
@@ -30,6 +31,9 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
     <div>
       {typeof props.fields.getAll() === "object" && (
         <div>
+          <FormLabel>
+            {props.label} {props.isRequired && "*"}
+          </FormLabel>
           {props.fields.map((field: any, index: number) => (
             <FormRowWithLabel key={index} style={{ marginTop: index ? 13 : 0 }}>
               <div style={{ width: "50vh" }}>

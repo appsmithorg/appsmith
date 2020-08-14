@@ -3,6 +3,8 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
+import { getAppsmithConfigs } from "configs";
+
 const { compose, withProps, lifecycle } = require("recompose");
 const { withScriptjs } = require("react-google-maps");
 
@@ -25,10 +27,11 @@ interface StandaloneSearchBoxProps {
   onPlacesChanged: () => void;
 }
 
+const { google } = getAppsmithConfigs();
+
 const PlacesWithStandaloneSearchBox = compose(
   withProps({
-    googleMapURL:
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyC2H_twoNbEKMm9Q0nYAh7715Dplg2asCI&v=3.exp&libraries=geometry,drawing,places",
+    googleMapURL: `https://maps.googleapis.com/maps/api/js?key=${google.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
     loadingElement: <div style={{ height: `100%` }} />,
     containerElement: <div style={{ height: `400px` }} />,
   }),

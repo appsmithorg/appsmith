@@ -111,7 +111,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           )
           .filter((i: number) => i > -1)
       : [];
-
     return (
       <DropDownComponent
         onOptionSelected={this.onOptionSelected}
@@ -124,6 +123,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         selectedIndexArr={computedSelectedIndexArr}
         label={`${this.props.label}`}
         isLoading={this.props.isLoading}
+        disabled={this.props.isDisabled}
       />
     );
   }

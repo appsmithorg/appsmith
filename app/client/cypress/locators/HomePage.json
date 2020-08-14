@@ -10,7 +10,7 @@
     "deleteButton":".bp3-menu-item.bp3-popover-dismiss",
     "selectAction":"#Base",
     "deleteApp":".bp3-menu-item",
-    "homeIcon": ".bp3-icon-home",
+    "homeIcon": ".t--appsmith-logo",
     "inputAppName": "input[name=applicationName]",
     "createNew": ".createnew",
     "createOrg": "button:contains('Create Organization')",

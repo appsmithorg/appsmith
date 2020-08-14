@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, memo } from "react";
 import { XYCoord } from "react-dnd";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 
@@ -38,16 +38,19 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
 
 export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
   paddingOffset: number;
 };
 
 /* eslint-disable react/display-name */
-export const ResizableComponent = (props: ResizableComponentProps) => {
+export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
-  const { updateWidget, occupiedSpaces } = useContext(EditorContext);
+  const { updateWidget } = useContext(EditorContext);
+  const occupiedSpaces = useSelector(getOccupiedSpaces);
+
   const { updateDropTargetRows, persistDropTargetRows } = useContext(
     DropTargetContext,
   );
@@ -56,10 +59,10 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.editor.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
   const focusedWidget = useSelector(
-    (state: AppState) => state.ui.editor.focusedWidget,
+    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
 
   const isDragging = useSelector(
@@ -275,6 +278,6 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       </VisibilityContainer>
     </Resizable>
   );
-};
+});
 
 export default ResizableComponent;

@@ -9,39 +9,21 @@ import {
   BuilderRouteParams,
   getApplicationViewerPageURL,
 } from "constants/routes";
-import {
-  ReduxActionTypes,
-  PageListPayload,
-  ApplicationPayload,
-} from "constants/ReduxActionConstants";
-import {
-  getPageList,
-  getCurrentDSLPageId,
-  getIsInitialized,
-  getEditorURL,
-} from "selectors/appViewSelectors";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
 import { ExecuteActionPayload } from "constants/ActionConstants";
-import SideNav from "./viewer/SideNav";
-import { SideNavItemProps } from "./viewer/SideNavItem";
-import AppViewerHeader from "./viewer/AppViewerHeader";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
 import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
-import AppViewerSideNavWrapper from "./viewer/AppViewerSideNavWrapper";
 import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
 } from "actions/metaActions";
 import AppRoute from "pages/common/AppRoute";
 import { editorInitializer } from "utils/EditorUtils";
-import { PERMISSION_TYPE } from "pages/Applications/permissionHelpers";
 
-const AppViewWrapper = styled.div`
-  margin-top: ${props => props.theme.headerHeight};
-  background: white;
-`;
 const AppViewerBody = styled.section`
   display: flex;
   flex-direction: row;
@@ -51,13 +33,8 @@ const AppViewerBody = styled.section`
 `;
 
 export type AppViewerProps = {
-  currentDSLPageId?: string;
-  currentLayoutId?: string;
-  currentApplication: ApplicationPayload | undefined;
-  pages?: PageListPayload;
   initializeAppViewer: Function;
   isInitialized: boolean;
-  editorURL: string;
   executeAction: (actionPayload: ExecuteActionPayload) => void;
   updateWidgetProperty: (
     widgetId: string,
@@ -94,22 +71,7 @@ class AppViewer extends Component<
   };
 
   public render() {
-    const { isInitialized, currentApplication } = this.props;
-    const userPermissions = currentApplication?.userPermissions ?? [];
-
-    const items: SideNavItemProps[] | undefined =
-      this.props.pages &&
-      this.props.pages.map(page => ({
-        text: page.pageName,
-        id: page.pageId,
-        icon: "page-layout", //TODO: get the icon from page.
-        path: getApplicationViewerPageURL(
-          this.props.match.params.applicationId,
-          page.pageId,
-        ),
-        loading: false,
-      }));
-
+    const { isInitialized } = this.props;
     return (
       <EditorContext.Provider
         value={{
@@ -118,47 +80,26 @@ class AppViewer extends Component<
           resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
         }}
       >
-        <AppViewWrapper>
-          <AppViewerHeader
-            url={this.props.editorURL}
-            currentApplicationDetails={currentApplication}
-            permissions={userPermissions || []}
-            permissionRequired={PERMISSION_TYPE.MANAGE_APPLICATION}
-            open={this.state.isSideNavOpen}
-          />
-          <AppViewerBody>
-            <AppViewerSideNavWrapper>
-              <SideNav
-                items={items}
-                active={this.props.currentDSLPageId}
-                open={this.state.isSideNavOpen}
-                toggleCollapse={this.toggleCollapse}
+        <AppViewerBody>
+          {isInitialized && this.state.registered && (
+            <Switch>
+              <AppRoute
+                path={getApplicationViewerPageURL()}
+                exact
+                component={AppViewerPageContainer}
+                name={"AppViewerPageContainer"}
+                logDisable
               />
-            </AppViewerSideNavWrapper>
-            {isInitialized && this.state.registered && (
-              <Switch>
-                <AppRoute
-                  path={getApplicationViewerPageURL()}
-                  exact
-                  component={AppViewerPageContainer}
-                  name={"AppViewerPageContainer"}
-                  logDisable
-                />
-              </Switch>
-            )}
-          </AppViewerBody>
-        </AppViewWrapper>
+            </Switch>
+          )}
+        </AppViewerBody>
       </EditorContext.Provider>
     );
   }
 }
 
 const mapStateToProps = (state: AppState) => ({
-  currentDSLPageId: getCurrentDSLPageId(state),
-  pages: getPageList(state),
   isInitialized: getIsInitialized(state),
-  editorURL: getEditorURL(state),
-  currentApplication: state.ui.applications.currentApplication,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

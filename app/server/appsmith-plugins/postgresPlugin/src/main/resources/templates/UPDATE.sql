@@ -1,3 +1,3 @@
 UPDATE users
   SET status = 'APPROVED'
-  WHERE id = 1;
+  WHERE id = '{{ usersTable.selectedRow.id }}';
