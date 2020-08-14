@@ -30,23 +30,33 @@ export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
   TABLE_HEADER_HEIGHT: number;
   ROW_HEIGHT: number;
+  ROW_FONT_SIZE: number;
 };
 
 export enum CompactModeTypes {
   SHORT = "SHORT",
   DEFAULT = "DEFAULT",
+  TALL = "TALL",
 }
 
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
-    COLUMN_HEADER_HEIGHT: 52,
-    TABLE_HEADER_HEIGHT: 61,
-    ROW_HEIGHT: 52,
+    COLUMN_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 45,
+    ROW_HEIGHT: 40,
+    ROW_FONT_SIZE: 12,
   },
   [CompactModeTypes.SHORT]: {
-    COLUMN_HEADER_HEIGHT: 52,
-    TABLE_HEADER_HEIGHT: 61,
-    ROW_HEIGHT: 40,
+    COLUMN_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 45,
+    ROW_HEIGHT: 20,
+    ROW_FONT_SIZE: 10,
+  },
+  [CompactModeTypes.TALL]: {
+    COLUMN_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 45,
+    ROW_HEIGHT: 60,
+    ROW_FONT_SIZE: 12,
   },
 };
 
@@ -351,7 +361,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         (tableSizes.TABLE_HEADER_HEIGHT +
           tableSizes.COLUMN_HEADER_HEIGHT +
           tableSizes.ROW_HEIGHT * pageSize) >
-      10
+      0
     )
       pageSize += 1;
 
@@ -419,7 +429,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             super.updateWidgetMetaProperty("filters", filters);
             this.resetFilteredTableData();
           }}
-          compactMode={this.props.compactMode}
+          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
             super.updateWidgetMetaProperty("compactMode", compactMode);
           }}

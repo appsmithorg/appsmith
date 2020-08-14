@@ -22,9 +22,9 @@ export const withDynamicProps = () => (
       [Variant.info, Variant.success, Variant.danger, Variant.warning],
       Variant.info,
     )}
-    icon={select("iconName", ["delete", "user"], undefined)}
+    icon={select("iconName", ["Select icon", "delete", "user"], undefined)}
     isLoading={boolean("Loading", false)}
-    isDisabled={boolean("Disabled", false)}
+    disabled={boolean("Disabled", false)}
     text={text("text", "Get")}
   ></Button>
 );

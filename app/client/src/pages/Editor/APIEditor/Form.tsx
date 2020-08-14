@@ -53,7 +53,8 @@ const MainConfiguration = styled.div`
 `;
 
 const ActionButtons = styled.div`
-  flex: 1;
+  flex: 0 1 150px;
+  justify-self: flex-end;
   display: flex;
   flex-direction: row;
 `;
@@ -61,7 +62,9 @@ const ActionButtons = styled.div`
 const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 72px;
-    margin-left: 16px;
+    &:last-of-type {
+      margin-left: 16px;
+    }
     min-height: 32px;
   }
 `;
@@ -80,6 +83,11 @@ const SecondaryWrapper = styled.div`
 const TabbedViewContainer = styled.div`
   flex: 1;
   padding-top: 12px;
+  &&& {
+    ul.react-tabs__tab-list {
+      padding-left: 23px;
+    }
+  }
 `;
 
 export const BindingText = styled.span`

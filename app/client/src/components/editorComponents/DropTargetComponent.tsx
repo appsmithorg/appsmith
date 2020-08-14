@@ -30,6 +30,7 @@ import {
   useShowPropertyPane,
   useWidgetSelection,
   useCanvasSnapRowsUpdateHook,
+  useToggleEditWidgetName,
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 
@@ -105,6 +106,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const [rows, setRows] = useState(snapRows);
 
   const showPropertyPane = useShowPropertyPane();
+  const toggleEditWidgetName = useToggleEditWidgetName();
   const { selectWidget, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
@@ -183,13 +185,12 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         // Only show propertypane if this is a new widget.
         // If it is not a new widget, then let the DraggableComponent handle it.
         // Give evaluations a second to complete.
-        setTimeout(
-          () =>
-            showPropertyPane &&
-            updateWidgetParams.payload.newWidgetId &&
-            showPropertyPane(updateWidgetParams.payload.newWidgetId),
-          100,
-        );
+        setTimeout(() => {
+          if (showPropertyPane && updateWidgetParams.payload.newWidgetId) {
+            showPropertyPane(updateWidgetParams.payload.newWidgetId);
+            toggleEditWidgetName(updateWidgetParams.payload.newWidgetId, true);
+          }
+        }, 100);
 
         // Select the widget if it is a new widget
         selectWidget && selectWidget(widget.widgetId);

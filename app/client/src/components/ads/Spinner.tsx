@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
-import { Size, ThemeProp } from "./Button";
+import { ThemeProp } from "./common";
+import { Size } from "./Button";
 
 export const sizeHandler = (props: ThemeProp & SpinnerProp) => {
   let iconSize = 0;

@@ -54,7 +54,11 @@ import {
 } from "selectors/entitiesSelector";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
-import { API_EDITOR_URL, QUERIES_EDITOR_URL } from "constants/routes";
+import {
+  API_EDITOR_URL,
+  QUERIES_EDITOR_URL,
+  API_EDITOR_ID_URL,
+} from "constants/routes";
 import { changeApi } from "actions/apiPaneActions";
 import { changeQuery } from "actions/queryPaneActions";
 
@@ -287,6 +291,11 @@ function* moveActionSaga(
       apiID: response.data.id,
     });
     yield put(moveActionSuccess(response.data));
+    const applicationId = yield select(getCurrentApplicationId);
+
+    history.push(
+      API_EDITOR_ID_URL(applicationId, response.data.pageId, response.data.id),
+    );
   } catch (e) {
     AppToaster.show({
       message: `Error while moving action ${actionObject.name}`,
@@ -331,6 +340,10 @@ function* copyActionSaga(
       apiID: response.data.id,
     });
     yield put(copyActionSuccess(response.data));
+    const applicationId = yield select(getCurrentApplicationId);
+    history.push(
+      API_EDITOR_ID_URL(applicationId, response.data.pageId, response.data.id),
+    );
   } catch (e) {
     AppToaster.show({
       message: `Error while copying action ${actionObject.name}`,

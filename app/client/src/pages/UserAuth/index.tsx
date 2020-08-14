@@ -7,8 +7,8 @@ import { AuthContainer, AuthCard } from "./StyledComponents";
 import SignUp from "./SignUp";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
-import CreatePassword from "./CreatePassword";
 import AppRoute from "pages/common/AppRoute";
+import PageNotFound from "pages/common/PageNotFound";
 const AnimatedAuthCard = animated(AuthContainer);
 export const UserAuth = () => {
   const { path } = useRouteMatch();
@@ -50,10 +50,8 @@ export const UserAuth = () => {
                 name={"ForgotPassword"}
               />
               <AppRoute
-                exact
-                path={`${path}/createPassword`}
-                component={CreatePassword}
-                name={"CreatePassword"}
+                component={PageNotFound}
+                name={"PageNotFound"}
               />
             </Switch>
           </AuthCard>
