@@ -12,7 +12,6 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -27,7 +26,6 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PageService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
@@ -49,7 +47,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,9 +66,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @DirtiesContext
 public class ExamplesOrganizationClonerTests {
-
-    @Autowired
-    UserService userService;
 
     @Autowired
     private ExamplesOrganizationCloner examplesOrganizationCloner;
@@ -153,16 +147,14 @@ public class ExamplesOrganizationClonerTests {
     public void cloneEmptyOrganization() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization");
-        final Mono<Tuple2<OrganizationData, User>> resultMono = organizationService.create(newOrganization)
+        final Mono<OrganizationData> resultMono = organizationService.create(newOrganization)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
                         examplesOrganizationCloner.cloneOrganizationForUser(tuple.getT1().getId(), tuple.getT2()))
-                .flatMap(this::loadOrganizationData)
-                .zipWith(userService.findByEmail("api_user"));
+                .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
-                .assertNext(tuple -> {
-                    final OrganizationData data = tuple.getT1();
+                .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
                     assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
