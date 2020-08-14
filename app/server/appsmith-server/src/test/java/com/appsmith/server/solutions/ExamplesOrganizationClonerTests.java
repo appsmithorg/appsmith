@@ -49,6 +49,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -152,14 +153,16 @@ public class ExamplesOrganizationClonerTests {
     public void cloneEmptyOrganization() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization");
-        final Mono<OrganizationData> resultMono = organizationService.create(newOrganization)
+        final Mono<Tuple2<OrganizationData, User>> resultMono = organizationService.create(newOrganization)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
                         examplesOrganizationCloner.cloneOrganizationForUser(tuple.getT1().getId(), tuple.getT2()))
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadOrganizationData)
+                .zipWith(userService.findByEmail("api_user"));
 
         StepVerifier.create(resultMono)
-                .assertNext(data -> {
+                .assertNext(tuple -> {
+                    final OrganizationData data = tuple.getT1();
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
                     assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
@@ -168,10 +171,6 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(data.applications).isEmpty();
                     assertThat(data.datasources).isEmpty();
                     assertThat(data.actions).isEmpty();
-
-                    final User apiUser = userService.findByEmail("api_user").block();
-                    assert apiUser != null;
-                    assertThat(apiUser.getOrganizationIds()).hasSize(1);
                 })
                 .verifyComplete();
     }
