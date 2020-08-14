@@ -19,7 +19,7 @@ import { AppState } from "reducers";
 import PageApi, { FetchPageResponse } from "api/PageApi";
 import { validateResponse } from "./ErrorSagas";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { APP_MODE } from "@appsmith/reducers/entityReducers/appReducer";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
