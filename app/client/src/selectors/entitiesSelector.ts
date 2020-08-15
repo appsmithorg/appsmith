@@ -262,5 +262,4 @@ export const isActionDirty = (id: string) =>
     return id in actionDirtyMap && actionDirtyMap[id];
   });
 
-export const getAuthUser = (state: AppState) => state.entities.authUser;
-export const getUrl = (state: AppState) => state.entities.url;
+export const getAppData = (state: AppState) => state.entities.app;

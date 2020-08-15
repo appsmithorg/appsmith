@@ -20,7 +20,6 @@ public interface Url {
     String TEAM_URL = BASE_URL + VERSION + "/teams";
     String GROUP_URL = BASE_URL + VERSION + "/groups";
     String PERMISSION_URL = BASE_URL + VERSION + "/permissions";
-    String SIGNUP_URL = BASE_URL + VERSION + "/signup";
     String COLLECTION_URL = BASE_URL + VERSION + "/collections";
     String IMPORT_URL = BASE_URL + VERSION + "/import";
     String PROVIDER_URL = BASE_URL + VERSION + "/providers";

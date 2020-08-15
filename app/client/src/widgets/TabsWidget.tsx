@@ -8,6 +8,7 @@ import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/ActionConstants";
+import { WidgetOperations } from "widgets/BaseWidget";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -60,21 +61,26 @@ class TabsWidget extends BaseWidget<
 
   renderComponent = () => {
     const selectedTabId = this.props.selectedTabId;
-    const children = this.props.children.filter(item => {
-      return selectedTabId === item.tabId;
-    })[0];
-    const childWidgetData: TabContainerWidgetProps = children;
+    const childWidgetData: TabContainerWidgetProps = this.props.children.filter(
+      item => {
+        return selectedTabId === item.tabId;
+      },
+    )[0];
+
     if (!childWidgetData) {
-      return <div></div>;
+      return null;
     }
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     const { componentWidth, componentHeight } = this.getComponentDimensions();
     childWidgetData.rightColumn = componentWidth;
+    childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? (this.props.bottomRow - this.props.topRow - 1) *
-        this.props.parentRowSpace
-      : componentHeight;
+      ? childWidgetData.bottomRow
+      : componentHeight - 1;
+    childWidgetData.parentId = this.props.widgetId;
+    childWidgetData.minHeight = componentHeight;
+
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
@@ -117,11 +123,12 @@ class TabsWidget extends BaseWidget<
         children: [],
       },
     };
-    this.updateWidget("ADD_CHILD", this.props.widgetId, config);
+    this.updateWidget(WidgetOperations.ADD_CHILD, this.props.widgetId, config);
   };
 
   removeTabContainer = () => {
     let removedContainerWidgetId = "";
+    let removedTabId = "";
     const tabIds: string[] = this.props.tabs.map(tab => {
       return tab.id;
     });
@@ -129,9 +136,22 @@ class TabsWidget extends BaseWidget<
       const children = this.props.children[index];
       if (!tabIds.includes(children.tabId)) {
         removedContainerWidgetId = children.widgetId;
+        removedTabId = children.tabId;
       }
     }
-    this.updateWidget("REMOVE_CHILD", removedContainerWidgetId, {
+    /* Selecting first tab as default tab when no tab is selected */
+    if (
+      this.props.tabs.length > 1 &&
+      removedTabId === this.props.selectedTabId
+    ) {
+      setTimeout(() => {
+        this.updateWidgetProperty(
+          "defaultTab",
+          this.props.tabs.filter(tab => tab.id !== removedTabId)[0].label,
+        );
+      }, 0);
+    }
+    this.updateWidget(WidgetOperations.DELETE, removedContainerWidgetId, {
       parentId: this.props.widgetId,
     });
   };

@@ -1,14 +1,14 @@
-import { all, put, takeLatest, take, select, call } from "redux-saga/effects";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import {
-  ReduxAction,
-  ReduxActionTypes,
   InitializeEditorPayload,
   Page,
+  ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 
 import { fetchEditorConfigs } from "actions/configsActions";
-import { fetchPage, fetchPageList } from "actions/pageActions";
+import { fetchPage, fetchPageList, setAppMode } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
@@ -19,6 +19,7 @@ import { AppState } from "reducers";
 import PageApi, { FetchPageResponse } from "api/PageApi";
 import { validateResponse } from "./ErrorSagas";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -49,6 +50,9 @@ function* initializeEditorSaga(
     take(ReduxActionTypes.FETCH_DATASOURCES_SUCCESS),
   ]);
 
+  // Step 5: Set app mode
+  yield put(setAppMode(APP_MODE.EDIT));
+
   const currentApplication = yield select(getCurrentApplication);
 
   const appName = currentApplication ? currentApplication.name : "";
@@ -63,7 +67,7 @@ function* initializeEditorSaga(
   yield put({
     type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
   });
-  yield call(populatePageDSLsSaga, pageId);
+  yield call(populatePageDSLsSaga);
 }
 
 function* fetchPageDSLSaga(action: ReduxAction<{ pageId: string }>) {
@@ -93,7 +97,7 @@ function* fetchPageDSLSaga(action: ReduxAction<{ pageId: string }>) {
   }
 }
 
-export function* populatePageDSLsSaga(currentPageId: string) {
+export function* populatePageDSLsSaga() {
   try {
     yield put({
       type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
@@ -136,6 +140,8 @@ export function* initializeAppViewerSaga(
     take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
   ]);
+
+  yield put(setAppMode(APP_MODE.PUBLISHED));
 
   yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,

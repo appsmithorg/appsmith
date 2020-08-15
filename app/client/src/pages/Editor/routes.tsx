@@ -13,13 +13,13 @@ import {
   QUERIES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_URL,
   DATA_SOURCES_EDITOR_ID_URL,
-  BUILDER_BASE_URL,
   BUILDER_PAGE_URL,
   BuilderRouteParams,
   APIEditorRouteParams,
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
+  WIDGETS_URL,
 } from "constants/routes";
 import styled from "styled-components";
 import AppRoute from "pages/common/AppRoute";
@@ -30,11 +30,11 @@ import {
 import { closeAllModals } from "actions/widgetActions";
 import { useDispatch } from "react-redux";
 
-const Wrapper = styled.div<{ isVisible: boolean; showOnlySidebar?: boolean }>`
+const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
-  width: ${props => (props.showOnlySidebar ? "0px" : "100%")};
+  width: ${props => (!props.isVisible ? "0px" : "100%")};
   height: calc(100vh - ${props => props.theme.headerHeight});
   background-color: ${props =>
     props.isVisible ? "rgba(0, 0, 0, 0.26)" : "transparent"};
@@ -43,16 +43,14 @@ const Wrapper = styled.div<{ isVisible: boolean; showOnlySidebar?: boolean }>`
 
 const DrawerWrapper = styled.div<{
   isVisible: boolean;
-  showOnlySidebar?: boolean;
 }>`
   background-color: white;
-  width: ${props => (props.showOnlySidebar ? "0px" : "75%")};
+  width: ${props => (!props.isVisible ? "0px" : "75%")};
   height: 100%;
 `;
 
 interface RouterState {
   isVisible: boolean;
-  showOnlySidebar: boolean;
 }
 
 class EditorsRouter extends React.Component<
@@ -64,22 +62,9 @@ class EditorsRouter extends React.Component<
     const { applicationId, pageId } = this.props.match.params;
     this.state = {
       isVisible:
-        this.props.location.pathname !== BUILDER_BASE_URL(applicationId) &&
         this.props.location.pathname !==
-          BUILDER_PAGE_URL(applicationId, pageId),
-      showOnlySidebar:
-        // TODO: Please optimise this
-        !(
-          this.props.location.pathname.indexOf(
-            DATA_SOURCES_EDITOR_URL(applicationId, pageId),
-          ) !== -1 ||
-          this.props.location.pathname.indexOf(
-            API_EDITOR_URL(applicationId, pageId),
-          ) !== -1 ||
-          this.props.location.pathname.indexOf(
-            QUERIES_EDITOR_URL(applicationId, pageId),
-          ) !== -1
-        ),
+          BUILDER_PAGE_URL(applicationId, pageId) &&
+        this.props.location.pathname !== WIDGETS_URL(applicationId, pageId),
     };
   }
 
@@ -88,22 +73,9 @@ class EditorsRouter extends React.Component<
       const { applicationId, pageId } = this.props.match.params;
       this.setState({
         isVisible:
-          this.props.location.pathname !== BUILDER_BASE_URL(applicationId) &&
           this.props.location.pathname !==
-            BUILDER_PAGE_URL(applicationId, pageId),
-        showOnlySidebar:
-          // TODO: Please optimise this
-          !(
-            this.props.location.pathname.indexOf(
-              DATA_SOURCES_EDITOR_URL(applicationId, pageId),
-            ) !== -1 ||
-            this.props.location.pathname.indexOf(
-              API_EDITOR_URL(applicationId, pageId),
-            ) !== -1 ||
-            this.props.location.pathname.indexOf(
-              QUERIES_EDITOR_URL(applicationId, pageId),
-            ) !== -1
-          ),
+            BUILDER_PAGE_URL(applicationId, pageId) &&
+          this.props.location.pathname !== WIDGETS_URL(applicationId, pageId),
       });
     }
   }
@@ -123,16 +95,9 @@ class EditorsRouter extends React.Component<
 
   render(): React.ReactNode {
     return (
-      <Wrapper
-        isVisible={this.state.isVisible}
-        onClick={
-          !this.state.showOnlySidebar ? this.handleClose : this.preventClose
-        }
-        showOnlySidebar={this.state.showOnlySidebar}
-      >
+      <Wrapper isVisible={this.state.isVisible} onClick={this.handleClose}>
         <PaneDrawer
           isVisible={this.state.isVisible}
-          showOnlySidebar={this.state.showOnlySidebar}
           onClick={this.preventClose}
         >
           <Switch>
@@ -199,7 +164,6 @@ class EditorsRouter extends React.Component<
 }
 type PaneDrawerProps = {
   isVisible: boolean;
-  showOnlySidebar: boolean;
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };

@@ -6,12 +6,16 @@ import { Icon, IconName } from "./Icon";
 import { Size } from "./Button";
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
-  font-family: ${props => props.theme.fonts.main};
+  font-family: ${props => props.theme.fonts[2]};
   user-select: none;
   border-radius: 0px;
   height: 100%;
-  span {
-    margin-right: ${props => props.theme.spaces[2] - 1}px;
+  .ads-icon {
+    margin-right: ${props => props.theme.spaces[4]}px;
+    svg {
+      width: ${props => props.theme.spaces[9]}px;
+      height: ${props => props.theme.spaces[9]}px;
+    }
   }
   .react-tabs {
     height: 100%;
@@ -21,8 +25,13 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     overflow: scroll;
   }
   .react-tabs__tab-list {
+    display: flex;
+    align-items: center;
     border-bottom: 2px solid ${props => props.theme.colors.blackShades[3]};
     color: ${props => props.theme.colors.blackShades[6]};
+    path {
+      fill: ${props => props.theme.colors.blackShades[6]};
+    }
     ${props =>
       props.shouldOverflow &&
       `
@@ -32,8 +41,11 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     `}
   }
   .react-tabs__tab {
-    padding: ${props => props.theme.space[7]}px 0;
-    margin-right: ${props => props.theme.space[15]}px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 0 ${props => props.theme.spaces[2]}px 0;
+    margin-right: ${props => props.theme.spaces[12] - 3}px;
     text-align: center;
     display: inline-flex;
     align-items: center;
@@ -48,7 +60,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   .react-tabs__tab:focus {
     box-shadow: none;
     border-bottom: ${props => props.theme.colors.info.main}
-      ${props => props.theme.space[16]}px solid;
+      ${props => props.theme.spaces[1] - 2}px solid;
     path {
       fill: ${props => props.theme.colors.blackShades[9]};
     }
@@ -57,7 +69,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     color: ${props => props.theme.colors.blackShades[9]};
     border: 0px solid;
     border-bottom: ${props => props.theme.colors.info.main}
-      ${props => props.theme.space[16]}px solid;
+      ${props => props.theme.spaces[1] - 2}px solid;
     background-color: transparent;
     path {
       fill: ${props => props.theme.colors.blackShades[9]};
@@ -65,9 +77,16 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   }
   .react-tabs__tab:focus:after {
     content: none;
-    height: ${props => props.theme.space[16]}px;
+    height: ${props => props.theme.spaces[1] - 2}px;
     background: ${props => props.theme.colors.info.main};
   }
+`;
+
+const TabTitle = styled.span`
+  font-size: ${props => props.theme.typography.h4.fontSize}px;
+  font-weight: normal;
+  line-height: ${props => props.theme.typography.h4.lineHeight}px;
+  letter-spacing: ${props => props.theme.typography.h4.letterSpacing}px;
 `;
 
 type TabbedViewComponentType = {
@@ -95,7 +114,7 @@ export const AdsTabComponent = (props: TabbedViewComponentType) => {
           {props.tabs.map(tab => (
             <Tab key={tab.key}>
               {tab.icon ? <Icon name={tab.icon} size={Size.large} /> : null}
-              {tab.title}
+              <TabTitle>{tab.title}</TabTitle>
             </Tab>
           ))}
         </TabList>

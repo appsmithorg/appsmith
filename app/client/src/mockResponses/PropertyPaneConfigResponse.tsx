@@ -499,10 +499,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                 value: "PASSWORD",
               },
               {
-                label: "Phone Number",
-                value: "PHONE_NUMBER",
-              },
-              {
                 label: "Email",
                 value: "EMAIL",
               },

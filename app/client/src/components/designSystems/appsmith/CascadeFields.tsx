@@ -45,15 +45,7 @@ const FieldWrapper = styled.div`
 
 const DropdownWrapper = styled.div<{ width: number }>`
   width: ${props => props.width}px;
-  height: 32px;
-  background: ${Colors.WHITE};
-  border: 1px solid #d3dee3;
-  box-sizing: border-box;
-  border-radius: 4px;
   margin-left: 10px;
-  font-size: 14px;
-  padding: 5px 12px 7px;
-  color: ${Colors.OXFORD_BLUE};
 `;
 
 const StyledInputGroup = styled(InputGroup)`
@@ -63,7 +55,7 @@ const StyledInputGroup = styled(InputGroup)`
   border-radius: 4px;
   color: ${Colors.OXFORD_BLUE};
   height: 32px;
-  width: 100px;
+  width: 150px;
   margin-left: 10px;
   input {
     box-shadow: none;
@@ -72,7 +64,7 @@ const StyledInputGroup = styled(InputGroup)`
 
 const DatePickerWrapper = styled.div`
   margin-left: 10px;
-  width: 100px;
+  width: 150px;
 `;
 
 const DropdownTrigger = styled.div`
@@ -80,6 +72,15 @@ const DropdownTrigger = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  height: 32px;
+  background: ${Colors.WHITE};
+  border: 1px solid #d3dee3;
+  box-sizing: border-box;
+  border-radius: 4px;
+  font-size: 14px;
+  padding: 5px 12px 7px;
+  color: ${Colors.OXFORD_BLUE};
+  cursor: pointer;
   &&& span {
     margin-right: 0;
   }
@@ -163,8 +164,8 @@ const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
 };
 
 const operatorOptions: DropdownOption[] = [
-  { label: "or", value: OperatorTypes.OR, type: "" },
-  { label: "and", value: OperatorTypes.AND, type: "" },
+  { label: "OR", value: OperatorTypes.OR, type: "" },
+  { label: "AND", value: OperatorTypes.AND, type: "" },
 ];
 
 const RenderOptions = (props: {
@@ -210,9 +211,13 @@ const RenderOptions = (props: {
       );
       if (selectedOptions && selectedOptions.length) {
         selectValue(selectedOptions[0].content);
+      } else {
+        selectValue(props.placeholder);
       }
+    } else {
+      selectValue(props.placeholder);
     }
-  }, [props.value, configs.sections]);
+  }, [props.value, props.placeholder, configs.sections]);
   return <CustomizedDropdown {...configs} />;
 };
 
@@ -330,6 +335,7 @@ function CaseCaseFieldReducer(
       return {
         ...state,
         column: action.payload.value,
+        condition: "",
         conditions: typeOperatorsMap[type],
         showConditions: true,
         isUpdate: true,
@@ -459,7 +465,9 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
           />
         </DropdownWrapper>
       ) : (
-        <LabelWrapper>{index === 0 ? "Where" : props.operator}</LabelWrapper>
+        <LabelWrapper>
+          {index === 0 ? "Where" : OperatorTypes[props.operator]}
+        </LabelWrapper>
       )}
       <DropdownWrapper width={150}>
         <RenderOptions
@@ -470,12 +478,12 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
         />
       </DropdownWrapper>
       {showConditions ? (
-        <DropdownWrapper width={120}>
+        <DropdownWrapper width={200}>
           <RenderOptions
             columns={conditions}
             selectItem={selectCondition}
             value={condition}
-            placeholder="Is"
+            placeholder=""
           />
         </DropdownWrapper>
       ) : null}

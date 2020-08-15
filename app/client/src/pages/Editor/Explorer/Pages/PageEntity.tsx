@@ -27,7 +27,7 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
     if (!!params.applicationId) {
       history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
     }
-  }, [props.isCurrentPage, props.page.pageId, params.applicationId]);
+  }, [props.page.pageId, params.applicationId]);
 
   const contextMenu = (
     <PageContextMenu
