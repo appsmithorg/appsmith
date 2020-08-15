@@ -319,9 +319,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           return filter;
         },
       );
+      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
       return filteredTableData;
     },
   );
+
+  resetFilteredTableData = (
+    filters?: ReactTableFilter[],
+    searchText?: string,
+    sortedColumn?: {
+      column: string;
+      asc: boolean;
+    },
+  ) => {
+    const { tableData } = this.props;
+    const tableColumns = this.getTableColumns(tableData);
+    this.filterTableData(
+      tableData,
+      tableColumns,
+      filters,
+      searchText,
+      sortedColumn,
+    );
+  };
 
   getPageView() {
     const {
@@ -331,17 +351,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText,
       sortedColumn,
     } = this.props;
-    let filteredTableData = this.props.filteredTableData;
     const tableColumns = this.getTableColumns(tableData);
-    if (filteredTableData === undefined) {
-      // Use the filtered data to render the table.
-      filteredTableData = this.filterTableData(
-        tableData,
-        tableColumns,
-        filters,
-        searchText,
-        sortedColumn,
-      );
+    // Use the filtered data to render the table.
+    const filteredTableData = this.filterTableData(
+      tableData,
+      tableColumns,
+      filters,
+      searchText,
+      sortedColumn,
+    );
+    if (this.props.filteredTableData === undefined) {
       super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
     }
     const transformedData = this.transformData(
@@ -455,26 +474,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       </Suspense>
     );
   }
-
-  resetFilteredTableData = (
-    filters?: ReactTableFilter[],
-    searchText?: string,
-    sortedColumn?: {
-      column: string;
-      asc: boolean;
-    },
-  ) => {
-    const { tableData } = this.props;
-    const tableColumns = this.getTableColumns(tableData);
-    const filteredTableData = this.filterTableData(
-      tableData,
-      tableColumns,
-      filters,
-      searchText,
-      sortedColumn,
-    );
-    super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-  };
 
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged, filters, sortedColumn } = this.props;
