@@ -84,7 +84,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
-      filteredTableData: VALIDATION_TYPES.TABLE_DATA,
+      // filteredTableData: VALIDATION_TYPES.TABLE_DATA,
       defaultSearchText: VALIDATION_TYPES.TEXT,
     };
   }
@@ -101,7 +101,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: -1,
       searchText: undefined,
       // The following meta property is used for rendering the table.
-      filteredTableData: [],
+      filteredTableData: undefined,
     };
   }
 
@@ -331,16 +331,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText,
       sortedColumn,
     } = this.props;
-    console.log("filteredTableData", this.props.filteredTableData);
+    let filteredTableData = this.props.filteredTableData;
     const tableColumns = this.getTableColumns(tableData);
-    // Use the filtered data to render the table.
-    const filteredTableData = this.filterTableData(
-      tableData,
-      tableColumns,
-      filters,
-      searchText,
-      sortedColumn,
-    );
+    if (filteredTableData === undefined) {
+      // Use the filtered data to render the table.
+      filteredTableData = this.filterTableData(
+        tableData,
+        tableColumns,
+        filters,
+        searchText,
+        sortedColumn,
+      );
+      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+    }
     const transformedData = this.transformData(
       filteredTableData || [],
       tableColumns,
