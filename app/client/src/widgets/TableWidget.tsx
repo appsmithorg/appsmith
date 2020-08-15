@@ -324,15 +324,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   );
 
   getPageView() {
-    const { tableData, hiddenColumns } = this.props;
+    const {
+      tableData,
+      hiddenColumns,
+      filters,
+      searchText,
+      sortedColumn,
+    } = this.props;
+    console.log("filteredTableData", this.props.filteredTableData);
     const tableColumns = this.getTableColumns(tableData);
     // Use the filtered data to render the table.
     const filteredTableData = this.filterTableData(
       tableData,
       tableColumns,
-      this.props.filters,
-      this.props.searchText,
-      this.props.sortedColumn,
+      filters,
+      searchText,
+      sortedColumn,
     );
     const transformedData = this.transformData(
       filteredTableData || [],
@@ -426,8 +433,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
             this.resetSelectedRowIndex();
+            this.resetFilteredTableData(filters, searchText, sortedColumn);
             super.updateWidgetMetaProperty("filters", filters);
-            this.resetFilteredTableData();
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
@@ -435,19 +442,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }}
           sortTableColumn={(column: string, asc: boolean) => {
             this.resetSelectedRowIndex();
+            this.resetFilteredTableData(filters, searchText, { column, asc });
             super.updateWidgetMetaProperty("sortedColumn", {
               column: column,
               asc: asc,
             });
-            this.resetFilteredTableData();
           }}
         />
       </Suspense>
     );
   }
 
-  resetFilteredTableData = () => {
-    const { tableData, filters, searchText, sortedColumn } = this.props;
+  resetFilteredTableData = (
+    filters?: ReactTableFilter[],
+    searchText?: string,
+    sortedColumn?: {
+      column: string;
+      asc: boolean;
+    },
+  ) => {
+    const { tableData } = this.props;
     const tableColumns = this.getTableColumns(tableData);
     const filteredTableData = this.filterTableData(
       tableData,
@@ -460,8 +474,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleSearchTable = (searchKey: any) => {
-    const { onSearchTextChanged } = this.props;
-    this.resetFilteredTableData();
+    const { onSearchTextChanged, filters, sortedColumn } = this.props;
+    this.resetFilteredTableData(filters, searchKey, sortedColumn);
     this.resetSelectedRowIndex();
     this.updateWidgetMetaProperty("pageNo", 1);
     super.updateWidgetMetaProperty("searchText", searchKey);
@@ -576,7 +590,6 @@ export interface TableWidgetProps extends WidgetProps {
   searchText: string;
   defaultSearchText: string;
   tableData: object[];
-  filteredTableData: object[];
   onPageChange?: string;
   pageSize: number;
   onRowSelected?: string;
