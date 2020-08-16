@@ -36,14 +36,25 @@ install_docker() {
     sudo ${package_manager} -y update --quiet
     echo "Installing docker"
     sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
-   
-    if [ ! -f /usr/bin/docker-compose ];then
-        echo "Installing docker-compose"
-        sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-    fi
+}
 
+install_docker_compose() {
+    if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
+        if [ ! -f /usr/bin/docker-compose ];then
+            echo "Installing docker-compose..."
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+            echo "docker-compose installed!"
+        fi
+    else
+        echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
+        echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
+        echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
+        echo -e "Exiting for now. Bye! \U1F44B"
+        echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
+        exit
+    fi
 }
 
 start_docker() {
@@ -242,6 +253,7 @@ curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/
 if ! is_command_present docker ;then
     if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
         install_docker
+
     else
         echo ""
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
@@ -250,6 +262,11 @@ if ! is_command_present docker ;then
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
         exit
     fi
+fi
+
+# Install docker-compose
+if ! is_command_present docker-compose; then
+    install_docker_compose
 fi
 
 # Starting docker service
