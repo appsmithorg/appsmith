@@ -640,15 +640,28 @@ Cypress.Commands.add("CopyAPIToHome", () => {
 });
 
 Cypress.Commands.add("DeleteAPIFromSideBar", () => {
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
-  cy.get(apiwidget.delete).click({ force: true });
+  cy.deleteAction();
   cy.wait("@deleteAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
+  cy.deleteAction();
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("deleteAction", () => {
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.delete).click({ force: true });
 });
 
 Cypress.Commands.add("DeleteAPI", apiname => {
