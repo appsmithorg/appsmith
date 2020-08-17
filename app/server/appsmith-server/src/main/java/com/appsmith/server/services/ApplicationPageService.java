@@ -10,13 +10,13 @@ public interface ApplicationPageService {
 
     Mono<UpdateResult> addPageToApplication(Application application, Page page, Boolean isDefault);
 
-    Mono<Page> getPage(String pageId, Boolean viewMode);
+    Mono<Page> getPage(String pageId, boolean viewMode);
 
     Mono<Application> createApplication(Application application);
 
     Mono<Application> createApplication(Application application, String orgId);
 
-    Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode);
+    Mono<Page> getPageByName(String applicationName, String pageName, boolean viewMode);
 
     Mono<Application> makePageDefault(String applicationId, String pageId);
 

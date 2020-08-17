@@ -5,7 +5,7 @@ import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
@@ -32,9 +32,9 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
      * The client browser will follow this redirect and fetch the user's profile JSON from the server.
      * In the process, the client browser will also set the session ID in the cookie against the server's API domain.
      *
-     * @param webFilterExchange
-     * @param authentication
-     * @return
+     * @param webFilterExchange WebFilterExchange instance for the current request.
+     * @param authentication Authentication object, needs to have a non-null principal object.
+     * @return Publishes empty, that completes after handler tasks are finished.
      */
     @Override
     public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
@@ -55,11 +55,15 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
      * <p>
      * We extract the redirect url from the `state` key present in the request exchange object. This is state variable
      * contains a random generated key along with the referer header set in the
-     * {@link CustomServerOAuth2AuthorizationRequestResolver#generateKey(HttpHeaders)} function.
+     * {@link CustomServerOAuth2AuthorizationRequestResolver#generateKey(ServerHttpRequest)} function.
      *
-     * @param webFilterExchange
-     * @return
+     * @param webFilterExchange WebFilterExchange instance for the current request.
+     * @return Publishes empty after redirection has been applied to the current exchange.
      */
+    @SuppressWarnings(
+            // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
+           "JavadocReference"
+    )
     private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);

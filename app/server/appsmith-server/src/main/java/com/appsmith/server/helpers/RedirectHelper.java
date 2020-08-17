@@ -33,21 +33,21 @@ public class RedirectHelper {
      * 1. Query parameters
      * 2. Headers
      *
-     * @param request
-     * @return
+     * @param request ServerHttpRequest object for the current request, used to inspect redirection details.
+     * @return Publishes the redirection url as a String.
      */
     public Mono<String> getRedirectUrl(ServerHttpRequest request) {
 
         MultiValueMap<String, String> queryParams = request.getQueryParams();
         HttpHeaders httpHeaders = request.getHeaders();
 
-        if (queryParams != null && queryParams.getFirst(REDIRECT_URL_QUERY_PARAM) != null) {
+        if (queryParams.getFirst(REDIRECT_URL_QUERY_PARAM) != null) {
             return Mono.just(fulfillRedirectUrl(
                     queryParams.getFirst(REDIRECT_URL_QUERY_PARAM),
                     httpHeaders
             ));
 
-        } else if (queryParams != null && queryParams.getFirst(FORK_APP_ID_QUERY_PARAM) != null) {
+        } else if (queryParams.getFirst(FORK_APP_ID_QUERY_PARAM) != null) {
             final String forkAppId = queryParams.getFirst(FORK_APP_ID_QUERY_PARAM);
             final String defaultRedirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
             return applicationService.findByClonedFromApplicationId(forkAppId, READ_APPLICATIONS)
