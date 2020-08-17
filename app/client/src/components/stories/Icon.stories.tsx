@@ -25,7 +25,7 @@ export const ButtonIcon = () => (
     )}
     icon={select("iconName", ["delete", "user"], "delete")}
     isLoading={boolean("Loading", false)}
-    isDisabled={boolean("Disabled", false)}
+    disabled={boolean("Disabled", false)}
   ></Button>
 );
 
