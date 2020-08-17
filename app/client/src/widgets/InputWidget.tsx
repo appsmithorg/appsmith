@@ -59,7 +59,30 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      isValid: `{{!!(this.isRequired ? this.text && this.text.length > 0 ? this.regex ? new RegExp(this.regex).test(this.text) : true : false : this.regex ? new RegExp(this.regex).test(this.text) : true)}}`,
+      isValid: `{{
+        function(){
+          const isEmailType = this.inputType === "EMAIL";
+          if(isEmailType) {
+            const emailRegex = /^(([^<>()\\[\\]\\\\.,;:\\s@"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@"]+)*)|(".+"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$/;
+          }
+
+          if(this.isRequired) {
+
+
+          } else {
+
+          }
+          !!(this.isRequired
+            ? this.text && this.text.length > 0
+              ? this.regex
+                ? new RegExp(this.regex).test(this.text)
+                : true
+              : false
+            : this.regex
+              ? new RegExp(this.regex).test(this.text)
+              : true)
+        }()
+      }}`,
       value: `{{this.text}}`,
     };
   }
