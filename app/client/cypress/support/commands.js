@@ -274,6 +274,7 @@ Cypress.Commands.add("NavigateToWidgets", pageName => {
 Cypress.Commands.add("SearchApp", appname => {
   cy.get(homePage.searchInput).type(appname);
   cy.wait(2000);
+  cy.get(homePage.applicationCard).trigger("mouseover");
   cy.get(homePage.appEditIcon)
     .first()
     .click({ force: true });

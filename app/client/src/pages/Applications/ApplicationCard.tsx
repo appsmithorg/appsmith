@@ -223,6 +223,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       onMouseEnter={() => setShowOverlay(true)}
       onMouseLeave={() => setShowOverlay(false)}
       hasReadPermission={hasReadPermission}
+      className="t--application-card"
     >
       <Wrapper
         key={props.application.id}
@@ -260,7 +261,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                         height={9}
                       />
                     }
-                    className="t--application-edit-btn"
+                    className="t--application-edit-link"
                     fluid
                   />
                 )}
