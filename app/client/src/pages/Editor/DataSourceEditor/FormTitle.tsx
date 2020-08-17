@@ -34,9 +34,7 @@ const FormTitle = (props: FormTitleProps) => {
     | undefined = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
-  const datasources: Datasource[] = useSelector((state: AppState) =>
-    getDataSources(state),
-  );
+  const datasources: Datasource[] = useSelector(getDataSources);
 
   const hasNameConflict = React.useCallback(
     (name: string) => datasources.some(datasource => datasource.name === name),
