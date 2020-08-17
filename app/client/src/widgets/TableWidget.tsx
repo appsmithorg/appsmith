@@ -21,6 +21,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
+import memoize from "memoize-one";
 const ReactTableComponent = lazy(() =>
   import("components/designSystems/appsmith/ReactTableComponent"),
 );
@@ -83,14 +84,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
-      filteredTableData: VALIDATION_TYPES.TABLE_DATA,
+      // filteredTableData: VALIDATION_TYPES.TABLE_DATA,
       defaultSearchText: VALIDATION_TYPES.TEXT,
     };
   }
   static getDerivedPropertiesMap() {
     return {
-      filteredTableData:
-        "{{!this.onSearchTextChanged ? this.tableData.filter((item) => Object.values(item).join(', ').toUpperCase().includes(this.searchText ? this.searchText.toUpperCase() : '')) : this.tableData}}",
       selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
     };
   }
@@ -102,7 +101,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: -1,
       searchText: undefined,
       // The following meta property is used for rendering the table.
-      filteredTableData: [],
+      filteredTableData: undefined,
     };
   }
 
@@ -202,22 +201,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   transformData = (tableData: object[], columns: ReactTableColumnProps[]) => {
-    let sortedTableData = [];
-    if (this.props.sortedColumn) {
-      const sortedColumn = this.props.sortedColumn.column;
-      const sortOrder = this.props.sortedColumn.asc;
-      sortedTableData = sortTableFunction(
-        tableData,
-        columns,
-        sortedColumn,
-        sortOrder,
-      );
-    } else {
-      sortedTableData = [...tableData];
-    }
     const updatedTableData = [];
-    for (let row = 0; row < sortedTableData.length; row++) {
-      const data: { [key: string]: any } = sortedTableData[row];
+    for (let row = 0; row < tableData.length; row++) {
+      const data: { [key: string]: any } = tableData[row];
       const tableRow: { [key: string]: any } = {};
       for (let colIndex = 0; colIndex < columns.length; colIndex++) {
         const column = columns[colIndex];
@@ -277,38 +263,110 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return updatedTableData;
   };
 
-  filterTableData = (tableData: object[]) => {
-    if (!tableData || !tableData.length) {
-      return [];
-    }
-    const { filters } = this.props;
-    return tableData.filter((item: { [key: string]: any }) => {
-      if (!filters || filters.length === 0) return true;
-      const filterOperator: Operator =
-        filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
-      let filter = filterOperator === OperatorTypes.AND ? true : false;
-      for (let i = 0; i < filters.length; i++) {
-        const filterValue = compare(
-          item[filters[i].column],
-          filters[i].value,
-          filters[i].condition,
-        );
-        if (filterOperator === OperatorTypes.AND) {
-          filter = filter && filterValue;
-        } else {
-          filter = filter || filterValue;
-        }
+  filterTableData = memoize(
+    (
+      tableData: object[],
+      columns: ReactTableColumnProps[],
+      filters?: ReactTableFilter[],
+      searchText?: string,
+      sortedColumn?: {
+        column: string;
+        asc: boolean;
+      },
+    ) => {
+      if (!tableData || !tableData.length) {
+        return [];
       }
-      return filter;
-    });
+      let sortedTableData = [];
+      const searchKey = searchText ? searchText.toUpperCase() : "";
+      if (sortedColumn) {
+        const sortColumn = sortedColumn.column;
+        const sortOrder = sortedColumn.asc;
+        sortedTableData = sortTableFunction(
+          tableData,
+          columns,
+          sortColumn,
+          sortOrder,
+        );
+      } else {
+        sortedTableData = [...tableData];
+      }
+      const filteredTableData = sortedTableData.filter(
+        (item: { [key: string]: any }) => {
+          const searchFound = searchKey
+            ? Object.values(item)
+                .join(", ")
+                .toUpperCase()
+                .includes(searchKey)
+            : true;
+          if (!searchFound) return false;
+          if (!filters || filters.length === 0) return true;
+          const filterOperator: Operator =
+            filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
+          let filter = filterOperator === OperatorTypes.AND ? true : false;
+          for (let i = 0; i < filters.length; i++) {
+            const filterValue = compare(
+              item[filters[i].column],
+              filters[i].value,
+              filters[i].condition,
+            );
+            if (filterOperator === OperatorTypes.AND) {
+              filter = filter && filterValue;
+            } else {
+              filter = filter || filterValue;
+            }
+          }
+          return filter;
+        },
+      );
+      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+      return filteredTableData;
+    },
+  );
+
+  resetFilteredTableData = (
+    filters?: ReactTableFilter[],
+    searchText?: string,
+    sortedColumn?: {
+      column: string;
+      asc: boolean;
+    },
+  ) => {
+    const { tableData } = this.props;
+    const tableColumns = this.getTableColumns(tableData);
+    this.filterTableData(
+      tableData,
+      tableColumns,
+      filters,
+      searchText,
+      sortedColumn,
+    );
   };
 
   getPageView() {
-    const { tableData, hiddenColumns, filteredTableData } = this.props;
+    const {
+      tableData,
+      hiddenColumns,
+      filters,
+      searchText,
+      sortedColumn,
+    } = this.props;
     const tableColumns = this.getTableColumns(tableData);
     // Use the filtered data to render the table.
-    const filterData = this.filterTableData(filteredTableData);
-    const transformedData = this.transformData(filterData, tableColumns);
+    const filteredTableData = this.filterTableData(
+      tableData,
+      tableColumns,
+      filters,
+      searchText,
+      sortedColumn,
+    );
+    if (this.props.filteredTableData === undefined) {
+      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+    }
+    const transformedData = this.transformData(
+      filteredTableData || [],
+      tableColumns,
+    );
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
       this.props.serverSidePaginationEnabled) as boolean;
@@ -396,14 +454,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           searchTableData={this.handleSearchTable}
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
+            this.resetSelectedRowIndex();
+            this.resetFilteredTableData(filters, searchText, sortedColumn);
             super.updateWidgetMetaProperty("filters", filters);
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
-            super.updateWidgetMetaProperty("compactMode", compactMode);
+            if (this.props.renderMode === RenderModes.CANVAS) {
+              super.updateWidgetProperty("compactMode", compactMode);
+            } else {
+              super.updateWidgetMetaProperty("compactMode", compactMode);
+            }
           }}
           sortTableColumn={(column: string, asc: boolean) => {
             this.resetSelectedRowIndex();
+            this.resetFilteredTableData(filters, searchText, { column, asc });
             super.updateWidgetMetaProperty("sortedColumn", {
               column: column,
               asc: asc,
@@ -415,7 +480,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   handleSearchTable = (searchKey: any) => {
-    const { onSearchTextChanged } = this.props;
+    const { onSearchTextChanged, filters, sortedColumn } = this.props;
+    this.resetFilteredTableData(filters, searchKey, sortedColumn);
     this.resetSelectedRowIndex();
     this.updateWidgetMetaProperty("pageNo", 1);
     super.updateWidgetMetaProperty("searchText", searchKey);
