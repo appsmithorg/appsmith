@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
+import { useDrag, DragPreviewImage } from "react-dnd";
 import blankImage from "assets/images/blank.png";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
@@ -72,9 +72,6 @@ const WidgetCard = (props: CardProps) => {
   const showPropertyPane = useShowPropertyPane();
   const [, drag, preview] = useDrag({
     item: { ...props.details, widgetId },
-    collect: (monitor: DragSourceMonitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
     begin: () => {
       AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
         widgetType: props.details.type,

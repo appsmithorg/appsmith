@@ -33,6 +33,9 @@ server {
         sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP}';
         sub_filter __APPSMITH_SENTRY_RELEASE__ '${APPSMITH_SENTRY_RELEASE}';
         sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ '${APPSMITH_SENTRY_ENVIRONMENT}';
+        sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID}';
+        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
+        sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';
     }
 
     location /f {
@@ -97,6 +100,9 @@ server {
         sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP}';
         sub_filter __APPSMITH_SENTRY_RELEASE__ '${APPSMITH_SENTRY_RELEASE}';
         sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ '${APPSMITH_SENTRY_ENVIRONMENT}';
+        sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID}';
+        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
+        sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';
     }
 
     location /f {

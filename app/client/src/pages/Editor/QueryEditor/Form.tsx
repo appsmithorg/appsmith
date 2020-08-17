@@ -74,9 +74,18 @@ const QueryFormContainer = styled.div`
   }
 `;
 
+const ActionsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 1 1 50%;
+  justify-content: flex-end;
+`;
+
 const ActionButtons = styled.div`
-  flex: 1;
+  display: flex;
   margin-left: 10px;
+  flex: 0 1 150px;
+  justify-content: flex-end;
 `;
 
 const ActionButton = styled(BaseButton)`
@@ -189,7 +198,6 @@ const StyledOpenDocsIcon = styled(Icon)`
 `;
 
 const NameWrapper = styled.div`
-  width: 39%;
   display: flex;
   justify-content: space-between;
   input {
@@ -335,74 +343,76 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           <NameWrapper>
             <ActionNameEditor />
           </NameWrapper>
-          <DropdownSelect>
-            <DropdownField
-              placeholder="Datasource"
-              name="datasource.id"
-              options={DATASOURCES_OPTIONS}
-              width={232}
-              maxMenuHeight={200}
-              components={{ MenuList, Option: CustomOption, SingleValue }}
-            />
-          </DropdownSelect>
-          <ActionButtons>
-            <ActionButton
-              className="t--delete-query"
-              text="Delete"
-              accent="error"
-              loading={isDeleting}
-              onClick={onDeleteClick}
-            />
-            {dataSources.length === 0 ? (
-              <>
-                <TooltipStyles />
-                <Popover
-                  autoFocus={true}
-                  canEscapeKeyClose={true}
-                  content="You don’t have a Data Source to run this query"
-                  position="bottom"
-                  defaultIsOpen={false}
-                  usePortal
-                  portalClassName="helper-tooltip"
-                >
-                  <ActionButton
-                    className="t--run-query"
-                    text="Run"
-                    filled
-                    loading={isRunning}
-                    accent="primary"
-                    onClick={onRunClick}
-                  />
-                  <div>
-                    <p className="popuptext">
-                      You don’t have a Data Source to run this query
-                    </p>
-                    <Button
-                      onClick={() =>
-                        history.push(
-                          DATA_SOURCES_EDITOR_URL(applicationId, pageId),
-                        )
-                      }
-                      text="Add Datasource"
-                      intent="primary"
-                      filled
-                      size="small"
-                      className="popoverBtn"
-                    />
-                  </div>
-                </Popover>
-              </>
-            ) : (
-              <ActionButton
-                className="t--run-query"
-                text="Run"
-                filled
-                loading={isRunning}
-                accent="primary"
-                onClick={onRunClick}
+          <ActionsWrapper>
+            <DropdownSelect>
+              <DropdownField
+                placeholder="Datasource"
+                name="datasource.id"
+                options={DATASOURCES_OPTIONS}
+                width={232}
+                maxMenuHeight={200}
+                components={{ MenuList, Option: CustomOption, SingleValue }}
               />
-            )}
-          </ActionButtons>
+            </DropdownSelect>
+            <ActionButtons>
+              <ActionButton
+                className="t--delete-query"
+                text="Delete"
+                accent="error"
+                loading={isDeleting}
+                onClick={onDeleteClick}
+              />
+              {dataSources.length === 0 ? (
+                <>
+                  <TooltipStyles />
+                  <Popover
+                    autoFocus={true}
+                    canEscapeKeyClose={true}
+                    content="You don’t have a Data Source to run this query"
+                    position="bottom"
+                    defaultIsOpen={false}
+                    usePortal
+                    portalClassName="helper-tooltip"
+                  >
+                    <ActionButton
+                      className="t--run-query"
+                      text="Run"
+                      filled
+                      loading={isRunning}
+                      accent="primary"
+                      onClick={onRunClick}
+                    />
+                    <div>
+                      <p className="popuptext">
+                        You don’t have a Data Source to run this query
+                      </p>
+                      <Button
+                        onClick={() =>
+                          history.push(
+                            DATA_SOURCES_EDITOR_URL(applicationId, pageId),
+                          )
+                        }
+                        text="Add Datasource"
+                        intent="primary"
+                        filled
+                        size="small"
+                        className="popoverBtn"
+                      />
+                    </div>
+                  </Popover>
+                </>
+              ) : (
+                <ActionButton
+                  className="t--run-query"
+                  text="Run"
+                  filled
+                  loading={isRunning}
+                  accent="primary"
+                  onClick={onRunClick}
+                />
+              )}
+            </ActionButtons>
+          </ActionsWrapper>
         </FormRow>
 
         <div

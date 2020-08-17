@@ -1,13 +1,12 @@
 import styled from "styled-components";
-import { Colors, Color } from "constants/Colors";
 import { TableSizes } from "widgets/TableWidget";
+import { Colors, Color } from "constants/Colors";
 import { scrollbarLight } from "constants/DefaultTheme";
 
 export const TableWrapper = styled.div<{
   width: number;
   height: number;
   tableSizes: TableSizes;
-  tableRowHeight?: number;
   backgroundColor?: Color;
 }>`
   width: 100%;
@@ -75,6 +74,8 @@ export const TableWrapper = styled.div<{
       border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
       border-right: 1px solid ${Colors.GEYSER_LIGHT};
       position: relative;
+      font-size: ${props => props.tableSizes.ROW_FONT_SIZE}px;
+      line-height: ${props => props.tableSizes.ROW_FONT_SIZE}px;
       :last-child {
         border-right: 0;
       }
@@ -96,19 +97,13 @@ export const TableWrapper = styled.div<{
     }
     .th {
       padding: 0 10px 0 0;
-      height: 52px;
-      line-height: 52px;
+      height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+      line-height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
       background: ${Colors.ATHENS_GRAY_DARKER};
     }
     .td {
-      height: ${props =>
-        props.tableRowHeight
-          ? props.tableRowHeight
-          : props.tableSizes.ROW_HEIGHT}px;
-      line-height: ${props =>
-        props.tableRowHeight
-          ? props.tableRowHeight
-          : props.tableSizes.ROW_HEIGHT}px;
+      height: ${props => props.tableSizes.ROW_HEIGHT}px;
+      line-height: ${props => props.tableSizes.ROW_HEIGHT}px;
       padding: 0 10px;
     }
   }
@@ -136,8 +131,8 @@ export const TableWrapper = styled.div<{
   }
   .column-menu {
     cursor: pointer;
-    height: 52px;
-    line-height: 52px;
+    height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+    line-height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
   }
   .th {
     display: flex;
@@ -150,8 +145,8 @@ export const TableWrapper = styled.div<{
     }
   }
   .input-group {
-    height: 52px;
-    line-height: 52px;
+    height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+    line-height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
     padding: 0 5px;
   }
 `;
@@ -206,7 +201,7 @@ export const PaginationWrapper = styled.div`
   width: 100%;
   justify-content: flex-end;
   align-items: center;
-  padding: 14px 20px;
+  padding: 8px 20px;
 `;
 
 export const PaginationItemWrapper = styled.div<{
@@ -218,8 +213,8 @@ export const PaginationItemWrapper = styled.div<{
     ${props => (props.selected ? Colors.GREEN : Colors.GEYSER_LIGHT)};
   box-sizing: border-box;
   border-radius: 4px;
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -257,7 +252,7 @@ export const ActionWrapper = styled.div`
   }
 `;
 
-export const CellWrapper = styled.div<{ isHidden: boolean }>`
+export const CellWrapper = styled.div<{ isHidden?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -291,6 +286,7 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
 export const TableHeaderWrapper = styled.div<{
   serverSidePaginationEnabled: boolean;
   width: number;
+  tableSizes: TableSizes;
   backgroundColor?: Color;
 }>`
   display: flex;
@@ -301,15 +297,17 @@ export const TableHeaderWrapper = styled.div<{
   }
   overflow-x: scroll;
   overflow-y: hidden;
-  height: 60px;
-  min-height: 60px;
+  height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
+  min-height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   ${scrollbarLight};
 `;
 
-export const CommonFunctionsMenuWrapper = styled.div`
+export const CommonFunctionsMenuWrapper = styled.div<{
+  tableSizes: TableSizes;
+}>`
   display: flex;
   align-items: center;
-  height: 60px;
+  height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
 `;
 
 export const RowWrapper = styled.div`
@@ -331,7 +329,7 @@ export const TableIconWrapper = styled.div<{
   box-shadow: ${props =>
     props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
   width: 48px;
-  height: 60px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
