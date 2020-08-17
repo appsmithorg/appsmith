@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Icon, InputGroup } from "@blueprintjs/core";
 import CustomizedDropdown from "pages/common/CustomizedDropdown";
@@ -226,11 +226,12 @@ const RenderInput = (props: {
   value: string;
   onChange: (value: string) => void;
 }) => {
+  const debouncedOnChange = useCallback(debounce(props.onChange, 500), []);
   const [value, setValue] = useState(props.value);
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setValue(value);
-    props.onChange(value);
+    debouncedOnChange(value);
   };
   useEffect(() => {
     setValue(props.value);
@@ -511,7 +512,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
         </DropdownWrapper>
       ) : null}
       {showInput ? (
-        <RenderInput onChange={debounce(onValueChange, 500)} value={value} />
+        <RenderInput onChange={onValueChange} value={value} />
       ) : null}
       {showDateInput ? (
         <DatePickerWrapper>
