@@ -63,24 +63,23 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
         function(){
           const isEmailType = this.inputType === "EMAIL";
           if(isEmailType) {
-            const emailRegex = /^(([^<>()\\[\\]\\\\.,;:\\s@"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@"]+)*)|(".+"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$/;
-          }
-
-          if(this.isRequired) {
-
-
+            const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
+            return emailRegex.test(this.text);
+          } else if(this.isRequired) {
+            if(this.text && this.text.length > 0) {
+              if(this.regex) {
+                return new RegExp(this.regex).test(this.text)
+              } else {
+                return true;
+              }
+            } else {
+              return false;
+            }
+          } if(this.regex) {
+            return new RegExp(this.regex).test(this.text)
           } else {
-
+            return true;
           }
-          !!(this.isRequired
-            ? this.text && this.text.length > 0
-              ? this.regex
-                ? new RegExp(this.regex).test(this.text)
-                : true
-              : false
-            : this.regex
-              ? new RegExp(this.regex).test(this.text)
-              : true)
         }()
       }}`,
       value: `{{this.text}}`,
@@ -139,12 +138,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
 
   getPageView() {
     const value = this.state.text || "";
-    let isInvalid =
+    const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
 
-    if (this.props.inputType === "EMAIL" && !this.props.regex) {
-      isInvalid = !isEmail(value);
-    }
+    // if (this.props.inputType === "EMAIL" && !this.props.regex) {
+    //   isInvalid = !isEmail(value);
+    // }
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
