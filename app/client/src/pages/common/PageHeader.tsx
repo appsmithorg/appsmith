@@ -22,12 +22,6 @@ const StyledPageHeader = styled(StyledHeader)`
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
 `;
 
-const HeaderContentWrapper = styled.header`
-  display: flex;
-  flex-direction: row;
-  width: ${props => props.theme.pageContentWidth - 25}px;
-`;
-
 const HeaderSection = styled.div`
   display: flex;
   flex: 1;
@@ -55,28 +49,26 @@ export const PageHeader = (props: PageHeaderProps) => {
 
   return (
     <StyledPageHeader>
-      <HeaderContentWrapper>
-        <HeaderSection>
-          <Link to={APPLICATIONS_URL}>
-            <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
-          </Link>
-        </HeaderSection>
-        {user && (
-          <StyledDropDownContainer>
-            {user.username === ANONYMOUS_USERNAME ? (
-              <Button
-                filled
-                text="Sign In"
-                intent={"primary"}
-                size="small"
-                onClick={() => history.push(loginUrl)}
-              />
-            ) : (
-              <CustomizedDropdown {...DropdownProps(user, user.username)} />
-            )}
-          </StyledDropDownContainer>
-        )}
-      </HeaderContentWrapper>
+      <HeaderSection>
+        <Link to={APPLICATIONS_URL}>
+          <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+        </Link>
+      </HeaderSection>
+      {user && (
+        <StyledDropDownContainer>
+          {user.username === ANONYMOUS_USERNAME ? (
+            <Button
+              filled
+              text="Sign In"
+              intent={"primary"}
+              size="small"
+              onClick={() => history.push(loginUrl)}
+            />
+          ) : (
+            <CustomizedDropdown {...DropdownProps(user, user.username)} />
+          )}
+        </StyledDropDownContainer>
+      )}
     </StyledPageHeader>
   );
 };
