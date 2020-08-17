@@ -319,7 +319,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           return filter;
         },
       );
-      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+      // super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
       return filteredTableData;
     },
   );
