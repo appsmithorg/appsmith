@@ -65,6 +65,9 @@ const StyledDropDown = styled.div`
 const StyledTableWrapped = styled(TableWrapper)`
   height: ${props => props.height}px;
   overflow: visible;
+  .tableWrap {
+    height: ${props => props.height}px;
+  }
   .table {
     .tbody {
       height: ${props => props.height}px;
@@ -271,7 +274,7 @@ export const OrgSettings = (props: PageProps) => {
           tableSizes={TABLE_SIZES[CompactModeTypes.DEFAULT]}
           backgroundColor={Colors.ATHENS_GRAY_DARKER}
         >
-          <div className="tableWrap" style={{ height: `${tableHeight}px` }}>
+          <div className="tableWrap">
             <div {...getTableProps()} className="table">
               {headerGroups.map((headerGroup: any, index: number) => (
                 <div
