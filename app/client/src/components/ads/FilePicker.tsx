@@ -6,6 +6,7 @@ import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg"
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
+import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_PRESETS_NAME } from "./ads-config";
 
 type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
@@ -117,22 +118,26 @@ export function CloudinaryUploader(
   onUpload: UploadCallback,
 ) {
   const formData = new FormData();
-  formData.append("upload_preset", "zrawdjtc");
+  formData.append("upload_preset", `${CLOUDINARY_PRESETS_NAME}`);
   if (file) {
     formData.append("file", file);
   }
   axios
-    .post("https://api.cloudinary.com/v1_1/dz7ahlubr/image/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    .post(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: function(progressEvent: ProgressEvent) {
+          const uploadPercentage = Math.round(
+            (progressEvent.loaded / progressEvent.total) * 100,
+          );
+          setProgress(uploadPercentage);
+        },
       },
-      onUploadProgress: function(progressEvent: ProgressEvent) {
-        const uploadPercentage = Math.round(
-          (progressEvent.loaded / progressEvent.total) * 100,
-        );
-        setProgress(uploadPercentage);
-      },
-    })
+    )
     .then(data => {
       onUpload(data.data.url);
     })
