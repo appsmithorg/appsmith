@@ -1,69 +1,71 @@
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppState } from "reducers";
 import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-  ReduxAction,
-  UpdateCanvasPayload,
-  PageListPayload,
   FetchPageListPayload,
+  PageListPayload,
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+  UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
 import {
-  updateCanvas,
-  savePageSuccess,
-  fetchPageSuccess,
-  updateWidgetNameSuccess,
   deletePageSuccess,
-  updateCurrentPage,
+  fetchPageSuccess,
   fetchPublishedPageSuccess,
+  savePageSuccess,
   setUrlData,
+  updateCanvas,
+  updateCurrentPage,
+  updateWidgetNameSuccess,
 } from "actions/pageActions";
 import PageApi, {
-  FetchPageResponse,
-  SavePageResponse,
+  CreatePageRequest,
+  DeletePageRequest,
+  FetchPageListResponse,
   FetchPageRequest,
+  FetchPageResponse,
   FetchPublishedPageRequest,
   FetchPublishedPageResponse,
-  CreatePageRequest,
-  FetchPageListResponse,
+  PageLayout,
+  SavePageResponse,
   UpdatePageRequest,
-  DeletePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
-  PageLayout,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
-  call,
-  select,
-  put,
-  takeLatest,
   all,
+  call,
   debounce,
+  put,
+  select,
+  takeLatest,
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { getEditorConfigs, getWidgets, getAllPageIds } from "./selectors";
+import {
+  getAllPageIds,
+  getEditorConfigs,
+  getExistingActionNames,
+  getExistingPageNames,
+  getExistingWidgetNames,
+  getWidgets,
+} from "./selectors";
 import { validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
 import {
-  getCurrentPageId,
-  getCurrentLayoutId,
   getCurrentApplicationId,
+  getCurrentLayoutId,
+  getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import { fetchActionsForPage } from "actions/actionActions";
-import {
-  getExistingWidgetNames,
-  getExistingPageNames,
-  getExistingActionNames,
-} from "./selectors";
 import { clearCaches } from "utils/DynamicBindingUtils";
-import { UrlDataState } from "@appsmith/reducers/entityReducers/urlReducer";
+import { UrlDataState } from "reducers/entityReducers/appReducer";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -465,13 +467,13 @@ function getQueryParams() {
 
 export function* setDataUrl() {
   const urlData: UrlDataState = {
+    fullPath: window.location.href,
     host: window.location.host,
     hostname: window.location.hostname,
     queryParams: getQueryParams(),
     protocol: window.location.protocol,
     pathname: window.location.pathname,
     port: window.location.port,
-    href: window.location.href,
     hash: window.location.hash,
   };
   yield put(setUrlData(urlData));

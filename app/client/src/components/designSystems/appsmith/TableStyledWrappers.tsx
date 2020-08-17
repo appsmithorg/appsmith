@@ -26,7 +26,7 @@ export const TableWrapper = styled.div<{
   }
   .table {
     border-spacing: 0;
-    color: ${Colors.BLUE_BAYOUX};
+    color: ${Colors.THUNDER};
     position: relative;
     background: ${Colors.ATHENS_GRAY_DARKER};
     .thead,
@@ -314,9 +314,9 @@ export const RowWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 20px;
-  color: #4e5d78;
+  color: ${Colors.BLUE_BAYOUX};
   margin: 0 4px;
   white-space: nowrap;
 `;

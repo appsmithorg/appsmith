@@ -26,6 +26,22 @@ export const useShowPropertyPane = () => {
   );
 };
 
+export const useToggleEditWidgetName = () => {
+  const dispatch = useDispatch();
+  return useCallback(
+    (widgetId: string, enable: boolean) => {
+      dispatch({
+        type: ReduxActionTypes.TOGGLE_PROPERTY_PANE_WIDGET_NAME_EDIT,
+        payload: {
+          enable,
+          widgetId,
+        },
+      });
+    },
+    [dispatch],
+  );
+};
+
 export const useCanvasSnapRowsUpdateHook = () => {
   const dispatch = useDispatch();
   const updateCanvasSnapRows = useCallback(
@@ -66,11 +82,17 @@ export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
   return {
     setIsDragging: useCallback(
-      (isDragging: boolean) =>
+      (isDragging: boolean) => {
+        if (isDragging) {
+          document.body.classList.add("dragging");
+        } else {
+          document.body.classList.remove("dragging");
+        }
         dispatch({
           type: ReduxActionTypes.SET_WIDGET_DRAGGING,
           payload: { isDragging },
-        }),
+        });
+      },
       [dispatch],
     ),
     setIsResizing: useCallback(

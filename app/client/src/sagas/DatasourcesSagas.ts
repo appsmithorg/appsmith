@@ -155,16 +155,21 @@ export function* deleteDatasourceSaga(
   }
 }
 
-function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
+function* updateDatasourceSaga(
+  actionPayload: ReduxAction<{
+    datasource: Datasource;
+    reinitializeForm: boolean;
+  }>,
+) {
   try {
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
-      actionPayload.payload,
-      actionPayload.payload.id,
+      actionPayload.payload.datasource,
+      actionPayload.payload.datasource.id,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AppToaster.show({
-        message: `${actionPayload.payload.name} Datasource updated`,
+        message: `${actionPayload.payload.datasource.name} Datasource updated`,
         type: ToastType.SUCCESS,
       });
       yield put({
@@ -177,6 +182,11 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           id: response.data.id,
         },
       });
+      if (actionPayload.payload.reinitializeForm) {
+        yield put(
+          initialize(DATASOURCE_DB_FORM, actionPayload.payload.datasource),
+        );
+      }
     }
   } catch (error) {
     yield put({

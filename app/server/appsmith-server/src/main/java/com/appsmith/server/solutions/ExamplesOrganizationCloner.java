@@ -117,9 +117,8 @@ public class ExamplesOrganizationCloner {
                     if (!CollectionUtils.isEmpty(organization.getUserRoles())) {
                         organization.getUserRoles().clear();
                     }
-                    organization.setName(user.computeFirstName() + "'s Examples");
                     organization.setSlug(null);
-                    return organizationService.create(organization, user);
+                    return organizationService.createPersonal(organization, user);
                 })
                 .flatMap(newOrganization -> {
                     User userUpdate = new User();

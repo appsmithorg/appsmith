@@ -1,12 +1,6 @@
-import React, { useContext } from "react";
+import React, { SyntheticEvent } from "react";
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-
-import { useSelector } from "store";
-import { useDispatch } from "react-redux";
-import {
-  getHelpModalOpen,
-  getHelpModalDimensions,
-} from "selectors/helpSelectors";
+import { getHelpModalOpen } from "selectors/helpSelectors";
 import {
   setHelpDefaultRefinement,
   setHelpModalVisibility,
@@ -14,17 +8,20 @@ import {
 import styled from "styled-components";
 import { theme } from "constants/DefaultTheme";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
-import { LayersContext } from "constants/Layers";
 import { HelpIcons } from "icons/HelpIcons";
 import { getAppsmithConfigs } from "configs";
+import { LayersContext } from "constants/Layers";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
+
 const { algolia } = getAppsmithConfigs();
-const HelpButton = styled.div<{
+const HelpButton = styled.button<{
   highlight: boolean;
   layer: number;
 }>`
   &&&&& {
     position: absolute;
-    bottom: 46px;
+    bottom: 27px;
     right: 27px;
     z-index: ${props => props.layer};
     background: ${props =>
@@ -47,48 +44,66 @@ const HelpButton = styled.div<{
   }
 `;
 
+const MODAL_WIDTH = 240;
+const MODAL_HEIGHT = 210;
+const MODAL_BOTTOM_DISTANCE = 45;
+const MODAL_RIGHT_DISTANCE = 30;
+
 const HelpIcon = HelpIcons.HELP_ICON;
 
-export function HelpModal() {
-  const isHelpModalOpen = useSelector(getHelpModalOpen);
-  const helpDimensions = useSelector(getHelpModalDimensions);
-  const helpModalOpen = useSelector(getHelpModalOpen);
-  const dispatch = useDispatch();
-  const layers = useContext(LayersContext);
+type Props = {
+  isHelpModalOpen: boolean;
+  dispatch: any;
+};
 
-  return (
-    <>
-      <ModalComponent
-        canOutsideClickClose
-        canEscapeKeyClose
-        scrollContents
-        width={helpDimensions.width}
-        height={helpDimensions.height}
-        top={window.innerHeight - 105 - helpDimensions.height}
-        left={window.innerWidth - 31 - helpDimensions.width}
-        data-cy={"help-modal"}
-        hasBackDrop={false}
-        onClose={() => {
-          dispatch(setHelpModalVisibility(false));
-          dispatch(setHelpDefaultRefinement(""));
-        }}
-        isOpen={isHelpModalOpen}
-        zIndex={layers.help}
-      >
-        <DocumentationSearch hitsPerPage={5} />
-      </ModalComponent>
-      {algolia.enabled && (
-        <HelpButton
-          className="t--helpGlobalButton"
-          highlight={!helpModalOpen}
-          layer={layers.help}
-          onClick={() => {
-            dispatch(setHelpModalVisibility(!helpModalOpen));
+class HelpModal extends React.Component<Props> {
+  static contextType = LayersContext;
+  render() {
+    const { dispatch, isHelpModalOpen } = this.props;
+    const layers = this.context;
+
+    return (
+      <>
+        <ModalComponent
+          canOutsideClickClose
+          canEscapeKeyClose
+          scrollContents
+          height={MODAL_HEIGHT}
+          width={MODAL_WIDTH}
+          top={window.innerHeight - MODAL_BOTTOM_DISTANCE - MODAL_HEIGHT}
+          left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
+          data-cy={"help-modal"}
+          hasBackDrop={false}
+          onClose={(event: SyntheticEvent<HTMLElement>) => {
+            dispatch(setHelpModalVisibility(false));
+            dispatch(setHelpDefaultRefinement(""));
+            event.stopPropagation();
+            event.preventDefault();
           }}
+          isOpen={isHelpModalOpen}
+          zIndex={layers.help}
         >
-          <HelpIcon />
-        </HelpButton>
-      )}
-    </>
-  );
+          <DocumentationSearch hitsPerPage={4} />
+        </ModalComponent>
+        {algolia.enabled && (
+          <HelpButton
+            className="t--helpGlobalButton"
+            highlight={!isHelpModalOpen}
+            layer={layers.help}
+            onClick={() => {
+              dispatch(setHelpModalVisibility(!isHelpModalOpen));
+            }}
+          >
+            <HelpIcon />
+          </HelpButton>
+        )}
+      </>
+    );
+  }
 }
+
+const mapStateToProps = (state: AppState) => ({
+  isHelpModalOpen: getHelpModalOpen(state),
+});
+
+export default connect(mapStateToProps)(HelpModal);
