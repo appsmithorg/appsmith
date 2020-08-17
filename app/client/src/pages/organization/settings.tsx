@@ -63,8 +63,13 @@ const StyledDropDown = styled.div`
 `;
 
 const StyledTableWrapped = styled(TableWrapper)`
-  min-height: 0px;
-  height: auto;
+  height: ${props => props.height}px;
+  overflow: visible;
+  .table {
+    .tbody {
+      height: ${props => props.height}px;
+    }
+  }
 `;
 
 const StyledMenu = styled(Menu)`
@@ -182,7 +187,7 @@ export const OrgSettings = (props: PageProps) => {
     const tableDataLength =
       userTableData.length * TABLE_SIZES[CompactModeTypes.DEFAULT].ROW_HEIGHT +
       TABLE_SIZES[CompactModeTypes.DEFAULT].COLUMN_HEADER_HEIGHT;
-    return tableDataLength < 200 ? tableDataLength : 200;
+    return tableDataLength;
   }, [userTableData]);
 
   const columns = React.useMemo(() => {
@@ -266,7 +271,7 @@ export const OrgSettings = (props: PageProps) => {
           tableSizes={TABLE_SIZES[CompactModeTypes.DEFAULT]}
           backgroundColor={Colors.ATHENS_GRAY_DARKER}
         >
-          <div className="tableWrap">
+          <div className="tableWrap" style={{ height: `${tableHeight}px` }}>
             <div {...getTableProps()} className="table">
               {headerGroups.map((headerGroup: any, index: number) => (
                 <div
