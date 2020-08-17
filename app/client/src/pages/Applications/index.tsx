@@ -23,7 +23,6 @@ import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
-import { MenuIcons } from "icons/MenuIcons";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
@@ -34,13 +33,11 @@ import CustomizedDropdown, {
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
-import Badge from "pages/common/CustomizedDropdown/Badge";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import { Directions } from "utils/helpers";
-import { IntentColors } from "constants/DefaultTheme";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -306,7 +303,9 @@ class Applications extends Component<
                             iconSize={17}
                             className="t--create-app-popup"
                           />
-                          <CreateNew>Create New</CreateNew>
+                          <CreateNew className="createnew">
+                            Create New
+                          </CreateNew>
                         </ApplicationAddCardWrapper>
                       </PaddingWrapper>
                     }

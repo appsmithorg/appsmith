@@ -4,14 +4,10 @@ import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
-import { Card, Tooltip, Icon, Classes } from "@blueprintjs/core";
+import { Card, Classes } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
-import {
-  theme,
-  getBorderCSSShorthand,
-  getColorWithOpacity,
-} from "constants/DefaultTheme";
+import { theme, getColorWithOpacity } from "constants/DefaultTheme";
 import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
@@ -133,6 +129,15 @@ const Control = styled.div<{ fixed?: boolean }>`
 
   .${Classes.BUTTON} {
     margin-top: 7px;
+
+    div {
+      width: auto;
+      height: auto;
+    }
+  }
+
+  .${Classes.BUTTON_TEXT} {
+    font-size: 12px;
   }
 
   .more {
@@ -251,8 +256,8 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                     icon={
                       <ControlIcons.EDIT_WHITE
                         color={Colors.WHITE}
-                        width={13}
-                        height={13}
+                        width={9}
+                        height={9}
                       />
                     }
                     className="t--application-edit-btn"
@@ -265,7 +270,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                   outline
                   fluid
                   text="LAUNCH"
-                  icon={<ControlIcons.LAUNCH_CONTROL width={13} height={13} />}
+                  icon={<ControlIcons.LAUNCH_CONTROL width={9} height={9} />}
                   size="small"
                   className="t--application-view-link"
                 />
