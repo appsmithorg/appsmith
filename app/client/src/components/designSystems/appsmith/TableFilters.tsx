@@ -107,6 +107,8 @@ const TableFilters = (props: TableFilterProps) => {
       };
     },
   );
+  const showAddFilter =
+    filters.length >= 1 && filters[0].column && filters[0].condition;
   return (
     <Popover
       minimal
@@ -166,15 +168,17 @@ const TableFilters = (props: TableFilterProps) => {
             />
           );
         })}
-        <ButtonWrapper className={Classes.POPOVER_DISMISS}>
-          <Button
-            intent="primary"
-            text="Add Filter"
-            size="small"
-            onClick={addFilter}
-            icon="plus"
-          />
-        </ButtonWrapper>
+        {showAddFilter ? (
+          <ButtonWrapper className={Classes.POPOVER_DISMISS}>
+            <Button
+              intent="primary"
+              text="Add Filter"
+              size="small"
+              onClick={addFilter}
+              icon="plus"
+            />
+          </ButtonWrapper>
+        ) : null}
       </TableFilerWrapper>
     </Popover>
   );
