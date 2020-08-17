@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { Card, Icon, Dialog, Classes } from "@blueprintjs/core";
+import { Card, Icon, Dialog, Classes, Colors } from "@blueprintjs/core";
 import Button from "components/editorComponents/Button";
 import {
   getApplicationList,
@@ -38,6 +38,7 @@ import {
   DropdownOnSelectActions,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import { Directions } from "utils/helpers";
+import { HeaderIcons } from "icons/HeaderIcons";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -277,6 +278,13 @@ class Applications extends Component<
                     <FormDialogComponent
                       trigger={
                         <Button
+                          icon={
+                            <HeaderIcons.SHARE
+                              color={Colors.WHITE}
+                              width={16}
+                              height={16}
+                            />
+                          }
                           text="Share"
                           intent={"primary"}
                           className="t--org-share-btn"

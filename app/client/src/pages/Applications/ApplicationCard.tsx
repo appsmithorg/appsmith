@@ -154,7 +154,7 @@ const Initials = styled.span`
   margin: auto;
 `;
 
-const APPLICATION_CONTROL_FONTSIZE_INDEX = 6;
+const APPLICATION_CONTROL_FONTSIZE_INDEX = 5;
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
