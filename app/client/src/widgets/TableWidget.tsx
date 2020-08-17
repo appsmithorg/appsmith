@@ -460,7 +460,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
-            super.updateWidgetMetaProperty("compactMode", compactMode);
+            if (this.props.renderMode === RenderModes.CANVAS) {
+              super.updateWidgetProperty("compactMode", compactMode);
+            } else {
+              super.updateWidgetMetaProperty("compactMode", compactMode);
+            }
           }}
           sortTableColumn={(column: string, asc: boolean) => {
             this.resetSelectedRowIndex();
