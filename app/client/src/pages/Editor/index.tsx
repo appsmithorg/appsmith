@@ -36,6 +36,11 @@ import {
 } from "constants/Explorer";
 import history from "utils/history";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { getAppsmithConfigs } from "configs";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
+
+const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -45,6 +50,7 @@ type EditorProps = {
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
   errorPublishing: boolean;
+  user?: User;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -84,6 +90,7 @@ class Editor extends Component<Props> {
   };
 
   componentDidMount() {
+    const { user } = this.props;
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
@@ -91,8 +98,19 @@ class Editor extends Component<Props> {
     if (applicationId && pageId) {
       this.props.initEditor(applicationId, pageId);
     }
+    if (cloudHosting) {
+      window.Intercom("boot", {
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        app_id: intercomAppID,
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        custom_launcher_selector: "#intercom-trigger",
+        name: user?.username,
+        email: user?.email,
+      });
+    }
   }
   componentDidUpdate(previously: Props) {
+    if (cloudHosting) window.Intercom("update");
     if (
       previously.isPublishing &&
       !(this.props.isPublishing || this.props.errorPublishing)
@@ -184,6 +202,7 @@ const mapStateToProps = (state: AppState) => ({
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
+  user: getCurrentUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

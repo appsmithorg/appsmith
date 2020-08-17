@@ -324,7 +324,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
 export interface PropertyPaneProps {
   propertySections?: PropertySection[];
   widgetId?: string;
-  widgetProperties?: WidgetProps; //TODO(abhinav): Secure type definition
+  widgetProperties?: WidgetProps;
   isVisible: boolean;
 }
 

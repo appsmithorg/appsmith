@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SyntheticEvent } from "react";
 import algoliasearch from "algoliasearch/lite";
 import {
   InstantSearch,
@@ -8,25 +8,29 @@ import {
   Configure,
   PoweredBy,
 } from "react-instantsearch-dom";
-
 import "instantsearch.css/themes/algolia.css";
-
-import PropTypes from "prop-types";
-import { Icon } from "@blueprintjs/core";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  setHelpModalVisibility,
-  setHelpDefaultRefinement,
-} from "actions/helpActions";
+import { connect } from "react-redux";
 import styled from "styled-components";
 import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { getDefaultRefinement } from "selectors/helpSelectors";
 import { getAppsmithConfigs } from "configs";
-const { algolia } = getAppsmithConfigs();
+import { AppState } from "reducers";
+import {
+  setHelpDefaultRefinement,
+  setHelpModalVisibility,
+} from "actions/helpActions";
+import { Icon } from "@blueprintjs/core";
+import moment from "moment";
+
+const { algolia, appVersion, cloudHosting } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
+
 const OenLinkIcon = HelpIcons.OPEN_LINK;
 const DocumentIcon = HelpIcons.DOCUMENT;
+const GithubIcon = HelpIcons.GITHUB;
+const ChatIcon = HelpIcons.CHAT;
+const DiscordIcon = HelpIcons.DISCORD;
 
 const StyledOpenLinkIcon = styled(OenLinkIcon)`
   position: absolute;
@@ -47,43 +51,78 @@ const StyledDocumentIcon = styled(DocumentIcon)`
   margin-top: 1px;
   position: absolute;
 `;
-function Hit(props: any) {
+
+const StyledGithubIcon = styled(GithubIcon)`
+  margin-left: 14px;
+  margin-right: 10.8px;
+  margin-top: 1px;
+  position: absolute;
+`;
+
+const StyledChatIcon = styled(ChatIcon)`
+  &&& {
+    margin-left: 14px;
+    margin-right: 10.8px;
+    margin-top: 1px;
+    position: absolute;
+  }
+`;
+
+const StyledDiscordIcon = styled(DiscordIcon)`
+  &&& {
+    margin-left: 12px;
+    margin-right: 10.8px;
+    margin-top: 1px;
+    position: absolute;
+  }
+`;
+
+const Hit = (props: { hit: { path: string } }) => {
   return (
     <div
       className="t--docHit"
       onClick={() => {
-        window.open(
-          (props.hit.path as string).replace("master", HelpBaseURL),
-          "_blank",
-        );
+        window.open(props.hit.path.replace("master", HelpBaseURL), "_blank");
       }}
     >
       <div className="hit-name t--docHitTitle">
-        <StyledDocumentIcon
-          width={11.2}
-          height={14}
-          color="#181F24"
-        ></StyledDocumentIcon>
+        <StyledDocumentIcon width={11.2} height={14} color="#181F24" />
         <Highlight attribute="title" hit={props.hit} />
         <StyledOpenLinkIcon
           className="t--docOpenLink open-link"
           color={"#181F24"}
-        ></StyledOpenLinkIcon>
+        />
       </div>
     </div>
   );
-}
-
-Hit.propTypes = {
-  hit: PropTypes.object.isRequired,
 };
 
-const Header = styled.div`
-  position: absolute;
-  width: 100%;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
-`;
+const DefaultHelpMenuItem = (props: {
+  item: { label: string; link?: string; id?: string; icon: React.ReactNode };
+  onSelect: Function;
+}) => {
+  return (
+    <li className="ais-Hits-item">
+      <div
+        className="t--docHit"
+        id={props.item.id}
+        onClick={() => {
+          if (props.item.link) window.open(props.item.link, "_blank");
+          props.onSelect();
+        }}
+      >
+        <div className="hit-name t--docHitTitle">
+          {props.item.icon}
+          <span className="ais-Highlight">{props.item.label}</span>
+          <StyledOpenLinkIcon
+            className="t--docOpenLink open-link"
+            color={"#181F24"}
+          />
+        </div>
+      </div>
+    </li>
+  );
+};
 
 const SearchContainer = styled.div`
   height: 100%;
@@ -93,7 +132,7 @@ const SearchContainer = styled.div`
     position: relative;
     height: 30px;
     margin: 14px;
-    margin-top: 0;
+    margin-top: 10px;
   }
 
   .ais-SearchBox-form {
@@ -107,8 +146,6 @@ const SearchContainer = styled.div`
   }
 
   .ais-Hits {
-    margin-top: 86px;
-    height: calc(100% - 86px);
     overflow: auto;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -205,10 +242,19 @@ const SearchContainer = styled.div`
   }
 `;
 
+const Header = styled.div`
+  padding: 10px 0;
+  position: absolute;
+  width: 100%;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+  height: 50px;
+`;
+
 const StyledPoweredBy = styled(PoweredBy)`
   position: absolute;
   right: 21px;
-  bottom: 23px;
+  top: 30px;
   z-index: 1;
 
   .ais-PoweredBy-text {
@@ -216,73 +262,155 @@ const StyledPoweredBy = styled(PoweredBy)`
   }
 `;
 
-export default function DocumentationSearch(props: { hitsPerPage: number }) {
-  const dispatch = useDispatch();
-  const defaultRefinement = useSelector(getDefaultRefinement);
-  if (!algolia.enabled) return null;
-  return (
-    <SearchContainer className="ais-InstantSearch t--docSearchModal">
-      <Icon
-        className="t--docsMinimize"
-        style={{
-          position: "absolute",
-          top: 4,
-          right: 6,
-          padding: 8,
-          cursor: "pointer",
-          zIndex: 1,
-        }}
-        icon="minus"
-        color="white"
-        iconSize={14}
-        onClick={() => {
-          dispatch(setHelpModalVisibility(false));
-          dispatch(setHelpDefaultRefinement(""));
-        }}
-      ></Icon>
-      <div
-        style={{
-          height: "100%",
-          overflow: "auto",
-        }}
-      >
+const HelpContainer = styled.div`
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+`;
+
+const HelpFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 10px;
+  height: 30px;
+  color: rgba(255, 255, 255, 0.7);
+`;
+
+const HelpBody = styled.div`
+  padding-top: 60px;
+  flex: 5;
+`;
+
+type Props = { hitsPerPage: number; defaultRefinement: string; dispatch: any };
+type State = { showResults: boolean };
+
+type HelpItem = {
+  label: string;
+  link?: string;
+  id?: string;
+  icon: React.ReactNode;
+};
+
+const HELP_MENU_ITEMS: HelpItem[] = [
+  {
+    icon: <StyledDocumentIcon width={11.2} height={14} color="#181F24" />,
+    label: "Documentation",
+    link: "https://docs.appsmith.com/",
+  },
+  {
+    icon: <StyledGithubIcon width={11.2} height={14} color="#fff" />,
+    label: "Report a bug",
+    link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
+  },
+  {
+    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
+    label: "Chat with us",
+    link: "https://github.com/appsmithorg/appsmith/discussions",
+  },
+  {
+    icon: <StyledDiscordIcon width={16} height={16} />,
+    label: "Join our Discord",
+    link: "https://discord.gg/rBTTVJp",
+  },
+];
+
+if (cloudHosting) {
+  HELP_MENU_ITEMS[2] = {
+    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
+    label: "Chat with us",
+    id: "intercom-trigger",
+  };
+}
+
+class DocumentationSearch extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      showResults: props.defaultRefinement.length > 0,
+    };
+  }
+  onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    const value = event.target.value;
+    if (value === "" && this.state.showResults) {
+      this.setState({
+        showResults: false,
+      });
+    } else if (value !== "" && !this.state.showResults) {
+      this.setState({
+        showResults: true,
+      });
+    }
+  };
+  handleClose = () => {
+    this.props.dispatch(setHelpModalVisibility(false));
+    this.props.dispatch(setHelpDefaultRefinement(""));
+  };
+  render() {
+    if (!algolia.enabled) return null;
+    return (
+      <SearchContainer className="ais-InstantSearch t--docSearchModal">
+        <Icon
+          className="t--docsMinimize"
+          style={{
+            position: "absolute",
+            top: 6,
+            right: 10,
+            cursor: "pointer",
+            zIndex: 1,
+          }}
+          icon="minus"
+          color="white"
+          iconSize={14}
+          onClick={this.handleClose}
+        />
         <InstantSearch
           indexName={algolia.indexName}
           searchClient={searchClient}
         >
-          <Configure hitsPerPage={props.hitsPerPage} />
-          <Header>
-            <h3
-              style={{
-                padding: "0 69px",
-                marginTop: "14px",
-                marginBottom: "14px",
-                lineHeight: "14px",
-              }}
-            >
-              <span
-                style={{
-                  textAlign: "center",
-                  color: "white",
-                  position: "relative",
-                  fontWeight: 500,
-                  fontSize: "14px",
-                  lineHeight: "14px",
-                  letterSpacing: "0.2px",
-                  margin: "0 auto",
-                  width: "121px",
-                }}
-              >
-                Documentation
-              </span>
-            </h3>
-            <StyledPoweredBy></StyledPoweredBy>
-            <SearchBox defaultRefinement={defaultRefinement}></SearchBox>
-          </Header>
-
-          <Hits hitComponent={Hit as any} />
+          <Configure hitsPerPage={this.props.hitsPerPage} />
+          <HelpContainer>
+            <Header>
+              <StyledPoweredBy />
+              <SearchBox
+                onChange={this.onSearchValueChange}
+                defaultRefinement={this.props.defaultRefinement}
+              />
+            </Header>
+            <HelpBody>
+              {this.state.showResults ? (
+                <Hits hitComponent={Hit as any} />
+              ) : (
+                <ul className="ais-Hits-list">
+                  {HELP_MENU_ITEMS.map(item => (
+                    <DefaultHelpMenuItem
+                      key={item.label}
+                      item={item}
+                      onSelect={this.handleClose}
+                    />
+                  ))}
+                </ul>
+              )}
+            </HelpBody>
+            {appVersion.id && (
+              <HelpFooter>
+                <span>Appsmith {appVersion.id}</span>
+                <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
+              </HelpFooter>
+            )}
+          </HelpContainer>
         </InstantSearch>
-      </div>
-    </SearchContainer>
-  );
+      </SearchContainer>
+    );
+  }
 }
+
+const mapStateToProps = (state: AppState) => ({
+  defaultRefinement: getDefaultRefinement(state),
+});
+
+export default connect(mapStateToProps)(DocumentationSearch);
