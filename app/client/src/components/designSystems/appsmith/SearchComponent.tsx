@@ -11,6 +11,7 @@ interface SearchProps {
 const SearchInputWrapper = styled(InputGroup)`
   &&& input {
     box-shadow: none;
+    font-size: 12px;
   }
   &&& svg {
     opacity: 0.6;
