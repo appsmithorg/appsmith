@@ -112,23 +112,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           .filter((i: number) => i > -1)
       : [];
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    const optionsLength = computedSelectedIndexArr.length;
-    let lengthOfOverflowingItems = -1;
-    const horizontalGaps = WIDGET_PADDING * 2 + 33;
-    const verticalGaps = WIDGET_PADDING * 2 + 4;
-
-    const maxItemsInARow = Math.floor((componentWidth - horizontalGaps) / 100);
-    const totalRows = Math.floor((componentHeight - verticalGaps) / 22);
-
-    const totalFillableItems =
-      totalRows > 0 ? totalRows * maxItemsInARow : maxItemsInARow;
-
-    lengthOfOverflowingItems = (totalFillableItems - (optionsLength + 1)) * -1;
-
-    if (maxItemsInARow < 0 || totalRows < 0 || totalFillableItems < 0) {
-      lengthOfOverflowingItems = -1;
-    }
-
     return (
       <DropDownComponent
         onOptionSelected={this.onOptionSelected}
@@ -144,7 +127,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         label={`${this.props.label}`}
         isLoading={this.props.isLoading}
         disabled={this.props.isDisabled}
-        lengthOfOverflowingItems={lengthOfOverflowingItems}
       />
     );
   }
