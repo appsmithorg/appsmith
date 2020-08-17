@@ -16,7 +16,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getInitialsAndColorCode } from "utils/AppsmithUtils";
+import { getInitialsAndColorCode, getColorCode } from "utils/AppsmithUtils";
 import { ControlIcons } from "icons/ControlIcons";
 import history from "utils/history";
 
@@ -63,18 +63,22 @@ const NameWrapper = styled.div<{
   width: ${props => props.theme.card.minWidth + props.theme.spaces[5] * 2}px;
   margin: ${props => props.theme.spaces[5]}px
     ${props => props.theme.spaces[5]}px;
+  overflow: hidden;
 `;
 
 const Name = styled.div`
   padding-left: ${props => props.theme.spaces[5]}px;
   padding-right: ${props => props.theme.spaces[5]}px;
   padding-bottom: ${props => props.theme.spaces[5]}px;
+  height: 45px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   font-size: 16px;
   font-weight: 500;
-  height: 50px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: ${Colors.OXFORD_BLUE};
+  line-height: 21px;
+  letter-spacing: 0.1px;
 `;
 
 const Wrapper = styled(Card)<{
@@ -206,7 +210,13 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       intent: "danger",
     });
   }
-  const initialsAndColorCode = getInitialsAndColorCode(props.application.name);
+  let initials = getInitialsAndColorCode(props.application.name)[0];
+
+  if (initials.length < 2 && props.application.name.length > 1) {
+    initials += props.application.name[1].toUpperCase() || "";
+  }
+
+  const colorCode = getColorCode(props.application.id);
 
   const viewApplicationURL = getApplicationViewerPageURL(
     props.application.id,
@@ -228,9 +238,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       <Wrapper
         key={props.application.id}
         hasReadPermission={hasReadPermission}
-        backgroundColor={initialsAndColorCode[1]}
+        backgroundColor={colorCode}
       >
-        <Initials>{initialsAndColorCode[0]}</Initials>
+        <Initials>{initials}</Initials>
         {showOverlay && (
           <div className="overlay">
             <ApplicationImage className="image-container">
