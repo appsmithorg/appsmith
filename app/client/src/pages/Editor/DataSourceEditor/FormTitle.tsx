@@ -37,15 +37,19 @@ const FormTitle = (props: FormTitleProps) => {
   const datasources: Datasource[] = useSelector(getDataSources);
 
   const hasNameConflict = React.useCallback(
-    (name: string) => datasources.some(datasource => datasource.name === name),
-    [datasources],
+    (name: string) =>
+      datasources.some(
+        datasource =>
+          datasource.name === name && datasource.id !== currentDatasource?.id,
+      ),
+    [datasources, currentDatasource],
   );
 
   const isInvalidDatasourceName = React.useCallback(
     (name: string): string | boolean => {
       if (!name || name.trim().length === 0) {
         return "Please enter a valid name";
-      } else if (name !== currentDatasource?.name && hasNameConflict(name)) {
+      } else if (hasNameConflict(name)) {
         return `${name} is already being used.`;
       }
       return false;
