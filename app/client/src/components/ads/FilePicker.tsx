@@ -13,17 +13,17 @@ type FilePickerProps = {
   fileUploader?: FileUploader;
 };
 
-const ContainerDiv = styled("div")<{
+const ContainerDiv = styled.div<{
   isUploaded: boolean;
   isActive: boolean;
   canDrop: boolean;
 }>`
   width: 320px;
   height: 190px;
-  background-color: rgba(35, 35, 36, 0.8);
+  background-color: ${props => props.theme.colors.blackShades[2]};
   position: relative;
 
-  #fileElem {
+  #fileInput {
     display: none;
   }
 
@@ -46,6 +46,7 @@ const ContainerDiv = styled("div")<{
     width: 95%;
     margin-top: auto;
     margin-bottom: ${props => props.theme.spaces[6] + 1}px;
+    display: none;
   }
 
   .file-spec {
@@ -57,17 +58,15 @@ const ContainerDiv = styled("div")<{
 
   .progress-container {
     width: 100%;
-    height: 4px;
-    background: #9f9f9f;
-    border-radius: 2.5px;
+    background: ${props => props.theme.colors.blackShades[6]};
     transition: height 0.2s;
   }
 
   .progress-inner {
-    background-color: #5bb749;
+    background-color: ${props => props.theme.colors.success.light};
     transition: width 0.4s ease;
-    height: 4px;
-    border-radius: 2.5px;
+    height: ${props => props.theme.spaces[1]}px;
+    border-radius: ${props => props.theme.spaces[1] - 1}px;
     width: 0%;
   }
 
@@ -165,12 +164,6 @@ const FilePickerComponent = (props: FilePickerProps) => {
   const fileDescRef = useRef<HTMLDivElement>(null);
   const fileContainerRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    if (fileDescRef.current) {
-      fileDescRef.current.style.display = "none";
-    }
-  }, []);
-
   function ButtonClick(event: React.MouseEvent<HTMLElement>) {
     event.preventDefault();
     if (inputRef.current) {
@@ -204,7 +197,6 @@ const FilePickerComponent = (props: FilePickerProps) => {
 
   function handleFileUpload(files: FileList | null) {
     const file = files && files[0];
-    console.log("file", file);
 
     if (file) {
       setFileInfo({ name: file.name, size: Math.floor(file.size / 1024) });
@@ -212,7 +204,6 @@ const FilePickerComponent = (props: FilePickerProps) => {
 
     if (bgRef.current) {
       bgRef.current.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
-      bgRef.current.style.backgroundColor = "#090707";
       bgRef.current.style.opacity = "0.5";
     }
     if (fileDescRef.current) {
@@ -230,7 +221,6 @@ const FilePickerComponent = (props: FilePickerProps) => {
     if (fileContainerRef.current && bgRef.current) {
       fileContainerRef.current.style.display = "flex";
       bgRef.current.style.backgroundImage = "url('')";
-      bgRef.current.style.backgroundColor = "rgba(35,35,36,0.8)";
       setIsUploaded(false);
       // props.onFileRemoved();
     }
@@ -254,17 +244,17 @@ const FilePickerComponent = (props: FilePickerProps) => {
           <form>
             <input
               type="file"
-              id="fileElem"
+              id="fileInput"
               multiple={false}
               ref={inputRef}
               onChange={el => handleFileUpload(el.target.files)}
             />
             <Button
-              text={"Browse"}
+              text="Browse"
               category={Category.tertiary}
               size={Size.medium}
               onClick={el => ButtonClick(el)}
-            ></Button>
+            />
           </form>
         </div>
         <div className="file-description" ref={fileDescRef} id="fileDesc">
@@ -279,12 +269,12 @@ const FilePickerComponent = (props: FilePickerProps) => {
       </div>
       <div className="remove-button">
         <Button
-          text={"remove"}
-          icon={"delete"}
+          text="remove"
+          icon="delete"
           size={Size.medium}
           category={Category.tertiary}
           onClick={el => removeFile()}
-        ></Button>
+        />
       </div>
     </ContainerDiv>
   );
