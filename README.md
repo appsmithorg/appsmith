@@ -27,7 +27,7 @@ Appsmith is a fast, easy, and secure way to build any custom internal tools. Usi
 2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.
 3. Deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
 
-Do all this **without HTML/CSS**, and writing any custom integrations.
+Do all this without depending on multiple UI libraries, coding authentication logic or writing any DB or API integrations. See the looped gif below to see how something gets built on Appsmith.
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/readme/static/demo.gif)
 
@@ -38,21 +38,22 @@ Do all this **without HTML/CSS**, and writing any custom integrations.
 * [Customer Support Dashboard](https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2aeb2580ca1f6faaed4e4c#utm_source=github&utm_medium=homepage)
 
 ## Getting Started
-
-* [Cloud Hosted](https://app.appsmith.com/user/signup)
+You can try our online sandbox or deploy a Docker image on a server.
+* [Online sandbox](https://app.appsmith.com/user/signup)
 * [Deploy with Docker](https://docs.appsmith.com/quick-start#docker)
 
 ## Why Appsmith?
 
-If we're building an internal tool, our obvious choices are to use an admin panel or if we happen to be blessed with HTML/CSS skills, we might **"bootstrap"** a new project. While this may seem like a great idea at first, internal tools almost always require a ton of iterations and eventually we reach a point where we're either spending a lot of time customising the admin panel or the UI terrifies users so much, they prefer [holding our hand](https://giphy.com/gifs/agentm-agent-m-1gg6pvaqHBv56/fullscreen) every time they try to use it.
+When we need an internal tool, we turn to admin panels frameworks or use a bootstrap theme. Admin panels have an opinionated design 
+These choices don't always work out because internal tools require iterations, maintenance, enhancements and eventually we reach a point where we're either spending a lot of time customising the admin panel or the UI terrifies users so much, they prefer [holding our hand](https://giphy.com/gifs/agentm-agent-m-1gg6pvaqHBv56/fullscreen) every time they try to use it.
 
 Appsmith provides a better way of building internal tools by visualising them as modular blocks (**Widgets, APIs, Queries, JS**) and giving developers a simple user interface to configure them. With appsmith updating UI, changing dataflows and modifying business logic becomes a [piece of cake](https://i.kym-cdn.com/photos/images/newsfeed/001/355/125/5ca.png) because you no longer have to trudge through large undocumented code bases or **fight with HTML/CSS**. We understand that while some configurations are static and are better controlled via UI, a lot of it is dynamic and should be configured through code. Appsmith doesn't take the fun out of coding, instead it treats every block as an object and exposes it via javascript so that you can read, transform and manipulate it. Whether it's a widget, API or query, you get to decide where you need to configure and where you need to code.
 
 ## Features
 
 * **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui)
-* **Query data**: Query & update your database directly from the UI. Supports **postgres, mongo, REST & GraphQL APIs**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/displaying-api-data)
-* **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows
+* **Query data**: Query & update your database directly from the UI. Connect to **postgres, mongo, MySQL, REST & GraphQL APIs**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/displaying-api-data)
+* **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows. Use Lodash functions
 * **Data Workflows**: Simple configuration to create flows when users interact with the UI. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/calling-apis-from-widgets)
 * **Realtime Editor**: Changes in your application reflect instantly with every edit. No need to compile!
 * **Works with existing, live databases**: Connect directly to any Postgres & Mongo db
