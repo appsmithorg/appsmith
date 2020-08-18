@@ -316,7 +316,7 @@ Cypress.Commands.add("ResponseCheck", textTocheck => {
 });
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
-  cy.xpath(pages.addEntityAPI)
+  cy.get(pages.addEntityAPI)
     .should("be.visible")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
@@ -373,9 +373,10 @@ Cypress.Commands.add("EditApiNameFromExplorer", apiname => {
     .last()
     .click({ force: true });
   cy.get(apiwidget.editName).click({ force: true });
-  cy.xpath('//div[contains(@class,"t--entity-name")]/input')
-    .should("be.visible")
-    .type(apiname, { force: true });
+  cy.get(explorer.editNameField)
+    .clear()
+    .type(apiname, { force: true })
+    .should("have.value", apiname);
   cy.wait(3000);
 });
 
@@ -583,7 +584,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
-  cy.xpath(pages.addEntityAPI).click();
+  cy.get(pages.addEntityAPI).click();
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
@@ -883,7 +884,7 @@ Cypress.Commands.add("DeleteModal", () => {
 
 Cypress.Commands.add("Createpage", Pagename => {
   cy.get(pages.pagesIcon).click({ force: true });
-  cy.xpath(pages.AddPage)
+  cy.get(pages.AddPage)
     .first()
     .click();
   cy.wait("@createPage").should(
@@ -1133,7 +1134,7 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
 });
 
 Cypress.Commands.add("NavigateToApiEditor", () => {
-  cy.xpath(explorer.addEntityAPI).click({ force: true });
+  cy.get(explorer.addEntityAPI).click({ force: true });
 });
 
 Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
@@ -1186,7 +1187,7 @@ Cypress.Commands.add("importCurl", () => {
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.xpath(datasourceEditor.addDatasourceEntity).click({ force: true });
+  cy.get(datasourceEditor.addDatasourceEntity).click({ force: true });
 });
 
 Cypress.Commands.add("NavigateToQueryEditor", () => {

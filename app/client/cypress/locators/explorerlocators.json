@@ -2,8 +2,8 @@
     "NoApiMsg": "p:contains('No APIs yet.')",
     "NoQueryMsg": "p:contains('No Queries yet.')",
     "NoWidgetsMsg": "p:contains('No widgets yet.')",
-    "AddPage": "//div[contains(@class,'t--entity group pages')]//div[contains(@class,'t--entity-add-btn')]",
-    "addEntityAPI": "//div[contains(@class,'t--entity group apis')]//div[contains(@class,'t--entity-add-btn')]",
+    "AddPage": ".pages .t--entity-add-btn",
+    "addEntityAPI": ".apis .t--entity-add-btn",
     "entityWidget": ".t--entity-name:contains('Widgets')",
     "entityTable": ".t--entity-name:contains('Table1')",
     "entityText": ".t--entity-name:contains('Text1')",
@@ -13,5 +13,6 @@
     "deletePage": ".single-select >div:contains('Delete')",
     "entityQuery": ".t--entity-name:contains('Queries')",
     "collapse": ".t--entity-collapse-toggle",
-    "property": ".language-appsmith-binding"
+    "property": ".language-appsmith-binding",
+    "editNameField": ".editing input"
 }
