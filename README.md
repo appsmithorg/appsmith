@@ -5,7 +5,6 @@
   <br>
   <p>
     <h3>The quickest way to build dashboards, workflows, forms, or any kind of internal business tool.</h3>
-      <h3>Open source alternative to Power Apps, Salesforce Lightning platform, Unqork, Forest admin, and Retool.</h3>
   </p>
   <p>
   </p>
