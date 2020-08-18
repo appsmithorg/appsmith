@@ -7,6 +7,7 @@ import {
   mediumButton,
   smallButton,
   largeButton,
+  FontType,
 } from "../../constants/DefaultTheme";
 
 export enum Category {
@@ -248,7 +249,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   color: ${props => btnColorStyles(props, "main").txtColor};
   border: ${props => btnColorStyles(props, "main").border};
   border-radius: ${props => props.theme.radii[0]};
-  font-family: ${props => props.theme.fonts[0]};
+  font-family: ${props => props.theme.fonts[FontType.TEXT]};
   ${props => btnFontStyles(props).buttonFont};
   padding: ${props => btnFontStyles(props).padding};
   .ads-icon {

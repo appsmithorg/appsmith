@@ -1,4 +1,5 @@
 import { css } from "styled-components";
+import { FontType } from "constants/DefaultTheme";
 
 export const LIGHT = css`
   code[class*="language-"],
@@ -6,7 +7,7 @@ export const LIGHT = css`
     color: black;
     background: none;
     text-shadow: 0 1px white;
-    font-family: ${props => props.theme.fonts[3]};
+    font-family: ${props => props.theme.fonts[FontType.CODE]};
     font-size: 1em;
     text-align: left;
     white-space: pre;
@@ -144,7 +145,7 @@ export const DARK = css`
   pre[class*="language-"] {
     color: white;
     background: none;
-    font-family: ${props => props.theme.fonts[3]};
+    font-family: ${props => props.theme.fonts[FontType.CODE]};
     font-size: 1em;
     text-align: left;
     text-shadow: 0 -0.1em 0.2em black;

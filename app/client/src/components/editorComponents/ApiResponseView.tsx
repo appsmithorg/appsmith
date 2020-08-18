@@ -17,6 +17,7 @@ import _ from "lodash";
 import FormActionButton from "./form/FormActionButton";
 import { RequestView } from "./RequestView";
 import { useLocalStorage } from "utils/hooks/localstorage";
+import { FontType } from "constants/DefaultTheme";
 import {
   CHECK_REQUEST_BODY,
   DONT_SHOW_THIS_AGAIN,
@@ -113,7 +114,7 @@ const FailedMessageContainer = styled.div`
   padding-top: 10px;
   padding-bottom: 7px;
   padding-left: 15px;
-  font-family: ${props => props.theme.fonts[0]};
+  font-family: ${props => props.theme.fonts[FontType.TEXT]};
   font-style: normal;
   font-weight: 500;
   font-size: 14px;

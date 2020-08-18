@@ -7,6 +7,7 @@ import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import CalloutComponent from "components/designSystems/blueprint/CalloutComponent";
 import { PaginationType } from "entities/Action";
+import { FontType } from "constants/DefaultTheme";
 
 interface PaginationProps {
   onTestClick: Function;
@@ -19,7 +20,7 @@ const PaginationFieldWrapper = styled.div`
 
 const ExampleApi = styled.p`
   color: #ef7b63;
-  font-family: ${props => props.theme.fonts[3]};
+  font-family: ${props => props.theme.fonts[FontType.CODE]};
 `;
 
 const StyledLabel = styled.label`

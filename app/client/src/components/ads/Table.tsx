@@ -2,6 +2,7 @@ import { useTable, useSortBy } from "react-table";
 import React from "react";
 import styled from "styled-components";
 import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
+import { FontType } from "constants/DefaultTheme";
 
 const Styles = styled.div`
   table {
@@ -24,7 +25,7 @@ const Styles = styled.div`
           font-size: ${props => props.theme.typography.h6.fontSize}px;
           line-height: ${props => props.theme.typography.h6.lineHeight}px;
           letter-spacing: ${props => props.theme.typography.h6.letterSpacing}px;
-          font-family: ${props => props.theme.fonts[0]};
+          font-family: ${props => props.theme.fonts[FontType.TEXT]};
 
           svg {
             margin-left: ${props => props.theme.spaces[2]}px;
@@ -59,7 +60,7 @@ const Styles = styled.div`
           line-height: ${props => props.theme.typography.p1.lineHeight}px;
           letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
           font-weight: normal;
-          font-family: ${props => props.theme.fonts[0]};
+          font-family: ${props => props.theme.fonts[FontType.TEXT]};
           border-bottom: 1px solid ${props => props.theme.colors.blackShades[3]};
         }
 

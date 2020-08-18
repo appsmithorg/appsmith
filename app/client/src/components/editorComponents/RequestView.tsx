@@ -2,9 +2,10 @@ import { ITreeNode, Classes, Tree } from "@blueprintjs/core";
 import React, { useState } from "react";
 import styled from "styled-components";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
+import { FontType } from "constants/DefaultTheme";
 
 const StyledKey = styled.span`
-  font-family: ${props => props.theme.fonts[0]};
+  font-family: ${props => props.theme.fonts[FontType.TEXT]};
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -32,7 +33,7 @@ const KeyValuePair = function(props: { hKey: string; hValue: string }) {
 };
 
 const StyledTreeContainer = styled.div`
-  font-family: ${props => props.theme.fonts[0]};
+  font-family: ${props => props.theme.fonts[FontType.TEXT]};
   .bp3-tree-node-content {
     height: auto;
   }

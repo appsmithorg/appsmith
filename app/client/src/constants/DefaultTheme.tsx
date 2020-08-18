@@ -8,6 +8,11 @@ import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
+export enum FontType {
+  "TEXT" = 0,
+  "CODE" = 1,
+}
+
 const {
   default: styled,
   css,

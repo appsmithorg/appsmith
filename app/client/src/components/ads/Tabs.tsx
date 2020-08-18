@@ -4,9 +4,10 @@ import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
 import { Icon, IconName } from "./Icon";
 import { Size } from "./Button";
+import { FontType } from "constants/DefaultTheme";
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
-  font-family: ${props => props.theme.fonts[0]};
+  font-family: ${props => props.theme.fonts[FontType.TEXT]};
   user-select: none;
   border-radius: 0px;
   height: 100%;
