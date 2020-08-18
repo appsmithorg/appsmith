@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { ThemeProp } from "./common";
-import { FontType } from "constants/DefaultTheme";
 
 export enum TextType {
   P1 = "p1",
@@ -42,7 +41,7 @@ const typeSelector = (props: TextProps & ThemeProp): string => {
 const Text = styled.span<TextProps>`
   text-decoration: ${props => (props.underline ? "underline" : "unset")};
   font-style: ${props => (props.italic ? "italic" : "normal")};
-  font-family: ${props => props.theme.fonts[FontType.TEXT]};
+  font-family: ${props => props.theme.fonts.text};
   font-weight: ${props => props.theme.typography[props.type].fontWeight};
   font-size: ${props => props.theme.typography[props.type].fontSize}px;
   line-height: ${props => props.theme.typography[props.type].lineHeight}px;

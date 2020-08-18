@@ -8,11 +8,6 @@ import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
-export enum FontType {
-  "TEXT" = 0,
-  "CODE" = 1,
-}
-
 const {
   default: styled,
   css,
@@ -274,7 +269,10 @@ export type Theme = {
   colors: any;
   typography: any;
   lineHeights: Array<number>;
-  fonts: Array<FontFamily>;
+  fonts: {
+    code: FontFamily;
+    text: FontFamily;
+  };
   borders: ThemeBorder[];
   evaluatedValuePopup: {
     width: number;
@@ -608,7 +606,10 @@ export const theme: Theme = {
     lightningborder: Colors.ALABASTER,
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
-  fonts: [FontFamilies.TextFonts, FontFamilies.CodeFonts],
+  fonts: {
+    text: FontFamilies.TextFonts,
+    code: FontFamilies.CodeFonts,
+  },
   borders: [
     {
       thickness: 1,

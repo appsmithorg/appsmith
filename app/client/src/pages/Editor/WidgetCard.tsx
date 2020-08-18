@@ -11,7 +11,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
-import { FontType } from "constants/DefaultTheme";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -47,7 +46,7 @@ export const Wrapper = styled.div`
     }
   }
   & i {
-    font-family: ${props => props.theme.fonts[FontType.TEXT]};
+    font-family: ${props => props.theme.fonts.text};
     font-size: ${props => props.theme.fontSizes[7]}px;
   }
 `;
