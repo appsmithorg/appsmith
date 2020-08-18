@@ -1428,19 +1428,19 @@ Cypress.Commands.add("NavigateToPaginationTab", () => {
     .type("{enter}");
 });
 
-Cypress.Commands.add("ValidateTableData", () => {
+Cypress.Commands.add("ValidateTableData", value => {
   cy.isSelectRow(0);
-  cy.readTabledata("0", "1").then(tabData => {
+  cy.readTabledata("0", "0").then(tabData => {
     const tableData = tabData;
-    cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
+    expect(tableData).to.equal(value);
   });
 });
 
-Cypress.Commands.add("ValidatePublishTableData", () => {
+Cypress.Commands.add("ValidatePublishTableData", value => {
   cy.isSelectRow(0);
-  cy.readTabledataPublish("0", "1").then(tabData => {
+  cy.readTabledataPublish("0", "0").then(tabData => {
     const tableData = tabData;
-    cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
+    expect(tableData).to.equal(value);
   });
 });
 
@@ -1457,32 +1457,30 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
   cy.get(ApiEditor.responseBody)
-    .contains("url")
+    .contains("name")
     .siblings("span")
     .invoke("text")
     .then(tabData => {
       const respBody = tabData.match(/"(.*)"/)[0];
       localStorage.setItem("respBody", respBody);
       cy.log(respBody);
-      cy.get(pages.pagesIcon).click({ force: true });
+      cy.get(pages.widgetsEditor).click({ force: true });
       // cy.openPropertyPane("tablewidget");
       // cy.testJsontext("tabledata", "{{Api2.data.results}}");
       cy.isSelectRow(0);
-      cy.get(commonlocators.labelTextStyle)
-        .invoke("text")
-        .then(inputdata => {
-          expect(respBody).to.eq(`\"${inputdata}\"`);
-        });
+      cy.readTabledata("0", "1").then(tabData => {
+        const tableData = tabData;
+        expect(`\"${tableData}\"`).to.equal(respBody);
+      });
     });
 });
 
 Cypress.Commands.add("ValidatePaginationInputData", () => {
   cy.isSelectRow(0);
-  cy.get(commonlocators.labelTextStyle)
-    .invoke("text")
-    .then(inputdata => {
-      expect(localStorage.getItem("respBody")).to.eq(`\"${inputdata}\"`);
-    });
+  cy.readTabledataPublish("0", "1").then(tabData => {
+    const tableData = tabData;
+    expect(`\"${tableData}\"`).to.equal(localStorage.getItem("respBody"));
+  });
 });
 
 Cypress.Commands.add("callApi", apiname => {
