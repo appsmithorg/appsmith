@@ -61,14 +61,12 @@ type Props = {
 
 export const DeployLinkButton = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const link = window.location.origin + props.link;
 
   const onClose = () => {
     setIsOpen(false);
   };
-
-  const link = window.location.origin + props.link;
-
-  const [isCopied, setIsCopied] = useState(false);
 
   const copyToClipboard = () => {
     copy(link);
@@ -96,7 +94,7 @@ export const DeployLinkButton = (props: Props) => {
               lazy
               position={PopoverPosition.BOTTOM}
             >
-              <IconContainer onClick={() => copyToClipboard()}>
+              <IconContainer onClick={copyToClipboard}>
                 <Icon icon="link" color="#BCCCD9" />
               </IconContainer>
             </Tooltip>
