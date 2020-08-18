@@ -83,15 +83,15 @@ const StyledApplicationName = styled.span`
 const PageTab = styled(NavLink)`
   display: flex;
   height: 30px;
-  width: 150px;
+  flex: 0 0 150px;
   margin-right: 1px;
   align-self: flex-end;
   cursor: pointer;
-  display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   background-color: rgb(49, 48, 51);
+  padding: 0px 10px;
   && span {
     font-weight: 500;
     font-size: 12px;
