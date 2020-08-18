@@ -41,7 +41,6 @@ const typeSelector = (props: TextProps & ThemeProp): string => {
 const Text = styled.span<TextProps>`
   text-decoration: ${props => (props.underline ? "underline" : "unset")};
   font-style: ${props => (props.italic ? "italic" : "normal")};
-  font-family: ${props => props.theme.fonts[2]};
   font-weight: ${props => props.theme.typography[props.type].fontWeight};
   font-size: ${props => props.theme.typography[props.type].fontSize}px;
   line-height: ${props => props.theme.typography[props.type].lineHeight}px;

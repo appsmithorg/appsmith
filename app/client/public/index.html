@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <link href="https://fonts.googleapis.com/css?family=DM+Sans:400,500,700&display=swap" rel="stylesheet" />
   <title>Appsmith</title>
   <style>
     #loader {
@@ -20,15 +19,15 @@
     // INTERCOM SETUP
     const APP_ID = "%REACT_APP_INTERCOM_APP_ID%"
     const CLOUD_HOSTING = "%REACT_APP_CLOUD_HOSTING%"
-    if(APP_ID.length && CLOUD_HOSTING.length) {
-      (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/' + APP_ID;var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s, x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
+    if (APP_ID.length && CLOUD_HOSTING.length) {
+      (function () { var w = window; var ic = w.Intercom; if (typeof ic === "function") { ic('reattach_activator'); ic('update', w.intercomSettings); } else { var d = document; var i = function () { i.c(arguments); }; i.q = []; i.c = function (args) { i.q.push(args); }; w.Intercom = i; var l = function () { var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = 'https://widget.intercom.io/widget/' + APP_ID; var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }; if (document.readyState === 'complete') { l(); } else if (w.attachEvent) { w.attachEvent('onload', l); } else { w.addEventListener('load', l, false); } } })();
     }
   </script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=%REACT_APP_GOOGLE_ANALYTICS_ID%"></script>
   <script>
     // GA SETUP
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', "%REACT_APP_GOOGLE_ANALYTICS_ID%");
@@ -62,7 +61,7 @@
   </script>
   <script type="text/javascript">
     const parseConfig = (config) => {
-      if(config.indexOf("__") === 0 || config.indexOf("$") === 0)
+      if (config.indexOf("__") === 0 || config.indexOf("$") === 0)
         return "";
       return config.trim();
     }
@@ -98,7 +97,7 @@
         id: parseConfig("__APPSMITH_VERSION_ID__"),
         releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__")
       },
-      intercomAppID:  parseConfig("__APPSMITH_INTERCOM_APP_ID__"),
+      intercomAppID: parseConfig("__APPSMITH_INTERCOM_APP_ID__"),
     };
   </script>
   <script rel="prefetch" type="text/javascript" src="/shims/realms-shim.umd.min.js"></script>
