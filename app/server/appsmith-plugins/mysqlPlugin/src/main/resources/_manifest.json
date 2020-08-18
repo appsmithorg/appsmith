@@ -1,0 +1,20 @@
+{
+  "templates": [
+    {
+      "title": "Select",
+      "file": "SELECT.sql"
+    },
+    {
+      "title": "Create",
+      "file": "CREATE.sql"
+    },
+    {
+      "title": "Update",
+      "file": "UPDATE.sql"
+    },
+    {
+      "title": "Delete",
+      "file": "DELETE.sql"
+    }
+  ]
+}

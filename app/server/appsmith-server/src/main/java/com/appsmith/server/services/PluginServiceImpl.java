@@ -97,6 +97,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
         Mono<Organization> organizationMono = organizationService.getById(organizationId);
+        templateCache.clear();
 
         return organizationMono
                 .flatMapMany(org -> {
@@ -129,6 +130,14 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                         getTemplates(plugin)
                                 .doOnSuccess(plugin::setTemplates)
                                 .thenReturn(plugin)
+                                .onErrorMap(throwable ->
+                                        throwable instanceof AppsmithException
+                                                ? throwable :
+                                                new AppsmithException(
+                                                        AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL,
+                                                        Exceptions.unwrap(throwable).getMessage()
+                                                )
+                                )
                 );
     }
 
@@ -138,7 +147,6 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
 
-        plugin.setDeleted(false);
         return super.create(plugin);
     }
 
@@ -339,9 +347,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                             templateCache.remove(pluginId)
                     )
                     // It's okay if the templates folder is not present, we just return empty templates collection.
-                    .onErrorMap(throwable -> new AppsmithException(
-                            AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL, Exceptions.unwrap(throwable).getMessage())
-                    )
+                    .onErrorMap(Exceptions::unwrap)
                     .cache();
 
             templateCache.put(pluginId, mono);
@@ -354,6 +360,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         final String manifestRaw;
 
         try {
+            // This ends up being an empty string, if the resource doesn't exist.
             manifestRaw = StreamUtils.copyToString(
                     pluginManager.getPlugin(plugin.getPackageName())
                             .getPluginClassLoader()
@@ -367,6 +374,11 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
         final HashMap<String, Object> manifest = new Gson().fromJson(manifestRaw, HashMap.class);
 
+        if (manifest == null) {
+            // This happens when `manifestRaw` is an empty string (or just white space).
+            return Collections.emptyMap();
+        }
+
         final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(
                 pluginManager
                         .getPlugin(plugin.getPackageName())
@@ -377,7 +389,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         try {
             resources = resolver.getResources("templates/*");
         } catch (IOException e) {
-            log.error("Error resolving templates in plugin for id: " + plugin.getId());
+            log.error("Error resolving templates in plugin for id: " + plugin.getPackageName());
             throw Exceptions.propagate(e);
         }
 
