@@ -186,6 +186,7 @@ Cypress.Commands.add("DeleteApp", appName => {
   );
   cy.get('button span[icon="chevron-down"]').should("be.visible");
   cy.get(homePage.searchInput).type(appName, { force: true });
+  cy.get(homePage.applicationCard).trigger("mouseover");
   cy.get(homePage.appMoreIcon)
     .should("have.length", 1)
     .first()
@@ -231,6 +232,7 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(commonlocators.homeIcon).click({ force: true });
   cy.get(homePage.searchInput).type(appName);
   cy.wait(2000);
+  cy.get(homePage.applicationCard).trigger("mouseover");
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
@@ -274,6 +276,7 @@ Cypress.Commands.add("NavigateToWidgets", pageName => {
 Cypress.Commands.add("SearchApp", appname => {
   cy.get(homePage.searchInput).type(appname);
   cy.wait(2000);
+  cy.get(homePage.applicationCard).trigger("mouseover");
   cy.get(homePage.appEditIcon)
     .first()
     .click({ force: true });

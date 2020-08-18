@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { Card, Icon, Dialog, Classes } from "@blueprintjs/core";
+import { Card, Icon, Dialog, Classes, Colors } from "@blueprintjs/core";
 import Button from "components/editorComponents/Button";
 import {
   getApplicationList,
@@ -23,7 +23,6 @@ import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
-import { MenuIcons } from "icons/MenuIcons";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
@@ -34,13 +33,12 @@ import CustomizedDropdown, {
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
-import Badge from "pages/common/CustomizedDropdown/Badge";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import { Directions } from "utils/helpers";
-import { IntentColors } from "constants/DefaultTheme";
+import { HeaderIcons } from "icons/HeaderIcons";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -50,6 +48,11 @@ const OrgDropDown = styled.div`
   justify-content: space-between;
 `;
 
+const CreateNew = styled.div`
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 20px;
+`;
 const ApplicationCardsWrapper = styled.div`
   display: flex;
   flex-flow: row wrap;
@@ -77,6 +80,12 @@ const DropDownTrigger = styled.div`
   cursor: pointer;
 `;
 
+const PaddingWrapper = styled.div`
+  width: ${props => props.theme.card.minWidth + props.theme.spaces[5] * 2}px;
+  margin: ${props => props.theme.spaces[5]}px
+    ${props => props.theme.spaces[5]}px;
+`;
+
 const ApplicationAddCardWrapper = styled(Card)`
   display: flex;
   flex-direction: column;
@@ -86,7 +95,9 @@ const ApplicationAddCardWrapper = styled(Card)`
   height: ${props => props.theme.card.minHeight}px;
   position: relative;
   border-radius: ${props => props.theme.radii[1]}px;
-  margin: ${props => props.theme.spaces[5]}px
+  box-shadow: none;
+  border: 1px dashed #d0d7dd;
+  margin: ${props => props.theme.spaces[11]}px
     ${props => props.theme.spaces[5]}px;
   a {
     display: block;
@@ -154,12 +165,7 @@ class Applications extends Component<
           {
             options: [
               {
-                content: (
-                  <Badge
-                    text={orgName}
-                    imageURL="https://via.placeholder.com/32"
-                  />
-                ),
+                content: orgName,
                 disabled: true,
                 shouldCloseDropdown: false,
               },
@@ -188,7 +194,6 @@ class Applications extends Component<
           },
         ],
         trigger: {
-          icon: "ORG_ICON",
           content: (
             <DropDownTrigger className="t--org-name">
               {orgName} <Icon icon="chevron-down" color={"black"} />
@@ -235,14 +240,7 @@ class Applications extends Component<
                     organization.userPermissions,
                     PERMISSION_TYPE.MANAGE_ORGANIZATION,
                   ) ? (
-                    <OrgName>
-                      {MenuIcons.ORG_ICON({
-                        color: IntentColors["secondary"],
-                        width: 16,
-                        height: 16,
-                      })}
-                      {organization.name}
-                    </OrgName>
+                    <OrgName>{organization.name}</OrgName>
                   ) : (
                     <>
                       {this.props.currentUser && (
@@ -280,6 +278,13 @@ class Applications extends Component<
                     <FormDialogComponent
                       trigger={
                         <Button
+                          icon={
+                            <HeaderIcons.SHARE
+                              color={Colors.WHITE}
+                              width={16}
+                              height={16}
+                            />
+                          }
                           text="Share"
                           intent={"primary"}
                           className="t--org-share-btn"
@@ -298,14 +303,19 @@ class Applications extends Component<
                     permissions={organization.userPermissions}
                     permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
                     trigger={
-                      <ApplicationAddCardWrapper>
-                        <Icon
-                          icon="plus"
-                          iconSize={70}
-                          className="t--create-app-popup"
-                        />
-                        <div className="createnew">Create New</div>
-                      </ApplicationAddCardWrapper>
+                      <PaddingWrapper>
+                        <ApplicationAddCardWrapper>
+                          <Icon
+                            color={"#9F9F9F"}
+                            icon="plus"
+                            iconSize={17}
+                            className="t--create-app-popup"
+                          />
+                          <CreateNew className="createnew">
+                            Create New
+                          </CreateNew>
+                        </ApplicationAddCardWrapper>
+                      </PaddingWrapper>
                     }
                     Form={CreateApplicationForm}
                     orgId={organization.id}
