@@ -4,7 +4,7 @@ import styled from "styled-components";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 
 const StyledKey = styled.span`
-  font-family: DM Sans;
+  font-family: ${props => props.theme.fonts[0]};
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -32,7 +32,7 @@ const KeyValuePair = function(props: { hKey: string; hValue: string }) {
 };
 
 const StyledTreeContainer = styled.div`
-  font-family: DM Sans;
+  font-family: ${props => props.theme.fonts[0]};
   .bp3-tree-node-content {
     height: auto;
   }

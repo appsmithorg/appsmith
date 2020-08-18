@@ -113,7 +113,7 @@ const FailedMessageContainer = styled.div`
   padding-top: 10px;
   padding-bottom: 7px;
   padding-left: 15px;
-  font-family: DM Sans;
+  font-family: ${props => props.theme.fonts[0]};
   font-style: normal;
   font-weight: 500;
   font-size: 14px;

@@ -19,7 +19,7 @@ const PaginationFieldWrapper = styled.div`
 
 const ExampleApi = styled.p`
   color: #ef7b63;
-  font-family: monospace;
+  font-family: ${props => props.theme.fonts[3]};
 `;
 
 const StyledLabel = styled.label`

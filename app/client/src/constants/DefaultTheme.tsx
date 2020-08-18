@@ -604,9 +604,10 @@ export const theme: Theme = {
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
-    FontFamilies.DMSans,
+    FontFamilies.TextFonts,
     FontFamilies.FiraCode,
-    FontFamilies.HomePageRedesign,
+    FontFamilies.TextFonts,
+    FontFamilies.CodeFonts,
   ],
   borders: [
     {
