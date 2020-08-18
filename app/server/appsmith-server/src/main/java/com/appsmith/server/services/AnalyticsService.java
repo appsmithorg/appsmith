@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class AnalyticsService<T extends BaseDomain> {
+public class AnalyticsService {
 
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
@@ -47,7 +47,7 @@ public class AnalyticsService<T extends BaseDomain> {
                 });
     }
 
-    public Mono<T> sendEvent(String eventTag, T object) {
+    public <T extends BaseDomain> Mono<T> sendEvent(String eventTag, T object) {
         if (analytics == null) {
             return Mono.just(object);
         }
@@ -60,12 +60,12 @@ public class AnalyticsService<T extends BaseDomain> {
                 .map(user -> {
 
                     // In case the user is anonymous, return as is without raising the event.
-                    if (user.getIsAnonymous()) {
-                        return (T) object;
+                    if (user.isAnonymous()) {
+                        return object;
                     }
 
                     HashMap<String, String> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", ((BaseDomain) object).getId());
+                    analyticsProperties.put("id", object.getId());
                     analyticsProperties.put("object", object.toString());
 
                     analytics.enqueue(
@@ -73,7 +73,7 @@ public class AnalyticsService<T extends BaseDomain> {
                                     .userId(user.getUsername())
                                     .properties(analyticsProperties)
                     );
-                    return (T) object;
+                    return object;
                 });
     }
 }

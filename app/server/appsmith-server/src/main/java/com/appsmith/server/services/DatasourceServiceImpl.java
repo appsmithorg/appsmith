@@ -18,7 +18,6 @@ import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -46,10 +45,8 @@ import static com.appsmith.server.helpers.BeanCopyUtils.copyNestedNonNullPropert
 @Service
 public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceService {
 
-    private final DatasourceRepository repository;
     private final OrganizationService organizationService;
     private final SessionUserService sessionUserService;
-    private final ObjectMapper objectMapper;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PolicyGenerator policyGenerator;
@@ -64,9 +61,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  ReactiveMongoTemplate reactiveMongoTemplate,
                                  DatasourceRepository repository,
                                  OrganizationService organizationService,
-                                 AnalyticsService<Datasource> analyticsService,
+                                 AnalyticsService analyticsService,
                                  SessionUserService sessionUserService,
-                                 ObjectMapper objectMapper,
                                  PluginService pluginService,
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
@@ -74,10 +70,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  ActionRepository actionRepository,
                                  EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.repository = repository;
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
-        this.objectMapper = objectMapper;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.policyGenerator = policyGenerator;
