@@ -61,7 +61,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
 
-    private final Map<String, Mono<Map>> formCache = new HashMap<>();
+    private final Map<String, Mono<Map<String, Object>>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
 
     private static final int CONNECTION_TIMEOUT = 10000;
@@ -305,30 +305,30 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<Map> getFormConfig(String pluginId) {
+    public Mono<Map<String, Object>> getFormConfig(String pluginId) {
         if (!formCache.containsKey(pluginId)) {
-            final Mono<Map> formMono = loadPluginResource(pluginId, "form.json")
+            final Mono<Map<String, Object>> formMono = loadPluginResource(pluginId, "form.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId)
                     )
-                    .onErrorMap(Exceptions::unwrap)
-                    .cache();
-            final Mono<Map> editorMono = loadPluginResource(pluginId, "editor.json")
-                    .doOnError(throwable ->
-                            // Remove this pluginId from the cache so it is tried again next time.
-                            formCache.remove(pluginId)
-                    )
-                    .onErrorReturn(new HashMap())
-                    .cache();
+                    .onErrorMap(Exceptions::unwrap);
 
-            Mono<Map> resourceMono = Mono.zip(formMono, editorMono)
+            final Mono<Map<String, Object>> editorMono = loadPluginResource(pluginId, "editor.json")
+                    .doOnError(throwable ->
+                            // Remove this pluginId from the cache so it is tried again next time.
+                            formCache.remove(pluginId)
+                    )
+                    .onErrorReturn(Collections.emptyMap());
+
+            Mono<Map<String, Object>> resourceMono = Mono.zip(formMono, editorMono)
                     .map(tuple -> {
-                        Map formMap = tuple.getT1();
-                        Map editorMap = tuple.getT2();
+                        Map<String, Object> formMap = tuple.getT1();
+                        Map<String, Object> editorMap = tuple.getT2();
                         formMap.putAll(editorMap);
                         return formMap;
-                    });
+                    })
+                    .cache();
 
             formCache.put(pluginId, resourceMono);
         }
@@ -438,7 +438,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
+    public Mono<Map<String, Object>> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
                 .flatMap(plugin -> {
                     InputStream resourceAsStream = pluginManager
@@ -451,7 +451,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     }
 
                     try {
-                        Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
+                        Map<String, Object> resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
                         return Mono.just(resourceMap);
                     } catch (IOException e) {
                         log.error("Error loading resource JSON for pluginId {} and resourcePath {}", pluginId, resourcePath, e);

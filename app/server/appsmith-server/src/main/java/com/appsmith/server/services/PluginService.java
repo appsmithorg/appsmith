@@ -25,7 +25,7 @@ public interface PluginService extends CrudService<Plugin, String> {
 
     Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO);
 
-    Mono<Map> getFormConfig(String pluginId);
+    Mono<Map<String, Object>> getFormConfig(String pluginId);
 
-    Mono<Map> loadPluginResource(String pluginId, String resourcePath);
+    Mono<Map<String, Object>> loadPluginResource(String pluginId, String resourcePath);
 }
