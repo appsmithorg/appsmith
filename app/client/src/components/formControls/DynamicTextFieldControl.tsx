@@ -7,7 +7,7 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import {
   EditorSize,
   EditorModes,
-  EditorTheme,
+  TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "reducers";
@@ -83,6 +83,7 @@ class DynamicTextControl extends BaseControl<
             dataTreePath={`${this.props.actionName}.config.body`}
             className="dynamic-text-field"
             mode={mode}
+            tabBehaviour={TabBehaviour.INDENT}
           />
         )}
       </Wrapper>

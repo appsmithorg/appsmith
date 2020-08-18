@@ -18,6 +18,8 @@ import { ReactComponent as SettingsIcon } from "assets/icons/control/settings.sv
 import { ReactComponent as RemoveIcon } from "assets/icons/control/remove.svg";
 import { ReactComponent as DragIcon } from "assets/icons/control/drag.svg";
 import { ReactComponent as SortIcon } from "assets/icons/control/sort-icon.svg";
+import { ReactComponent as EditWhiteIcon } from "assets/icons/control/edit-white.svg";
+import { ReactComponent as LaunchIcon } from "assets/icons/control/launch.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -122,6 +124,16 @@ export const ControlIcons: {
   SORT_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <SortIcon />
+    </IconWrapper>
+  ),
+  EDIT_WHITE: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <EditWhiteIcon />
+    </IconWrapper>
+  ),
+  LAUNCH_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <LaunchIcon />
     </IconWrapper>
   ),
 };
