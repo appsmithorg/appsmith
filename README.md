@@ -4,7 +4,8 @@
     </a>
   <br>
   <p>
-    <h3>Open source alternative to Power Apps, Salesforce Lightning platform, and Retool</h3>
+    <h3>The quickest way to build dashboards, workflows, forms, or any kind of internal business tool.</h3>
+      <h3>Open source alternative to Power Apps, Salesforce Lightning platform, Unqork, Forest admin, and Retool.</h3>
   </p>
   <p>
   </p>
@@ -23,9 +24,9 @@
 
 -----------------
 Appsmith is a fast, easy, and secure way to build any custom internal tools. Using Appsmith is easy. 
-1. Create a page using pre-built UI components like table, charts, and forms.
+1. Create a page using pre-built UI components like table, charts, map viewers and forms.
 2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.
-3. Then deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
+3. Deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
 
 Do all this **without HTML/CSS**, and writing any custom integrations.
 
