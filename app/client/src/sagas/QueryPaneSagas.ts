@@ -1,6 +1,7 @@
 import { all, select, put, takeEvery } from "redux-saga/effects";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
@@ -17,7 +18,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { initialize } from "redux-form";
+import { change, initialize } from "redux-form";
 import {
   getAction,
   getPluginEditorConfigs,
@@ -103,11 +104,25 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     );
   }
 }
+function* handleNameChangeSaga(action: ReduxAction<{ name: string }>) {
+  yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.name));
+}
+
+function* handleNameChangeFailureSaga(
+  action: ReduxAction<{ oldName: string }>,
+) {
+  yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.oldName));
+}
 
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
     takeEvery(ReduxActionTypes.QUERY_PANE_CHANGE, changeQuerySaga),
+    takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleNameChangeSaga),
+    takeEvery(
+      ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
+      handleNameChangeFailureSaga,
+    ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
