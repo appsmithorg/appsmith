@@ -165,7 +165,7 @@ const OrgInviteUsersForm = (props: any) => {
     fetchCurrentOrg,
     currentOrg,
     isApplicationInvite,
-    isFetchAllUsers,
+    isLoading,
   } = props;
 
   const currentPath = useLocation().pathname;
@@ -245,7 +245,7 @@ const OrgInviteUsersForm = (props: any) => {
             type="submit"
           />
         </StyledInviteFieldGroup>
-        {isFetchAllUsers ? (
+        {isLoading ? (
           <Loading size={30} />
         ) : (
           <UserList style={{ justifyContent: "space-between" }}>
@@ -281,7 +281,7 @@ export default connect(
       roles: getRolesForField(state),
       allUsers: getAllUsers(state),
       currentOrg: getCurrentOrg(state),
-      isFetchAllUsers: state.ui.orgs.loadingStates.isFetchAllUsers,
+      isLoading: state.ui.orgs.loadingStates.isFetchAllUsers,
     };
   },
   (dispatch: any) => ({
