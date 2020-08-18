@@ -5,7 +5,7 @@ import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
 import { ReactComponent as EditIcon } from "assets/icons/ads/edit.svg";
 import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
-
+import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import styled from "styled-components";
 import { Size } from "./Button";
 import { sizeHandler } from "./Spinner";
@@ -18,6 +18,7 @@ export type IconName =
   | "billing"
   | "edit"
   | "error"
+  | "success"
   | undefined;
 
 const IconWrapper = styled.div<IconProps>`
@@ -99,6 +100,13 @@ export const Icon = (props: IconProps) => {
       returnIcon = (
         <IconWrapper className="ads-icon" {...props}>
           <ErrorIcon />
+        </IconWrapper>
+      );
+      break;
+    case "success":
+      returnIcon = (
+        <IconWrapper className="ads-icon" {...props}>
+          <SuccessIcon />
         </IconWrapper>
       );
       break;

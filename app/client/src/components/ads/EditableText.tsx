@@ -5,16 +5,26 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import _ from "lodash";
-import Edit from "assets/images/EditPen.svg";
-import { Colors } from "constants/Colors";
-import { AppToaster } from "components/editorComponents/ToastComponent";
+// import Edit from "assets/images/EditPen.svg";
+// import { Colors } from "constants/Colors";
+// import { AppToaster } from "components/editorComponents/ToastComponent";
 import { Icon } from "./Icon";
 import { Size } from "./Button";
 import Text, { TextType } from "./Text";
+import Spinner from "./Spinner";
 
 export enum EditInteractionKind {
   SINGLE,
   DOUBLE,
+}
+
+export type SavingFunc = (state: SavingState) => void;
+
+export enum SavingState {
+  STARTED = "STARTED",
+  SUCCESS = "SUCCESS",
+  ERROR = "ERROR",
+  UNDEFINED = "UNDEFINED",
 }
 
 type EditableTextProps = {
@@ -32,6 +42,7 @@ type EditableTextProps = {
   minimal?: boolean;
   onBlur?: (value?: string) => void;
   fill?: boolean;
+  apiCallback: (value: string, callback: SavingFunc) => { saving: SavingState };
 };
 
 const EditableTextWrapper = styled.div<{
@@ -48,6 +59,7 @@ const TextContainer = styled.div<{
   minimal: boolean;
   isEditing: boolean;
   fill?: boolean;
+  savingState: { name: SavingState; isSaving: boolean };
 }>`
   display: flex;
   align-items: center;
@@ -55,7 +67,6 @@ const TextContainer = styled.div<{
   ${props => (props.isEditing && !props.isValid ? "margin-bottom: 6px" : null)};
 
   &&&& .bp3-editable-text {
-    color: white;
     overflow: hidden;
     ${props =>
       !props.isEditing ? "padding: 10px 12px 10px 12px" : "padding: 0"};
@@ -64,6 +75,11 @@ const TextContainer = styled.div<{
 
   &&&& .bp3-editable-text-content {
     cursor: pointer;
+    color: #fff;
+    font-family: ${props => props.theme.fonts[2]};
+    font-size: 14px;
+    line-height: 17px;
+    letter-spacing: -0.24px;
     ${props => (props.isEditing ? "display: none" : "display: inline")};
   }
 
@@ -71,7 +87,16 @@ const TextContainer = styled.div<{
     border: none;
     outline: none;
     background-color: ${props =>
-      props.isValid && props.isEditing ? "#232324" : "rgba(226, 44, 44, 0.08)"};
+      props.savingState.isSaving &&
+      props.savingState.name === SavingState.SUCCESS
+        ? props.theme.colors.success.darkest
+        : (!props.isValid && props.isEditing) ||
+          (props.savingState.isSaving &&
+            props.savingState.name === SavingState.ERROR)
+        ? "rgba(226, 44, 44, 0.08)"
+        : props.isValid && props.isEditing
+        ? "#232324"
+        : "transparent"};
     padding: 10px 0 10px 12px;
     color: white;
     min-width: 100%;
@@ -82,18 +107,24 @@ const TextContainer = styled.div<{
 
   .icon-wrapper {
     background-color: ${props =>
-      !props.isEditing
-        ? "transparent"
-        : props.isValid
+      props.savingState.isSaving &&
+      props.savingState.name === SavingState.SUCCESS
+        ? props.theme.colors.success.darkest
+        : (!props.isValid && props.isEditing) ||
+          (props.savingState.isSaving &&
+            props.savingState.name === SavingState.ERROR)
+        ? "rgba(226, 44, 44, 0.08)"
+        : props.isValid && props.isEditing
         ? "#232324"
-        : "rgba(226, 44, 44, 0.08)"};
+        : "transparent"};
   }
 `;
 
 const IconWrapper = styled.div`
   width: 40px;
-  padding: 12px 12px 12px 0px;
-  /* height: 39px; */
+  /* padding: 12px 12px 12px 0px; */
+  padding-right: 12px;
+  height: 39px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -102,6 +133,10 @@ const IconWrapper = styled.div`
 export const AdsEditableText = (props: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
   const [value, setValue] = useState(props.defaultValue);
+  const [savingState, setSavingState] = useState<{
+    isSaving: boolean;
+    name: SavingState;
+  }>({ isSaving: false, name: SavingState.UNDEFINED });
 
   useEffect(() => {
     setValue(props.defaultValue);
@@ -119,17 +154,29 @@ export const AdsEditableText = (props: EditableTextProps) => {
   };
 
   const onChange = (_value: string) => {
+    console.log("on change");
+
     props.onBlur && props.onBlur();
+
     const isInvalid = props.isInvalid ? props.isInvalid(_value) : false;
-    if (!isInvalid) {
-      props.onTextChanged(_value);
+
+    if (
+      (savingState.isSaving && savingState.name === SavingState.ERROR) ||
+      isInvalid
+    ) {
+      setValue(props.defaultValue);
       setIsEditing(false);
+      setSavingState({ isSaving: false, name: SavingState.UNDEFINED });
     } else {
-      // condition for error
+      props.onTextChanged(_value);
+      props.apiCallback(_value, SavingFunc);
+      setIsEditing(false);
     }
   };
 
   const onInputchange = (_value: string) => {
+    console.log("input change");
+
     let finalVal: string = _value;
     if (props.valueTransform) {
       finalVal = props.valueTransform(_value);
@@ -139,6 +186,38 @@ export const AdsEditableText = (props: EditableTextProps) => {
 
   const errorMessage = props.isInvalid && props.isInvalid(value);
   const error = errorMessage ? errorMessage : undefined;
+
+  console.log({ error });
+
+  const SavingFunc = (state: SavingState) => {
+    console.log({ state });
+
+    if (state === SavingState.STARTED) {
+      setSavingState({ isSaving: true, name: SavingState.STARTED });
+    }
+    if (state === SavingState.SUCCESS) {
+      setSavingState({ isSaving: true, name: SavingState.SUCCESS });
+      setIsEditing(true);
+      setTimeout(() => {
+        setSavingState({ isSaving: false, name: SavingState.UNDEFINED });
+        setIsEditing(false);
+      }, 2000);
+    }
+    if (state === SavingState.ERROR) {
+      setSavingState({ isSaving: true, name: SavingState.ERROR });
+      setIsEditing(true);
+    }
+  };
+
+  const iconName = !isEditing
+    ? "edit"
+    : error
+    ? "error"
+    : savingState.isSaving && savingState.name === SavingState.SUCCESS
+    ? "success"
+    : savingState.isSaving && savingState.name === SavingState.ERROR
+    ? "error"
+    : undefined;
 
   return (
     <EditableTextWrapper
@@ -155,6 +234,7 @@ export const AdsEditableText = (props: EditableTextProps) => {
         isValid={!error}
         minimal={!!props.minimal}
         isEditing={isEditing}
+        savingState={savingState}
         fill={props.fill}
       >
         <BlueprintEditableText
@@ -166,13 +246,16 @@ export const AdsEditableText = (props: EditableTextProps) => {
           value={value}
           placeholder={props.placeholder}
           className={props.className}
-          onCancel={props.onBlur}
+          onCancel={onChange}
         />
-        {!props.minimal && !props.hideEditIcon && !props.updating && (
-          <IconWrapper className="icon-wrapper">
-            <Icon name={error ? "error" : "edit"} size={Size.large} />
-          </IconWrapper>
-        )}
+
+        <IconWrapper className="icon-wrapper">
+          {savingState.isSaving && savingState.name === SavingState.STARTED ? (
+            <Spinner size={Size.large} />
+          ) : (
+            <Icon name={iconName} size={Size.large} />
+          )}
+        </IconWrapper>
       </TextContainer>
       {isEditing && error ? (
         <Text type={TextType.P2} className="error-message">
