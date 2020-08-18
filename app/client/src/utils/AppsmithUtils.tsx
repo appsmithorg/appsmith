@@ -155,7 +155,7 @@ export const getInitialsAndColorCode = (fullName: any): string[] => {
   return [inits, colorCode];
 };
 
-const getColorCode = (initials: string): string => {
+export const getColorCode = (initials: string): string => {
   let asciiSum = 0;
   for (let i = 0; i < initials.length; i++) {
     asciiSum += initials[i].charCodeAt(0);

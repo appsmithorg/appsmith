@@ -98,10 +98,13 @@ export type SearchResultsProviders = {
 export const DEFAULT_TEMPLATE_TYPE = "TEMPLATE";
 
 export const providerBackgroundColors = [
-  "#5F60B4",
   "#0BA780",
   "#929500",
   "#1F97D3",
   "#B32FA5",
   "#1A29B1",
+  "#2965CC",
+  "#4E5D78",
+  "#14928B",
+  "#FBBEBE",
 ];

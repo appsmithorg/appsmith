@@ -1,18 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
-import { Card, Tooltip, Icon } from "@blueprintjs/core";
+import { Card, Classes } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
-import {
-  theme,
-  getBorderCSSShorthand,
-  getColorWithOpacity,
-} from "constants/DefaultTheme";
+import { theme, getColorWithOpacity } from "constants/DefaultTheme";
 import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
@@ -21,8 +16,75 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { getInitialsAndColorCode, getColorCode } from "utils/AppsmithUtils";
+import { ControlIcons } from "icons/ControlIcons";
+import history from "utils/history";
 
-const Wrapper = styled(Card)<{ hasReadPermission?: boolean }>`
+const NameWrapper = styled.div<{
+  hasReadPermission: boolean;
+  showOverlay: boolean;
+}>`
+  ${props =>
+    props.showOverlay &&
+    `
+      {
+        background-color: white;
+
+        .overlay {
+          ${props.hasReadPermission &&
+            `text-decoration: none;
+             &:after {
+                left: 0;
+                top: 0;
+                content: "";
+                position: absolute;
+                height: 100%;
+                width: 100%;
+              }
+              & .control {
+                display: block;
+                z-index: 1;
+              }`}
+
+          & div.image-container {
+            background: ${
+              props.hasReadPermission
+                ? getColorWithOpacity(
+                    props.theme.card.hoverBG,
+                    props.theme.card.hoverBGOpacity,
+                  )
+                : null
+            }
+          }
+        }
+      }
+   `}
+  border-radius: ${props => props.theme.radii[1]}px;
+  width: ${props => props.theme.card.minWidth + props.theme.spaces[5] * 2}px;
+  margin: ${props => props.theme.spaces[5]}px
+    ${props => props.theme.spaces[5]}px;
+  overflow: hidden;
+`;
+
+const Name = styled.div`
+  padding-left: ${props => props.theme.spaces[5]}px;
+  padding-right: ${props => props.theme.spaces[5]}px;
+  padding-bottom: ${props => props.theme.spaces[5]}px;
+  height: 45px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 16px;
+  font-weight: 500;
+  color: ${Colors.OXFORD_BLUE};
+  line-height: 21px;
+  letter-spacing: 0.1px;
+`;
+
+const Wrapper = styled(Card)<{
+  hasReadPermission?: boolean;
+  backgroundColor: string;
+}>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -30,84 +92,20 @@ const Wrapper = styled(Card)<{ hasReadPermission?: boolean }>`
   height: ${props => props.theme.card.minHeight}px;
   position: relative;
   border-radius: ${props => props.theme.radii[1]}px;
+  background-color: ${props => props.backgroundColor};
   margin: ${props => props.theme.spaces[5]}px
     ${props => props.theme.spaces[5]}px;
-  a {
+  .overlay {
     display: block;
     position: absolute;
     left: 0;
     top: 0;
-    height: calc(100% - ${props => props.theme.card.titleHeight}px);
+    height: 100%;
     width: 100%;
     ${props => !props.hasReadPermission && `pointer-events: none;`}
   }
-  a:hover {
-    ${props =>
-      props.hasReadPermission &&
-      `text-decoration: none;
-    &:after {
-      left: 0;
-      top: 0;
-      content: "";
-      position: absolute;
-      height: 100%;
-      width: 100%;
-    }
-    & .control {
-      display: block;
-      z-index: 1;
-    }`}
-    & div.image-container {
-      background: ${props =>
-        props.hasReadPermission
-          ? getColorWithOpacity(
-              props.theme.card.hoverBG,
-              props.theme.card.hoverBGOpacity,
-            )
-          : null};
-    }
-  }
 `;
-const ApplicationTitle = styled.div`
-  font-size: ${props => props.theme.fontSizes[2]}px;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: ${props => props.theme.card.titleHeight}px;
-  padding: ${props => props.theme.spaces[6]}px;
-  width: 100%;
-  border-top: ${props => getBorderCSSShorthand(props.theme.card.divider)};
-  font-weight: ${props => props.theme.fontWeights[2]};
-  font-size: ${props => props.theme.fontSizes[4]}px;
-  & {
-    span {
-      display: inline-block;
-    }
-    .control {
-      z-index: 1;
-      position: absolute;
-      right: ${props => props.theme.spaces[5] * 3}px;
-      top: ${props => props.theme.spaces[5]}px;
-    }
-    .more {
-      z-index: 1;
-      position: absolute;
-      right: ${props => props.theme.spaces[2]}px;
-      top: ${props => props.theme.spaces[4]}px;
-      cursor: pointer;
-    }
-    .apptitle {
-      white-space: nowrap;
-      width: 70%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-`;
+
 const ApplicationImage = styled.div`
   && {
     height: 100%;
@@ -117,10 +115,10 @@ const ApplicationImage = styled.div`
     align-items: center;
     & {
       .control {
-        display: none;
         button {
           span {
             font-weight: ${props => props.theme.fontWeights[3]};
+            color: white;
           }
         }
       }
@@ -130,12 +128,37 @@ const ApplicationImage = styled.div`
 
 const Control = styled.div<{ fixed?: boolean }>`
   outline: none;
-  background: none;
   border: none;
   cursor: pointer;
+
+  .${Classes.BUTTON} {
+    margin-top: 7px;
+
+    div {
+      width: auto;
+      height: auto;
+    }
+  }
+
+  .${Classes.BUTTON_TEXT} {
+    font-size: 12px;
+  }
+
+  .more {
+    position: absolute;
+    right: ${props => props.theme.spaces[6]}px;
+    top: ${props => props.theme.spaces[4]}px;
+  }
 `;
 
-const APPLICATION_CONTROL_FONTSIZE_INDEX = 6;
+const Initials = styled.span`
+  font-size: 40px;
+  font-weight: bold;
+  color: #ffffff;
+  margin: auto;
+`;
+
+const APPLICATION_CONTROL_FONTSIZE_INDEX = 5;
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
@@ -145,6 +168,8 @@ type ApplicationCardProps = {
 };
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
+  const [showOverlay, setShowOverlay] = useState(false);
+
   const hasEditPermission = isPermitted(
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.MANAGE_APPLICATION,
@@ -185,6 +210,13 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       intent: "danger",
     });
   }
+  let initials = getInitialsAndColorCode(props.application.name)[0];
+
+  if (initials.length < 2 && props.application.name.length > 1) {
+    initials += props.application.name[1].toUpperCase() || "";
+  }
+
+  const colorCode = getColorCode(props.application.id);
 
   const viewApplicationURL = getApplicationViewerPageURL(
     props.application.id,
@@ -196,46 +228,70 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   );
 
   return (
-    <Wrapper key={props.application.id} hasReadPermission={hasReadPermission}>
-      <ApplicationTitle>
-        <div className="apptitle">{props.application.name}</div>
-        {hasEditPermission && (
-          <Link to={editApplicationURL} className="t--application-edit-link">
-            <Control className="control">
-              <Tooltip content="Edit" hoverOpenDelay={500}>
-                {<Icon icon={"edit"} iconSize={14} color={Colors.HIT_GRAY} />}
-              </Tooltip>
-            </Control>
-          </Link>
+    <NameWrapper
+      showOverlay={showOverlay}
+      onMouseEnter={() => setShowOverlay(true)}
+      onMouseLeave={() => setShowOverlay(false)}
+      hasReadPermission={hasReadPermission}
+      className="t--application-card"
+    >
+      <Wrapper
+        key={props.application.id}
+        hasReadPermission={hasReadPermission}
+        backgroundColor={colorCode}
+      >
+        <Initials>{initials}</Initials>
+        {showOverlay && (
+          <div className="overlay">
+            <ApplicationImage className="image-container">
+              <Control className="control">
+                {!!moreActionItems.length && (
+                  <ContextDropdown
+                    options={moreActionItems}
+                    toggle={{
+                      type: "icon",
+                      icon: "MORE_HORIZONTAL_CONTROL",
+                      iconSize:
+                        theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
+                    }}
+                    className="more"
+                  />
+                )}
+
+                {hasEditPermission && (
+                  <Button
+                    onClick={() => history.push(editApplicationURL)}
+                    filled
+                    text="EDIT"
+                    intent="primary"
+                    icon={
+                      <ControlIcons.EDIT_WHITE
+                        color={Colors.WHITE}
+                        width={9}
+                        height={9}
+                      />
+                    }
+                    className="t--application-edit-link"
+                    fluid
+                  />
+                )}
+                <Button
+                  onClick={() => history.push(viewApplicationURL)}
+                  intent="none"
+                  outline
+                  fluid
+                  text="LAUNCH"
+                  icon={<ControlIcons.LAUNCH_CONTROL width={9} height={9} />}
+                  size="small"
+                  className="t--application-view-link"
+                />
+              </Control>
+            </ApplicationImage>
+          </div>
         )}
-        {!!moreActionItems.length && (
-          <ContextDropdown
-            options={moreActionItems}
-            toggle={{
-              type: "icon",
-              icon: "MORE_VERTICAL_CONTROL",
-              iconSize: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-            }}
-            className="more"
-          />
-        )}
-      </ApplicationTitle>
-      <Link className="t--application-view-link" to={viewApplicationURL}>
-        <ApplicationImage className="image-container">
-          <Control className="control">
-            <Button
-              filled
-              text="Launch"
-              intent="primary"
-              icon="play"
-              iconAlignment="left"
-              size="small"
-              className="t--application-edit-btn"
-            />
-          </Control>
-        </ApplicationImage>
-      </Link>
-    </Wrapper>
+      </Wrapper>
+      <Name>{props.application.name}</Name>
+    </NameWrapper>
   );
 };
 
