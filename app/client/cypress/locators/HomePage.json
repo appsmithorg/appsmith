@@ -32,6 +32,7 @@
     "ShareBtn": "//span[text()='Share']/parent::button",
     "launchBtn": "//span[text()='Launch']/parent::button",
     "appView": ".t--application-view-link",
+    "applicationCard": ".t--application-card",
     "appHome": "//a[@href='/applications']",
     "emailList": "[data-colindex='0']",
     "orgList": ".t--org-section:contains(",
