@@ -58,6 +58,8 @@ public class SeedMongoData {
         log.info("Seeding the data");
         final String API_USER_EMAIL = "api_user";
         final String TEST_USER_EMAIL = "usertest@usertest.com";
+        final String ADMIN_USER_EMAIL = "admin@solutionTest.com";
+        final String DEV_USER_EMAIL = "developer@solutionTest.com";
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of(API_USER_EMAIL))
@@ -72,7 +74,7 @@ public class SeedMongoData {
                 .build();
 
         Policy userManageOrgPolicy = Policy.builder().permission(USER_MANAGE_ORGANIZATIONS.getValue())
-                .users(Set.of(API_USER_EMAIL, TEST_USER_EMAIL))
+                .users(Set.of(API_USER_EMAIL, TEST_USER_EMAIL, ADMIN_USER_EMAIL, DEV_USER_EMAIL))
                 .build();
 
         Policy inviteUserOrgPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
@@ -107,9 +109,19 @@ public class SeedMongoData {
                 .users(Set.of(TEST_USER_EMAIL))
                 .build();
 
+        Policy readAdminUserPolicy = Policy.builder().permission(READ_USERS.getValue())
+                .users(Set.of(ADMIN_USER_EMAIL))
+                .build();
+
+        Policy readDevUserPolicy = Policy.builder().permission(READ_USERS.getValue())
+                .users(Set.of(DEV_USER_EMAIL))
+                .build();
+
         Object[][] userData = {
                 {"user test", TEST_USER_EMAIL, UserState.ACTIVATED, Set.of(readTestUserPolicy, userManageOrgPolicy)},
                 {"api_user", API_USER_EMAIL, UserState.ACTIVATED, Set.of(userManageOrgPolicy, readApiUserPolicy, manageApiUserPolicy)},
+                {"admin test", ADMIN_USER_EMAIL, UserState.ACTIVATED, Set.of(readAdminUserPolicy, userManageOrgPolicy)},
+                {"developer test", DEV_USER_EMAIL, UserState.ACTIVATED, Set.of(readDevUserPolicy, userManageOrgPolicy)},
         };
         Object[][] orgData = {
                 {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", "spring-test-organization",
