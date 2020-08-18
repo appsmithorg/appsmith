@@ -389,7 +389,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             throw Exceptions.propagate(e);
         }
 
-        final Map<String, Map<String, String>> templates = new HashMap<>();
+        final Map<String, String> templateBodiesByFile = new HashMap<>();
         for (final Resource resource : resources) {
             final String filename = resource.getFilename();
 
@@ -413,9 +413,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 continue;
             }
 
-            final Map<String, String> template = new HashMap<>();
-            template.put("body", templateContent);
-            templates.put(filename, template);
+            templateBodiesByFile.put(filename, templateContent);
 
         }
 
@@ -424,9 +422,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         if (manifest.containsKey("templates")) {
             for (final Map entry : (List<Map>) manifest.get("templates")) {
                 final String filename = (String) entry.get("file");
-                final Map<String, String> template = templates.get(filename);
-                template.put("title", (String) entry.get("title"));
-                orderedTemplates.put(template.get("title"), template.get("body"));
+                orderedTemplates.put((String) entry.get("title"), templateBodiesByFile.get(filename));
             }
         }
 
