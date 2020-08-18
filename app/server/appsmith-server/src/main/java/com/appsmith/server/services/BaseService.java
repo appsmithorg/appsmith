@@ -126,7 +126,7 @@ public abstract class BaseService<R extends BaseRepository & AppsmithRepository,
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .flatMap(analyticsService::sendCreateEvent);
+                .flatMap(savedObj -> analyticsService.sendEvent(AnalyticsEvents.CREATE, (T) savedObj));
     }
 
     protected DBObject getDbObject(Object o) {
