@@ -188,7 +188,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         setTimeout(() => {
           if (showPropertyPane && updateWidgetParams.payload.newWidgetId) {
             showPropertyPane(updateWidgetParams.payload.newWidgetId);
-            toggleEditWidgetName(updateWidgetParams.payload.newWidgetId, true);
+            // toggleEditWidgetName(updateWidgetParams.payload.newWidgetId, true);
           }
         }, 100);
 
