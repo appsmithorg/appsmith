@@ -5,7 +5,11 @@ import {
   API_REQUEST_HEADERS,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
+import {
+  AUTH_LOGIN_URL,
+  PAGE_NOT_FOUND_URL,
+  SERVER_ERROR_URL,
+} from "constants/routes";
 import history from "utils/history";
 
 //TODO(abhinav): Refactor this to make more composable.
@@ -19,6 +23,7 @@ export const apiRequestConfig = {
 const axiosInstance: AxiosInstance = axios.create();
 
 const executeActionRegex = /actions\/execute/;
+const currentUserRegex = /\/me$/;
 axiosInstance.interceptors.request.use((config: any) => {
   return { ...config, timer: performance.now() };
 });
@@ -46,6 +51,9 @@ axiosInstance.interceptors.response.use(
   },
   function(error: any) {
     if (error.code === "ECONNABORTED") {
+      if (error.config.url.match(currentUserRegex)) {
+        history.replace({ pathname: SERVER_ERROR_URL });
+      }
       return Promise.reject({
         message: "Please check your internet connection",
       });
@@ -60,7 +68,7 @@ axiosInstance.interceptors.response.use(
       // console.log(error.response.status);
       // console.log(error.response.headers);
       if (!is404orAuthPath()) {
-        const currentUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+        const currentUrl = `${window.location.href}`;
         if (error.response.status === 401) {
           // Redirect to login and set a redirect url.
           history.replace({
