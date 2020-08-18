@@ -11,7 +11,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   border-radius: 0px;
   height: 100%;
   .ads-icon {
-    margin-right: ${props => props.theme.spaces[4]}px;
+    margin-right: ${props => props.theme.spaces[3]}px;
     svg {
       width: ${props => props.theme.spaces[9]}px;
       height: ${props => props.theme.spaces[9]}px;
@@ -27,7 +27,8 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   .react-tabs__tab-list {
     display: flex;
     align-items: center;
-    border-bottom: 2px solid ${props => props.theme.colors.blackShades[3]};
+    border-bottom: ${props => props.theme.spaces[1] - 2}px solid
+      ${props => props.theme.colors.blackShades[3]};
     color: ${props => props.theme.colors.blackShades[6]};
     path {
       fill: ${props => props.theme.colors.blackShades[6]};
@@ -44,12 +45,14 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 0 0 ${props => props.theme.spaces[2]}px 0;
+    padding: 0 0 ${props => props.theme.spaces[4]}px 0;
     margin-right: ${props => props.theme.spaces[12] - 3}px;
     text-align: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    border-color: transparent;
+    position: relative;
   }
   .react-tabs__tab:hover {
     color: ${props => props.theme.colors.blackShades[9]};
@@ -67,12 +70,20 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   }
   .react-tabs__tab--selected {
     color: ${props => props.theme.colors.blackShades[9]};
-    border: 0px solid;
-    border-bottom: ${props => props.theme.colors.info.main}
-      ${props => props.theme.spaces[1] - 2}px solid;
     background-color: transparent;
+
     path {
       fill: ${props => props.theme.colors.blackShades[9]};
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      bottom: ${props => props.theme.spaces[0] - 1}px;
+      left: ${props => props.theme.spaces[0]}px;
+      height: ${props => props.theme.spaces[1] - 2}px;
+      background-color: ${props => props.theme.colors.info.main};
     }
   }
   .react-tabs__tab:focus:after {
