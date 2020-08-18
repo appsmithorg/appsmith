@@ -148,6 +148,12 @@ const DropdownContainer = styled.div`
   ${BlueprintCSSTransform}
 `;
 
+const StyledCheckbox = styled(Checkbox)`
+  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
+    margin: 0;
+  }
+`;
+
 const StyledMultiDropDown = styled(MultiDropDown)<{
   hideCloseButtonIndex: number;
   height: number;
@@ -175,7 +181,6 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
       .${Classes.TAG_INPUT_VALUES} {
         margin-top: 0;
         overflow: hidden;
-        padding: 2px 0;
         height: ${props => props.height - WIDGET_PADDING * 2 - 2}px;
         display: initial;
       }
@@ -184,9 +189,9 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
         background: none;
         border: 1px solid #D0D7DD;
         border-radius: 2px;
-        margin-bottom: 0;
+        margin: 3px 2px;
         max-width: ${props => props.width * 0.85}px;
-        height: 26px;
+        height: 24px;
       }
 
       ${props =>
@@ -215,12 +220,6 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
         height: 26px;
       }
     }
-  }
-`;
-
-const StyledCheckbox = styled(Checkbox)`
-  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
-    margin: 0;
   }
 `;
 
