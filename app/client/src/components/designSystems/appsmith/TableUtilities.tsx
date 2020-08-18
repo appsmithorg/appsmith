@@ -633,7 +633,12 @@ export const TableHeaderCell = (props: {
         </div>
       )}
       {props.displayColumnActions && (
-        <div className="column-menu">
+        <div
+          className="column-menu"
+          onClick={(event: React.MouseEvent<HTMLElement>) => {
+            event.stopPropagation();
+          }}
+        >
           <TableColumnMenuPopup
             getColumnMenu={props.getColumnMenu}
             columnIndex={props.columnIndex}
