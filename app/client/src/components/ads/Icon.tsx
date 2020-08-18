@@ -3,6 +3,9 @@ import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
+import { ReactComponent as EditIcon } from "assets/icons/ads/edit.svg";
+import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
+
 import styled from "styled-components";
 import { Size } from "./Button";
 import { sizeHandler } from "./Spinner";
@@ -13,6 +16,8 @@ export type IconName =
   | "user"
   | "general"
   | "billing"
+  | "edit"
+  | "error"
   | undefined;
 
 const IconWrapper = styled.div<IconProps>`
@@ -21,8 +26,10 @@ const IconWrapper = styled.div<IconProps>`
   }
   display: flex;
   svg {
-    width: ${props => sizeHandler(props)}px;
-    height: ${props => sizeHandler(props)}px;
+    width: ${props =>
+      props.size ? sizeHandler(props) : props.theme.spaces[9]}px;
+    height: ${props =>
+      props.size ? sizeHandler(props) : props.theme.spaces[9]}px;
     path {
       fill: ${props => props.theme.colors.blackShades[4]};
     }
@@ -78,6 +85,20 @@ export const Icon = (props: IconProps) => {
       returnIcon = (
         <IconWrapper className="ads-icon" {...props}>
           <BillingIcon />
+        </IconWrapper>
+      );
+      break;
+    case "edit":
+      returnIcon = (
+        <IconWrapper className="ads-icon" {...props}>
+          <EditIcon />
+        </IconWrapper>
+      );
+      break;
+    case "error":
+      returnIcon = (
+        <IconWrapper className="ads-icon" {...props}>
+          <ErrorIcon />
         </IconWrapper>
       );
       break;
