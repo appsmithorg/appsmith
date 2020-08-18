@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -140,7 +139,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
                 });
 
         return pageMono
-                .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Page) deletedObj));
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
     @Override

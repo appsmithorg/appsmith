@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
@@ -47,10 +48,12 @@ public class AnalyticsService {
                 });
     }
 
-    public <T extends BaseDomain> Mono<T> sendEvent(String eventTag, T object) {
+    public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object) {
         if (analytics == null) {
             return Mono.just(object);
         }
+
+        final String eventTag = event.lowerName() + "_" + object.getClass().getSimpleName().toUpperCase();
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
@@ -75,5 +78,17 @@ public class AnalyticsService {
                     );
                     return object;
                 });
+    }
+
+    public <T extends BaseDomain> Mono<T> sendCreateEvent(T object) {
+        return sendEvent(AnalyticsEvents.CREATE, object);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object) {
+        return sendEvent(AnalyticsEvents.UPDATE, object);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
+        return sendEvent(AnalyticsEvents.DELETE, object);
     }
 }

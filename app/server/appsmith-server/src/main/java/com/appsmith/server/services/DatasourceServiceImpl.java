@@ -7,7 +7,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
@@ -340,12 +339,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     return Mono.just(objects.getT1());
                 })
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
-                .flatMap(deletedObj ->
-                    analyticsService.sendEvent(
-                            AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(),
-                            deletedObj
-                    )
-                );
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
 }
