@@ -25,9 +25,9 @@ import LandingScreen from "./LandingScreen";
 import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
 import PageNotFound from "pages/common/PageNotFound";
-import Loader from "pages/common/Loader";
+import PageLoadingBar from "pages/common/PageLoadingBar";
 
-const loadingIndicator = <Loader />;
+const loadingIndicator = <PageLoadingBar />;
 
 class AppRouter extends React.Component<any, any> {
   render() {
