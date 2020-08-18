@@ -66,15 +66,13 @@ const defaultColumn = {
 };
 
 export const Table = (props: TableProps) => {
-  const dataString = JSON.stringify(props.data);
+  const data = React.useMemo(() => props.data, [props.data]);
   const columnString = JSON.stringify({
     columns: props.columns,
     actions: props.columnActions,
     columnActions: props.columnActions,
     compactMode: props.compactMode,
   });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const data = React.useMemo(() => props.data, [dataString]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const columns = React.useMemo(() => props.columns, [columnString]);
 
