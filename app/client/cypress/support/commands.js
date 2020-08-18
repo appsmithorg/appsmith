@@ -619,7 +619,9 @@ Cypress.Commands.add("MoveAPIToPage", pageName => {
     .last()
     .click({ force: true });
   cy.get(apiwidget.moveTo).click({ force: true });
-  cy.get(apiwidget.page.concat(pageName).concat("')")).click({ force: true });
+  cy.get(apiwidget.page)
+    .contains(pageName)
+    .click();
   cy.wait("@saveAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -641,7 +643,7 @@ Cypress.Commands.add("CopyAPIToHome", () => {
 });
 
 Cypress.Commands.add("DeleteAPIFromSideBar", () => {
-  cy.deleteAction();
+  cy.deleteEntity();
   cy.wait("@deleteAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -650,7 +652,7 @@ Cypress.Commands.add("DeleteAPIFromSideBar", () => {
 });
 
 Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
-  cy.deleteAction();
+  cy.deleteEntity();
   cy.wait("@updateLayout").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -658,7 +660,7 @@ Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
   );
 });
 
-Cypress.Commands.add("deleteAction", () => {
+Cypress.Commands.add("deleteEntity", () => {
   cy.xpath(apiwidget.popover)
     .last()
     .click({ force: true });
@@ -1156,11 +1158,9 @@ Cypress.Commands.add("testCreateApiButton", () => {
 
 Cypress.Commands.add("testSaveDeleteDatasource", () => {
   cy.get(".t--test-datasource").click();
-  cy.wait("@testDatasource").should(
-    "have.nested.property",
-    "response.body.data.success",
-    true,
-  );
+  cy.wait("@testDatasource")
+    .should("have.nested.property", "response.body.data.success", true)
+    .debug();
 
   cy.get(".t--save-datasource").click();
   cy.wait("@saveDatasource").should(

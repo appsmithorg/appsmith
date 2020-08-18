@@ -44,6 +44,6 @@
   "Responsetab": "//li[text()='Response Body']",
   "deleteAPI": ".t--apiFormDeleteBtn",
   "editName": ".single-select >div:contains('Edit Name')",
-  "page": ".single-select >div:contains('",
+  "page": ".single-select >div",
   "propertyList": ".t--entity-property"
 }
