@@ -22,7 +22,7 @@
 </div>
 
 -----------------
-Appsmith is a fast, easy, and secure way to build any custom internal tools. Using Appsmith is easy. 
+Appsmith is a fast, easy, and secure way to build any custom internal tools. Here's how you build something:
 1. Create a page using pre-built UI components like table, charts, map viewers and forms.
 2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.
 3. Deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
@@ -55,7 +55,7 @@ Appsmith is a quicker way of building internal tools by visualising them as modu
 * **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows. Use Lodash functions
 * **Data Workflows**: Simple configuration to create flows when users interact with the UI. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/calling-apis-from-widgets)
 * **Realtime Editor**: Changes in your application reflect instantly with every edit. No need to compile!
-* **Works with existing, live databases**: Connect directly to any Postgres & Mongo db
+* **Works with existing, live databases**: Connect directly to any Postgres, MySQL, & Mongo db
 * **Fine-grained access control**: Control who can edit / view your applications from a single control panel
 * **App management**: Build and organise multiple applications on a single platform
 
