@@ -43,6 +43,7 @@ import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
+import log from "loglevel";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -308,6 +309,7 @@ function* handleCreateNewApiActionSaga(
   );
   const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
+  log.debug({ pageId, pluginId });
   if (pageId && pluginId) {
     const actions = yield select(getActions);
     const pageActions = actions.filter(
@@ -389,7 +391,7 @@ export default function* root() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
     takeEvery(
-      ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
+      ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       handleApiNameChangeFailureSaga,
     ),
     takeEvery(
