@@ -45,7 +45,7 @@ const StyledInput = styled.input<
   box-shadow: none;
   margin-bottom: ${props => props.theme.spaces[1]}px;
   border: 1px solid ${props => props.inputStyle.borderColor};
-  font-family: ${props => props.theme.fonts[3]};
+  font-family: ${props => props.theme.fonts[0]};
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
   background-color: ${props => props.inputStyle.bgColor};

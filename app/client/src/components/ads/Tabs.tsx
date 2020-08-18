@@ -6,7 +6,7 @@ import { Icon, IconName } from "./Icon";
 import { Size } from "./Button";
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
-  font-family: ${props => props.theme.fonts[2]};
+  font-family: ${props => props.theme.fonts[0]};
   user-select: none;
   border-radius: 0px;
   height: 100%;
