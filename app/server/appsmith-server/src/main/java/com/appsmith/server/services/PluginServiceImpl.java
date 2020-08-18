@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PluginOrgDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -321,13 +322,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     )
                     .onErrorReturn(Collections.emptyMap());
 
-            Mono<Map<String, Object>> resourceMono = Mono.zip(formMono, editorMono)
-                    .map(tuple -> {
-                        Map<String, Object> formMap = tuple.getT1();
-                        Map<String, Object> editorMap = tuple.getT2();
-                        formMap.putAll(editorMap);
-                        return formMap;
-                    })
+            Mono<Map<String, Object>> resourceMono = Mono
+                    .zip(formMono, editorMono, CollectionUtils::mergeMaps)
                     .cache();
 
             formCache.put(pluginId, resourceMono);

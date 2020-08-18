@@ -19,7 +19,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,9 +53,7 @@ public class PluginServiceTest {
 
         StepVerifier
                 .create(executeMono)
-                .assertNext(result -> {
-                    assertThat(result).isInstanceOf(ActionExecutionResult.class);
-                })
+                .assertNext(result -> assertThat(result).isInstanceOf(ActionExecutionResult.class))
                 .verifyComplete();
     }
     
@@ -66,10 +63,11 @@ public class PluginServiceTest {
 
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("form.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
+
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("editor.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
 
-        Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
+        Mono<Map<String, Object>> formConfig = pluginService.getFormConfig("random-plugin-id");
 
         StepVerifier.create(formConfig)
                 .expectError(AppsmithException.class)
@@ -79,15 +77,13 @@ public class PluginServiceTest {
     // The editor form config is not mandatory for plugins. The function should return successfully even if it's not present
     @Test
     public void getPluginFormWithNullEditorConfig() {
-        Map formMap = new HashMap();
-        formMap.put("form", new Object());
-
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("form.json")))
-                .thenReturn(Mono.just(formMap));
+                .thenReturn(Mono.just(Map.of("form", new Object())));
+
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("editor.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
 
-        Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
+        Mono<Map<String, Object>> formConfig = pluginService.getFormConfig("random-plugin-id");
         StepVerifier.create(formConfig)
                 .assertNext(form -> {
                     assertThat(form).isNotNull();
@@ -99,18 +95,13 @@ public class PluginServiceTest {
 
     @Test
     public void getPluginFormValid() {
-        Map formMap = new HashMap();
-        formMap.put("form", new Object());
-
-        Map editorMap = new HashMap();
-        editorMap.put("editor", new Object());
-
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("form.json")))
-                .thenReturn(Mono.just(formMap));
-        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("editor.json")))
-                .thenReturn(Mono.just(editorMap));
+                .thenReturn(Mono.just(Map.of("form", new Object())));
 
-        Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("editor.json")))
+                .thenReturn(Mono.just(Map.of("editor", new Object())));
+
+        Mono<Map<String, Object>> formConfig = pluginService.getFormConfig("random-plugin-id");
         StepVerifier.create(formConfig)
                 .assertNext(form -> {
                     assertThat(form).isNotNull();
