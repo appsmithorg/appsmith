@@ -127,6 +127,16 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
+  // Mark default page as first page
+  const appPages = pages;
+  if (appPages.length > 1) {
+    appPages.forEach(function(item, i) {
+      if (item.isDefault) {
+        appPages.splice(i, 1);
+        appPages.unshift(item);
+      }
+    });
+  }
 
   const forkAppUrl = `${window.location.origin}${SIGN_UP_URL}?appId=${currentApplicationDetails?.id}`;
 
@@ -203,9 +213,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
           )}
         </HeaderSection>
       </HeaderRow>
-      {pages.length > 1 && (
+      {appPages.length > 1 && (
         <HeaderRow justify={"flex-start"}>
-          {pages.map(page => (
+          {appPages.map(page => (
             <PageTab
               key={page.pageId}
               to={getApplicationViewerPageURL(

@@ -13,6 +13,7 @@ import {
   BUILDER_URL,
   ORG_URL,
   PAGE_NOT_FOUND_URL,
+  SERVER_ERROR_URL,
   SIGN_UP_URL,
   USER_AUTH_URL,
   USERS_URL,
@@ -25,9 +26,10 @@ import LandingScreen from "./LandingScreen";
 import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
 import PageNotFound from "pages/common/PageNotFound";
-import Loader from "pages/common/Loader";
+import PageLoadingBar from "pages/common/PageLoadingBar";
+import ServerUnavailable from "pages/common/ServerUnavailable";
 
-const loadingIndicator = <Loader />;
+const loadingIndicator = <PageLoadingBar />;
 
 class AppRouter extends React.Component<any, any> {
   render() {
@@ -77,6 +79,12 @@ class AppRouter extends React.Component<any, any> {
               path={PAGE_NOT_FOUND_URL}
               component={PageNotFound}
               name={"PageNotFound"}
+            />
+            <AppRoute
+              exact
+              path={SERVER_ERROR_URL}
+              component={ServerUnavailable}
+              name={"ServerError"}
             />
             <AppRoute component={PageNotFound} name={"PageNotFound"} />
           </Switch>
