@@ -46,7 +46,7 @@ export const Wrapper = styled.div`
     }
   }
   & i {
-    font-family: ${props => props.theme.fonts[2]};
+    font-family: ${props => props.theme.fonts.text};
     font-size: ${props => props.theme.fontSizes[7]}px;
   }
 `;
