@@ -56,6 +56,7 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     justify-content: space-between;
     box-shadow: none;
     background: white;
+    min-height: 32px;
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
@@ -147,9 +148,20 @@ const DropdownContainer = styled.div`
   ${BlueprintCSSTransform}
 `;
 
-const StyledMultiDropDown = styled(MultiDropDown)`
+const StyledCheckbox = styled(Checkbox)`
+  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
+    margin: 0;
+  }
+`;
+
+const StyledMultiDropDown = styled(MultiDropDown)<{
+  hideCloseButtonIndex: number;
+  height: number;
+  width: number;
+}>`
   div {
     flex: 1 1 auto;
+    height: ${props => props.height - WIDGET_PADDING * 2}px;
   }
   .${MultiSelectClasses.MULTISELECT} {
     position: relative;
@@ -164,19 +176,38 @@ const StyledMultiDropDown = styled(MultiDropDown)`
         justify-content: space-between;
         text-overflow: ellipsis;
         overflow: hidden;
+        min-height: 32px;
 
       .${Classes.TAG_INPUT_VALUES} {
         margin-top: 0;
         overflow: hidden;
-        padding: 2px 0;
+        height: ${props => props.height - WIDGET_PADDING * 2 - 2}px;
+        display: initial;
       }
+
       .${Classes.TAG} {
         background: none;
         border: 1px solid #D0D7DD;
         border-radius: 2px;
-        margin-bottom: 0;
-        max-width: 100px;
+        margin: 3px 2px;
+        max-width: ${props => props.width * 0.85}px;
+        height: 24px;
       }
+
+      ${props =>
+        props.hideCloseButtonIndex >= 0 &&
+        `
+      .${Classes.TAG}:nth-child(${props.hideCloseButtonIndex}) {
+        .${Classes.ICON} {
+          align-self: center;
+          margin-right: 0px;
+          color: ${Colors.SLATE_GRAY};
+        }
+        button {
+          display: none;
+        }
+      }
+      `}
       & > .${Classes.ICON} {
         align-self: center;
         margin-right: 10px;
@@ -185,24 +216,21 @@ const StyledMultiDropDown = styled(MultiDropDown)`
       .${Classes.INPUT_GHOST} {
         flex: 0 0 auto;
         margin: 0;
+        width: 1px;
+        height: 26px;
       }
     }
   }
 `;
 
-const StyledCheckbox = styled(Checkbox)`
-  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
-    margin: 0;
-  }
-`;
-
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
-    const selectedItems = this.props.selectedIndexArr
-      ? _.map(this.props.selectedIndexArr, index => {
-          return this.props.options[index];
-        })
+    const { selectedIndexArr, options } = this.props;
+    const selectedItems = selectedIndexArr
+      ? _.map(selectedIndexArr, index => options[index])
       : [];
+    const hideCloseButtonIndex = -1;
+
     return (
       <DropdownContainer>
         <DropdownStyles />
@@ -256,19 +284,29 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               tagRenderer={this.renderTag}
               itemRenderer={this.renderMultiSelectItem}
               selectedItems={selectedItems}
+              height={this.props.height}
               tagInputProps={{
                 onRemove: this.onItemRemoved,
-                tagProps: { minimal: true },
-                // inputProps: { readOnly: true },
+                tagProps: (value, index) => ({
+                  minimal: true,
+                  interactive:
+                    hideCloseButtonIndex - 1 === index ? true : false,
+                  rightIcon:
+                    hideCloseButtonIndex - 1 === index
+                      ? IconNames.CHEVRON_DOWN
+                      : undefined,
+                }),
                 disabled: this.props.disabled,
                 rightElement: <Icon icon={IconNames.CHEVRON_DOWN} />,
               }}
+              hideCloseButtonIndex={hideCloseButtonIndex}
               onItemSelect={this.onItemSelect}
               popoverProps={{
                 minimal: true,
                 usePortal: true,
                 popoverClassName: "select-popover-wrapper",
               }}
+              width={this.props.width}
             />
           )}
         </StyledControlGroup>
@@ -367,6 +405,8 @@ export interface DropDownComponentProps extends ComponentProps {
   selectedIndexArr: number[];
   options: DropdownOption[];
   isLoading: boolean;
+  width: number;
+  height: number;
 }
 
 export default DropDownComponent;
