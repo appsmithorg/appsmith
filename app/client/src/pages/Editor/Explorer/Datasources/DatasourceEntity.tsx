@@ -7,7 +7,6 @@ import { ExplorerURLParams, getDatasourceIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
-import { useDispatch } from "react-redux";
 import { updateDatasource } from "actions/datasourceActions";
 
 type ExplorerDatasourceEntityProps = {
@@ -37,7 +36,7 @@ export const ExplorerDatasourceEntity = (
     (id: string, name: string) => {
       return updateDatasource({ ...props.datasource, name: name }, active);
     },
-    [props.datasource],
+    [props.datasource, active],
   );
   return (
     <Entity

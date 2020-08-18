@@ -1,5 +1,6 @@
 import _ from "lodash";
 import {
+  ISO_DATE_FORMAT,
   VALIDATION_TYPES,
   ValidationResponse,
   ValidationType,
@@ -392,8 +393,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       .minute(0)
       .second(0)
       .millisecond(0);
-    const dateFormat = props.dateFormat ? props.dateFormat : moment.ISO_8601;
-    // const dateStr = moment().toISOString();
+    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+
     const todayDateString = today.format(dateFormat);
     if (dateString === undefined) {
       return {

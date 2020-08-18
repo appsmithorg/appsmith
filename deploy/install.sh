@@ -36,14 +36,25 @@ install_docker() {
     sudo ${package_manager} -y update --quiet
     echo "Installing docker"
     sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
-   
-    if [ ! -f /usr/bin/docker-compose ];then
-        echo "Installing docker-compose"
-        sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-    fi
+}
 
+install_docker_compose() {
+    if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
+        if [ ! -f /usr/bin/docker-compose ];then
+            echo "Installing docker-compose..."
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+            echo "docker-compose installed!"
+        fi
+    else
+        echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
+        echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
+        echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
+        echo -e "Exiting for now. Bye! \U1F44B"
+        echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
+        exit
+    fi
 }
 
 start_docker() {
@@ -152,6 +163,23 @@ wait_for_containers_start() {
     done
 }
 
+urlencode() {
+    # urlencode <string>
+    old_lc_collate=$LC_COLLATE
+    LC_COLLATE=C
+
+    local length="${#1}"
+    for (( i = 0; i < length; i++ )); do
+        local c="${1:i:1}"
+        case $c in
+            [a-zA-Z0-9.~_-]) printf "$c" ;;
+            *) printf '%%%02X' "'$c" ;;
+        esac
+    done
+
+    LC_COLLATE=$old_lc_collate
+}
+
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
 echo ""
 
@@ -192,6 +220,11 @@ if ! is_command_present docker ;then
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
         exit
     fi
+fi
+
+# Install docker-compose
+if ! is_command_present docker-compose; then
+    install_docker_compose
 fi
 
 # Starting docker service
@@ -235,6 +268,10 @@ elif [ $fresh_install == "Y" -o $fresh_install == "y" -o $fresh_install == "yes"
     auto_generate_encryption="true"
 fi
 echo ""
+
+# urlencoding the Mongo username and password
+encoded_mongo_root_user=$( urlencode $mongo_root_user )
+encoded_mongo_root_password=$( urlencode $mongo_root_password )
 
 encryptionEnv=./template/encryption.env
 if test -f "$encryptionEnv"; then
@@ -345,8 +382,10 @@ else
     echo "No domain found. Skipping generation of SSL certificate."
 fi
 
+echo ""
 echo "Pulling the latest container images"
 sudo docker-compose pull
+echo ""
 echo "Starting the Appsmith containers"
 sudo docker-compose -f docker-compose.yml up -d --remove-orphans
 
@@ -370,12 +409,13 @@ else
     echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
     echo ""
     echo "cd $install_dir && sudo docker-compose ps -a"
+    echo ""
+    echo "Your application is running on http://localhost"
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Need help troubleshooting?"
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
-    echo ""
-    echo "Your application is running on http://localhost"
 fi
 
+echo ""
 echo -e "Peace out \U1F596"

@@ -281,6 +281,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     //User has verified via the forgot password token verfication route. Allow the user to set new password.
                     userFromDb.setPasswordResetInitiated(false);
                     userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
+
+                    // If the user has been invited but has not signed up yet, and is following the route of reset
+                    // password flow to set up their password, enable the user's account as well
+                    userFromDb.setIsEnabled(true);
+
                     return passwordResetTokenRepository
                             .findByEmail(user.getEmail())
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "token", token)))
