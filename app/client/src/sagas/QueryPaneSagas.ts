@@ -1,4 +1,4 @@
-import { all, select, put, takeEvery } from "redux-saga/effects";
+import { all, select, put, take, takeEvery } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -118,6 +118,7 @@ function* handleNameChangeSuccessSaga(
 ) {
   const { actionId } = action.payload;
   const actionObj = yield select(getAction, actionId);
+  yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (actionObj.pluginType === QUERY_CONSTANT) {
     const params = getQueryParams();
     if (params.editName) {

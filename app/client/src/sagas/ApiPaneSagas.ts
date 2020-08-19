@@ -2,7 +2,7 @@
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
 import { get, omit } from "lodash";
-import { all, select, put, takeEvery, call } from "redux-saga/effects";
+import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -390,6 +390,7 @@ function* handleApiNameChangeSuccessSaga(
 ) {
   const { actionId } = action.payload;
   const actionObj = yield select(getAction, actionId);
+  yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (actionObj.pluginType === PLUGIN_TYPE_API) {
     const params = getQueryParams();
     if (params.editName) {
