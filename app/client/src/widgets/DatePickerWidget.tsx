@@ -67,6 +67,9 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.selectedDate}
         isLoading={this.props.isLoading}
+        disableDrag={(disable: boolean) => {
+          this.disableDrag(disable);
+        }}
       />
     );
   }

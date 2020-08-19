@@ -119,6 +119,18 @@ class DatePickerComponent extends React.Component<
             }
             maxDate={maxDate.toDate()}
             minDate={minDate.toDate()}
+            popoverProps={{
+              onClose: () => {
+                if (this.props.disableDrag) {
+                  this.props.disableDrag(false);
+                }
+              },
+              onOpened: () => {
+                if (this.props.disableDrag) {
+                  this.props.disableDrag(true);
+                }
+              },
+            }}
           />
         ) : (
           <DateRangeInput
@@ -163,6 +175,7 @@ interface DatePickerComponentProps extends ComponentProps {
   isDisabled: boolean;
   onDateSelected: (selectedDate: string) => void;
   isLoading: boolean;
+  disableDrag?: (disable: boolean) => void;
 }
 
 interface DatePickerComponentState {

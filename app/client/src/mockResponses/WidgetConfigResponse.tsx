@@ -90,6 +90,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5,
       widgetName: "DatePicker",
       defaultDate: moment().format("DD/MM/YYYY HH:mm"),
+      isDefaultClickDisabled: true,
     },
     TABLE_WIDGET: {
       rows: 7,
