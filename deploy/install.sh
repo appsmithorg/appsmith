@@ -420,7 +420,11 @@ else
     echo ""
     echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
     echo ""
-    echo "Your application is running on http://localhost"
+    if [[ -z $custom_domain ]]; then
+        echo "Your application is running on 'http://localhost'."
+    else
+        echo "Your application is running on 'https://$custom_domain'."
+    fi
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Need help troubleshooting?"
