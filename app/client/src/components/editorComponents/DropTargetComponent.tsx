@@ -30,7 +30,6 @@ import {
   useShowPropertyPane,
   useWidgetSelection,
   useCanvasSnapRowsUpdateHook,
-  useToggleEditWidgetName,
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 

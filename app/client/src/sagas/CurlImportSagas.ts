@@ -1,4 +1,4 @@
-import { takeLatest, put, all, select, take } from "redux-saga/effects";
+import { takeLatest, put, all, select } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -12,7 +12,6 @@ import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { CURL_IMPORT_SUCCESS } from "constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { fetchActions } from "actions/actionActions";
 import { CURL } from "constants/ApiConstants";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
