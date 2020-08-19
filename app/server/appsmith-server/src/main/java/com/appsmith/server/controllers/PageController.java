@@ -84,4 +84,10 @@ public class PageController extends BaseController<PageService, Page, String> {
         return service.delete(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
+
+    @PostMapping("/clone/{pageId}")
+    public Mono<ResponseDTO<Page>> clonePage(@PathVariable String pageId) {
+        return applicationPageService.clonePage(pageId)
+                .map(page -> new ResponseDTO<>(HttpStatus.CREATED.value(), page, null));
+    }
 }

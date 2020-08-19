@@ -5,19 +5,23 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
@@ -40,26 +45,32 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final PageService pageService;
     private final SessionUserService sessionUserService;
     private final OrganizationService organizationService;
+    private final LayoutActionService layoutActionService;
 
     private final AnalyticsService analyticsService;
     private final PolicyGenerator policyGenerator;
 
     private final ApplicationRepository applicationRepository;
+    private final ActionService actionService;
 
     public ApplicationPageServiceImpl(ApplicationService applicationService,
                                       PageService pageService,
                                       SessionUserService sessionUserService,
                                       OrganizationService organizationService,
+                                      LayoutActionService layoutActionService,
                                       AnalyticsService analyticsService,
                                       PolicyGenerator policyGenerator,
-                                      ApplicationRepository applicationRepository) {
+                                      ApplicationRepository applicationRepository,
+                                      ActionService actionService) {
         this.applicationService = applicationService;
         this.pageService = pageService;
         this.sessionUserService = sessionUserService;
         this.organizationService = organizationService;
+        this.layoutActionService = layoutActionService;
         this.analyticsService = analyticsService;
         this.policyGenerator = policyGenerator;
         this.applicationRepository = applicationRepository;
+        this.actionService = actionService;
     }
 
     public Mono<Page> createPage(Page page) {
@@ -322,6 +333,87 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return applicationMono
                 .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj));
+    }
+
+    @Override
+    public Mono<Page> clonePage(String pageId) {
+
+        // Find the source page and then prune the page layout fields to only contain the required fields that should be
+        // copied.
+        Mono<Page> sourcePageMono = pageService.findById(pageId, MANAGE_PAGES)
+                .flatMap(page -> Flux.fromIterable(page.getLayouts())
+                        .map(layout -> layout.getDsl())
+                        .map(dsl -> {
+                            Layout newLayout = new Layout();
+                            String id = new ObjectId().toString();
+                            newLayout.setId(id);
+                            newLayout.setDsl(dsl);
+                            return newLayout;
+                        })
+                        .collectList()
+                        .map(layouts -> {
+                            page.setLayouts(layouts);
+                            return page;
+                        }));
+
+        Flux<Action> sourceActionFlux = actionService.findByPageId(pageId, MANAGE_ACTIONS);
+
+        return sourcePageMono
+                .flatMap(page -> {
+                    Mono<ApplicationPagesDTO> pageNamesMono = pageService
+                            .findNamesByApplicationId(page.getApplicationId());
+                    return pageNamesMono
+                            // Set a unique name for the cloned page and then create the page.
+                            .flatMap(pageNames -> {
+                                Set<String> names = pageNames.getPages()
+                                        .stream()
+                                        .map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toSet());
+
+                                String newPageName = page.getName() + " Copy";
+                                int i = 0;
+                                String name = newPageName;
+                                while(names.contains(name)) {
+                                    i++;
+                                    name = newPageName + i;
+                                }
+                                newPageName = name;
+                                // Now we have a unique name. Proceed with creating the copy of the page
+                                page.setId(null);
+                                page.setName(newPageName);
+                                return pageService.createDefault(page);
+                            });
+                })
+                .flatMap(page -> {
+                    String newPageId = page.getId();
+                    return sourceActionFlux
+                            .flatMap(action -> {
+                                action.setId(null);
+                                action.setPageId(newPageId);
+                                return actionService.create(action);
+                            })
+                            .collectList()
+                            .thenReturn(page);
+                })
+                // Calculate the onload actions for this page now that the page and actions have been created
+                .flatMap(savedPage -> {
+                    List<Layout> layouts = savedPage.getLayouts();
+
+                    return Flux.fromIterable(layouts)
+                            .flatMap(layout -> layoutActionService.updateLayout(savedPage.getId(), layout.getId(), layout))
+                            .collectList()
+                            .thenReturn(savedPage);
+                })
+                .flatMap(page -> {
+                    Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), MANAGE_APPLICATIONS);
+                    return applicationMono
+                            .flatMap(application -> {
+                                ApplicationPage applicationPage = new ApplicationPage();
+                                applicationPage.setId(page.getId());
+                                application.getPages().add(applicationPage);
+                                return applicationService.save(application)
+                                        .thenReturn(page);
+                            });
+                });
     }
 
 }

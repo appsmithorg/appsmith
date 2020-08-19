@@ -13,6 +13,7 @@ import {
   getAllUsers,
   getCurrentOrg,
 } from "selectors/organizationSelectors";
+import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
@@ -110,6 +111,12 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const Loading = styled(Spinner)`
+  padding-top: 10px;
+  margin: auto;
+  width: 100%;
+`;
+
 const validateFormValues = (values: { users: string; role: string }) => {
   if (values.users && values.users.length > 0) {
     const _users = values.users.split(",").filter(Boolean);
@@ -158,6 +165,7 @@ const OrgInviteUsersForm = (props: any) => {
     fetchCurrentOrg,
     currentOrg,
     isApplicationInvite,
+    isLoading,
   } = props;
 
   const currentPath = useLocation().pathname;
@@ -237,16 +245,20 @@ const OrgInviteUsersForm = (props: any) => {
             type="submit"
           />
         </StyledInviteFieldGroup>
-        <UserList style={{ justifyContent: "space-between" }}>
-          {allUsers.map((user: { username: string; roleName: string }) => {
-            return (
-              <div className="user" key={user.username}>
-                <div>{user.username}</div>
-                <div>{user.roleName}</div>
-              </div>
-            );
-          })}
-        </UserList>
+        {isLoading ? (
+          <Loading size={30} />
+        ) : (
+          <UserList style={{ justifyContent: "space-between" }}>
+            {allUsers.map((user: { username: string; roleName: string }) => {
+              return (
+                <div className="user" key={user.username}>
+                  <div>{user.username}</div>
+                  <div>{user.roleName}</div>
+                </div>
+              );
+            })}
+          </UserList>
+        )}
         {!pathRegex.test(currentPath) && canManage && (
           <Button
             className="manageUsers"
@@ -269,6 +281,7 @@ export default connect(
       roles: getRolesForField(state),
       allUsers: getAllUsers(state),
       currentOrg: getCurrentOrg(state),
+      isLoading: state.ui.orgs.loadingStates.isFetchAllUsers,
     };
   },
   (dispatch: any) => ({
