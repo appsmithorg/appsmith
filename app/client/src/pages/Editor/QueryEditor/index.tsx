@@ -19,6 +19,7 @@ import {
   getPluginImages,
   getDBDatasources,
   getAction,
+  getActionResponses,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction } from "entities/Action";
@@ -49,7 +50,7 @@ type ReduxStateProps = {
   formData: QueryAction;
   runErrorMessage: Record<string, string>;
   pluginIds: Array<string> | undefined;
-  executedQueryData: any;
+  responses: any;
   isCreating: boolean;
   pluginImages: Record<string, string>;
   editorConfig: [];
@@ -91,7 +92,7 @@ class QueryEditor extends React.Component<Props> {
       },
       pluginImages,
       pluginIds,
-      executedQueryData,
+      responses,
       isCreating,
       runErrorMessage,
       loadingFormConfigs,
@@ -135,7 +136,7 @@ class QueryEditor extends React.Component<Props> {
             editorConfig={editorConfig}
             loadingFormConfigs={loadingFormConfigs}
             DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
-            executedQueryData={executedQueryData[queryId]}
+            executedQueryData={responses[queryId]}
             runErrorMessage={runErrorMessage[queryId]}
           />
         ) : (
@@ -166,7 +167,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources: getDBDatasources(state),
-    executedQueryData: state.ui.queryPane.runQuerySuccessData,
+    responses: getActionResponses(state),
     queryPane: state.ui.queryPane,
     formData,
     editorConfig: queryAction?.pluginId

@@ -2,6 +2,8 @@ import { configure, addDecorator, addParameters } from "@storybook/react";
 import { withContexts } from "@storybook/addon-contexts/react";
 import { contexts } from "./configs/contexts";
 import { } from '@storybook/react'; // <- or your storybook framework
+import "../src/index.css";
+
 
 addDecorator(withContexts(contexts));
 addParameters({
