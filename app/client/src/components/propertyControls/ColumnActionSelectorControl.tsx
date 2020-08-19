@@ -54,6 +54,7 @@ class ColumnActionSelectorControl extends BaseControl<
                       this,
                       columnAction,
                     )}
+                    evaluatedValue={columnAction.label}
                     isValid={true}
                   />
                 </InputTextWrapper>
