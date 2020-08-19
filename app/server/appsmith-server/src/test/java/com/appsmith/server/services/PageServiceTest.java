@@ -196,7 +196,7 @@ public class PageServiceTest {
                 .assertNext(page -> {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
-                    assertThat("PageServiceTest CloneTest Source's Copy".equals(page.getName()));
+                    assertThat("PageServiceTest CloneTest Source Copy".equals(page.getName()));
 
                     assertThat(page.getPolicies()).isNotEmpty();
                     assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);

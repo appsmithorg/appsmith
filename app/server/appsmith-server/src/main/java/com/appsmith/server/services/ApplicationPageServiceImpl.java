@@ -369,7 +369,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         .stream()
                                         .map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toSet());
 
-                                String newPageName = page.getName() + "'s Copy";
+                                String newPageName = page.getName() + " Copy";
                                 int i = 0;
                                 String name = newPageName;
                                 while(names.contains(name)) {
@@ -391,7 +391,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 action.setPageId(newPageId);
                                 return actionService.create(action);
                             })
-                            .retry()
                             .collectList()
                             .thenReturn(page);
                 })
