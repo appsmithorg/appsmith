@@ -608,7 +608,7 @@ export const TableHeaderCell = (props: {
       onClick={handleSortColumn}
     >
       {props.isAscOrder !== undefined ? (
-        <SortIconWrapper rotate={!props.isAscOrder}>
+        <SortIconWrapper rotate={props.isAscOrder.toString()}>
           <SortIcon height={16} width={16} />
         </SortIconWrapper>
       ) : null}
@@ -703,16 +703,17 @@ export const reorderColumns = (
 };
 
 export function sortTableFunction(
-  tableData: object[],
+  filteredTableData: object[],
   columns: ReactTableColumnProps[],
   sortedColumn: string,
   sortOrder: boolean,
 ) {
+  const tabledata = filteredTableData ? [...filteredTableData] : [];
   const columnType =
     columns.find(
       (column: ReactTableColumnProps) => column.accessor === sortedColumn,
     )?.metaProperties?.type || ColumnTypes.TEXT;
-  return tableData.sort(
+  return tabledata.sort(
     (a: { [key: string]: any }, b: { [key: string]: any }) => {
       if (a[sortedColumn] !== undefined && b[sortedColumn] !== undefined) {
         switch (columnType) {
