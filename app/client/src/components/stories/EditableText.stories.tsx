@@ -37,7 +37,7 @@ const errorFunction = (name: string) => {
 };
 
 export const EditableTextStory = () => (
-  <div style={{ padding: "50px" }}>
+  <div style={{ padding: "50px", background: "black", height: "500px" }}>
     <AdsEditableText
       defaultValue={text("defaultValue", "Product design app")}
       editInteractionKind={select(

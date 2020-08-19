@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
 import _ from "lodash";
@@ -7,6 +7,7 @@ import { Size } from "./Button";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
 import { hexToRgba, ThemeProp } from "./common";
+import { theme } from "constants/DefaultTheme";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -42,81 +43,85 @@ type EditableTextProps = {
 };
 
 const EditableTextWrapper = styled.div<{
-  isEditing: boolean;
+  fill?: boolean;
 }>`
-  height: ${props => props.theme.spaces[13] + 3}px;
+  width: ${props => (!props.fill ? "234px" : "100%")};
   .error-message {
     color: ${props => props.theme.colors.danger.main};
   }
 `;
 
-const editModeBgcolor = (props: ThemeProp & TextContainerProps): string => {
+const editModeBgcolor = (
+  isInvalid: boolean,
+  isEditing: boolean,
+  savingState: { isSaving: boolean; name: SavingState },
+): string => {
   if (
-    (props.isInvalid && props.isEditing) ||
-    (props.savingState.isSaving && props.savingState.name === SavingState.ERROR)
+    (isInvalid && isEditing) ||
+    (savingState.isSaving && savingState.name === SavingState.ERROR)
   ) {
-    return hexToRgba(props.theme.colors.danger.main, 0.08);
-  } else if (!props.isInvalid && props.isEditing) {
-    return props.theme.colors.blackShades[2];
+    return hexToRgba(theme.colors.danger.main, 0.08);
+  } else if (!isInvalid && isEditing) {
+    return theme.colors.blackShades[2];
   } else {
     return "transparent";
   }
 };
 
-type TextContainerProps = {
+const TextContainer = styled.div<{
   isInvalid: boolean;
   isEditing: boolean;
   fill?: boolean;
   savingState: { name: SavingState; isSaving: boolean };
-};
-
-const TextContainer = styled.div<TextContainerProps>`
+  bgColor: string;
+}>`
   display: flex;
   align-items: center;
-  width: ${props => (!props.fill ? "234px" : "100%")};
   ${props =>
     props.isEditing && props.isInvalid
       ? `margin-bottom: ${props.theme.spaces[2]}px`
       : null};
-  & > div {
-    font-family: ${props => props.theme.fonts[2]};
+  .bp3-editable-text.bp3-editable-text-editing::before,
+  .bp3-editable-text.bp3-disabled::before {
+    display: none;
+  }
+
+  &&& .bp3-editable-text-content,
+  &&& .bp3-editable-text-input {
     font-size: ${props => props.theme.typography.p1.fontSize}px;
     line-height: ${props => props.theme.typography.p1.lineHeight}px;
     letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
     font-weight: ${props => props.theme.typography.p1.fontWeight}px;
   }
 
-  .bp3-editable-text {
+  & .bp3-editable-text-content {
+    cursor: pointer;
+    color: ${props => props.theme.colors.blackShades[9]};
     overflow: hidden;
-    ${props =>
-      !props.isEditing
-        ? `padding: ${props.theme.spaces[4]}px ${props.theme.spaces[5]}px`
-        : `padding: ${props.theme.spaces[0]}px`};
+    text-overflow: ellipsis;
+    ${props => (props.isEditing ? "display: none" : "display: block")};
+  }
+
+  & .bp3-editable-text-input {
+    border: none;
+    outline: none;
+    height: ${props => props.theme.spaces[13] + 3}px;
+    padding: ${props => props.theme.spaces[0]}px;
+    color: ${props => props.theme.colors.blackShades[9]};
+    min-width: 100%;
+    border-radius: ${props => props.theme.spaces[0]}px;
+  }
+
+  & .bp3-editable-text {
+    overflow: hidden;
+    padding: ${props => props.theme.spaces[4]}px
+      ${props => props.theme.spaces[5]}px;
     width: calc(100% - 40px);
-
-    .bp3-editable-text-content {
-      cursor: pointer;
-      color: ${props => props.theme.colors.blackShades[9]};
-      overflow: hidden;
-      text-overflow: ellipsis;
-      ${props => (props.isEditing ? "display: none" : "display: block")};
-    }
-
-    .bp3-editable-text-input {
-      border: none;
-      outline: none;
-      background-color: ${props => editModeBgcolor(props)};
-      padding: ${props => props.theme.spaces[4]}px
-        ${props => props.theme.spaces[0]}px ${props => props.theme.spaces[4]}px
-        ${props => props.theme.spaces[5]}px;
-      color: ${props => props.theme.colors.blackShades[9]};
-      min-width: 100%;
-      border-radius: ${props => props.theme.spaces[0]}px;
-    }
+    background-color: ${props => props.bgColor};
   }
 
   .icon-wrapper {
-    background-color: ${props => editModeBgcolor(props)};
+    background-color: ${props => props.bgColor};
   }
 `;
 
@@ -149,6 +154,11 @@ export const AdsEditableText = (props: EditableTextProps) => {
     if (props.forceDefault === true) setValue(props.defaultValue);
   }, [props.forceDefault, props.defaultValue]);
 
+  const bgColor = useMemo(
+    () => editModeBgcolor(!!isInvalid, isEditing, savingState),
+    [isInvalid, isEditing, savingState],
+  );
+
   const editMode = (e: React.MouseEvent) => {
     setIsEditing(true);
     const errorMessage = props.isInvalid && props.isInvalid(props.defaultValue);
@@ -157,7 +167,6 @@ export const AdsEditableText = (props: EditableTextProps) => {
     e.stopPropagation();
   };
 
-  /* after clicking enter or onBlur this function will be called */
   const onConfirm = (_value: string) => {
     if (
       (savingState.isSaving && savingState.name === SavingState.ERROR) ||
@@ -174,14 +183,12 @@ export const AdsEditableText = (props: EditableTextProps) => {
   };
 
   const onInputchange = (_value: string) => {
-    /* transformed  value */
     let finalVal: string = _value;
     if (props.valueTransform) {
       finalVal = props.valueTransform(_value);
     }
     setValue(finalVal);
 
-    /* set the error state */
     const errorMessage = props.isInvalid && props.isInvalid(finalVal);
     const error = errorMessage ? errorMessage : false;
     if (!error) {
@@ -237,7 +244,7 @@ export const AdsEditableText = (props: EditableTextProps) => {
 
   return (
     <EditableTextWrapper
-      isEditing={isEditing}
+      fill={props.fill}
       onMouseEnter={nonEditMode}
       onDoubleClick={
         props.editInteractionKind === EditInteractionKind.DOUBLE
@@ -255,6 +262,7 @@ export const AdsEditableText = (props: EditableTextProps) => {
         isEditing={isEditing}
         savingState={savingState}
         fill={props.fill}
+        bgColor={bgColor}
       >
         <BlueprintEditableText
           disabled={!isEditing}
@@ -262,6 +270,7 @@ export const AdsEditableText = (props: EditableTextProps) => {
           onChange={onInputchange}
           onConfirm={onConfirm}
           value={value}
+          selectAllOnFocus
           placeholder={props.placeholder}
           className={props.className}
           onCancel={onConfirm}
