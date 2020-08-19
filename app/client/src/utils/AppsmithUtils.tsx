@@ -2,7 +2,6 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
-import FontFaceObserver from "fontfaceobserver";
 import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
@@ -42,16 +41,6 @@ export const appInitializer = () => {
   }
 
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
-
-  const textFont = new FontFaceObserver("DM Sans");
-  textFont
-    .load()
-    .then(() => {
-      document.body.className += "fontLoaded";
-    })
-    .catch(err => {
-      console.log(err);
-    });
 };
 
 export const mapToPropList = (map: Record<string, string>): Property[] => {
@@ -155,7 +144,7 @@ export const getInitialsAndColorCode = (fullName: any): string[] => {
   return [inits, colorCode];
 };
 
-const getColorCode = (initials: string): string => {
+export const getColorCode = (initials: string): string => {
   let asciiSum = 0;
   for (let i = 0; i < initials.length; i++) {
     asciiSum += initials[i].charCodeAt(0);
