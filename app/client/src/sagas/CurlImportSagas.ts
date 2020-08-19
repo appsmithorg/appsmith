@@ -42,9 +42,6 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         importSource: CURL,
       });
 
-      yield put(fetchActions(applicationId));
-      yield take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS);
-
       AppToaster.show({
         message: CURL_IMPORT_SUCCESS,
         type: ToastType.SUCCESS,
