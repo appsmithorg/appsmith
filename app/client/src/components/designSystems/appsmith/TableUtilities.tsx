@@ -590,10 +590,13 @@ export const TableHeaderCell = (props: {
     toggleRenameColumn(false);
   };
   const handleSortColumn = () => {
-    props.sortTableColumn(
-      props.columnIndex,
-      props.isAscOrder === undefined ? true : !props.isAscOrder,
-    );
+    let columnIndex = props.columnIndex;
+    if (props.isAscOrder === true) {
+      columnIndex = -1;
+    }
+    const sortOrder =
+      props.isAscOrder === undefined ? false : !props.isAscOrder;
+    props.sortTableColumn(columnIndex, sortOrder);
   };
   if (column.isResizing) {
     props.handleResizeColumn(
