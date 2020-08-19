@@ -110,8 +110,14 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
 function* handleNameChangeSaga(
   action: ReduxAction<{ id: string; name: string }>,
 ) {
-  const actionObj = yield select(getAction, action.payload.id);
   yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.name));
+}
+
+function* handleNameChangeSuccessSaga(
+  action: ReduxAction<{ actionId: string }>,
+) {
+  const { actionId } = action.payload;
+  const actionObj = yield select(getAction, actionId);
   if (actionObj.pluginType === QUERY_CONSTANT) {
     const params = getQueryParams();
     if (params.editName) {
@@ -120,7 +126,7 @@ function* handleNameChangeSaga(
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     history.replace(
-      QUERIES_EDITOR_ID_URL(applicationId, pageId, action.payload.id, params),
+      QUERIES_EDITOR_ID_URL(applicationId, pageId, actionId, params),
     );
   }
 }
@@ -136,6 +142,10 @@ export default function* root() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
     takeEvery(ReduxActionTypes.QUERY_PANE_CHANGE, changeQuerySaga),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleNameChangeSaga),
+    takeEvery(
+      ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,
+      handleNameChangeSuccessSaga,
+    ),
     takeEvery(
       ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       handleNameChangeFailureSaga,

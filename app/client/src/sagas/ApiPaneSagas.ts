@@ -11,7 +11,7 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "constants/forms";
 import {
   DEFAULT_API_ACTION,
   POST_BODY_FORMAT_OPTIONS,
@@ -384,7 +384,12 @@ function* handleApiNameChangeSaga(
   action: ReduxAction<{ id: string; name: string }>,
 ) {
   yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.name));
-  const actionObj = yield select(getAction, action.payload.id);
+}
+function* handleApiNameChangeSuccessSaga(
+  action: ReduxAction<{ actionId: string }>,
+) {
+  const { actionId } = action.payload;
+  const actionObj = yield select(getAction, actionId);
   if (actionObj.pluginType === PLUGIN_TYPE_API) {
     const params = getQueryParams();
     if (params.editName) {
@@ -392,10 +397,7 @@ function* handleApiNameChangeSaga(
     }
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
-    history.replace(
-      API_EDITOR_ID_URL(applicationId, pageId, action.payload.id, params),
-    );
-    yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.name));
+    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
   }
 }
 
@@ -410,6 +412,10 @@ export default function* root() {
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
+    takeEvery(
+      ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,
+      handleApiNameChangeSuccessSaga,
+    ),
     takeEvery(
       ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       handleApiNameChangeFailureSaga,
