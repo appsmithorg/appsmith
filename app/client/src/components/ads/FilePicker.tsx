@@ -6,7 +6,9 @@ import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg"
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
-import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_PRESETS_NAME } from "./ads-config";
+
+const CLOUDINARY_PRESETS_NAME = "";
+const CLOUDINARY_CLOUD_NAME = "";
 
 type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
