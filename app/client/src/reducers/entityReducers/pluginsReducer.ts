@@ -42,7 +42,7 @@ const pluginsReducer = createReducer(initialState, {
       list: action.payload,
     };
   },
-  [ReduxActionTypes.FETCH_PLUGINS_ERROR]: (state: PluginDataState) => {
+  [ReduxActionErrorTypes.FETCH_PLUGINS_ERROR]: (state: PluginDataState) => {
     return {
       ...state,
       loading: false,

@@ -57,23 +57,28 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     z-index: 20 !important;
   }
   .CodeMirror-Tern-hint-doc {
-    background-color: ${props =>
-      props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"} !important;
-    color: ${props =>
-      props.editorTheme === EditorTheme.DARK
-        ? "#F4F4F4"
-        : "#1E242B"} !important;
-    max-height: 150px;
-    width: 250px;
-    font-size: 12px;
-    padding: 5px !important;
-    border: 1px solid !important;
-    border-color: ${props =>
-      props.editorTheme === EditorTheme.DARK
-        ? "#23292e"
-        : "#DEDEDE"} !important;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
-    overflow: scroll;
+    display: none;
+    &.visible {
+      display: block;
+      background-color: ${props =>
+        props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"} !important;
+      color: ${props =>
+        props.editorTheme === EditorTheme.DARK
+          ? "#F4F4F4"
+          : "#1E242B"} !important;
+      max-height: 150px;
+      width: 250px;
+      font-size: 12px;
+      padding: 5px !important;
+      border: 1px solid !important;
+      border-color: ${props =>
+        props.editorTheme === EditorTheme.DARK
+          ? "#23292e"
+          : "#DEDEDE"} !important;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
+      overflow: scroll;
+    }
+
   }
 `;
 
