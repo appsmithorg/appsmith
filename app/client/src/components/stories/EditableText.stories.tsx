@@ -3,7 +3,7 @@ import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import AdsEditableText, {
   EditInteractionKind,
-  SavingFunc,
+  SavingStateHandler,
   SavingState,
 } from "../ads/EditableText";
 import { action } from "@storybook/addon-actions";
@@ -47,12 +47,12 @@ export const EditableTextStory = () => (
       )}
       onTextChanged={action("text-changed")}
       valueTransform={value => value.toUpperCase()}
-      placeholder={text("placeholder", "edit it")}
+      placeholder={text("placeholder", "Edit input")}
       hideEditIcon={boolean("hideEditIcon", false)}
       isInvalid={name => errorFunction(name)}
       isEditingDefault={boolean("isEditingDefault", false)}
       fill={boolean("fill", false)}
-      apiCallback={(value: string, callback: SavingFunc) =>
+      onSubmit={(value: string, callback: SavingStateHandler) =>
         calls(value, callback)
       }
     ></AdsEditableText>
