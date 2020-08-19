@@ -11,13 +11,14 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import {
   DEFAULT_API_ACTION,
   POST_BODY_FORMAT_OPTIONS,
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
   CONTENT_TYPE,
+  PLUGIN_TYPE_API,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -33,7 +34,11 @@ import {
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  getNextEntityName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
@@ -375,8 +380,23 @@ function* handleCreateNewQueryActionSaga(
   }
 }
 
-function* handleApiNameChangeSaga(action: ReduxAction<{ name: string }>) {
+function* handleApiNameChangeSaga(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
   yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.name));
+  const actionObj = yield select(getAction, action.payload.id);
+  if (actionObj.pluginType === PLUGIN_TYPE_API) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.replace(
+      API_EDITOR_ID_URL(applicationId, pageId, action.payload.id, params),
+    );
+    yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.name));
+  }
 }
 
 function* handleApiNameChangeFailureSaga(

@@ -28,6 +28,7 @@ import { RestAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { getQueryParams } from "utils/AppsmithUtils";
+import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -109,16 +110,19 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
 function* handleNameChangeSaga(
   action: ReduxAction<{ id: string; name: string }>,
 ) {
-  const params = getQueryParams();
-  if (params.editName) {
-    params.editName = "false";
-  }
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
-  history.replace(
-    QUERIES_EDITOR_ID_URL(applicationId, pageId, action.payload.id, params),
-  );
+  const actionObj = yield select(getAction, action.payload.id);
   yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.name));
+  if (actionObj.pluginType === QUERY_CONSTANT) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.replace(
+      QUERIES_EDITOR_ID_URL(applicationId, pageId, action.payload.id, params),
+    );
+  }
 }
 
 function* handleNameChangeFailureSaga(
