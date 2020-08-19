@@ -24,9 +24,8 @@ type PropertyPaneTitleProps = {
 /* eslint-disable react/display-name */
 const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const dispatch = useDispatch();
-  const { updating, updateError } = useSelector((state: AppState) => ({
+  const { updating } = useSelector((state: AppState) => ({
     updating: state.ui.editor.loadingStates.updatingWidgetName,
-    updateError: state.ui.editor.loadingStates.updateWidgetNameError,
   }));
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
   const widgets = useSelector(getExistingWidgetNames);

@@ -2,7 +2,6 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
-import FontFaceObserver from "fontfaceobserver";
 import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
@@ -42,16 +41,6 @@ export const appInitializer = () => {
   }
 
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
-
-  const textFont = new FontFaceObserver("DM Sans");
-  textFont
-    .load()
-    .then(() => {
-      document.body.className += "fontLoaded";
-    })
-    .catch(err => {
-      console.log(err);
-    });
 };
 
 export const mapToPropList = (map: Record<string, string>): Property[] => {
@@ -155,7 +144,7 @@ export const getInitialsAndColorCode = (fullName: any): string[] => {
   return [inits, colorCode];
 };
 
-const getColorCode = (initials: string): string => {
+export const getColorCode = (initials: string): string => {
   let asciiSum = 0;
   for (let i = 0; i < initials.length; i++) {
     asciiSum += initials[i].charCodeAt(0);
@@ -182,4 +171,27 @@ export function hexToRgb(
         g: -1,
         b: -1,
       };
+}
+
+export function getQueryParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const keys = urlParams.keys();
+  let key = keys.next().value;
+  const queryParams: Record<string, string> = {};
+  while (key) {
+    queryParams[key] = urlParams.get(key) as string;
+    key = keys.next().value;
+  }
+  return queryParams;
+}
+
+export function convertObjectToQueryParams(object: any): string {
+  if (!_.isNil(object)) {
+    const paramArray: string[] = _.map(_.keys(object), key => {
+      return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
+    });
+    return "?" + _.join(paramArray, "&");
+  } else {
+    return "";
+  }
 }
