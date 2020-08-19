@@ -151,6 +151,19 @@ class TernServer {
             content,
           );
           tooltip.className += " " + cls + "hint-doc";
+          CodeMirror.on(
+            cm,
+            "keyup",
+            (cm: CodeMirror.Editor, keyboardEvent: KeyboardEvent) => {
+              if (
+                keyboardEvent.code === "Space" &&
+                keyboardEvent.ctrlKey &&
+                tooltip
+              ) {
+                tooltip.className += " " + "visible";
+              }
+            },
+          );
         }
       },
     );
@@ -170,6 +183,7 @@ class TernServer {
           urls: true,
           origins: true,
           caseInsensitive: true,
+          guess: false,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
@@ -254,6 +268,7 @@ class TernServer {
       caseInsensitive?: boolean;
       preferFunction?: boolean;
       end?: CodeMirror.Position;
+      guess?: boolean;
     },
     callbackFn: (error: any, data: any) => void,
     pos?: CodeMirror.Position,
