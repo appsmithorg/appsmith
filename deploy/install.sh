@@ -48,6 +48,7 @@ install_docker_compose() {
             sudo chmod +x /usr/local/bin/docker-compose
             sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
             echo "docker-compose installed!"
+            echo ""
         fi
     else
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
@@ -59,9 +60,9 @@ install_docker_compose() {
 }
 
 start_docker() {
-    if [ `systemctl is-active docker.service` == "inactive" ];then
-        echo "Starting docker"
-        `systemctl start docker.service`
+    if ! sudo systemctl is-active docker.service > /dev/null; then
+        echo "Starting docker service"
+        sudo systemctl start docker.service
     fi
 }
 
@@ -238,7 +239,7 @@ if ! is_command_present docker-compose; then
 fi
 
 # Starting docker service
-if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
+if [[ $package_manager == "yum" || $package_manager == "apt-get" ]]; then
     start_docker
 fi
 
@@ -346,15 +347,16 @@ if [[ -z $custom_domain ]]; then
 fi
 
 echo ""
-echo "Downloading the configuration templates ..."
+echo "Downloading the configuration templates..."
 mkdir -p template
 ( cd template
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
+curl --remote-name-all --silent --show-error \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
 # Role - Folder
@@ -386,7 +388,7 @@ echo ""
 
 cd "$install_dir"
 if [[ -n $custom_domain ]]; then
-    echo "Running init-letsencrypt.sh...."
+    echo "Running init-letsencrypt.sh..."
     sudo ./init-letsencrypt.sh
 else
     echo "No domain found. Skipping generation of SSL certificate."
@@ -426,4 +428,4 @@ else
 fi
 
 echo ""
-echo -e "Peace out \U1F596"
+echo -e "Peace out \U1F596\n"
