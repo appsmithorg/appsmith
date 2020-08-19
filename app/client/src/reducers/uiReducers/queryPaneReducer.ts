@@ -124,7 +124,6 @@ const queryPaneReducer = createReducer(initialState, {
         ...state.isRunning,
         [action.payload.id]: true,
       },
-      runQuerySuccessData: [],
     };
   },
 
