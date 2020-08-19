@@ -46,7 +46,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final ActionService actionService;
     private final PageService pageService;
     private final ObjectMapper objectMapper;
-    private final ApplicationPageService applicationPageService;
     private final AnalyticsService analyticsService;
     /*
      * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
@@ -67,12 +66,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public LayoutActionServiceImpl(ActionService actionService,
                                    PageService pageService,
                                    ObjectMapper objectMapper,
-                                   ApplicationPageService applicationPageService,
                                    AnalyticsService analyticsService) {
         this.actionService = actionService;
         this.pageService = pageService;
         this.objectMapper = objectMapper;
-        this.applicationPageService = applicationPageService;
         this.analyticsService = analyticsService;
     }
 
