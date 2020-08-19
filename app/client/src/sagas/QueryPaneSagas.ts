@@ -27,6 +27,7 @@ import {
 import { RestAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
+import { getQueryParams } from "utils/AppsmithUtils";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -99,12 +100,24 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     const pageId = yield select(getCurrentPageId);
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
-        new: "true",
+        editName: "true",
+        showTemplate: "true",
       }),
     );
   }
 }
-function* handleNameChangeSaga(action: ReduxAction<{ name: string }>) {
+function* handleNameChangeSaga(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
+  const params = getQueryParams();
+  if (params.editName) {
+    params.editName = "false";
+  }
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
+  history.replace(
+    QUERIES_EDITOR_ID_URL(applicationId, pageId, action.payload.id, params),
+  );
   yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.name));
 }
 

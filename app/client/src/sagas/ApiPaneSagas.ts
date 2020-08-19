@@ -293,7 +293,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     const pageId = yield select(getCurrentPageId);
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
-        new: "true",
+        editName: "true",
       }),
     );
   }
