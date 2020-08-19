@@ -197,6 +197,13 @@ if [[ $desired_os -eq 0 ]];then
     exit
 fi
 
+if [[ "$OSTYPE" == "darwin"* && "$EUID" -eq 0 ]]; then
+    echo "Please do not run this script with root permissions on macOS."
+    echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
+    echo -e "Exiting for now. Bye! \U1F44B"
+    exit
+fi
+
 check_ports_occupied
 
 if [[ $ports_occupied -ne 0 ]]; then
