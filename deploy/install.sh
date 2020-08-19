@@ -5,15 +5,16 @@ is_command_present() {
   type "$1" >/dev/null 2>&1
 }
 
-# This function checks if the relevant ports required by appsmith are available or not
-# The script should error out incase they aren't available
+# This function checks if the relevant ports required by Appsmith are available or not
+# The script should error out in case they aren't available
 check_ports_occupied() {
-    ports_occupied=0
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        ports_occupied=`sudo netstat -anp tcp | grep -e "*.80" -e "*.443" | grep LISTEN | wc -l | cut -d " " -f 8`
-    else
-        ports_occupied=`sudo netstat -tupln tcp | grep -e "*.80" -e "*.443" | grep LISTEN | wc -l | cut -d " " -f 8`
-    fi
+    ports_occupied="$(
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sudo netstat -anp tcp
+        else
+            sudo netstat -tupln tcp
+        fi | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/' | wc -l | bc
+    )"
 }
 
 install_docker() {
