@@ -54,7 +54,7 @@ const FormTitle = (props: FormTitleProps) => {
       }
       return false;
     },
-    [currentDatasource, hasNameConflict],
+    [hasNameConflict],
   );
 
   return (

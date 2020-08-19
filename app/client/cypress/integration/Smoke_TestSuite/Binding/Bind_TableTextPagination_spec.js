@@ -19,44 +19,37 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("tablewidget");
     /**Bind Api1 with Table widget */
-    cy.testJsontext("tabledata", "{{Api1.data.results}}");
+    cy.testJsontext("tabledata", "{{Api1.data.users}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     /**Bind Table with Textwidget with selected row */
     cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
-    cy.readTabledata("0", "1").then(tabData => {
+    cy.readTabledata("0", "0").then(tabData => {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });
     /**Validate Table data on current page(page1) */
-    cy.ValidateTableData();
+    cy.ValidateTableData("1");
     cy.get(commonlocators.rightArrowBtn).click({ force: true });
     cy.validateToastMessage("done");
     /**Validate Table data on next page(page2) */
-    cy.ValidateTableData();
-    cy.get(commonlocators.labelTextStyle).should(
-      "not.have.text",
-      localStorage.getItem("tableDataPage1"),
-    );
+    cy.ValidateTableData("11");
   });
 
   it("Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function() {
     cy.PublishtheApp();
-    cy.ValidatePublishTableData();
+    cy.ValidatePublishTableData("1");
     cy.get(commonlocators.rightArrowBtn).click({ force: true });
     cy.validateToastMessage("done");
-    cy.ValidatePublishTableData();
-    cy.get(commonlocators.labelTextStyle).should(
-      "not.have.text",
-      localStorage.getItem("tableDataPage1"),
-    );
+    cy.ValidatePublishTableData("11");
+
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
   it("Test_Add Paginate with Response URL and Execute the Api", function() {
     /** Create Api2 of Paginate with Response URL*/
-    cy.createAndFillApi(this.data.paginationUrl, "pokemon");
+    cy.createAndFillApi(this.data.paginationUrl, "users");
     cy.RunAPI();
     cy.NavigateToPaginationTab();
     cy.get(apiPage.apiPaginationNextText).type("{{Api2.data.next}}", {
@@ -73,7 +66,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(commonlocators.editPropCrossButton).click();
     cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", "{{Api2.data.results}}");
+    cy.testJsontext("tabledata", "{{Api2.data.users}}");
     cy.callApi("Api2");
   });
 
