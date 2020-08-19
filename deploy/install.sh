@@ -139,26 +139,25 @@ read_mongo_username() {
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         read -p 'Set the mongo root user: ' mongo_root_user
-    done 
+    done
 }
 
 wait_for_containers_start() {
     local timeout=$1
-    local i=1
-    echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
-    # The do-while loop is important because for-loops don't work for dynamic values
-    while [[ $i -le $timeout ]]
-    do
-        status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/v1)
-        # echo $status_code
+
+    # The while loop is important because for-loops don't work for dynamic values
+    while [[ $timeout -gt 0 ]]; do
+        status_code="$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/v1 || true)"
         if [[ status_code -eq 401 ]]; then
             break
         else
-            echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
+            echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds...\r\c"
         fi
-        ((i = i + 1))
+        ((timeout--))
         sleep 1
     done
+
+    echo ""
 }
 
 urlencode() {
@@ -409,16 +408,15 @@ if [[ $status_code -ne 401 ]]; then
     echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
-    echo "cd $install_dir && sudo docker-compose ps -a"
+    echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
-else 
-    echo ""
+else
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
     echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
     echo ""
-    echo "cd $install_dir && sudo docker-compose ps -a"
+    echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
     echo ""
     echo "Your application is running on http://localhost"
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
