@@ -438,17 +438,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               super.updateWidgetMetaProperty("compactMode", compactMode);
             }
           }}
-          sortTableColumn={(column: string, asc: boolean) => {
-            this.resetSelectedRowIndex();
-            super.updateWidgetMetaProperty("sortedColumn", {
-              column: column,
-              asc: asc,
-            });
-          }}
+          sortTableColumn={this.handleColumnSorting}
         />
       </Suspense>
     );
   }
+
+  handleColumnSorting = (column: string, asc: boolean) => {
+    this.resetSelectedRowIndex();
+    if (column === "") {
+      super.updateWidgetMetaProperty("sortedColumn", undefined);
+    } else {
+      super.updateWidgetMetaProperty("sortedColumn", {
+        column: column,
+        asc: asc,
+      });
+    }
+  };
 
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
