@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -o errexit
 
 is_command_present() {
@@ -142,8 +143,8 @@ read_mongo_username() {
 }
 
 wait_for_containers_start() {
-    timeout=$1
-    i=1
+    local timeout=$1
+    local i=1
     echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
     # The do-while loop is important because for-loops don't work for dynamic values
     while [[ $i -le $timeout ]]
@@ -191,12 +192,15 @@ echo ""
 desired_os=0
 echo -e "\U1F575  Detecting your OS"
 check_os
-echo ""
 
 if [[ $desired_os -eq 0 ]];then
+    echo ""
     echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
     echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
     bye
+else
+    echo "You're on an OS that is supported by this installation script."
+    echo ""
 fi
 
 if [[ "$OSTYPE" == "darwin"* && "$EUID" -eq 0 ]]; then
@@ -394,12 +398,10 @@ echo "Pulling the latest container images"
 sudo docker-compose pull
 echo ""
 echo "Starting the Appsmith containers"
-sudo docker-compose up --detach --remove-orphans
-echo "docker-compose up exit code '$?'."
+# The docker-compose command does some nasty stuff for the `--detach` functionality. So we add a `|| true` so that the
+# script doesn't exit because this command looks like it failed to do it's thing.
+sudo docker-compose up --detach --remove-orphans || true
 
-# These echo statements are important for some reason. The script doesn't run successfully without them.
-echo ""
-echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
 wait_for_containers_start 60
 echo ""
 
