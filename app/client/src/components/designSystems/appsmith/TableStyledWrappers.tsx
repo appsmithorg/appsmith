@@ -33,9 +33,6 @@ export const TableWrapper = styled.div<{
     .tbody {
       overflow: hidden;
     }
-    .tr:first-of-type {
-      width: calc(100% - 6px);
-    }
     .tbody {
       overflow-y: scroll;
       /* Subtracting 9px to handling widget padding */
@@ -44,7 +41,6 @@ export const TableWrapper = styled.div<{
         props.tableSizes.TABLE_HEADER_HEIGHT -
         props.tableSizes.COLUMN_HEADER_HEIGHT -
         9}px;
-      ${scrollbarLight};
       .tr {
         width: 100%;
       }
