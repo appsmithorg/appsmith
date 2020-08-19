@@ -15,7 +15,7 @@ const Wrapper = styled.div`
     right: 100%;
     bottom: 0;
     left: 0;
-    background: ${props => props.theme.colors.primary};
+    background: ${props => props.theme.colors.primaryOld};
     width: 0;
     animation: borealisBar 1s linear infinite;
   }

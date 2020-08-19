@@ -1,6 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
