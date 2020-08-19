@@ -2,7 +2,7 @@
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
 import { get, omit } from "lodash";
-import { all, select, put, takeEvery, call } from "redux-saga/effects";
+import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -18,6 +18,7 @@ import {
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
   CONTENT_TYPE,
+  PLUGIN_TYPE_API,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -33,7 +34,11 @@ import {
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  getNextEntityName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
@@ -293,7 +298,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     const pageId = yield select(getCurrentPageId);
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
-        new: "true",
+        editName: "true",
       }),
     );
   }
@@ -375,8 +380,26 @@ function* handleCreateNewQueryActionSaga(
   }
 }
 
-function* handleApiNameChangeSaga(action: ReduxAction<{ name: string }>) {
+function* handleApiNameChangeSaga(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
   yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.name));
+}
+function* handleApiNameChangeSuccessSaga(
+  action: ReduxAction<{ actionId: string }>,
+) {
+  const { actionId } = action.payload;
+  const actionObj = yield select(getAction, actionId);
+  yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
+  if (actionObj.pluginType === PLUGIN_TYPE_API) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
+  }
 }
 
 function* handleApiNameChangeFailureSaga(
@@ -390,6 +413,10 @@ export default function* root() {
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
+    takeEvery(
+      ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,
+      handleApiNameChangeSuccessSaga,
+    ),
     takeEvery(
       ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       handleApiNameChangeFailureSaga,
