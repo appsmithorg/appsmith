@@ -151,6 +151,19 @@ class TernServer {
             content,
           );
           tooltip.className += " " + cls + "hint-doc";
+          CodeMirror.on(
+            cm,
+            "keyup",
+            (cm: CodeMirror.Editor, keyboardEvent: KeyboardEvent) => {
+              if (
+                keyboardEvent.code === "Space" &&
+                keyboardEvent.ctrlKey &&
+                tooltip
+              ) {
+                tooltip.className += " " + "visible";
+              }
+            },
+          );
         }
       },
     );
