@@ -52,9 +52,8 @@ install_docker_compose() {
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
         echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
         echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
-        echo -e "Exiting for now. Bye! \U1F44B"
         echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        exit
+        bye
     fi
 }
 
@@ -181,11 +180,17 @@ urlencode() {
     LC_COLLATE=$old_lc_collate
 }
 
+bye() {  # Prints a friendly good bye message and exits the script.
+    echo ""
+    echo -e "Exiting for now. Bye! \U1F44B"
+    exit
+}
+
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
 echo ""
 
 
-# Checking OS and assiging package manager
+# Checking OS and assigning package manager
 desired_os=0
 echo -e "\U1F575  Detecting your OS"
 check_os
@@ -194,15 +199,13 @@ echo ""
 if [[ $desired_os -eq 0 ]];then
     echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
     echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
-    echo -e "Exiting for now. Bye! \U1F44B"
-    exit
+    bye
 fi
 
 if [[ "$OSTYPE" == "darwin"* && "$EUID" -eq 0 ]]; then
     echo "Please do not run this script with root permissions on macOS."
     echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
-    echo -e "Exiting for now. Bye! \U1F44B"
-    exit
+    bye
 fi
 
 check_ports_occupied
@@ -212,8 +215,7 @@ if [[ $ports_occupied -ne 0 ]]; then
     echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
-    echo -e "Exiting for now. Bye! \U1F44B"
-    exit
+    bye
 fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
