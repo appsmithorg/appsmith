@@ -92,26 +92,23 @@ check_os() {
 }
 
 overwrite_file() {
-    file_location=$1
-    template_file=$2
+    local relative_path="$1"
+    local template_file="$2"
+    local full_path="$install_dir/$relative_path"
 
-    if [ -f $install_dir/$file_location ]
-    then
-        read -p "File $file_location already exists. Would you like to replace it? [Y]: " value
+    if [[ -f $full_path ]]; then
+        read -p "File $relative_path already exists. Would you like to replace it? [Y]: " value
         value=${value:-Y}
 
-        if [ $value == "Y" -o $value == "y" -o $value == "yes" -o $value == "Yes" ]
-        then
-            mv -f  $template_file $install_dir/$file_location
-            echo "File $install_dir/$file_location replaced successfuly!"
-        else
-            echo "You chose not to replace existing file: $install_dir/$file_location"
-	        rm -rf $template_file
-	        echo "File $template_file removed from source directory."
+        if ! [[ $value == "Y" || $value == "y" || $value == "yes" || $value == "Yes" ]]; then
+            echo "You chose not to replace existing file: '$full_path'."
+            rm -f "$template_file"
+            echo "File $template_file removed from source directory."
             echo ""
         fi
     else
-        mv -f $template_file $install_dir/$file_location
+        mv -f "$template_file" "$full_path"
+        echo "File $full_path moved successfully!"
     fi
 }
 
@@ -243,11 +240,11 @@ if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
 fi
 
 read -p 'Installation Directory [appsmith]: ' install_dir
-install_dir=${install_dir:-appsmith}
-mkdir -p $PWD/$install_dir
-install_dir=$PWD/$install_dir
+install_dir="${install_dir:-appsmith}"
+mkdir -p "$PWD/$install_dir"
+install_dir="$PWD/$install_dir"
 read -p 'Is this a fresh installation? [Y/n]' fresh_install
-fresh_install=${fresh_install:-Y}
+fresh_install="${fresh_install:-Y}"
 echo ""
 
 if [ $fresh_install == "N" -o $fresh_install == "n" -o $fresh_install == "no" -o $fresh_install == "No" ];then
@@ -375,17 +372,17 @@ if [[ "$setup_encryption" = "true" ]];then
 fi
 chmod 0755 init-letsencrypt.sh
 
-overwrite_file "/data/nginx/app.conf.template" "nginx_app.conf"
-overwrite_file "/docker-compose.yml" "docker-compose.yml"
-overwrite_file "/data/mongo/init.js" "mongo-init.js"
-overwrite_file "/init-letsencrypt.sh" "init-letsencrypt.sh"
-overwrite_file "/docker.env" "docker.env"
-overwrite_file "/encryption.env" "encryption.env"
+overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
+overwrite_file "docker-compose.yml" "docker-compose.yml"
+overwrite_file "data/mongo/init.js" "mongo-init.js"
+overwrite_file "init-letsencrypt.sh" "init-letsencrypt.sh"
+overwrite_file "docker.env" "docker.env"
+overwrite_file "encryption.env" "encryption.env"
 
 echo ""
 
-cd $install_dir
-if [[ ! -z $custom_domain ]]; then
+cd "$install_dir"
+if [[ -n $custom_domain ]]; then
     echo "Running init-letsencrypt.sh...."
     sudo ./init-letsencrypt.sh
 else
@@ -397,7 +394,8 @@ echo "Pulling the latest container images"
 sudo docker-compose pull
 echo ""
 echo "Starting the Appsmith containers"
-sudo docker-compose -f docker-compose.yml up -d --remove-orphans
+sudo docker-compose up --detach --remove-orphans
+echo "docker-compose up exit code '$?'."
 
 # These echo statements are important for some reason. The script doesn't run successfully without them.
 echo ""
