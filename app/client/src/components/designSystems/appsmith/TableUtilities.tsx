@@ -590,10 +590,13 @@ export const TableHeaderCell = (props: {
     toggleRenameColumn(false);
   };
   const handleSortColumn = () => {
-    props.sortTableColumn(
-      props.columnIndex,
-      props.isAscOrder === undefined ? true : !props.isAscOrder,
-    );
+    let columnIndex = props.columnIndex;
+    if (props.isAscOrder === true) {
+      columnIndex = -1;
+    }
+    const sortOrder =
+      props.isAscOrder === undefined ? false : !props.isAscOrder;
+    props.sortTableColumn(columnIndex, sortOrder);
   };
   if (column.isResizing) {
     props.handleResizeColumn(
@@ -608,7 +611,7 @@ export const TableHeaderCell = (props: {
       onClick={handleSortColumn}
     >
       {props.isAscOrder !== undefined ? (
-        <SortIconWrapper rotate={!props.isAscOrder}>
+        <SortIconWrapper rotate={props.isAscOrder.toString()}>
           <SortIcon height={16} width={16} />
         </SortIconWrapper>
       ) : null}
@@ -703,11 +706,12 @@ export const reorderColumns = (
 };
 
 export function sortTableFunction(
-  tableData: object[],
+  filteredTableData: object[],
   columns: ReactTableColumnProps[],
   sortedColumn: string,
   sortOrder: boolean,
 ) {
+  const tableData = filteredTableData ? [...filteredTableData] : [];
   const columnType =
     columns.find(
       (column: ReactTableColumnProps) => column.accessor === sortedColumn,
