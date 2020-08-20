@@ -7,8 +7,6 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -61,20 +58,9 @@ public class OrganizationController extends BaseController<OrganizationService, 
 
     @PostMapping("/{organizationId}/logo")
     public Mono<ResponseDTO<String>> uploadLogo(@PathVariable String organizationId,
-                                                @RequestPart("file") Mono<FilePart> fileMono,
-                                                ServerWebExchange exchange) {
+                                                @RequestPart("file") Mono<FilePart> fileMono) {
         return fileMono
-                .zipWhen(part -> { // part.headers().getContentType()
-                    return part.content().single();
-                })
-                .flatMap(tuple -> {
-                    final FilePart filePart = tuple.getT1();
-                    final DataBuffer buffer = tuple.getT2();
-                    byte[] bytes = new byte[buffer.readableByteCount()];
-                    buffer.read(bytes);
-                    DataBufferUtils.release(buffer);
-                    return service.uploadLogo(organizationId, filePart, bytes);
-                })
+                .flatMap(filePart -> service.uploadLogo(organizationId, filePart))
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
     }
 
