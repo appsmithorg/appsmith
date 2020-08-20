@@ -506,8 +506,8 @@ export const theme: Theme = {
   },
   iconSizes: {
     small: 12,
-    medium: 14,
-    large: 15,
+    medium: 15,
+    large: 20,
   },
   propertyPane: {
     width: 270,
