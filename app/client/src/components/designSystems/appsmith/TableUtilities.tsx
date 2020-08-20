@@ -576,7 +576,7 @@ export const TableHeaderCell = (props: {
   columnIndex: number;
   isHidden: boolean;
   isAscOrder?: boolean;
-  displayColumnActions: boolean;
+  editMode: boolean;
   handleColumnNameUpdate: (columnIndex: number, name: string) => void;
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
@@ -635,7 +635,7 @@ export const TableHeaderCell = (props: {
           {column.render("Header")}
         </div>
       )}
-      {props.displayColumnActions && (
+      {props.editMode && (
         <div
           className="column-menu"
           onClick={(event: React.MouseEvent<HTMLElement>) => {
