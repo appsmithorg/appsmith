@@ -336,6 +336,6 @@ export const TableIconWrapper = styled.div<{
   }
 `;
 
-export const SortIconWrapper = styled.div<{ rotate: boolean }>`
-  transform: ${props => (props.rotate ? "rotate(180deg)" : "none")};
+export const SortIconWrapper = styled.div<{ rotate: string }>`
+  transform: ${props => (props.rotate === "true" ? "rotate(180deg)" : "none")};
 `;
