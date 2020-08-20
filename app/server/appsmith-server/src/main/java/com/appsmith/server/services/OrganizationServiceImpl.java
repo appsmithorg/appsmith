@@ -23,6 +23,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -303,5 +304,14 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                     return CollectionUtils.isEmpty(userRoles) ? Collections.emptyList() : userRoles;
                 });
     }
+
+    @Override
+    public Mono<String> uploadLogo(String organizationId, MultipartFile file) {
+        return repository
+                .findById(organizationId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
+                .thenReturn("ok");
+    }
+
 }
 

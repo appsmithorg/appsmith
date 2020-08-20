@@ -10,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -52,4 +54,12 @@ public class OrganizationController extends BaseController<OrganizationService, 
         return userOrganizationService.updateRoleForMember(orgId, updatedUserRole)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
+
+    @PostMapping("/{organizationId}/logo")
+    public Mono<ResponseDTO<String>> uploadLogo(@PathVariable String organizationId,
+                                                @RequestParam("file") MultipartFile file) {
+        return service.uploadLogo(organizationId, file)
+                .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
+    }
+
 }
