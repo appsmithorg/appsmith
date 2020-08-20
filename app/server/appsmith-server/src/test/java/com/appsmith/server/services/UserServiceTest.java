@@ -162,8 +162,10 @@ public class UserServiceTest {
                     assertThat(user.getName()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
-                    assertThat(user.getOrganizationIds()).isNotNull();
-                    assertThat(user.getOrganizationIds().size()).isEqualTo(1);
+                    // Since there is a template organization, the user won't have an empty personal organization. They
+                    // will get a clone of the personal organization when they first login. So, we expect it to be
+                    // empty here.
+                    assertThat(user.getOrganizationIds()).isNullOrEmpty();
                 })
                 .verifyComplete();
     }
