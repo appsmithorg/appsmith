@@ -162,7 +162,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
   const queryAction = getAction(state, props.match.params.queryId);
 
-  let editorConfig: any = [];
+  let editorConfig: any;
   if (
     queryAction &&
     queryAction.datasource.pluginId &&
