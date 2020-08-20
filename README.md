@@ -33,6 +33,10 @@ Do all this without depending on multiple UI libraries, coding authentication lo
 
 ------------------
 
+## Demo Video
+
+* [Build a tool in 5 minutes!](http://bit.ly/appsmith-demo-github)
+
 ## Example Applications
 
 * [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
