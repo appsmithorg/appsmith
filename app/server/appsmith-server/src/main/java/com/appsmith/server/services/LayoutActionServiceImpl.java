@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
@@ -46,7 +45,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final ActionService actionService;
     private final PageService pageService;
     private final ObjectMapper objectMapper;
-    private final ApplicationPageService applicationPageService;
     private final AnalyticsService analyticsService;
     /*
      * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
@@ -67,12 +65,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public LayoutActionServiceImpl(ActionService actionService,
                                    PageService pageService,
                                    ObjectMapper objectMapper,
-                                   ApplicationPageService applicationPageService,
                                    AnalyticsService analyticsService) {
         this.actionService = actionService;
         this.pageService = pageService;
         this.objectMapper = objectMapper;
-        this.applicationPageService = applicationPageService;
         this.analyticsService = analyticsService;
     }
 
@@ -523,13 +519,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             })
                             .then(Mono.just(savedAction))
                 )
-                .map(savedAction -> {
-                            Action act = (Action) savedAction;
-                            analyticsService
-                                    .sendEvent(AnalyticsEvents.UPDATE + "_" + act.getClass().getSimpleName().toUpperCase(),
-                                            act);
-                            return act;
-                        }
-                );
+                .flatMap(analyticsService::sendUpdateEvent);
     }
 }

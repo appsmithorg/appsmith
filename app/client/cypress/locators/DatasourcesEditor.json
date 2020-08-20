@@ -13,5 +13,6 @@
   "PostgreSQL": ".t--plugin-name:contains('PostgreSQL')",
   "sectionAuthentication": "[data-cy=section-Authentication]",
   "sectionSSL": "[data-cy=section-SSL\\ \\(optional\\)]",
-  "addDatasourceEntity": "//div[contains(@class,'t--entity group plugins')]//div[contains(@class,'t--entity-add-btn')]"
+  "addDatasourceEntity": ".plugins .t--entity-add-btn",
+  "PostgresEntity": ".t--entity-name:contains(PostgreSQL)"
 }

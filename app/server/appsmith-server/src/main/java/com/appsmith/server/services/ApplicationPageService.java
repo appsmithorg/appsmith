@@ -23,4 +23,6 @@ public interface ApplicationPageService {
     Mono<Application> cloneApplication(Application application);
 
     Mono<Application> deleteApplication(String id);
+
+    Mono<Page> clonePage(String pageId);
 }
