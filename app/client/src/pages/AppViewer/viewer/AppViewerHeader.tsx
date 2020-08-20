@@ -86,7 +86,7 @@ const StyledApplicationName = styled.span`
 const PageTab = styled(NavLink)`
   display: flex;
   height: 30px;
-  flex: 0 0 150px;
+  max-width: 170px;
   margin-right: 1px;
   align-self: flex-end;
   cursor: pointer;
@@ -101,6 +101,10 @@ const PageTab = styled(NavLink)`
     line-height: 20px;
     letter-spacing: 0.04em;
     color: #fff;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   &&&:hover {
     text-decoration: none;
