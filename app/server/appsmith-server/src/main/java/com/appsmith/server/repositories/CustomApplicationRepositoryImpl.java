@@ -68,7 +68,7 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
-        Criteria clonedFromCriteria = where(fieldName(QApplication.application.clonedFromApplicationId)).is(organizationId);
+        Criteria clonedFromCriteria = where(fieldName(QApplication.application.clonedFromApplicationId)).is(applicationId);
         return queryAll(List.of(clonedFromCriteria), permission);
     }
 
