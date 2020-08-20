@@ -27,7 +27,7 @@ export type UrlDataState = {
 export type AppDataState = {
   mode?: APP_MODE;
   user: AuthUserState;
-  url: UrlDataState;
+  URL: UrlDataState;
 };
 
 const initialState: AppDataState = {
@@ -36,7 +36,7 @@ const initialState: AppDataState = {
     email: "",
     id: "",
   },
-  url: {
+  URL: {
     queryParams: {},
     protocol: "",
     host: "",
@@ -73,7 +73,7 @@ const appReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      url: action.payload,
+      URL: action.payload,
     };
   },
 });
