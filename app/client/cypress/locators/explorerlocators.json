@@ -1,14 +1,8 @@
 {
-    "pagesIcon": ".t--entity-name:contains('Pages')",
-    "commonWidgets": ".t--page-sidebar-CommonWidgets",
-    "formWidgets": ".t--page-sidebar-FormWidgets",
-    "viewWidgets": ".t--page-sidebar-ViewWidgets",
-    "widgetsEditor": ".t--nav-link-widgets-editor",
+    "NoApiMsg": "p:contains('No APIs yet.')",
+    "NoQueryMsg": "p:contains('No Queries yet.')",
+    "NoWidgetsMsg": "p:contains('No widgets yet.')",
     "AddPage": ".pages .t--entity-add-btn",
-    "editInput": "input.bp3-editable-text-input",
-    "Menuaction": ".bp3-overlay-open>.bp3-transition-container",
-    "Delete": ":nth-child(2) > .bp3-menu-item",
-    "apiEditorIcon": ".t--nav-link-api-editor",
     "addEntityAPI": ".apis .t--entity-add-btn",
     "entityWidget": ".t--entity-name:contains('Widgets')",
     "entityTable": ".t--entity-name:contains('Table1')",
@@ -17,5 +11,8 @@
     "popover": "//div[contains(@class,'t--entity page')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
     "editName": ".single-select >div:contains('Edit Name')",
     "deletePage": ".single-select >div:contains('Delete')",
-    "entityQuery": ".t--entity-name:contains('Queries')"
-  }
+    "entityQuery": ".t--entity-name:contains('Queries')",
+    "collapse": ".t--entity-collapse-toggle",
+    "property": ".language-appsmith-binding",
+    "editNameField": ".editing input"
+}
