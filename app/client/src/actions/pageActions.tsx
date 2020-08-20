@@ -105,6 +105,15 @@ export const createPage = (applicationId: string, pageName: string) => {
   };
 };
 
+export const clonePageInit = (pageId: string) => {
+  return {
+    type: ReduxActionTypes.CLONE_PAGE_INIT,
+    payload: {
+      id: pageId,
+    },
+  };
+};
+
 export const updatePage = (id: string, name: string) => {
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,

@@ -31,6 +31,7 @@ import PageApi, {
   UpdatePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
+  ClonePageRequest,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -382,6 +383,41 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
   }
 }
 
+export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
+  try {
+    const request: ClonePageRequest = clonePageAction.payload;
+    const response: FetchPageResponse = yield call(PageApi.clonePage, request);
+    const applicationId = yield select(
+      (state: AppState) => state.entities.pageList.applicationId,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
+        payload: {
+          pageId: response.data.id,
+          pageName: response.data.name,
+          layoutId: response.data.layouts[0].id,
+        },
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        payload: {
+          pageId: response.data.id,
+        },
+      });
+      history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CLONE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* updateWidgetNameSaga(
   action: ReduxAction<{ id: string; newName: string }>,
 ) {
@@ -477,6 +513,7 @@ export default function* pageSagas() {
     ),
     takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
+    takeLeading(ReduxActionTypes.CLONE_PAGE_INIT, clonePageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),

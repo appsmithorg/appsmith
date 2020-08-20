@@ -51,6 +51,20 @@ const pageListReducer = createReducer(initialState, {
     _state.pages.push({ ...action.payload, latest: true });
     return { ..._state };
   },
+  [ReduxActionTypes.CLONE_PAGE_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<{
+      pageName: string;
+      pageId: string;
+      layoutId: string;
+      isDefault: boolean;
+    }>,
+  ) => {
+    const _state = state;
+    _state.pages = state.pages.map(page => ({ ...page, latest: false }));
+    _state.pages.push({ ...action.payload, latest: true });
+    return { ..._state };
+  },
   [ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS]: (
     state: PageListReduxState,
     action: ReduxAction<{ pageId: string; applicationId: string }>,
