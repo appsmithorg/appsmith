@@ -30,7 +30,6 @@ import {
   useShowPropertyPane,
   useWidgetSelection,
   useCanvasSnapRowsUpdateHook,
-  useToggleEditWidgetName,
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 
@@ -106,7 +105,6 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const [rows, setRows] = useState(snapRows);
 
   const showPropertyPane = useShowPropertyPane();
-  const toggleEditWidgetName = useToggleEditWidgetName();
   const { selectWidget, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
