@@ -337,8 +337,12 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                 organization.setLogoAssetId(asset.getId());
                                 return repository.save(organization);
                             })
-                            .then(assetRepository.deleteById(prevAssetId))
-                            .thenReturn(organization.getLogoUrl());
+                            .map(Organization::getLogoUrl)
+                            .flatMap(url ->
+                                prevAssetId != null
+                                        ? assetRepository.deleteById(prevAssetId).thenReturn(url)
+                                        : Mono.just(url)
+                            );
                 });
     }
 
