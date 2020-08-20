@@ -78,6 +78,14 @@ public class ExamplesOrganizationCloner {
         }
 
         return configService.getTemplateOrganizationId()
+                .doOnSuccess(id -> {
+                    if (id == null) {
+                        log.error("Missing template organization id in config.");
+                    }
+                })
+                .doOnError(error -> {
+                    log.error("Error loading template organization id config.", error);
+                })
                 .doOnSuccess(config -> {
                     if (config == null) {
                         // If the template organization could not be found, that's okay, the login should not fail. We
