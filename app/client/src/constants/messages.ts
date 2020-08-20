@@ -136,7 +136,7 @@ export const AUTOFIT_COLUMN = "Autofit column";
 export const TIMEZONE = "Timezone";
 export const ENABLE_TIME = "Enable Time";
 
-export const EDIT_APP = "Back to editor";
+export const EDIT_APP = "Edit App";
 export const FORK_APP = "Fork App";
 
 export const LIGHTNING_MENU_DATA_API = "Use data from an API";
