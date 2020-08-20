@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
@@ -520,13 +519,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             })
                             .then(Mono.just(savedAction))
                 )
-                .map(savedAction -> {
-                            Action act = (Action) savedAction;
-                            analyticsService
-                                    .sendEvent(AnalyticsEvents.UPDATE + "_" + act.getClass().getSimpleName().toUpperCase(),
-                                            act);
-                            return act;
-                        }
-                );
+                .flatMap(analyticsService::sendUpdateEvent);
     }
 }

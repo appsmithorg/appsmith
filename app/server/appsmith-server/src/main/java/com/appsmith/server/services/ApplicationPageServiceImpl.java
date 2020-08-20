@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -332,7 +331,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(application -> applicationService.archive(application));
 
         return applicationMono
-                .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj));
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
     @Override
