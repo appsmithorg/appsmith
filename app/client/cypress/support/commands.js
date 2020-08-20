@@ -305,6 +305,7 @@ Cypress.Commands.add("GlobalSearchEntity", apiname1 => {
   cy.get(commonlocators.entityExplorersearch)
     .clear()
     .type(apiname1);
+  cy.wait(500);
   cy.wait("@getActions");
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
