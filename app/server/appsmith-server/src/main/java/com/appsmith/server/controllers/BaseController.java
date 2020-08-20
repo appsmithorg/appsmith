@@ -24,7 +24,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-public abstract class BaseController<S extends CrudService, T extends BaseDomain, ID> {
+public abstract class BaseController<S extends CrudService<T, ID>, T extends BaseDomain, ID> {
 
     protected final S service;
 
