@@ -291,7 +291,7 @@ export const TableHeaderWrapper = styled.div<{
   .show-page-items {
     display: ${props => (props.width < 700 ? "none" : "flex")};
   }
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
   height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;

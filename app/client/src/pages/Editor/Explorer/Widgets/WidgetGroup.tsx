@@ -110,7 +110,7 @@ const useWidgetExpandList = (
 type ExplorerWidgetGroupProps = {
   pageId: string;
   step: number;
-  widgets: WidgetTree | null;
+  widgets?: WidgetTree;
   searchKeyword?: string;
 };
 

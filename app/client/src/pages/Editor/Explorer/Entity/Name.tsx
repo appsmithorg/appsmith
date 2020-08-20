@@ -17,6 +17,7 @@ const Wrapper = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0 4px;
+  line-height: 13px;
   & span.token {
     color: ${Colors.OCEAN_GREEN};
   }

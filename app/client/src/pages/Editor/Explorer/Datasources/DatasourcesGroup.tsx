@@ -1,5 +1,4 @@
 import React, { useMemo, ReactNode } from "react";
-import { Datasource } from "api/DatasourcesApi";
 import { datasourceIcon } from "../ExplorerIcons";
 import Entity from "../Entity";
 import { groupBy } from "lodash";
@@ -9,10 +8,11 @@ import { ExplorerURLParams } from "../helpers";
 import history from "utils/history";
 import { Plugin } from "api/PluginApi";
 import DatasourcePluginGroup from "./PluginGroup";
+import { useFilteredDatasources } from "../hooks";
+import { useSelector } from "react-redux";
+import { AppState } from "@appsmith/reducers";
 
 type ExplorerDatasourcesGroupProps = {
-  dataSources: Datasource[];
-  plugins: Plugin[];
   step: number;
   searchKeyword?: string;
 };
@@ -21,18 +21,19 @@ export const ExplorerDatasourcesGroup = (
   props: ExplorerDatasourcesGroupProps,
 ) => {
   const params = useParams<ExplorerURLParams>();
-  const disableDatasourceGroup =
-    !props.dataSources || !props.dataSources.length;
+  const datasources = useFilteredDatasources(props.searchKeyword);
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const disableDatasourceGroup = !datasources || !datasources.length;
 
-  const pluginGroups = useMemo(() => groupBy(props.dataSources, "pluginId"), [
-    props.dataSources,
+  const pluginGroups = useMemo(() => groupBy(datasources, "pluginId"), [
+    datasources,
   ]);
 
   const pluginGroupNodes: ReactNode[] = [];
   for (const [pluginId, datasources] of Object.entries(pluginGroups)) {
-    const plugin = props.plugins.find(
-      (plugin: Plugin) => plugin.id === pluginId,
-    );
+    const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
 
     pluginGroupNodes.push(
       <DatasourcePluginGroup

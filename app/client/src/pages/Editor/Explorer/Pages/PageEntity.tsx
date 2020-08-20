@@ -1,28 +1,30 @@
-import React, { useCallback, memo } from "react";
+import React, { useCallback } from "react";
 import { Page } from "constants/ReduxActionConstants";
-import { WidgetTree } from "../Widgets/WidgetEntity";
-import Entity, { EntityClassNames } from "../Entity";
-import { pageIcon, homePageIcon } from "../ExplorerIcons";
+import { EntityClassNames } from "../Entity";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { getActionGroups } from "../Actions/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
-import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
-import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
+import { useSelector } from "react-redux";
+import { AppState } from "@appsmith/reducers";
+import ExplorerCurrentPageEntity from "./CurrentPageEntity";
+import ExplorerOtherPageEntity from "./OtherPageEntity";
 
 type ExplorerPageEntityProps = {
   page: Page;
-  isCurrentPage: boolean;
-  widgets?: WidgetTree;
-  actions: DataTreeAction[];
   step: number;
   searchKeyword?: string;
 };
-export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
+export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
+
+  const currentPageId = useSelector((state: AppState) => {
+    return state.entities.pageList.currentPageId;
+  });
+  const isCurrentPage = currentPageId === props.page.pageId;
+
   const switchPage = useCallback(() => {
     if (!!params.applicationId) {
       history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
@@ -39,37 +41,30 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
       isDefaultPage={props.page.isDefault}
     />
   );
-  const icon = props.page.isDefault ? homePageIcon : pageIcon;
+
+  if (isCurrentPage) {
+    return (
+      <ExplorerCurrentPageEntity
+        searchKeyword={props.searchKeyword}
+        page={props.page}
+        switchPage={switchPage}
+        contextMenu={contextMenu}
+        updateEntityName={updatePage}
+        step={props.step}
+      />
+    );
+  }
   return (
-    <Entity
-      icon={icon}
-      name={props.page.pageName}
-      className="page"
-      step={props.step}
-      action={switchPage}
-      entityId={props.page.pageId}
-      active={props.isCurrentPage}
-      isDefaultExpanded={props.isCurrentPage || !!props.searchKeyword}
-      updateEntityName={updatePage}
+    <ExplorerOtherPageEntity
+      searchKeyword={props.searchKeyword}
+      page={props.page}
+      switchPage={switchPage}
       contextMenu={contextMenu}
-    >
-      {!(!props.widgets && props.searchKeyword) && (
-        <ExplorerWidgetGroup
-          step={props.step + 1}
-          searchKeyword={props.searchKeyword}
-          widgets={props.widgets || null}
-          pageId={props.page.pageId}
-        />
-      )}
-      {getActionGroups(
-        props.page,
-        props.actions,
-        props.step + 1,
-        props.searchKeyword,
-      )}
-    </Entity>
+      updateEntityName={updatePage}
+      step={props.step}
+    />
   );
-});
+};
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
 

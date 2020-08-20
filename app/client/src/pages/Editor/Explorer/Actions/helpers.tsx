@@ -90,16 +90,16 @@ export const ACTION_PLUGIN_MAP: Array<
 // APIs, Queries, etc.
 export const getActionGroups = (
   page: Page,
-  actions: DataTreeAction[],
   step: number,
+  actions?: DataTreeAction[],
   searchKeyword?: string,
 ) => {
   return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
     if (!config) return null;
-    const entries = actions.filter(
+    const entries = actions?.filter(
       (entry: DataTreeAction) => entry.pluginType === config?.type,
     );
-    if (entries.length === 0 && !!searchKeyword) return null;
+    if (!entries || (entries.length === 0 && !!searchKeyword)) return null;
 
     return (
       <ExplorerActionsGroup

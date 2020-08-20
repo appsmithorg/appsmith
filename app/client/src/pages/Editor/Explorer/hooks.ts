@@ -19,7 +19,6 @@ import { Datasource } from "api/DatasourcesApi";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { evaluateDataTreeWithFunctions } from "selectors/dataTreeSelectors";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
 import log from "loglevel";
 
 const findWidgets = (widgets: WidgetProps, keyword: string) => {
@@ -50,29 +49,43 @@ const findDataSources = (dataSources: Datasource[], keyword: string) => {
   );
 };
 
-export const useFilteredEntities = (
-  ref: MutableRefObject<HTMLInputElement | null>,
-) => {
-  const start = performance.now();
-  const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
-
-  const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
-  const pages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages;
-  });
-
-  const currentPageId = useSelector((state: AppState) => {
-    return state.entities.pageList.currentPageId;
-  });
-
+export const useFilteredDatasources = (searchKeyword?: string) => {
   const dataSources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
   });
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
 
-  const currentPageWidgetEntities = useMemo(() => {
+  return useMemo(
+    () =>
+      searchKeyword
+        ? findDataSources(dataSources, searchKeyword.toLowerCase())
+        : dataSources,
+    [searchKeyword, dataSources],
+  );
+};
+
+export const useDataTreeActions = (searchKeyword?: string) => {
+  const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
+  const actions = useMemo(
+    () =>
+      Object.values(dataTree).filter(
+        (entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE }) =>
+          entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
+      ),
+    [dataTree],
+  );
+
+  return useMemo(
+    () =>
+      searchKeyword
+        ? findActions(actions as DataTreeAction[], searchKeyword.toLowerCase())
+        : actions,
+    [searchKeyword, actions],
+  );
+};
+
+export const useDataTreeWidgets = (searchKeyword?: string) => {
+  const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
+  const widgets = useMemo(() => {
     const canvasWidgets: { [id: string]: any } = {};
     Object.values(dataTree).forEach(
       (
@@ -87,47 +100,27 @@ export const useFilteredEntities = (
       },
     );
 
-    const widgetTree = CanvasWidgetsNormalizer.denormalize("0", {
+    return CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets,
     });
-    widgetTree.pageId = currentPageId;
+  }, [dataTree]);
 
-    return searchKeyword !== null
-      ? findWidgets(widgetTree, searchKeyword.toLowerCase())
-      : widgetTree;
-  }, [searchKeyword, dataTree, currentPageId]);
+  return useMemo(
+    () =>
+      searchKeyword
+        ? findWidgets(widgets, searchKeyword.toLowerCase())
+        : widgets,
+    [searchKeyword, widgets],
+  );
+};
 
-  const allPageDSLs = useSelector((state: AppState) => state.ui.pageDSLs);
-  const otherPagesWidgetEntities = useMemo(() => {
-    return Object.keys(allPageDSLs)
-      .filter((pageId: string) => pageId !== currentPageId)
-      .map((pageId: string) => {
-        const tree = allPageDSLs[pageId];
-        tree.pageId = pageId;
-
-        return searchKeyword !== null
-          ? findWidgets(tree, searchKeyword.toLowerCase())
-          : tree;
-      });
-  }, [searchKeyword, allPageDSLs, currentPageId]);
-
+export const usePageActions = (pageId: string, searchKeyword?: string) => {
+  const reducerActions = useSelector((state: AppState) =>
+    state.entities.actions.filter(action => action.config.pageId === pageId),
+  );
   const actions = useMemo(
     () =>
-      Object.values(dataTree).filter(
-        (entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE }) =>
-          entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
-      ),
-    [dataTree],
-  );
-
-  const allAppActions = useSelector(
-    (state: AppState) => state.entities.actions,
-  );
-
-  const actionEntities = useMemo(() => {
-    const otherPageDataTreeActions: DataTreeAction[] = allAppActions
-      .filter((action: ActionData) => action.config.pageId !== currentPageId)
-      .map((action: ActionData) => ({
+      reducerActions.map(action => ({
         isLoading: action.isLoading,
         actionId: action.config.id,
         pluginType: action.config.pluginType,
@@ -143,25 +136,35 @@ export const useFilteredEntities = (
             action.config.actionConfiguration.timeoutInMillisecond,
           httpMethod: action.config.actionConfiguration.httpMethod,
         },
-      }));
-    const currentPageActions = actions.map(action => ({
-      ...action,
-      pageId: currentPageId,
-    }));
-    const allActions = [...currentPageActions, ...otherPageDataTreeActions];
-    return searchKeyword !== null
-      ? findActions(allActions as DataTreeAction[], searchKeyword.toLowerCase())
-      : allActions;
-  }, [searchKeyword, actions, allAppActions, currentPageId]);
-
-  const datasourceEntities = useMemo(
-    () =>
-      searchKeyword !== null
-        ? findDataSources(dataSources, searchKeyword.toLowerCase())
-        : dataSources,
-    [searchKeyword, dataSources],
+      })),
+    [reducerActions],
   );
 
+  return useMemo(
+    () =>
+      searchKeyword
+        ? findActions(actions as DataTreeAction[], searchKeyword.toLowerCase())
+        : actions,
+    [searchKeyword, actions],
+  );
+};
+
+export const usePageWidgets = (pageId: string, searchKeyword?: string) => {
+  const pageDSL = useSelector((state: AppState) => state.ui.pageDSLs[pageId]);
+  return useMemo(
+    () =>
+      searchKeyword && pageDSL
+        ? findWidgets(pageDSL, searchKeyword.toLowerCase())
+        : pageDSL,
+    [searchKeyword, pageDSL],
+  );
+};
+
+export const useFilteredEntities = (
+  ref: MutableRefObject<HTMLInputElement | null>,
+) => {
+  const start = performance.now();
+  const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
   const search = debounce((e: any) => {
     const keyword = e.target.value;
     if (keyword.trim().length > 0) {
@@ -191,20 +194,10 @@ export const useFilteredEntities = (
       el?.dispatchEvent(event);
     }
   }, [ref, event]);
-  const allWidgetEntities = useMemo(
-    () => compact([currentPageWidgetEntities, ...otherPagesWidgetEntities]),
-    [currentPageWidgetEntities, otherPagesWidgetEntities],
-  );
 
   const stop = performance.now();
   log.debug("Explorer hook props calculations took", stop - start, "ms");
   return {
-    widgets: allWidgetEntities,
-    actions: actionEntities as DataTreeAction[],
-    dataSources: datasourceEntities,
-    currentPageId,
-    plugins,
-    pages,
     searchKeyword: searchKeyword ?? undefined,
     clearSearch,
   };

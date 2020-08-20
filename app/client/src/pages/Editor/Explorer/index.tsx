@@ -26,16 +26,7 @@ const EntityExplorer = () => {
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
-  const {
-    widgets,
-    actions,
-    dataSources,
-    currentPageId,
-    pages,
-    plugins,
-    searchKeyword,
-    clearSearch,
-  } = useFilteredEntities(searchInputRef);
+  const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
 
   const location = useLocation();
   useEffect(() => {
@@ -44,36 +35,16 @@ const EntityExplorer = () => {
     }
   }, [location, searchInputRef]);
 
-  const explorerPageGroup = (
-    <ExplorerPageGroup
-      widgets={widgets}
-      actions={actions}
-      currentPageId={currentPageId}
-      searchKeyword={searchKeyword}
-      pages={pages}
-      step={0}
-    />
-  );
+  // const noResults =
+  //   widgets.length === 0 &&
+  //   actions.length === 0 &&
+  //   dataSources.length === 0 &&
+  //   !!searchKeyword;
 
-  const datasourcesGroup = (
-    <ExplorerDatasourcesGroup
-      dataSources={dataSources}
-      plugins={plugins}
-      searchKeyword={searchKeyword}
-      step={0}
-    />
-  );
+  // const noPageEntities =
+  //   widgets.length === 0 && actions.length === 0 && !!searchKeyword;
 
-  const noResults =
-    widgets.length === 0 &&
-    actions.length === 0 &&
-    dataSources.length === 0 &&
-    !!searchKeyword;
-
-  const noPageEntities =
-    widgets.length === 0 && actions.length === 0 && !!searchKeyword;
-
-  const noDatsourceEntities = dataSources.length === 0 && !!searchKeyword;
+  // const noDatsourceEntities = dataSources.length === 0 && !!searchKeyword;
 
   const noResultMessage = (
     <NoResult
@@ -87,10 +58,10 @@ const EntityExplorer = () => {
   return (
     <Wrapper>
       <Search ref={searchInputRef} clear={clearSearch} />
-      {!noPageEntities && explorerPageGroup}
-      {noResults && noResultMessage}
+      <ExplorerPageGroup searchKeyword={searchKeyword} step={0} />
+
       <Divider />
-      {!noDatsourceEntities && datasourcesGroup}
+      <ExplorerDatasourcesGroup searchKeyword={searchKeyword} step={0} />
     </Wrapper>
   );
 };
