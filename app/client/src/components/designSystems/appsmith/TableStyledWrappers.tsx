@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { TableSizes } from "widgets/TableWidget";
 import { Colors, Color } from "constants/Colors";
+import { scrollbarLight } from "constants/DefaultTheme";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -290,10 +291,11 @@ export const TableHeaderWrapper = styled.div<{
   .show-page-items {
     display: ${props => (props.width < 700 ? "none" : "flex")};
   }
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
   height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
+  ${scrollbarLight};
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div<{
@@ -323,7 +325,7 @@ export const TableIconWrapper = styled.div<{
   box-shadow: ${props =>
     props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
   width: 48px;
-  height: 45px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
