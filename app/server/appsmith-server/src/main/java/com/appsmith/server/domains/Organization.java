@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.Url;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,7 +48,7 @@ public class Organization extends BaseDomain {
     }
 
     public String getLogoUrl() {
-        return "/assets/" + logoAssetId;
+        return Url.ASSET_URL + "/" + logoAssetId;
     }
 
 }
