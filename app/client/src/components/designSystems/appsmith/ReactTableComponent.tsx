@@ -238,10 +238,17 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
-    const column = props.columns[columnIndex];
-    const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
-    if (columnType !== ColumnTypes.IMAGE && columnType !== ColumnTypes.VIDEO) {
-      props.sortTableColumn(column.accessor, asc);
+    if (columnIndex === -1) {
+      props.sortTableColumn("", asc);
+    } else {
+      const column = props.columns[columnIndex];
+      const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+      if (
+        columnType !== ColumnTypes.IMAGE &&
+        columnType !== ColumnTypes.VIDEO
+      ) {
+        props.sortTableColumn(column.accessor, asc);
+      }
     }
   };
 
