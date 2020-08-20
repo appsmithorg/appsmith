@@ -65,6 +65,9 @@ const ForkButton = styled(Button)`
   max-width: 200px;
   height: 32px;
   margin: 5px 10px;
+  svg {
+    transform: rotate(-90deg);
+  }
 `;
 
 const ShareButton = styled(Button)`
