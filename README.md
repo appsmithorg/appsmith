@@ -35,12 +35,12 @@ Do all this without depending on multiple UI libraries, coding authentication lo
 
 ## Example Applications
 
-* [Customer Support Dashboard](https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2aeb2580ca1f6faaed4e4c#utm_source=github&utm_medium=homepage)
+* [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
 
 ## Getting Started
 You can try our online sandbox or deploy a Docker image on a server.
-* [Online sandbox](https://app.appsmith.com/user/signup)
-* [Deploy with Docker](https://docs.appsmith.com/quick-start#docker)
+* [Online sandbox](https://bit.ly/appsmith-signup-github)
+* [Deploy with Docker](https://bit.ly/appsmith-docker-github)
 
 ## Why Appsmith?
 
