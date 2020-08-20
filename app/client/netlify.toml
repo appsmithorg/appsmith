@@ -11,6 +11,7 @@
     REACT_APP_TNC_PP = "true"
     REACT_APP_CLOUD_HOSTING = "true"
     REACT_APP_INTERCOM_APP_ID = "y10e7138"
+    REACT_APP_MAIL_ENABLED = "true"
 
 
 [context.production]
