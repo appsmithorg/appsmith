@@ -107,6 +107,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
+    public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
+        return repository.findByClonedFromApplicationId(applicationId, permission);
+    }
+
+    @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
         return repository.findByName(name, permission)
                 .flatMap(this::setTransientFields);
@@ -144,10 +149,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
      * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
      * the publishedDsl.
      *
-     * @param applicationId
-     * @return Application
+     * @param applicationId The id of the application that will be published.
+     * @return Publishes a Boolean true, when the application has been published.
      */
-
     @Override
     public Mono<Boolean> publish(String applicationId) {
         Mono<Application> applicationMono = findById(applicationId)

@@ -1,0 +1,2403 @@
+{
+  "name": "Example Apps",
+  "organizationSettings": [],
+  "slug": "example-apps",
+  "userRoles": [],
+  "deleted": false,
+  "policies": [],
+  "_class": "com.appsmith.server.domains.Organization",
+  "$datasources": [
+    {
+      "name": "Mock Db",
+      "$pluginPackageName": "postgres-plugin",
+      "datasourceConfiguration": {
+        "connection": {
+          "mode": "READ_WRITE"
+        },
+        "endpoints": [
+          {
+            "host": "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+            "port": 5432
+          }
+        ],
+        "authentication": {
+          "username": "postgres",
+          "password": "Appsmith2019#",
+          "databaseName": "fakeapi"
+        },
+        "sshProxyEnabled": false
+      },
+      "invalids": [],
+      "deleted": false,
+      "policies": [],
+      "_class": "com.appsmith.server.domains.Datasource"
+    }
+  ],
+  "$applications": [
+    {
+      "name": "Customer Support",
+      "isPublic": true,
+      "$pages": [
+        {
+          "name": "User Data",
+          "$isDefault": true,
+          "$actions": [
+            {
+              "name": "abc",
+              "datasource": {
+                "$isEmbedded": true,
+                "name": "DEFAULT_REST_DATASOURCE",
+                "$pluginPackageName": "restapi-plugin",
+                "datasourceConfiguration": {
+                  "url": "http://mock-api.appsmith.com"
+                },
+                "invalids": [],
+                "deleted": false,
+                "policies": []
+              },
+              "actionConfiguration": {
+                "timeoutInMillisecond": 10000,
+                "paginationType": "NONE",
+                "path": "/user",
+                "headers": [
+                  {
+                    "key": "",
+                    "value": ""
+                  },
+                  {
+                    "key": "",
+                    "value": ""
+                  }
+                ],
+                "queryParameters": [
+                  {
+                    "key": "",
+                    "value": ""
+                  },
+                  {
+                    "key": "",
+                    "value": ""
+                  }
+                ],
+                "httpMethod": "GET"
+              },
+              "pluginType": "API",
+              "dynamicBindingPathList": [],
+              "isValid": true,
+              "invalids": [],
+              "jsonPathKeys": [],
+              "deleted": false,
+              "policies": [],
+              "_class": "com.appsmith.server.domains.Action"
+            },
+            {
+              "name": "approve_user",
+              "datasource": {
+                "$isEmbedded": false,
+                "name": "Mock Db",
+                "$pluginPackageName": "postgres-plugin",
+                "datasourceConfiguration": {
+                  "connection": {
+                    "mode": "READ_WRITE"
+                  },
+                  "endpoints": [
+                    {
+                      "host": "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+                      "port": 5432
+                    }
+                  ],
+                  "authentication": {
+                    "username": "postgres",
+                    "password": "Appsmith2019#",
+                    "databaseName": "fakeapi"
+                  },
+                  "sshProxyEnabled": false
+                },
+                "invalids": [],
+                "deleted": false,
+                "policies": []
+              },
+              "actionConfiguration": {
+                "timeoutInMillisecond": 10000,
+                "paginationType": "NONE",
+                "body": "UPDATE users\n  SET status = 'APPROVED'\n  WHERE id = {{usersTable.selectedRow.id}}\n"
+              },
+              "pluginType": "DB",
+              "dynamicBindingPathList": [
+                {
+                  "key": "body"
+                }
+              ],
+              "isValid": true,
+              "invalids": [],
+              "jsonPathKeys": [
+                "usersTable.selectedRow.id"
+              ],
+              "deleted": false,
+              "policies": [],
+              "_class": "com.appsmith.server.domains.Action"
+            },
+            {
+              "name": "getUsers",
+              "datasource": {
+                "$isEmbedded": false,
+                "name": "Mock Db",
+                "$pluginPackageName": "postgres-plugin",
+                "datasourceConfiguration": {
+                  "connection": {
+                    "mode": "READ_WRITE"
+                  },
+                  "endpoints": [
+                    {
+                      "host": "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+                      "port": 5432
+                    }
+                  ],
+                  "authentication": {
+                    "username": "postgres",
+                    "password": "Appsmith2019#",
+                    "databaseName": "fakeapi"
+                  },
+                  "sshProxyEnabled": false
+                },
+                "invalids": [],
+                "deleted": false,
+                "policies": []
+              },
+              "actionConfiguration": {
+                "timeoutInMillisecond": 10000,
+                "paginationType": "NONE",
+                "body": "SELECT * FROM users where name ilike '%{{usersTable.searchText}}%' ORDER BY id LIMIT 10 offset {{(usersTable.pageNo - 1) * 10}}"
+              },
+              "pluginType": "DB",
+              "executeOnLoad": true,
+              "dynamicBindingPathList": [
+                {
+                  "key": "body"
+                }
+              ],
+              "isValid": true,
+              "invalids": [],
+              "jsonPathKeys": [
+                "usersTable.searchText",
+                "(usersTable.pageNo - 1) * 10"
+              ],
+              "deleted": false,
+              "policies": [],
+              "_class": "com.appsmith.server.domains.Action"
+            },
+            {
+              "name": "reject_user",
+              "datasource": {
+                "$isEmbedded": false,
+                "name": "Mock Db",
+                "$pluginPackageName": "postgres-plugin",
+                "datasourceConfiguration": {
+                  "connection": {
+                    "mode": "READ_WRITE"
+                  },
+                  "endpoints": [
+                    {
+                      "host": "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+                      "port": 5432
+                    }
+                  ],
+                  "authentication": {
+                    "username": "postgres",
+                    "password": "Appsmith2019#",
+                    "databaseName": "fakeapi"
+                  },
+                  "sshProxyEnabled": false
+                },
+                "invalids": [],
+                "deleted": false,
+                "policies": []
+              },
+              "actionConfiguration": {
+                "timeoutInMillisecond": 10000,
+                "paginationType": "NONE",
+                "body": "UPDATE users\n  SET status = 'REJECTED'\n  WHERE id = {{usersTable.selectedRow.id}}\n"
+              },
+              "pluginType": "DB",
+              "dynamicBindingPathList": [
+                {
+                  "key": "body"
+                }
+              ],
+              "isValid": true,
+              "invalids": [],
+              "jsonPathKeys": [
+                "usersTable.selectedRow.id"
+              ],
+              "deleted": false,
+              "policies": [],
+              "_class": "com.appsmith.server.domains.Action"
+            },
+            {
+              "name": "updateUser",
+              "datasource": {
+                "$isEmbedded": false,
+                "name": "Mock Db",
+                "$pluginPackageName": "postgres-plugin",
+                "datasourceConfiguration": {
+                  "connection": {
+                    "mode": "READ_WRITE"
+                  },
+                  "endpoints": [
+                    {
+                      "host": "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+                      "port": 5432
+                    }
+                  ],
+                  "authentication": {
+                    "username": "postgres",
+                    "password": "Appsmith2019#",
+                    "databaseName": "fakeapi"
+                  },
+                  "sshProxyEnabled": false
+                },
+                "invalids": [],
+                "deleted": false,
+                "policies": []
+              },
+              "actionConfiguration": {
+                "timeoutInMillisecond": 10000,
+                "paginationType": "NONE",
+                "body": "UPDATE users SET name = '{{userNameInput.text}}', address = '{{userAddressDropdown.text}}', email = '{{userEmailInput.text}}', role = '{{userRoleDropdown.selectedOptionValue}}' WHERE id = {{usersTable.selectedRow.id}}"
+              },
+              "pluginType": "DB",
+              "dynamicBindingPathList": [
+                {
+                  "key": "body"
+                }
+              ],
+              "isValid": true,
+              "invalids": [],
+              "jsonPathKeys": [
+                "userRoleDropdown.selectedOptionValue",
+                "userEmailInput.text",
+                "userNameInput.text",
+                "usersTable.selectedRow.id",
+                "userAddressDropdown.text"
+              ],
+              "deleted": false,
+              "policies": [],
+              "_class": "com.appsmith.server.domains.Action"
+            }
+          ],
+          "layouts": [
+            {
+              "viewMode": false,
+              "dsl": {
+                "widgetName": "MainContainer",
+                "backgroundColor": "none",
+                "rightColumn": 1224,
+                "snapColumns": 16,
+                "detachFromLayout": true,
+                "widgetId": "0",
+                "topRow": 0,
+                "bottomRow": 1480,
+                "containerStyle": "none",
+                "snapRows": 33,
+                "parentRowSpace": 1,
+                "type": "CANVAS_WIDGET",
+                "canExtend": true,
+                "dynamicBindings": {
+                },
+                "version": 5,
+                "minHeight": 1292,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "children": [
+                  {
+                    "widgetName": "Text1",
+                    "rightColumn": 4,
+                    "textAlign": "LEFT",
+                    "widgetId": "weg5so2vr1",
+                    "topRow": 1,
+                    "bottomRow": 2,
+                    "parentRowSpace": 40,
+                    "isVisible": true,
+                    "type": "TEXT_WIDGET",
+                    "dynamicBindings": {
+                      "value": true
+                    },
+                    "parentId": "0",
+                    "isLoading": false,
+                    "parentColumnSpace": 74,
+                    "leftColumn": 0,
+                    "text": "<h2>Users</h2>",
+                    "textStyle": "HEADING"
+                  },
+                  {
+                    "widgetName": "Modal1",
+                    "rightColumn": 0,
+                    "detachFromLayout": true,
+                    "widgetId": "byv6k1tm4q",
+                    "topRow": 0,
+                    "bottomRow": 0,
+                    "parentRowSpace": 1,
+                    "isVisible": false,
+                    "canOutsideClickClose": true,
+                    "type": "MODAL_WIDGET",
+                    "canEscapeKeyClose": true,
+                    "dynamicBindings": {
+                    },
+                    "parentId": "0",
+                    "shouldScrollContents": true,
+                    "blueprint": {
+                      "view": [
+                        {
+                          "position": {
+                            "top": 0,
+                            "left": 0
+                          },
+                          "type": "CANVAS_WIDGET",
+                          "props": {
+                            "shouldScrollContents": false,
+                            "blueprint": {
+                              "view": [
+                                {
+                                  "size": {
+                                    "rows": 1,
+                                    "cols": 2
+                                  },
+                                  "position": {
+                                    "top": 0,
+                                    "left": 14
+                                  },
+                                  "type": "ICON_WIDGET",
+                                  "props": {
+                                    "color": "#040627",
+                                    "iconName": "cross",
+                                    "iconSize": 24
+                                  }
+                                },
+                                {
+                                  "size": {
+                                    "rows": 1,
+                                    "cols": 10
+                                  },
+                                  "position": {
+                                    "top": 0,
+                                    "left": 0
+                                  },
+                                  "type": "TEXT_WIDGET",
+                                  "props": {
+                                    "text": "Modal Title",
+                                    "textStyle": "HEADING"
+                                  }
+                                },
+                                {
+                                  "size": {
+                                    "rows": 1,
+                                    "cols": 3
+                                  },
+                                  "position": {
+                                    "top": 4,
+                                    "left": 10
+                                  },
+                                  "type": "BUTTON_WIDGET",
+                                  "props": {
+                                    "buttonStyle": "SECONDARY_BUTTON",
+                                    "text": "Cancel"
+                                  }
+                                },
+                                {
+                                  "size": {
+                                    "rows": 1,
+                                    "cols": 3
+                                  },
+                                  "position": {
+                                    "top": 4,
+                                    "left": 13
+                                  },
+                                  "type": "BUTTON_WIDGET",
+                                  "props": {
+                                    "buttonStyle": "PRIMARY_BUTTON",
+                                    "text": "Confirm"
+                                  }
+                                }
+                              ],
+                              "operations": [
+                                {
+                                  "type": "MODIFY_PROPS"
+                                }
+                              ]
+                            },
+                            "detachFromLayout": true,
+                            "children": [],
+                            "isVisible": true,
+                            "isDisabled": false,
+                            "canExtend": true
+                          }
+                        }
+                      ]
+                    },
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "size": "MODAL_LARGE",
+                    "leftColumn": 0,
+                    "children": [
+                      {
+                        "widgetName": "Canvas1",
+                        "rightColumn": 0,
+                        "detachFromLayout": true,
+                        "widgetId": "w5pk5ifpbq",
+                        "topRow": 0,
+                        "bottomRow": 640,
+                        "parentRowSpace": 1,
+                        "isVisible": true,
+                        "canExtend": true,
+                        "type": "CANVAS_WIDGET",
+                        "parentId": "byv6k1tm4q",
+                        "shouldScrollContents": false,
+                        "blueprint": {
+                          "view": [
+                            {
+                              "size": {
+                                "rows": 1,
+                                "cols": 2
+                              },
+                              "position": {
+                                "top": 0,
+                                "left": 14
+                              },
+                              "type": "ICON_WIDGET",
+                              "props": {
+                                "color": "#040627",
+                                "iconName": "cross",
+                                "iconSize": 24
+                              }
+                            },
+                            {
+                              "size": {
+                                "rows": 1,
+                                "cols": 10
+                              },
+                              "position": {
+                                "top": 0,
+                                "left": 0
+                              },
+                              "type": "TEXT_WIDGET",
+                              "props": {
+                                "text": "Modal Title",
+                                "textStyle": "HEADING"
+                              }
+                            },
+                            {
+                              "size": {
+                                "rows": 1,
+                                "cols": 3
+                              },
+                              "position": {
+                                "top": 4,
+                                "left": 10
+                              },
+                              "type": "BUTTON_WIDGET",
+                              "props": {
+                                "buttonStyle": "SECONDARY_BUTTON",
+                                "text": "Cancel"
+                              }
+                            },
+                            {
+                              "size": {
+                                "rows": 1,
+                                "cols": 3
+                              },
+                              "position": {
+                                "top": 4,
+                                "left": 13
+                              },
+                              "type": "BUTTON_WIDGET",
+                              "props": {
+                                "buttonStyle": "PRIMARY_BUTTON",
+                                "text": "Confirm"
+                              }
+                            }
+                          ],
+                          "operations": [
+                            {
+                              "type": "MODIFY_PROPS"
+                            }
+                          ]
+                        },
+                        "minHeight": 0,
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "leftColumn": 0,
+                        "children": [
+                          {
+                            "widgetName": "Icon1",
+                            "rightColumn": 16,
+                            "onClick": "{{closeModal('Modal1')}}",
+                            "color": "#040627",
+                            "iconName": "cross",
+                            "widgetId": "3mbbjt4pzc",
+                            "topRow": 0,
+                            "bottomRow": 1,
+                            "isVisible": true,
+                            "type": "ICON_WIDGET",
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "leftColumn": 14,
+                            "iconSize": 24
+                          },
+                          {
+                            "widgetName": "Text2",
+                            "rightColumn": 10,
+                            "textAlign": "LEFT",
+                            "widgetId": "wcn8me2ef8",
+                            "topRow": 0,
+                            "bottomRow": 1,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "leftColumn": 0,
+                            "text": "{{func1}}",
+                            "textStyle": "HEADING"
+                          },
+                          {
+                            "widgetName": "Button1",
+                            "rightColumn": 13,
+                            "onClick": "{{closeModal('Modal1')}}",
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "sz67dp5my1",
+                            "dynamicProperties": {
+                            },
+                            "buttonStyle": "SECONDARY_BUTTON",
+                            "topRow": 13,
+                            "bottomRow": 14,
+                            "isVisible": true,
+                            "type": "BUTTON_WIDGET",
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "leftColumn": 10,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "text": "Cancel",
+                            "isDisabled": false
+                          },
+                          {
+                            "widgetName": "Button2",
+                            "rightColumn": 16,
+                            "onClick": "{{updateUser.run(() => getUsers.run(() => { closeModal('Modal1') }), () => {})}}",
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "tasjzaf7dn",
+                            "dynamicProperties": {
+                              "onClick": true
+                            },
+                            "buttonStyle": "PRIMARY_BUTTON",
+                            "topRow": 13,
+                            "bottomRow": 14,
+                            "isVisible": true,
+                            "type": "BUTTON_WIDGET",
+                            "dynamicBindings": {
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "leftColumn": 13,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "text": "Update",
+                            "isDisabled": false
+                          },
+                          {
+                            "widgetName": "Text3",
+                            "rightColumn": 4,
+                            "textAlign": "RIGHT",
+                            "widgetId": "xuwf6yoz8o",
+                            "topRow": 2,
+                            "bottomRow": 3,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 0,
+                            "text": "Name",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "userNameInput",
+                            "rightColumn": 14,
+                            "widgetId": "7w6gdpp20h",
+                            "topRow": 2,
+                            "bottomRow": 3,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "label": "",
+                            "type": "INPUT_WIDGET",
+                            "dynamicBindings": {
+                              "isValid": true,
+                              "defaultText": true,
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 4,
+                            "inputType": "TEXT",
+                            "defaultText": "{{usersTable.selectedRow.name}}"
+                          },
+                          {
+                            "widgetName": "Text4",
+                            "rightColumn": 4,
+                            "textAlign": "RIGHT",
+                            "widgetId": "ipq7sver55",
+                            "topRow": 3,
+                            "bottomRow": 4,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 0,
+                            "text": "Email",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "userEmailInput",
+                            "rightColumn": 14,
+                            "widgetId": "gmxr33ul94",
+                            "topRow": 3,
+                            "bottomRow": 4,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "label": "",
+                            "type": "INPUT_WIDGET",
+                            "dynamicBindings": {
+                              "isValid": true,
+                              "defaultText": true,
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 4,
+                            "inputType": "TEXT",
+                            "defaultText": "{{usersTable.selectedRow.email}}"
+                          },
+                          {
+                            "widgetName": "Text5",
+                            "rightColumn": 4,
+                            "textAlign": "RIGHT",
+                            "widgetId": "qodaro6enw",
+                            "topRow": 4,
+                            "bottomRow": 5,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 0,
+                            "text": "Role",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "userRoleDropdown",
+                            "rightColumn": 14,
+                            "widgetId": "ca93zv3q74",
+                            "topRow": 4,
+                            "bottomRow": 5,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "label": "",
+                            "type": "DROP_DOWN_WIDGET",
+                            "dynamicBindings": {
+                              "defaultOptionValue": true,
+                              "selectedOptionArr": true,
+                              "isValid": true,
+                              "selectedIndexArr": true,
+                              "selectedOption": true,
+                              "value": true,
+                              "selectedIndex": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "defaultOptionValue": "{{usersTable.selectedRow.role}}",
+                            "selectionType": "SINGLE_SELECT",
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 4,
+                            "options": "[\n  {\n    \"label\": \"Admin\",\n    \"value\": \"Admin\"\n  },\n  {\n    \"label\": \"Editor\",\n    \"value\": \"Editor\"\n  },\n  {\n    \"label\": \"Viewer\",\n    \"value\": \"Viewer\"\n  }\n]"
+                          },
+                          {
+                            "widgetName": "Text6",
+                            "rightColumn": 4,
+                            "textAlign": "RIGHT",
+                            "widgetId": "6kt0zxnjp2",
+                            "topRow": 6,
+                            "bottomRow": 7,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 0,
+                            "text": "Address",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "userAddressDropdown",
+                            "rightColumn": 14,
+                            "widgetId": "dvjvau3h01",
+                            "topRow": 6,
+                            "bottomRow": 9,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "label": "",
+                            "type": "INPUT_WIDGET",
+                            "dynamicBindings": {
+                              "isValid": true,
+                              "defaultText": true,
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 4,
+                            "inputType": "TEXT",
+                            "defaultText": "{{usersTable.selectedRow.address}}"
+                          },
+                          {
+                            "widgetName": "Text13",
+                            "rightColumn": 4,
+                            "textAlign": "RIGHT",
+                            "widgetId": "5kbrck0d80",
+                            "topRow": 5,
+                            "bottomRow": 6,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 0,
+                            "text": "Gender",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "Dropdown1",
+                            "rightColumn": 14,
+                            "widgetId": "ojpyrgnvll",
+                            "topRow": 5,
+                            "bottomRow": 6,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "label": "",
+                            "type": "DROP_DOWN_WIDGET",
+                            "dynamicBindings": {
+                              "defaultOptionValue": true,
+                              "selectedOptionArr": true,
+                              "isValid": true,
+                              "selectedIndexArr": true,
+                              "selectedOption": true,
+                              "value": true,
+                              "selectedIndex": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "defaultOptionValue": "{{usersTable.selectedRow.gender}}",
+                            "selectionType": "SINGLE_SELECT",
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 4,
+                            "options": "[\n  {\n    \"label\": \"Male\",\n    \"value\": \"Male\"\n  },\n  {\n    \"label\": \"Female\",\n    \"value\": \"Female\"\n  }\n]"
+                          }
+                        ],
+                        "isDisabled": false
+                      }
+                    ]
+                  },
+                  {
+                    "hiddenColumns": [
+                      "updatedAt",
+                      "gender",
+                      "avatar",
+                      "dob",
+                      "address",
+                      "status",
+                      "createdAt"
+                    ],
+                    "widgetName": "usersTable",
+                    "rightColumn": 10,
+                    "columnOrder": [
+                      "id",
+                      "name",
+                      "email",
+                      "role",
+                      "actions",
+                      "createdAt",
+                      "updatedAt",
+                      "gender",
+                      "avatar",
+                      "dob"
+                    ],
+                    "widgetId": "4onx0po0j1",
+                    "topRow": 2,
+                    "bottomRow": 18,
+                    "parentRowSpace": 40,
+                    "onPageChange": "{{getUsers.run()}}",
+                    "tableData": "{{getTable1Data.run()}}",
+                    "isVisible": true,
+                    "label": "Data",
+                    "searchKey": "",
+                    "type": "TABLE_WIDGET",
+                    "dynamicBindings": {
+                      "tableData": true,
+                      "selectedRow": true,
+                      "filteredTableData": true
+                    },
+                    "parentId": "0",
+                    "serverSidePaginationEnabled": true,
+                    "isLoading": false,
+                    "onSearchTextChanged": "{{getUsers.run()}}",
+                    "parentColumnSpace": 74,
+                    "leftColumn": 0,
+                    "dynamicTriggers": {
+                      "onSearchTextChanged": true,
+                      "onPageChange": true
+                    },
+                    "columnActions": [
+                      {
+                        "actionPayloads": [],
+                        "label": "Edit",
+                        "id": "inz6ivtcdt",
+                        "dynamicTrigger": "{{showModal('Modal1')}}"
+                      }
+                    ],
+                    "columnSizeMap": {
+                      "address": 238,
+                      "id": 91,
+                      "email": 236
+                    }
+                  },
+                  {
+                    "backgroundColor": "#FFFFFF",
+                    "widgetName": "Container1",
+                    "rightColumn": 16,
+                    "widgetId": "znedt4bss1",
+                    "containerStyle": "card",
+                    "topRow": 2,
+                    "bottomRow": 12,
+                    "parentRowSpace": 40,
+                    "isVisible": true,
+                    "type": "CONTAINER_WIDGET",
+                    "parentId": "0",
+                    "blueprint": {
+                      "view": [
+                        {
+                          "position": {
+                            "top": 0,
+                            "left": 0
+                          },
+                          "type": "CANVAS_WIDGET",
+                          "props": {
+                            "detachFromLayout": true,
+                            "children": [
+                              "2rv46ko5nr",
+                              "6jz7n81a0w",
+                              "pu5tfgbgs8",
+                              "1dqi8yqken",
+                              "rhjs3oqi4x",
+                              "12b8ga1jyb",
+                              "fow2t5em1j",
+                              "95hllivp93",
+                              "mme1t8c9py"
+                            ],
+                            "containerStyle": "none",
+                            "canExtend": false
+                          }
+                        }
+                      ]
+                    },
+                    "isLoading": false,
+                    "parentColumnSpace": 74,
+                    "leftColumn": 10,
+                    "children": [
+                      {
+                        "widgetName": "Canvas2",
+                        "rightColumn": 592,
+                        "detachFromLayout": true,
+                        "widgetId": "lz32lxsbsd",
+                        "containerStyle": "none",
+                        "topRow": 0,
+                        "bottomRow": 400,
+                        "parentRowSpace": 1,
+                        "isVisible": true,
+                        "canExtend": false,
+                        "type": "CANVAS_WIDGET",
+                        "parentId": "znedt4bss1",
+                        "minHeight": 400,
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "leftColumn": 0,
+                        "children": [
+                          {
+                            "image": "{{usersTable.selectedRow.avatar}}",
+                            "widgetName": "Image1",
+                            "rightColumn": 6,
+                            "widgetId": "2rv46ko5nr",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "topRow": 0,
+                            "bottomRow": 3,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "IMAGE_WIDGET",
+                            "dynamicBindings": {
+                              "image": true,
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "imageShape": "RECTANGLE",
+                            "leftColumn": 0,
+                            "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"
+                          },
+                          {
+                            "widgetName": "Text7",
+                            "rightColumn": 13,
+                            "textAlign": "LEFT",
+                            "widgetId": "6jz7n81a0w",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "topRow": 0,
+                            "bottomRow": 1,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "isVisible": true,
+                              "value": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 7,
+                            "text": "{{usersTable.selectedRow.name}}",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "Text8",
+                            "rightColumn": 16,
+                            "textAlign": "LEFT",
+                            "widgetId": "pu5tfgbgs8",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "topRow": 1,
+                            "bottomRow": 2,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "isVisible": true,
+                              "value": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 7,
+                            "text": "{{usersTable.selectedRow.email}}",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "Text9",
+                            "rightColumn": 16,
+                            "textAlign": "LEFT",
+                            "widgetId": "1dqi8yqken",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "topRow": 2,
+                            "bottomRow": 3,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "isVisible": true,
+                              "value": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 7,
+                            "text": "{{usersTable.selectedRow.address}}",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "Text11",
+                            "rightColumn": 16,
+                            "textAlign": "CENTER",
+                            "widgetId": "rhjs3oqi4x",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "topRow": 6,
+                            "bottomRow": 7,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "isVisible": true,
+                              "value": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 0,
+                            "text": "<h3> Status: {{usersTable.selectedRow.status === \"APPROVED\" ? \"Approved ✅\" : \nusersTable.selectedRow.status === \"REJECTED\" ? \"Rejected ❌\" : \"Pending ⌛\"}}</h3>",
+                            "textStyle": "HEADING"
+                          },
+                          {
+                            "widgetName": "Text12",
+                            "rightColumn": 11,
+                            "textAlign": "LEFT",
+                            "widgetId": "12b8ga1jyb",
+                            "topRow": 3,
+                            "bottomRow": 4,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "value": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 7,
+                            "text": "{{ (usersTable.selectedRow.gender === \"Male\" ? \"♂️\" : \"♀️\") + usersTable.selectedRow.gender}}",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "Button3",
+                            "rightColumn": 16,
+                            "onClick": "{{approve_user.run(() => getUsers.run(), () => {})}}",
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "fow2t5em1j",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "buttonStyle": "PRIMARY_BUTTON",
+                            "topRow": 8,
+                            "bottomRow": 9,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "BUTTON_WIDGET",
+                            "dynamicBindings": {
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 11,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "text": "Approve",
+                            "isDisabled": false
+                          },
+                          {
+                            "widgetName": "Button4",
+                            "rightColumn": 16,
+                            "onClick": "{{showModal('Modal1')}}",
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "95hllivp93",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "buttonStyle": "PRIMARY_BUTTON",
+                            "topRow": 0,
+                            "bottomRow": 1,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "BUTTON_WIDGET",
+                            "dynamicBindings": {
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 13,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "text": "Edit",
+                            "isDisabled": false
+                          },
+                          {
+                            "widgetName": "Button5",
+                            "rightColumn": 10,
+                            "onClick": "{{reject_user.run(() => getUsers.run(), () => {})}}",
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "4z16xr3mlu",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "buttonStyle": "SECONDARY_BUTTON",
+                            "topRow": 8,
+                            "bottomRow": 9,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "BUTTON_WIDGET",
+                            "dynamicBindings": {
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 5,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "text": "❌Reject",
+                            "isDisabled": false
+                          },
+                          {
+                            "widgetName": "Text10",
+                            "rightColumn": 16,
+                            "textAlign": "CENTER",
+                            "widgetId": "rz1jcja6o2",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "topRow": 4,
+                            "bottomRow": 5,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow === undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "isVisible": true,
+                              "value": true
+                            },
+                            "parentId": "0",
+                            "isLoading": false,
+                            "parentColumnSpace": 74,
+                            "leftColumn": 0,
+                            "text": "<h2>👈🏿 Select a user</h2>",
+                            "textStyle": "HEADING"
+                          },
+                          {
+                            "widgetName": "Text14",
+                            "rightColumn": 16,
+                            "textAlign": "LEFT",
+                            "widgetId": "op0ououevb",
+                            "topRow": 3,
+                            "bottomRow": 4,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "value": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 12,
+                            "text": "{{ (usersTable.selectedRow.role === \"Admin\" ? \"👮\" : usersTable.selectedRow.role === \"Editor\" ? \"🖋️\" : \"🔍\") + usersTable.selectedRow.role}}",
+                            "textStyle": "LABEL"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "publishedDsl": {
+                "widgetName": "MainContainer",
+                "backgroundColor": "none",
+                "rightColumn": 1224,
+                "snapColumns": 16,
+                "detachFromLayout": true,
+                "widgetId": "0",
+                "topRow": 0,
+                "bottomRow": 1560,
+                "containerStyle": "none",
+                "snapRows": 33,
+                "parentRowSpace": 1,
+                "type": "CANVAS_WIDGET",
+                "canExtend": true,
+                "dynamicBindings": {
+                },
+                "version": 5,
+                "minHeight": 1292,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "children": [
+                  {
+                    "widgetName": "Text1",
+                    "rightColumn": 4,
+                    "textAlign": "LEFT",
+                    "widgetId": "weg5so2vr1",
+                    "topRow": 1,
+                    "bottomRow": 2,
+                    "parentRowSpace": 40,
+                    "isVisible": true,
+                    "type": "TEXT_WIDGET",
+                    "dynamicBindings": {
+                      "value": true
+                    },
+                    "parentId": "0",
+                    "isLoading": false,
+                    "parentColumnSpace": 74,
+                    "leftColumn": 0,
+                    "text": "<h2>Users</h2>",
+                    "textStyle": "HEADING"
+                  },
+                  {
+                    "widgetName": "Modal1",
+                    "rightColumn": 0,
+                    "detachFromLayout": true,
+                    "widgetId": "byv6k1tm4q",
+                    "topRow": 0,
+                    "bottomRow": 0,
+                    "parentRowSpace": 1,
+                    "isVisible": false,
+                    "canOutsideClickClose": true,
+                    "type": "MODAL_WIDGET",
+                    "canEscapeKeyClose": true,
+                    "dynamicBindings": {
+                    },
+                    "parentId": "0",
+                    "shouldScrollContents": true,
+                    "blueprint": {
+                      "view": [
+                        {
+                          "position": {
+                            "top": 0,
+                            "left": 0
+                          },
+                          "type": "CANVAS_WIDGET",
+                          "props": {
+                            "shouldScrollContents": false,
+                            "blueprint": {
+                              "view": [
+                                {
+                                  "size": {
+                                    "rows": 1,
+                                    "cols": 2
+                                  },
+                                  "position": {
+                                    "top": 0,
+                                    "left": 14
+                                  },
+                                  "type": "ICON_WIDGET",
+                                  "props": {
+                                    "color": "#040627",
+                                    "iconName": "cross",
+                                    "iconSize": 24
+                                  }
+                                },
+                                {
+                                  "size": {
+                                    "rows": 1,
+                                    "cols": 10
+                                  },
+                                  "position": {
+                                    "top": 0,
+                                    "left": 0
+                                  },
+                                  "type": "TEXT_WIDGET",
+                                  "props": {
+                                    "text": "Modal Title",
+                                    "textStyle": "HEADING"
+                                  }
+                                },
+                                {
+                                  "size": {
+                                    "rows": 1,
+                                    "cols": 3
+                                  },
+                                  "position": {
+                                    "top": 4,
+                                    "left": 10
+                                  },
+                                  "type": "BUTTON_WIDGET",
+                                  "props": {
+                                    "buttonStyle": "SECONDARY_BUTTON",
+                                    "text": "Cancel"
+                                  }
+                                },
+                                {
+                                  "size": {
+                                    "rows": 1,
+                                    "cols": 3
+                                  },
+                                  "position": {
+                                    "top": 4,
+                                    "left": 13
+                                  },
+                                  "type": "BUTTON_WIDGET",
+                                  "props": {
+                                    "buttonStyle": "PRIMARY_BUTTON",
+                                    "text": "Confirm"
+                                  }
+                                }
+                              ],
+                              "operations": [
+                                {
+                                  "type": "MODIFY_PROPS"
+                                }
+                              ]
+                            },
+                            "detachFromLayout": true,
+                            "children": [],
+                            "isVisible": true,
+                            "isDisabled": false,
+                            "canExtend": true
+                          }
+                        }
+                      ]
+                    },
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "size": "MODAL_LARGE",
+                    "leftColumn": 0,
+                    "children": [
+                      {
+                        "widgetName": "Canvas1",
+                        "rightColumn": 0,
+                        "detachFromLayout": true,
+                        "widgetId": "w5pk5ifpbq",
+                        "topRow": 0,
+                        "bottomRow": 640,
+                        "parentRowSpace": 1,
+                        "isVisible": true,
+                        "canExtend": true,
+                        "type": "CANVAS_WIDGET",
+                        "parentId": "byv6k1tm4q",
+                        "shouldScrollContents": false,
+                        "blueprint": {
+                          "view": [
+                            {
+                              "size": {
+                                "rows": 1,
+                                "cols": 2
+                              },
+                              "position": {
+                                "top": 0,
+                                "left": 14
+                              },
+                              "type": "ICON_WIDGET",
+                              "props": {
+                                "color": "#040627",
+                                "iconName": "cross",
+                                "iconSize": 24
+                              }
+                            },
+                            {
+                              "size": {
+                                "rows": 1,
+                                "cols": 10
+                              },
+                              "position": {
+                                "top": 0,
+                                "left": 0
+                              },
+                              "type": "TEXT_WIDGET",
+                              "props": {
+                                "text": "Modal Title",
+                                "textStyle": "HEADING"
+                              }
+                            },
+                            {
+                              "size": {
+                                "rows": 1,
+                                "cols": 3
+                              },
+                              "position": {
+                                "top": 4,
+                                "left": 10
+                              },
+                              "type": "BUTTON_WIDGET",
+                              "props": {
+                                "buttonStyle": "SECONDARY_BUTTON",
+                                "text": "Cancel"
+                              }
+                            },
+                            {
+                              "size": {
+                                "rows": 1,
+                                "cols": 3
+                              },
+                              "position": {
+                                "top": 4,
+                                "left": 13
+                              },
+                              "type": "BUTTON_WIDGET",
+                              "props": {
+                                "buttonStyle": "PRIMARY_BUTTON",
+                                "text": "Confirm"
+                              }
+                            }
+                          ],
+                          "operations": [
+                            {
+                              "type": "MODIFY_PROPS"
+                            }
+                          ]
+                        },
+                        "minHeight": 0,
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "leftColumn": 0,
+                        "children": [
+                          {
+                            "widgetName": "Icon1",
+                            "rightColumn": 16,
+                            "onClick": "{{closeModal('Modal1')}}",
+                            "color": "#040627",
+                            "iconName": "cross",
+                            "widgetId": "3mbbjt4pzc",
+                            "topRow": 0,
+                            "bottomRow": 1,
+                            "isVisible": true,
+                            "type": "ICON_WIDGET",
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "leftColumn": 14,
+                            "iconSize": 24
+                          },
+                          {
+                            "widgetName": "Text2",
+                            "rightColumn": 10,
+                            "textAlign": "LEFT",
+                            "widgetId": "wcn8me2ef8",
+                            "topRow": 0,
+                            "bottomRow": 1,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "leftColumn": 0,
+                            "text": "User Data",
+                            "textStyle": "HEADING"
+                          },
+                          {
+                            "widgetName": "Button1",
+                            "rightColumn": 13,
+                            "onClick": "{{closeModal('Modal1')}}",
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "sz67dp5my1",
+                            "dynamicProperties": {
+                            },
+                            "buttonStyle": "SECONDARY_BUTTON",
+                            "topRow": 13,
+                            "bottomRow": 14,
+                            "isVisible": true,
+                            "type": "BUTTON_WIDGET",
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "leftColumn": 10,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "text": "Cancel",
+                            "isDisabled": false
+                          },
+                          {
+                            "widgetName": "Button2",
+                            "rightColumn": 16,
+                            "onClick": "{{updateUser.run(() => getUsers.run(() => { closeModal('Modal1') }), () => {})}}",
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "tasjzaf7dn",
+                            "dynamicProperties": {
+                              "onClick": true
+                            },
+                            "buttonStyle": "PRIMARY_BUTTON",
+                            "topRow": 13,
+                            "bottomRow": 14,
+                            "isVisible": true,
+                            "type": "BUTTON_WIDGET",
+                            "dynamicBindings": {
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "leftColumn": 13,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "text": "Update",
+                            "isDisabled": false
+                          },
+                          {
+                            "widgetName": "Text3",
+                            "rightColumn": 4,
+                            "textAlign": "RIGHT",
+                            "widgetId": "xuwf6yoz8o",
+                            "topRow": 2,
+                            "bottomRow": 3,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 0,
+                            "text": "Name",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "userNameInput",
+                            "rightColumn": 14,
+                            "widgetId": "7w6gdpp20h",
+                            "topRow": 2,
+                            "bottomRow": 3,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "label": "",
+                            "type": "INPUT_WIDGET",
+                            "dynamicBindings": {
+                              "isValid": true,
+                              "defaultText": true,
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 4,
+                            "inputType": "TEXT",
+                            "defaultText": "{{usersTable.selectedRow.name}}"
+                          },
+                          {
+                            "widgetName": "Text4",
+                            "rightColumn": 4,
+                            "textAlign": "RIGHT",
+                            "widgetId": "ipq7sver55",
+                            "topRow": 3,
+                            "bottomRow": 4,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 0,
+                            "text": "Email",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "userEmailInput",
+                            "rightColumn": 14,
+                            "widgetId": "gmxr33ul94",
+                            "topRow": 3,
+                            "bottomRow": 4,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "label": "",
+                            "type": "INPUT_WIDGET",
+                            "dynamicBindings": {
+                              "isValid": true,
+                              "defaultText": true,
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 4,
+                            "inputType": "TEXT",
+                            "defaultText": "{{usersTable.selectedRow.email}}"
+                          },
+                          {
+                            "widgetName": "Text5",
+                            "rightColumn": 4,
+                            "textAlign": "RIGHT",
+                            "widgetId": "qodaro6enw",
+                            "topRow": 4,
+                            "bottomRow": 5,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 0,
+                            "text": "Role",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "userRoleDropdown",
+                            "rightColumn": 14,
+                            "widgetId": "ca93zv3q74",
+                            "topRow": 4,
+                            "bottomRow": 5,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "label": "",
+                            "type": "DROP_DOWN_WIDGET",
+                            "dynamicBindings": {
+                              "defaultOptionValue": true,
+                              "selectedOptionArr": true,
+                              "isValid": true,
+                              "selectedIndexArr": true,
+                              "selectedOption": true,
+                              "value": true,
+                              "selectedIndex": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "defaultOptionValue": "{{usersTable.selectedRow.role}}",
+                            "selectionType": "SINGLE_SELECT",
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 4,
+                            "options": "[\n  {\n    \"label\": \"Admin\",\n    \"value\": \"Admin\"\n  },\n  {\n    \"label\": \"Editor\",\n    \"value\": \"Editor\"\n  },\n  {\n    \"label\": \"Viewer\",\n    \"value\": \"Viewer\"\n  }\n]"
+                          },
+                          {
+                            "widgetName": "Text6",
+                            "rightColumn": 4,
+                            "textAlign": "RIGHT",
+                            "widgetId": "6kt0zxnjp2",
+                            "topRow": 6,
+                            "bottomRow": 7,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 0,
+                            "text": "Address",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "userAddressDropdown",
+                            "rightColumn": 14,
+                            "widgetId": "dvjvau3h01",
+                            "topRow": 6,
+                            "bottomRow": 9,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "label": "",
+                            "type": "INPUT_WIDGET",
+                            "dynamicBindings": {
+                              "isValid": true,
+                              "defaultText": true,
+                              "value": true
+                            },
+                            "parentId": "w5pk5ifpbq",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "leftColumn": 4,
+                            "inputType": "TEXT",
+                            "defaultText": "{{usersTable.selectedRow.address}}"
+                          },
+                          {
+                            "isVisible": true,
+                            "text": "Gender",
+                            "textStyle": "LABEL",
+                            "textAlign": "RIGHT",
+                            "widgetName": "Text13",
+                            "type": "TEXT_WIDGET",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "parentRowSpace": 40,
+                            "leftColumn": 0,
+                            "rightColumn": 4,
+                            "topRow": 5,
+                            "bottomRow": 6,
+                            "parentId": "w5pk5ifpbq",
+                            "widgetId": "5kbrck0d80",
+                            "dynamicBindings": {
+                              "value": true
+                            }
+                          },
+                          {
+                            "isVisible": true,
+                            "label": "",
+                            "selectionType": "SINGLE_SELECT",
+                            "options": "[\n  {\n    \"label\": \"Male\",\n    \"value\": \"Male\"\n  },\n  {\n    \"label\": \"Female\",\n    \"value\": \"Female\"\n  }\n]",
+                            "widgetName": "Dropdown1",
+                            "defaultOptionValue": "{{usersTable.selectedRow.gender}}",
+                            "type": "DROP_DOWN_WIDGET",
+                            "isLoading": false,
+                            "parentColumnSpace": 30.75,
+                            "parentRowSpace": 40,
+                            "leftColumn": 4,
+                            "rightColumn": 14,
+                            "topRow": 5,
+                            "bottomRow": 6,
+                            "parentId": "w5pk5ifpbq",
+                            "widgetId": "ojpyrgnvll",
+                            "dynamicBindings": {
+                              "isValid": true,
+                              "selectedOption": true,
+                              "selectedOptionArr": true,
+                              "selectedIndex": true,
+                              "selectedIndexArr": true,
+                              "value": true,
+                              "defaultOptionValue": true
+                            }
+                          }
+                        ],
+                        "isDisabled": false
+                      }
+                    ]
+                  },
+                  {
+                    "hiddenColumns": [
+                      "updatedAt",
+                      "gender",
+                      "avatar",
+                      "dob",
+                      "address",
+                      "status",
+                      "createdAt"
+                    ],
+                    "widgetName": "usersTable",
+                    "rightColumn": 10,
+                    "columnOrder": [
+                      "id",
+                      "name",
+                      "email",
+                      "role",
+                      "actions",
+                      "createdAt",
+                      "updatedAt",
+                      "gender",
+                      "avatar",
+                      "dob"
+                    ],
+                    "widgetId": "4onx0po0j1",
+                    "topRow": 2,
+                    "bottomRow": 18,
+                    "parentRowSpace": 40,
+                    "onPageChange": "{{getUsers.run()}}",
+                    "tableData": "{{getUsers.data}}",
+                    "isVisible": true,
+                    "label": "Data",
+                    "searchKey": "",
+                    "type": "TABLE_WIDGET",
+                    "dynamicBindings": {
+                      "tableData": true,
+                      "selectedRow": true,
+                      "filteredTableData": true
+                    },
+                    "parentId": "0",
+                    "serverSidePaginationEnabled": true,
+                    "isLoading": false,
+                    "onSearchTextChanged": "{{getUsers.run()}}",
+                    "parentColumnSpace": 74,
+                    "leftColumn": 0,
+                    "dynamicTriggers": {
+                      "onSearchTextChanged": true,
+                      "onPageChange": true
+                    },
+                    "columnActions": [
+                      {
+                        "actionPayloads": [],
+                        "label": "Edit",
+                        "id": "inz6ivtcdt",
+                        "dynamicTrigger": "{{showModal('Modal1')}}"
+                      }
+                    ],
+                    "columnSizeMap": {
+                      "address": 238,
+                      "id": 91,
+                      "email": 236
+                    }
+                  },
+                  {
+                    "backgroundColor": "#FFFFFF",
+                    "widgetName": "Container1",
+                    "rightColumn": 16,
+                    "widgetId": "znedt4bss1",
+                    "containerStyle": "card",
+                    "topRow": 2,
+                    "bottomRow": 12,
+                    "parentRowSpace": 40,
+                    "isVisible": true,
+                    "type": "CONTAINER_WIDGET",
+                    "parentId": "0",
+                    "blueprint": {
+                      "view": [
+                        {
+                          "position": {
+                            "top": 0,
+                            "left": 0
+                          },
+                          "type": "CANVAS_WIDGET",
+                          "props": {
+                            "detachFromLayout": true,
+                            "children": [
+                              "2rv46ko5nr",
+                              "6jz7n81a0w",
+                              "pu5tfgbgs8",
+                              "1dqi8yqken",
+                              "rhjs3oqi4x",
+                              "12b8ga1jyb",
+                              "fow2t5em1j",
+                              "95hllivp93",
+                              "mme1t8c9py"
+                            ],
+                            "containerStyle": "none",
+                            "canExtend": false
+                          }
+                        }
+                      ]
+                    },
+                    "isLoading": false,
+                    "parentColumnSpace": 74,
+                    "leftColumn": 10,
+                    "children": [
+                      {
+                        "widgetName": "Canvas2",
+                        "rightColumn": 592,
+                        "detachFromLayout": true,
+                        "widgetId": "lz32lxsbsd",
+                        "containerStyle": "none",
+                        "topRow": 0,
+                        "bottomRow": 400,
+                        "parentRowSpace": 1,
+                        "isVisible": true,
+                        "canExtend": false,
+                        "type": "CANVAS_WIDGET",
+                        "parentId": "znedt4bss1",
+                        "minHeight": 400,
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "leftColumn": 0,
+                        "children": [
+                          {
+                            "image": "{{usersTable.selectedRow.avatar}}",
+                            "widgetName": "Image1",
+                            "rightColumn": 6,
+                            "widgetId": "2rv46ko5nr",
+                            "topRow": 0,
+                            "bottomRow": 3,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "IMAGE_WIDGET",
+                            "dynamicBindings": {
+                              "image": true,
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "imageShape": "RECTANGLE",
+                            "leftColumn": 0,
+                            "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            }
+                          },
+                          {
+                            "widgetName": "Text7",
+                            "rightColumn": 13,
+                            "textAlign": "LEFT",
+                            "widgetId": "6jz7n81a0w",
+                            "topRow": 0,
+                            "bottomRow": 1,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "value": true,
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 7,
+                            "text": "{{usersTable.selectedRow.name}}",
+                            "textStyle": "LABEL",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            }
+                          },
+                          {
+                            "widgetName": "Text8",
+                            "rightColumn": 16,
+                            "textAlign": "LEFT",
+                            "widgetId": "pu5tfgbgs8",
+                            "topRow": 1,
+                            "bottomRow": 2,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "value": true,
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 7,
+                            "text": "{{usersTable.selectedRow.email}}",
+                            "textStyle": "LABEL",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            }
+                          },
+                          {
+                            "widgetName": "Text9",
+                            "rightColumn": 16,
+                            "textAlign": "LEFT",
+                            "widgetId": "1dqi8yqken",
+                            "topRow": 2,
+                            "bottomRow": 3,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "value": true,
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 7,
+                            "text": "{{usersTable.selectedRow.address}}",
+                            "textStyle": "LABEL",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            }
+                          },
+                          {
+                            "widgetName": "Text11",
+                            "rightColumn": 16,
+                            "textAlign": "CENTER",
+                            "widgetId": "rhjs3oqi4x",
+                            "topRow": 6,
+                            "bottomRow": 7,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "value": true,
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 0,
+                            "text": "<h3> Status: {{usersTable.selectedRow.status === \"APPROVED\" ? \"Approved ✅\" : \nusersTable.selectedRow.status === \"REJECTED\" ? \"Rejected ❌\" : \"Pending ⌛\"}}</h3>",
+                            "textStyle": "HEADING",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            }
+                          },
+                          {
+                            "widgetName": "Text12",
+                            "rightColumn": 11,
+                            "textAlign": "LEFT",
+                            "widgetId": "12b8ga1jyb",
+                            "topRow": 3,
+                            "bottomRow": 4,
+                            "parentRowSpace": 40,
+                            "isVisible": true,
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "text": true,
+                              "value": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 7,
+                            "text": "{{ (usersTable.selectedRow.gender === \"Male\" ? \"♂️\" : \"♀️\") + usersTable.selectedRow.gender}}",
+                            "textStyle": "LABEL"
+                          },
+                          {
+                            "widgetName": "Button3",
+                            "rightColumn": 16,
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "fow2t5em1j",
+                            "buttonStyle": "PRIMARY_BUTTON",
+                            "topRow": 8,
+                            "bottomRow": 9,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "BUTTON_WIDGET",
+                            "dynamicBindings": {
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 11,
+                            "text": "Approve",
+                            "isDisabled": false,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "onClick": "{{approve_user.run(() => getUsers.run(), () => {})}}",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            }
+                          },
+                          {
+                            "widgetName": "Button4",
+                            "rightColumn": 16,
+                            "onClick": "{{showModal('Modal1')}}",
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "95hllivp93",
+                            "buttonStyle": "PRIMARY_BUTTON",
+                            "topRow": 0,
+                            "bottomRow": 1,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "BUTTON_WIDGET",
+                            "dynamicBindings": {
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 13,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "text": "Edit",
+                            "isDisabled": false,
+                            "dynamicProperties": {
+                              "isVisible": true
+                            }
+                          },
+                          {
+                            "widgetName": "Button5",
+                            "rightColumn": 10,
+                            "isDefaultClickDisabled": true,
+                            "widgetId": "4z16xr3mlu",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "buttonStyle": "SECONDARY_BUTTON",
+                            "topRow": 8,
+                            "bottomRow": 9,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow !== undefined}}",
+                            "type": "BUTTON_WIDGET",
+                            "dynamicBindings": {
+                              "isVisible": true
+                            },
+                            "parentId": "lz32lxsbsd",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "leftColumn": 5,
+                            "text": "❌Reject",
+                            "isDisabled": false,
+                            "dynamicTriggers": {
+                              "onClick": true
+                            },
+                            "onClick": "{{reject_user.run(() => getUsers.run(), () => {})}}"
+                          },
+                          {
+                            "widgetName": "Text10",
+                            "rightColumn": 16,
+                            "textAlign": "CENTER",
+                            "widgetId": "rz1jcja6o2",
+                            "dynamicProperties": {
+                              "isVisible": true
+                            },
+                            "topRow": 4,
+                            "bottomRow": 5,
+                            "parentRowSpace": 40,
+                            "isVisible": "{{usersTable.selectedRow === undefined}}",
+                            "type": "TEXT_WIDGET",
+                            "dynamicBindings": {
+                              "isVisible": true,
+                              "value": true
+                            },
+                            "parentId": "0",
+                            "isLoading": false,
+                            "parentColumnSpace": 74,
+                            "leftColumn": 0,
+                            "text": "<h2>👈🏿 Select a user</h2>",
+                            "textStyle": "HEADING"
+                          },
+                          {
+                            "isVisible": true,
+                            "text": "{{ (usersTable.selectedRow.role === \"Admin\" ? \"👮\" : usersTable.selectedRow.role === \"Editor\" ? \"🖋️\" : \"🔍\") + usersTable.selectedRow.role}}",
+                            "textStyle": "LABEL",
+                            "textAlign": "LEFT",
+                            "widgetName": "Text14",
+                            "type": "TEXT_WIDGET",
+                            "isLoading": false,
+                            "parentColumnSpace": 25.25,
+                            "parentRowSpace": 40,
+                            "leftColumn": 12,
+                            "rightColumn": 16,
+                            "topRow": 3,
+                            "bottomRow": 4,
+                            "parentId": "lz32lxsbsd",
+                            "widgetId": "op0ououevb",
+                            "dynamicBindings": {
+                              "text": true,
+                              "value": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "isVisible": true,
+                    "shouldScrollContents": false,
+                    "widgetName": "Tabs1",
+                    "tabs": [
+                      {
+                        "label": "Tab 1",
+                        "id": "tab1"
+                      },
+                      {
+                        "label": "Tab 2",
+                        "id": "tab2"
+                      }
+                    ],
+                    "selectedTab": "Tab 1",
+                    "blueprint": {
+                      "view": [
+                        {
+                          "type": "CANVAS_WIDGET",
+                          "position": {
+                            "top": 0,
+                            "left": 0
+                          },
+                          "size": {
+                            "rows": 6,
+                            "cols": 16
+                          },
+                          "props": {
+                            "containerStyle": "none",
+                            "canExtend": false,
+                            "detachFromLayout": true,
+                            "children": [],
+                            "tabId": "tab1"
+                          }
+                        },
+                        {
+                          "type": "CANVAS_WIDGET",
+                          "position": {
+                            "top": 0,
+                            "left": 0
+                          },
+                          "size": {
+                            "rows": 6,
+                            "cols": 16
+                          },
+                          "props": {
+                            "containerStyle": "none",
+                            "canExtend": false,
+                            "detachFromLayout": true,
+                            "children": [
+                              "lkn2q6gati"
+                            ],
+                            "tabId": "tab2"
+                          }
+                        }
+                      ]
+                    },
+                    "type": "TABS_WIDGET",
+                    "isLoading": false,
+                    "parentColumnSpace": 74,
+                    "parentRowSpace": 40,
+                    "leftColumn": 0,
+                    "rightColumn": 9,
+                    "topRow": 20,
+                    "bottomRow": 37,
+                    "parentId": "0",
+                    "widgetId": "2kmt5gdvho",
+                    "children": [
+                      {
+                        "isVisible": true,
+                        "widgetName": "Canvas3",
+                        "containerStyle": "none",
+                        "canExtend": false,
+                        "detachFromLayout": true,
+                        "children": [],
+                        "tabId": "tab1",
+                        "minHeight": 280,
+                        "type": "CANVAS_WIDGET",
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "parentRowSpace": 1,
+                        "leftColumn": 0,
+                        "rightColumn": 592,
+                        "topRow": 0,
+                        "bottomRow": 280,
+                        "parentId": "2kmt5gdvho",
+                        "widgetId": "eo5744d1ac"
+                      },
+                      {
+                        "isVisible": true,
+                        "widgetName": "Canvas4",
+                        "containerStyle": "none",
+                        "canExtend": false,
+                        "detachFromLayout": true,
+                        "children": [
+                          {
+                            "isVisible": true,
+                            "label": "",
+                            "options": [
+                              {
+                                "id": "1",
+                                "label": "Male",
+                                "value": "M"
+                              },
+                              {
+                                "id": "2",
+                                "label": "Female",
+                                "value": "F"
+                              }
+                            ],
+                            "defaultOptionValue": "M",
+                            "widgetName": "RadioGroup1",
+                            "type": "RADIO_GROUP_WIDGET",
+                            "isLoading": false,
+                            "parentColumnSpace": 39.125,
+                            "parentRowSpace": 40,
+                            "leftColumn": 6,
+                            "rightColumn": 9,
+                            "topRow": 1,
+                            "bottomRow": 3,
+                            "parentId": "tc29qir6tk",
+                            "widgetId": "lkn2q6gati"
+                          }
+                        ],
+                        "tabId": "tab2",
+                        "minHeight": 280,
+                        "type": "CANVAS_WIDGET",
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "parentRowSpace": 1,
+                        "leftColumn": 0,
+                        "rightColumn": 592,
+                        "topRow": 0,
+                        "bottomRow": 280,
+                        "parentId": "2kmt5gdvho",
+                        "widgetId": "tc29qir6tk"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "layoutOnLoadActions": [
+                [
+                  {
+                    "name": "getUsers",
+                    "pluginType": "DB",
+                    "jsonPathKeys": [
+                      "usersTable.searchText",
+                      "(usersTable.pageNo - 1) * 10"
+                    ],
+                    "timeoutInMillisecond": 10000
+                  }
+                ]
+              ],
+              "publishedLayoutOnLoadActions": [
+                [
+                  {
+                    "name": "getUsers",
+                    "pluginType": "DB",
+                    "jsonPathKeys": [
+                      "usersTable.searchText",
+                      "(usersTable.pageNo - 1) * 10"
+                    ],
+                    "timeoutInMillisecond": 10000
+                  }
+                ]
+              ],
+              "widgetNames": [
+                "Text9",
+                "Button1",
+                "Text8",
+                "Text7",
+                "Text6",
+                "Text5",
+                "Text4",
+                "Text3",
+                "userAddressDropdown",
+                "Text2",
+                "Container1",
+                "Text1",
+                "Icon1",
+                "usersTable",
+                "userNameInput",
+                "userEmailInput",
+                "userRoleDropdown",
+                "Image1",
+                "Text14",
+                "MainContainer",
+                "Text12",
+                "Text13",
+                "Text10",
+                "Text11",
+                "Modal1",
+                "Canvas1",
+                "Canvas2",
+                "Button5",
+                "Button4",
+                "Button3",
+                "Button2",
+                "Dropdown1"
+              ],
+              "deleted": false,
+              "policies": []
+            }
+          ],
+          "deleted": false,
+          "policies": [],
+          "_class": "com.appsmith.server.domains.Page"
+        }
+      ],
+      "deleted": false,
+      "policies": [],
+      "_class": "com.appsmith.server.domains.Application"
+    }
+  ]
+}
