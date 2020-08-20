@@ -397,7 +397,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
           searchKey={this.props.searchText}
-          renderMode={this.props.renderMode}
+          editMode={this.props.renderMode === RenderModes.CANVAS}
           hiddenColumns={hiddenColumns}
           columnActions={this.props.columnActions}
           columnNameMap={this.props.columnNameMap}

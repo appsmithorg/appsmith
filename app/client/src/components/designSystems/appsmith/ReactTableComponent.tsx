@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
 import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import {
@@ -37,7 +36,7 @@ interface ReactTableComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isLoading: boolean;
-  renderMode: RenderMode;
+  editMode: boolean;
   width: number;
   height: number;
   pageSize: number;
@@ -282,7 +281,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       hiddenColumns={props.hiddenColumns}
       updateHiddenColumns={props.updateHiddenColumns}
       data={props.tableData}
-      displayColumnActions={props.renderMode === RenderModes.CANVAS}
+      editMode={props.editMode}
       columnNameMap={props.columnNameMap}
       getColumnMenu={getColumnMenu}
       handleColumnNameUpdate={handleColumnNameUpdate}

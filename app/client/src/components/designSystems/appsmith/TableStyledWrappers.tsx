@@ -331,6 +331,7 @@ export const TableIconWrapper = styled.div<{
   justify-content: center;
   opacity: ${props => (props.disabled ? 0.6 : 1)};
   cursor: ${props => !props.disabled && "pointer"};
+  position: relative;
   &:hover {
     background: ${Colors.ATHENS_GRAY};
   }
