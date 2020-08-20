@@ -53,7 +53,7 @@ type ReduxStateProps = {
   responses: any;
   isCreating: boolean;
   pluginImages: Record<string, string>;
-  editorConfig: [];
+  editorConfig: any;
   loadingFormConfigs: boolean;
   isEditorInitialized: boolean;
 };
@@ -157,9 +157,25 @@ class QueryEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
+
   const { editorConfigs, loadingFormConfigs } = plugins;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
   const queryAction = getAction(state, props.match.params.queryId);
+
+  let editorConfig: any = [];
+  if (
+    queryAction &&
+    queryAction.pluginId &&
+    editorConfigs[queryAction.pluginId]
+  ) {
+    editorConfig = editorConfigs[queryAction.pluginId];
+  } else if (
+    queryAction &&
+    queryAction.datasource.pluginId &&
+    editorConfigs[queryAction.datasource.pluginId]
+  ) {
+    editorConfig = editorConfigs[queryAction.datasource.pluginId];
+  }
 
   return {
     pluginImages: getPluginImages(state),
@@ -170,9 +186,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     responses: getActionResponses(state),
     queryPane: state.ui.queryPane,
     formData,
-    editorConfig: queryAction?.pluginId
-      ? editorConfigs[queryAction.pluginId]
-      : [],
+    editorConfig,
     loadingFormConfigs,
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
