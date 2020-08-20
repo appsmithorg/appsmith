@@ -86,11 +86,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       defaultSearchText: VALIDATION_TYPES.TEXT,
     };
   }
-  static getDerivedPropertiesMap() {
-    return {
-      selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
-    };
-  }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
@@ -98,6 +93,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: undefined,
       selectedRowIndex: -1,
       searchText: undefined,
+      selectedRow: undefined,
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
     };
@@ -264,7 +260,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   filterTableData = () => {
     const { searchText, sortedColumn, filters, tableData } = this.props;
     const columns = this.getTableColumns(tableData);
-
     if (!tableData || !tableData.length) {
       return [];
     }
@@ -313,8 +308,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return filteredTableData;
   };
 
+  getSelectedRow = (filteredTableData: object[]) => {
+    const { selectedRowIndex } = this.props;
+    if (selectedRowIndex === undefined || selectedRowIndex === -1) {
+      const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
+      const selectedRow: { [key: string]: any } = {};
+      for (let i = 0; i < columnKeys.length; i++) {
+        selectedRow[columnKeys[i]] = undefined;
+      }
+      return selectedRow;
+    }
+    return filteredTableData[selectedRowIndex];
+  };
+
   componentDidMount() {
-    super.updateWidgetMetaProperty("filteredTableData", this.filterTableData());
+    const filteredTableData = this.filterTableData();
+    super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+    super.updateWidgetMetaProperty(
+      "selectedRow",
+      this.getSelectedRow(filteredTableData),
+    );
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
     if (
@@ -326,9 +339,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       JSON.stringify(this.props.sortedColumn) !==
         JSON.stringify(prevProps.sortedColumn)
     ) {
+      const filteredTableData = this.filterTableData();
+      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
       super.updateWidgetMetaProperty(
-        "filteredTableData",
-        this.filterTableData(),
+        "selectedRow",
+        this.getSelectedRow(filteredTableData),
       );
     }
   }
@@ -488,6 +503,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleRowClick = (rowData: object, index: number) => {
     const { onRowSelected } = this.props;
     super.updateWidgetMetaProperty("selectedRowIndex", index);
+    super.updateWidgetMetaProperty(
+      "selectedRow",
+      this.props.filteredTableData[index],
+    );
     if (onRowSelected) {
       super.executeAction({
         dynamicString: onRowSelected,
