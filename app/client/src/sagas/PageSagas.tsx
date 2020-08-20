@@ -66,6 +66,7 @@ import {
 import { fetchActionsForPage } from "actions/actionActions";
 import { clearCaches } from "utils/DynamicBindingUtils";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { getQueryParams } from "utils/AppsmithUtils";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -451,18 +452,6 @@ export function* updateCanvasWithDSL(
   };
   yield put(updateCanvas(canvasWidgetsPayload));
   yield put(fetchActionsForPage(pageId));
-}
-
-function getQueryParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const keys = urlParams.keys();
-  let key = keys.next().value;
-  const queryParams: Record<string, string> = {};
-  while (key) {
-    queryParams[key] = urlParams.get(key) as string;
-    key = keys.next().value;
-  }
-  return queryParams;
 }
 
 export function* setDataUrl() {

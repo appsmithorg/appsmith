@@ -40,7 +40,13 @@ const LightningMenu = lazy(() =>
   import("components/editorComponents/LightningMenu"),
 );
 
-const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape"];
+const AUTOCOMPLETE_CLOSE_KEY_CODES = [
+  "Enter",
+  "Tab",
+  "Escape",
+  "Backspace",
+  "Comma",
+];
 
 interface ReduxStateProps {
   dynamicData: DataTree;

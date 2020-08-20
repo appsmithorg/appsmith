@@ -42,5 +42,8 @@
   "requestBody": "(//div[contains(@class,'bp3-collapse-body')]//textarea)[1]",
   "showrequest": "span:contains('Show Request')",
   "Responsetab": "//li[text()='Response Body']",
-  "deleteAPI": ".t--apiFormDeleteBtn"
+  "deleteAPI": ".t--apiFormDeleteBtn",
+  "editName": ".single-select >div:contains('Edit Name')",
+  "page": ".single-select >div",
+  "propertyList": ".t--entity-property"
 }

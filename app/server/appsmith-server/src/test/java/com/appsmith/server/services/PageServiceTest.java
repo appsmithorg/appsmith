@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Page;
@@ -17,7 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -173,6 +171,44 @@ public class PageServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void clonePage() throws ParseException {
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Page testPage = new Page();
+        testPage.setName("PageServiceTest CloneTest Source");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+
+        Mono<Page> pageMono = applicationPageService.createPage(testPage)
+                .flatMap(page -> applicationPageService.clonePage(page.getId()));
+
+        Object parsedJson = new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);
+        StepVerifier
+                .create(pageMono)
+                .assertNext(page -> {
+                    assertThat(page).isNotNull();
+                    assertThat(page.getId()).isNotNull();
+                    assertThat("PageServiceTest CloneTest Source Copy".equals(page.getName()));
+
+                    assertThat(page.getPolicies()).isNotEmpty();
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                    assertThat(page.getLayouts()).isNotEmpty();
+                    assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
+                    assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
+                    assertThat(page.getLayouts().get(0).getPublishedDsl()).isNullOrEmpty();
+                })
+                .verifyComplete();
+    }
+
 
     @After
     public void purgeAllPages() {

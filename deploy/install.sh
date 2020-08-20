@@ -1,19 +1,21 @@
 #!/bin/bash
+
 set -o errexit
 
 is_command_present() {
   type "$1" >/dev/null 2>&1
 }
 
-# This function checks if the relevant ports required by appsmith are available or not
-# The script should error out incase they aren't available
+# This function checks if the relevant ports required by Appsmith are available or not
+# The script should error out in case they aren't available
 check_ports_occupied() {
-    ports_occupied=0
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        ports_occupied=`sudo netstat -anp tcp | grep -e "*.80" -e "*.443" | grep LISTEN | wc -l | cut -d " " -f 8`
-    else
-        ports_occupied=`sudo netstat -tupln tcp | grep -e "*.80" -e "*.443" | grep LISTEN | wc -l | cut -d " " -f 8`
-    fi
+    ports_occupied="$(
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sudo netstat -anp tcp
+        else
+            sudo netstat -tupln tcp
+        fi | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/' | wc -l | bc
+    )"
 }
 
 install_docker() {
@@ -46,21 +48,21 @@ install_docker_compose() {
             sudo chmod +x /usr/local/bin/docker-compose
             sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
             echo "docker-compose installed!"
+            echo ""
         fi
     else
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
         echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
         echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
-        echo -e "Exiting for now. Bye! \U1F44B"
         echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        exit
+        bye
     fi
 }
 
 start_docker() {
-    if [ `systemctl is-active docker.service` == "inactive" ];then
-        echo "Starting docker"
-        `systemctl start docker.service`
+    if ! sudo systemctl is-active docker.service > /dev/null; then
+        echo "Starting docker service"
+        sudo systemctl start docker.service
     fi
 }
 
@@ -92,26 +94,23 @@ check_os() {
 }
 
 overwrite_file() {
-    file_location=$1
-    template_file=$2
+    local relative_path="$1"
+    local template_file="$2"
+    local full_path="$install_dir/$relative_path"
 
-    if [ -f $install_dir/$file_location ]
-    then
-        read -p "File $file_location already exists. Would you like to replace it? [Y]: " value
+    if [[ -f $full_path ]]; then
+        read -p "File $relative_path already exists. Would you like to replace it? [Y]: " value
         value=${value:-Y}
 
-        if [ $value == "Y" -o $value == "y" -o $value == "yes" -o $value == "Yes" ]
-        then
-            mv -f  $template_file $install_dir/$file_location
-            echo "File $install_dir/$file_location replaced successfuly!"
-        else
-            echo "You chose not to replace existing file: $install_dir/$file_location"
-	        rm -rf $template_file
-	        echo "File $template_file removed from source directory."
+        if ! [[ $value == "Y" || $value == "y" || $value == "yes" || $value == "Yes" ]]; then
+            echo "You chose not to replace existing file: '$full_path'."
+            rm -f "$template_file"
+            echo "File $template_file removed from source directory."
             echo ""
         fi
     else
-        mv -f $template_file $install_dir/$file_location
+        mv -f "$template_file" "$full_path"
+        echo "File $full_path moved successfully!"
     fi
 }
 
@@ -141,26 +140,25 @@ read_mongo_username() {
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         read -p 'Set the mongo root user: ' mongo_root_user
-    done 
+    done
 }
 
 wait_for_containers_start() {
-    timeout=$1
-    i=1
-    echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
-    # The do-while loop is important because for-loops don't work for dynamic values
-    while [[ $i -le $timeout ]]
-    do
-        status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/v1)
-        # echo $status_code
+    local timeout=$1
+
+    # The while loop is important because for-loops don't work for dynamic values
+    while [[ $timeout -gt 0 ]]; do
+        status_code="$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/v1 || true)"
         if [[ status_code -eq 401 ]]; then
             break
         else
-            echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
+            echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds...\r\c"
         fi
-        ((i = i + 1))
+        ((timeout--))
         sleep 1
     done
+
+    echo ""
 }
 
 urlencode() {
@@ -180,21 +178,35 @@ urlencode() {
     LC_COLLATE=$old_lc_collate
 }
 
+bye() {  # Prints a friendly good bye message and exits the script.
+    echo ""
+    echo -e "Exiting for now. Bye! \U1F44B"
+    exit
+}
+
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
 echo ""
 
 
-# Checking OS and assiging package manager
+# Checking OS and assigning package manager
 desired_os=0
 echo -e "\U1F575  Detecting your OS"
 check_os
-echo ""
 
 if [[ $desired_os -eq 0 ]];then
+    echo ""
     echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
     echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
-    echo -e "Exiting for now. Bye! \U1F44B"
-    exit
+    bye
+else
+    echo "You're on an OS that is supported by this installation script."
+    echo ""
+fi
+
+if [[ "$OSTYPE" == "darwin"* && "$EUID" -eq 0 ]]; then
+    echo "Please do not run this script with root permissions on macOS."
+    echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
+    bye
 fi
 
 check_ports_occupied
@@ -204,8 +216,7 @@ if [[ $ports_occupied -ne 0 ]]; then
     echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
-    echo -e "Exiting for now. Bye! \U1F44B"
-    exit
+    bye
 fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
@@ -228,16 +239,16 @@ if ! is_command_present docker-compose; then
 fi
 
 # Starting docker service
-if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
+if [[ $package_manager == "yum" || $package_manager == "apt-get" ]]; then
     start_docker
 fi
 
 read -p 'Installation Directory [appsmith]: ' install_dir
-install_dir=${install_dir:-appsmith}
-mkdir -p $PWD/$install_dir
-install_dir=$PWD/$install_dir
+install_dir="${install_dir:-appsmith}"
+mkdir -p "$PWD/$install_dir"
+install_dir="$PWD/$install_dir"
 read -p 'Is this a fresh installation? [Y/n]' fresh_install
-fresh_install=${fresh_install:-Y}
+fresh_install="${fresh_install:-Y}"
 echo ""
 
 if [ $fresh_install == "N" -o $fresh_install == "n" -o $fresh_install == "no" -o $fresh_install == "No" ];then
@@ -336,15 +347,16 @@ if [[ -z $custom_domain ]]; then
 fi
 
 echo ""
-echo "Downloading the configuration templates ..."
+echo "Downloading the configuration templates..."
 mkdir -p template
 ( cd template
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
-curl -O --silent https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
+curl --remote-name-all --silent --show-error \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
+    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
 # Role - Folder
@@ -365,18 +377,18 @@ if [[ "$setup_encryption" = "true" ]];then
 fi
 chmod 0755 init-letsencrypt.sh
 
-overwrite_file "/data/nginx/app.conf.template" "nginx_app.conf"
-overwrite_file "/docker-compose.yml" "docker-compose.yml"
-overwrite_file "/data/mongo/init.js" "mongo-init.js"
-overwrite_file "/init-letsencrypt.sh" "init-letsencrypt.sh"
-overwrite_file "/docker.env" "docker.env"
-overwrite_file "/encryption.env" "encryption.env"
+overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
+overwrite_file "docker-compose.yml" "docker-compose.yml"
+overwrite_file "data/mongo/init.js" "mongo-init.js"
+overwrite_file "init-letsencrypt.sh" "init-letsencrypt.sh"
+overwrite_file "docker.env" "docker.env"
+overwrite_file "encryption.env" "encryption.env"
 
 echo ""
 
-cd $install_dir
-if [[ ! -z $custom_domain ]]; then
-    echo "Running init-letsencrypt.sh...."
+cd "$install_dir"
+if [[ -n $custom_domain ]]; then
+    echo "Running init-letsencrypt.sh..."
     sudo ./init-letsencrypt.sh
 else
     echo "No domain found. Skipping generation of SSL certificate."
@@ -387,11 +399,10 @@ echo "Pulling the latest container images"
 sudo docker-compose pull
 echo ""
 echo "Starting the Appsmith containers"
-sudo docker-compose -f docker-compose.yml up -d --remove-orphans
+# The docker-compose command does some nasty stuff for the `--detach` functionality. So we add a `|| true` so that the
+# script doesn't exit because this command looks like it failed to do it's thing.
+sudo docker-compose up --detach --remove-orphans || true
 
-# These echo statements are important for some reason. The script doesn't run successfully without them.
-echo ""
-echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds ...\r\c"
 wait_for_containers_start 60
 echo ""
 
@@ -399,18 +410,21 @@ if [[ $status_code -ne 401 ]]; then
     echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
-    echo "cd $install_dir && sudo docker-compose ps -a"
+    echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
-else 
-    echo ""
+else
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
     echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
     echo ""
-    echo "cd $install_dir && sudo docker-compose ps -a"
+    echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
     echo ""
-    echo "Your application is running on http://localhost"
+    if [[ -z $custom_domain ]]; then
+        echo "Your application is running on 'http://localhost'."
+    else
+        echo "Your application is running on 'https://$custom_domain'."
+    fi
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Need help troubleshooting?"
@@ -418,4 +432,4 @@ else
 fi
 
 echo ""
-echo -e "Peace out \U1F596"
+echo -e "Peace out \U1F596\n"
