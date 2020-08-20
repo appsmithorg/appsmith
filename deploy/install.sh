@@ -190,6 +190,26 @@ urlencode() {
     LC_COLLATE=$old_lc_collate
 }
 
+confirm() {
+    local default="$1"  # Should be `y` or `n`.
+    local prompt="$2"
+
+    local options="y/N"
+    if [[ $default == y || $default == Y ]]; then
+        options="Y/n"
+    fi
+
+    local answer
+    read -n1 -rp "$prompt [$options] " answer
+    if [[ -z $answer ]]; then
+        answer="$default"
+    else
+        echo
+    fi
+
+    [[ yY =~ $answer ]]
+}
+
 bye() {  # Prints a friendly good bye message and exits the script.
     echo ""
     echo -e "Exiting for now. Bye! \U1F44B"
@@ -252,11 +272,12 @@ install_dir="${install_dir:-appsmith}"
 install_dir="$PWD/$install_dir"
 
 if [[ -e "$install_dir" ]]; then
-    read -n1 -rp "The path '$install_dir' is already present. Shall I delete it so we can install afresh? [N/y] " answer
-    echo
-    if [[ $answer == y || $answer == Y ]]; then
+    if confirm n "The path '$install_dir' is already present. Shall I delete it so we can install afresh?"; then
         rm -rf "$install_dir"
         echo "Removed '$install_dir'."
+    else
+        echo "Exiting. Please start installation with a different directory."
+        exit
     fi
 fi
 
