@@ -29,6 +29,7 @@ type INJECTED_CONFIGS = {
     releaseDate: string;
   };
   intercomAppID: string;
+  mailEnabled: boolean;
 };
 declare global {
   interface Window {
@@ -90,6 +91,9 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       releaseDate: process.env.REACT_APP_VERSION_RELEASE_DATE || "",
     },
     intercomAppID: process.env.REACT_APP_INTERCOM_APP_ID || "",
+    mailEnabled: process.env.REACT_APP_MAIL_ENABLED
+      ? process.env.REACT_APP_MAIL_ENABLED.length > 0
+      : false,
   };
 };
 
@@ -206,5 +210,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     appVersion: ENV_CONFIG.appVersion || APPSMITH_FEATURE_CONFIGS.appVersion,
     intercomAppID:
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
+    mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
   };
 };

@@ -57,6 +57,7 @@ import history from "utils/history";
 import {
   API_EDITOR_URL,
   QUERIES_EDITOR_URL,
+  QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
 } from "constants/routes";
 import { changeApi } from "actions/apiPaneActions";
@@ -293,9 +294,26 @@ function* moveActionSaga(
     yield put(moveActionSuccess(response.data));
     const applicationId = yield select(getCurrentApplicationId);
 
-    history.push(
-      API_EDITOR_ID_URL(applicationId, response.data.pageId, response.data.id),
-    );
+    const isApi = actionObject.pluginType === PLUGIN_TYPE_API;
+    const isQuery = actionObject.pluginType === QUERY_CONSTANT;
+
+    if (isQuery) {
+      history.push(
+        QUERIES_EDITOR_ID_URL(
+          applicationId,
+          response.data.pageId,
+          response.data.id,
+        ),
+      );
+    } else if (isApi) {
+      history.push(
+        API_EDITOR_ID_URL(
+          applicationId,
+          response.data.pageId,
+          response.data.id,
+        ),
+      );
+    }
   } catch (e) {
     AppToaster.show({
       message: `Error while moving action ${actionObject.name}`,

@@ -111,6 +111,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           )
           .filter((i: number) => i > -1)
       : [];
+    const { componentWidth, componentHeight } = this.getComponentDimensions();
     return (
       <DropDownComponent
         onOptionSelected={this.onOptionSelected}
@@ -118,6 +119,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         placeholder={this.props.placeholderText}
         options={options}
+        height={componentHeight}
+        width={componentWidth}
         selectionType={this.props.selectionType}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         selectedIndexArr={computedSelectedIndexArr}

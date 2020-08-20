@@ -34,6 +34,7 @@ const PageNumberInputWrapper = styled(NumericInput)`
     height: 24px;
     padding: 0 !important;
     text-align: center;
+    font-size: 12px;
   }
   margin: 0 8px;
 `;

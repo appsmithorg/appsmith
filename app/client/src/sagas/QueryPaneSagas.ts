@@ -1,6 +1,7 @@
-import { all, select, put, takeEvery } from "redux-saga/effects";
+import { all, select, put, take, takeEvery } from "redux-saga/effects";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
@@ -17,7 +18,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { initialize } from "redux-form";
+import { change, initialize } from "redux-form";
 import {
   getAction,
   getPluginEditorConfigs,
@@ -26,6 +27,8 @@ import {
 import { RestAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
+import { getQueryParams } from "utils/AppsmithUtils";
+import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -98,16 +101,56 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     const pageId = yield select(getCurrentPageId);
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
-        new: "true",
+        editName: "true",
+        showTemplate: "true",
       }),
     );
   }
+}
+function* handleNameChangeSaga(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
+  yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.name));
+}
+
+function* handleNameChangeSuccessSaga(
+  action: ReduxAction<{ actionId: string }>,
+) {
+  const { actionId } = action.payload;
+  const actionObj = yield select(getAction, actionId);
+  yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
+  if (actionObj.pluginType === QUERY_CONSTANT) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.replace(
+      QUERIES_EDITOR_ID_URL(applicationId, pageId, actionId, params),
+    );
+  }
+}
+
+function* handleNameChangeFailureSaga(
+  action: ReduxAction<{ oldName: string }>,
+) {
+  yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.oldName));
 }
 
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
     takeEvery(ReduxActionTypes.QUERY_PANE_CHANGE, changeQuerySaga),
+    takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleNameChangeSaga),
+    takeEvery(
+      ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,
+      handleNameChangeSuccessSaga,
+    ),
+    takeEvery(
+      ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
+      handleNameChangeFailureSaga,
+    ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
