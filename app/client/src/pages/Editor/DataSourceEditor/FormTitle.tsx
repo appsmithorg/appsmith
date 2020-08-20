@@ -1,6 +1,5 @@
 import styled from "styled-components";
-import React from "react";
-import { WrappedFieldInputProps } from "redux-form";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import EditableText, {
   EditInteractionKind,
@@ -8,33 +7,47 @@ import EditableText, {
 
 import { AppState } from "reducers";
 import { getDatasource } from "selectors/entitiesSelector";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "api/DatasourcesApi";
 import { getDataSources } from "selectors/editorSelectors";
+import { saveDatasourceName } from "actions/datasourceActions";
+import { Spinner } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   margin-left: 10px;
   font-size: 18px;
   font-weight: 500;
   line-height: 24px;
+  display: flex;
 `;
 
 interface ComponentProps {
-  input: WrappedFieldInputProps;
   focusOnMount: boolean;
 }
 
 type FormTitleProps = ComponentProps;
 
 const FormTitle = (props: FormTitleProps) => {
-  const { input } = props;
   const params = useParams<{ datasourceId: string }>();
   const currentDatasource:
-    | Partial<Datasource>
+    | Datasource
     | undefined = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
   const datasources: Datasource[] = useSelector(getDataSources);
+  const [forceUpdate, setForceUpdate] = useState(false);
+  const dispatch = useDispatch();
+  const saveStatus: {
+    isSaving: boolean;
+    error: boolean;
+  } = useSelector((state: AppState) => {
+    const id = currentDatasource ? currentDatasource.id : "";
+
+    return {
+      isSaving: state.ui.datasourceName.isSaving[id],
+      error: state.ui.datasourceName.errors[id],
+    };
+  });
 
   const hasNameConflict = React.useCallback(
     (name: string) =>
@@ -57,17 +70,41 @@ const FormTitle = (props: FormTitleProps) => {
     [hasNameConflict],
   );
 
+  const handleDatasourceNameChange = useCallback(
+    (name: string) => {
+      if (
+        !isInvalidDatasourceName(name) &&
+        currentDatasource &&
+        currentDatasource.name !== name
+      ) {
+        dispatch(saveDatasourceName({ id: currentDatasource?.id ?? "", name }));
+      }
+    },
+    [dispatch, isInvalidDatasourceName, currentDatasource],
+  );
+
+  useEffect(() => {
+    if (saveStatus.isSaving === false && saveStatus.error === true) {
+      setForceUpdate(true);
+    } else if (saveStatus.isSaving === true) {
+      setForceUpdate(false);
+    }
+  }, [saveStatus.isSaving, saveStatus.error]);
+
   return (
     <Wrapper>
       <EditableText
         type="text"
-        defaultValue={input.value}
+        forceDefault={forceUpdate}
+        defaultValue={currentDatasource ? currentDatasource.name : ""}
         isInvalid={isInvalidDatasourceName}
-        onTextChanged={value => input.onChange(value)}
+        onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         editInteractionKind={EditInteractionKind.SINGLE}
         isEditingDefault={props.focusOnMount}
+        updating={saveStatus.isSaving}
       />
+      {saveStatus.isSaving && <Spinner size={16} />}
     </Wrapper>
   );
 };
