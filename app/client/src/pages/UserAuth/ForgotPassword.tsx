@@ -77,6 +77,13 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
           message={
             "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
           }
+          actions={[
+            {
+              url: "https://docs.appsmith.com/third-party-services/email",
+              text: "Configure Email service",
+              intent: "primary",
+            },
+          ]}
         />
       )}
       {submitFailed && error && <FormMessage intent="danger" message={error} />}
