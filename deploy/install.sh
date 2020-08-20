@@ -3,19 +3,31 @@
 set -o errexit
 
 is_command_present() {
-  type "$1" >/dev/null 2>&1
+    type "$1" >/dev/null 2>&1
+}
+
+hr() {
+    echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 }
 
 # This function checks if the relevant ports required by Appsmith are available or not
 # The script should error out in case they aren't available
 check_ports_occupied() {
-    ports_occupied="$(
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            sudo netstat -anp tcp
-        else
-            sudo netstat -tupln tcp
-        fi | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/' | wc -l | bc
-    )"
+    local netstat_args
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        netstat_args=-anp
+    else
+        netstat_args=-tupln
+    fi
+
+    if [[ -n $(netstat $netstat_args tcp | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/') ]]; then
+        echo "+++++++++++ ERROR ++++++++++++++++++++++"
+        echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
+        echo "++++++++++++++++++++++++++++++++++++++++"
+        echo ""
+        bye
+    fi
 }
 
 install_docker() {
@@ -210,14 +222,6 @@ if [[ "$OSTYPE" == "darwin"* && "$EUID" -eq 0 ]]; then
 fi
 
 check_ports_occupied
-
-if [[ $ports_occupied -ne 0 ]]; then
-    echo "+++++++++++ ERROR ++++++++++++++++++++++"
-    echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
-    echo "++++++++++++++++++++++++++++++++++++++++"
-    echo ""
-    bye
-fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
 if ! is_command_present docker ;then
