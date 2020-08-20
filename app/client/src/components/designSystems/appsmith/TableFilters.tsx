@@ -152,7 +152,6 @@ const TableFilters = (props: TableFilterProps) => {
   );
   const showAddFilter =
     filters.length >= 1 && filters[0].column && filters[0].condition;
-  console.log("props", props);
   return (
     <Popover
       minimal
