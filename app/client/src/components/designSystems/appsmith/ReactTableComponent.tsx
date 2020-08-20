@@ -305,7 +305,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       enableDrag={() => {
         props.disableDrag(false);
       }}
-      searchTableData={debounce(props.searchTableData, 500)}
+      searchTableData={props.searchTableData}
       filters={props.filters}
       applyFilter={props.applyFilter}
       compactMode={props.compactMode}
