@@ -4,7 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,5 +35,5 @@ public interface OrganizationService extends CrudService<Organization, String> {
 
     Mono<List<UserRole>> getOrganizationMembers(String orgId);
 
-    Mono<String> uploadLogo(String organizationId, MultipartFile file);
+    Mono<String> uploadLogo(String organizationId, byte[] data);
 }

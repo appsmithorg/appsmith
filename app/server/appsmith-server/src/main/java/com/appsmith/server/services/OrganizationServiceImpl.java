@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.OrganizationSetting;
@@ -13,6 +14,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -23,7 +25,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -52,6 +53,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final UserOrganizationService userOrganizationService;
     private final UserRepository userRepository;
     private final RoleGraph roleGraph;
+    private final AssetRepository assetRepository;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -65,7 +67,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    SessionUserService sessionUserService,
                                    UserOrganizationService userOrganizationService,
                                    UserRepository userRepository,
-                                   RoleGraph roleGraph) {
+                                   RoleGraph roleGraph,
+                                   AssetRepository assetRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.settingService = settingService;
         this.pluginRepository = pluginRepository;
@@ -73,6 +76,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         this.userOrganizationService = userOrganizationService;
         this.userRepository = userRepository;
         this.roleGraph = roleGraph;
+        this.assetRepository = assetRepository;
     }
 
     @Override
@@ -306,12 +310,19 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     }
 
     @Override
-    public Mono<String> uploadLogo(String organizationId, MultipartFile file) {
+    public Mono<String> uploadLogo(String organizationId, byte[] data) {
         return repository
                 .findById(organizationId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
-                .thenReturn("ok");
+                .zipWith(assetRepository.save(new Asset(data)))
+                .flatMap(tuple -> {
+                    final Organization organization = tuple.getT1();
+                    final Asset asset = tuple.getT2();
+                    organization.setLogoAssetId(asset.getId());
+                    return repository
+                            .save(organization)
+                            .thenReturn(organization.getLogoUrl());
+                });
     }
 
 }
-

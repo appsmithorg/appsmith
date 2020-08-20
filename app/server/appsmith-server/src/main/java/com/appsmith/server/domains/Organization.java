@@ -35,6 +35,9 @@ public class Organization extends BaseDomain {
     @JsonIgnore
     private List<UserRole> userRoles;
 
+    @JsonIgnore
+    private String logoAssetId;
+
     public String makeSlug() {
         return toSlug(name);
     }
@@ -42,4 +45,9 @@ public class Organization extends BaseDomain {
     public static String toSlug(String text) {
         return text == null ? null : text.replaceAll("[^\\w\\d]+", "-").toLowerCase();
     }
+
+    public String getLogoUrl() {
+        return "/assets/" + logoAssetId;
+    }
+
 }
