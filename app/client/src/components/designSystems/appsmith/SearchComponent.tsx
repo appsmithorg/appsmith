@@ -26,7 +26,7 @@ class SearchComponent extends React.Component<
   SearchProps,
   { localValue: string }
 > {
-  onDebouncedSearch = debounce(this.props.onSearch, 200);
+  onDebouncedSearch = debounce(this.props.onSearch, 400);
   constructor(props: SearchProps) {
     super(props);
     this.state = {

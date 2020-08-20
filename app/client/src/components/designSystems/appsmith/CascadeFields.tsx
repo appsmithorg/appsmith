@@ -226,7 +226,7 @@ const RenderInput = (props: {
   value: string;
   onChange: (value: string) => void;
 }) => {
-  const debouncedOnChange = useCallback(debounce(props.onChange, 500), []);
+  const debouncedOnChange = useCallback(debounce(props.onChange, 400), []);
   const [value, setValue] = useState(props.value);
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
