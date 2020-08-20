@@ -165,12 +165,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   let editorConfig: any = [];
   if (
     queryAction &&
-    queryAction.pluginId &&
-    editorConfigs[queryAction.pluginId]
-  ) {
-    editorConfig = editorConfigs[queryAction.pluginId];
-  } else if (
-    queryAction &&
     queryAction.datasource.pluginId &&
     editorConfigs[queryAction.datasource.pluginId]
   ) {
