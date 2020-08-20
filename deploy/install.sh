@@ -249,8 +249,18 @@ fi
 
 read -p 'Installation Directory [appsmith]: ' install_dir
 install_dir="${install_dir:-appsmith}"
-mkdir -p "$PWD/$install_dir"
 install_dir="$PWD/$install_dir"
+
+if [[ -e "$install_dir" ]]; then
+    read -n1 -rp "The path '$install_dir' is already present. Shall I delete it so we can install afresh? [N/y] " answer
+    echo
+    if [[ $answer == y || $answer == Y ]]; then
+        rm -rf "$install_dir"
+        echo "Removed '$install_dir'."
+    fi
+fi
+
+mkdir -p "$install_dir"
 read -p 'Is this a fresh installation? [Y/n]' fresh_install
 fresh_install="${fresh_install:-Y}"
 echo ""
