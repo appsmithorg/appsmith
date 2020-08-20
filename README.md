@@ -29,7 +29,7 @@ Appsmith is a fast, easy, and secure way to build any custom internal tools. Her
 
 Do all this without depending on multiple UI libraries, coding authentication logic or writing any DB or API integrations. See the looped gif below to see how something gets built on Appsmith. It might remind you of Visual Basic.
 
-![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/readme/static/demo.gif)
+![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
 
 ------------------
 
