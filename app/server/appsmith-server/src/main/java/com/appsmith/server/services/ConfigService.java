@@ -7,4 +7,6 @@ public interface ConfigService extends CrudService<Config, String> {
     Mono<Config> getByName(String name);
 
     Mono<Config> updateByName(String name, Config config);
+
+    Mono<String> getTemplateOrganizationId();
 }

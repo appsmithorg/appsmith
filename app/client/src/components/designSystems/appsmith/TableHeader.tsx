@@ -10,8 +10,16 @@ import {
 } from "./TableStyledWrappers";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
-import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+import TableFilters, {
+  ReactTableFilter,
+} from "components/designSystems/appsmith/TableFilters";
+import {
+  ReactTableColumnProps,
+  CompactMode,
+  TableSizes,
+} from "widgets/TableWidget";
 import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
+import TableCompactMode from "components/designSystems/appsmith/TableCompactMode";
 import { Colors } from "constants/Colors";
 
 const PageNumberInputWrapper = styled(NumericInput)`
@@ -22,9 +30,11 @@ const PageNumberInputWrapper = styled(NumericInput)`
     border: 1px solid ${Colors.GREEN};
     box-sizing: border-box;
     border-radius: 4px;
-    width: 32px;
+    width: 24px;
+    height: 24px;
     padding: 0 !important;
     text-align: center;
+    font-size: 12px;
   }
   margin: 0 8px;
 `;
@@ -71,30 +81,51 @@ interface TableHeaderProps {
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
-  displayColumnActions: boolean;
+  filters?: ReactTableFilter[];
+  applyFilter: (filters: ReactTableFilter[]) => void;
+  editMode: boolean;
+  compactMode?: CompactMode;
+  updateCompactMode: (compactMode: CompactMode) => void;
+  width: number;
+  tableSizes: TableSizes;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
   return (
-    <TableHeaderWrapper>
+    <TableHeaderWrapper
+      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      width={props.width}
+      tableSizes={props.tableSizes}
+      backgroundColor={Colors.WHITE}
+    >
       <SearchComponent
         value={props.searchKey}
         placeholder="Search..."
         onSearch={props.searchTableData}
       />
-      <CommonFunctionsMenuWrapper>
+      <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
+        <TableFilters
+          columns={props.columns}
+          filters={props.filters}
+          applyFilter={props.applyFilter}
+          editMode={props.editMode}
+        />
         <TableDataDownload
           data={props.tableData}
           columns={props.tableColumns}
           widgetName={props.widgetName}
         />
-        {props.displayColumnActions && (
+        {props.editMode && (
           <TableColumnsVisibility
             columns={props.columns}
             hiddenColumns={props.hiddenColumns}
             updateHiddenColumns={props.updateHiddenColumns}
           />
         )}
+        <TableCompactMode
+          compactMode={props.compactMode}
+          updateCompactMode={props.updateCompactMode}
+        />
       </CommonFunctionsMenuWrapper>
       {props.serverSidePaginationEnabled && (
         <PaginationWrapper>
@@ -121,9 +152,9 @@ const TableHeader = (props: TableHeaderProps) => {
       )}
       {!props.serverSidePaginationEnabled && (
         <PaginationWrapper>
-          {/*<RowWrapper>*/}
-          {/*  Showing {props.currentPageIndex + 1}-{props.pageCount} items*/}
-          {/*</RowWrapper>*/}
+          <RowWrapper className="show-page-items">
+            Showing {props.currentPageIndex + 1}-{props.pageCount} items
+          </RowWrapper>
           <PaginationItemWrapper
             disabled={props.currentPageIndex === 0}
             onClick={() => {

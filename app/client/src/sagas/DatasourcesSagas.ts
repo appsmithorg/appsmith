@@ -1,4 +1,12 @@
-import { all, put, takeEvery, select, call, take } from "redux-saga/effects";
+import {
+  all,
+  put,
+  takeEvery,
+  select,
+  call,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import { change, initialize, getFormValues } from "redux-form";
 import _ from "lodash";
 import {
@@ -13,7 +21,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import {
-  getDatasourceRefs,
   getPluginForm,
   getDatasource,
   getDatasourceDraft,
@@ -44,6 +51,7 @@ import { ToastType } from "react-toastify";
 import { getFormData } from "selectors/formSelectors";
 import { changeApi } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { AppState } from "reducers";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -101,8 +109,6 @@ export function* deleteDatasourceSaga(
   actionPayload: ReduxAction<{ id: string }>,
 ) {
   try {
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
     const id = actionPayload.payload.id;
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
       id,
@@ -111,6 +117,16 @@ export function* deleteDatasourceSaga(
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+
+      if (
+        window.location.pathname ===
+        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id)
+      ) {
+        history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+      }
+
       AppToaster.show({
         message: `${response.data.name} datasource deleted`,
         type: ToastType.SUCCESS,
@@ -126,7 +142,6 @@ export function* deleteDatasourceSaga(
           id: response.data.id,
         },
       });
-      history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
     }
   } catch (error) {
     AppToaster.show({
@@ -140,16 +155,21 @@ export function* deleteDatasourceSaga(
   }
 }
 
-function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
+function* updateDatasourceSaga(
+  actionPayload: ReduxAction<{
+    datasource: Datasource;
+    reinitializeForm: boolean;
+  }>,
+) {
   try {
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
-      actionPayload.payload,
-      actionPayload.payload.id,
+      actionPayload.payload.datasource,
+      actionPayload.payload.datasource.id,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AppToaster.show({
-        message: `${actionPayload.payload.name} Datasource updated`,
+        message: `${actionPayload.payload.datasource.name} Datasource updated`,
         type: ToastType.SUCCESS,
       });
       yield put({
@@ -162,6 +182,11 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           id: response.data.id,
         },
       });
+      if (actionPayload.payload.reinitializeForm) {
+        yield put(
+          initialize(DATASOURCE_DB_FORM, actionPayload.payload.datasource),
+        );
+      }
     }
   } catch (error) {
     yield put({
@@ -264,7 +289,7 @@ function* createDatasourceFromFormSaga(
         type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
         payload: {
           id: actionPayload.payload.pluginId,
-          form: formConfigResponse.data.form,
+          ...formConfigResponse.data,
         },
       });
 
@@ -309,14 +334,8 @@ function* createDatasourceFromFormSaga(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
       );
       AppToaster.show({
-        message: `${actionPayload.payload.name} Datasource created`,
+        message: `${response.data.name} Datasource created`,
         type: ToastType.SUCCESS,
-      });
-
-      const datasourceRefs = yield select(getDatasourceRefs);
-
-      datasourceRefs[response.data.id].current.scrollIntoView({
-        behavior: "smooth",
       });
     }
   } catch (error) {
@@ -371,6 +390,16 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   history.push(
     DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
   );
+}
+
+function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
+  const { datasourceId } = action.payload;
+  const datasource = yield select((state: AppState) =>
+    state.entities.datasources.list.find(
+      (datasource: Datasource) => datasource.id === datasourceId,
+    ),
+  );
+  yield put(changeDatasource(datasource));
 }
 
 function* formValueChangeSaga(
@@ -440,6 +469,7 @@ export function* watchDatasourcesSagas() {
     takeEvery(ReduxActionTypes.TEST_DATASOURCE_INIT, testDatasourceSaga),
     takeEvery(ReduxActionTypes.DELETE_DATASOURCE_INIT, deleteDatasourceSaga),
     takeEvery(ReduxActionTypes.CHANGE_DATASOURCE, changeDatasourceSaga),
+    takeLatest(ReduxActionTypes.SWITCH_DATASOURCE, switchDatasourceSaga),
     takeEvery(ReduxActionTypes.STORE_AS_DATASOURCE_INIT, storeAsDatasourceSaga),
     takeEvery(
       ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,

@@ -219,7 +219,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       detachFromLayout: true,
       canOutsideClickClose: true,
       shouldScrollContents: true,
-      isVisible: false,
       widgetName: "Modal",
       children: [],
       blueprint: {

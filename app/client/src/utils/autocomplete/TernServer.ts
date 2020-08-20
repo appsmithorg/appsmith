@@ -4,6 +4,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import tern, { Server, Def } from "tern";
 import ecma from "tern/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
+import base64 from "constants/defs/base64-js.json";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
@@ -11,7 +12,7 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 
-const DEFS = [ecma, lodash];
+const DEFS = [ecma, lodash, base64];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
@@ -150,6 +151,19 @@ class TernServer {
             content,
           );
           tooltip.className += " " + cls + "hint-doc";
+          CodeMirror.on(
+            cm,
+            "keyup",
+            (cm: CodeMirror.Editor, keyboardEvent: KeyboardEvent) => {
+              if (
+                keyboardEvent.code === "Space" &&
+                keyboardEvent.ctrlKey &&
+                tooltip
+              ) {
+                tooltip.className += " visible";
+              }
+            },
+          );
         }
       },
     );
@@ -169,6 +183,7 @@ class TernServer {
           urls: true,
           origins: true,
           caseInsensitive: true,
+          guess: false,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
@@ -253,6 +268,7 @@ class TernServer {
       caseInsensitive?: boolean;
       preferFunction?: boolean;
       end?: CodeMirror.Position;
+      guess?: boolean;
     },
     callbackFn: (error: any, data: any) => void,
     pos?: CodeMirror.Position,

@@ -28,12 +28,12 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   }
   .react-tabs__tab:focus {
     box-shadow: none;
-    border-color: ${props => props.theme.colors.primary};
+    border-color: ${props => props.theme.colors.primaryOld};
   }
   .react-tabs__tab--selected {
-    color: ${props => props.theme.colors.primary};
+    color: ${props => props.theme.colors.primaryOld};
     border-color: #d0d7dd;
-    border-top: ${props => props.theme.colors.primary} 5px solid;
+    border-top: ${props => props.theme.colors.primaryOld} 5px solid;
     border-radius: 0;
   }
 `;

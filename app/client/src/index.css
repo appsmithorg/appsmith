@@ -6,15 +6,13 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue",
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #efefef;
 }
 
-body.fontLoaded {
-  font-family: "DM Sans", sans-serif;
+body.dragging *{
+  cursor: grabbing !important;
 }
 
 code {

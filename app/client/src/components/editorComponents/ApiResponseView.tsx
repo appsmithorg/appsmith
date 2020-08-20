@@ -39,7 +39,7 @@ const ResponseMetaInfo = styled.div`
 
 const StatusCodeText = styled(BaseText)<{ code: string }>`
   color: ${props =>
-    props.code.match(/2\d\d/) ? props.theme.colors.primary : Colors.RED};
+    props.code.match(/2\d\d/) ? props.theme.colors.primaryOld : Colors.RED};
 `;
 
 // const TableWrapper = styled.div`
@@ -113,7 +113,7 @@ const FailedMessageContainer = styled.div`
   padding-top: 10px;
   padding-bottom: 7px;
   padding-left: 15px;
-  font-family: DM Sans;
+  font-family: ${props => props.theme.fonts.text};
   font-style: normal;
   font-weight: 500;
   font-size: 14px;

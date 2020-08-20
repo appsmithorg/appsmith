@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -50,7 +51,8 @@ public class ActionController extends BaseController<ActionService, Action, Stri
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Action>> create(@Valid @RequestBody Action resource,
-                                            @RequestHeader(name = "Origin", required = false) String originHeader) {
+                                            @RequestHeader(name = "Origin", required = false) String originHeader,
+                                            ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return actionCollectionService.createAction(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));

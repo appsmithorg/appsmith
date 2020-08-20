@@ -4,7 +4,7 @@ import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo_white.png";
 import Button from "components/editorComponents/Button";
-import { EDIT_APP } from "constants/messages";
+import { EDIT_APP, FORK_APP } from "constants/messages";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -16,13 +16,14 @@ import {
 import {
   APPLICATIONS_URL,
   getApplicationViewerPageURL,
+  SIGN_UP_URL,
 } from "constants/routes";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
 import { getPageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
-import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
+import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { Colors } from "constants/Colors";
@@ -60,6 +61,12 @@ const BackToEditorButton = styled(Button)`
   margin: 5px 10px;
 `;
 
+const ForkButton = styled(Button)`
+  max-width: 200px;
+  height: 32px;
+  margin: 5px 10px;
+`;
+
 const ShareButton = styled(Button)`
   height: 32px;
   margin: 5px 10px;
@@ -76,15 +83,15 @@ const StyledApplicationName = styled.span`
 const PageTab = styled(NavLink)`
   display: flex;
   height: 30px;
-  width: 150px;
+  flex: 0 0 150px;
   margin-right: 1px;
   align-self: flex-end;
   cursor: pointer;
-  display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   background-color: rgb(49, 48, 51);
+  padding: 0px 10px;
   && span {
     font-weight: 500;
     font-size: 12px;
@@ -116,13 +123,50 @@ type AppViewerHeaderProps = {
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const { currentApplicationDetails, pages, currentOrgId } = props;
+  const isExampleApp = currentApplicationDetails?.appIsExample;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
-  const canShare = isPermitted(
-    userPermissions,
-    PERMISSION_TYPE.MANAGE_APPLICATION,
-  );
+  // Mark default page as first page
+  const appPages = pages;
+  if (appPages.length > 1) {
+    appPages.forEach(function(item, i) {
+      if (item.isDefault) {
+        appPages.splice(i, 1);
+        appPages.unshift(item);
+      }
+    });
+  }
+
+  const forkAppUrl = `${window.location.origin}${SIGN_UP_URL}?appId=${currentApplicationDetails?.id}`;
+
+  let CTA = null;
+
+  if (props.url && canEdit) {
+    CTA = (
+      <BackToEditorButton
+        className="t--back-to-editor"
+        href={props.url}
+        intent="primary"
+        icon="arrow-left"
+        iconAlignment="left"
+        text={EDIT_APP}
+        filled
+      />
+    );
+  } else if (isExampleApp) {
+    CTA = (
+      <ForkButton
+        className="t--fork-app"
+        href={forkAppUrl}
+        intent="primary"
+        icon="fork"
+        iconAlignment="left"
+        text={FORK_APP}
+        filled
+      />
+    );
+  }
 
   return (
     <HeaderWrapper hasPages={pages.length > 1}>
@@ -142,48 +186,36 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         <HeaderSection justify={"flex-end"}>
           {currentApplicationDetails && (
             <>
-              {canShare && (
-                <FormDialogComponent
-                  trigger={
-                    <ShareButton
-                      text="Share"
-                      intent="none"
-                      outline
-                      size="small"
-                      className="t--application-share-btn"
-                      icon={
-                        <HeaderIcons.SHARE
-                          color={Colors.WHITE}
-                          width={13}
-                          height={13}
-                        />
-                      }
-                    />
-                  }
-                  Form={InviteUsersFormv2}
-                  orgId={currentOrgId}
-                  applicationId={currentApplicationDetails.id}
-                  title={currentApplicationDetails.name}
-                />
-              )}
-              {props.url && canEdit && (
-                <BackToEditorButton
-                  className="t--back-to-editor"
-                  href={props.url}
-                  intent="primary"
-                  icon="arrow-left"
-                  iconAlignment="left"
-                  text={EDIT_APP}
-                  filled
-                />
-              )}
+              <FormDialogComponent
+                trigger={
+                  <ShareButton
+                    text="Share"
+                    intent="none"
+                    outline
+                    size="small"
+                    className="t--application-share-btn"
+                    icon={
+                      <HeaderIcons.SHARE
+                        color={Colors.WHITE}
+                        width={13}
+                        height={13}
+                      />
+                    }
+                  />
+                }
+                Form={AppInviteUsersForm}
+                orgId={currentOrgId}
+                applicationId={currentApplicationDetails.id}
+                title={currentApplicationDetails.name}
+              />
+              {CTA}
             </>
           )}
         </HeaderSection>
       </HeaderRow>
-      {pages.length > 1 && (
+      {appPages.length > 1 && (
         <HeaderRow justify={"flex-start"}>
-          {pages.map(page => (
+          {appPages.map(page => (
             <PageTab
               key={page.pageId}
               to={getApplicationViewerPageURL(

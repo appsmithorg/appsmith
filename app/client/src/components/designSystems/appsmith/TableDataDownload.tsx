@@ -3,8 +3,9 @@ import { IconWrapper } from "constants/IconConstants";
 import { Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-table.svg";
-import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+import { ReactTableColumnProps } from "widgets/TableWidget";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import { isString } from "lodash";
 
 interface TableDataDownloadProps {
   data: object[];
@@ -23,6 +24,7 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
           if (column.metaProperties && !column.metaProperties.isHidden) {
             return column.Header;
           }
+          return null;
         })
         .filter(i => !!i),
     );
@@ -33,7 +35,11 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
         const column = props.columns[colIndex];
         const value = data[column.accessor];
         if (column.metaProperties && !column.metaProperties.isHidden) {
-          csvDataRow.push(value);
+          if (isString(value) && value.includes(",")) {
+            csvDataRow.push(`"${value}"`);
+          } else {
+            csvDataRow.push(value);
+          }
         }
       }
       csvData.push(csvDataRow);
@@ -67,6 +73,15 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
     toggleButtonClick(false);
   };
 
+  if (props.columns.length === 0) {
+    return (
+      <TableIconWrapper disabled>
+        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+          <DownloadIcon />
+        </IconWrapper>
+      </TableIconWrapper>
+    );
+  }
   return (
     <TableIconWrapper
       onClick={() => {

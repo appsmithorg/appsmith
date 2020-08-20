@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -23,14 +24,15 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-public abstract class BaseController<S extends CrudService, T extends BaseDomain, ID> {
+public abstract class BaseController<S extends CrudService<T, ID>, T extends BaseDomain, ID> {
 
     protected final S service;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<T>> create(@Valid @RequestBody T resource,
-                                       @RequestHeader(name = "Origin", required = false) String originHeader) {
+                                       @RequestHeader(name = "Origin", required = false) String originHeader,
+                                       ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return service.create(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));

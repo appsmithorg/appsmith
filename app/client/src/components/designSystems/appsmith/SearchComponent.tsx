@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { InputGroup } from "@blueprintjs/core";
+import { debounce } from "lodash";
 
 interface SearchProps {
   onSearch: (value: any) => void;
@@ -11,18 +12,21 @@ interface SearchProps {
 const SearchInputWrapper = styled(InputGroup)`
   &&& input {
     box-shadow: none;
+    font-size: 12px;
   }
   &&& svg {
     opacity: 0.6;
   }
-  margin: 14px 20px;
+  margin: 5px 20px;
   width: 250px;
+  min-width: 150px;
 `;
 
 class SearchComponent extends React.Component<
   SearchProps,
   { localValue: string }
 > {
+  onDebouncedSearch = debounce(this.props.onSearch, 400);
   constructor(props: SearchProps) {
     super(props);
     this.state = {
@@ -43,7 +47,7 @@ class SearchComponent extends React.Component<
   ) => {
     const search = event.target.value;
     this.setState({ localValue: search });
-    this.props.onSearch(search);
+    this.onDebouncedSearch(search);
   };
   render() {
     return (

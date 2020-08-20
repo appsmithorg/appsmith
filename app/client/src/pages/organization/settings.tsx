@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Icon } from "@blueprintjs/core";
 import { TableWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
+import { Colors } from "constants/Colors";
 import { AppState } from "reducers";
 import {
   getAllUsers,
@@ -11,7 +13,7 @@ import {
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
+import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import Button from "components/editorComponents/Button";
 import { OrgUser, Org } from "constants/orgConstants";
 import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
@@ -61,19 +63,14 @@ const StyledDropDown = styled.div`
 `;
 
 const StyledTableWrapped = styled(TableWrapper)`
-  min-height: 0px;
-  height: auto;
+  height: ${props => props.height}px;
+  overflow: visible;
   .tableWrap {
-    display: flex;
-    flex: 1;
+    height: ${props => props.height}px;
   }
   .table {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    height: auto;
     .tbody {
-      overflow: auto;
+      height: ${props => props.height}px;
     }
   }
 `;
@@ -189,6 +186,13 @@ export const OrgSettings = (props: PageProps) => {
   }));
   const data = React.useMemo(() => userTableData, [userTableData]);
 
+  const tableHeight = React.useMemo(() => {
+    const tableDataLength =
+      userTableData.length * TABLE_SIZES[CompactModeTypes.DEFAULT].ROW_HEIGHT +
+      TABLE_SIZES[CompactModeTypes.DEFAULT].COLUMN_HEADER_HEIGHT;
+    return tableDataLength;
+  }, [userTableData]);
+
   const columns = React.useMemo(() => {
     return [
       {
@@ -237,7 +241,6 @@ export const OrgSettings = (props: PageProps) => {
     fetchAllRoles(orgId);
     fetchCurrentOrg(orgId);
   }, [orgId, fetchUser, fetchAllRoles, fetchCurrentOrg]);
-
   return (
     <React.Fragment>
       <PageSectionHeader>
@@ -257,7 +260,7 @@ export const OrgSettings = (props: PageProps) => {
             />
           }
           canOutsideClickClose={true}
-          Form={InviteUsersFormv2}
+          Form={OrgInviteUsersForm}
           orgId={orgId}
           title={`Invite Users to ${currentOrgName}`}
         />
@@ -265,7 +268,12 @@ export const OrgSettings = (props: PageProps) => {
       {props.isFetchAllUsers && props.isFetchAllRoles ? (
         <Spinner size={30} />
       ) : (
-        <StyledTableWrapped width={200} height={200}>
+        <StyledTableWrapped
+          width={200}
+          height={tableHeight}
+          tableSizes={TABLE_SIZES[CompactModeTypes.DEFAULT]}
+          backgroundColor={Colors.ATHENS_GRAY_DARKER}
+        >
           <div className="tableWrap">
             <div {...getTableProps()} className="table">
               {headerGroups.map((headerGroup: any, index: number) => (

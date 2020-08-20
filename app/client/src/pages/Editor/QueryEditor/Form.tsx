@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   formValueSelector,
   InjectedFormProps,
@@ -6,7 +6,7 @@ import {
   Field,
 } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover } from "@blueprintjs/core";
+import { Icon, Popover, Spinner } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -17,7 +17,6 @@ import {
 import _ from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-import TemplateMenu from "./TemplateMenu";
 import Button from "components/editorComponents/Button";
 import FormRow from "components/editorComponents/FormRow";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -31,16 +30,15 @@ import { RestAction } from "entities/Action";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import {
-  EditorModes,
-  EditorSize,
-} from "components/editorComponents/CodeEditor/EditorConfig";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
+
+import FormControlFactory from "utils/FormControlFactory";
+import { ControlProps } from "components/formControls/BaseControl";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { SwitchField } from "components/formControls/SwitchControl";
 
 const QueryFormContainer = styled.div`
@@ -54,24 +52,11 @@ const QueryFormContainer = styled.div`
     line-height: 20px;
     margin-top: 15px;
   }
-
-  .textAreaStyles {
-    border-radius: 4px;
-    border: 1px solid #d0d7dd;
-    font-size: 14px;
-    height: calc(100vh / 4);
-  }
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
     color: #2e3d49;
-    margin-top: 15px;
-  }
-
-  && {
-    .CodeMirror-lines {
-      padding: 16px 20px;
-    }
+    margin-top: 5px;
   }
 
   .queryInput {
@@ -89,9 +74,18 @@ const QueryFormContainer = styled.div`
   }
 `;
 
+const ActionsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 1 1 50%;
+  justify-content: flex-end;
+`;
+
 const ActionButtons = styled.div`
-  flex: 1;
+  display: flex;
   margin-left: 10px;
+  flex: 0 1 150px;
+  justify-content: flex-end;
 `;
 
 const ActionButton = styled(BaseButton)`
@@ -204,7 +198,6 @@ const StyledOpenDocsIcon = styled(Icon)`
 `;
 
 const NameWrapper = styled.div`
-  width: 39%;
   display: flex;
   justify-content: space-between;
   input {
@@ -217,10 +210,13 @@ const CollapsibleWrapper = styled.div`
   width: 200px;
 `;
 
+const LoadingContainer = styled(CenteredWrapper)`
+  height: 50%;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
-  createTemplate: (template: any) => void;
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
@@ -234,6 +230,8 @@ type QueryFormProps = {
   location: {
     state: any;
   };
+  editorConfig: [];
+  loadingFormConfigs: boolean;
 };
 
 type ReduxProps = {
@@ -260,14 +258,13 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     applicationId,
     dataSources,
     executedQueryData,
-    createTemplate,
     runErrorMessage,
-    pluginId,
     responseType,
     documentationLink,
+    loadingFormConfigs,
+    editorConfig,
   } = props;
 
-  const [showTemplateMenu, setMenuVisibility] = useState(true);
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
 
@@ -280,8 +277,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   }
 
   const isSQL = responseType === "TABLE";
-  const isNewQuery =
-    new URLSearchParams(window.location.search).get("new") === "true";
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (
@@ -333,6 +328,14 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     );
   };
 
+  if (loadingFormConfigs) {
+    return (
+      <LoadingContainer>
+        <Spinner size={30} />
+      </LoadingContainer>
+    );
+  }
+
   return (
     <QueryFormContainer>
       <form onSubmit={handleSubmit}>
@@ -340,74 +343,76 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           <NameWrapper>
             <ActionNameEditor />
           </NameWrapper>
-          <DropdownSelect>
-            <DropdownField
-              placeholder="Datasource"
-              name="datasource.id"
-              options={DATASOURCES_OPTIONS}
-              width={232}
-              maxMenuHeight={200}
-              components={{ MenuList, Option: CustomOption, SingleValue }}
-            />
-          </DropdownSelect>
-          <ActionButtons>
-            <ActionButton
-              className="t--delete-query"
-              text="Delete"
-              accent="error"
-              loading={isDeleting}
-              onClick={onDeleteClick}
-            />
-            {dataSources.length === 0 ? (
-              <>
-                <TooltipStyles />
-                <Popover
-                  autoFocus={true}
-                  canEscapeKeyClose={true}
-                  content="You don’t have a Data Source to run this query"
-                  position="bottom"
-                  defaultIsOpen={false}
-                  usePortal
-                  portalClassName="helper-tooltip"
-                >
-                  <ActionButton
-                    className="t--run-query"
-                    text="Run"
-                    filled
-                    loading={isRunning}
-                    accent="primary"
-                    onClick={onRunClick}
-                  />
-                  <div>
-                    <p className="popuptext">
-                      You don’t have a Data Source to run this query
-                    </p>
-                    <Button
-                      onClick={() =>
-                        history.push(
-                          DATA_SOURCES_EDITOR_URL(applicationId, pageId),
-                        )
-                      }
-                      text="Add Datasource"
-                      intent="primary"
-                      filled
-                      size="small"
-                      className="popoverBtn"
-                    />
-                  </div>
-                </Popover>
-              </>
-            ) : (
-              <ActionButton
-                className="t--run-query"
-                text="Run"
-                filled
-                loading={isRunning}
-                accent="primary"
-                onClick={onRunClick}
+          <ActionsWrapper>
+            <DropdownSelect>
+              <DropdownField
+                placeholder="Datasource"
+                name="datasource.id"
+                options={DATASOURCES_OPTIONS}
+                width={232}
+                maxMenuHeight={200}
+                components={{ MenuList, Option: CustomOption, SingleValue }}
               />
-            )}
-          </ActionButtons>
+            </DropdownSelect>
+            <ActionButtons>
+              <ActionButton
+                className="t--delete-query"
+                text="Delete"
+                accent="error"
+                loading={isDeleting}
+                onClick={onDeleteClick}
+              />
+              {dataSources.length === 0 ? (
+                <>
+                  <TooltipStyles />
+                  <Popover
+                    autoFocus={true}
+                    canEscapeKeyClose={true}
+                    content="You don’t have a Data Source to run this query"
+                    position="bottom"
+                    defaultIsOpen={false}
+                    usePortal
+                    portalClassName="helper-tooltip"
+                  >
+                    <ActionButton
+                      className="t--run-query"
+                      text="Run"
+                      filled
+                      loading={isRunning}
+                      accent="primary"
+                      onClick={onRunClick}
+                    />
+                    <div>
+                      <p className="popuptext">
+                        You don’t have a Data Source to run this query
+                      </p>
+                      <Button
+                        onClick={() =>
+                          history.push(
+                            DATA_SOURCES_EDITOR_URL(applicationId, pageId),
+                          )
+                        }
+                        text="Add Datasource"
+                        intent="primary"
+                        filled
+                        size="small"
+                        className="popoverBtn"
+                      />
+                    </div>
+                  </Popover>
+                </>
+              ) : (
+                <ActionButton
+                  className="t--run-query"
+                  text="Run"
+                  filled
+                  loading={isRunning}
+                  accent="primary"
+                  onClick={onRunClick}
+                />
+              )}
+            </ActionButtons>
+          </ActionsWrapper>
         </FormRow>
 
         <div
@@ -435,34 +440,10 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           )}
         </div>
 
-        {isNewQuery && showTemplateMenu && pluginId ? (
-          <TemplateMenu
-            createTemplate={templateString => {
-              setMenuVisibility(false);
-              createTemplate(templateString);
-            }}
-            pluginId={pluginId}
-          />
-        ) : isSQL ? (
-          <div>
-            <DynamicTextField
-              size={EditorSize.EXTENDED}
-              name="actionConfiguration.body"
-              dataTreePath={`${props.actionName}.config.body`}
-              className="textAreaStyles"
-              mode={EditorModes.SQL_WITH_BINDING}
-            />
-          </div>
+        {!_.isNil(editorConfig) ? (
+          _.map(editorConfig, renderEachConfig)
         ) : (
-          <div>
-            <DynamicTextField
-              size={EditorSize.EXTENDED}
-              name="actionConfiguration.body"
-              dataTreePath={`${props.actionName}.config.body`}
-              className="textAreaStyles"
-              mode={EditorModes.JSON_WITH_BINDING}
-            />
-          </div>
+          <ErrorMessage>An unexpected error occurred</ErrorMessage>
         )}
         <div className="executeOnLoad">
           <Field
@@ -508,6 +489,29 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       )}
     </QueryFormContainer>
   );
+};
+
+const renderEachConfig = (section: any): any => {
+  return _.map(section.children, (propertyControlOrSection: ControlProps) => {
+    if ("children" in propertyControlOrSection) {
+      return renderEachConfig(propertyControlOrSection);
+    } else {
+      try {
+        const { configProperty } = propertyControlOrSection;
+        return (
+          <div key={configProperty} style={{ marginTop: "8px" }}>
+            {FormControlFactory.createControl(
+              { ...propertyControlOrSection },
+              {},
+              false,
+            )}
+          </div>
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  });
 };
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);

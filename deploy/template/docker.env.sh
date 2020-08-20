@@ -37,7 +37,7 @@ APPSMITH_MAIL_ENABLED=false
 
 # ******** Database *************
 APPSMITH_REDIS_URL=redis://redis:6379
-APPSMITH_MONGODB_URI=mongodb://$mongo_root_user:$mongo_root_password@$mongo_host/appsmith?retryWrites=true
+APPSMITH_MONGODB_URI=mongodb://$encoded_mongo_root_user:$encoded_mongo_root_password@$mongo_host/appsmith?retryWrites=true
 # *******************************
 
 # *** EE Specific Config ********

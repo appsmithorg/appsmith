@@ -7,7 +7,7 @@
 - `cd internal-tools-client` Change directory to the project directory
 - `nvm install` Install the version of `node` and `npm` required by the project using `nvm`
 - `yarn` Install packages and run setup scripts
-- `yarn start` Deploy locally
+- `yarn start` Start the client locally using this
 
 > For more details on how to run this locally, please visit: [Notion Doc](https://www.notion.so/appsmith/How-to-run-the-code-e031545454874419b9f72cd51feb90ff)
 
@@ -80,4 +80,6 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
 
+### Cypress tests via Github Actions
 
+The cypress tests run via Github actions pull the `release` Docker image of the server to run as a service locally. This is to ensure that we don't face any network flakiness during tests.

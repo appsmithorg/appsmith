@@ -18,6 +18,8 @@ import javax.validation.Validator;
 @Service
 public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, String> implements ConfigService {
 
+    private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
+
     public ConfigServiceImpl(Scheduler scheduler,
                              Validator validator,
                              MongoConverter mongoConverter,
@@ -42,5 +44,11 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
                     dbConfig.setConfig(config.getConfig());
                     return repository.save(dbConfig);
                 });
+    }
+
+    @Override
+    public Mono<String> getTemplateOrganizationId() {
+        return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+                .map(config -> config.getConfig().getAsString(FieldName.ORGANIZATION_ID));
     }
 }

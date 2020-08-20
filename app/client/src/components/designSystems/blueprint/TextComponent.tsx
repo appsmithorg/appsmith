@@ -33,7 +33,7 @@ export const StyledText = styled(Text)<{
   height: 100%;
   overflow-y: ${props => (props.scroll ? "auto" : "hidden")};
   text-overflow: ellipsis;
-  text-align: ${props => props.textAlign.toLowerCase()}
+  text-align: ${props => props.textAlign.toLowerCase()};
   display: flex;
   width: 100%;
   justify-content: flex-start;

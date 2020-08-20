@@ -51,14 +51,10 @@ public class MySqlPlugin extends BasePlugin {
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor {
 
-        private Mono<Object> pluginErrorMono(Object... args) {
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, args));
-        }
-
         @Override
-        public Mono<Object> execute(Object connection,
-                                    DatasourceConfiguration datasourceConfiguration,
-                                    ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(Object connection,
+                                                   DatasourceConfiguration datasourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
 
             Connection conn = (Connection) connection;
 
@@ -76,7 +72,7 @@ public class MySqlPlugin extends BasePlugin {
             String query = actionConfiguration.getBody();
 
             if (query == null) {
-                return pluginErrorMono("Missing required parameter: Query.");
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
             }
 
             List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -105,14 +101,14 @@ public class MySqlPlugin extends BasePlugin {
                 }
 
             } catch (SQLException e) {
-                return pluginErrorMono(e.getMessage());
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
 
             } finally {
                 if (resultSet != null) {
                     try {
                         resultSet.close();
                     } catch (SQLException e) {
-                        log.warn("Error closing MySql ResultSet", e);
+                        log.warn("Error closing MySQL ResultSet", e);
                     }
                 }
 
@@ -120,7 +116,7 @@ public class MySqlPlugin extends BasePlugin {
                     try {
                         statement.close();
                     } catch (SQLException e) {
-                        log.warn("Error closing MySql Statement", e);
+                        log.warn("Error closing MySQL Statement", e);
                     }
                 }
 
@@ -138,7 +134,7 @@ public class MySqlPlugin extends BasePlugin {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return pluginErrorMono("Error loading MySql JDBC Driver class.");
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading MySQL JDBC Driver class."));
             }
 
             String url;
@@ -178,7 +174,7 @@ public class MySqlPlugin extends BasePlugin {
                         configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                 return Mono.just(connection);
             } catch (SQLException e) {
-                return pluginErrorMono("Error connecting to MySQL: " + e.getMessage(), e);
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error connecting to MySQL: " + e.getMessage(), e));
             }
         }
 

@@ -19,6 +19,8 @@ public interface OrganizationService extends CrudService<Organization, String> {
 
     Mono<String> getNextUniqueSlug(String initialSlug);
 
+    Mono<Organization> createPersonal(Organization organization, User user);
+
     Mono<Organization> create(Organization organization, User user);
 
     Mono<Organization> findById(String id, AclPermission permission);
@@ -29,7 +31,7 @@ public interface OrganizationService extends CrudService<Organization, String> {
 
     Flux<Organization> findByIdsIn(Set<String> ids,AclPermission permission);
 
-    Mono<Map<String, String>> getUserRolesForOrganization();
+    Mono<Map<String, String>> getUserRolesForOrganization(String orgId);
 
     Mono<List<UserRole>> getOrganizationMembers(String orgId);
 }

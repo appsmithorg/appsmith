@@ -6,10 +6,10 @@
     "mongo-password": "123wheel",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
     "mongo-sslAuthtype": "No SSL",
-    "postgres-host": "appsmith-test-db.cgg2px8dsrli.ap-south-1.rds.amazonaws.com",
+    "postgres-host": "postgres-test-db.cz8diybf9wdj.ap-south-1.rds.amazonaws.com",
     "postgres-port": 5432,
-    "postgres-databaseName": "postgres",
+    "postgres-databaseName": "fakeapi",
     "postgres-username": "postgres",
-    "postgres-password": "qwerty1234",
+    "postgres-password": "Appsmith2019#",
     "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts"
 }

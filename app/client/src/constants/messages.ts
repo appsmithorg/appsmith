@@ -137,6 +137,7 @@ export const TIMEZONE = "Timezone";
 export const ENABLE_TIME = "Enable Time";
 
 export const EDIT_APP = "Back to editor";
+export const FORK_APP = "Fork App";
 
 export const LIGHTNING_MENU_DATA_API = "Use data from an API";
 export const LIGHTNING_MENU_DATA_QUERY = "Use data from a Query";
@@ -151,3 +152,6 @@ export const LIGHTNING_MENU_OPTION_HTML = "Write HTML";
 export const CHECK_REQUEST_BODY = "Check Request body to debug?";
 export const DONT_SHOW_THIS_AGAIN = "Don't show this again";
 export const SHOW_REQUEST = "Show Request";
+
+export const TABLE_FILTER_COLUMN_TYPE_CALLOUT =
+  "Change column datatype to see filter operators";

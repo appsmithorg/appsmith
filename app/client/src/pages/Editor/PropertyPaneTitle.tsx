@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect } from "react";
+import React, { useState, memo, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
@@ -9,6 +9,7 @@ import { AppState } from "reducers";
 import Spinner from "components/editorComponents/Spinner";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { convertToCamelCase } from "utils/helpers";
+import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 const Wrapper = styled.div`
   display: flex;
   justify-content: flex-start;
@@ -23,33 +24,36 @@ type PropertyPaneTitleProps = {
 /* eslint-disable react/display-name */
 const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const dispatch = useDispatch();
-  const { updating, updateError } = useSelector((state: AppState) => ({
+  const { updating } = useSelector((state: AppState) => ({
     updating: state.ui.editor.loadingStates.updatingWidgetName,
-    updateError: state.ui.editor.loadingStates.updateWidgetNameError,
   }));
+  const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
   const widgets = useSelector(getExistingWidgetNames);
-
+  const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
-  const [isEditing, setIsEditing] = useState(false);
-  const updateTitle = (value: string) => {
-    if (
-      value &&
-      value.trim().length > 0 &&
-      value.trim() !== props.title.trim() &&
-      props.widgetId
-    ) {
-      if (widgets.indexOf(value.trim()) > -1) {
-        setName(props.title);
-        setIsEditing(true);
+  const updateTitle = useCallback(
+    (value: string) => {
+      if (
+        value &&
+        value.trim().length > 0 &&
+        value.trim() !== props.title.trim() &&
+        props.widgetId
+      ) {
+        if (widgets.indexOf(value.trim()) > -1) {
+          setName(props.title);
+        }
+        dispatch(updateWidgetName(props.widgetId, value.trim()));
       }
-      dispatch(updateWidgetName(props.widgetId, value.trim()));
-    }
-  };
+    },
+    [dispatch, widgets, setName, props.widgetId, props.title],
+  );
   useEffect(() => {
-    if (updateError) {
-      setName(props.title);
-    }
-  }, [updateError, props.title]);
+    setName(props.title);
+  }, [props.title]);
+
+  const exitEditMode = useCallback(() => {
+    props.widgetId && toggleEditWidgetName(props.widgetId, false);
+  }, [toggleEditWidgetName, props.widgetId]);
 
   return props.widgetId ? (
     <Wrapper>
@@ -61,6 +65,8 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         placeholder={props.title}
         updating={updating}
         editInteractionKind={EditInteractionKind.SINGLE}
+        isEditingDefault={isNew}
+        onBlur={exitEditMode}
       />
       {updating && <Spinner size={16} />}
     </Wrapper>

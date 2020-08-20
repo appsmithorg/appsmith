@@ -54,6 +54,10 @@ const actionsReducer = createReducer(initialState, {
     }
     return state;
   },
+  [ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<RestAction>,
+  ) => state.concat([{ config: action.payload, isLoading: false }]),
   [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: () => initialState,
   [ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR]: () => initialState,
   [ReduxActionTypes.CREATE_ACTION_INIT]: (

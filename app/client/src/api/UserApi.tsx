@@ -100,7 +100,6 @@ class UserApi extends Api {
   }
 
   static inviteUser(request: InviteUserRequest): AxiosPromise<ApiResponse> {
-    request.status = "INVITED";
     return Api.post(UserApi.inviteUserURL, request);
   }
 

@@ -1,110 +1,75 @@
 import styled from "styled-components";
 import React from "react";
 import { WrappedFieldInputProps } from "redux-form";
+import { useParams } from "react-router-dom";
+import EditableText, {
+  EditInteractionKind,
+} from "components/editorComponents/EditableText";
 
-import Edit from "assets/images/EditPen.svg";
+import { AppState } from "reducers";
+import { getDatasource } from "selectors/entitiesSelector";
+import { useSelector } from "react-redux";
+import { Datasource } from "api/DatasourcesApi";
+import { getDataSources } from "selectors/editorSelectors";
 
-const InputContainer = styled.div<{ focused: boolean }>`
-  align-items: center;
-  display: flex;
-  width: 300px;
-  input {
-    margin-left: 10px;
-    font-size: 18px;
-    border: ${props => (props.focused ? 1 : 0)};
-    display: block;
-    width: 100%;
-    font-weight: 500;
-    line-height: 24px;
-    text-overflow: ellipsis;
-    :hover {
-      cursor: ${props => (props.focused ? "auto" : "pointer")};
-    }
-  }
+const Wrapper = styled.div`
+  margin-left: 10px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 24px;
 `;
 
-const EditPen = styled.img`
-  height: 17px;
-  width: 17px;
-  :hover {
-    cursor: pointer;
-  }
-`;
-
-interface FormTitleProps {
-  input?: Partial<WrappedFieldInputProps>;
+interface ComponentProps {
+  input: WrappedFieldInputProps;
   focusOnMount: boolean;
 }
 
-interface FormTitleState {
-  readOnly: boolean;
-  focused: boolean;
-}
+type FormTitleProps = ComponentProps;
 
-class FormTitle extends React.Component<FormTitleProps, FormTitleState> {
-  nameInput!: HTMLInputElement | null;
+const FormTitle = (props: FormTitleProps) => {
+  const { input } = props;
+  const params = useParams<{ datasourceId: string }>();
+  const currentDatasource:
+    | Partial<Datasource>
+    | undefined = useSelector((state: AppState) =>
+    getDatasource(state, params.datasourceId),
+  );
+  const datasources: Datasource[] = useSelector(getDataSources);
 
-  constructor(props: FormTitleProps) {
-    super(props);
+  const hasNameConflict = React.useCallback(
+    (name: string) =>
+      datasources.some(
+        datasource =>
+          datasource.name === name && datasource.id !== currentDatasource?.id,
+      ),
+    [datasources, currentDatasource],
+  );
 
-    this.state = {
-      readOnly: false,
-      focused: false,
-    };
-  }
+  const isInvalidDatasourceName = React.useCallback(
+    (name: string): string | boolean => {
+      if (!name || name.trim().length === 0) {
+        return "Please enter a valid name";
+      } else if (hasNameConflict(name)) {
+        return `${name} is already being used.`;
+      }
+      return false;
+    },
+    [hasNameConflict],
+  );
 
-  componentDidMount() {
-    const { focusOnMount } = this.props;
-
-    if (focusOnMount) {
-      this.nameInput?.select();
-    }
-  }
-
-  handleFocus = (event: { target: { select: () => any } }) => {
-    event.target.select();
-  };
-
-  onFocus = () => {
-    this.nameInput?.select();
-    this.setState({ focused: true });
-  };
-
-  onBlur = () => {
-    this.setState({ focused: false });
-  };
-
-  onPressEnter = (event: any) => {
-    event.preventDefault();
-    event.target.blur();
-  };
-
-  render() {
-    const { input } = this.props;
-    const { focused } = this.state;
-
-    return (
-      <InputContainer focused={focused}>
-        <input
-          ref={input => {
-            this.nameInput = input;
-          }}
-          placeholder="Datasource Name"
-          onKeyPress={e => {
-            if (e.key === "Enter") {
-              this.onPressEnter(e);
-            }
-          }}
-          {...input}
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
-        />
-        {!focused && (
-          <EditPen onClick={this.onFocus} src={Edit} alt="Edit pen" />
-        )}
-      </InputContainer>
-    );
-  }
-}
+  return (
+    <Wrapper>
+      <EditableText
+        type="text"
+        defaultValue={input.value}
+        isInvalid={isInvalidDatasourceName}
+        onTextChanged={value => input.onChange(value)}
+        placeholder="Datasource Name"
+        editInteractionKind={EditInteractionKind.SINGLE}
+        isEditingDefault={props.focusOnMount}
+      />
+    </Wrapper>
+  );
+};
 
 export default FormTitle;
