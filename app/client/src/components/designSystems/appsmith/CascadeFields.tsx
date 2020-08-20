@@ -19,6 +19,8 @@ import {
   DropdownOption,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableFilters";
+import { MenuColumnWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import { IconName } from "@blueprintjs/icons";
 
 const StyledRemoveIcon = styled(
   ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
@@ -168,21 +170,58 @@ const operatorOptions: DropdownOption[] = [
   { label: "AND", value: OperatorTypes.AND, type: "" },
 ];
 
+const iconColumnTypeMap: Record<ColumnTypes, IconName> = {
+  [ColumnTypes.TEXT]: "label",
+  [ColumnTypes.VIDEO]: "video",
+  [ColumnTypes.IMAGE]: "media",
+  [ColumnTypes.NUMBER]: "numerical",
+  [ColumnTypes.DATE]: "calendar",
+  [ColumnTypes.CURRENCY]: "dollar",
+  [ColumnTypes.TIME]: "time",
+};
+
+const RenderOption = (props: {
+  type: string;
+  title: string;
+  active: boolean;
+}) => {
+  return (
+    <MenuColumnWrapper selected={props.active}>
+      <Icon
+        icon={iconColumnTypeMap[props.type as ColumnTypes]}
+        iconSize={12}
+        color={props.active ? Colors.WHITE : Colors.OXFORD_BLUE}
+      />
+      <div className="title">{props.title}</div>
+    </MenuColumnWrapper>
+  );
+};
+
 const RenderOptions = (props: {
   columns: DropdownOption[];
   selectItem: (column: DropdownOption) => void;
   placeholder: string;
   value?: string | Condition;
+  showType?: boolean;
 }) => {
   const [selectedValue, selectValue] = useState(props.placeholder);
   const configs = {
     sections: [
       {
         options: props.columns.map((column: DropdownOption) => {
+          const isActive = column.value === props.value;
           return {
-            content: column.label,
+            content: props.showType ? (
+              <RenderOption
+                title={column.label}
+                type={column.type}
+                active={isActive}
+              />
+            ) : (
+              column.label
+            ),
             value: column.value,
-            active: column.value === props.value,
+            active: isActive,
             onSelect: () => {
               selectValue(column.label);
               props.selectItem(column);
@@ -205,19 +244,19 @@ const RenderOptions = (props: {
     skin: Skin.LIGHT,
   };
   useEffect(() => {
-    if (props.value && configs.sections[0].options) {
-      const selectedOptions = configs.sections[0].options.filter(
+    if (props.value && props.columns) {
+      const selectedOptions = props.columns.filter(
         i => i.value === props.value,
       );
       if (selectedOptions && selectedOptions.length) {
-        selectValue(selectedOptions[0].content);
+        selectValue(selectedOptions[0].value);
       } else {
         selectValue(props.placeholder);
       }
     } else {
       selectValue(props.placeholder);
     }
-  }, [props.value, props.placeholder, configs.sections]);
+  }, [props.value, props.placeholder, props.columns]);
   return <CustomizedDropdown {...configs} />;
 };
 
@@ -474,6 +513,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
           columns={props.columns}
           selectItem={selectColumn}
           value={column}
+          showType
           placeholder="Attribute"
         />
       </DropdownWrapper>
