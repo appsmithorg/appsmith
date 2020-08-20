@@ -132,7 +132,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    public Mono<Page> getPage(String pageId, Boolean viewMode) {
+    @Override
+    public Mono<Page> getPage(String pageId, boolean viewMode) {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return pageService.findById(pageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
@@ -148,7 +149,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode) {
+    public Mono<Page> getPageByName(String applicationName, String pageName, boolean viewMode) {
         AclPermission appPermission;
         AclPermission pagePermission;
         if (viewMode) {
@@ -270,6 +271,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         // Clean the object so that it will be saved as a new application for the currently signed in user.
+        application.setClonedFromApplicationId(application.getId());
         application.setId(null);
         application.setPolicies(new HashSet<>());
         application.setPages(new ArrayList<>());
@@ -328,7 +330,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .collectList()
                             .thenReturn(application);
                 })
-                .flatMap(application -> applicationService.archive(application));
+                .flatMap(applicationService::archive);
 
         return applicationMono
                 .flatMap(analyticsService::sendDeleteEvent);

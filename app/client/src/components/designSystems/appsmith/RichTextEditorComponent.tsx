@@ -43,7 +43,10 @@ export const RichtextEditorComponent = (
     }
   }, [props.defaultValue]);
   useEffect(() => {
-    const onChange = debounce(props.onValueChange, 200);
+    const onChange = debounce((content: string) => {
+      editorContent.current = content;
+      props.onValueChange(content);
+    }, 200);
     (window as any).tinyMCE.init({
       height: "100%",
       selector: `textarea#rte-${props.widgetId}`,
@@ -58,20 +61,15 @@ export const RichtextEditorComponent = (
         }, 300);
         editor
           .on("Change", () => {
-            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           })
           .on("Undo", () => {
-            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           })
           .on("Redo", () => {
-            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           })
           .on("KeyUp", () => {
-            // console.log("change: ", editor.getContent())
-            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           });
         setEditorInstance(editor);
