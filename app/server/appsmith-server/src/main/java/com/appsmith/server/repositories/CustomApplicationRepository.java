@@ -19,7 +19,7 @@ public interface CustomApplicationRepository extends AppsmithRepository<Applicat
 
     Flux<Application> findByMultipleOrganizationIds(Set<String> orgIds, AclPermission permission);
 
-    Flux<Application> findByClonedFromApplicationId(String organizationId, AclPermission permission);
+    Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
     Mono<UpdateResult> addPageToApplication(Application application, Page page, boolean isDefault);
 
