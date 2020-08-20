@@ -71,6 +71,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { ToastType } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
+import { updateAppStore } from "actions/pageActions";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -108,6 +109,24 @@ function* navigateActionSaga(
       url = "https://" + url;
     }
     window.location.assign(url);
+  }
+}
+
+function* storeValueLocally(
+  action: { key: string; value: string },
+  event: ExecuteActionPayloadEvent,
+) {
+  try {
+    const existingStore = yield localStorage.getItem("APPSMITH_LOCAL_STORE") ||
+      "{}";
+    const storeObj = JSON.parse(existingStore);
+    storeObj[action.key] = action.value;
+    const storeString = JSON.stringify(storeObj);
+    yield localStorage.setItem("APPSMITH_LOCAL_STORE", storeString);
+    yield put(updateAppStore(storeObj));
+    if (event.callback) event.callback({ success: true });
+  } catch (err) {
+    if (event.callback) event.callback({ success: false });
   }
 }
 
@@ -356,6 +375,9 @@ function* executeActionTriggers(
       case "CLOSE_MODAL":
         yield put(trigger);
         if (event.callback) event.callback({ success: true });
+        break;
+      case "STORE_VALUE":
+        yield call(storeValueLocally, trigger.payload, event);
         break;
       default:
         yield put(
