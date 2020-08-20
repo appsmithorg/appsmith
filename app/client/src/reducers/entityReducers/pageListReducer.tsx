@@ -60,10 +60,12 @@ const pageListReducer = createReducer(initialState, {
       isDefault: boolean;
     }>,
   ) => {
-    const _state = state;
-    _state.pages = state.pages.map(page => ({ ...page, latest: false }));
-    _state.pages.push({ ...action.payload, latest: true });
-    return { ..._state };
+    return {
+      ...state,
+      pages: state.pages
+        .map(page => ({ ...page, latest: false }))
+        .concat([{ ...action.payload, latest: true }]),
+    };
   },
   [ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS]: (
     state: PageListReduxState,
