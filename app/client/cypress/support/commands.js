@@ -285,11 +285,17 @@ Cypress.Commands.add("SearchApp", appname => {
   // Wait added because after opening the application editor, sometimes it takes a little time.
 });
 
+Cypress.Commands.add("clearSearch", () => {
+  cy.get(commonlocators.entityExplorersearch).should("be.visible");
+  cy.get(commonlocators.entityExplorersearch).clear();
+});
+
 Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
   cy.get(commonlocators.entityExplorersearch).should("be.visible");
   cy.get(commonlocators.entityExplorersearch)
     .clear()
     .type(apiname1);
+  cy.wait(2000);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
@@ -303,6 +309,7 @@ Cypress.Commands.add("GlobalSearchEntity", apiname1 => {
   cy.get(commonlocators.entityExplorersearch)
     .clear()
     .type(apiname1);
+  cy.wait(2000);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
@@ -451,6 +458,7 @@ Cypress.Commands.add("SearchEntityandOpen", apiname1 => {
   cy.get(commonlocators.entityExplorersearch)
     .clear()
     .type(apiname1);
+  cy.wait(2000);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
