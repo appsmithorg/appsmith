@@ -290,7 +290,7 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
   cy.get(commonlocators.entityExplorersearch)
     .clear()
     .type(apiname1);
-  cy.wait(1000);
+  cy.wait(2000);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
@@ -304,7 +304,7 @@ Cypress.Commands.add("GlobalSearchEntity", apiname1 => {
   cy.get(commonlocators.entityExplorersearch)
     .clear()
     .type(apiname1);
-  cy.wait(1000);
+  cy.wait(2000);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
@@ -453,7 +453,7 @@ Cypress.Commands.add("SearchEntityandOpen", apiname1 => {
   cy.get(commonlocators.entityExplorersearch)
     .clear()
     .type(apiname1);
-  cy.wait(1000);
+  cy.wait(2000);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
