@@ -14,7 +14,6 @@ const initialState: QueryPaneReduxState = {
   isRunning: {},
   isSaving: {},
   isDeleting: {},
-  runQuerySuccessData: {},
   runErrorMessage: {},
   lastUsed: "", // NR
 };
@@ -24,7 +23,6 @@ export interface QueryPaneReduxState {
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>; // RR
   isDeleting: Record<string, boolean>;
-  runQuerySuccessData: {};
   runErrorMessage: Record<string, string>;
   lastUsed: string; // NR
   isCreating: boolean; // RR
@@ -126,13 +124,8 @@ const queryPaneReducer = createReducer(initialState, {
         ...state.isRunning,
         [action.payload.id]: true,
       },
-      runQuerySuccessData: [],
     };
   },
-  [ReduxActionTypes.CLEAR_PREVIOUSLY_EXECUTED_QUERY]: (state: any) => ({
-    ...state,
-    runQuerySuccessData: [],
-  }),
 
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
     state: any,
@@ -144,10 +137,6 @@ const queryPaneReducer = createReducer(initialState, {
       isRunning: {
         ...state.isRunning,
         [actionId]: false,
-      },
-      runQuerySuccessData: {
-        ...state.runQuerySuccessData,
-        ...action.payload,
       },
       runErrorMessage: _.omit(state.runErrorMessage, [actionId]),
     };

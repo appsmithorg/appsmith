@@ -1,4 +1,4 @@
-export const DMSans = "DM Sans";
-export const FiraCode = '"Fira code", "Fira Mono", monospace';
-export const HomePageRedesign =
-  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"';
+export const TextFonts =
+  "-apple-system, BlinkMacSystemFont, “Segoe UI”, “Roboto”, “Oxygen”, “Ubuntu”, “Cantarell”, “Fira Sans”, “Droid Sans”, “Helvetica Neue”, sans-serif";
+export const CodeFonts =
+  'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace';

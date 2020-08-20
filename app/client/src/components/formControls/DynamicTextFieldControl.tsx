@@ -15,6 +15,11 @@ import styled from "styled-components";
 import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
 import { QUERY_BODY_FIELD } from "constants/QueryEditorConstants";
 import { getPluginResponseTypes } from "selectors/entitiesSelector";
+import history from "utils/history";
+import {
+  convertObjectToQueryParams,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 
 const Wrapper = styled.div`
   .dynamic-text-field {
@@ -54,7 +59,8 @@ class DynamicTextControl extends BaseControl<
   render() {
     const { responseType } = this.props;
     const isNewQuery =
-      new URLSearchParams(window.location.search).get("new") === "true";
+      new URLSearchParams(window.location.search).get("showTemplate") ===
+      "true";
     const showTemplate =
       isNewQuery && this.state.showTemplateMenu && this.props.pluginId;
     const mode =
@@ -113,6 +119,14 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => ({
   createTemplate: (template: any) => {
+    const params = getQueryParams();
+    if (params.showTemplate) {
+      params.showTemplate = "false";
+    }
+    history.replace({
+      ...window.location,
+      search: convertObjectToQueryParams(params),
+    });
     dispatch(change(QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template));
   },
 });
