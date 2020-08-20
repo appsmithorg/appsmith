@@ -3,6 +3,9 @@ import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as OpenLinkIcon } from "assets/icons/help/openlink.svg";
 import { ReactComponent as DocumentIcon } from "assets/icons/help/document.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/help/help.svg";
+import { ReactComponent as GithubIcon } from "assets/icons/help/github-icon.svg";
+import { ReactComponent as DiscordIcon } from "assets/icons/help/discord.svg";
+import { Icon } from "@blueprintjs/core";
 
 /* eslint-disable react/display-name */
 
@@ -22,6 +25,21 @@ export const HelpIcons: {
   HELP_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <HelpIcon />
+    </IconWrapper>
+  ),
+  GITHUB: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <GithubIcon />
+    </IconWrapper>
+  ),
+  CHAT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <Icon icon={"chat"} />
+    </IconWrapper>
+  ),
+  DISCORD: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DiscordIcon />
     </IconWrapper>
   ),
 };

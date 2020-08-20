@@ -58,7 +58,29 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      isValid: `{{!!(this.isRequired ? this.text && this.text.length > 0 ? this.regex ? new RegExp(this.regex).test(this.text) : true : false : this.regex ? new RegExp(this.regex).test(this.text) : true)}}`,
+      isValid: `{{
+        function(){
+          const isEmailType = this.inputType === "EMAIL";
+          if(isEmailType) {
+            const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
+            return emailRegex.test(this.text);
+          } else if(this.isRequired) {
+            if(this.text && this.text.length > 0) {
+              if(this.regex) {
+                return new RegExp(this.regex).test(this.text)
+              } else {
+                return true;
+              }
+            } else {
+              return false;
+            }
+          } if(this.regex) {
+            return new RegExp(this.regex).test(this.text)
+          } else {
+            return true;
+          }
+        }()
+      }}`,
       value: `{{this.text}}`,
     };
   }
@@ -117,6 +139,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
     const value = this.state.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {

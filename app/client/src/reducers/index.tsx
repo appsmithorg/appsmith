@@ -5,7 +5,6 @@ import { reducer as formReducer } from "redux-form";
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
 import { ErrorReduxState } from "./uiReducers/errorReducer";
-import { QueryDataState } from "./entityReducers/queryDataReducer";
 import { ActionDataState } from "./entityReducers/actionsReducer";
 import { PropertyPaneConfigState } from "./entityReducers/propertyPaneConfigReducer";
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
@@ -29,8 +28,9 @@ import { MetaState } from "./entityReducers/metaReducer";
 import { ImportReduxState } from "reducers/uiReducers/importReducer";
 import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
-import { AuthUserState } from "reducers/entityReducers/authUserReducer";
-import { UrlDataState } from "reducers/entityReducers/urlReducer";
+import { ExplorerReduxState } from "./uiReducers/explorerReducer";
+import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
+import { AppDataState } from "@appsmith/reducers/entityReducers/appReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -60,10 +60,11 @@ export interface AppState {
     datasourcePane: DatasourcePaneReduxState;
     help: HelpReduxState;
     apiName: ApiNameReduxState;
+    explorer: ExplorerReduxState;
+    pageDSLs: PageDSLsReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
-    queryData: QueryDataState;
     actions: ActionDataState;
     propertyConfig: PropertyPaneConfigState;
     widgetConfig: WidgetConfigReducerState;
@@ -71,7 +72,6 @@ export interface AppState {
     pageList: PageListReduxState;
     plugins: PluginDataState;
     meta: MetaState;
-    authUser: AuthUserState;
-    url: UrlDataState;
+    app: AppDataState;
   };
 }

@@ -26,8 +26,6 @@ const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 const getPageListState = (state: AppState) => state.entities.pageList;
 export const getDataSources = (state: AppState) =>
   state.entities.datasources.list;
-export const getLastSelectedPage = (state: AppState) =>
-  state.ui.apiPane.lastSelectedPage;
 
 export const getProviderCategories = (state: AppState) =>
   state.ui.providers.providerCategories;

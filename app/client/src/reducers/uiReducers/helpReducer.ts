@@ -4,8 +4,6 @@ import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 const initialState: HelpReduxState = {
   url: "",
   modalOpen: false,
-  height: 243,
-  width: 269,
   defaultRefinement: "",
 };
 
@@ -27,8 +25,6 @@ const helpReducer = createReducer(initialState, {
 export interface HelpReduxState {
   url: string;
   modalOpen: boolean;
-  height: number;
-  width: number;
   defaultRefinement: string;
 }
 

@@ -10,7 +10,8 @@ import {
 } from "constants/ReduxActionConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { UrlDataState } from "@appsmith/reducers/entityReducers/urlReducer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 
 export const fetchPageList = (
   applicationId: string,
@@ -27,7 +28,7 @@ export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
-      pageId,
+      id: pageId,
     },
   };
 };
@@ -88,6 +89,29 @@ export const updateAndSaveLayout = (widgets: FlattenedWidgetProps) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
     payload: { widgets },
+  };
+};
+
+export const createPage = (applicationId: string, pageName: string) => {
+  AnalyticsUtil.logEvent("CREATE_PAGE", {
+    pageName,
+  });
+  return {
+    type: ReduxActionTypes.CREATE_PAGE_INIT,
+    payload: {
+      applicationId,
+      name: pageName,
+    },
+  };
+};
+
+export const updatePage = (id: string, name: string) => {
+  return {
+    type: ReduxActionTypes.UPDATE_PAGE_INIT,
+    payload: {
+      id,
+      name,
+    },
   };
 };
 
@@ -155,6 +179,13 @@ export const setUrlData = (
 ): ReduxAction<UrlDataState> => {
   return {
     type: ReduxActionTypes.SET_URL_DATA,
+    payload,
+  };
+};
+
+export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
+  return {
+    type: ReduxActionTypes.SET_APP_MODE,
     payload,
   };
 };

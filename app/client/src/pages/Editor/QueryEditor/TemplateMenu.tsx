@@ -56,10 +56,6 @@ type Props = TemplateMenuProps & ReduxProps;
 class TemplateMenu extends React.Component<Props> {
   nameInput!: HTMLDivElement | null;
 
-  componentDidMount() {
-    this.nameInput?.focus();
-  }
-
   fetchTemplate = (queryType: string) => {
     const { pluginId, allPluginTemplates } = this.props;
     const pluginTemplates = allPluginTemplates[pluginId];

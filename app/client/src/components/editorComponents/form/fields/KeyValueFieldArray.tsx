@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
@@ -20,14 +20,6 @@ const FormRowWithLabel = styled(FormRow)`
 `;
 
 const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
-  useEffect(() => {
-    // Always maintain 2 rows
-    if (props.fields.length < 2 && props.pushFields !== false) {
-      for (let i = props.fields.length; i < 2; i += 1) {
-        props.fields.push({ key: "", value: "" });
-      }
-    }
-  }, [props.fields, props.pushFields]);
   return (
     <React.Fragment>
       {props.fields.length && (
@@ -152,7 +144,6 @@ type Props = {
 const KeyValueFieldArray = (props: Props) => {
   return (
     <FieldArray
-      name={props.name}
       component={KeyValueRow}
       rerenderOnEveryChange={false}
       {...props}

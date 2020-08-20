@@ -8,9 +8,8 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { ActionConfig, Property } from "entities/Action";
-import { AuthUserState } from "@appsmith/reducers/entityReducers/authUserReducer";
-import { UrlDataState } from "@appsmith/reducers/entityReducers/urlReducer";
+import { ActionConfig, PluginType, Property } from "entities/Action";
+import { AppDataState } from "reducers/entityReducers/appReducer";
 
 export type ActionDescription<T> = {
   type: string;
@@ -38,36 +37,24 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   data: ActionResponse["body"];
   actionId: string;
   config: Partial<ActionConfig>;
+  pluginType: PluginType;
+  name: string;
   run: ActionDispatcher<RunActionPayload, [string, string, string]> | {};
   dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
-}
-
-export interface DataTreeUrl {
-  queryParams: Record<string, string>;
-  protocol: string;
-  host: string;
-  hostname: string;
-  port: string;
-  pathname: string;
-  hash: string;
-  href: string;
 }
 
 export interface DataTreeWidget extends WidgetProps {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
-export interface DataTreeAppsmith {
-  user: AuthUserState;
-  URL: UrlDataState;
+export interface DataTreeAppsmith extends AppDataState {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
 }
 
 export type DataTreeEntity =
   | DataTreeAction
   | DataTreeWidget
-  | DataTreeUrl
   | PageListPayload
   | DataTreeAppsmith
   | ActionDispatcher<any, any>;
@@ -81,13 +68,12 @@ type DataTreeSeed = {
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
   pageList: PageListPayload;
-  url: DataTreeUrl;
-  authUser: AuthUserState;
+  appData: AppDataState;
 };
 
 export class DataTreeFactory {
   static create(
-    { actions, widgets, widgetsMeta, pageList, authUser, url }: DataTreeSeed,
+    { actions, widgets, widgetsMeta, pageList, appData }: DataTreeSeed,
     // TODO(hetu)
     // temporary fix for not getting functions while normal evals which crashes the app
     // need to remove this after we get a proper solve
@@ -111,6 +97,8 @@ export class DataTreeFactory {
       dataTree[config.name] = {
         ...a,
         actionId: config.id,
+        name: config.name,
+        pluginType: config.pluginType,
         config: config.actionConfiguration,
         dynamicBindingPathList,
         data: a.data ? a.data.body : {},
@@ -206,8 +194,7 @@ export class DataTreeFactory {
     dataTree.actionPaths = actionPaths;
     dataTree.appsmith = {
       ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
-      user: authUser,
-      URL: url,
+      ...appData,
     };
     return dataTree;
   }

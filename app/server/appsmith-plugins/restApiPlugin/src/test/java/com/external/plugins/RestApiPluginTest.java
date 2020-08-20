@@ -36,11 +36,10 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<Object> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
-                .assertNext(r -> {
-                    ActionExecutionResult result = (ActionExecutionResult) r;
+                .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("data");
@@ -59,11 +58,10 @@ public class RestApiPluginTest {
         actionConfig.setHeaders(List.of(new Property("content-type", "application/x-www-form-urlencoded")));
         actionConfig.setHttpMethod(HttpMethod.POST);
         actionConfig.setBodyFormData(List.of(new Property("key", "value"), new Property("key1", "value1")));
-        Mono<Object> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
-                .assertNext(r -> {
-                    ActionExecutionResult result = (ActionExecutionResult) r;
+                .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("form");

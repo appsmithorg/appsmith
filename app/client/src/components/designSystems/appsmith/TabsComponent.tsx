@@ -103,6 +103,7 @@ const StyledText = styled.div<TabProps>`
 `;
 
 const TabsComponent = (props: TabsComponentProps) => {
+  const { onTabChange, ...remainingProps } = props;
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
@@ -135,7 +136,7 @@ const TabsComponent = (props: TabsComponentProps) => {
       )}
       <ChildrenWrapper>
         <ScrollableCanvasWrapper
-          {...props}
+          {...remainingProps}
           className={`${
             props.shouldScrollContents ? getCanvasClassName() : ""
           } ${generateClassName(props.widgetId)}`}

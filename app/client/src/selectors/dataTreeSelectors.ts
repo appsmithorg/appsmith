@@ -1,9 +1,5 @@
 import { createSelector } from "reselect";
-import {
-  getActionsForCurrentPage,
-  getAuthUser,
-  getUrl,
-} from "./entitiesSelector";
+import { getActionsForCurrentPage, getAppData } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
@@ -18,9 +14,8 @@ export const getUnevaluatedDataTree = (withFunctions?: boolean) =>
     getWidgets,
     getWidgetsMeta,
     getPageList,
-    getAuthUser,
-    getUrl,
-    (actions, widgets, widgetsMeta, pageListPayload, authUser, url) => {
+    getAppData,
+    (actions, widgets, widgetsMeta, pageListPayload, appData) => {
       const pageList = pageListPayload || [];
       return DataTreeFactory.create(
         {
@@ -28,8 +23,7 @@ export const getUnevaluatedDataTree = (withFunctions?: boolean) =>
           widgets,
           widgetsMeta,
           pageList,
-          authUser,
-          url,
+          appData,
         },
         withFunctions,
       );

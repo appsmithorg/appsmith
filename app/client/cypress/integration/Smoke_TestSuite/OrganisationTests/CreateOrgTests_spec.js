@@ -29,6 +29,7 @@ describe("Create new org and share with a user", function() {
     cy.wait(2000);
     cy.contains(orgid);
     cy.xpath(homePage.ShareBtn).should("not.be.visible");
+    cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.be.visible");
     cy.launchApp(appid);
     cy.LogOut();
@@ -58,7 +59,8 @@ describe("Create new org and share with a user", function() {
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
     cy.contains(orgid);
-    cy.xpath(homePage.ShareBtn).should("not.be.visible");
+    cy.xpath(homePage.ShareBtn).should("be.visible");
+    cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon)
       .first()
       .click({ force: true });
@@ -131,7 +133,5 @@ describe("Create new org and share with a user", function() {
     );
     cy.SearchApp(appid);
     cy.get("#loading").should("not.exist");
-    cy.wait("@getPropertyPane");
-    cy.get("@getPropertyPane").should("have.property", "status", 200);
   });
 });

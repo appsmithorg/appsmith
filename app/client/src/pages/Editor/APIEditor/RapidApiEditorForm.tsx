@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
@@ -7,7 +7,6 @@ import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField, BodyFormData, Property } from "api/ActionAPI";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -130,8 +129,6 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
     providerImage,
     providerURL,
     providerCredentialSteps,
-    location,
-    dispatch,
   } = props;
 
   const postbodyResponsePresent =
@@ -139,26 +136,6 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
     actionConfiguration &&
     actionConfigurationBodyFormData &&
     actionConfigurationBodyFormData.length > 0;
-
-  // let credentialStepsData;
-  // if (providerCredentialSteps.length !== 0) {
-  //   credentialStepsData = providerCredentialSteps.split("\\n");
-  // }
-  // console.log(credentialStepsData, "credentialStepsData");
-
-  useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.SET_LAST_USED_EDITOR_PAGE,
-      payload: {
-        path: location.pathname,
-      },
-    });
-  });
-
-  // const abc = (text: string) => {
-  //   console.log(text, "text");
-
-  // }
 
   return (
     <Form

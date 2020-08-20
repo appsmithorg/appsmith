@@ -54,7 +54,12 @@ import {
 } from "selectors/entitiesSelector";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
-import { API_EDITOR_URL, QUERIES_EDITOR_URL } from "constants/routes";
+import {
+  API_EDITOR_URL,
+  QUERIES_EDITOR_URL,
+  QUERIES_EDITOR_ID_URL,
+  API_EDITOR_ID_URL,
+} from "constants/routes";
 import { changeApi } from "actions/apiPaneActions";
 import { changeQuery } from "actions/queryPaneActions";
 
@@ -287,6 +292,28 @@ function* moveActionSaga(
       apiID: response.data.id,
     });
     yield put(moveActionSuccess(response.data));
+    const applicationId = yield select(getCurrentApplicationId);
+
+    const isApi = actionObject.pluginType === PLUGIN_TYPE_API;
+    const isQuery = actionObject.pluginType === QUERY_CONSTANT;
+
+    if (isQuery) {
+      history.push(
+        QUERIES_EDITOR_ID_URL(
+          applicationId,
+          response.data.pageId,
+          response.data.id,
+        ),
+      );
+    } else if (isApi) {
+      history.push(
+        API_EDITOR_ID_URL(
+          applicationId,
+          response.data.pageId,
+          response.data.id,
+        ),
+      );
+    }
   } catch (e) {
     AppToaster.show({
       message: `Error while moving action ${actionObject.name}`,
@@ -331,6 +358,10 @@ function* copyActionSaga(
       apiID: response.data.id,
     });
     yield put(copyActionSuccess(response.data));
+    const applicationId = yield select(getCurrentApplicationId);
+    history.push(
+      API_EDITOR_ID_URL(applicationId, response.data.pageId, response.data.id),
+    );
   } catch (e) {
     AppToaster.show({
       message: `Error while copying action ${actionObject.name}`,
@@ -348,7 +379,7 @@ export function* refactorActionName(
 ) {
   // fetch page of the action
   const pageResponse = yield call(PageApi.fetchPage, {
-    pageId: pageId,
+    id: pageId,
   });
   // check if page request is successful
   const isPageRequestSuccessful = yield validateResponse(pageResponse);
@@ -368,7 +399,7 @@ export function* refactorActionName(
     const currentPageId = yield select(getCurrentPageId);
     if (isRefactorSuccessful) {
       yield put({
-        type: ReduxActionTypes.SAVE_API_NAME_SUCCESS,
+        type: ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,
         payload: {
           actionId: id,
         },
@@ -382,7 +413,7 @@ export function* refactorActionName(
   }
 }
 
-function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
+function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from state, checks if the name isValid, saves
   const apiId = action.payload.id;
   const api = yield select(state =>
@@ -399,7 +430,7 @@ function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
     );
   } catch (e) {
     yield put({
-      type: ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
+      type: ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       payload: {
         actionId: action.payload.id,
         oldName: api.config.name,
@@ -482,7 +513,7 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
-    takeLatest(ReduxActionTypes.SAVE_API_NAME, saveApiNameSaga),
+    takeLatest(ReduxActionTypes.SAVE_ACTION_NAME_INIT, saveActionName),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
     takeLatest(ReduxActionTypes.COPY_ACTION_INIT, copyActionSaga),
     takeLatest(

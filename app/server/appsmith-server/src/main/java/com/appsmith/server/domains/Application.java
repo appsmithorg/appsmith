@@ -1,12 +1,14 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
@@ -29,4 +31,11 @@ public class Application extends BaseDomain {
     Boolean isPublic = false;
 
     List<ApplicationPage> pages;
+
+    @Transient
+    boolean appIsExample = false;
+
+    @JsonIgnore
+    String clonedFromApplicationId;
+
 }

@@ -114,6 +114,7 @@ export function* fetchApplicationListSaga() {
           id: application.id,
           pageCount: application.pages ? application.pages.length : 0,
           defaultPageId: getDefaultPageId(application.pages),
+          appIsExample: application.appIsExample,
         }),
       );
       yield put({
@@ -164,7 +165,7 @@ export function* setDefaultApplicationPageSaga(
     const defaultPageId = yield select(
       (state: AppState) => state.entities.pageList.defaultPageId,
     );
-    if (defaultPageId !== action.payload.pageId) {
+    if (defaultPageId !== action.payload.id) {
       const request: SetDefaultPageRequest = action.payload;
       const response: ApiResponse = yield call(
         ApplicationApi.setDefaultApplicationPage,
@@ -173,10 +174,7 @@ export function* setDefaultApplicationPageSaga(
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
         yield put(
-          setDefaultApplicationPageSuccess(
-            request.pageId,
-            request.applicationId,
-          ),
+          setDefaultApplicationPageSuccess(request.id, request.applicationId),
         );
       }
     }
@@ -290,6 +288,7 @@ export function* createApplicationSaga(
           organizationId: response.data.organizationId,
           pageCount: response.data.pages ? response.data.pages.length : 0,
           defaultPageId: getDefaultPageId(response.data.pages),
+          appIsExample: response.data.appIsExample,
         };
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,

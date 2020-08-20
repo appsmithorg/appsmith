@@ -8,9 +8,10 @@ describe("API Panel Test Functionality ", function() {
     cy.CreateAPI("FirstAPI");
     cy.RunAPI();
     cy.log("Creation of FirstAPI Action successful");
+    cy.NavigateToAPI_Panel();
     cy.CreateAPI("SecondAPI");
     cy.RunAPI();
     cy.log("Creation of SecondAPI Action successful");
-    cy.SearchAPI("SecondAPI", "FirstAPI");
+    cy.SearchEntity("SecondAPI", "FirstAPI");
   });
 });

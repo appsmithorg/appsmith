@@ -4,6 +4,7 @@ public class FieldName {
     public static final String EMAIL = "email";
     public static final String ORGANIZATION_ID = "organizationId";
     public static final String DELETED = "deleted";
+    public static final String CREATED_AT = "createdAt";
     public static final String DELETED_AT = "deletedAt";
     public static String ORGANIZATION = "organization";
     public static String ID = "id";
@@ -50,4 +51,5 @@ public class FieldName {
             "        \"children\": []\n" +
             "}";
     public static String ANONYMOUS_USER = "anonymousUser";
+    public static String USERNAMES = "usernames";
 }

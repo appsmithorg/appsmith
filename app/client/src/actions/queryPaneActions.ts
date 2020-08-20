@@ -18,9 +18,12 @@ export const initQueryPane = (
   };
 };
 
-export const changeQuery = (id: string): ReduxAction<{ id: string }> => {
+export const changeQuery = (
+  id: string,
+  newQuery?: boolean,
+): ReduxAction<{ id: string; newQuery?: boolean }> => {
   return {
     type: ReduxActionTypes.QUERY_PANE_CHANGE,
-    payload: { id },
+    payload: { id, newQuery },
   };
 };

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -37,7 +38,8 @@ public class PageController extends BaseController<PageService, Page, String> {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Page>> create(@Valid @RequestBody Page resource,
-                                          @RequestHeader(name = "Origin", required = false) String originHeader) {
+                                          @RequestHeader(name = "Origin", required = false) String originHeader,
+                                          ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return applicationPageService.createPage(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -81,5 +83,11 @@ public class PageController extends BaseController<PageService, Page, String> {
         log.debug("Going to delete page with id: {}", id);
         return service.delete(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @PostMapping("/clone/{pageId}")
+    public Mono<ResponseDTO<Page>> clonePage(@PathVariable String pageId) {
+        return applicationPageService.clonePage(pageId)
+                .map(page -> new ResponseDTO<>(HttpStatus.CREATED.value(), page, null));
     }
 }

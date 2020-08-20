@@ -56,7 +56,7 @@ export const inviteUsersToOrgSubmitHandler = (
 export const inviteUsersToOrg = (values: any, dispatch: any): Promise<any> => {
   const data = {
     roleName: values.role,
-    emails: values.users ? values.users.split(",") : [],
+    usernames: values.users ? values.users.split(",") : [],
     orgId: values.orgId,
   };
   return new Promise((resolve, reject) => {

@@ -14,6 +14,8 @@ export const getWidgets = (
 };
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
+export const getWidgetMetaProps = (state: AppState, widgetId: string) =>
+  state.entities.meta[widgetId];
 
 export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
   return state.entities.canvasWidgets[widgetId];

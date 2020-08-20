@@ -34,6 +34,11 @@ mongo_host="mongo"
 mongo_database="appsmith"
 mongo_root_user=$( generate_random_string )
 mongo_root_password=$( generate_random_string )
+
+# The encoded strings are the same as the raw strings because we are generating them and hence it'll be without special characters
+encoded_mongo_root_user=mongo_root_user
+encoded_mongo_root_password=mongo_root_password
+
 user_encryption_password=$( generate_random_string )
 user_encryption_salt=$( generate_random_string )
 

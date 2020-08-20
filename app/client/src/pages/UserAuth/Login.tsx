@@ -88,8 +88,10 @@ export const Login = (props: LoginFormProps) => {
   }
 
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
+  let signupURL = SIGN_UP_URL;
   if (queryParams.has("redirectTo")) {
     loginURL += `?redirectUrl=${queryParams.get("redirectTo")}`;
+    signupURL += `?redirectTo=${queryParams.get("redirectTo")}`;
   }
 
   let forgotPasswordURL = `${FORGOT_PASSWORD_URL}`;
@@ -159,7 +161,7 @@ export const Login = (props: LoginFormProps) => {
         {SocialLoginList.length > 0 && <Divider />}
         <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
       </AuthCardBody>
-      <AuthCardNavLink to={SIGN_UP_URL}>
+      <AuthCardNavLink to={signupURL}>
         {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
       </AuthCardNavLink>
       <AuthCardFooter>
