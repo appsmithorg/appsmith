@@ -7,10 +7,10 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,15 +64,18 @@ public class OrganizationController extends BaseController<OrganizationService, 
                                                 @RequestPart("file") Mono<FilePart> fileMono,
                                                 ServerWebExchange exchange) {
         return fileMono
-                .flatMapMany(Part::content)
-                .flatMap(buffer -> {
+                .zipWhen(part -> { // part.headers().getContentType()
+                    return part.content().single();
+                })
+                .flatMap(tuple -> {
+                    final FilePart filePart = tuple.getT1();
+                    final DataBuffer buffer = tuple.getT2();
                     byte[] bytes = new byte[buffer.readableByteCount()];
                     buffer.read(bytes);
                     DataBufferUtils.release(buffer);
-                    return service.uploadLogo(organizationId, bytes);
+                    return service.uploadLogo(organizationId, filePart, bytes);
                 })
-                .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null))
-                .singleOrEmpty();
+                .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
     }
 
 }

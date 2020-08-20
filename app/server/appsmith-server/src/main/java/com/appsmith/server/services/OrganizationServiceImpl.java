@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -310,11 +311,12 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     }
 
     @Override
-    public Mono<String> uploadLogo(String organizationId, byte[] data) {
+    public Mono<String> uploadLogo(String organizationId, FilePart filePart, byte[] data) {
+        // TODO: Delete previous asset, if set.
         return repository
                 .findById(organizationId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
-                .zipWith(assetRepository.save(new Asset(data)))
+                .zipWith(assetRepository.save(new Asset(filePart.headers().getContentType(), data)))
                 .flatMap(tuple -> {
                     final Organization organization = tuple.getT1();
                     final Asset asset = tuple.getT2();
