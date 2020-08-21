@@ -328,7 +328,7 @@ if test -f "$encryptionEnv"; then
         setup_encryption="false"
     elif [[ $overwrite_encryption -eq 2 ]];then
         setup_encryption="true"
-        auto_generate_encryption="true" 
+        auto_generate_encryption="true"
     elif [[ $overwrite_encryption -eq 3 ]];then
         setup_encryption="true"
         auto_generate_encryption="false"
@@ -372,8 +372,10 @@ fi
 
 echo ""
 echo "Downloading the configuration templates..."
-mkdir -p template
-( cd template
+templates_dir=template
+mkdir -p "$templates_dir"
+
+pushd "$templates_dir"
 curl --remote-name-all --silent --show-error \
     https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
     https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh \
@@ -381,7 +383,7 @@ curl --remote-name-all --silent --show-error \
     https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
     https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
     https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
-)
+popd
 
 # Role - Folder
 for directory_name in nginx certbot/conf certbot/www mongo/db
@@ -391,14 +393,15 @@ done
 
 echo ""
 echo "Generating the configuration files from the templates"
-. ./template/nginx_app.conf.sh
-. ./template/docker-compose.yml.sh
-. ./template/mongo-init.js.sh
-. ./template/init-letsencrypt.sh.sh
-. ./template/docker.env.sh
+. "$templates_dir"/nginx_app.conf.sh
+. "$templates_dir"/docker-compose.yml.sh
+. "$templates_dir"/mongo-init.js.sh
+. "$templates_dir"/init-letsencrypt.sh.sh
+. "$templates_dir"/docker.env.sh
 if [[ "$setup_encryption" = "true" ]];then
-   . ./template/encryption.env.sh
+   . "$templates_dir"/encryption.env.sh
 fi
+rm -rf "$templates_dir"
 chmod 0755 init-letsencrypt.sh
 
 overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
