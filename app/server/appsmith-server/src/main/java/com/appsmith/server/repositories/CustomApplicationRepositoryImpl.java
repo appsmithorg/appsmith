@@ -4,11 +4,11 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -73,13 +73,30 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<UpdateResult> addPageToApplication(Application application, Page page, boolean isDefault) {
-        final ApplicationPage applicationPage = new ApplicationPage(page.getId(), isDefault);
+    public Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault) {
+        final ApplicationPage applicationPage = new ApplicationPage(pageId, isDefault);
         return mongoOperations.updateFirst(
-                Query.query(getIdCriteria(application.getId())),
+                Query.query(getIdCriteria(applicationId)),
                 new Update().addToSet(FieldName.PAGES, applicationPage),
                 Application.class
         );
+    }
+
+    @Override
+    public Mono<UpdateResult> setDefaultPage(String applicationId, String pageId) {
+        final Mono<UpdateResult> setAllAsNonDefaultMono = mongoOperations.updateFirst(
+                Query.query(getIdCriteria(applicationId)).addCriteria(Criteria.where("pages.isDefault").is(true)),
+                new Update().set("pages.$.isDefault", false),
+                Application.class
+        );
+
+        final Mono<UpdateResult> setDefaultMono = mongoOperations.updateFirst(
+                Query.query(getIdCriteria(applicationId)).addCriteria(Criteria.where("pages._id").is(new ObjectId(pageId))),
+                new Update().set("pages.$.isDefault", true),
+                Application.class
+        );
+
+        return setAllAsNonDefaultMono.then(setDefaultMono);
     }
 
 }
