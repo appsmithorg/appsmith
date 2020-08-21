@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { snapToGrid } from "utils/helpers";
 import { IntentColors } from "constants/DefaultTheme";
 import { useSpring, animated, interpolate, config } from "react-spring";
+import errorFrame from "assets/icons/dropzone/Frame_555.png";
 
 const SPRING_CONFIG = {
   ...config.gentle,
@@ -11,14 +12,26 @@ const SPRING_CONFIG = {
   friction: 0,
   tension: 999,
 };
-const DropZoneWrapper = styled.div<{ width: number; height: number }>`
+const DropZoneWrapper = styled.div<{
+  width: number;
+  height: number;
+  candrop: boolean;
+}>`
   width: ${props => props.width}px;
   height: ${[props => props.height]}px;
   position: absolute;
-  background: ${IntentColors.success};
+  background: ${props => (props.candrop ? IntentColors.success : "#333")};
+  ${props =>
+    !props.candrop
+      ? `
+  background-image: linear-gradient(45deg, #ce4257 25%, #292233 25%, #292233 50%, #ce4257 50%, #ce4257 75%, #292233 75%, #292233 100%);
+  background-size: 14.14px 14.14px;
+  `
+      : ""}
   border: 1px dashed ${props => props.theme.colors.textAnchor};
   will-change: transform;
   opacity: 0.6;
+  transition: visibility 0s 2s, opacity 2s linear;
   z-index: 1;
 `;
 
@@ -105,6 +118,7 @@ export const DropZone = forwardRef(
           ref={ref}
           width={props.width * props.parentColumnWidth}
           height={props.height * props.parentRowHeight}
+          candrop={props.canDrop}
           style={{
             transform: interpolate(
               [X, Y],
