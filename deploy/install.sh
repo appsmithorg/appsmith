@@ -282,7 +282,7 @@ echo "Installing Appsmith to '$install_dir'."
 mkdir -p "$install_dir"
 echo ""
 
-if confirm n "Is this a fresh installation?"; then
+if confirm y "Is this a fresh installation?"; then
     echo "Appsmith needs to create a MongoDB instance."
     mongo_host="mongo"
     mongo_database="appsmith"
@@ -301,7 +301,7 @@ else
     # It is possible that this isn't the first installation. 
     echo ""
     # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
-    if confirm n "Do you have any existing data in the database?"; then
+    if confirm y "Do you have any existing data in the database?"; then
         auto_generate_encryption="false"
     else
         auto_generate_encryption="true"
@@ -384,12 +384,14 @@ mkdir -p "$templates_dir"
         https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
-# Role - Folder
+cp /vagrant/template/* "$templates_dir/"
+
+# Create needed folder structure.
 mkdir -p "$install_dir/data/"{nginx,certbot/{conf,www},mongo/db}
 
 echo ""
 echo "Generating the configuration files from the templates"
-. "$templates_dir"/nginx_app.conf.sh
+bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
 . "$templates_dir"/docker-compose.yml.sh
 . "$templates_dir"/mongo-init.js.sh
 . "$templates_dir"/init-letsencrypt.sh.sh
@@ -397,7 +399,7 @@ echo "Generating the configuration files from the templates"
 if [[ "$setup_encryption" = "true" ]];then
    . "$templates_dir"/encryption.env.sh
 fi
-rm -rf "$templates_dir"
+#rm -rf "$templates_dir"
 chmod 0755 init-letsencrypt.sh
 
 overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
