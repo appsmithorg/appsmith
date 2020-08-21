@@ -298,7 +298,7 @@ else
     read -rp 'Enter your current mongo root user: ' mongo_root_user
     read -srp 'Enter your current mongo password: ' mongo_root_password
     read -rp 'Enter your current mongo database name: ' mongo_database
-    # It is possible that this isn't the first installation. 
+    # It is possible that this isn't the first installation.
     echo ""
     # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
     if confirm y "Do you have any existing data in the database?"; then
@@ -440,16 +440,15 @@ if [[ $status_code -ne 401 ]]; then
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
 else
-    echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
-    echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
-    echo ""
-    echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
+    echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
+    echo "Your installation is complete!"
     echo ""
     if [[ -z $custom_domain ]]; then
         echo "Your application is running on 'http://localhost'."
     else
         echo "Your application is running on 'https://$custom_domain'."
     fi
+    echo ""
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Need help troubleshooting?"
