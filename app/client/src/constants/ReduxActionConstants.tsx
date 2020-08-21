@@ -397,6 +397,13 @@ export interface Page {
   latest?: boolean;
 }
 
+export interface ClonePageSuccessPayload {
+  pageName: string;
+  pageId: string;
+  layoutId: string;
+  isDefault: boolean;
+}
+
 export type PageListPayload = Array<Page>;
 
 export type ApplicationPayload = {

@@ -114,6 +114,21 @@ export const clonePageInit = (pageId: string) => {
   };
 };
 
+export const clonePageSuccess = (
+  pageId: string,
+  pageName: string,
+  layoutId: string,
+) => {
+  return {
+    type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
+    payload: {
+      pageId,
+      pageName,
+      layoutId,
+    },
+  };
+};
+
 export const updatePage = (id: string, name: string) => {
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,

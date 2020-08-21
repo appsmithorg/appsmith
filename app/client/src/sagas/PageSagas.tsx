@@ -10,6 +10,7 @@ import {
 } from "constants/ReduxActionConstants";
 import {
   deletePageSuccess,
+  clonePageSuccess,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
   savePageSuccess,
@@ -392,14 +393,13 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
-        payload: {
-          pageId: response.data.id,
-          pageName: response.data.name,
-          layoutId: response.data.layouts[0].id,
-        },
-      });
+      yield put(
+        clonePageSuccess(
+          response.data.id,
+          response.data.name,
+          response.data.layouts[0].id,
+        ),
+      );
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
         payload: {

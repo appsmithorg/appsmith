@@ -3,6 +3,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   PageListPayload,
+  ClonePageSuccessPayload,
 } from "constants/ReduxActionConstants";
 
 const initialState: PageListReduxState = {
@@ -53,13 +54,8 @@ const pageListReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.CLONE_PAGE_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{
-      pageName: string;
-      pageId: string;
-      layoutId: string;
-      isDefault: boolean;
-    }>,
-  ) => {
+    action: ReduxAction<ClonePageSuccessPayload>,
+  ): PageListReduxState => {
     return {
       ...state,
       pages: state.pages
