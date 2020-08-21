@@ -93,7 +93,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: undefined,
       selectedRowIndex: -1,
       searchText: undefined,
-      selectedRow: undefined,
+      selectedRow: {},
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
     };
