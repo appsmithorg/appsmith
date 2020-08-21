@@ -14,7 +14,7 @@ check_ports_occupied() {
             sudo netstat -anp tcp
         else
             sudo netstat -tupln tcp
-        fi | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/' | wc -l | bc
+        fi | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/' | wc -l | grep -o '[[:digit:]]\+'
     )"
 }
 
