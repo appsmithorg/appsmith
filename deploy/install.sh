@@ -415,16 +415,15 @@ if [[ $status_code -ne 401 ]]; then
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
 else
-    echo "+++++++++++ SUCCESS ++++++++++++++++++++++"
-    echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors:"
-    echo ""
-    echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
+    echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
+    echo "Your installation is complete!"
     echo ""
     if [[ -z $custom_domain ]]; then
         echo "Your application is running on 'http://localhost'."
     else
         echo "Your application is running on 'https://$custom_domain'."
     fi
+    echo ""
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Need help troubleshooting?"

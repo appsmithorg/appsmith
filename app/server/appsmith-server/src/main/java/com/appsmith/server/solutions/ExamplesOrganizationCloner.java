@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
@@ -83,9 +84,7 @@ public class ExamplesOrganizationCloner {
                         log.error("Missing template organization id in config.");
                     }
                 })
-                .doOnError(error -> {
-                    log.error("Error loading template organization id config.", error);
-                })
+                .doOnError(error -> log.error("Error loading template organization id config.", error))
                 .doOnSuccess(config -> {
                     if (config == null) {
                         // If the template organization could not be found, that's okay, the login should not fail. We
@@ -160,20 +159,39 @@ public class ExamplesOrganizationCloner {
         return applicationRepository
                 .findByOrganizationIdAndIsPublicTrue(fromOrganizationId)
                 .flatMap(application -> {
-                    final String templateApplicationId = application.getId();
                     application.setOrganizationId(toOrganizationId);
-                    return doCloneApplication(application, templateApplicationId);
+
+                    final String defaultPageId = application.getPages().stream()
+                            .filter(ApplicationPage::isDefault)
+                            .map(ApplicationPage::getId)
+                            .findFirst()
+                            .orElse("");
+
+                    return doCloneApplication(application)
+                            .flatMap(page -> Mono.zip(
+                                        Mono.just(page),
+                                        Mono.just(defaultPageId.equals(page.getId()))
+                                )
+                            );
                 })
-                .flatMap(page -> {
+                .flatMap(tuple -> {
+                    final Page page = tuple.getT1();
+                    final boolean isDefault = tuple.getT2();
                     final String templatePageId = page.getId();
+
                     makePristine(page);
                     if (page.getLayouts() != null) {
                         for (final Layout layout : page.getLayouts()) {
                             layout.setId(new ObjectId().toString());
                         }
                     }
+
                     return applicationPageService
                             .createPage(page)
+                            .flatMap(savedPage ->
+                                    isDefault
+                                            ? applicationPageService.makePageDefault(savedPage).thenReturn(savedPage)
+                                            : Mono.just(savedPage))
                             .flatMapMany(savedPage -> {
                                 clonedPages.add(savedPage);
                                 return actionRepository
@@ -256,7 +274,8 @@ public class ExamplesOrganizationCloner {
                 .then();
     }
 
-    private Flux<Page> doCloneApplication(Application application, String templateApplicationId) {
+    private Flux<Page> doCloneApplication(Application application) {
+        final String templateApplicationId = application.getId();
         return applicationPageService
                 .cloneApplication(application)
                 .flatMapMany(
