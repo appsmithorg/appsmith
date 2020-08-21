@@ -271,7 +271,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                 {hasEditPermission && (
                   <Button
                     href={editApplicationURL}
-                    target="_blank"
                     filled
                     text="EDIT"
                     intent="primary"
@@ -289,7 +288,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                 <Button
                   intent="none"
                   href={viewApplicationURL}
-                  target="_blank"
                   outline
                   fluid
                   text="LAUNCH"
