@@ -331,11 +331,12 @@ export const TableIconWrapper = styled.div<{
   justify-content: center;
   opacity: ${props => (props.disabled ? 0.6 : 1)};
   cursor: ${props => !props.disabled && "pointer"};
+  position: relative;
   &:hover {
     background: ${Colors.ATHENS_GRAY};
   }
 `;
 
-export const SortIconWrapper = styled.div<{ rotate: boolean }>`
-  transform: ${props => (props.rotate ? "rotate(180deg)" : "none")};
+export const SortIconWrapper = styled.div<{ rotate: string }>`
+  transform: ${props => (props.rotate === "true" ? "rotate(180deg)" : "none")};
 `;

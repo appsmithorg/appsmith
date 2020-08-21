@@ -59,7 +59,10 @@ const StyledInput = styled.input<
         props.isValid
           ? props.theme.colors.info.main
           : props.theme.colors.danger.main};
-    box-shadow: 0px 0px 0px 4px rgba(203, 72, 16, 0.18);
+    box-shadow: ${props =>
+      props.isValid
+        ? "0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
+        : "0px 0px 4px 4px rgba(226, 44, 44, 0.18)"};
   }
   &:disabled {
     cursor: not-allowed;

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import net.minidev.json.annotate.JsonIgnore;
 
 @Getter
 @Setter
@@ -16,5 +17,10 @@ public class ApplicationPage {
     String id;
 
     Boolean isDefault;
+
+    @JsonIgnore
+    public boolean isDefault() {
+        return Boolean.TRUE.equals(isDefault);
+    }
 
 }
