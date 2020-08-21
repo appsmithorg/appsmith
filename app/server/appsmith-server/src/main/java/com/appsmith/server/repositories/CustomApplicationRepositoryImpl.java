@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -30,16 +29,13 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepository {
 
-    private final PolicyGenerator policyGenerator;
-
     @Autowired
     public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                           @NonNull MongoConverter mongoConverter,
-                                           PolicyGenerator policyGenerator) {
+                                           @NonNull MongoConverter mongoConverter) {
         super(mongoOperations, mongoConverter);
-        this.policyGenerator = policyGenerator;
     }
 
+    @Override
     protected Criteria getIdCriteria(Object id) {
         return where(fieldName(QApplication.application.id)).is(id);
     }
@@ -68,6 +64,12 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     public Flux<Application> findByMultipleOrganizationIds(Set<String> orgIds, AclPermission permission) {
         Criteria orgIdsCriteria = where(fieldName(QApplication.application.organizationId)).in(orgIds);
         return queryAll(List.of(orgIdsCriteria), permission);
+    }
+
+    @Override
+    public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
+        Criteria clonedFromCriteria = where(fieldName(QApplication.application.clonedFromApplicationId)).is(applicationId);
+        return queryAll(List.of(clonedFromCriteria), permission);
     }
 
     @Override
