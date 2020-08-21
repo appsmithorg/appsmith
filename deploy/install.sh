@@ -17,7 +17,7 @@ check_ports_occupied() {
         netstat_args=-tupln
     fi
 
-    if [[ -n $(netstat $netstat_args tcp | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/') ]]; then
+    if [[ -n $(netstat $netstat_args tcp 2> /dev/null | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/') ]]; then
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
         echo "++++++++++++++++++++++++++++++++++++++++"
@@ -106,13 +106,11 @@ overwrite_file() {
     local template_file="$2"
     local full_path="$install_dir/$relative_path"
 
-    if [[ -f $full_path ]]; then
-        if confirm y "File $relative_path already exists. Would you like to replace it?"; then
-            echo "You chose NOT to replace existing file: '$full_path'."
-            rm -f "$template_file"
-            echo "File $template_file removed from source directory."
-            echo ""
-        fi
+    if [[ -f $full_path ]] && ! confirm y "File $relative_path already exists. Would you like to replace it?"; then
+        echo "You chose NOT to replace existing file: '$full_path'."
+        rm -f "$template_file"
+        echo "File $template_file removed from source directory."
+        echo ""
     else
         mv -f "$template_file" "$full_path"
         echo "File $full_path moved successfully!"
@@ -285,6 +283,17 @@ mkdir -p "$install_dir"
 echo ""
 
 if confirm n "Is this a fresh installation?"; then
+    echo "Appsmith needs to create a MongoDB instance."
+    mongo_host="mongo"
+    mongo_database="appsmith"
+
+    # We invoke functions to read the mongo credentials from the user because they MUST be non-empty
+    read_mongo_username
+    read_mongo_password
+
+    # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
+    auto_generate_encryption="true"
+else
     read -rp 'Enter your current mongo db host: ' mongo_host
     read -rp 'Enter your current mongo root user: ' mongo_root_user
     read -srp 'Enter your current mongo password: ' mongo_root_password
@@ -293,21 +302,10 @@ if confirm n "Is this a fresh installation?"; then
     echo ""
     # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
     if confirm n "Do you have any existing data in the database?"; then
-        auto_generate_encryption="true"
-    else
         auto_generate_encryption="false"
+    else
+        auto_generate_encryption="true"
     fi
-else
-    echo "Appsmith needs to create a mongo db"
-    mongo_host="mongo"
-    mongo_database="appsmith"
-    
-    # We invoke functions to read the mongo credentials from the user because they MUST be non-empty
-    read_mongo_username
-    read_mongo_password
-
-    # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
-    auto_generate_encryption="true"
 fi
 echo ""
 
@@ -375,21 +373,19 @@ echo "Downloading the configuration templates..."
 templates_dir=template
 mkdir -p "$templates_dir"
 
-pushd "$templates_dir"
-curl --remote-name-all --silent --show-error \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
-popd
+(
+    cd "$templates_dir"
+    curl --remote-name-all --silent --show-error \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
+)
 
 # Role - Folder
-for directory_name in nginx certbot/conf certbot/www mongo/db
-do
-    mkdir -p "$install_dir/data/$directory_name"
-done
+mkdir -p "$install_dir/data/"{nginx,certbot/{conf,www},mongo/db}
 
 echo ""
 echo "Generating the configuration files from the templates"
