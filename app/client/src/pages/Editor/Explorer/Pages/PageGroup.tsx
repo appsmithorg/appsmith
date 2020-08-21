@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Entity from "../Entity";
 import { pageGroupIcon } from "../ExplorerIcons";
 import { noop } from "lodash";
@@ -17,6 +17,7 @@ type ExplorerPageGroupProps = {
 };
 
 export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
+  const [noResults, setNoResults] = useState(false);
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
   const pages = useSelector((state: AppState) => {
@@ -30,6 +31,22 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
     dispatch(createPage(params.applicationId, name));
   }, [dispatch, pages, params.applicationId]);
 
+  // Making sure we return null when there are no search results
+  const pagesRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (props.searchKeyword && pagesRef.current) {
+      if (pagesRef.current.getElementsByClassName("page").length === 0)
+        setNoResults(true);
+    }
+    if (!props.searchKeyword) {
+      setNoResults(false);
+    }
+  }, [props.searchKeyword]);
+
+  if (noResults) {
+    return null;
+  }
+
   return (
     <Entity
       name="Pages"
@@ -38,19 +55,18 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       isDefaultExpanded
       action={noop}
       entityId="Pages"
+      ref={pagesRef}
       step={props.step}
       createFn={createPageCallback}
     >
-      {pages.map(page => {
-        return (
-          <ExplorerPageEntity
-            key={page.pageId}
-            step={props.step + 1}
-            searchKeyword={props.searchKeyword}
-            page={page}
-          />
-        );
-      })}
+      {pages.map(page => (
+        <ExplorerPageEntity
+          key={page.pageId}
+          step={props.step + 1}
+          searchKeyword={props.searchKeyword}
+          page={page}
+        />
+      ))}
     </Entity>
   );
 };

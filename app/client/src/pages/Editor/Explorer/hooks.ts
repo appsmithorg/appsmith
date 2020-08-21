@@ -4,6 +4,7 @@ import {
   useState,
   useMemo,
   useCallback,
+  MouseEvent,
 } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -20,6 +21,41 @@ import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { evaluateDataTreeWithFunctions } from "selectors/dataTreeSelectors";
 import log from "loglevel";
+
+export const useClick = (
+  currentRef: MutableRefObject<HTMLElement | null>,
+  singleClk: (e: MouseEvent<HTMLElement>) => void,
+  doubleClk?: (e: MouseEvent<HTMLElement>) => void,
+) => {
+  useEffect(() => {
+    let clickCount = 0;
+    let timeoutId = 0;
+
+    const handleClick = (e: any) => {
+      if (!doubleClk) {
+        singleClk(e);
+      } else {
+        clickCount++;
+        if (clickCount === 2 && doubleClk) {
+          doubleClk(e);
+          clearTimeout(timeoutId);
+          clickCount = 0;
+        } else {
+          timeoutId = setTimeout(() => {
+            singleClk(e);
+            clickCount = 0;
+          }, 200);
+        }
+      }
+    };
+
+    const el = currentRef.current;
+    el?.addEventListener("click", handleClick);
+    return () => {
+      el?.removeEventListener("click", handleClick);
+    };
+  }, [currentRef, singleClk, doubleClk]);
+};
 
 const findWidgets = (widgets: WidgetProps, keyword: string) => {
   if (widgets.children) {
@@ -165,6 +201,7 @@ export const useFilteredEntities = (
 ) => {
   const start = performance.now();
   const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
+
   const search = debounce((e: any) => {
     const keyword = e.target.value;
     if (keyword.trim().length > 0) {

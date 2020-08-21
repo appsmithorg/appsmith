@@ -24,11 +24,7 @@ const getWidgetEntity = (
   widgetIdsToExpand?: string[],
 ) => {
   if (!entity) {
-    if (searchKeyword) {
-      return <React.Fragment />;
-    } else {
-      return;
-    }
+    return null;
   }
   if (entity.type === WidgetTypes.CANVAS_WIDGET) {
     if (!entity.children || entity.children.length === 0) return;
@@ -168,7 +164,8 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
         navigation menu icon on the left to drag and drop widgets
       </EntityPlaceholder>
     );
-  }
+  } else if (!childNode && props.searchKeyword) return null;
+
   return (
     <Entity
       key={props.pageId + "_widgets"}

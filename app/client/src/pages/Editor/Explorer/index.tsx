@@ -1,4 +1,4 @@
-import React, { useRef, MutableRefObject, useEffect } from "react";
+import React, { useRef, MutableRefObject, useEffect, useState } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import { useFilteredEntities } from "./hooks";
@@ -26,6 +26,8 @@ const EntityExplorer = () => {
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
+
+  const explorerRef = useRef<HTMLDivElement | null>(null);
   const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
 
   const location = useLocation();
@@ -35,17 +37,23 @@ const EntityExplorer = () => {
     }
   }, [location, searchInputRef]);
 
-  // const noResults =
-  //   widgets.length === 0 &&
-  //   actions.length === 0 &&
-  //   dataSources.length === 0 &&
-  //   !!searchKeyword;
-
-  // const noPageEntities =
-  //   widgets.length === 0 && actions.length === 0 && !!searchKeyword;
-
-  // const noDatsourceEntities = dataSources.length === 0 && !!searchKeyword;
-
+  const [noResults, setNoResults] = useState(false);
+  useEffect(() => {
+    setTimeout(() => {
+      if (searchKeyword && explorerRef.current) {
+        const pages = explorerRef.current.getElementsByClassName("pages");
+        const datasources = explorerRef.current.getElementsByClassName(
+          "plugins",
+        );
+        console.log({ pages, datasources });
+        if (pages.length === 0 && datasources.length === 0) {
+          setNoResults(true);
+        } else {
+          setNoResults(false);
+        }
+      } else setNoResults(false);
+    }, 0);
+  }, [searchKeyword]);
   const noResultMessage = (
     <NoResult
       className={Classes.DARK}
@@ -56,10 +64,10 @@ const EntityExplorer = () => {
   );
 
   return (
-    <Wrapper>
+    <Wrapper ref={explorerRef}>
       <Search ref={searchInputRef} clear={clearSearch} />
+      {noResults && noResultMessage}
       <ExplorerPageGroup searchKeyword={searchKeyword} step={0} />
-
       <Divider />
       <ExplorerDatasourcesGroup searchKeyword={searchKeyword} step={0} />
     </Wrapper>

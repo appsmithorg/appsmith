@@ -22,6 +22,7 @@ export const ExplorerOtherPageEntity = (
   const actions = usePageActions(props.page.pageId, props.searchKeyword);
   const widgets = usePageWidgets(props.page.pageId, props.searchKeyword);
   const icon = props.page.isDefault ? homePageIcon : pageIcon;
+  if (props.searchKeyword && !widgets && actions.length === 0) return null;
 
   return (
     <Entity

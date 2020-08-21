@@ -23,6 +23,8 @@ export const ExplorerCurrentPageEntity = (
   const widgets = useDataTreeWidgets(props.searchKeyword);
   const icon = props.page.isDefault ? homePageIcon : pageIcon;
 
+  if (props.searchKeyword && !widgets && actions.length === 0) return null;
+
   return (
     <Entity
       icon={icon}

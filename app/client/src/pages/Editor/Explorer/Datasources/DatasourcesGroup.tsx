@@ -45,6 +45,8 @@ export const ExplorerDatasourcesGroup = (
       />,
     );
   }
+
+  if (pluginGroupNodes.length === 0 && props.searchKeyword) return null;
   return (
     <Entity
       entityId="DataSources"
