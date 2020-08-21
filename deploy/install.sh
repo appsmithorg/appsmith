@@ -392,7 +392,7 @@ mkdir -p "$install_dir/data/"{nginx,certbot/{conf,www},mongo/db}
 echo ""
 echo "Generating the configuration files from the templates"
 bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
-. "$templates_dir"/docker-compose.yml.sh
+bash "$templates_dir"/docker-compose.yml.sh "$mongo_root_user" "$mongo_root_password" > docker-compose.yml
 . "$templates_dir"/mongo-init.js.sh
 . "$templates_dir"/init-letsencrypt.sh.sh
 . "$templates_dir"/docker.env.sh

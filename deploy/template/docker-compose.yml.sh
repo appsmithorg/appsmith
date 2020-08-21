@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ ! -f docker-compose.yml ]; then
-    touch docker-compose.yml
-fi
+set -o nounset
 
-cat >| docker-compose.yml  << EOF
+mongo_root_user="$1"
+mongo_root_password="$2"
+
+cat <<EOF
 version: "3.7"
 
 services:
@@ -71,5 +72,4 @@ services:
 networks:
   appsmith:
     driver: bridge
-
 EOF
