@@ -82,11 +82,11 @@ check_os() {
             package_manager="apt-get"
             ;;
         \"Red\ Hat*\")
-            desired_os=1
+            desired_os=0
             package_manager="yum"
             ;;
         \"CentOS*\")
-            desired_os=1
+            desired_os=0
             package_manager="yum"
             ;;
         *)          desired_os=0
