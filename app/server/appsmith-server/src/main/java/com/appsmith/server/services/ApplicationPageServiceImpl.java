@@ -124,7 +124,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, Page page, Boolean isDefault) {
-        return applicationRepository.addPageToApplication(application, page, isDefault)
+        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
                         log.error("Add page to application didn't update anything, probably because application wasn't found.");
@@ -195,14 +195,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 })
                 .then(applicationService.findById(applicationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-                .flatMap(application -> {
-                    List<ApplicationPage> pages = application.getPages();
-
-                    // We are guaranteed to find the pageId in this list.
-                    pages.forEach(page -> page.setIsDefault(page.getId().equals(pageId)));
-
-                    return applicationService.save(application);
-                });
+                .flatMap(application ->
+                        applicationRepository
+                                .setDefaultPage(applicationId, pageId)
+                                .then(applicationService.getById(applicationId))
+                );
     }
 
     @Override
