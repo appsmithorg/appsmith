@@ -12,12 +12,12 @@ check_ports_occupied() {
     local netstat_args
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        netstat_args=-anp
+        netstat_args="-p tcp"
     else
-        netstat_args=-tupln
+        netstat_args="--tcp"
     fi
 
-    if [[ -n $(netstat $netstat_args tcp 2> /dev/null | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/') ]]; then
+    if [[ -n $(netstat -an $netstat_args 2> /dev/null | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/') ]]; then
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
         echo "++++++++++++++++++++++++++++++++++++++++"
@@ -27,30 +27,30 @@ check_ports_occupied() {
 }
 
 install_docker() {
-    if [[ $package_manager == apt-get ]];then
-        echo "++++++++++++++++++++++++"
-        echo "Setting up docker repos"
-        sudo "$package_manager" update --quiet
+    echo "++++++++++++++++++++++++"
+    echo "Setting up docker repos"
 
+    if [[ $package_manager == apt-get ]]; then
+        sudo "$package_manager" update --yes --quiet
         sudo apt-get -y --quiet install gnupg-agent
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
         sudo add-apt-repository \
             "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
             $(lsb_release -cs) \
             stable"
+        sudo "$package_manager" update --yes --quiet
     else
-        sudo yum install -y yum-utils
+        sudo yum install --yes yum-utils
         sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     fi
 
-    sudo "$package_manager" -y update --quiet
     echo "Installing docker"
-    sudo "$package_manager" -y install docker-ce docker-ce-cli containerd.io --quiet
+    sudo "$package_manager" install --yes docker-ce docker-ce-cli containerd.io --quiet
 }
 
 install_docker_compose() {
     if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
-        if [ ! -f /usr/bin/docker-compose ];then
+        if [[ ! -f /usr/bin/docker-compose ]];then
             echo "Installing docker-compose..."
             sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
@@ -384,7 +384,9 @@ mkdir -p "$templates_dir"
         https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
-cp /vagrant/template/* "$templates_dir/"
+if [[ -d /vagrant/template ]]; then
+    cp /vagrant/template/* "$templates_dir/"
+fi
 
 # Create needed folder structure.
 mkdir -p "$install_dir/data/"{nginx,certbot/{conf,www},mongo/db}
