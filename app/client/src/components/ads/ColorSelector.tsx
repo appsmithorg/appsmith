@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { CommonComponentProps, ThemeProp } from "./common";
+import { CommonComponentProps } from "./common";
 
 export const appColorPalette = [
   "#4F70FD",
