@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import AppIcon, { AppIconName } from "./AppIcon";
 import { Size } from "./Button";
 import { CommonComponentProps } from "./common";
-import { Icon, IconName } from "./Icon";
 
-export const appIconPalette = [
+export const appIconPalette: AppIconName[] = [
   "bag",
   "product",
   "book",
@@ -20,9 +20,9 @@ export const appIconPalette = [
 ];
 
 type IconSelectorProps = CommonComponentProps & {
-  onSelect: (icon: IconName) => void;
+  onSelect: (icon: AppIconName) => void;
   selectedColor: string;
-  iconPalette?: IconName[];
+  iconPalette?: AppIconName[];
   isFill?: boolean;
 };
 
@@ -34,8 +34,8 @@ const WrapperDiv = styled.div<{ isFill?: boolean }>`
 `;
 
 const IconDiv = styled.div<{
-  iconName: IconName;
-  selected: IconName;
+  iconName: AppIconName;
+  selected: AppIconName;
   bgColor: string;
 }>`
   padding: ${props => props.theme.spaces[2]}px
@@ -43,7 +43,9 @@ const IconDiv = styled.div<{
   margin: 0 ${props => props.theme.spaces[2]}px
     ${props => props.theme.spaces[2]}px 0;
   background-color: ${props =>
-    props.selected === props.iconName ? props.bgColor : "#232324"};
+    props.selected === props.iconName
+      ? props.bgColor
+      : props.theme.colors.blackShades[2]};
   cursor: pointer;
   position: relative;
 
@@ -61,12 +63,12 @@ const IconDiv = styled.div<{
 `;
 
 const IconSelector = (props: IconSelectorProps) => {
-  const [selected, setSelected] = useState<IconName>();
+  const [selected, setSelected] = useState<AppIconName>(appIconPalette[0]);
 
   return (
     <WrapperDiv isFill={props.isFill}>
       {props.iconPalette &&
-        props.iconPalette.map((iconName: IconName, index: number) => {
+        props.iconPalette.map((iconName: AppIconName, index: number) => {
           return (
             <IconDiv
               key={index}
@@ -78,7 +80,7 @@ const IconSelector = (props: IconSelectorProps) => {
                 return props.onSelect(iconName);
               }}
             >
-              <Icon name={iconName} size={Size.large} />
+              <AppIcon name={iconName} size={Size.large} />
             </IconDiv>
           );
         })}
