@@ -135,7 +135,11 @@ function* initializeExtraFormDataSaga() {
     DEFAULT_API_ACTION.actionConfiguration?.headers,
   );
 
-  const queryParameters = get(values, "actionConfiguration.queryParameters");
+  const queryParameters = get(
+    values,
+    "actionConfiguration.queryParameters",
+    [],
+  );
   if (!extraformData[values.id]) {
     yield put(
       change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),

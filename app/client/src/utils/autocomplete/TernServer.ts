@@ -160,7 +160,7 @@ class TernServer {
                 keyboardEvent.ctrlKey &&
                 tooltip
               ) {
-                tooltip.className += " " + "visible";
+                tooltip.className += " visible";
               }
             },
           );

@@ -4,6 +4,7 @@ import {
   JSExecutorResult,
 } from "./JSExecutionManagerSingleton";
 import JSONFn from "json-fn";
+import log from "loglevel";
 declare let Realm: any;
 
 export default class RealmExecutor implements JSExecutor {
@@ -104,7 +105,8 @@ export default class RealmExecutor implements JSExecutor {
         triggers,
       };
     } catch (e) {
-      // console.error(`Error: "${e.message}" when evaluating {{${sourceText}}}`);
+      log.debug(`Error: "${e.message}" when evaluating {{${sourceText}}}`);
+      log.debug(e);
       return { result: undefined, triggers: [] };
     }
   }
