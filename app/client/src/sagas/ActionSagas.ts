@@ -60,8 +60,6 @@ import {
   QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
 } from "constants/routes";
-import { changeApi } from "actions/apiPaneActions";
-import { changeQuery } from "actions/queryPaneActions";
 
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   try {
@@ -292,28 +290,6 @@ function* moveActionSaga(
       apiID: response.data.id,
     });
     yield put(moveActionSuccess(response.data));
-    const applicationId = yield select(getCurrentApplicationId);
-
-    const isApi = actionObject.pluginType === PLUGIN_TYPE_API;
-    const isQuery = actionObject.pluginType === QUERY_CONSTANT;
-
-    if (isQuery) {
-      history.push(
-        QUERIES_EDITOR_ID_URL(
-          applicationId,
-          response.data.pageId,
-          response.data.id,
-        ),
-      );
-    } else if (isApi) {
-      history.push(
-        API_EDITOR_ID_URL(
-          applicationId,
-          response.data.pageId,
-          response.data.id,
-        ),
-      );
-    }
   } catch (e) {
     AppToaster.show({
       message: `Error while moving action ${actionObject.name}`,
@@ -358,10 +334,6 @@ function* copyActionSaga(
       apiID: response.data.id,
     });
     yield put(copyActionSuccess(response.data));
-    const applicationId = yield select(getCurrentApplicationId);
-    history.push(
-      API_EDITOR_ID_URL(applicationId, response.data.pageId, response.data.id),
-    );
   } catch (e) {
     AppToaster.show({
       message: `Error while copying action ${actionObject.name}`,
@@ -490,15 +462,18 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  const action = yield select(getAction, id);
+  const action: Action = yield select(getAction, id);
   const isApi = action.pluginType === PLUGIN_TYPE_API;
   const isQuery = action.pluginType === QUERY_CONSTANT;
+  const applicationId = yield select(getCurrentApplicationId);
 
   if (isApi) {
-    yield put(changeApi(id));
+    history.push(API_EDITOR_ID_URL(applicationId, action.pageId, action.id));
   }
   if (isQuery) {
-    yield put(changeQuery(id));
+    history.push(
+      QUERIES_EDITOR_ID_URL(applicationId, action.pageId, action.id),
+    );
   }
 }
 

@@ -124,7 +124,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, Page page, Boolean isDefault) {
-        return applicationRepository.addPageToApplication(application, page, isDefault)
+        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
                         log.error("Add page to application didn't update anything, probably because application wasn't found.");
@@ -178,6 +178,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
+    public Mono<Application> makePageDefault(Page page) {
+        return makePageDefault(page.getApplicationId(), page.getId());
+    }
+
+    @Override
     public Mono<Application> makePageDefault(String applicationId, String pageId) {
         return pageService.findById(pageId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
@@ -190,20 +195,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 })
                 .then(applicationService.findById(applicationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-                .flatMap(application -> {
-                    List<ApplicationPage> pages = application.getPages();
-
-                    // We are guaranteed to find the pageId in this list.
-                    pages.stream().forEach(page -> {
-                        if (page.getId().equals(pageId)) {
-                            page.setIsDefault(true);
-                        } else {
-                            page.setIsDefault(false);
-                        }
-                    });
-                    application.setPages(pages);
-                    return applicationService.save(application);
-                });
+                .flatMap(application ->
+                        applicationRepository
+                                .setDefaultPage(applicationId, pageId)
+                                .then(applicationService.getById(applicationId))
+                );
     }
 
     @Override

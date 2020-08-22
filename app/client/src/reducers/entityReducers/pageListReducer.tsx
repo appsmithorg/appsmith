@@ -3,6 +3,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   PageListPayload,
+  ClonePageSuccessPayload,
 } from "constants/ReduxActionConstants";
 
 const initialState: PageListReduxState = {
@@ -50,6 +51,17 @@ const pageListReducer = createReducer(initialState, {
     _state.pages = state.pages.map(page => ({ ...page, latest: false }));
     _state.pages.push({ ...action.payload, latest: true });
     return { ..._state };
+  },
+  [ReduxActionTypes.CLONE_PAGE_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<ClonePageSuccessPayload>,
+  ): PageListReduxState => {
+    return {
+      ...state,
+      pages: state.pages
+        .map(page => ({ ...page, latest: false }))
+        .concat([{ ...action.payload, latest: true }]),
+    };
   },
   [ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS]: (
     state: PageListReduxState,
