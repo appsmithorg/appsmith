@@ -24,7 +24,7 @@ const IconWrapper = styled.div<IconProps>`
     width: ${props => sizeHandler(props)}px;
     height: ${props => sizeHandler(props)}px;
     path {
-      fill: ${props => props.theme.colors.blackShades[4]};
+      fill: ${props => props.theme.colors.blackShades[5]};
     }
   }
   visibility: ${props => (props.invisible ? "hidden" : "visible")};

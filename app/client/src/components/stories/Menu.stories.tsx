@@ -1,10 +1,12 @@
 import React from "react";
-import { withKnobs } from "@storybook/addon-knobs";
+import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import Menu from "../ads/Menu";
-import { decorate } from "@storybook/addon-actions";
+import { action } from "@storybook/addon-actions";
 import { Icon } from "../ads/Icon";
 import { Size } from "../ads/Button";
+import MenuDivider from "../ads/MenuDivider";
+import MenuItem from "../ads/MenuItem";
 
 export default {
   title: "Menu",
@@ -12,25 +14,25 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-const firstArg = decorate([args => args.slice(0, 1)]);
-
-export const TextMenu = () => (
-  <Menu onSelect={firstArg.action("text-click")}>
-    <span>First option</span>
-    <span>Second option</span>
-    <span>Third option</span>
-  </Menu>
-);
-
-export const IconMenu = () => (
-  <Menu onSelect={firstArg.action("icon-click")}>
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <Icon name={"delete"} size={Size.large} />
-      <span style={{ marginLeft: "10px" }}>Delete</span>
-    </div>
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <Icon name={"user"} size={Size.large} />
-      <span style={{ marginLeft: "10px" }}>Invite user</span>
-    </div>
+export const TextAndIconMenu = () => (
+  <Menu>
+    <MenuItem
+      text={text("First option", "Invite user")}
+      icon={select("First Icon", ["Select icon", "delete", "user"], undefined)}
+      onSelect={action("clicked-first-option")}
+      label={<span>W</span>}
+    />
+    {boolean("First menu item divider", false) ? <MenuDivider /> : null}
+    <MenuItem
+      text={text("Second option", "Are you sure")}
+      icon={select("Second Icon", ["Select icon", "delete", "user"], undefined)}
+      onSelect={action("delete-icon-clicked")}
+      label={<span>W</span>}
+    />
+    {boolean("Second menu item divider", false) ? <MenuDivider /> : null}
+    <MenuItem
+      text={text("Third option", "Third option text only")}
+      onSelect={action("clicked-second-option")}
+    />
   </Menu>
 );
