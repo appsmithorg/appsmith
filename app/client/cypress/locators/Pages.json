@@ -16,6 +16,7 @@
     "entityExplorer": ".t--nav-link-entity-explorer",
     "popover": "//div[contains(@class,'t--entity page')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
     "editName": ".single-select >div:contains('Edit Name')",
+    "clonePage": ".single-select >div:contains('Clone')",
     "deletePage": ".single-select >div:contains('Delete')",
     "entityQuery": ".t--entity-name:contains('Queries')"
   }
