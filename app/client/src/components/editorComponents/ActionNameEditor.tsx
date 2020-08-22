@@ -31,7 +31,7 @@ const ApiNameWrapper = styled.div`
 export const ActionNameEditor = () => {
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const isNew =
-    new URLSearchParams(window.location.search).get("new") === "true";
+    new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   if (!params.apiId && !params.queryId) {

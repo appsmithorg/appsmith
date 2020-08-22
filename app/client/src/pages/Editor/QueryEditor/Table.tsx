@@ -24,6 +24,7 @@ const StyledTableWrapped = styled(TableWrapper)`
     flex-direction: column;
     height: auto;
     .tbody {
+      height: auto;
       overflow: auto;
     }
   }

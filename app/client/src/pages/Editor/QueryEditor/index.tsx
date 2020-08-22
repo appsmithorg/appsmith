@@ -19,6 +19,7 @@ import {
   getPluginImages,
   getDBDatasources,
   getAction,
+  getActionResponses,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction } from "entities/Action";
@@ -49,10 +50,10 @@ type ReduxStateProps = {
   formData: QueryAction;
   runErrorMessage: Record<string, string>;
   pluginIds: Array<string> | undefined;
-  executedQueryData: any;
+  responses: any;
   isCreating: boolean;
   pluginImages: Record<string, string>;
-  editorConfig: [];
+  editorConfig: any;
   loadingFormConfigs: boolean;
   isEditorInitialized: boolean;
 };
@@ -91,7 +92,7 @@ class QueryEditor extends React.Component<Props> {
       },
       pluginImages,
       pluginIds,
-      executedQueryData,
+      responses,
       isCreating,
       runErrorMessage,
       loadingFormConfigs,
@@ -135,7 +136,7 @@ class QueryEditor extends React.Component<Props> {
             editorConfig={editorConfig}
             loadingFormConfigs={loadingFormConfigs}
             DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
-            executedQueryData={executedQueryData[queryId]}
+            executedQueryData={responses[queryId]}
             runErrorMessage={runErrorMessage[queryId]}
           />
         ) : (
@@ -156,9 +157,16 @@ class QueryEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
+
   const { editorConfigs, loadingFormConfigs } = plugins;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
   const queryAction = getAction(state, props.match.params.queryId);
+  let editorConfig: any;
+  const pluginId = queryAction?.datasource?.pluginId;
+
+  if (editorConfigs && pluginId) {
+    editorConfig = editorConfigs[pluginId];
+  }
 
   return {
     pluginImages: getPluginImages(state),
@@ -166,12 +174,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources: getDBDatasources(state),
-    executedQueryData: state.ui.queryPane.runQuerySuccessData,
+    responses: getActionResponses(state),
     queryPane: state.ui.queryPane,
     formData,
-    editorConfig: queryAction?.pluginId
-      ? editorConfigs[queryAction.pluginId]
-      : [],
+    editorConfig,
     loadingFormConfigs,
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),

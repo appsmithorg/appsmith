@@ -6,7 +6,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
@@ -42,7 +41,7 @@ import java.util.Map;
 /**
  * This class is a copy of {@link org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizationRequestResolver}
  * It has been copied so as to override the creation of the `state` query parameter sent to the OAuth2 authentication server
- * The only 2 functions that have been overriden from the base class are: {@link #generateKey(HttpHeaders)} and
+ * The only 2 functions that have been overridden from the base class are: {@link #generateKey(ServerHttpRequest)} and
  * {@link #authorizationRequest(ServerWebExchange, ClientRegistration)}.
  * We couldn't simply extend the base class because of the use of private variables and methods to invoke these functions.
  */
@@ -73,26 +72,33 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
 
     private final CommonConfig commonConfig;
 
+    private final RedirectHelper redirectHelper;
+
     /**
      * Creates a new instance
-     *
-     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
+     *  @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
      * @param commonConfig
+     * @param redirectHelper
      */
-    public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository, CommonConfig commonConfig) {
+    public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
+                                                          CommonConfig commonConfig,
+                                                          RedirectHelper redirectHelper) {
         this(clientRegistrationRepository, new PathPatternParserServerWebExchangeMatcher(
-                DEFAULT_AUTHORIZATION_REQUEST_PATTERN), commonConfig);
+                DEFAULT_AUTHORIZATION_REQUEST_PATTERN), commonConfig, redirectHelper);
     }
 
     /**
      * Creates a new instance
-     *
-     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
+     *  @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
      * @param authorizationRequestMatcher  the matcher that determines if the request is a match and extracts the
      *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
+     * @param redirectHelper
      */
     public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
-                                                          ServerWebExchangeMatcher authorizationRequestMatcher, CommonConfig commonConfig) {
+                                                          ServerWebExchangeMatcher authorizationRequestMatcher,
+                                                          CommonConfig commonConfig,
+                                                          RedirectHelper redirectHelper) {
+        this.redirectHelper = redirectHelper;
         Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
         Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
         this.clientRegistrationRepository = clientRegistrationRepository;
@@ -103,7 +109,7 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
     @Override
     public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange) {
         return this.authorizationRequestMatcher.matches(exchange)
-                .filter(matchResult -> matchResult.isMatch())
+                .filter(ServerWebExchangeMatcher.MatchResult::isMatch)
                 .map(ServerWebExchangeMatcher.MatchResult::getVariables)
                 .map(variables -> variables.get(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME))
                 .cast(String.class)
@@ -113,22 +119,22 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
     @Override
     public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange,
                                                     String clientRegistrationId) {
-        return this.findByRegistrationId(exchange, clientRegistrationId)
+        return this.findByRegistrationId(clientRegistrationId)
                 .flatMap(clientRegistration -> {
                     if (MISSING_VALUE_SENTINEL.equals(clientRegistration.getClientId())) {
                         return Mono.error(new AppsmithException(AppsmithError.OAUTH_NOT_AVAILABLE, clientRegistrationId));
                     } else {
-                        return Mono.just(authorizationRequest(exchange, clientRegistration));
+                        return authorizationRequest(exchange, clientRegistration);
                     }
                 });
     }
 
-    private Mono<ClientRegistration> findByRegistrationId(ServerWebExchange exchange, String clientRegistration) {
+    private Mono<ClientRegistration> findByRegistrationId(String clientRegistration) {
         return this.clientRegistrationRepository.findByRegistrationId(clientRegistration)
                 .switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
     }
 
-    private OAuth2AuthorizationRequest authorizationRequest(ServerWebExchange exchange,
+    private Mono<OAuth2AuthorizationRequest> authorizationRequest(ServerWebExchange exchange,
                                                             ClientRegistration clientRegistration) {
         String redirectUriStr = expandRedirectUri(exchange.getRequest(), clientRegistration);
 
@@ -169,14 +175,14 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
                             + ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
         }
 
-
-        return builder
-                .clientId(clientRegistration.getClientId())
-                .authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-                .redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
-                .state(this.generateKey(exchange.getRequest()))
-                .attributes(attributes)
-                .build();
+        return generateKey(exchange.getRequest())
+                .map(key -> builder
+                        .clientId(clientRegistration.getClientId())
+                        .authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+                        .redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
+                        .state(key)
+                        .attributes(attributes)
+                        .build());
     }
 
     /**
@@ -185,14 +191,16 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
      * based on the referer so as to transfer control back to it. If the referer is not available, we default to
      * redirecting to the server's index page.
      *
-     * @param request
-     * @return
+     * @param request ServerHttpRequest object for which a key will be generated.
+     * @return Publishes a single String, that is the generated key.
      */
-    private String generateKey(ServerHttpRequest request) {
-        String stateKey = this.stateGenerator.generateKey();
-        String redirectUrl = RedirectHelper.getRedirectUrl(request);
-        stateKey = stateKey + "," + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
-        return stateKey;
+    private Mono<String> generateKey(ServerHttpRequest request) {
+        return redirectHelper.getRedirectUrl(request)
+                .map(redirectUrl -> {
+                    String stateKey = this.stateGenerator.generateKey();
+                    stateKey = stateKey + "," + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
+                    return stateKey;
+                });
     }
 
     /**
@@ -213,7 +221,7 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
      */
     private static String expandRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
         Map<String, String> uriVariables = new HashMap<>();
-        uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+        uriVariables.put(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME, clientRegistration.getRegistrationId());
 
         UriComponents uriComponents = UriComponentsBuilder.fromUri(request.getURI())
                 .replacePath(request.getPath().contextPath().value())
@@ -228,10 +236,8 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
         int port = uriComponents.getPort();
         uriVariables.put("basePort", port == -1 ? "" : ":" + port);
         String path = uriComponents.getPath();
-        if (StringUtils.hasLength(path)) {
-            if (path.charAt(0) != PATH_DELIMITER) {
+        if (StringUtils.hasLength(path) && path.charAt(0) != PATH_DELIMITER) {
                 path = PATH_DELIMITER + path;
-            }
         }
         uriVariables.put("basePath", path == null ? "" : path);
         uriVariables.put("baseUrl", uriComponents.toUriString());
@@ -262,6 +268,7 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
             attributes.put(OidcParameterNames.NONCE, nonce);
             additionalParameters.put(OidcParameterNames.NONCE, nonceHash);
         } catch (NoSuchAlgorithmException e) {
+            log.warn("Error adding NONCE parameter.", e);
         }
     }
 

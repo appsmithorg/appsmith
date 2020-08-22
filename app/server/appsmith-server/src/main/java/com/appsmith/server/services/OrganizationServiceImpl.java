@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
@@ -225,7 +224,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     @Override
     public Mono<Organization> update(String id, Organization resource) {
         return repository.updateById(id, resource, MANAGE_ORGANIZATIONS)
-                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), updatedObj));
+                .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override

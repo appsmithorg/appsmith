@@ -10,6 +10,7 @@ import {
 } from "constants/ReduxActionConstants";
 import {
   deletePageSuccess,
+  clonePageSuccess,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
   savePageSuccess,
@@ -31,6 +32,7 @@ import PageApi, {
   UpdatePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
+  ClonePageRequest,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -66,6 +68,7 @@ import {
 import { fetchActionsForPage } from "actions/actionActions";
 import { clearCaches } from "utils/DynamicBindingUtils";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { getQueryParams } from "utils/AppsmithUtils";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -381,6 +384,40 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
   }
 }
 
+export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
+  try {
+    const request: ClonePageRequest = clonePageAction.payload;
+    const response: FetchPageResponse = yield call(PageApi.clonePage, request);
+    const applicationId = yield select(
+      (state: AppState) => state.entities.pageList.applicationId,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(
+        clonePageSuccess(
+          response.data.id,
+          response.data.name,
+          response.data.layouts[0].id,
+        ),
+      );
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        payload: {
+          pageId: response.data.id,
+        },
+      });
+      history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CLONE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* updateWidgetNameSaga(
   action: ReduxAction<{ id: string; newName: string }>,
 ) {
@@ -453,18 +490,6 @@ export function* updateCanvasWithDSL(
   yield put(fetchActionsForPage(pageId));
 }
 
-function getQueryParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const keys = urlParams.keys();
-  let key = keys.next().value;
-  const queryParams: Record<string, string> = {};
-  while (key) {
-    queryParams[key] = urlParams.get(key) as string;
-    key = keys.next().value;
-  }
-  return queryParams;
-}
-
 export function* setDataUrl() {
   const urlData: UrlDataState = {
     fullPath: window.location.href,
@@ -488,6 +513,7 @@ export default function* pageSagas() {
     ),
     takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
+    takeLeading(ReduxActionTypes.CLONE_PAGE_INIT, clonePageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),

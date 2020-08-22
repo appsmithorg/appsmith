@@ -63,8 +63,16 @@ const StyledDropDown = styled.div`
 `;
 
 const StyledTableWrapped = styled(TableWrapper)`
-  min-height: 0px;
-  height: auto;
+  height: ${props => props.height}px;
+  overflow: visible;
+  .tableWrap {
+    height: ${props => props.height}px;
+  }
+  .table {
+    .tbody {
+      height: ${props => props.height}px;
+    }
+  }
 `;
 
 const StyledMenu = styled(Menu)`
@@ -182,7 +190,7 @@ export const OrgSettings = (props: PageProps) => {
     const tableDataLength =
       userTableData.length * TABLE_SIZES[CompactModeTypes.DEFAULT].ROW_HEIGHT +
       TABLE_SIZES[CompactModeTypes.DEFAULT].COLUMN_HEADER_HEIGHT;
-    return tableDataLength < 200 ? tableDataLength : 200;
+    return tableDataLength;
   }, [userTableData]);
 
   const columns = React.useMemo(() => {

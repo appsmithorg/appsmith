@@ -33,7 +33,7 @@ interface TableProps {
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: object[];
-  displayColumnActions: boolean;
+  editMode: boolean;
   columnNameMap?: { [key: string]: string };
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
@@ -66,15 +66,13 @@ const defaultColumn = {
 };
 
 export const Table = (props: TableProps) => {
-  const dataString = JSON.stringify(props.data);
+  const data = React.useMemo(() => props.data, [props.data]);
   const columnString = JSON.stringify({
     columns: props.columns,
     actions: props.columnActions,
     columnActions: props.columnActions,
     compactMode: props.compactMode,
   });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const data = React.useMemo(() => props.data, [dataString]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const columns = React.useMemo(() => props.columns, [columnString]);
 
@@ -144,7 +142,7 @@ export const Table = (props: TableProps) => {
         updateHiddenColumns={props.updateHiddenColumns}
         filters={props.filters}
         applyFilter={props.applyFilter}
-        displayColumnActions={props.displayColumnActions}
+        editMode={props.editMode}
         compactMode={props.compactMode}
         updateCompactMode={props.updateCompactMode}
         tableSizes={tableSizes}
@@ -170,7 +168,7 @@ export const Table = (props: TableProps) => {
                       }
                       columnIndex={columnIndex}
                       isHidden={column.isHidden}
-                      displayColumnActions={props.displayColumnActions}
+                      editMode={props.editMode}
                       handleColumnNameUpdate={props.handleColumnNameUpdate}
                       getColumnMenu={props.getColumnMenu}
                       handleResizeColumn={props.handleResizeColumn}
