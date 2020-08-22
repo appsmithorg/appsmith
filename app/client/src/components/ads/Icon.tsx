@@ -83,7 +83,11 @@ export const Icon = (props: IconProps) => {
   }
 
   return returnIcon ? (
-    <IconWrapper {...props} onClick={() => props.click && props.click()}>
+    <IconWrapper
+      className={props.className ? props.className : "ads-icon"}
+      {...props}
+      onClick={() => props.click && props.click()}
+    >
       {returnIcon}
     </IconWrapper>
   ) : null;
