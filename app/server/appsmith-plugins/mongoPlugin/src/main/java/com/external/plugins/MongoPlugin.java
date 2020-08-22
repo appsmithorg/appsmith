@@ -299,14 +299,28 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            final Connection.Type connectionType = datasourceConfiguration.getConnection().getType();
             return datasourceCreate(datasourceConfiguration)
-                    .map(mongoClient -> {
+                    .map(mongoClientObj -> {
+                        final MongoClient mongoClient = (MongoClient) mongoClientObj;
                         ClientSession clientSession = null;
 
                         try {
                             // Not using try-with-resources here since we want to close the *session* before closing the
                             // MongoClient instance.
-                            clientSession = ((MongoClient) mongoClient).startSession();
+                            if (Connection.Type.REPLICA_SET.equals(connectionType)) {
+                                // For REPLICA_SET connections, we check by creating a session, as this is faster.
+                                clientSession = mongoClient.startSession();
+
+                            } else {
+                                // For DIRECT connections, we check by running a DB command, as it's the only reliable
+                                // method of checking if the connection is usable.
+                                mongoClient
+                                        .getDatabase("admin")
+                                        .runCommand(new Document("listDatabases", 1));
+                                return new DatasourceTestResult();
+
+                            }
 
                         } catch (MongoTimeoutException e) {
                             log.warn("Timeout connecting to MongoDB from MongoPlugin.", e);
@@ -319,8 +333,8 @@ public class MongoPlugin extends BasePlugin {
                             if (clientSession != null) {
                                 clientSession.close();
                             }
-                            if (mongoClient instanceof MongoClient) {
-                                ((MongoClient) mongoClient).close();
+                            if (mongoClient != null) {
+                                mongoClient.close();
                             }
 
                         }

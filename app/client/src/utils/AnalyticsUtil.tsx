@@ -199,6 +199,11 @@ class AnalyticsUtil {
         userId: userId,
       });
     }
+    if (windowDoc.hj) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      window.hj("identify", userData.email, { email: userData.email });
+    }
   }
 
   static reset() {
