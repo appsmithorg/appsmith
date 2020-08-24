@@ -151,6 +151,7 @@ const Control = styled.div<{ fixed?: boolean }>`
 
   .${Classes.BUTTON_TEXT} {
     font-size: 12px;
+    color: white;
   }
 
   .more {
@@ -269,7 +270,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
 
                 {hasEditPermission && (
                   <Button
-                    onClick={() => history.push(editApplicationURL)}
+                    href={editApplicationURL}
                     filled
                     text="EDIT"
                     intent="primary"
@@ -285,8 +286,8 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                   />
                 )}
                 <Button
-                  onClick={() => history.push(viewApplicationURL)}
                   intent="none"
+                  href={viewApplicationURL}
                   outline
                   fluid
                   text="LAUNCH"
