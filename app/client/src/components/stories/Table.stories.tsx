@@ -2,6 +2,8 @@ import React from "react";
 import Table from "components/ads/Table";
 import Button, { Category, Variant, Size } from "components/ads/Button";
 import Icon from "components/ads/Icon";
+import TableDropdown from "../ads/TableDropdown";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 export default {
   title: "Table",
@@ -35,11 +37,33 @@ const columns = [
   },
 ];
 
+const options = [
+  {
+    name: "Admin",
+    desc: "Can edit, view and invite other user to an app",
+  },
+  {
+    name: "Developer",
+    desc: "Can view and invite other user to an app",
+  },
+  {
+    name: "User",
+    desc: "Can view and invite other user to an app and...",
+  },
+];
+
 const data = [
   {
     col1: "Dustin Howard",
     col2: "dustin_01@jlegue.com",
-    col3: "Developer",
+    col3: (
+      <TableDropdown
+        position={Position.BOTTOM}
+        options={options}
+        onSelect={selectedValue => console.log(selectedValue)}
+        selectedIndex={0}
+      ></TableDropdown>
+    ),
     col4: "App Access",
     col5: (
       <Button
@@ -54,7 +78,14 @@ const data = [
   {
     col1: "Austin Howard",
     col2: "dustin_02@jlegue.com",
-    col3: "User",
+    col3: (
+      <TableDropdown
+        position={Position.BOTTOM}
+        options={options}
+        onSelect={selectedValue => console.log(selectedValue)}
+        selectedIndex={1}
+      ></TableDropdown>
+    ),
     col4: "Map Access",
     col5: (
       <Button
@@ -69,7 +100,14 @@ const data = [
   {
     col1: "Justing Howard",
     col2: "dustin_03@jlegue.com",
-    col3: "Admin",
+    col3: (
+      <TableDropdown
+        position={Position.BOTTOM}
+        options={options}
+        onSelect={selectedValue => console.log(selectedValue)}
+        selectedIndex={2}
+      ></TableDropdown>
+    ),
     col4: "Dm Access",
     col5: (
       <Button
