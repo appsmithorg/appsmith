@@ -9,7 +9,7 @@ import {
 } from "selectors/organizationSelectors";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
-import Button from "components/editorComponents/Button";
+// import Button from "components/editorComponents/Button";
 import { RouteComponentProps } from "react-router";
 import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
@@ -25,8 +25,10 @@ import {
   changeOrgUserRole,
   deleteOrgUser,
 } from "actions/orgActions";
-import { Size } from "components/ads/Button";
+import Button, { Size, Variant } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
+import { TextType } from "components/ads/Text";
+import { SettingsHeading } from "./settings";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
@@ -121,16 +123,14 @@ export default function MemberSettings(props: PageProps) {
   return (
     <React.Fragment>
       <PageSectionHeader>
-        <h2>Manage Users</h2>
+        <SettingsHeading type={TextType.H2}>Manage Users</SettingsHeading>
         <FormDialogComponent
           trigger={
             <Button
-              intent="primary"
+              variant={Variant.info}
               text="Invite Users"
-              icon="plus"
-              iconAlignment="left"
-              filled
-            />
+              size={Size.medium}
+            ></Button>
           }
           canOutsideClickClose={true}
           Form={OrgInviteUsersForm}

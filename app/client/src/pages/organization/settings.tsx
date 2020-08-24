@@ -33,7 +33,7 @@ const SettingWrapper = styled.div`
   margin-bottom: 25px;
 `;
 
-const Heading = styled(Text)`
+export const SettingsHeading = styled(Text)`
   color: white;
   display: inline-block;
   margin-top: 25px;
@@ -67,7 +67,7 @@ function GeneralSettings() {
 
   return (
     <>
-      <Heading type={TextType.H2}>General</Heading>
+      <SettingsHeading type={TextType.H2}>General</SettingsHeading>
       <SettingWrapper>
         <InputLabelWrapper>
           <Text type={TextType.H4}>Workspace</Text>
@@ -100,6 +100,10 @@ function GeneralSettings() {
 
 const LinkToApplications = styled(Link)`
   margin-bottom: 35px;
+  width: auto;
+  &:hover {
+    text-decoration: none;
+  }
 `;
 
 export default function Settings() {
