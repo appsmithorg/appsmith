@@ -15,7 +15,6 @@ export type TabProp = {
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
   border-radius: 0px;
-  background: black;
   height: 100%;
   .ads-icon {
     margin-right: ${props => props.theme.spaces[3]}px;
