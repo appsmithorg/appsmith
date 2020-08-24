@@ -15,6 +15,7 @@ export type TabProp = {
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
   border-radius: 0px;
+  background: black;
   height: 100%;
   .ads-icon {
     margin-right: ${props => props.theme.spaces[3]}px;
@@ -66,14 +67,6 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
       fill: ${props => props.theme.colors.blackShades[9]};
     }
   }
-  .react-tabs__tab:focus {
-    box-shadow: none;
-    border-bottom: ${props => props.theme.colors.info.main}
-      ${props => props.theme.spaces[1] - 2}px solid;
-    path {
-      fill: ${props => props.theme.colors.blackShades[9]};
-    }
-  }
   .react-tabs__tab--selected {
     color: ${props => props.theme.colors.blackShades[9]};
     background-color: transparent;
@@ -92,10 +85,21 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
       background-color: ${props => props.theme.colors.info.main};
     }
   }
-  .react-tabs__tab:focus:after {
-    content: none;
-    height: ${props => props.theme.spaces[1] - 2}px;
-    background: ${props => props.theme.colors.info.main};
+  .react-tabs__tab:focus {
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      bottom: ${props => props.theme.spaces[0] - 1}px;
+      left: ${props => props.theme.spaces[0]}px;
+      height: ${props => props.theme.spaces[1] - 2}px;
+      background-color: ${props => props.theme.colors.info.main};
+    }
+    box-shadow: none;
+    border-color: transparent;
+    path {
+      fill: ${props => props.theme.colors.blackShades[9]};
+    }
   }
 `;
 
