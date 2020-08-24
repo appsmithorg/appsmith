@@ -4,6 +4,7 @@ set -o nounset
 
 mongo_root_user="$1"
 mongo_root_password="$2"
+mongo_database="$3"
 
 cat <<EOF
 version: "3.7"
@@ -53,7 +54,7 @@ services:
     expose:
       - "27017"
     environment:
-      - MONGO_INITDB_DATABASE=appsmith
+      - MONGO_INITDB_DATABASE=$mongo_database
       - MONGO_INITDB_ROOT_USERNAME=$mongo_root_user
       - MONGO_INITDB_ROOT_PASSWORD=$mongo_root_password
     volumes:
