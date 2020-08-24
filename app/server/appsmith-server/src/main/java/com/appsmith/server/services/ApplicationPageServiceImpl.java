@@ -33,7 +33,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
@@ -280,15 +279,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     return orgMono.map(org -> {
                         application.setOrganizationId(org.getId());
-                        // At the organization level, filter out all the application specific policies and apply them
-                        // to the new application that we are creating.
-                        Set<Policy> policySet = org.getPolicies().stream()
-                                .filter(policy ->
-                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
-                                ).collect(Collectors.toSet());
 
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Application.class);
+                        // Generate and set the application policies from the organization
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Organization.class, Application.class);
                         application.setPolicies(documentPolicies);
                         return application;
                     });
