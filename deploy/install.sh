@@ -399,7 +399,7 @@ bash "$templates_dir"/docker-compose.yml.sh "$mongo_root_user" "$mongo_root_pass
 . "$templates_dir"/init-letsencrypt.sh.sh
 . "$templates_dir"/docker.env.sh
 if [[ "$setup_encryption" = "true" ]];then
-   . "$templates_dir"/encryption.env.sh
+   bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_password" > encryption.env
 fi
 #rm -rf "$templates_dir"
 chmod 0755 init-letsencrypt.sh
