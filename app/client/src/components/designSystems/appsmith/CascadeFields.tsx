@@ -19,7 +19,10 @@ import {
   DropdownOption,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableFilters";
-import { MenuColumnWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import {
+  RenderOptionWrapper,
+  SelectedOptionWrapper,
+} from "components/designSystems/appsmith/TableStyledWrappers";
 import { IconName } from "@blueprintjs/icons";
 import { debounce } from "lodash";
 
@@ -171,14 +174,14 @@ const operatorOptions: DropdownOption[] = [
   { label: "AND", value: OperatorTypes.AND, type: "" },
 ];
 
-const iconColumnTypeMap: Record<ColumnTypes, IconName> = {
-  [ColumnTypes.TEXT]: "label",
-  [ColumnTypes.VIDEO]: "video",
-  [ColumnTypes.IMAGE]: "media",
-  [ColumnTypes.NUMBER]: "numerical",
-  [ColumnTypes.DATE]: "calendar",
-  [ColumnTypes.CURRENCY]: "dollar",
-  [ColumnTypes.TIME]: "time",
+const columnTypeNameMap: Record<ColumnTypes, string> = {
+  [ColumnTypes.TEXT]: "Text",
+  [ColumnTypes.VIDEO]: "Video",
+  [ColumnTypes.IMAGE]: "Image",
+  [ColumnTypes.NUMBER]: "Num",
+  [ColumnTypes.DATE]: "Date",
+  [ColumnTypes.CURRENCY]: "Curr",
+  [ColumnTypes.TIME]: "Time",
 };
 
 const RenderOption = (props: {
@@ -187,14 +190,10 @@ const RenderOption = (props: {
   active: boolean;
 }) => {
   return (
-    <MenuColumnWrapper selected={props.active}>
-      <Icon
-        icon={iconColumnTypeMap[props.type as ColumnTypes]}
-        iconSize={12}
-        color={props.active ? Colors.WHITE : Colors.OXFORD_BLUE}
-      />
+    <RenderOptionWrapper selected={props.active}>
       <div className="title">{props.title}</div>
-    </MenuColumnWrapper>
+      <div className="type">{columnTypeNameMap[props.type as ColumnTypes]}</div>
+    </RenderOptionWrapper>
   );
 };
 
@@ -206,6 +205,7 @@ const RenderOptions = (props: {
   showType?: boolean;
 }) => {
   const [selectedValue, selectValue] = useState(props.placeholder);
+  const [selectedType, selectType] = useState("");
   const configs = {
     sections: [
       {
@@ -235,9 +235,18 @@ const RenderOptions = (props: {
     trigger: {
       content: (
         <DropdownTrigger>
-          <AutoToolTipComponentWrapper title={selectedValue}>
-            {selectedValue}
-          </AutoToolTipComponentWrapper>
+          {props.showType && selectedType !== "" ? (
+            <SelectedOptionWrapper>
+              <div className="title">{selectedValue}</div>
+              <div className="type">
+                {columnTypeNameMap[selectedType as ColumnTypes]}
+              </div>
+            </SelectedOptionWrapper>
+          ) : (
+            <AutoToolTipComponentWrapper title={selectedValue}>
+              {selectedValue}
+            </AutoToolTipComponentWrapper>
+          )}
           <Icon icon="chevron-down" iconSize={16} color={Colors.SLATE_GRAY} />
         </DropdownTrigger>
       ),
@@ -251,11 +260,14 @@ const RenderOptions = (props: {
       );
       if (selectedOptions && selectedOptions.length) {
         selectValue(selectedOptions[0].value);
+        selectType(selectedOptions[0].type);
       } else {
         selectValue(props.placeholder);
+        selectType("");
       }
     } else {
       selectValue(props.placeholder);
+      selectType("");
     }
   }, [props.value, props.placeholder, props.columns]);
   return <CustomizedDropdown {...configs} />;

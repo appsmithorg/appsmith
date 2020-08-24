@@ -340,3 +340,47 @@ export const TableIconWrapper = styled.div<{
 export const SortIconWrapper = styled.div<{ rotate: string }>`
   transform: ${props => (props.rotate === "true" ? "rotate(180deg)" : "none")};
 `;
+
+export const SelectedOptionWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  .title {
+    color: ${Colors.OXFORD_BLUE};
+    width: 70px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+  }
+  .type {
+    position: absolute;
+    left: 8px;
+    font-size: 12px;
+    color: #5e6c83;
+  }
+`;
+
+export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 150px;
+  background: ${props => props.selected && Colors.GREEN};
+  position: relative;
+  .title {
+    color: ${props => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
+    width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .type {
+    position: absolute;
+    left: 135px;
+    font-size: 12px !important;
+    color: #5e6c83;
+  }
+`;
