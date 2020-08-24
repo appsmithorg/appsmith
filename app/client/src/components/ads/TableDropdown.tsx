@@ -18,7 +18,7 @@ type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   onSelect: (selectedValue: DropdownOption) => void;
   selectedIndex: number;
-  position: Position;
+  position?: Position;
 };
 
 const SelectedItem = styled.div`
@@ -82,7 +82,7 @@ const TableDropdown = (props: DropdownProps) => {
   return (
     <Popover
       usePortal={false}
-      position={props.position}
+      position={props.position || Position.BOTTOM}
       isOpen={isDropdownOpen}
       onInteraction={state => setIsDropdownOpen(state)}
       interactionKind={PopoverInteractionKind.CLICK}
