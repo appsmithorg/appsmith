@@ -2,6 +2,7 @@ import { useTable, useSortBy } from "react-table";
 import React from "react";
 import styled from "styled-components";
 import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
+import { ReactComponent as UpperArrow } from "../../assets/icons/ads/upper_arrow.svg";
 
 const Styles = styled.div`
   table {
@@ -112,7 +113,7 @@ function Table(props: TableProps) {
                   {column.render("Header")}
                   {column.isSorted ? (
                     column.isSortedDesc ? (
-                      " 🔼"
+                      <UpperArrow />
                     ) : (
                       <DownArrow />
                     )

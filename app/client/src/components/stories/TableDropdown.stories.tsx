@@ -2,6 +2,7 @@ import React from "react";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import TableDropdown from "../ads/TableDropdown";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 export default {
   title: "Dropdown",
@@ -25,10 +26,13 @@ const options = [
 ];
 
 export const TableDropdownStory = () => (
-  <div
-    style={{ padding: "50px 200px", height: "500px", background: "#1A191C" }}
-  >
+  <div style={{ height: "1000px", background: "#1A191C" }}>
     <TableDropdown
+      position={select(
+        "position",
+        [Position.RIGHT, Position.LEFT, Position.BOTTOM, Position.TOP],
+        Position.BOTTOM,
+      )}
       options={options}
       onSelect={selectedValue => console.log(selectedValue)}
       selectedIndex={0}
