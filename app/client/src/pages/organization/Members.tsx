@@ -93,7 +93,7 @@ export default function MemberSettings(props: PageProps) {
             selectedIndex={index}
             options={roles}
             onSelect={option => {
-              console.log(option);
+              // dispatch(changeOrgUserRole(orgId, option.name, cellProps.cell.row.values.username))
             }}
           ></TableDropdown>
         );

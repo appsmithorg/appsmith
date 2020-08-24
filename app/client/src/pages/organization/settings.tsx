@@ -104,6 +104,9 @@ const LinkToApplications = styled(Link)`
   &:hover {
     text-decoration: none;
   }
+  svg {
+    cursor: pointer;
+  }
 `;
 
 export default function Settings() {
