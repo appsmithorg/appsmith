@@ -6,7 +6,7 @@ import {
   Field,
 } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover, Spinner } from "@blueprintjs/core";
+import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -14,7 +14,7 @@ import {
   OptionTypeBase,
   SingleValueProps,
 } from "react-select";
-import _ from "lodash";
+import { isString } from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
@@ -155,6 +155,8 @@ const TooltipStyles = createGlobalStyle`
 const ErrorMessage = styled.p`
   font-size: 14px;
   color: ${Colors.RED};
+  display: inline-block;
+  margin-right: 10px;
 `;
 const CreateDatasource = styled.div`
   height: 44px;
@@ -230,7 +232,7 @@ type QueryFormProps = {
   location: {
     state: any;
   };
-  editorConfig: [];
+  editorConfig?: any;
   loadingFormConfigs: boolean;
 };
 
@@ -269,7 +271,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   let output: Record<string, any>[] | null = null;
 
   if (executedQueryData) {
-    if (_.isString(executedQueryData.body)) {
+    if (isString(executedQueryData.body)) {
       error = executedQueryData.body;
     } else {
       output = executedQueryData.body;
@@ -440,10 +442,21 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           )}
         </div>
 
-        {!_.isNil(editorConfig) ? (
-          _.map(editorConfig, renderEachConfig)
+        {editorConfig && editorConfig.length > 0 ? (
+          editorConfig.map(renderEachConfig)
         ) : (
-          <ErrorMessage>An unexpected error occurred</ErrorMessage>
+          <>
+            <ErrorMessage>An unexpected error occurred</ErrorMessage>
+            <Tag
+              round
+              intent="warning"
+              interactive
+              minimal
+              onClick={() => window.location.reload()}
+            >
+              Refresh
+            </Tag>
+          </>
         )}
         <div className="executeOnLoad">
           <Field
@@ -492,7 +505,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 };
 
 const renderEachConfig = (section: any): any => {
-  return _.map(section.children, (propertyControlOrSection: ControlProps) => {
+  return section.children.map((propertyControlOrSection: ControlProps) => {
     if ("children" in propertyControlOrSection) {
       return renderEachConfig(propertyControlOrSection);
     } else {
@@ -511,6 +524,7 @@ const renderEachConfig = (section: any): any => {
         console.log(e);
       }
     }
+    return null;
   });
 };
 

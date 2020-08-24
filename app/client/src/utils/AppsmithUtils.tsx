@@ -8,8 +8,8 @@ import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
-import { providerBackgroundColors } from "constants/providerConstants";
 import FeatureFlag from "utils/featureFlags";
+import { appCardColors } from "constants/AppConstants";
 
 export const createReducer = (
   initialState: any,
@@ -149,7 +149,7 @@ export const getColorCode = (initials: string): string => {
   for (let i = 0; i < initials.length; i++) {
     asciiSum += initials[i].charCodeAt(0);
   }
-  return providerBackgroundColors[asciiSum % providerBackgroundColors.length];
+  return appCardColors[asciiSum % appCardColors.length];
 };
 
 export function hexToRgb(

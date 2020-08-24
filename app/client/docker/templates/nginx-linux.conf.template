@@ -36,6 +36,7 @@ server {
         sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID}';
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
         sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';
+        sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED}';
     }
 
     location /f {
@@ -103,6 +104,7 @@ server {
         sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID}';
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
         sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';
+        sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED}';
     }
 
     location /f {

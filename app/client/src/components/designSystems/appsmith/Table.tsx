@@ -33,7 +33,7 @@ interface TableProps {
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: object[];
-  displayColumnActions: boolean;
+  editMode: boolean;
   columnNameMap?: { [key: string]: string };
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
@@ -142,7 +142,7 @@ export const Table = (props: TableProps) => {
         updateHiddenColumns={props.updateHiddenColumns}
         filters={props.filters}
         applyFilter={props.applyFilter}
-        displayColumnActions={props.displayColumnActions}
+        editMode={props.editMode}
         compactMode={props.compactMode}
         updateCompactMode={props.updateCompactMode}
         tableSizes={tableSizes}
@@ -168,7 +168,7 @@ export const Table = (props: TableProps) => {
                       }
                       columnIndex={columnIndex}
                       isHidden={column.isHidden}
-                      displayColumnActions={props.displayColumnActions}
+                      editMode={props.editMode}
                       handleColumnNameUpdate={props.handleColumnNameUpdate}
                       getColumnMenu={props.getColumnMenu}
                       handleResizeColumn={props.handleResizeColumn}

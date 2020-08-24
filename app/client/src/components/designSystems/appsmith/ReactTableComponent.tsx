@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
 import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import {
@@ -37,7 +36,7 @@ interface ReactTableComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isLoading: boolean;
-  renderMode: RenderMode;
+  editMode: boolean;
   width: number;
   height: number;
   pageSize: number;
@@ -238,10 +237,17 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
-    const column = props.columns[columnIndex];
-    const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
-    if (columnType !== ColumnTypes.IMAGE && columnType !== ColumnTypes.VIDEO) {
-      props.sortTableColumn(column.accessor, asc);
+    if (columnIndex === -1) {
+      props.sortTableColumn("", asc);
+    } else {
+      const column = props.columns[columnIndex];
+      const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+      if (
+        columnType !== ColumnTypes.IMAGE &&
+        columnType !== ColumnTypes.VIDEO
+      ) {
+        props.sortTableColumn(column.accessor, asc);
+      }
     }
   };
 
@@ -275,7 +281,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       hiddenColumns={props.hiddenColumns}
       updateHiddenColumns={props.updateHiddenColumns}
       data={props.tableData}
-      displayColumnActions={props.renderMode === RenderModes.CANVAS}
+      editMode={props.editMode}
       columnNameMap={props.columnNameMap}
       getColumnMenu={getColumnMenu}
       handleColumnNameUpdate={handleColumnNameUpdate}
@@ -299,7 +305,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       enableDrag={() => {
         props.disableDrag(false);
       }}
-      searchTableData={debounce(props.searchTableData, 500)}
+      searchTableData={props.searchTableData}
       filters={props.filters}
       applyFilter={props.applyFilter}
       compactMode={props.compactMode}

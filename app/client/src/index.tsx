@@ -1,6 +1,5 @@
 import React from "react";
 import "./wdyr";
-import { Helmet } from "react-helmet";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
@@ -25,10 +24,6 @@ const App = () => {
             autoClose={5000}
             closeButton={false}
           />
-          <Helmet>
-            <meta charSet="utf-8" />
-            <link rel="shortcut icon" href="/favicon-orange.ico" />
-          </Helmet>
           <AppRouter />
         </ThemeProvider>
       </LayersContext.Provider>
