@@ -704,8 +704,10 @@ public class DatabaseChangelog {
         for (final Map<String, Object> datasource : datasources) {
             datasource.put("pluginId", plugins.get(datasource.remove("$pluginPackageName")));
             final Map authentication = (Map) ((Map) datasource.get("datasourceConfiguration")).get("authentication");
-            final String plainPassword = (String) authentication.get("password");
-            authentication.put("password", encryptionService.encryptString(plainPassword));
+            if (authentication != null) {
+                final String plainPassword = (String) authentication.get("password");
+                authentication.put("password", encryptionService.encryptString(plainPassword));
+            }
             datasource.put(FieldName.ORGANIZATION_ID, organizationId);
             datasource.put(FieldName.CREATED_AT, Instant.now());
             final Map<String, Object> insertedDatasource = mongoTemplate.insert(datasource, mongoTemplate.getCollectionName(Datasource.class));
