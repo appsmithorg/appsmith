@@ -23,6 +23,8 @@ services:
     command: "/bin/sh -c 'while :; do sleep 6h & wait \$\${!}; nginx -s reload; done & /start-nginx.sh'"
     depends_on:
       - appsmith-internal-server
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
     networks:
       - appsmith
 
@@ -46,6 +48,8 @@ services:
       - mongo
     depends_on:
       - mongo
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
     networks:
       - appsmith
 
@@ -67,6 +71,15 @@ services:
     image: redis
     expose:
       - "6379"
+    networks:
+      - appsmith
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Update check interval in seconds.
+    command: --interval 300 --label-enable
     networks:
       - appsmith
 
