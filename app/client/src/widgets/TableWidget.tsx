@@ -129,7 +129,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const i = columnKeys[index];
         const columnName: string =
           columnNameMap && columnNameMap[i] ? columnNameMap[i] : i;
-        const columnType: { type: string; format?: string } =
+        const columnType: {
+          type: string;
+          format?: string;
+          inputFormat?: string;
+        } =
           columnTypeMap && columnTypeMap[i]
             ? columnTypeMap[i]
             : { type: ColumnTypes.TEXT };
@@ -152,6 +156,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isHidden: isHidden,
             type: columnType.type,
             format: columnType.format,
+            inputFormat: columnType.inputFormat,
           },
           Cell: (props: any) => {
             return renderCell(props.cell.value, columnType.type, isHidden);
@@ -206,6 +211,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (column.metaProperties) {
           const type = column.metaProperties.type;
           const format = column.metaProperties.format;
+          const inputFormat = column.metaProperties.inputFormat;
           switch (type) {
             case ColumnTypes.CURRENCY:
               if (!isNaN(value)) {
@@ -216,14 +222,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               break;
             case ColumnTypes.DATE:
               let isValidDate = true;
-              if (isNaN(value)) {
-                const dateTime = Date.parse(value);
-                if (isNaN(dateTime)) {
-                  isValidDate = false;
-                }
+              try {
+                moment(value, inputFormat);
+              } catch (e) {
+                isValidDate = false;
               }
               if (isValidDate) {
-                tableRow[accessor] = moment(value).format(format);
+                tableRow[accessor] = moment(
+                  value,
+                  this.props.inputFormat,
+                ).format(format);
               } else if (value) {
                 tableRow[accessor] = "Invalid Value";
               } else {
@@ -571,6 +579,7 @@ export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
   type: string;
+  inputFormat?: string;
 }
 export interface ReactTableColumnProps {
   Header: string;
@@ -601,7 +610,9 @@ export interface TableWidgetProps extends WidgetProps {
   hiddenColumns?: string[];
   columnOrder?: string[];
   columnNameMap?: { [key: string]: string };
-  columnTypeMap?: { [key: string]: { type: string; format: string } };
+  columnTypeMap?: {
+    [key: string]: { type: string; format: string; inputFormat?: string };
+  };
   columnSizeMap?: { [key: string]: number };
   filters?: ReactTableFilter[];
   compactMode?: CompactMode;
