@@ -78,6 +78,10 @@ export interface DeletePageRequest {
   id: string;
 }
 
+export interface ClonePageRequest {
+  id: string;
+}
+
 export interface UpdateWidgetNameRequest {
   pageId: string;
   layoutId: string;
@@ -148,6 +152,10 @@ class PageApi extends Api {
 
   static deletePage(request: DeletePageRequest): AxiosPromise<ApiResponse> {
     return Api.delete(PageApi.url + "/" + request.id);
+  }
+
+  static clonePage(request: ClonePageRequest): AxiosPromise<ApiResponse> {
+    return Api.post(PageApi.url + "/clone/" + request.id);
   }
 
   static updateWidgetName(
