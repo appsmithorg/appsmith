@@ -22,6 +22,10 @@ const NoResult = styled(NonIdealState)`
   }
 `;
 
+const StyledDivider = styled(Divider)`
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+`;
+
 const EntityExplorer = () => {
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
@@ -89,7 +93,7 @@ const EntityExplorer = () => {
       <Search ref={searchInputRef} clear={clearSearch} />
       {!noPageEntities && explorerPageGroup}
       {noResults && noResultMessage}
-      <Divider />
+      <StyledDivider />
       {!noDatsourceEntities && datasourcesGroup}
     </Wrapper>
   );

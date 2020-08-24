@@ -22,6 +22,8 @@ const initialState: EditorReduxState = {
     isPageSwitching: false,
     creatingPage: false,
     creatingPageError: false,
+    cloningPage: false,
+    cloningPageError: false,
     updatingWidgetName: false,
     updateWidgetNameError: false,
   },
@@ -111,6 +113,20 @@ const editorReducer = createReducer(initialState, {
       currentApplicationId,
     };
   },
+  [ReduxActionTypes.CLONE_PAGE_INIT]: (state: EditorReduxState) => {
+    state.loadingStates.cloningPage = true;
+    state.loadingStates.cloningPageError = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
+    state.loadingStates.cloningPageError = true;
+    state.loadingStates.cloningPage = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.CLONE_PAGE_SUCCESS]: (state: EditorReduxState) => {
+    state.loadingStates.cloningPage = false;
+    return { ...state };
+  },
   [ReduxActionTypes.CREATE_PAGE_INIT]: (state: EditorReduxState) => {
     state.loadingStates.creatingPage = true;
     state.loadingStates.creatingPageError = false;
@@ -162,6 +178,8 @@ export interface EditorReduxState {
     pageSwitchingError: boolean;
     creatingPage: boolean;
     creatingPageError: boolean;
+    cloningPage: boolean;
+    cloningPageError: boolean;
     updatingWidgetName: boolean;
     updateWidgetNameError: boolean;
   };

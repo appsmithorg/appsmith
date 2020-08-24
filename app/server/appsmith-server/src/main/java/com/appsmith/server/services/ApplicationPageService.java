@@ -18,6 +18,8 @@ public interface ApplicationPageService {
 
     Mono<Page> getPageByName(String applicationName, String pageName, boolean viewMode);
 
+    Mono<Application> makePageDefault(Page page);
+
     Mono<Application> makePageDefault(String applicationId, String pageId);
 
     Mono<Application> cloneApplication(Application application);
