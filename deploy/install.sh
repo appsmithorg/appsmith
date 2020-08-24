@@ -166,7 +166,7 @@ wait_for_containers_start() {
 
 urlencode() {
     # urlencode <string>
-    old_lc_collate=$LC_COLLATE
+    old_lc_collate="$LC_COLLATE"
     LC_COLLATE=C
 
     local length="${#1}"
@@ -178,7 +178,12 @@ urlencode() {
         esac
     done
 
-    LC_COLLATE=$old_lc_collate
+    LC_COLLATE="$old_lc_collate"
+}
+
+generate_password() {
+    # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
+    LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
 }
 
 confirm() {
@@ -310,8 +315,8 @@ fi
 echo ""
 
 # urlencoding the Mongo username and password
-encoded_mongo_root_user=$( urlencode $mongo_root_user )
-encoded_mongo_root_password=$( urlencode $mongo_root_password )
+encoded_mongo_root_user=$(urlencode "$mongo_root_user")
+encoded_mongo_root_password=$(urlencode "$mongo_root_password")
 
 encryptionEnv=./template/encryption.env
 if test -f "$encryptionEnv"; then
@@ -338,12 +343,11 @@ fi
 if [[ "$setup_encryption" = "true" ]];then
     if [[ "$auto_generate_encryption" = "false" ]];then
         echo "Please enter the salt and password found in the encyption.env file of your previous appsmith installation "
-        read -p 'Enter your encryption password: ' user_encryption_password
-        read -p 'Enter your encryption salt: ' user_encryption_salt 
-    elif [[ "$auto_generate_encryption" = "true" ]];then
-   # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
-        user_encryption_password=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
-        user_encryption_salt=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
+        read -rp 'Enter your encryption password: ' user_encryption_password
+        read -rp 'Enter your encryption salt: ' user_encryption_salt
+    elif [[ "$auto_generate_encryption" = "true" ]]; then
+        user_encryption_password=$(generate_password)
+        user_encryption_salt=$(generate_password)
     fi
 fi
 
