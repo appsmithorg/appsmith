@@ -222,18 +222,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = userMono
-                .flatMap(user -> {
-                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
-
-                    return orgMono.map(org -> {
-                        application.setOrganizationId(org.getId());
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Organization.class, Application.class);
-                        application.setPolicies(documentPolicies);
-                        return application;
-                    });
-                });
+        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
         return applicationWithPoliciesMono
                 .flatMap(applicationService::createDefault)
@@ -256,6 +245,21 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
                             .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS));
+                });
+    }
+
+    private Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
+        return userMono
+                .flatMap(user -> {
+                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
+
+                    return orgMono.map(org -> {
+                        application.setOrganizationId(org.getId());
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Organization.class, Application.class);
+                        application.setPolicies(documentPolicies);
+                        return application;
+                    });
                 });
     }
 
@@ -338,6 +342,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Page> clonePage(String pageId) {
 
+        return pageService.findById(pageId, MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
+                .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId()));
+    }
+
+    private Mono<Page> clonePageGivenApplicationId(String pageId, String applicationId) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
         Mono<Page> sourcePageMono = pageService.findById(pageId, MANAGE_PAGES)
@@ -382,6 +392,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 // Now we have a unique name. Proceed with creating the copy of the page
                                 page.setId(null);
                                 page.setName(newPageName);
+                                page.setApplicationId(applicationId);
                                 return pageService.createDefault(page);
                             });
                 })
@@ -421,27 +432,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     @Override
     public Mono<Application> cloneApplication(String applicationId) {
+
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
                 .cache();
 
-        Mono<List<ApplicationPage>> clonedPagesMono = applicationMono
-                .flatMap(application -> Flux.fromIterable(application.getPages())
-                        .flatMap(applicationPage -> {
-                            String pageId = applicationPage.getId();
-                            Boolean isDefault = applicationPage.getIsDefault();
-                            return this.clonePage(pageId)
-                                    .map(page -> {
-                                        ApplicationPage newApplicationPage = new ApplicationPage();
-                                        newApplicationPage.setId(page.getId());
-                                        newApplicationPage.setIsDefault(isDefault);
-                                        return newApplicationPage;
-                                    });
-                        })
-                        .collectList()
-                )
-                .cache();
-
+        // Find the name for the cloned application which wouldn't lead to duplicate key exception
         Mono<String> newAppNameMono = applicationMono
                 .flatMap(application -> applicationService.findAllApplicationsByOrganizationId(application.getOrganizationId())
                         .map(application1 -> application1.getName())
@@ -458,16 +454,41 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             return name;
                         }));
 
-        return Mono.zip(applicationMono, clonedPagesMono, newAppNameMono)
+        return Mono.zip(applicationMono, newAppNameMono)
                 .flatMap(tuple -> {
                     Application sourceApplication = tuple.getT1();
-                    List<ApplicationPage> clonedPages = tuple.getT2();
-                    String newName = tuple.getT3();
+                    String newName = tuple.getT2();
 
                     sourceApplication.setId(null);
                     sourceApplication.setName(newName);
-                    sourceApplication.setPages(clonedPages);
-                    return applicationService.createDefault(sourceApplication);
+
+                    Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+                    // First set the correct policies for the new cloned application
+                   return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), sourceApplication)
+                           // Create the cloned application with the new name and policies before proceeding further.
+                           .flatMap(applicationService::createDefault)
+                           // Now fetch the pages of the source application, clone and add them to this new application
+                           .flatMap(savedApplication -> applicationMono
+                                   .flatMap(application -> Flux.fromIterable(application.getPages())
+                                           .flatMap(applicationPage -> {
+                                               String pageId = applicationPage.getId();
+                                               Boolean isDefault = applicationPage.getIsDefault();
+                                               return this.clonePageGivenApplicationId(pageId, savedApplication.getId())
+                                                       .map(page -> {
+                                                           ApplicationPage newApplicationPage = new ApplicationPage();
+                                                           newApplicationPage.setId(page.getId());
+                                                           newApplicationPage.setIsDefault(isDefault);
+                                                           return newApplicationPage;
+                                                       });
+                                           })
+                                           .collectList()
+                                   )
+                                   // Set the cloned pages into the cloned application and save.
+                                   .flatMap(clonedPages -> {
+                                       savedApplication.setPages(clonedPages);
+                                       return applicationRepository.save(savedApplication);
+                                   })
+                           );
                 });
     }
 
