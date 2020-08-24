@@ -4,6 +4,7 @@ import {
   useRouteMatch,
   useLocation,
   useParams,
+  Link,
 } from "react-router-dom";
 import AppRoute from "pages/common/AppRoute";
 import { getCurrentOrg } from "selectors/organizationSelectors";
@@ -14,9 +15,11 @@ import history from "utils/history";
 import TextInput from "components/ads/TextInput";
 import styled from "styled-components";
 import { saveOrg, fetchOrg } from "actions/orgActions";
-import { SaveOrgRequest } from "@appsmith/api/OrgApi";
+import { SaveOrgRequest } from "api/OrgApi";
 import { throttle } from "lodash";
 import MemberSettings from "./Members";
+import { Icon } from "@blueprintjs/core";
+import IconComponent from "components/designSystems/appsmith/IconComponent";
 
 const InputLabelWrapper = styled.div`
   width: 200px;
@@ -95,16 +98,8 @@ function GeneralSettings() {
   );
 }
 
-// function MembersSettings() {
-//     return <>
-//         <Heading type={TextType.H2}>Manage Users</Heading>
-//         {/* <Table></Table> */}
-//     </>
-// }
-
-//TODO: Remove before commit.
-const SettingsWrapper = styled.div`
-  color: white;
+const LinkToApplications = styled(Link)`
+  margin-bottom: 35px;
 `;
 
 export default function Settings() {
@@ -151,8 +146,11 @@ export default function Settings() {
   const isMembersPage = location.pathname.indexOf("members") !== -1;
 
   return (
-    <SettingsWrapper>
-      <Text type={TextType.H1}>{currentOrg.name}</Text>
+    <>
+      <LinkToApplications to={"/applications"}>
+        <IconComponent iconName="chevron-left" color="#9F9F9F"></IconComponent>
+        <Text type={TextType.H1}>{currentOrg.name}</Text>
+      </LinkToApplications>
       <AdsTabComponent
         tabs={tabArr}
         selectedIndex={isMembersPage ? 1 : 0}
@@ -172,6 +170,6 @@ export default function Settings() {
           history.push(newUrl);
         }}
       ></AdsTabComponent>
-    </SettingsWrapper>
+    </>
   );
 }
