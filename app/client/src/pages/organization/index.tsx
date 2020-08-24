@@ -1,9 +1,9 @@
 import React from "react";
 import { Switch, useRouteMatch, useLocation } from "react-router-dom";
 import PageWrapper from "pages/common/PageWrapper";
-import Settings from "./settings";
 import DefaultOrgPage from "./defaultOrgPage";
 import AppRoute from "pages/common/AppRoute";
+import Settings from "./settings";
 export const Organization = () => {
   const { path } = useRouteMatch();
   const location = useLocation();
@@ -11,7 +11,6 @@ export const Organization = () => {
     <PageWrapper displayName="Organization Settings">
       <Switch location={location}>
         <AppRoute
-          exact
           path={`${path}/:orgId/settings`}
           component={Settings}
           name={"Settings"}

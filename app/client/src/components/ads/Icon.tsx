@@ -48,14 +48,21 @@ export type IconProps = {
   size?: Size;
   name?: IconName;
   invisible?: boolean;
+  onClick?: () => void;
 };
 
-export const Icon = (props: IconProps) => {
+export default function Icon(props: IconProps) {
   let returnIcon;
   switch (props.name) {
     case "delete":
       returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
+        <IconWrapper
+          onClick={() => {
+            props.onClick && props.onClick();
+          }}
+          className="ads-icon"
+          {...props}
+        >
           <DeleteIcon />
         </IconWrapper>
       );
@@ -86,4 +93,4 @@ export const Icon = (props: IconProps) => {
       break;
   }
   return returnIcon;
-};
+}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon } from "../ads/Icon";
+import Icon from "components/ads/Icon";
 import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";

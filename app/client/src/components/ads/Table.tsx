@@ -80,7 +80,12 @@ const Styles = styled.div`
   }
 `;
 
-function Table(props: any) {
+interface TableProps {
+  data: any[];
+  columns: any[];
+}
+
+function Table(props: TableProps) {
   const data = React.useMemo(() => props.data, []);
 
   const columns = React.useMemo(() => props.columns, []);

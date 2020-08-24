@@ -11,16 +11,16 @@ export default {
 
 const options = [
   {
-    label: "Admin",
-    value: "Can edit, view and invite other user to an app",
+    name: "Admin",
+    desc: "Can edit, view and invite other user to an app",
   },
   {
-    label: "Developer",
-    value: "Can view and invite other user to an app",
+    name: "Developer",
+    desc: "Can view and invite other user to an app",
   },
   {
-    label: "User",
-    value: "Can view and invite other user to an app and...",
+    name: "User",
+    desc: "Can view and invite other user to an app and...",
   },
 ];
 
@@ -30,8 +30,8 @@ export const TableDropdownStory = () => (
   >
     <TableDropdown
       options={options}
-      onSelect={(selectedValue: string) => console.log(selectedValue)}
-      selectedOption={options[0]}
+      onSelect={selectedValue => console.log(selectedValue)}
+      selectedIndex={0}
     ></TableDropdown>
   </div>
 );

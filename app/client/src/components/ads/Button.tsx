@@ -1,7 +1,7 @@
 import React from "react";
 import { CommonComponentProps, hexToRgba, ThemeProp } from "./common";
 import styled from "styled-components";
-import { IconName, Icon } from "./Icon";
+import Icon, { IconName } from "./Icon";
 import Spinner from "./Spinner";
 import {
   mediumButton,

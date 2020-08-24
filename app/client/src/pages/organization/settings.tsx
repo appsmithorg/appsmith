@@ -1,393 +1,177 @@
 import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { Icon } from "@blueprintjs/core";
-import { TableWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
-import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
-import { Colors } from "constants/Colors";
-import { AppState } from "reducers";
 import {
-  getAllUsers,
-  getAllRoles,
-  getCurrentOrg,
-} from "selectors/organizationSelectors";
-import PageSectionDivider from "pages/common/PageSectionDivider";
-import PageSectionHeader from "pages/common/PageSectionHeader";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
-import Button from "components/editorComponents/Button";
-import { OrgUser, Org } from "constants/orgConstants";
-import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
+  Switch,
+  useRouteMatch,
+  useLocation,
+  useParams,
+} from "react-router-dom";
+import AppRoute from "pages/common/AppRoute";
+import { getCurrentOrg } from "selectors/organizationSelectors";
+import { useSelector, useDispatch } from "react-redux";
+import { AdsTabComponent, TabProp } from "components/ads/Tabs";
+import Text, { TextType } from "components/ads/Text";
+import history from "utils/history";
+import TextInput from "components/ads/TextInput";
 import styled from "styled-components";
-import { FormIcons } from "icons/FormIcons";
-import { RouteComponentProps } from "react-router";
-import Spinner from "components/editorComponents/Spinner";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
-import { useTable, useFlexLayout } from "react-table";
+import { saveOrg, fetchOrg } from "actions/orgActions";
+import { SaveOrgRequest } from "@appsmith/api/OrgApi";
+import { throttle } from "lodash";
+import MemberSettings from "./Members";
 
-type OrgProps = {
-  currentOrg: Org;
-  changeOrgName: (value: string) => void;
-  fetchCurrentOrg: (orgId: string) => void;
-  fetchUser: (orgId: string) => void;
-  fetchAllRoles: (orgId: string) => void;
-  deleteOrgUser: (orgId: string, username: string) => void;
-  changeOrgUserRole: (orgId: string, role: string, username: string) => void;
-  allUsers: OrgUser[];
-  allRole: object;
-  currentUser: User | undefined;
-  isFetchAllUsers: boolean;
-  isFetchAllRoles: boolean;
-};
-
-export type PageProps = OrgProps &
-  RouteComponentProps<{
-    orgId: string;
-  }>;
-
-export type MenuItemProps = {
-  rolename: string;
-};
-
-type DropdownProps = {
-  activeItem: string;
-  userRoles: object;
-  username: string;
-  changeOrgUserRole: (orgId: string, role: string, username: string) => void;
-  orgId: string;
-};
-
-const StyledDropDown = styled.div`
-  cursor: pointer;
+const InputLabelWrapper = styled.div`
+  width: 200px;
+  display: flex;
+  align-items: center;
 `;
 
-const StyledTableWrapped = styled(TableWrapper)`
-  height: ${props => props.height}px;
-  overflow: visible;
-  .tableWrap {
-    height: ${props => props.height}px;
-  }
-  .table {
-    .tbody {
-      height: ${props => props.height}px;
-    }
-  }
+const SettingWrapper = styled.div`
+  width: 520px;
+  display: flex;
+  margin-bottom: 25px;
 `;
 
-const StyledMenu = styled(Menu)`
-  &&&&.bp3-menu {
-    max-width: 250px;
-    cursor: pointer;
-  }
+const Heading = styled(Text)`
+  color: white;
+  display: inline-block;
+  margin-top: 25px;
+  margin-bottom: 32px;
 `;
 
-const RoleNameCell = (props: any) => {
-  const {
-    roleName,
-    roles,
-    username,
-    isCurrentUser,
-    isChangingRole,
-  } = props.cellProps.row.original;
-
-  if (isCurrentUser) {
-    return <div>{roleName}</div>;
+function GeneralSettings() {
+  const { orgId } = useParams();
+  const dispatch = useDispatch();
+  function saveChanges(settings: SaveOrgRequest) {
+    dispatch(saveOrg(settings));
   }
 
-  return (
-    <Popover
-      content={
-        <Dropdown
-          activeItem={roleName}
-          userRoles={roles}
-          username={username}
-          changeOrgUserRole={props.changeOrgUserRole}
-          orgId={props.orgId}
-        />
-      }
-      position={Position.BOTTOM_LEFT}
-    >
-      <StyledDropDown>
-        {roleName}
-        <Icon icon="chevron-down" />
-        {isChangingRole ? <Spinner size={20} /> : undefined}
-      </StyledDropDown>
-    </Popover>
-  );
-};
+  const throttleTimeout = 1000;
 
-const DeleteActionCell = (props: any) => {
-  const { username, isCurrentUser, isDeleting } = props.cellProps.row.original;
+  const onWorkspaceNameChange = throttle((newName: string) => {
+    // saveChanges({
+    //   id: orgId as string,
+    //   name: newName,
+    //   website: "asd.com",
+    // });
+  }, throttleTimeout);
+
+  const onWebsiteChange = throttle((newWebsite: string) => {
+    // saveChanges({
+    //   id: orgId as string,
+    //   name: "abcd",
+    //   website: newWebsite,
+    // });
+  }, throttleTimeout);
 
   return (
-    !isCurrentUser &&
-    (isDeleting ? (
-      <Spinner size={20} />
-    ) : (
-      <FormIcons.DELETE_ICON
-        height={20}
-        width={20}
-        color={"grey"}
-        background={"grey"}
-        onClick={() => props.deleteOrgUser(props.orgId, username)}
-        style={{ alignSelf: "center", cursor: "pointer" }}
-      />
-    ))
+    <>
+      <Heading type={TextType.H2}>General</Heading>
+      <SettingWrapper>
+        <InputLabelWrapper>
+          <Text type={TextType.H4}>Workspace</Text>
+        </InputLabelWrapper>
+        <TextInput
+          placeholder="Workspace name"
+          onChange={onWorkspaceNameChange}
+        ></TextInput>
+      </SettingWrapper>
+
+      <SettingWrapper>
+        <InputLabelWrapper>
+          <Text type={TextType.H4}>Website</Text>
+        </InputLabelWrapper>
+        <TextInput
+          placeholder="Your website"
+          onChange={onWebsiteChange}
+        ></TextInput>
+      </SettingWrapper>
+
+      <SettingWrapper>
+        <InputLabelWrapper>
+          <Text type={TextType.H4}>Email</Text>
+        </InputLabelWrapper>
+        <TextInput placeholder="Email"></TextInput>
+      </SettingWrapper>
+    </>
   );
-};
+}
 
-const Dropdown = (props: DropdownProps) => {
-  return (
-    <StyledMenu>
-      {Object.entries(props.userRoles).map((role, index) => {
-        const MenuContent = (
-          <div>
-            <span>
-              <b>{role[0]}</b>
-            </span>
-            <div>{role[1]}</div>
-          </div>
-        );
+// function MembersSettings() {
+//     return <>
+//         <Heading type={TextType.H2}>Manage Users</Heading>
+//         {/* <Table></Table> */}
+//     </>
+// }
 
-        return (
-          <MenuItem
-            multiline
-            key={index}
-            onClick={() =>
-              props.changeOrgUserRole(props.orgId, role[0], props.username)
-            }
-            active={props.activeItem === role[0]}
-            text={MenuContent}
-          />
-        );
-      })}
-    </StyledMenu>
-  );
-};
+//TODO: Remove before commit.
+const SettingsWrapper = styled.div`
+  color: white;
+`;
 
-export const OrgSettings = (props: PageProps) => {
-  const {
-    match: {
-      params: { orgId },
-    },
-    deleteOrgUser,
-    changeOrgUserRole,
-    fetchCurrentOrg,
-    fetchUser,
-    fetchAllRoles,
-    currentOrg,
-  } = props;
-
-  const userTableData = props.allUsers.map(user => ({
-    ...user,
-    roles: props.allRole,
-    isCurrentUser: user.username === props.currentUser?.username,
-  }));
-  const data = React.useMemo(() => userTableData, [userTableData]);
-
-  const tableHeight = React.useMemo(() => {
-    const tableDataLength =
-      userTableData.length * TABLE_SIZES[CompactModeTypes.DEFAULT].ROW_HEIGHT +
-      TABLE_SIZES[CompactModeTypes.DEFAULT].COLUMN_HEADER_HEIGHT;
-    return tableDataLength;
-  }, [userTableData]);
-
-  const columns = React.useMemo(() => {
-    return [
-      {
-        Header: "Email",
-        accessor: "username",
-      },
-      {
-        Header: "Name",
-        accessor: "name",
-      },
-      {
-        Header: "Role",
-        accessor: "roleName",
-        Cell: (cellProps: any) => {
-          return RoleNameCell({ cellProps, changeOrgUserRole, orgId });
-        },
-      },
-      {
-        Header: "Delete",
-        accessor: "delete",
-        Cell: (cellProps: any) => {
-          return DeleteActionCell({ cellProps, deleteOrgUser, orgId });
-        },
-      },
-    ];
-  }, [orgId, deleteOrgUser, changeOrgUserRole]);
-
-  const currentOrgName = currentOrg?.name ?? "";
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable(
-    {
-      columns,
-      data,
-      manualPagination: true,
-    },
-    useFlexLayout,
-  );
-
+export default function Settings() {
+  const { orgId } = useParams();
+  const currentOrg = useSelector(getCurrentOrg);
+  const { path } = useRouteMatch();
+  const location = useLocation();
+  const dispatch = useDispatch();
   useEffect(() => {
-    fetchUser(orgId);
-    fetchAllRoles(orgId);
-    fetchCurrentOrg(orgId);
-  }, [orgId, fetchUser, fetchAllRoles, fetchCurrentOrg]);
-  return (
-    <React.Fragment>
-      <PageSectionHeader>
-        <h2>{currentOrgName}</h2>
-      </PageSectionHeader>
-      <PageSectionDivider />
-      <PageSectionHeader>
-        <h2>Users</h2>
-        <FormDialogComponent
-          trigger={
-            <Button
-              intent="primary"
-              text="Invite Users"
-              icon="plus"
-              iconAlignment="left"
-              filled
-            />
-          }
-          canOutsideClickClose={true}
-          Form={OrgInviteUsersForm}
-          orgId={orgId}
-          title={`Invite Users to ${currentOrgName}`}
-        />
-      </PageSectionHeader>
-      {props.isFetchAllUsers && props.isFetchAllRoles ? (
-        <Spinner size={30} />
-      ) : (
-        <StyledTableWrapped
-          width={200}
-          height={tableHeight}
-          tableSizes={TABLE_SIZES[CompactModeTypes.DEFAULT]}
-          backgroundColor={Colors.ATHENS_GRAY_DARKER}
-        >
-          <div className="tableWrap">
-            <div {...getTableProps()} className="table">
-              {headerGroups.map((headerGroup: any, index: number) => (
-                <div
-                  key={index}
-                  {...headerGroup.getHeaderGroupProps()}
-                  className="tr"
-                >
-                  {headerGroup.headers.map(
-                    (column: any, columnIndex: number) => (
-                      <div
-                        key={columnIndex}
-                        {...column.getHeaderProps()}
-                        className="th header-reorder"
-                      >
-                        <div
-                          className={
-                            !column.isHidden
-                              ? "draggable-header"
-                              : "hidden-header"
-                          }
-                        >
-                          {column.render("Header")}
-                        </div>
-                      </div>
-                    ),
-                  )}
-                </div>
-              ))}
-              <div {...getTableBodyProps()} className="tbody">
-                {rows.map((row: any, index: number) => {
-                  prepareRow(row);
-                  return (
-                    <div key={index} {...row.getRowProps()} className={"tr"}>
-                      {row.cells.map((cell: any, cellIndex: number) => {
-                        return (
-                          <div
-                            key={cellIndex}
-                            {...cell.getCellProps()}
-                            className="td"
-                            data-rowindex={index}
-                            data-colindex={cellIndex}
-                          >
-                            {cell.render("Cell")}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </StyledTableWrapped>
-      )}
-    </React.Fragment>
+    dispatch(fetchOrg(orgId as string));
+  }, []);
+
+  const SettingsRenderer = (
+    <div>
+      <AppRoute
+        path={`${path}/general`}
+        component={GeneralSettings}
+        location={location}
+        name={"Settings"}
+      />
+      <AppRoute
+        path={`${path}/members`}
+        component={MemberSettings}
+        location={location}
+        name={"Settings"}
+      />
+    </div>
   );
-};
 
-const mapStateToProps = (state: AppState) => ({
-  allUsers: getAllUsers(state),
-  allRole: getAllRoles(state),
-  isFetchAllUsers: state.ui.orgs.loadingStates.isFetchAllUsers,
-  isFetchAllRoles: state.ui.orgs.loadingStates.isFetchAllRoles,
-  currentOrg: getCurrentOrg(state),
-  currentUser: getCurrentUser(state),
-});
+  const tabArr: TabProp[] = [
+    {
+      key: "general",
+      title: "General",
+      panelComponent: SettingsRenderer,
+      icon: "general",
+    },
+    {
+      key: "members",
+      title: "Members",
+      panelComponent: SettingsRenderer,
+      icon: "user",
+    },
+  ];
+  const isMembersPage = location.pathname.indexOf("members") !== -1;
 
-const mapDispatchToProps = (dispatch: any) => ({
-  fetchCurrentOrg: (orgId: string) =>
-    dispatch({
-      type: ReduxActionTypes.FETCH_CURRENT_ORG,
-      payload: {
-        orgId,
-      },
-    }),
-  changeOrgName: (name: string) =>
-    dispatch({
-      type: ReduxActionTypes.UPDATE_ORG_NAME_INIT,
-      payload: {
-        name,
-      },
-    }),
-  changeOrgUserRole: (orgId: string, role: string, username: string) =>
-    dispatch({
-      type: ReduxActionTypes.CHANGE_ORG_USER_ROLE_INIT,
-      payload: {
-        orgId,
-        role,
-        username,
-      },
-    }),
-  deleteOrgUser: (orgId: string, username: string) =>
-    dispatch({
-      type: ReduxActionTypes.DELETE_ORG_USER_INIT,
-      payload: {
-        orgId,
-        username,
-      },
-    }),
-  fetchUser: (orgId: string) =>
-    dispatch({
-      type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
-      payload: {
-        orgId,
-      },
-    }),
-  fetchAllRoles: (orgId: string) =>
-    dispatch({
-      type: ReduxActionTypes.FETCH_ALL_ROLES_INIT,
-      payload: {
-        orgId,
-      },
-    }),
-});
+  return (
+    <SettingsWrapper>
+      <Text type={TextType.H1}>{currentOrg.name}</Text>
+      <AdsTabComponent
+        tabs={tabArr}
+        selectedIndex={isMembersPage ? 1 : 0}
+        onSelect={(index: number) => {
+          const settingsStartIndex = location.pathname.indexOf("settings");
+          const settingsEndIndex = settingsStartIndex + "settings".length;
+          const hasSlash = location.pathname[settingsEndIndex] === "/";
+          let newUrl = "";
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrgSettings);
+          if (hasSlash) {
+            newUrl = `${location.pathname.substr(0, settingsEndIndex)}/${
+              tabArr[index].key
+            }`;
+          } else {
+            newUrl = `${location.pathname}/${tabArr[index].key}`;
+          }
+          history.push(newUrl);
+        }}
+      ></AdsTabComponent>
+    </SettingsWrapper>
+  );
+}

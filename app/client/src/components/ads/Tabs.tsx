@@ -2,8 +2,15 @@ import React from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
-import { Icon, IconName } from "./Icon";
+import Icon, { IconName } from "./Icon";
 import { Size } from "./Button";
+
+export type TabProp = {
+  key: string;
+  title: string;
+  panelComponent: JSX.Element;
+  icon: IconName;
+};
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
@@ -100,14 +107,9 @@ const TabTitle = styled.span`
 `;
 
 type TabbedViewComponentType = {
-  tabs: Array<{
-    key: string;
-    title: string;
-    panelComponent: JSX.Element;
-    icon?: IconName;
-  }>;
+  tabs: Array<TabProp>;
   selectedIndex?: number;
-  setSelectedIndex?: Function;
+  onSelect?: Function;
   overflow?: boolean;
 };
 
@@ -117,7 +119,7 @@ export const AdsTabComponent = (props: TabbedViewComponentType) => {
       <Tabs
         selectedIndex={props.selectedIndex}
         onSelect={(index: number) => {
-          props.setSelectedIndex && props.setSelectedIndex(index);
+          props.onSelect && props.onSelect(index);
         }}
       >
         <TabList>

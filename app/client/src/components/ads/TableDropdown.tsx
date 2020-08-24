@@ -5,14 +5,14 @@ import Text, { TextType } from "./Text";
 import styled from "styled-components";
 
 type DropdownOption = {
-  label: string;
-  value: string;
+  name: string;
+  desc: string;
 };
 
 type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
-  onSelect: (selectedValue: string) => void;
-  selectedOption: DropdownOption;
+  onSelect: (selectedValue: DropdownOption) => void;
+  selectedIndex: number;
 };
 
 const DropdownWrapper = styled.div`
@@ -45,17 +45,14 @@ const OptionsWrapper = styled.div`
 `;
 
 const DropdownOption = styled.div<{
-  selected: DropdownOption;
-  option: DropdownOption;
+  isSelected: boolean;
 }>`
   display: flex;
   flex-direction: column;
   padding: 10px 12px;
   cursor: pointer;
   background-color: ${props =>
-    props.option.label === props.selected.label
-      ? props.theme.colors.blackShades[4]
-      : "transparent"};
+    props.isSelected ? props.theme.colors.blackShades[4] : "transparent"};
 
   span:last-child {
     margin-top: ${props => props.theme.spaces[1] + 1}px;
@@ -69,22 +66,28 @@ const DropdownOption = styled.div<{
 `;
 
 const TableDropdown = (props: DropdownProps) => {
-  const [selected, setSelected] = useState(props.selectedOption);
+  const [selectedIndex, setSelectedIndex] = useState(props.selectedIndex);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const selectedOption = props.options[props.selectedIndex] || {};
 
   const dropdownHandler = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const optionSelector = (option: DropdownOption) => {
-    setSelected(option);
+  const optionSelector = (index: number) => {
+    setSelectedIndex(index);
+    props.onSelect && props.onSelect(props.options[props.selectedIndex]);
     setIsDropdownOpen(false);
   };
 
   return (
-    <DropdownWrapper>
+    <DropdownWrapper
+      onBlur={() => {
+        setIsDropdownOpen(false);
+      }}
+    >
       <SelectedItem onClick={() => dropdownHandler()}>
-        <Text type={TextType.P1}>{selected.label}</Text>
+        <Text type={TextType.P1}>{selectedOption.name}</Text>
         <DownArrow />
       </SelectedItem>
       {isDropdownOpen ? (
@@ -92,12 +95,11 @@ const TableDropdown = (props: DropdownProps) => {
           {props.options.map((el: DropdownOption, index: number) => (
             <DropdownOption
               key={index}
-              selected={selected}
-              option={el}
-              onClick={() => optionSelector(el)}
+              isSelected={selectedIndex === index}
+              onClick={() => optionSelector(index)}
             >
-              <Text type={TextType.H5}>{el.label}</Text>
-              <Text type={TextType.P3}>{el.value}</Text>
+              <Text type={TextType.H5}>{el.name}</Text>
+              <Text type={TextType.P3}>{el.desc}</Text>
             </DropdownOption>
           ))}
         </OptionsWrapper>
