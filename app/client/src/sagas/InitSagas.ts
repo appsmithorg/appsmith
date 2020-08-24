@@ -25,9 +25,11 @@ import PageApi, { FetchPageResponse } from "api/PageApi";
 import { validateResponse } from "./ErrorSagas";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { getAppStoreName } from "constants/AppConstants";
 
-const getAppStore = () => {
-  const storeString = localStorage.getItem("APPSMITH_LOCAL_STORE") || "{}";
+const getAppStore = (appId: string) => {
+  const appStoreName = getAppStoreName(appId);
+  const storeString = localStorage.getItem(appStoreName) || "{}";
   let store;
   try {
     store = JSON.parse(storeString);
@@ -68,7 +70,7 @@ function* initializeEditorSaga(
 
   // Step 5: Set app mode
   yield put(setAppMode(APP_MODE.EDIT));
-  yield put(updateAppStore(getAppStore()));
+  yield put(updateAppStore(getAppStore(applicationId)));
 
   const currentApplication = yield select(getCurrentApplication);
 
@@ -159,7 +161,7 @@ export function* initializeAppViewerSaga(
   ]);
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
-  yield put(updateAppStore(getAppStore()));
+  yield put(updateAppStore(getAppStore(applicationId)));
 
   yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,

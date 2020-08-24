@@ -72,6 +72,7 @@ import { ToastType } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { updateAppStore } from "actions/pageActions";
+import { getAppStoreName } from "constants/AppConstants";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -117,12 +118,13 @@ function* storeValueLocally(
   event: ExecuteActionPayloadEvent,
 ) {
   try {
-    const existingStore = yield localStorage.getItem("APPSMITH_LOCAL_STORE") ||
-      "{}";
+    const appId = yield select(getCurrentApplicationId);
+    const appStoreName = getAppStoreName(appId);
+    const existingStore = yield localStorage.getItem(appStoreName) || "{}";
     const storeObj = JSON.parse(existingStore);
     storeObj[action.key] = action.value;
     const storeString = JSON.stringify(storeObj);
-    yield localStorage.setItem("APPSMITH_LOCAL_STORE", storeString);
+    yield localStorage.setItem(appStoreName, storeString);
     yield put(updateAppStore(storeObj));
     if (event.callback) event.callback({ success: true });
   } catch (err) {
