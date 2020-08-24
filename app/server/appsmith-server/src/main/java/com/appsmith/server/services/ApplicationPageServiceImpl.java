@@ -341,6 +341,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
         Mono<Page> sourcePageMono = pageService.findById(pageId, MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
                 .flatMap(page -> Flux.fromIterable(page.getLayouts())
                         .map(layout -> layout.getDsl())
                         .map(dsl -> {
@@ -356,7 +357,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             return page;
                         }));
 
-        Flux<Action> sourceActionFlux = actionService.findByPageId(pageId, MANAGE_ACTIONS);
+        Flux<Action> sourceActionFlux = actionService.findByPageId(pageId, MANAGE_ACTIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)));
 
         return sourcePageMono
                 .flatMap(page -> {
@@ -409,10 +411,63 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .flatMap(application -> {
                                 ApplicationPage applicationPage = new ApplicationPage();
                                 applicationPage.setId(page.getId());
+                                applicationPage.setIsDefault(false);
                                 application.getPages().add(applicationPage);
                                 return applicationService.save(application)
                                         .thenReturn(page);
                             });
+                });
+    }
+
+    @Override
+    public Mono<Application> cloneApplication(String applicationId) {
+        Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
+                .cache();
+
+        Mono<List<ApplicationPage>> clonedPagesMono = applicationMono
+                .flatMap(application -> Flux.fromIterable(application.getPages())
+                        .flatMap(applicationPage -> {
+                            String pageId = applicationPage.getId();
+                            Boolean isDefault = applicationPage.getIsDefault();
+                            return this.clonePage(pageId)
+                                    .map(page -> {
+                                        ApplicationPage newApplicationPage = new ApplicationPage();
+                                        newApplicationPage.setId(page.getId());
+                                        newApplicationPage.setIsDefault(isDefault);
+                                        return newApplicationPage;
+                                    });
+                        })
+                        .collectList()
+                )
+                .cache();
+
+        Mono<String> newAppNameMono = applicationMono
+                .flatMap(application -> applicationService.findAllApplicationsByOrganizationId(application.getOrganizationId())
+                        .map(application1 -> application1.getName())
+                        .collect(Collectors.toSet())
+                        .map(appNames -> {
+                            log.debug("app names for this organization are : {}", appNames);
+                            String newAppName = application.getName() + " Copy";
+                            int i = 0;
+                            String name = newAppName;
+                            while (appNames.contains(name)) {
+                                i++;
+                                name = newAppName + i;
+                            }
+                            return name;
+                        }));
+
+        return Mono.zip(applicationMono, clonedPagesMono, newAppNameMono)
+                .flatMap(tuple -> {
+                    Application sourceApplication = tuple.getT1();
+                    List<ApplicationPage> clonedPages = tuple.getT2();
+                    String newName = tuple.getT3();
+
+                    sourceApplication.setId(null);
+                    sourceApplication.setName(newName);
+                    sourceApplication.setPages(clonedPages);
+                    return applicationService.createDefault(sourceApplication);
                 });
     }
 
