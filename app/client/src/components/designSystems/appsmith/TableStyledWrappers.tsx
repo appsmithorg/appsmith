@@ -359,7 +359,7 @@ export const SelectedOptionWrapper = styled.div`
     position: absolute;
     left: 8px;
     font-size: 12px;
-    color: #5e6c83;
+    color: ${Colors.BLUE_BAYOUX};
   }
 `;
 
@@ -381,6 +381,6 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
     position: absolute;
     left: 135px;
     font-size: 12px !important;
-    color: #5e6c83;
+    color: ${props => (props.selected ? Colors.WHITE : Colors.BLUE_BAYOUX)};
   }
 `;
