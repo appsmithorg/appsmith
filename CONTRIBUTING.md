@@ -24,14 +24,14 @@ There are many places ways can contribute to Appsmith and all types of contribut
 
 ### Client
 
-### Pre-requisites:
+##### Pre-requisites:
 
 1. You have `docker` installed in your system. If not, please visit: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 2. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details.
 3. You have `envsubst` installed. use `brew install gettext` on macOS. Linux machines usually have this installed.
 4. You have cloned the repo in your local machine.
 
-### Create local HTTPS certificates:
+##### Create local HTTPS certificates:
 
 1. Run the following command from the project root.
 
@@ -48,7 +48,7 @@ This command will end up creating 2 files in the `docker/` directory:
 
 3. Run the script `[start-https.sh](http://start-https.sh)` in order to start the nginx container that will proxy the frontend code on your local system.
 
-### Steps to build & run the code:
+##### Steps to build & run the code:
 
 1. Add a domain like `dev.appsmith.com` to `/etc/hosts`. 
 
@@ -72,7 +72,7 @@ echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
 
 5. Go to [https://dev.appsmith.com](https://dev.appsmith.com) on your browser
 
-## If you are unable to run docker:
+#### If you are unable to run docker:
 
 1. Make the values in `nginx-mac.conf.template` empty. None of the properties are required.
 2. `proxy_pass` value must be changed from `[http://host.docker.internal:3000](http://host.docker.internal:3000/)` to `[http://localhost:3000](http://localhost:3000/)`
