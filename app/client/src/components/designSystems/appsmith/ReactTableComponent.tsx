@@ -172,13 +172,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     const isColumnHidden = !!(
       props.hiddenColumns && props.hiddenColumns.includes(columnId)
     );
-    console.log({
-      columnAccessor: columnId,
-      isColumnHidden,
-      columnType,
-      format,
-      inputFormat,
-    });
     const columnMenuOptions: ColumnMenuOptionProps[] = getMenuOptions({
       columnAccessor: columnId,
       isColumnHidden,
