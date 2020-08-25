@@ -41,12 +41,16 @@ const EntityExplorer = () => {
     clearSearch,
   } = useFilteredEntities(searchInputRef);
 
-  const location = useLocation();
-  useEffect(() => {
-    if (location.hash === ENTITY_EXPLORER_SEARCH_LOCATION_HASH) {
-      searchInputRef.current?.focus();
-    }
-  }, [location, searchInputRef]);
+  // TODO (abhinav)
+  // Commenting out cause it causes re renders and re evaluations via userFilteredEntities
+  // Suggest to move this functionality somewhere else to avoid this
+  //
+  // const location = useLocation();
+  // useEffect(() => {
+  //   if (location.hash === ENTITY_EXPLORER_SEARCH_LOCATION_HASH) {
+  //     searchInputRef.current?.focus();
+  //   }
+  // }, [location, searchInputRef]);
 
   const explorerPageGroup = (
     <ExplorerPageGroup
