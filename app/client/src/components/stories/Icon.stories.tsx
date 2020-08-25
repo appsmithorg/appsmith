@@ -1,8 +1,8 @@
 import React from "react";
-import { Icon } from "../ads/Icon";
 import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
+import Icon from "../ads/Icon";
 
 export default {
   title: "Icon",

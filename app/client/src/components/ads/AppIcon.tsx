@@ -14,7 +14,6 @@ import { ReactComponent as FlightIcon } from "assets/icons/ads/flight.svg";
 
 import styled from "styled-components";
 import { Size } from "./Button";
-import { sizeHandler } from "./Spinner";
 
 export type AppIconName =
   | "bag"
@@ -107,14 +106,7 @@ const AppIcon = (props: AppIconProps) => {
       returnIcon = null;
       break;
   }
-  return returnIcon ? (
-    <IconWrapper
-      className={props.className ? props.className : "ads-icon"}
-      {...props}
-    >
-      {returnIcon}
-    </IconWrapper>
-  ) : null;
+  return returnIcon ? <IconWrapper {...props}>{returnIcon}</IconWrapper> : null;
 };
 
 export default AppIcon;

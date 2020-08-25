@@ -20,20 +20,20 @@ export const appIconPalette: AppIconName[] = [
 ];
 
 type IconSelectorProps = CommonComponentProps & {
-  onSelect: (icon: AppIconName) => void;
+  onSelect?: (icon: AppIconName) => void;
   selectedColor: string;
   iconPalette?: AppIconName[];
-  isFill?: boolean;
+  fill?: boolean;
 };
 
-const WrapperDiv = styled.div<{ isFill?: boolean }>`
+const IconPalette = styled.div<{ fill?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  width: ${props => (props.isFill ? "100%" : "234px")};
+  width: ${props => (props.fill ? "100%" : "234px")};
 `;
 
-const IconDiv = styled.div<{
+const IconBox = styled.div<{
   iconName: AppIconName;
   selected: AppIconName;
   bgColor: string;
@@ -66,30 +66,30 @@ const IconSelector = (props: IconSelectorProps) => {
   const [selected, setSelected] = useState<AppIconName>(appIconPalette[0]);
 
   return (
-    <WrapperDiv isFill={props.isFill}>
+    <IconPalette fill={props.fill}>
       {props.iconPalette &&
         props.iconPalette.map((iconName: AppIconName, index: number) => {
           return (
-            <IconDiv
+            <IconBox
               key={index}
               selected={selected}
               iconName={iconName}
               bgColor={props.selectedColor}
               onClick={() => {
                 setSelected(iconName);
-                return props.onSelect(iconName);
+                props.onSelect && props.onSelect(iconName);
               }}
             >
-              <AppIcon name={iconName} size={Size.large} />
-            </IconDiv>
+              <AppIcon name={iconName} size={Size.large} className="ads-icon" />
+            </IconBox>
           );
         })}
-    </WrapperDiv>
+    </IconPalette>
   );
 };
 
 IconSelector.defaultProps = {
-  isFill: false,
+  fill: false,
   iconPalette: appIconPalette,
 };
 
