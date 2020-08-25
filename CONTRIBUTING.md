@@ -1,6 +1,6 @@
 # Contributing to Appsmith
 
-First off, thanks for your interest in Appsmith and taking the time to contribute on this project. 🙌 
+Thank you for your interest in Appsmith and taking the time to contribute on this project. 🙌 
 Appsmith is a project by developers for developers and there are a lot of ways you can contribute. 
 Feel free to propose changes to this document in a pull request.
 
@@ -11,7 +11,7 @@ Feel free to propose changes to this document in a pull request.
 - [How to run tests?](#how-to-run-tests)
 
 ## How can I contribute?
-There are many places ways can contribute to Appsmith and all types of contributions are highly appreciated.
+There are many ways in which we/one can to contribute to Appsmith. All contributions are highly appreciated.
 
 - Beta testing
 - Raise Issues
@@ -22,16 +22,17 @@ There are many places ways can contribute to Appsmith and all types of contribut
     - Datasources
 
 
-## How to set up local development
+## 👨‍💻 How to set up local development
 
 ### Client
-Our frontend client is written in ReactJS and Typescript. State management is done via Redux and workflows 
-are handled via Redux Saga.
+Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows.
  
 ##### Pre-requisites:
 
+On your development machine, please ensure that:
+
 1. You have `docker` installed in your system. If not, please visit: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
-2. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details.
+2. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details. For `mkcert` to work with firefox you may require the `nss` utility to be installed. Details are in the link above.
 3. You have `envsubst` installed. use `brew install gettext` on macOS. Linux machines usually have this installed.
 4. You have cloned the repo in your local machine.
 
@@ -71,7 +72,7 @@ echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
     REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start
     ```
 
-    - Change the API endpoint in the Nginx configuration available in `docker/templates/nginx-linux.conf.template` or `docker/templates/nginx-mac.conf.template`
+    - Change the API endpoint in the Nginx configuration available in `docker/templates/nginx-linux.conf.template` or `docker/templates/nginx-mac.conf.template`. You will have to run `start-https.sh` script again after making the change.
 
 6. Go to [https://dev.appsmith.com](https://dev.appsmith.com) on your browser
 
@@ -96,27 +97,23 @@ echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
     cp envs/dev.env.example envs/dev.env
     ```
 
-##### How to add new ACL permissions to OPA:
-
-1. Update the relevant permission in `src/main/resources/public/appsmith/authz/acl.rego` file. 
-2. Create a tar.gz bundle called `bundle.tar.gz`. The filename is important because this is the file that the OPA server queries for in order to get the new permissions. This should reside in the `public` folder.
-
-    ```bash
-    cd src/main/resources/public/
-    tar -cvzf bundle.tar.gz appsmith
-    ```
-
-3. Restart the Java server to reflect the new bundle.tar.gz. Wait for a few minutes for OPA to query it again. Else, restart the OPA server as well (if you're in a hurry).
-4. Ensure your user has the newly created permission before testing, either directly in the user's document or in one of the user's groups.
-
-## How to run tests
+## 🧪 How to run tests
 
 ##### Client
+1. In order to run the Cypress integration tests, run:
 ```bash
-  yarn run test:ci
+  yarn run test
 ```
+
+2. In order to run the Jest unit tests, run:
 ```bash
   yarn run test:unit
 ```
+
 ##### Server
-TODO
+1. Ensure that you have Redis running on your local system.
+
+2. Run the command to execute tests
+```bash
+  mvn clean package
+```
