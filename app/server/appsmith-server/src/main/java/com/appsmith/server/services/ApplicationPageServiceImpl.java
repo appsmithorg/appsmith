@@ -453,6 +453,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     String newName = tuple.getT2();
 
                     sourceApplication.setId(null);
+                    sourceApplication.setIsPublic(false);
                     sourceApplication.setName(newName);
 
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
