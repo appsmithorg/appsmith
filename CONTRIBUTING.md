@@ -21,6 +21,18 @@ There are many ways in which we/one can to contribute to Appsmith. All contribut
     - Widgets
     - Datasources
 
+## Git Workflow
+
+We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so all code changes happen through pull requests. 
+
+Pull requests are the best way to propose changes to the codebase and get them reviewed by maintainers.
+
+1. Fork the repo and create your branch from `release`.
+2. If you've added code that should be tested, add tests. If it's a client-side change, tests must be added via Cypress/Jest. For server-side changes, please add JUnit tests.
+3. If you've changed any APIs, please call this out in the pull request. Also, don't forget to add/modify integration tests via Cypress to ensure that changes are backwards compatible.
+4. At all times, ensure the test suite passes. We will not be able to accept your change if the test suite doesn't pass.
+5. Create an issue referencing the pull request. This ensures that we can track the bug being fixed or feature being added easily.
+
 
 ## 👨‍💻 How to set up local development
 
