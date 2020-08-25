@@ -15,3 +15,8 @@ export const appCardColors = [
   "#CC293F",
   "#6BA3FD",
 ];
+
+const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
+
+export const getAppStoreName = (appId: string) =>
+  `${APP_STORE_NAMESPACE}-${appId}`;
