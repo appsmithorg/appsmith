@@ -233,4 +233,8 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Close a modal",
     "!type": "fn(modalName: string) -> void",
   },
+  storeValue: {
+    "!doc": "Store key value data locally",
+    "!type": "fn(key: string, value: any) -> void",
+  },
 };

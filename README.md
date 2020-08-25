@@ -73,6 +73,10 @@ If you have encountered a bug or need to get in touch with us, you can contact u
 
 We are committed to fostering an open and welcoming environment in the community. Please see the [Code of Conduct](CODE_OF_CONDUCT.md).
 
+## Contributing to Appsmith
+
+Please read our [contribution guidelines](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) in order to contribute to Appsmith.
+
 ## License
 
 The Appsmith platform is available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) (Apache-2.0).
