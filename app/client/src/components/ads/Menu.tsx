@@ -19,7 +19,7 @@ const MenuWrapper = styled.div`
   box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.75);
 `;
 
-const MenuOption = styled("div")`
+const MenuOption = styled.div`
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
   color: ${props => props.theme.colors.blackShades[6]};
@@ -60,7 +60,7 @@ const Menu = (props: MenuProps) => {
               key={index}
               onClick={e => {
                 e.stopPropagation();
-                return props.onSelect(e.target);
+                props.onSelect(e.target);
               }}
             >
               {el}
