@@ -16,7 +16,7 @@ export const ColorPickerStory = () => (
   <div style={{ background: "#2B2B2B", padding: "50px", height: "500px" }}>
     <ColorSelector
       onSelect={action("color-picker")}
-      isFill={boolean("isFill", false)}
+      fill={boolean("fill", false)}
       colorPalette={array("colorPalette", defaultValue)}
     />
   </div>

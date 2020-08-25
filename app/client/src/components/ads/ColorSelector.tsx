@@ -15,19 +15,19 @@ export const appColorPalette = [
 ];
 
 type ColorSelectorProps = CommonComponentProps & {
-  onSelect: (hex: string) => void;
+  onSelect?: (hex: string) => void;
   colorPalette?: string[];
-  isFill?: boolean;
+  fill?: boolean;
 };
 
-const WrapperDiv = styled.div<{ isFill?: boolean }>`
+const Palette = styled.div<{ fill?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  width: ${props => (props.isFill ? "100%" : "234px")};
+  width: ${props => (props.fill ? "100%" : "234px")};
 `;
 
-const ColoredDiv = styled.div<{ selected: string; color: string }>`
+const ColorBox = styled.div<{ selected: string; color: string }>`
   width: ${props => props.theme.spaces[8]}px;
   height: ${props => props.theme.spaces[8]}px;
   margin: 0 ${props => props.theme.spaces[2]}px
@@ -69,27 +69,27 @@ const ColorSelector = (props: ColorSelectorProps) => {
   console.log("colors", props.colorPalette);
 
   return (
-    <WrapperDiv isFill={props.isFill}>
+    <Palette fill={props.fill}>
       {props.colorPalette &&
         props.colorPalette.map((hex: string, index: number) => {
           return (
-            <ColoredDiv
+            <ColorBox
               key={index}
               selected={selected}
               color={hex}
               onClick={() => {
                 setSelected(hex);
-                return props.onSelect(hex);
+                props.onSelect && props.onSelect(hex);
               }}
             />
           );
         })}
-    </WrapperDiv>
+    </Palette>
   );
 };
 
 ColorSelector.defaultProps = {
-  isFill: false,
+  fill: false,
 };
 
 export default ColorSelector;
