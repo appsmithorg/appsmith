@@ -11,6 +11,7 @@ const initialState: OrgReduxState = {
     fetchingRoles: false,
     isFetchAllRoles: false,
     isFetchAllUsers: false,
+    isFetchingOrg: false,
   },
   orgUsers: [],
   orgRoles: [],
@@ -168,12 +169,30 @@ const orgReducer = createReducer(initialState, {
       id: action.payload.orgId,
     },
   }),
+  [ReduxActionTypes.SET_CURRENT_ORG]: (
+    state: OrgReduxState,
+    action: ReduxAction<Org>,
+  ) => ({
+    ...state,
+    currentOrg: action.payload,
+  }),
+  [ReduxActionTypes.FETCH_ORG_INIT]: (state: OrgReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      isFetchingOrg: true,
+    },
+  }),
   [ReduxActionTypes.FETCH_ORG_SUCCESS]: (
     state: OrgReduxState,
     action: ReduxAction<Org>,
   ) => ({
     ...state,
     currentOrg: action.payload,
+    loadingStates: {
+      ...state.loadingStates,
+      isFetchingOrg: false,
+    },
   }),
 });
 
@@ -184,6 +203,7 @@ export interface OrgReduxState {
     fetchingRoles: boolean;
     isFetchAllRoles: boolean;
     isFetchAllUsers: boolean;
+    isFetchingOrg: boolean;
   };
   orgUsers: OrgUser[];
   orgRoles: any;

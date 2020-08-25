@@ -112,6 +112,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper>
         <StyledInput
+          key={props.defaultValue}
           type="text"
           ref={ref}
           inputStyle={inputStyle}

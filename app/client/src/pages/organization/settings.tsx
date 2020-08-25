@@ -18,8 +18,8 @@ import { saveOrg, fetchOrg } from "actions/orgActions";
 import { SaveOrgRequest } from "api/OrgApi";
 import { throttle } from "lodash";
 import MemberSettings from "./Members";
-import { Icon } from "@blueprintjs/core";
 import IconComponent from "components/designSystems/appsmith/IconComponent";
+import { Org } from "constants/orgConstants";
 
 const InputLabelWrapper = styled.div`
   width: 200px;
@@ -43,6 +43,7 @@ export const SettingsHeading = styled(Text)`
 function GeneralSettings() {
   const { orgId } = useParams();
   const dispatch = useDispatch();
+  const currentOrg = useSelector(getCurrentOrg);
   function saveChanges(settings: SaveOrgRequest) {
     dispatch(saveOrg(settings));
   }
@@ -50,19 +51,24 @@ function GeneralSettings() {
   const throttleTimeout = 1000;
 
   const onWorkspaceNameChange = throttle((newName: string) => {
-    // saveChanges({
-    //   id: orgId as string,
-    //   name: newName,
-    //   website: "asd.com",
-    // });
+    saveChanges({
+      id: orgId as string,
+      name: newName,
+    });
   }, throttleTimeout);
 
   const onWebsiteChange = throttle((newWebsite: string) => {
-    // saveChanges({
-    //   id: orgId as string,
-    //   name: "abcd",
-    //   website: newWebsite,
-    // });
+    saveChanges({
+      id: orgId as string,
+      website: newWebsite,
+    });
+  }, throttleTimeout);
+
+  const onEmailChange = throttle((newEmail: string) => {
+    saveChanges({
+      id: orgId as string,
+      email: newEmail,
+    });
   }, throttleTimeout);
 
   return (
@@ -75,6 +81,7 @@ function GeneralSettings() {
         <TextInput
           placeholder="Workspace name"
           onChange={onWorkspaceNameChange}
+          defaultValue={currentOrg.name}
         ></TextInput>
       </SettingWrapper>
 
@@ -85,6 +92,7 @@ function GeneralSettings() {
         <TextInput
           placeholder="Your website"
           onChange={onWebsiteChange}
+          defaultValue={currentOrg.website || ""}
         ></TextInput>
       </SettingWrapper>
 
@@ -92,7 +100,11 @@ function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </InputLabelWrapper>
-        <TextInput placeholder="Email"></TextInput>
+        <TextInput
+          placeholder="Email"
+          onChange={onEmailChange}
+          defaultValue={currentOrg.email || ""}
+        ></TextInput>
       </SettingWrapper>
     </>
   );
