@@ -13,7 +13,6 @@ import {
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerActionsGroup from "./ActionsGroup";
 import { ExplorerURLParams } from "../helpers";
-import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 
 export type ActionGroupConfig = {
   groupName: string;
@@ -91,13 +90,13 @@ export const ACTION_PLUGIN_MAP: Array<
 export const getActionGroups = (
   page: Page,
   step: number,
-  actions?: DataTreeAction[],
+  actions?: any[],
   searchKeyword?: string,
 ) => {
   return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
     if (!config) return null;
     const entries = actions?.filter(
-      (entry: DataTreeAction) => entry.pluginType === config?.type,
+      (entry: any) => entry.config.pluginType === config?.type,
     );
     if (!entries || (entries.length === 0 && !!searchKeyword)) return null;
 

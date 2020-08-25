@@ -33,7 +33,7 @@ const EntityExplorer = () => {
 
   const explorerRef = useRef<HTMLDivElement | null>(null);
   const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
-
+  console.log("searching updated values", searchKeyword);
   const location = useLocation();
   useEffect(() => {
     if (location.hash === ENTITY_EXPLORER_SEARCH_LOCATION_HASH) {
@@ -41,36 +41,34 @@ const EntityExplorer = () => {
     }
   }, [location, searchInputRef]);
 
-  const [noResults, setNoResults] = useState(false);
-  useEffect(() => {
-    setTimeout(() => {
-      if (searchKeyword && explorerRef.current) {
-        const pages = explorerRef.current.getElementsByClassName("pages");
-        const datasources = explorerRef.current.getElementsByClassName(
-          "plugins",
-        );
-        console.log({ pages, datasources });
-        if (pages.length === 0 && datasources.length === 0) {
-          setNoResults(true);
-        } else {
-          setNoResults(false);
-        }
-      } else setNoResults(false);
-    }, 0);
-  }, [searchKeyword]);
-  const noResultMessage = (
-    <NoResult
-      className={Classes.DARK}
-      description="Try modifying the search keyword."
-      title="No entities found"
-      icon="search"
-    />
-  );
+  // const [noResults, setNoResults] = useState(false);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     if (searchKeyword && explorerRef.current) {
+  //       const pages = explorerRef.current.getElementsByClassName("page");
+  //       const datasources = explorerRef.current.getElementsByClassName(
+  //         "plugins",
+  //       );
+  //       if (pages.length === 0 && datasources.length === 0) {
+  //         setNoResults(true);
+  //       } else {
+  //         setNoResults(false);
+  //       }
+  //     } else setNoResults(false);
+  //   }, 100);
+  // }, [searchKeyword]);
+  // const noResultMessage = (
+  //   <NoResult
+  //     className={Classes.DARK}
+  //     description="Try modifying the search keyword."
+  //     title="No entities found"
+  //     icon="search"
+  //   />
+  // );
 
   return (
     <Wrapper ref={explorerRef}>
       <Search ref={searchInputRef} clear={clearSearch} />
-      {noResults && noResultMessage}
       <ExplorerPageGroup searchKeyword={searchKeyword} step={0} />
       <StyledDivider />
       <ExplorerDatasourcesGroup searchKeyword={searchKeyword} step={0} />

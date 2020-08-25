@@ -11,10 +11,11 @@ import CollapseToggle from "./CollapseToggle";
 import EntityName from "./Name";
 import AddButton from "./AddButton";
 import Collapse from "./Collapse";
-import { useEntityUpdateState, useEntityEditState, useClick } from "../hooks";
+import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
+import useClick from "utils/hooks/useClick";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",

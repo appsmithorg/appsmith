@@ -4,77 +4,32 @@ import {
   useState,
   useMemo,
   useCallback,
-  MouseEvent,
 } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import {
-  ENTITY_TYPE,
-  DataTreeEntity,
-  DataTree,
-  DataTreeAction,
-} from "entities/DataTree/dataTreeFactory";
-import { compact } from "lodash";
+import { compact, groupBy } from "lodash";
 import { Datasource } from "api/DatasourcesApi";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
-import { evaluateDataTreeWithFunctions } from "selectors/dataTreeSelectors";
 import log from "loglevel";
-
-export const useClick = (
-  currentRef: MutableRefObject<HTMLElement | null>,
-  singleClk: (e: MouseEvent<HTMLElement>) => void,
-  doubleClk?: (e: MouseEvent<HTMLElement>) => void,
-) => {
-  useEffect(() => {
-    let clickCount = 0;
-    let timeoutId = 0;
-
-    const handleClick = (e: any) => {
-      if (!doubleClk) {
-        singleClk(e);
-      } else {
-        clickCount++;
-        if (clickCount === 2 && doubleClk) {
-          doubleClk(e);
-          clearTimeout(timeoutId);
-          clickCount = 0;
-        } else {
-          timeoutId = setTimeout(() => {
-            singleClk(e);
-            clickCount = 0;
-          }, 200);
-        }
-      }
-    };
-
-    const el = currentRef.current;
-    el?.addEventListener("click", handleClick);
-    return () => {
-      el?.removeEventListener("click", handleClick);
-    };
-  }, [currentRef, singleClk, doubleClk]);
-};
+import produce from "immer";
 
 const findWidgets = (widgets: WidgetProps, keyword: string) => {
+  const widgetNameMached =
+    widgets.widgetName.toLowerCase().indexOf(keyword) > -1;
   if (widgets.children) {
     widgets.children = compact(
       widgets.children.map((widget: WidgetProps) =>
         findWidgets(widget, keyword),
       ),
     );
-    return widgets.children.length > 0 ||
-      widgets.widgetName.toLowerCase().indexOf(keyword) > -1
-      ? widgets
-      : undefined;
   }
-  if (widgets.widgetName.toLowerCase().indexOf(keyword) > -1) return widgets;
+  if (widgetNameMached || widgets.children?.length > 0) return widgets;
 };
 
-const findActions = (actions: Array<DataTreeAction>, keyword: string) => {
+const findActions = (actions: Array<any>, keyword: string) => {
   return actions.filter(
-    (action: DataTreeAction) => action.name.toLowerCase().indexOf(keyword) > -1,
+    (action: any) => action.config.name.toLowerCase().indexOf(keyword) > -1,
   );
 };
 
@@ -99,101 +54,49 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
   );
 };
 
-export const useDataTreeActions = (searchKeyword?: string) => {
-  const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
-  const actions = useMemo(
-    () =>
-      Object.values(dataTree).filter(
-        (entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE }) =>
-          entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
-      ),
-    [dataTree],
+export const useActions = (searchKeyword?: string) => {
+  const reducerActions = useSelector(
+    (state: AppState) => state.entities.actions,
   );
 
-  return useMemo(
-    () =>
-      searchKeyword
-        ? findActions(actions as DataTreeAction[], searchKeyword.toLowerCase())
-        : actions,
-    [searchKeyword, actions],
-  );
-};
+  const actions = useMemo(() => {
+    return groupBy(reducerActions, "config.pageId");
+  }, [reducerActions]);
 
-export const useDataTreeWidgets = (searchKeyword?: string) => {
-  const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
-  const widgets = useMemo(() => {
-    const canvasWidgets: { [id: string]: any } = {};
-    Object.values(dataTree).forEach(
-      (
-        entity: DataTreeEntity & {
-          ENTITY_TYPE?: ENTITY_TYPE;
-          widgetId?: string;
-        },
-      ) => {
-        if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET && entity.widgetId) {
-          canvasWidgets[entity.widgetId] = entity;
+  return useMemo(() => {
+    if (searchKeyword) {
+      return produce(actions, draft => {
+        for (const [key, value] of Object.entries(draft)) {
+          value.forEach((action, index) => {
+            const searchMatches =
+              action.config.name
+                .toLowerCase()
+                .indexOf(searchKeyword.toLowerCase()) > -1;
+            if (searchMatches) {
+              draft[key][index] = action;
+            } else {
+              delete draft[key][index];
+            }
+          });
         }
-      },
-    );
-
-    return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets,
-    });
-  }, [dataTree]);
-
-  return useMemo(
-    () =>
-      searchKeyword
-        ? findWidgets(widgets, searchKeyword.toLowerCase())
-        : widgets,
-    [searchKeyword, widgets],
-  );
+      });
+    }
+    return actions;
+  }, [searchKeyword, actions]);
 };
 
-export const usePageActions = (pageId: string, searchKeyword?: string) => {
-  const reducerActions = useSelector((state: AppState) =>
-    state.entities.actions.filter(action => action.config.pageId === pageId),
-  );
-  const actions = useMemo(
-    () =>
-      reducerActions.map(action => ({
-        isLoading: action.isLoading,
-        actionId: action.config.id,
-        pluginType: action.config.pluginType,
-        name: action.config.name,
-        pageId: action.config.pageId,
-        run: {},
-        dynamicBindingPathList: action.config.dynamicBindingPathList,
-        ENTITY_TYPE: ENTITY_TYPE.ACTION,
-        data: action.data || {},
-        config: {
-          paginationType: action.config.actionConfiguration.paginationType,
-          timeoutInMillisecond:
-            action.config.actionConfiguration.timeoutInMillisecond,
-          httpMethod: action.config.actionConfiguration.httpMethod,
-        },
-      })),
-    [reducerActions],
-  );
-
-  return useMemo(
-    () =>
-      searchKeyword
-        ? findActions(actions as DataTreeAction[], searchKeyword.toLowerCase())
-        : actions,
-    [searchKeyword, actions],
-  );
-};
-
-export const usePageWidgets = (pageId: string, searchKeyword?: string) => {
-  const pageDSL = useSelector((state: AppState) => state.ui.pageDSLs[pageId]);
-  return useMemo(
-    () =>
-      searchKeyword && pageDSL
-        ? findWidgets(pageDSL, searchKeyword.toLowerCase())
-        : pageDSL,
-    [searchKeyword, pageDSL],
-  );
+export const useWidgets = (searchKeyword?: string) => {
+  const pageDSLs = useSelector((state: AppState) => state.ui.pageDSLs);
+  return useMemo(() => {
+    if (searchKeyword && pageDSLs) {
+      return produce(pageDSLs, draft => {
+        for (const [key, value] of Object.entries(draft)) {
+          draft[key] = findWidgets(value, searchKeyword) as WidgetProps;
+        }
+      });
+    }
+    return pageDSLs;
+  }, [searchKeyword, pageDSLs]);
 };
 
 export const useFilteredEntities = (
