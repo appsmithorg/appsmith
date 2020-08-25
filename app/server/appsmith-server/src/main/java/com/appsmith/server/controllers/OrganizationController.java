@@ -8,7 +8,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,8 +57,8 @@ public class OrganizationController extends BaseController<OrganizationService, 
     }
 
     @PostMapping("/{organizationId}/logo")
-    public Mono<ResponseDTO<String>> uploadLogo(@PathVariable String organizationId,
-                                                @RequestPart("file") Mono<FilePart> fileMono) {
+    public Mono<ResponseDTO<Organization>> uploadLogo(@PathVariable String organizationId,
+                                                      @RequestPart("file") Mono<Part> fileMono) {
         return fileMono
                 .flatMap(filePart -> service.uploadLogo(organizationId, filePart))
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));

@@ -24,7 +24,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -313,7 +313,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     }
 
     @Override
-    public Mono<String> uploadLogo(String organizationId, FilePart filePart) {
+    public Mono<Organization> uploadLogo(String organizationId, Part filePart) {
         return Mono
                 .zip(
                         repository
@@ -337,11 +337,10 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                 organization.setLogoAssetId(asset.getId());
                                 return repository.save(organization);
                             })
-                            .map(Organization::getLogoUrl)
-                            .flatMap(url ->
+                            .flatMap(savedOrganization ->
                                 prevAssetId != null
-                                        ? assetRepository.deleteById(prevAssetId).thenReturn(url)
-                                        : Mono.just(url)
+                                        ? assetRepository.deleteById(prevAssetId).thenReturn(savedOrganization)
+                                        : Mono.just(savedOrganization)
                             );
                 });
     }
