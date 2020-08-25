@@ -19,11 +19,7 @@ import {
   DropdownOption,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableFilters";
-import {
-  RenderOptionWrapper,
-  SelectedOptionWrapper,
-} from "components/designSystems/appsmith/TableStyledWrappers";
-import { IconName } from "@blueprintjs/icons";
+import { RenderOptionWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import { debounce } from "lodash";
 
 const StyledRemoveIcon = styled(
@@ -205,7 +201,6 @@ const RenderOptions = (props: {
   showType?: boolean;
 }) => {
   const [selectedValue, selectValue] = useState(props.placeholder);
-  const [selectedType, selectType] = useState("");
   const configs = {
     sections: [
       {
@@ -235,18 +230,9 @@ const RenderOptions = (props: {
     trigger: {
       content: (
         <DropdownTrigger>
-          {props.showType && selectedType !== "" ? (
-            <SelectedOptionWrapper>
-              <div className="title">{selectedValue}</div>
-              <div className="type">
-                {columnTypeNameMap[selectedType as ColumnTypes]}
-              </div>
-            </SelectedOptionWrapper>
-          ) : (
-            <AutoToolTipComponentWrapper title={selectedValue}>
-              {selectedValue}
-            </AutoToolTipComponentWrapper>
-          )}
+          <AutoToolTipComponentWrapper title={selectedValue}>
+            {selectedValue}
+          </AutoToolTipComponentWrapper>
           <Icon icon="chevron-down" iconSize={16} color={Colors.SLATE_GRAY} />
         </DropdownTrigger>
       ),
@@ -260,14 +246,11 @@ const RenderOptions = (props: {
       );
       if (selectedOptions && selectedOptions.length) {
         selectValue(selectedOptions[0].value);
-        selectType(selectedOptions[0].type);
       } else {
         selectValue(props.placeholder);
-        selectType("");
       }
     } else {
       selectValue(props.placeholder);
-      selectType("");
     }
   }, [props.value, props.placeholder, props.columns]);
   return <CustomizedDropdown {...configs} />;

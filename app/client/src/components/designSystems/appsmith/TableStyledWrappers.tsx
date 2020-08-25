@@ -341,28 +341,6 @@ export const SortIconWrapper = styled.div<{ rotate: string }>`
   transform: ${props => (props.rotate === "true" ? "rotate(180deg)" : "none")};
 `;
 
-export const SelectedOptionWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  position: relative;
-  .title {
-    color: ${Colors.OXFORD_BLUE};
-    width: 70px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 14px;
-  }
-  .type {
-    position: absolute;
-    left: 8px;
-    font-size: 12px;
-    color: ${Colors.BLUE_BAYOUX};
-  }
-`;
-
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
   display: flex;
   justify-content: space-between;
