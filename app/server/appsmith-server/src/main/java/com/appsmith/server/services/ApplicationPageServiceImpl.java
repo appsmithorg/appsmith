@@ -259,7 +259,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<Application> cloneApplication(Application application) {
+    public Mono<Application> cloneExampleApplication(Application application) {
         if (!StringUtils.hasText(application.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }

@@ -22,7 +22,7 @@ public interface ApplicationPageService {
 
     Mono<Application> makePageDefault(String applicationId, String pageId);
 
-    Mono<Application> cloneApplication(Application application);
+    Mono<Application> cloneExampleApplication(Application application);
 
     Mono<Application> deleteApplication(String id);
 
