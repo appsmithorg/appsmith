@@ -50,6 +50,7 @@ export interface DataTreeWidget extends WidgetProps {
 
 export interface DataTreeAppsmith extends AppDataState {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
+  store: object;
 }
 
 export type DataTreeEntity =
@@ -188,6 +189,14 @@ export class DataTreeFactory {
         };
       };
       actionPaths.push("closeModal");
+
+      dataTree.storeValue = function(key: string, value: string) {
+        return {
+          type: "STORE_VALUE",
+          payload: { key, value },
+        };
+      };
+      actionPaths.push("storeValue");
     }
 
     dataTree.pageList = pageList;
