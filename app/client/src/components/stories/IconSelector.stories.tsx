@@ -14,7 +14,7 @@ export const IconSelectorStory = () => (
   <div style={{ padding: "50px", background: "#2B2B2B", height: "500px" }}>
     <IconSelector
       onSelect={action("icon-selected")}
-      isFill={boolean("fill", false)}
+      fill={boolean("fill", false)}
       selectedColor={select(
         "select color",
         [

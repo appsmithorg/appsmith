@@ -15,19 +15,36 @@ import { ReactComponent as FlightIcon } from "assets/icons/ads/flight.svg";
 import styled from "styled-components";
 import { Size } from "./Button";
 
-export type AppIconName =
-  | "bag"
-  | "product"
-  | "book"
-  | "camera"
-  | "file"
-  | "chat"
-  | "calender"
-  | "flight"
-  | "frame"
-  | "globe"
-  | "shopper"
-  | "heart";
+export enum AppIconName {
+  BAG = "bag",
+  PRODUCT = "product",
+  BOOK = "book",
+  CAMERA = "camera",
+  FILE = "file",
+  CHAT = "chat",
+  CALENDER = "calender",
+  FLIGHT = "flight",
+  FRAME = "frame",
+  GLOBE = "globe",
+  SHOPPER = "shopper",
+  HEART = "heart",
+}
+
+export const sizeHandler = (size: Size) => {
+  let iconSize = 0;
+  switch (size) {
+    case Size.small:
+      iconSize = 20;
+      break;
+    case Size.medium:
+      iconSize = 30;
+      break;
+    case Size.large:
+      iconSize = 54;
+      break;
+  }
+  return iconSize;
+};
 
 const IconWrapper = styled.div<AppIconProps>`
   &:focus {
@@ -35,71 +52,56 @@ const IconWrapper = styled.div<AppIconProps>`
   }
   display: flex;
   svg {
-    width: 22px;
-    height: 20px;
+    width: ${props => sizeHandler(props.size)}px;
+    height: ${props => sizeHandler(props.size)}px;
     path {
-      fill: ${props => props.theme.colors.blackShades[4]};
-    }
-  }
-
-  &:hover {
-    cursor: pointer;
-    path {
-      fill: ${props => props.theme.colors.blackShades[6]};
-    }
-  }
-
-  &:active {
-    cursor: pointer;
-    path {
-      fill: ${props => props.theme.colors.blackShades[7]};
+      fill: ${props => props.theme.colors.blackShades[9]};
     }
   }
 `;
 
 export type AppIconProps = {
-  size?: Size;
-  name?: AppIconName;
-  className?: string;
+  size: Size;
+  name: AppIconName;
 };
 
 const AppIcon = (props: AppIconProps) => {
   let returnIcon;
   switch (props.name) {
-    case "bag":
+    case AppIconName.BAG:
       returnIcon = <BagIcon />;
       break;
-    case "product":
+    case AppIconName.PRODUCT:
       returnIcon = <ProductIcon />;
       break;
-    case "book":
+    case AppIconName.BOOK:
       returnIcon = <BookIcon />;
       break;
-    case "camera":
+    case AppIconName.CAMERA:
       returnIcon = <CameraIcon />;
       break;
-    case "file":
+    case AppIconName.FILE:
       returnIcon = <FileIcon />;
       break;
-    case "chat":
+    case AppIconName.CHAT:
       returnIcon = <ChatIcon />;
       break;
-    case "calender":
+    case AppIconName.CALENDER:
       returnIcon = <CalenderIcon />;
       break;
-    case "frame":
+    case AppIconName.FRAME:
       returnIcon = <FrameIcon />;
       break;
-    case "globe":
+    case AppIconName.GLOBE:
       returnIcon = <GlobeIcon />;
       break;
-    case "shopper":
+    case AppIconName.SHOPPER:
       returnIcon = <ShopperIcon />;
       break;
-    case "heart":
+    case AppIconName.HEART:
       returnIcon = <HeartIcon />;
       break;
-    case "flight":
+    case AppIconName.FLIGHT:
       returnIcon = <FlightIcon />;
       break;
     default:

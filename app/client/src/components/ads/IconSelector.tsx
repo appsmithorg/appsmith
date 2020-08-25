@@ -49,14 +49,6 @@ const IconBox = styled.div<{
   cursor: pointer;
   position: relative;
 
-  .ads-icon {
-    svg {
-      path {
-        fill: ${props => props.theme.colors.blackShades[9]};
-      }
-    }
-  }
-
   &:last-child {
     margin-right: ${props => props.theme.spaces[0]}px;
   }
@@ -80,7 +72,7 @@ const IconSelector = (props: IconSelectorProps) => {
                 props.onSelect && props.onSelect(iconName);
               }}
             >
-              <AppIcon name={iconName} size={Size.large} className="ads-icon" />
+              <AppIcon name={iconName} size={Size.large} />
             </IconBox>
           );
         })}
