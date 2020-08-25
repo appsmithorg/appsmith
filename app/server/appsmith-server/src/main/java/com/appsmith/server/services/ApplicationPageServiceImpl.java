@@ -270,6 +270,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         application.setId(null);
         application.setPolicies(new HashSet<>());
         application.setPages(new ArrayList<>());
+        application.setIsPublic(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = userMono
