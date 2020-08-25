@@ -18,7 +18,6 @@ import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -943,6 +942,44 @@ public class OrganizationServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void uploadOrganizationLogo() throws IOException {
+        final InputStream imageResourceStream = getClass().getClassLoader()
+                .getResourceAsStream("test_assets/OrganizationServiceTest/my_organization_logo.png");
+        assertThat(imageResourceStream).isNotNull();
+
+        final byte[] bytes = imageResourceStream.readAllBytes();
+        final InMemoryFilePart filePart = new InMemoryFilePart(bytes, MediaType.IMAGE_PNG);
+
+        final String organizationId = organizationRepository
+                .findByName("Spring Test Organization")
+                .blockOptional(Duration.ofSeconds(3))
+                .map(Organization::getId)
+                .orElse(null);
+
+        assertThat(organizationId).isNotNull();
+
+        final Mono<Tuple2<Organization, Asset>> resultMono = organizationService
+                .uploadLogo(organizationId, filePart)
+                .flatMap(organizationWithLogo -> Mono.zip(
+                        Mono.just(organizationWithLogo),
+                        assetRepository.findById(organizationWithLogo.getLogoAssetId())
+                ));
+
+        StepVerifier.create(resultMono)
+                .assertNext(tuple -> {
+                    final Organization organizationWithLogo = tuple.getT1();
+                    assertThat(organizationWithLogo.getLogoUrl()).isNotNull();
+                    assertThat(organizationWithLogo.getLogoUrl()).contains(organizationWithLogo.getLogoAssetId());
+
+                    final Asset asset = tuple.getT2();
+                    assertThat(asset).isNotNull();
+                    assertThat(asset.getData()).isEqualTo(bytes);
+                })
+                .verifyComplete();
+    }
+
     private static class InMemoryFilePart implements Part {
 
         private final DataBuffer buffer;
@@ -973,45 +1010,6 @@ public class OrganizationServiceTest {
             return Flux.just(buffer);
         }
 
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void uploadOrganizationLogo() throws IOException {
-        final InputStream imageResourceStream = getClass().getClassLoader()
-                .getResourceAsStream("test_assets/OrganizationServiceTest/my_organization_logo.png");
-        assertThat(imageResourceStream).isNotNull();
-
-        final byte[] bytes = imageResourceStream.readAllBytes();
-        final byte[] bytes1 = ArrayUtils.clone(bytes);
-        final InMemoryFilePart filePart = new InMemoryFilePart(bytes, MediaType.IMAGE_PNG);
-
-        final String organizationId = organizationRepository
-                .findByName("Spring Test Organization")
-                .blockOptional(Duration.ofSeconds(3))
-                .map(Organization::getId)
-                .orElse(null);
-
-        assertThat(organizationId).isNotNull();
-
-        final Mono<Tuple2<Organization, Asset>> resultMono = organizationService
-                .uploadLogo(organizationId, filePart)
-                .flatMap(organizationWithLogo -> Mono.zip(
-                        Mono.just(organizationWithLogo),
-                        assetRepository.findById(organizationWithLogo.getLogoAssetId())
-                ));
-
-        StepVerifier.create(resultMono)
-                .assertNext(tuple -> {
-                    final Organization organizationWithLogo = tuple.getT1();
-                    assertThat(organizationWithLogo.getLogoUrl()).isNotNull();
-                    assertThat(organizationWithLogo.getLogoUrl()).contains(organizationWithLogo.getLogoAssetId());
-
-                    final Asset asset = tuple.getT2();
-                    assertThat(asset).isNotNull();
-                    assertThat(asset.getData()).isEqualTo(bytes);
-                })
-                .verifyComplete();
     }
 
 }
