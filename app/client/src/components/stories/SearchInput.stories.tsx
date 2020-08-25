@@ -15,10 +15,10 @@ export const SearchInputStory = () => (
       placeholder={text("placeholder", "Search for apps...")}
       variant={select(
         "variant",
-        [SearchVariant.BACKGROUND, SearchVariant.NO_BACKGROUND],
-        SearchVariant.NO_BACKGROUND,
+        [SearchVariant.BACKGROUND, SearchVariant.SEAMLESS],
+        SearchVariant.SEAMLESS,
       )}
-      isFill={boolean("fill", false)}
+      fill={boolean("fill", false)}
       defaultValue={text("defaultValue", "Type any search keyword")}
       onChange={action("searched value")}
     ></SearchInput>

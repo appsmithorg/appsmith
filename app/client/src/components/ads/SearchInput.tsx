@@ -6,12 +6,12 @@ import { Icon } from "./Icon";
 
 export enum SearchVariant {
   BACKGROUND = "BACKGROUND",
-  NO_BACKGROUND = "NO_BACKGROUND",
+  SEAMLESS = "SEAMLESS",
 }
 
 export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
-  isFill?: boolean;
+  fill?: boolean;
   defaultValue?: string;
   variant?: SearchVariant;
   onChange?: (value: string) => void;
@@ -46,16 +46,16 @@ const InputWrapper = styled.div<{
   value?: string;
   isFocused: boolean;
   variant?: SearchVariant;
-  isFill?: boolean;
+  fill?: boolean;
 }>`
   display: flex;
   align-items: center;
   padding: ${props => props.theme.spaces[3]}px
     ${props => props.theme.spaces[4]}px ${props => props.theme.spaces[3]}px
     ${props => props.theme.spaces[6]}px;
-  width: ${props => (props.isFill ? "100%" : "210px")};
+  width: ${props => (props.fill ? "100%" : "210px")};
   background-color: ${props =>
-    props.variant === SearchVariant.NO_BACKGROUND ? "transparent" : "#262626"};
+    props.variant === SearchVariant.SEAMLESS ? "transparent" : "#262626"};
   ${props =>
     props.variant === SearchVariant.BACKGROUND
       ? props.isFocused || props.value
@@ -101,7 +101,7 @@ const SearchInput = forwardRef(
         value={searchValue}
         isFocused={isFocused}
         variant={props.variant}
-        isFill={props.isFill}
+        fill={props.fill}
       >
         <Icon name="search" size={Size.large} className="search-icon" />
         <StyledInput
@@ -129,7 +129,7 @@ const SearchInput = forwardRef(
 );
 
 SearchInput.defaultProps = {
-  isFill: false,
+  fill: false,
 };
 
 SearchInput.displayName = "SearchInput";
