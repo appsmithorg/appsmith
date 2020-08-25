@@ -277,20 +277,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         application.setIsPublic(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = userMono
-                .flatMap(user -> {
-                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
-
-                    return orgMono.map(org -> {
-                        application.setOrganizationId(org.getId());
-
-                        // Generate and set the application policies from the organization
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Organization.class, Application.class);
-                        application.setPolicies(documentPolicies);
-                        return application;
-                    });
-                });
+        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
         return applicationWithPoliciesMono
                 .flatMap(applicationService::createDefault);
