@@ -179,6 +179,14 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateOrganization() {
+        Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
         Organization organization = new Organization();
         organization.setName("Test Update Name");
         organization.setDomain("example.com");
@@ -200,6 +208,7 @@ public class OrganizationServiceTest {
                     assertThat(t.getName()).isEqualTo(organization.getName());
                     assertThat(t.getId()).isEqualTo(organization.getId());
                     assertThat(t.getDomain()).isEqualTo("abc.com");
+                    assertThat(t.getPolicies()).contains(manageOrgAppPolicy, manageOrgPolicy);
                 })
                 .verifyComplete();
     }
