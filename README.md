@@ -31,7 +31,7 @@ Do all this without depending on multiple UI libraries, coding authentication lo
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
 
-------------------
+-------------------
 
 ## Demo Video
 
@@ -72,6 +72,10 @@ If you have encountered a bug or need to get in touch with us, you can contact u
 * Documentation: [Documentation](https://docs.appsmith.com)
 
 We are committed to fostering an open and welcoming environment in the community. Please see the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Contributing to Appsmith
+
+Please read our [contribution guidelines](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) in order to contribute to Appsmith.
 
 ## License
 

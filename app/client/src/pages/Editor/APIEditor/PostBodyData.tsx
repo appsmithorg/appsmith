@@ -138,6 +138,7 @@ const PostBodyData = (props: Props) => {
             name="actionConfiguration.bodyFormData"
             dataTreePath={`${dataTreePath}.bodyFormData`}
             label=""
+            pushFields
           />
         </React.Fragment>
       )}

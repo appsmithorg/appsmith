@@ -277,7 +277,7 @@ public class ExamplesOrganizationCloner {
     private Flux<Page> doCloneApplication(Application application) {
         final String templateApplicationId = application.getId();
         return applicationPageService
-                .cloneApplication(application)
+                .cloneExampleApplication(application)
                 .flatMapMany(
                         savedApplication -> pageRepository
                                 .findByApplicationId(templateApplicationId)
