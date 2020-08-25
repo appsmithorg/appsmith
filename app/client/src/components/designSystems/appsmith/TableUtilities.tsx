@@ -265,50 +265,62 @@ export const getMenuOptions = (props: MenuOptionProps) => {
           category: true,
         },
         {
-          content: "MM-DD-YY",
-          isSelected: props.inputFormat === "MM-DD-YY",
+          content: "Epoch",
+          isSelected: props.inputFormat === "Epoch",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
             props.handleDateFormatUpdate(
               columnIndex,
               props.format || "",
-              "MM-DD-YY",
+              "Epoch",
             );
           },
         },
         {
-          content: "DD-MM-YY",
-          isSelected: props.inputFormat === "DD-MM-YY",
+          content: "Milliseconds",
+          isSelected: props.inputFormat === "Milliseconds",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
             props.handleDateFormatUpdate(
               columnIndex,
               props.format || "",
-              "DD-MM-YY",
+              "Milliseconds",
             );
           },
         },
         {
-          content: "DD/MM/YY",
-          isSelected: props.inputFormat === "DD/MM/YY",
+          content: "YYYY-MM-DD",
+          isSelected: props.inputFormat === "YYYY-MM-DD",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
             props.handleDateFormatUpdate(
               columnIndex,
               props.format || "",
-              "DD/MM/YY",
+              "YYYY-MM-DD",
             );
           },
         },
         {
-          content: "MM/DD/YY",
-          isSelected: props.inputFormat === "MM/DD/YY",
+          content: "YYYY-MM-DDTHH:mm:ss",
+          isSelected: props.inputFormat === "YYYY-MM-DDTHH:mm:ss",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
             props.handleDateFormatUpdate(
               columnIndex,
               props.format || "",
-              "MM/DD/YY",
+              "YYYY-MM-DDTHH:mm:ss",
+            );
+          },
+        },
+        {
+          content: "YYYY-MM-DD hh:mm:ss",
+          isSelected: props.inputFormat === "YYYY-MM-DD hh:mm:ss",
+          closeOnClick: false,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(
+              columnIndex,
+              props.format || "",
+              "YYYY-MM-DD hh:mm:ss",
             );
           },
         },
@@ -318,49 +330,49 @@ export const getMenuOptions = (props: MenuOptionProps) => {
           category: true,
         },
         {
-          content: "MM-DD-YY",
-          isSelected: props.format === "MM-DD-YY",
+          content: "Same as Input",
+          isSelected: props.format === "INPUT",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
             props.handleDateFormatUpdate(
               columnIndex,
-              "MM-DD-YY",
+              "INPUT",
               props.inputFormat || "",
             );
           },
         },
         {
-          content: "DD-MM-YY",
-          isSelected: props.format === "DD-MM-YY",
+          content: "DD-MM-YYYY HH:mm",
+          isSelected: props.format === "DD-MM-YYYY HH:mm",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
             props.handleDateFormatUpdate(
               columnIndex,
-              "DD-MM-YY",
+              "DD-MM-YYYY HH:mm",
               props.inputFormat || "",
             );
           },
         },
         {
-          content: "DD/MM/YY",
-          isSelected: props.format === "DD/MM/YY",
+          content: "DD-MM-YYYY",
+          isSelected: props.format === "DD-MM-YYYY",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
             props.handleDateFormatUpdate(
               columnIndex,
-              "DD/MM/YY",
+              "DD-MM-YYYY",
               props.inputFormat || "",
             );
           },
         },
         {
-          content: "MM/DD/YY",
-          isSelected: props.format === "MM/DD/YY",
+          content: "Do MMM YYYY",
+          isSelected: props.format === "Do MMM YYYY",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
             props.handleDateFormatUpdate(
               columnIndex,
-              "MM/DD/YY",
+              "Do MMM YYYY",
               props.inputFormat || "",
             );
           },

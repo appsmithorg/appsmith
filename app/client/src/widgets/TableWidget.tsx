@@ -211,7 +211,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (column.metaProperties) {
           const type = column.metaProperties.type;
           const format = column.metaProperties.format;
-          const inputFormat = column.metaProperties.inputFormat;
           switch (type) {
             case ColumnTypes.CURRENCY:
               if (!isNaN(value)) {
@@ -222,16 +221,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               break;
             case ColumnTypes.DATE:
               let isValidDate = true;
+              let outputFormat = column.metaProperties.format;
+              let inputFormat;
               try {
-                moment(value, inputFormat);
+                const type = column.metaProperties.inputFormat;
+                if (type !== "EPOCH" && type !== "Milliseconds") {
+                  inputFormat = type;
+                  moment(value, inputFormat);
+                } else {
+                  moment(value);
+                }
               } catch (e) {
                 isValidDate = false;
               }
               if (isValidDate) {
-                tableRow[accessor] = moment(
-                  value,
-                  this.props.inputFormat,
-                ).format(format);
+                if (this.props.format === "INPUT") {
+                  outputFormat = inputFormat;
+                }
+                tableRow[accessor] = moment(value, inputFormat).format(
+                  outputFormat,
+                );
               } else if (value) {
                 tableRow[accessor] = "Invalid Value";
               } else {
