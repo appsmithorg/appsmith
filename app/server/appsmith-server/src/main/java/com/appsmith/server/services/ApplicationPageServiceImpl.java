@@ -358,8 +358,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             return page;
                         }));
 
+        // This call is without
         Flux<Action> sourceActionFlux = actionService.findByPageId(pageId, MANAGE_ACTIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)));
+                // In case there are no actions in the page being cloned, return empty
+                .switchIfEmpty(Flux.empty());
 
         return sourcePageMono
                 .flatMap(page -> {
