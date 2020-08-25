@@ -1,24 +1,26 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
-import _ from "lodash";
 import { Icon } from "./Icon";
 import { Size } from "./Button";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
-import { hexToRgba, ThemeProp } from "./common";
+import { hexToRgba } from "./common";
 import { theme } from "constants/DefaultTheme";
+import { noop } from "lodash";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
   DOUBLE = "DOUBLE",
 }
 
-export type SavingStateHandler = (state: SavingState) => void;
+export type SavingStateHandler = (
+  isSaving: boolean,
+  state?: SavingState,
+) => void;
 
 export enum SavingState {
   NOT_STARTED = "NOT_STARTED",
-  STARTED = "STARTED",
   SUCCESS = "SUCCESS",
   ERROR = "ERROR",
 }
@@ -54,11 +56,11 @@ const EditableTextWrapper = styled.div<{
 const editModeBgcolor = (
   isInvalid: boolean,
   isEditing: boolean,
-  savingState: { isSaving: boolean; name: SavingState },
+  savingState: { isSaving: boolean; name?: SavingState },
 ): string => {
   if (
     (isInvalid && isEditing) ||
-    (savingState.isSaving && savingState.name === SavingState.ERROR)
+    (!savingState.isSaving && savingState.name === SavingState.ERROR)
   ) {
     return hexToRgba(theme.colors.danger.main, 0.08);
   } else if (!isInvalid && isEditing) {
@@ -71,8 +73,6 @@ const editModeBgcolor = (
 const TextContainer = styled.div<{
   isInvalid: boolean;
   isEditing: boolean;
-  fill?: boolean;
-  savingState: { name: SavingState; isSaving: boolean };
   bgColor: string;
 }>`
   display: flex;
@@ -142,7 +142,7 @@ export const AdsEditableText = (props: EditableTextProps) => {
   const [changeStarted, setChangeStarted] = useState<boolean>(false);
   const [savingState, setSavingState] = useState<{
     isSaving: boolean;
-    name: SavingState;
+    name?: SavingState;
   }>({ isSaving: false, name: SavingState.NOT_STARTED });
 
   useEffect(() => {
@@ -159,17 +159,18 @@ export const AdsEditableText = (props: EditableTextProps) => {
     [isInvalid, isEditing, savingState],
   );
 
-  const editMode = (e: React.MouseEvent) => {
+  /* should I write ? */
+  const editMode = useCallback((e: React.MouseEvent) => {
     setIsEditing(true);
     const errorMessage = props.isInvalid && props.isInvalid(props.defaultValue);
     setIsInvalid(errorMessage ? errorMessage : false);
     e.preventDefault();
     e.stopPropagation();
-  };
+  }, []);
 
   const onConfirm = (_value: string) => {
     if (
-      (savingState.isSaving && savingState.name === SavingState.ERROR) ||
+      (!savingState.isSaving && savingState.name === SavingState.ERROR) ||
       isInvalid
     ) {
       setValue(lastValidValue);
@@ -182,7 +183,7 @@ export const AdsEditableText = (props: EditableTextProps) => {
     setChangeStarted(false);
   };
 
-  const onInputchange = (_value: string) => {
+  const onInputchange = useCallback((_value: string) => {
     let finalVal: string = _value;
     if (props.valueTransform) {
       finalVal = props.valueTransform(_value);
@@ -196,23 +197,22 @@ export const AdsEditableText = (props: EditableTextProps) => {
     }
     setIsInvalid(error);
     setChangeStarted(true);
-  };
+  }, []);
 
-  const SavingStateHandler = (state: SavingState) => {
+  const SavingStateHandler = (isSaving: boolean, state?: SavingState) => {
     setIsEditing(false);
-    switch (state) {
-      case SavingState.STARTED:
-        setSavingState({ isSaving: true, name: SavingState.STARTED });
-        break;
-      case SavingState.SUCCESS:
-        setSavingState({ isSaving: true, name: SavingState.SUCCESS });
-        break;
-      case SavingState.ERROR:
-        setValue(props.defaultValue);
-        setSavingState({ isSaving: false, name: SavingState.NOT_STARTED });
-        break;
-      default:
-        break;
+    if (isSaving) {
+      setSavingState({ isSaving: true });
+    } else {
+      switch (state) {
+        case SavingState.SUCCESS:
+          setSavingState({ isSaving: false, name: SavingState.SUCCESS });
+          break;
+        default:
+          setValue(props.defaultValue);
+          setSavingState({ isSaving: false, name: SavingState.NOT_STARTED });
+          break;
+      }
     }
   };
 
@@ -222,11 +222,11 @@ export const AdsEditableText = (props: EditableTextProps) => {
     savingState.name === SavingState.NOT_STARTED
       ? "edit"
       : !isEditing &&
-        savingState.isSaving &&
+        !savingState.isSaving &&
         savingState.name === SavingState.SUCCESS
       ? "success"
       : (isEditing &&
-          savingState.isSaving &&
+          !savingState.isSaving &&
           savingState.name === SavingState.ERROR) ||
         (isEditing && !!isInvalid)
       ? "error"
@@ -235,7 +235,7 @@ export const AdsEditableText = (props: EditableTextProps) => {
   const nonEditMode = () => {
     if (
       !isEditing &&
-      savingState.isSaving &&
+      !savingState.isSaving &&
       savingState.name === SavingState.SUCCESS
     ) {
       setSavingState({ isSaving: false, name: SavingState.NOT_STARTED });
@@ -249,19 +249,17 @@ export const AdsEditableText = (props: EditableTextProps) => {
       onDoubleClick={
         props.editInteractionKind === EditInteractionKind.DOUBLE
           ? editMode
-          : _.noop
+          : noop
       }
       onClick={
         props.editInteractionKind === EditInteractionKind.SINGLE
           ? editMode
-          : _.noop
+          : noop
       }
     >
       <TextContainer
         isInvalid={!!isInvalid}
         isEditing={isEditing}
-        savingState={savingState}
-        fill={props.fill}
         bgColor={bgColor}
       >
         <BlueprintEditableText
@@ -277,7 +275,7 @@ export const AdsEditableText = (props: EditableTextProps) => {
         />
 
         <IconWrapper className="icon-wrapper">
-          {savingState.isSaving && savingState.name === SavingState.STARTED ? (
+          {savingState.isSaving ? (
             <Spinner size={Size.large} />
           ) : (
             <Icon name={iconName} size={Size.large} />

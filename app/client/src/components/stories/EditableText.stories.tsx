@@ -22,10 +22,10 @@ const calls = (value: string, callback: any) => {
   // }, 2000);
 
   setTimeout(() => {
-    return callback(SavingState.SUCCESS);
+    return callback(false, SavingState.SUCCESS);
   }, 2000);
 
-  return callback(SavingState.STARTED);
+  return callback(true);
 };
 
 const errorFunction = (name: string) => {
