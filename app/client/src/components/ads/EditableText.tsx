@@ -217,17 +217,11 @@ export const AdsEditableText = (props: EditableTextProps) => {
   };
 
   const iconName =
-    !isEditing &&
-    !savingState.isSaving &&
-    savingState.name === SavingState.NOT_STARTED
+    !isEditing && savingState.name === SavingState.NOT_STARTED
       ? "edit"
-      : !isEditing &&
-        !savingState.isSaving &&
-        savingState.name === SavingState.SUCCESS
+      : !isEditing && savingState.name === SavingState.SUCCESS
       ? "success"
-      : (isEditing &&
-          !savingState.isSaving &&
-          savingState.name === SavingState.ERROR) ||
+      : (isEditing && savingState.name === SavingState.ERROR) ||
         (isEditing && !!isInvalid)
       ? "error"
       : undefined;
