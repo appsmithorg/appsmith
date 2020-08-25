@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Page;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,5 +18,10 @@ public interface CustomApplicationRepository extends AppsmithRepository<Applicat
 
     Flux<Application> findByMultipleOrganizationIds(Set<String> orgIds, AclPermission permission);
 
-    Mono<UpdateResult> addPageToApplication(Application application, Page page, boolean isDefault);
+    Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
+
+    Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault);
+
+    Mono<UpdateResult> setDefaultPage(String applicationId, String pageId);
+
 }

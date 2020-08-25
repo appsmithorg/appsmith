@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -34,7 +33,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
@@ -125,7 +123,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, Page page, Boolean isDefault) {
-        return applicationRepository.addPageToApplication(application, page, isDefault)
+        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
                         log.error("Add page to application didn't update anything, probably because application wasn't found.");
@@ -133,7 +131,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    public Mono<Page> getPage(String pageId, Boolean viewMode) {
+    @Override
+    public Mono<Page> getPage(String pageId, boolean viewMode) {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return pageService.findById(pageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
@@ -149,7 +148,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode) {
+    public Mono<Page> getPageByName(String applicationName, String pageName, boolean viewMode) {
         AclPermission appPermission;
         AclPermission pagePermission;
         if (viewMode) {
@@ -178,6 +177,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
+    public Mono<Application> makePageDefault(Page page) {
+        return makePageDefault(page.getApplicationId(), page.getId());
+    }
+
+    @Override
     public Mono<Application> makePageDefault(String applicationId, String pageId) {
         return pageService.findById(pageId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
@@ -190,20 +194,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 })
                 .then(applicationService.findById(applicationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-                .flatMap(application -> {
-                    List<ApplicationPage> pages = application.getPages();
-
-                    // We are guaranteed to find the pageId in this list.
-                    pages.stream().forEach(page -> {
-                        if (page.getId().equals(pageId)) {
-                            page.setIsDefault(true);
-                        } else {
-                            page.setIsDefault(false);
-                        }
-                    });
-                    application.setPages(pages);
-                    return applicationService.save(application);
-                });
+                .flatMap(application ->
+                        applicationRepository
+                                .setDefaultPage(applicationId, pageId)
+                                .then(applicationService.getById(applicationId))
+                );
     }
 
     @Override
@@ -275,9 +270,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         // Clean the object so that it will be saved as a new application for the currently signed in user.
+        application.setClonedFromApplicationId(application.getId());
         application.setId(null);
         application.setPolicies(new HashSet<>());
         application.setPages(new ArrayList<>());
+        application.setIsPublic(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = userMono
@@ -287,15 +284,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     return orgMono.map(org -> {
                         application.setOrganizationId(org.getId());
-                        // At the organization level, filter out all the application specific policies and apply them
-                        // to the new application that we are creating.
-                        Set<Policy> policySet = org.getPolicies().stream()
-                                .filter(policy ->
-                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
-                                ).collect(Collectors.toSet());
 
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Application.class);
+                        // Generate and set the application policies from the organization
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Organization.class, Application.class);
                         application.setPolicies(documentPolicies);
                         return application;
                     });
@@ -333,10 +324,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .collectList()
                             .thenReturn(application);
                 })
-                .flatMap(application -> applicationService.archive(application));
+                .flatMap(applicationService::archive);
 
         return applicationMono
-                .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj));
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
     @Override
