@@ -7,6 +7,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
@@ -590,6 +591,7 @@ public class ExamplesOrganizationClonerTests {
 
                     final Application firstApplication = data.applications.stream().filter(app -> app.getName().equals("first application")).findFirst().orElse(null);
                     assert firstApplication != null;
+                    assertThat(firstApplication.getPages().stream().filter(ApplicationPage::isDefault).count()).isEqualTo(1);
                     final Page newPage = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("name").is("A New Page")), Page.class);
                     assert newPage != null;
                     final String actionId = newPage.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();

@@ -3,21 +3,24 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -26,10 +29,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
@@ -40,26 +43,32 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final PageService pageService;
     private final SessionUserService sessionUserService;
     private final OrganizationService organizationService;
+    private final LayoutActionService layoutActionService;
 
     private final AnalyticsService analyticsService;
     private final PolicyGenerator policyGenerator;
 
     private final ApplicationRepository applicationRepository;
+    private final ActionService actionService;
 
     public ApplicationPageServiceImpl(ApplicationService applicationService,
                                       PageService pageService,
                                       SessionUserService sessionUserService,
                                       OrganizationService organizationService,
+                                      LayoutActionService layoutActionService,
                                       AnalyticsService analyticsService,
                                       PolicyGenerator policyGenerator,
-                                      ApplicationRepository applicationRepository) {
+                                      ApplicationRepository applicationRepository,
+                                      ActionService actionService) {
         this.applicationService = applicationService;
         this.pageService = pageService;
         this.sessionUserService = sessionUserService;
         this.organizationService = organizationService;
+        this.layoutActionService = layoutActionService;
         this.analyticsService = analyticsService;
         this.policyGenerator = policyGenerator;
         this.applicationRepository = applicationRepository;
+        this.actionService = actionService;
     }
 
     public Mono<Page> createPage(Page page) {
@@ -114,7 +123,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, Page page, Boolean isDefault) {
-        return applicationRepository.addPageToApplication(application, page, isDefault)
+        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
                         log.error("Add page to application didn't update anything, probably because application wasn't found.");
@@ -122,7 +131,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    public Mono<Page> getPage(String pageId, Boolean viewMode) {
+    @Override
+    public Mono<Page> getPage(String pageId, boolean viewMode) {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return pageService.findById(pageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
@@ -138,7 +148,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode) {
+    public Mono<Page> getPageByName(String applicationName, String pageName, boolean viewMode) {
         AclPermission appPermission;
         AclPermission pagePermission;
         if (viewMode) {
@@ -167,6 +177,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
+    public Mono<Application> makePageDefault(Page page) {
+        return makePageDefault(page.getApplicationId(), page.getId());
+    }
+
+    @Override
     public Mono<Application> makePageDefault(String applicationId, String pageId) {
         return pageService.findById(pageId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
@@ -179,20 +194,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 })
                 .then(applicationService.findById(applicationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-                .flatMap(application -> {
-                    List<ApplicationPage> pages = application.getPages();
-
-                    // We are guaranteed to find the pageId in this list.
-                    pages.stream().forEach(page -> {
-                        if (page.getId().equals(pageId)) {
-                            page.setIsDefault(true);
-                        } else {
-                            page.setIsDefault(false);
-                        }
-                    });
-                    application.setPages(pages);
-                    return applicationService.save(application);
-                });
+                .flatMap(application ->
+                        applicationRepository
+                                .setDefaultPage(applicationId, pageId)
+                                .then(applicationService.getById(applicationId))
+                );
     }
 
     @Override
@@ -260,9 +266,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         // Clean the object so that it will be saved as a new application for the currently signed in user.
+        application.setClonedFromApplicationId(application.getId());
         application.setId(null);
         application.setPolicies(new HashSet<>());
         application.setPages(new ArrayList<>());
+        application.setIsPublic(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = userMono
@@ -272,15 +280,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     return orgMono.map(org -> {
                         application.setOrganizationId(org.getId());
-                        // At the organization level, filter out all the application specific policies and apply them
-                        // to the new application that we are creating.
-                        Set<Policy> policySet = org.getPolicies().stream()
-                                .filter(policy ->
-                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
-                                ).collect(Collectors.toSet());
 
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Application.class);
+                        // Generate and set the application policies from the organization
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Organization.class, Application.class);
                         application.setPolicies(documentPolicies);
                         return application;
                     });
@@ -318,10 +320,91 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .collectList()
                             .thenReturn(application);
                 })
-                .flatMap(application -> applicationService.archive(application));
+                .flatMap(applicationService::archive);
 
         return applicationMono
-                .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj));
+                .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    @Override
+    public Mono<Page> clonePage(String pageId) {
+
+        // Find the source page and then prune the page layout fields to only contain the required fields that should be
+        // copied.
+        Mono<Page> sourcePageMono = pageService.findById(pageId, MANAGE_PAGES)
+                .flatMap(page -> Flux.fromIterable(page.getLayouts())
+                        .map(layout -> layout.getDsl())
+                        .map(dsl -> {
+                            Layout newLayout = new Layout();
+                            String id = new ObjectId().toString();
+                            newLayout.setId(id);
+                            newLayout.setDsl(dsl);
+                            return newLayout;
+                        })
+                        .collectList()
+                        .map(layouts -> {
+                            page.setLayouts(layouts);
+                            return page;
+                        }));
+
+        Flux<Action> sourceActionFlux = actionService.findByPageId(pageId, MANAGE_ACTIONS);
+
+        return sourcePageMono
+                .flatMap(page -> {
+                    Mono<ApplicationPagesDTO> pageNamesMono = pageService
+                            .findNamesByApplicationId(page.getApplicationId());
+                    return pageNamesMono
+                            // Set a unique name for the cloned page and then create the page.
+                            .flatMap(pageNames -> {
+                                Set<String> names = pageNames.getPages()
+                                        .stream()
+                                        .map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toSet());
+
+                                String newPageName = page.getName() + " Copy";
+                                int i = 0;
+                                String name = newPageName;
+                                while(names.contains(name)) {
+                                    i++;
+                                    name = newPageName + i;
+                                }
+                                newPageName = name;
+                                // Now we have a unique name. Proceed with creating the copy of the page
+                                page.setId(null);
+                                page.setName(newPageName);
+                                return pageService.createDefault(page);
+                            });
+                })
+                .flatMap(page -> {
+                    String newPageId = page.getId();
+                    return sourceActionFlux
+                            .flatMap(action -> {
+                                action.setId(null);
+                                action.setPageId(newPageId);
+                                return actionService.create(action);
+                            })
+                            .collectList()
+                            .thenReturn(page);
+                })
+                // Calculate the onload actions for this page now that the page and actions have been created
+                .flatMap(savedPage -> {
+                    List<Layout> layouts = savedPage.getLayouts();
+
+                    return Flux.fromIterable(layouts)
+                            .flatMap(layout -> layoutActionService.updateLayout(savedPage.getId(), layout.getId(), layout))
+                            .collectList()
+                            .thenReturn(savedPage);
+                })
+                .flatMap(page -> {
+                    Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), MANAGE_APPLICATIONS);
+                    return applicationMono
+                            .flatMap(application -> {
+                                ApplicationPage applicationPage = new ApplicationPage();
+                                applicationPage.setId(page.getId());
+                                application.getPages().add(applicationPage);
+                                return applicationService.save(application)
+                                        .thenReturn(page);
+                            });
+                });
     }
 
 }

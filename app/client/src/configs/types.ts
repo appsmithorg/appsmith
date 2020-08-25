@@ -66,4 +66,5 @@ export type AppsmithUIConfigs = {
     releaseDate: string;
   };
   intercomAppID: string;
+  mailEnabled: boolean;
 };

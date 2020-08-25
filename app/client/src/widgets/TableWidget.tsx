@@ -21,7 +21,6 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import memoize from "memoize-one";
 const ReactTableComponent = lazy(() =>
   import("components/designSystems/appsmith/ReactTableComponent"),
 );
@@ -84,13 +83,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
-      // filteredTableData: VALIDATION_TYPES.TABLE_DATA,
       defaultSearchText: VALIDATION_TYPES.TEXT,
-    };
-  }
-  static getDerivedPropertiesMap() {
-    return {
-      selectedRow: "{{this.filteredTableData[this.selectedRowIndex]}}",
     };
   }
 
@@ -100,6 +93,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: undefined,
       selectedRowIndex: -1,
       searchText: undefined,
+      selectedRow: {},
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
     };
@@ -263,106 +257,101 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return updatedTableData;
   };
 
-  filterTableData = memoize(
-    (
-      tableData: object[],
-      columns: ReactTableColumnProps[],
-      filters?: ReactTableFilter[],
-      searchText?: string,
-      sortedColumn?: {
-        column: string;
-        asc: boolean;
-      },
-    ) => {
-      if (!tableData || !tableData.length) {
-        return [];
-      }
-      let sortedTableData = [];
-      const searchKey = searchText ? searchText.toUpperCase() : "";
-      if (sortedColumn) {
-        const sortColumn = sortedColumn.column;
-        const sortOrder = sortedColumn.asc;
-        sortedTableData = sortTableFunction(
-          tableData,
-          columns,
-          sortColumn,
-          sortOrder,
-        );
-      } else {
-        sortedTableData = [...tableData];
-      }
-      const filteredTableData = sortedTableData.filter(
-        (item: { [key: string]: any }) => {
-          const searchFound = searchKey
-            ? Object.values(item)
-                .join(", ")
-                .toUpperCase()
-                .includes(searchKey)
-            : true;
-          if (!searchFound) return false;
-          if (!filters || filters.length === 0) return true;
-          const filterOperator: Operator =
-            filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
-          let filter = filterOperator === OperatorTypes.AND ? true : false;
-          for (let i = 0; i < filters.length; i++) {
-            const filterValue = compare(
-              item[filters[i].column],
-              filters[i].value,
-              filters[i].condition,
-            );
-            if (filterOperator === OperatorTypes.AND) {
-              filter = filter && filterValue;
-            } else {
-              filter = filter || filterValue;
-            }
-          }
-          return filter;
-        },
+  filterTableData = () => {
+    const { searchText, sortedColumn, filters, tableData } = this.props;
+    const columns = this.getTableColumns(tableData);
+    if (!tableData || !tableData.length) {
+      return [];
+    }
+    let sortedTableData = [];
+    const searchKey = searchText ? searchText.toUpperCase() : "";
+    if (sortedColumn) {
+      const sortColumn = sortedColumn.column;
+      const sortOrder = sortedColumn.asc;
+      sortedTableData = sortTableFunction(
+        tableData,
+        columns,
+        sortColumn,
+        sortOrder,
       );
-      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-      return filteredTableData;
-    },
-  );
-
-  resetFilteredTableData = (
-    filters?: ReactTableFilter[],
-    searchText?: string,
-    sortedColumn?: {
-      column: string;
-      asc: boolean;
-    },
-  ) => {
-    const { tableData } = this.props;
-    const tableColumns = this.getTableColumns(tableData);
-    this.filterTableData(
-      tableData,
-      tableColumns,
-      filters,
-      searchText,
-      sortedColumn,
+    } else {
+      sortedTableData = [...tableData];
+    }
+    const filteredTableData = sortedTableData.filter(
+      (item: { [key: string]: any }) => {
+        const searchFound = searchKey
+          ? Object.values(item)
+              .join(", ")
+              .toUpperCase()
+              .includes(searchKey)
+          : true;
+        if (!searchFound) return false;
+        if (!filters || filters.length === 0) return true;
+        const filterOperator: Operator =
+          filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
+        let filter = filterOperator === OperatorTypes.AND ? true : false;
+        for (let i = 0; i < filters.length; i++) {
+          const filterValue = compare(
+            item[filters[i].column],
+            filters[i].value,
+            filters[i].condition,
+          );
+          if (filterOperator === OperatorTypes.AND) {
+            filter = filter && filterValue;
+          } else {
+            filter = filter || filterValue;
+          }
+        }
+        return filter;
+      },
     );
+    return filteredTableData;
   };
 
-  getPageView() {
-    const {
-      tableData,
-      hiddenColumns,
-      filters,
-      searchText,
-      sortedColumn,
-    } = this.props;
-    const tableColumns = this.getTableColumns(tableData);
-    // Use the filtered data to render the table.
-    const filteredTableData = this.filterTableData(
-      tableData,
-      tableColumns,
-      filters,
-      searchText,
-      sortedColumn,
-    );
-    if (this.props.filteredTableData === undefined) {
-      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+  getSelectedRow = (filteredTableData: object[]) => {
+    const { selectedRowIndex } = this.props;
+    if (selectedRowIndex === undefined || selectedRowIndex === -1) {
+      const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
+      const selectedRow: { [key: string]: any } = {};
+      for (let i = 0; i < columnKeys.length; i++) {
+        selectedRow[columnKeys[i]] = undefined;
+      }
+      return selectedRow;
     }
+    return filteredTableData[selectedRowIndex];
+  };
+
+  componentDidMount() {
+    const filteredTableData = this.filterTableData();
+    super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+    super.updateWidgetMetaProperty(
+      "selectedRow",
+      this.getSelectedRow(filteredTableData),
+    );
+  }
+  componentDidUpdate(prevProps: TableWidgetProps) {
+    if (
+      JSON.stringify(this.props.tableData) !==
+        JSON.stringify(prevProps.tableData) ||
+      JSON.stringify(this.props.filters) !==
+        JSON.stringify(prevProps.filters) ||
+      this.props.searchText !== prevProps.searchText ||
+      JSON.stringify(this.props.sortedColumn) !==
+        JSON.stringify(prevProps.sortedColumn)
+    ) {
+      const filteredTableData = this.filterTableData();
+      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+      super.updateWidgetMetaProperty(
+        "selectedRow",
+        this.getSelectedRow(filteredTableData),
+      );
+    }
+  }
+
+  getPageView() {
+    const { tableData, hiddenColumns, filteredTableData } = this.props;
+    const tableColumns = this.getTableColumns(tableData);
+
     const transformedData = this.transformData(
       filteredTableData || [],
       tableColumns,
@@ -397,7 +386,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (pageSize !== this.props.pageSize) {
       super.updateWidgetMetaProperty("pageSize", pageSize);
     }
-    // /*
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -409,7 +397,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
           searchKey={this.props.searchText}
-          renderMode={this.props.renderMode}
+          editMode={this.props.renderMode === RenderModes.CANVAS}
           hiddenColumns={hiddenColumns}
           columnActions={this.props.columnActions}
           columnNameMap={this.props.columnNameMap}
@@ -455,7 +443,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
             this.resetSelectedRowIndex();
-            this.resetFilteredTableData(filters, searchText, sortedColumn);
             super.updateWidgetMetaProperty("filters", filters);
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
@@ -466,22 +453,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               super.updateWidgetMetaProperty("compactMode", compactMode);
             }
           }}
-          sortTableColumn={(column: string, asc: boolean) => {
-            this.resetSelectedRowIndex();
-            this.resetFilteredTableData(filters, searchText, { column, asc });
-            super.updateWidgetMetaProperty("sortedColumn", {
-              column: column,
-              asc: asc,
-            });
-          }}
+          sortTableColumn={this.handleColumnSorting}
         />
       </Suspense>
     );
   }
 
+  handleColumnSorting = (column: string, asc: boolean) => {
+    this.resetSelectedRowIndex();
+    if (column === "") {
+      super.updateWidgetMetaProperty("sortedColumn", undefined);
+    } else {
+      super.updateWidgetMetaProperty("sortedColumn", {
+        column: column,
+        asc: asc,
+      });
+    }
+  };
+
   handleSearchTable = (searchKey: any) => {
-    const { onSearchTextChanged, filters, sortedColumn } = this.props;
-    this.resetFilteredTableData(filters, searchKey, sortedColumn);
+    const { onSearchTextChanged } = this.props;
     this.resetSelectedRowIndex();
     this.updateWidgetMetaProperty("pageNo", 1);
     super.updateWidgetMetaProperty("searchText", searchKey);
@@ -512,6 +503,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleRowClick = (rowData: object, index: number) => {
     const { onRowSelected } = this.props;
     super.updateWidgetMetaProperty("selectedRowIndex", index);
+    super.updateWidgetMetaProperty(
+      "selectedRow",
+      this.props.filteredTableData[index],
+    );
     if (onRowSelected) {
       super.executeAction({
         dynamicString: onRowSelected,

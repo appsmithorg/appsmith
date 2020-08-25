@@ -13,6 +13,7 @@ import {
   getAllUsers,
   getCurrentOrg,
 } from "selectors/organizationSelectors";
+import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
@@ -31,6 +32,8 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
+import { getAppsmithConfigs } from "configs";
+import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 
 const OrgInviteTitle = styled.div`
   font-weight: bold;
@@ -110,6 +113,29 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const Loading = styled(Spinner)`
+  padding-top: 10px;
+  margin: auto;
+  width: 100%;
+`;
+
+const MailConfigContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  align-items: center;
+  && > span {
+    color: #2e3d49;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  && > a {
+    color: rgba(46, 61, 73, 0.5);
+    font-size: 12px;
+    text-decoration: underline;
+  }
+`;
+
 const validateFormValues = (values: { users: string; role: string }) => {
   if (values.users && values.users.length > 0) {
     const _users = values.users.split(",").filter(Boolean);
@@ -143,6 +169,8 @@ const validate = (values: any) => {
   return errors;
 };
 
+const { mailEnabled } = getAppsmithConfigs();
+
 const OrgInviteUsersForm = (props: any) => {
   const {
     handleSubmit,
@@ -158,6 +186,7 @@ const OrgInviteUsersForm = (props: any) => {
     fetchCurrentOrg,
     currentOrg,
     isApplicationInvite,
+    isLoading,
   } = props;
 
   const currentPath = useLocation().pathname;
@@ -237,16 +266,35 @@ const OrgInviteUsersForm = (props: any) => {
             type="submit"
           />
         </StyledInviteFieldGroup>
-        <UserList style={{ justifyContent: "space-between" }}>
-          {allUsers.map((user: { username: string; roleName: string }) => {
-            return (
-              <div className="user" key={user.username}>
-                <div>{user.username}</div>
-                <div>{user.roleName}</div>
-              </div>
-            );
-          })}
-        </UserList>
+        {isLoading ? (
+          <Loading size={30} />
+        ) : (
+          <React.Fragment>
+            {!mailEnabled && (
+              <MailConfigContainer>
+                {allUsers.length === 0 && <NoEmailConfigImage />}
+                <span>You haven’t setup any email service yet</span>
+                <a
+                  href="https://docs.appsmith.com/third-party-services/email"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Please configure your email service to invite people
+                </a>
+              </MailConfigContainer>
+            )}
+            <UserList style={{ justifyContent: "space-between" }}>
+              {allUsers.map((user: { username: string; roleName: string }) => {
+                return (
+                  <div className="user" key={user.username}>
+                    <div>{user.username}</div>
+                    <div>{user.roleName}</div>
+                  </div>
+                );
+              })}
+            </UserList>
+          </React.Fragment>
+        )}
         {!pathRegex.test(currentPath) && canManage && (
           <Button
             className="manageUsers"
@@ -269,6 +317,7 @@ export default connect(
       roles: getRolesForField(state),
       allUsers: getAllUsers(state),
       currentOrg: getCurrentOrg(state),
+      isLoading: state.ui.orgs.loadingStates.isFetchAllUsers,
     };
   },
   (dispatch: any) => ({

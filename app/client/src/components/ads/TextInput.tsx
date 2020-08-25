@@ -1,8 +1,8 @@
 import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
 import { CommonComponentProps, hexToRgba } from "./common";
 import styled from "styled-components";
-import { theme } from "../../constants/DefaultTheme";
 import Text, { TextType } from "./Text";
+import { theme } from "constants/DefaultTheme";
 
 export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
@@ -45,7 +45,6 @@ const StyledInput = styled.input<
   box-shadow: none;
   margin-bottom: ${props => props.theme.spaces[1]}px;
   border: 1px solid ${props => props.inputStyle.borderColor};
-  font-family: ${props => props.theme.fonts[3]};
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
   background-color: ${props => props.inputStyle.bgColor};
