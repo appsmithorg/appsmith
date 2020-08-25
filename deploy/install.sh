@@ -6,18 +6,28 @@ is_command_present() {
     type "$1" >/dev/null 2>&1
 }
 
+is_mac() {
+    [[ $OSTYPE == darwin* ]]
+}
+
 # This function checks if the relevant ports required by Appsmith are available or not
 # The script should error out in case they aren't available
 check_ports_occupied() {
-    local netstat_args
+    local port_check_output
+    local ports_pattern="80|443"
 
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        netstat_args="-p tcp"
-    else
-        netstat_args="--tcp"
+    if is_mac; then
+        port_check_output="$(netstat -anp tcp | awk '$6 == "LISTEN" && $4 ~ /^.*\.('"$ports_pattern"')$/')"
+    elif is_command_present ss; then
+        # The `ss` command seems to be a better/faster version of `netstat`, but is not available on all Linux
+        # distributions by default. Other distributions have `ss` but no `netstat`. So, we try for `ss` first, then
+        # fallback to `netstat`.
+        port_check_output="$(ss --all --numeric --tcp | awk '$1 == "LISTEN" && $4 ~ /^.*:('"$ports_pattern"')$/')"
+    elif is_command_present netstat; then
+        port_check_output="$(netstat --all --numeric --tcp | awk '$6 == "LISTEN" && $4 ~ /^.*:('"$ports_pattern"')$/')"
     fi
 
-    if [[ -n $(netstat -an $netstat_args 2> /dev/null | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/') ]]; then
+    if [[ -n $port_check_output ]]; then
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
         echo "++++++++++++++++++++++++++++++++++++++++"
@@ -31,21 +41,25 @@ install_docker() {
     echo "Setting up docker repos"
 
     if [[ $package_manager == apt-get ]]; then
-        sudo "$package_manager" update --yes --quiet
-        sudo apt-get -y --quiet install gnupg-agent
+        apt_cmd="sudo apt-get --yes --quiet"
+        $apt_cmd update
+        $apt_cmd install gnupg-agent
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
         sudo add-apt-repository \
-            "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-            $(lsb_release -cs) \
-            stable"
-        sudo "$package_manager" update --yes --quiet
+            "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        $apt_cmd update
+        echo "Installing docker"
+        $apt_cmd install docker-ce docker-ce-cli containerd.io
+
     else
-        sudo yum install --yes yum-utils
+        yum_cmd="sudo yum --assumeyes --quiet"
+        $yum_cmd install yum-utils
         sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        echo "Installing docker"
+        $yum_cmd install docker-ce docker-ce-cli containerd.io
+
     fi
 
-    echo "Installing docker"
-    sudo "$package_manager" install --yes docker-ce docker-ce-cli containerd.io --quiet
 }
 
 install_docker_compose() {
@@ -75,7 +89,7 @@ start_docker() {
 }
 
 check_os() {
-    if [[ "$OSTYPE" == "darwin"* ]]; then
+    if is_mac; then
         package_manager="brew"
         desired_os=1
         return
@@ -120,8 +134,7 @@ overwrite_file() {
 # This function prompts the user for an input for a non-empty Mongo root password. 
 read_mongo_password() {
     read -srp 'Set the mongo password: ' mongo_root_password
-    while [[ -z $mongo_root_password ]] 
-    do
+    while [[ -z $mongo_root_password ]]; do
         echo ""
         echo ""
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
@@ -135,8 +148,7 @@ read_mongo_password() {
 # This function prompts the user for an input for a non-empty Mongo username. 
 read_mongo_username() {
     read -rp 'Set the mongo root user: ' mongo_root_user
-    while [[ -z $mongo_root_user ]] 
-    do
+    while [[ -z $mongo_root_user ]]; do
         echo ""
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "The mongo username cannot be empty. Please input a valid username string."
@@ -166,7 +178,7 @@ wait_for_containers_start() {
 
 urlencode() {
     # urlencode <string>
-    old_lc_collate="$LC_COLLATE"
+    local old_lc_collate="$LC_COLLATE"
     LC_COLLATE=C
 
     local length="${#1}"
@@ -210,8 +222,7 @@ confirm() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
-    echo ""
-    echo -e "Exiting for now. Bye! \U1F44B"
+    echo -e "\nExiting for now. Bye! \U1F44B\n"
     exit 1
 }
 
@@ -234,8 +245,8 @@ else
     echo ""
 fi
 
-if [[ "$OSTYPE" == "darwin"* && "$EUID" -eq 0 ]]; then
-    echo "Please do not run this script with root permissions on macOS."
+if [[ $EUID -eq 0 ]]; then
+    echo "Please do not run this script as root/sudo."
     echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
     bye
 fi
@@ -374,7 +385,7 @@ fi
 
 echo ""
 echo "Downloading the configuration templates..."
-templates_dir=template
+templates_dir="$(mktemp -d)"
 mkdir -p "$templates_dir"
 
 (
@@ -402,10 +413,10 @@ bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_pass
 bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
 bash "$templates_dir"/init-letsencrypt.sh.sh "$custom_domain" > init-letsencrypt.sh
 bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" > docker.env
-if [[ "$setup_encryption" = "true" ]];then
-   bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
+if [[ "$setup_encryption" = "true" ]]; then
+    bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
 fi
-#rm -rf "$templates_dir"
+rm -rf "$templates_dir"
 chmod 0755 init-letsencrypt.sh
 
 overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
@@ -461,5 +472,4 @@ else
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
 fi
 
-echo ""
-echo -e "Peace out \U1F596\n"
+echo -e "\nPeace out \U1F596\n"
