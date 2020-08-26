@@ -18,7 +18,6 @@ import {
 } from "pages/Applications/permissionHelpers";
 import { getInitialsAndColorCode, getColorCode } from "utils/AppsmithUtils";
 import { ControlIcons } from "icons/ControlIcons";
-import history from "utils/history";
 import { omit } from "lodash";
 
 type NameWrapperProps = {
