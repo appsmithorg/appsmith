@@ -2,7 +2,7 @@ import React from "react";
 import Table from "components/ads/Table";
 import Button, { Category, Variant, Size } from "components/ads/Button";
 import Icon, { IconName } from "components/ads/Icon";
-import TableDropdown from "../ads/TableDropdown";
+import TableDropdown from "components/ads/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { action } from "@storybook/addon-actions";
 import { boolean, withKnobs } from "@storybook/addon-knobs";

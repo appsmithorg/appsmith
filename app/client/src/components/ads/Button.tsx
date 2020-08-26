@@ -233,7 +233,7 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
       buttonFont = largeButton;
       padding =
         !props.text && props.icon
-          ? `${props.theme.spaces[5] - 1}px ${props.theme.spaces[5] - 1}px`
+          ? `${props.theme.spaces[3]}px`
           : `${props.theme.spaces[5] - 1}px ${props.theme.spaces[12] - 4}px`;
       break;
   }
@@ -297,7 +297,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
 
 Button.defaultProps = {
   category: Category.primary,
-  variant: Variant.success,
+  variant: Variant.info,
   size: Size.small,
   isLoading: false,
   disabled: false,

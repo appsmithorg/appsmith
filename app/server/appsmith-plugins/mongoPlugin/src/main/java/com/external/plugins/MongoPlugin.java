@@ -14,6 +14,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCommandException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoDatabase;
@@ -325,6 +326,14 @@ public class MongoPlugin extends BasePlugin {
                         } catch (MongoTimeoutException e) {
                             log.warn("Timeout connecting to MongoDB from MongoPlugin.", e);
                             return new DatasourceTestResult("Timed out trying to connect to MongoDB host.");
+
+                        } catch(MongoCommandException e) {
+                            // The fact that we got a response saying "Unauthorized" means that the connection to the
+                            // MongoDB instance is valid. It also means we don't have access to the admin database, but
+                            // that's okay for our purposes here.
+                            return "Unauthorized".equals(e.getErrorCodeName())
+                                    ? new DatasourceTestResult()
+                                    : new DatasourceTestResult(e.getMessage());
 
                         } catch (Exception e) {
                             return new DatasourceTestResult(e.getMessage());

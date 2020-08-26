@@ -112,6 +112,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper>
         <StyledInput
+          key={props.defaultValue}
           type="text"
           ref={ref}
           inputStyle={inputStyle}
@@ -126,10 +127,6 @@ const TextInput = forwardRef(
     );
   },
 );
-
-TextInput.defaultProps = {
-  fill: false,
-};
 
 TextInput.displayName = "TextInput";
 

@@ -206,6 +206,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 });
     }
 
+    @Override
+    public Flux<Application> findAllApplicationsByOrganizationId(String organizationId) {
+        return repository.findByOrganizationId(organizationId);
+    }
+
     private Mono<Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
         AclPermission applicationPermission = READ_APPLICATIONS;
         AclPermission datasourcePermission = EXECUTE_DATASOURCES;

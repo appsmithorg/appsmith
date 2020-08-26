@@ -122,9 +122,7 @@ interface TableProps {
 }
 
 function Table(props: TableProps) {
-  const data = React.useMemo(() => props.data, []);
-
-  const columns = React.useMemo(() => props.columns, []);
+  const { data, columns } = props;
 
   const {
     getTableProps,

@@ -9,13 +9,10 @@ import {
 } from "selectors/organizationSelectors";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
-import Button from "components/editorComponents/Button";
 import { RouteComponentProps } from "react-router";
 import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
-// import { useTable, useFlexLayout } from "react-table";
 import Table from "components/ads/Table";
 import Icon from "components/ads/Icon";
 import {
@@ -25,8 +22,10 @@ import {
   changeOrgUserRole,
   deleteOrgUser,
 } from "actions/orgActions";
-import { Size } from "components/ads/Button";
+import Button, { Size, Variant } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
+import { TextType } from "components/ads/Text";
+import { SettingsHeading } from "./General";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
@@ -86,12 +85,24 @@ export default function MemberSettings(props: PageProps) {
           (role: { name: string; desc: string }) =>
             role.name === cellProps.cell.value,
         );
+        if (
+          cellProps.cell.row.values.username ===
+          useSelector(getCurrentUser)?.username
+        ) {
+          return cellProps.cell.value;
+        }
         return (
           <TableDropdown
             selectedIndex={index}
             options={roles}
             onSelect={option => {
-              console.log(option);
+              dispatch(
+                changeOrgUserRole(
+                  orgId,
+                  option.name,
+                  cellProps.cell.row.values.username,
+                ),
+              );
             }}
           ></TableDropdown>
         );
@@ -101,6 +112,12 @@ export default function MemberSettings(props: PageProps) {
       Header: "Delete",
       accessor: "delete",
       Cell: function DeleteCell(cellProps: any) {
+        if (
+          cellProps.cell.row.values.username ===
+          useSelector(getCurrentUser)?.username
+        ) {
+          return null;
+        }
         return (
           <Icon
             name={"delete"}
@@ -121,16 +138,14 @@ export default function MemberSettings(props: PageProps) {
   return (
     <React.Fragment>
       <PageSectionHeader>
-        <h2>Manage Users</h2>
+        <SettingsHeading type={TextType.H2}>Manage Users</SettingsHeading>
         <FormDialogComponent
           trigger={
             <Button
-              intent="primary"
+              variant={Variant.info}
               text="Invite Users"
-              icon="plus"
-              iconAlignment="left"
-              filled
-            />
+              size={Size.medium}
+            ></Button>
           }
           canOutsideClickClose={true}
           Form={OrgInviteUsersForm}
