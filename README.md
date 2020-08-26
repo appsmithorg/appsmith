@@ -31,7 +31,7 @@ Do all this without depending on multiple UI libraries, coding authentication lo
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
 
-------------------
+-------------------
 
 ## Demo Video
 
