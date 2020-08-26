@@ -85,6 +85,12 @@ export default function MemberSettings(props: PageProps) {
           (role: { name: string; desc: string }) =>
             role.name === cellProps.cell.value,
         );
+        if (
+          cellProps.cell.row.values.username ===
+          useSelector(getCurrentUser)?.username
+        ) {
+          return cellProps.cell.value;
+        }
         return (
           <TableDropdown
             selectedIndex={index}
@@ -106,6 +112,12 @@ export default function MemberSettings(props: PageProps) {
       Header: "Delete",
       accessor: "delete",
       Cell: function DeleteCell(cellProps: any) {
+        if (
+          cellProps.cell.row.values.username ===
+          useSelector(getCurrentUser)?.username
+        ) {
+          return null;
+        }
         return (
           <Icon
             name={"delete"}
