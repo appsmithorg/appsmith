@@ -9,19 +9,20 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
-import { AppState } from "@appsmith/reducers";
-import { useActions, useWidgets } from "../hooks";
+import { AppState } from "reducers";
+import { WidgetProps } from "widgets/BaseWidget";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
   step: number;
+  widgets?: Record<string, WidgetProps>;
+  actions: Record<string, any[]>;
 };
 
 export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
-  const widgets = useWidgets(props.searchKeyword);
-  const actions = useActions(props.searchKeyword);
+
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });
@@ -34,8 +35,9 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
   }, [dispatch, pages, params.applicationId]);
 
   const pageEntities = pages.map(page => {
-    const pageWidgets = widgets[page.pageId];
-    const pageActions = actions[page.pageId];
+    const pageWidgets = props.widgets && props.widgets[page.pageId];
+    const pageActions = props.actions[page.pageId] || [];
+    if (!pageWidgets && pageActions.length === 0) return null;
     return (
       <ExplorerPageEntity
         key={page.pageId}
@@ -47,6 +49,8 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       />
     );
   });
+
+  if (pageEntities.filter(Boolean).length === 0) return null;
 
   return (
     <Entity

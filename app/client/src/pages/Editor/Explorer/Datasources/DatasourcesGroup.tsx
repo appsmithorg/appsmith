@@ -8,23 +8,24 @@ import { ExplorerURLParams } from "../helpers";
 import history from "utils/history";
 import { Plugin } from "api/PluginApi";
 import DatasourcePluginGroup from "./PluginGroup";
-import { useFilteredDatasources } from "../hooks";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
+import { Datasource } from "@appsmith/api/DatasourcesApi";
 
 type ExplorerDatasourcesGroupProps = {
   step: number;
   searchKeyword?: string;
+  datasources?: Datasource[];
 };
 
 export const ExplorerDatasourcesGroup = (
   props: ExplorerDatasourcesGroupProps,
 ) => {
   const params = useParams<ExplorerURLParams>();
-  const datasources = useFilteredDatasources(props.searchKeyword);
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
+  const { datasources } = props;
   const disableDatasourceGroup = !datasources || !datasources.length;
 
   const pluginGroups = useMemo(() => groupBy(datasources, "pluginId"), [

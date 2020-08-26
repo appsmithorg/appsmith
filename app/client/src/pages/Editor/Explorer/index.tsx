@@ -1,7 +1,12 @@
 import React, { useRef, MutableRefObject } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
-import { useFilteredEntities } from "./hooks";
+import {
+  useFilteredEntities,
+  useWidgets,
+  useActions,
+  useFilteredDatasources,
+} from "./hooks";
 import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
 import ExplorerDatasourcesGroup from "./Datasources/DatasourcesGroup";
@@ -31,39 +36,45 @@ const EntityExplorer = () => {
 
   const explorerRef = useRef<HTMLDivElement | null>(null);
   const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
-  console.log("searching updated values", searchKeyword);
+  const datasources = useFilteredDatasources(searchKeyword);
 
-  // const [noResults, setNoResults] = useState(false);
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     if (searchKeyword && explorerRef.current) {
-  //       const pages = explorerRef.current.getElementsByClassName("page");
-  //       const datasources = explorerRef.current.getElementsByClassName(
-  //         "plugins",
-  //       );
-  //       if (pages.length === 0 && datasources.length === 0) {
-  //         setNoResults(true);
-  //       } else {
-  //         setNoResults(false);
-  //       }
-  //     } else setNoResults(false);
-  //   }, 100);
-  // }, [searchKeyword]);
-  // const noResultMessage = (
-  //   <NoResult
-  //     className={Classes.DARK}
-  //     description="Try modifying the search keyword."
-  //     title="No entities found"
-  //     icon="search"
-  //   />
-  // );
+  const widgets = useWidgets(searchKeyword);
+  const actions = useActions(searchKeyword);
+
+  let noResults = false;
+  if (searchKeyword) {
+    const noWidgets = Object.values(widgets).filter(Boolean).length === 0;
+    const noActions =
+      Object.values(actions).filter(actions => actions && actions.length > 0)
+        .length === 0;
+
+    const noDatasource = !datasources || datasources.length === 0;
+    noResults = noWidgets && noActions && noDatasource;
+  }
 
   return (
     <Wrapper ref={explorerRef}>
       <Search ref={searchInputRef} clear={clearSearch} />
-      <ExplorerPageGroup searchKeyword={searchKeyword} step={0} />
+      <ExplorerPageGroup
+        searchKeyword={searchKeyword}
+        step={0}
+        widgets={widgets}
+        actions={actions}
+      />
+      {noResults && (
+        <NoResult
+          className={Classes.DARK}
+          description="Try modifying the search keyword."
+          title="No entities found"
+          icon="search"
+        />
+      )}
       <StyledDivider />
-      <ExplorerDatasourcesGroup searchKeyword={searchKeyword} step={0} />
+      <ExplorerDatasourcesGroup
+        searchKeyword={searchKeyword}
+        step={0}
+        datasources={datasources}
+      />
     </Wrapper>
   );
 };

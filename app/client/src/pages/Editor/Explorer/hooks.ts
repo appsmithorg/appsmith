@@ -27,12 +27,6 @@ const findWidgets = (widgets: WidgetProps, keyword: string) => {
   if (widgetNameMached || widgets.children?.length > 0) return widgets;
 };
 
-const findActions = (actions: Array<any>, keyword: string) => {
-  return actions.filter(
-    (action: any) => action.config.name.toLowerCase().indexOf(keyword) > -1,
-  );
-};
-
 const findDataSources = (dataSources: Datasource[], keyword: string) => {
   return dataSources.filter(
     (dataSource: Datasource) =>
@@ -65,7 +59,8 @@ export const useActions = (searchKeyword?: string) => {
 
   return useMemo(() => {
     if (searchKeyword) {
-      return produce(actions, draft => {
+      const start = performance.now();
+      const filteredActions = produce(actions, draft => {
         for (const [key, value] of Object.entries(draft)) {
           value.forEach((action, index) => {
             const searchMatches =
@@ -78,8 +73,11 @@ export const useActions = (searchKeyword?: string) => {
               delete draft[key][index];
             }
           });
+          draft[key] = draft[key].filter(Boolean);
         }
       });
+      log.debug("Filtered actions in:", performance.now() - start, "ms");
+      return filteredActions;
     }
     return actions;
   }, [searchKeyword, actions]);
@@ -89,11 +87,18 @@ export const useWidgets = (searchKeyword?: string) => {
   const pageDSLs = useSelector((state: AppState) => state.ui.pageDSLs);
   return useMemo(() => {
     if (searchKeyword && pageDSLs) {
-      return produce(pageDSLs, draft => {
+      const start = performance.now();
+      const filteredDSLs = produce(pageDSLs, draft => {
         for (const [key, value] of Object.entries(draft)) {
-          draft[key] = findWidgets(value, searchKeyword) as WidgetProps;
+          const filteredWidgets = findWidgets(
+            value,
+            searchKeyword.toLowerCase(),
+          ) as WidgetProps;
+          draft[key] = filteredWidgets;
         }
       });
+      log.debug("Filtered widgets in: ", performance.now() - start, "ms");
+      return filteredDSLs;
     }
     return pageDSLs;
   }, [searchKeyword, pageDSLs]);

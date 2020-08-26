@@ -17,7 +17,7 @@ import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 
 type ExplorerPageEntityProps = {
   page: Page;
-  widgets: WidgetProps;
+  widgets?: WidgetProps;
   actions: any[];
   step: number;
   searchKeyword?: string;
@@ -58,7 +58,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       action={switchPage}
       entityId={props.page.pageId}
       active={isCurrentPage}
-      isDefaultExpanded
+      isDefaultExpanded={isCurrentPage}
       updateEntityName={updatePage}
       contextMenu={contextMenu}
     >
