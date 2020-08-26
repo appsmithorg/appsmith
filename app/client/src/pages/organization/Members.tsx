@@ -28,7 +28,7 @@ import {
 import Button, { Size, Variant } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import { TextType } from "components/ads/Text";
-import { SettingsHeading } from "./settings";
+import { SettingsHeading } from "./General";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
