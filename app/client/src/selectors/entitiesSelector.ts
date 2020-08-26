@@ -101,7 +101,7 @@ export const getDatasourceRefs = (state: AppState): any =>
 export const getDatasource = (
   state: AppState,
   datasourceId: string,
-): Partial<Datasource> | undefined =>
+): Datasource | undefined =>
   state.entities.datasources.list.find(
     datasource => datasource.id === datasourceId,
   );
