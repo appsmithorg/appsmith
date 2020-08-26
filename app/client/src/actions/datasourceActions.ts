@@ -25,6 +25,11 @@ export const updateDatasource = (
   };
 };
 
+export const saveDatasourceName = (payload: { id: string; name: string }) => ({
+  type: ReduxActionTypes.SAVE_DATASOURCE_NAME,
+  payload: payload,
+});
+
 export const changeDatasource = (payload: Datasource) => {
   return {
     type: ReduxActionTypes.CHANGE_DATASOURCE,

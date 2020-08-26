@@ -162,14 +162,16 @@ function* updateDatasourceSaga(
   }>,
 ) {
   try {
+    const datasourcePayload = _.omit(actionPayload.payload.datasource, "name");
+
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
-      actionPayload.payload.datasource,
-      actionPayload.payload.datasource.id,
+      datasourcePayload,
+      datasourcePayload.id,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AppToaster.show({
-        message: `${actionPayload.payload.datasource.name} Datasource updated`,
+        message: `${response.data.name} Datasource updated`,
         type: ToastType.SUCCESS,
       });
       yield put({
@@ -183,9 +185,7 @@ function* updateDatasourceSaga(
         },
       });
       if (actionPayload.payload.reinitializeForm) {
-        yield put(
-          initialize(DATASOURCE_DB_FORM, actionPayload.payload.datasource),
-        );
+        yield put(initialize(DATASOURCE_DB_FORM, datasourcePayload));
       }
     }
   } catch (error) {
@@ -194,6 +194,38 @@ function* updateDatasourceSaga(
       payload: { error },
     });
   }
+}
+
+function* saveDatasourceNameSaga(
+  actionPayload: ReduxAction<{ id: string; name: string }>,
+) {
+  try {
+    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
+      {
+        name: actionPayload.payload.name,
+      },
+      actionPayload.payload.id,
+    );
+
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS,
+        payload: { ...response.data },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_DATASOURCE_NAME_ERROR,
+      payload: { id: actionPayload.payload.id },
+    });
+  }
+}
+
+function* handleDatasourceNameChangeFailureSaga(
+  action: ReduxAction<{ oldName: string }>,
+) {
+  yield put(change(DATASOURCE_DB_FORM, "name", action.payload.oldName));
 }
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
@@ -405,8 +437,9 @@ function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form } = actionPayload.meta;
+  const { form, field } = actionPayload.meta;
   if (form !== DATASOURCE_DB_FORM) return;
+  if (field === "name") return;
   yield all([call(updateDraftsSaga)]);
 }
 
@@ -466,6 +499,11 @@ export function* watchDatasourcesSagas() {
       createDatasourceFromFormSaga,
     ),
     takeEvery(ReduxActionTypes.UPDATE_DATASOURCE_INIT, updateDatasourceSaga),
+    takeEvery(ReduxActionTypes.SAVE_DATASOURCE_NAME, saveDatasourceNameSaga),
+    takeEvery(
+      ReduxActionErrorTypes.SAVE_DATASOURCE_NAME_ERROR,
+      handleDatasourceNameChangeFailureSaga,
+    ),
     takeEvery(ReduxActionTypes.TEST_DATASOURCE_INIT, testDatasourceSaga),
     takeEvery(ReduxActionTypes.DELETE_DATASOURCE_INIT, deleteDatasourceSaga),
     takeEvery(ReduxActionTypes.CHANGE_DATASOURCE, changeDatasourceSaga),

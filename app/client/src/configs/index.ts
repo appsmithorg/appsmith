@@ -30,6 +30,7 @@ type INJECTED_CONFIGS = {
   };
   intercomAppID: string;
   mailEnabled: boolean;
+  smartLookKey: string;
 };
 declare global {
   interface Window {
@@ -94,6 +95,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
+    smartLookKey: process.env.REACT_APP_SMART_LOOK_KEY || "",
   };
 };
 
