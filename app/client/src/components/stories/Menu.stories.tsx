@@ -3,10 +3,9 @@ import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import Menu from "../ads/Menu";
 import { action } from "@storybook/addon-actions";
-import { Icon } from "../ads/Icon";
-import { Size } from "../ads/Button";
 import MenuDivider from "../ads/MenuDivider";
 import MenuItem from "../ads/MenuItem";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 export default {
   title: "Menu",
@@ -15,7 +14,28 @@ export default {
 };
 
 export const TextAndIconMenu = () => (
-  <Menu>
+  <Menu
+    position={select(
+      "position",
+      [
+        Position.RIGHT,
+        Position.RIGHT_BOTTOM,
+        Position.RIGHT_TOP,
+        Position.LEFT,
+        Position.LEFT_BOTTOM,
+        Position.LEFT_TOP,
+        Position.TOP_LEFT,
+        Position.BOTTOM,
+        Position.BOTTOM_LEFT,
+        Position.BOTTOM_RIGHT,
+        Position.TOP,
+        Position.TOP_LEFT,
+        Position.TOP_RIGHT,
+      ],
+      Position.RIGHT,
+    )}
+    target={<button>Click to show menu</button>}
+  >
     <MenuItem
       text={text("First option", "Invite user")}
       icon={select("First Icon", ["Select icon", "delete", "user"], undefined)}

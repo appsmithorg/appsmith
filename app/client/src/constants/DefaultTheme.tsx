@@ -540,6 +540,7 @@ export const theme: Theme = {
     },
     info: {
       main: "#CB4810",
+      light: "#F86A2B",
       dark: "#8B2E05",
       darker: "#A03C12",
       darkest: "#2B2B2B",
