@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Icon } from "./Icon";
 import { Size } from "./Button";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
 import { hexToRgba } from "./common";
 import { theme } from "constants/DefaultTheme";
 import { noop } from "lodash";
+import Icon from "./Icon";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",

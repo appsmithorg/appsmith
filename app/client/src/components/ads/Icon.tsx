@@ -75,25 +75,13 @@ const Icon = (props: IconProps) => {
       returnIcon = <BillingIcon />;
       break;
     case "edit":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <EditIcon />
-        </IconWrapper>
-      );
+      returnIcon = <EditIcon />;
       break;
     case "error":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <ErrorIcon />
-        </IconWrapper>
-      );
+      returnIcon = <ErrorIcon />;
       break;
     case "success":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <SuccessIcon />
-        </IconWrapper>
-      );
+      returnIcon = <SuccessIcon />;
       break;
     default:
       returnIcon = null;
