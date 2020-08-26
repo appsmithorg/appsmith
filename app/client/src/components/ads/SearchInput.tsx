@@ -34,6 +34,7 @@ const StyledInput = styled.input<
   font-weight: ${props => props.theme.typography.p1.fontWeight};
   line-height: ${props => props.theme.typography.p1.lineHeight}px;
   letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
+  text-overflow: ellipsis;
 
   color: ${props => props.theme.colors.blackShades[9]};
 
