@@ -221,6 +221,10 @@ confirm() {
     [[ yY =~ $answer ]]
 }
 
+echo_contact_support() {
+    echo "Please contact <support@appsmith.com> with your OS details and version${1:-.}"
+}
+
 bye() {  # Prints a friendly good bye message and exits the script.
     echo -e "\nExiting for now. Bye! \U1F44B\n"
     exit 1
@@ -238,7 +242,7 @@ check_os
 if [[ $desired_os -eq 0 ]];then
     echo ""
     echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
-    echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
+    echo_contact_support " if you wish to extend this support."
     bye
 else
     echo "You're on an OS that is supported by this installation script."
@@ -247,7 +251,7 @@ fi
 
 if [[ $EUID -eq 0 ]]; then
     echo "Please do not run this script as root/sudo."
-    echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
+    echo_contact_support
     bye
 fi
 
@@ -261,13 +265,10 @@ if [[ $install_dir != /* ]]; then
 fi
 
 if [[ -e "$install_dir" ]]; then
-    if confirm n "The path '$install_dir' is already present. Shall I delete it so we can install afresh?"; then
-        rm -rf "$install_dir"
-        echo "Removed '$install_dir'."
-    else
-        echo "Exiting. Please start installation with a different directory."
-        exit
-    fi
+    echo "The path '$install_dir' is already present. Please run the script again with a different path to install new."
+    echo "If you're trying to update your existing installation, that happens automatically through WatchTower."
+    echo_contact_support " if you're facing problems with the auto-updates."
+    exit
 fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
