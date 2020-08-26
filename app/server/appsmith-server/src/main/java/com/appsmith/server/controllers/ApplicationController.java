@@ -91,4 +91,10 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
+    @PostMapping("/clone/{applicationId}")
+    public Mono<ResponseDTO<Application>> cloneApplication(@PathVariable String applicationId) {
+        return applicationPageService.cloneApplication(applicationId)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
 }

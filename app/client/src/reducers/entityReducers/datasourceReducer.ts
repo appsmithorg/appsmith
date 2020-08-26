@@ -93,6 +93,20 @@ const datasourceReducer = createReducer(initialState, {
       }),
     };
   },
+  [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ): DatasourceDataState => {
+    return {
+      ...state,
+      loading: false,
+      list: state.list.map(datasource => {
+        if (datasource.id === action.payload.id) return action.payload;
+
+        return datasource;
+      }),
+    };
+  },
   [ReduxActionErrorTypes.CREATE_DATASOURCE_ERROR]: (
     state: DatasourceDataState,
   ) => {
