@@ -554,4 +554,53 @@ public class ApplicationServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createCloneApplication() {
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTest Clone Source TestApp");
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application -> applicationPageService.cloneApplication(application.getId()))
+                .cache();
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Mono<List<Page>> pageListMono = applicationMono
+                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMap(applicationPage -> pageRepository.findById(applicationPage.getId()))
+                .collectList();
+
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        StepVerifier
+                .create(Mono.zip(applicationMono, pageListMono))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    List<Page> pageList = tuple.getT2();
+                    assertThat(application).isNotNull();
+                    assertThat(application.isAppIsExample()).isFalse();
+                    assertThat(application.getId()).isNotNull();
+                    assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(application.getOrganizationId().equals(orgId));
+
+                    assertThat(pageList).isNotEmpty();
+                    for (Page page : pageList) {
+                        assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                        assertThat(page.getApplicationId()).isEqualTo(application.getId());
+                    }
+                })
+                .verifyComplete();
+    }
+
 }
