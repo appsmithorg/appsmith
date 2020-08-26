@@ -6,7 +6,6 @@ import {
 import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
 import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
-import { isNumber, isString } from "lodash";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import { getType, Types } from "utils/TypeHelpers";
 
