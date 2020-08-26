@@ -31,6 +31,7 @@ import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
 import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
 import { AppDataState } from "@appsmith/reducers/entityReducers/appReducer";
+import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -62,6 +63,7 @@ export interface AppState {
     apiName: ApiNameReduxState;
     explorer: ExplorerReduxState;
     pageDSLs: PageDSLsReduxState;
+    datasourceName: DatasourceNameReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

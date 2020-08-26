@@ -56,7 +56,7 @@ export type IconProps = {
   click?: () => void;
 };
 
-export const Icon = (props: IconProps) => {
+const Icon = (props: IconProps) => {
   let returnIcon;
   switch (props.name) {
     case "delete":
@@ -81,7 +81,6 @@ export const Icon = (props: IconProps) => {
       returnIcon = null;
       break;
   }
-
   return returnIcon ? (
     <IconWrapper
       className={props.className ? props.className : "ads-icon"}
@@ -92,3 +91,5 @@ export const Icon = (props: IconProps) => {
     </IconWrapper>
   ) : null;
 };
+
+export default Icon;
