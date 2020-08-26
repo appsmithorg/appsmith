@@ -6,6 +6,8 @@ import {
 import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
 import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
+import { isNumber, isString } from "lodash";
+import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -30,6 +32,15 @@ const StyledTableWrapped = styled(TableWrapper)`
   }
 `;
 
+const renderCell = (props: any) => {
+  const value = props.cell.value;
+  const data =
+    isString(value) || isNumber(value)
+      ? value.toString()
+      : JSON.stringify(value);
+  return <AutoToolTipComponent title={data}>{data}</AutoToolTipComponent>;
+};
+
 const Table = (props: TableProps) => {
   const data = React.useMemo(() => props.data, [props.data]);
   const columns = React.useMemo(() => {
@@ -38,6 +49,7 @@ const Table = (props: TableProps) => {
         return {
           Header: key,
           accessor: key,
+          Cell: renderCell,
         };
       });
     }
