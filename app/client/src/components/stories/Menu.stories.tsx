@@ -3,7 +3,7 @@ import { select, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import Menu from "../ads/Menu";
 import { decorate } from "@storybook/addon-actions";
-import { Icon } from "../ads/Icon";
+import Icon from "../ads/Icon";
 import { Size } from "../ads/Button";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import Text, { TextType } from "../ads/Text";
