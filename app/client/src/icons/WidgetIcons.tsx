@@ -125,6 +125,11 @@ export const WidgetIcons: {
       <ModalIcon />
     </IconWrapper>
   ),
+  FORM_BUTTON_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <ButtonIcon />
+    </IconWrapper>
+  ),
 };
 
 export type WidgetIcon = typeof WidgetIcons[keyof typeof WidgetIcons];

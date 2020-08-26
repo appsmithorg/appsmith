@@ -18,7 +18,7 @@ import { compact } from "lodash";
 import { Datasource } from "api/DatasourcesApi";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
-import { evaluateDataTreeWithFunctions } from "selectors/dataTreeSelectors";
+import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import log from "loglevel";
 
@@ -56,7 +56,7 @@ export const useFilteredEntities = (
   const start = performance.now();
   const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
 
-  const dataTree: DataTree = useSelector(evaluateDataTreeWithFunctions);
+  const dataTree: DataTree = useSelector(evaluateDataTreeWithoutFunctions);
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });

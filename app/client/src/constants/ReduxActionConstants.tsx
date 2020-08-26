@@ -251,6 +251,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SET_APP_MODE: "SET_APP_MODE",
   TOGGLE_PROPERTY_PANE_WIDGET_NAME_EDIT:
     "TOGGLE_PROPERTY_PANE_WIDGET_NAME_EDIT",
+  UPDATE_APP_STORE: "UPDATE_APP_STORE",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
