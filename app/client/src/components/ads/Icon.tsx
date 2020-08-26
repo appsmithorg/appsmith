@@ -3,6 +3,8 @@ import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
+import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
+import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import styled from "styled-components";
 import { Size } from "./Button";
 import { sizeHandler } from "./Spinner";
@@ -13,6 +15,8 @@ export type IconName =
   | "user"
   | "general"
   | "billing"
+  | "search"
+  | "close"
   | undefined;
 
 const IconWrapper = styled.div<IconProps>`
@@ -48,42 +52,44 @@ export type IconProps = {
   size?: Size;
   name?: IconName;
   invisible?: boolean;
+  className?: string;
+  click?: () => void;
 };
 
-export const Icon = (props: IconProps) => {
+const Icon = (props: IconProps) => {
   let returnIcon;
   switch (props.name) {
     case "delete":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <DeleteIcon />
-        </IconWrapper>
-      );
+      returnIcon = <DeleteIcon />;
       break;
     case "user":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <UserIcon />
-        </IconWrapper>
-      );
+      returnIcon = <UserIcon />;
       break;
     case "general":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <GeneralIcon />
-        </IconWrapper>
-      );
+      returnIcon = <GeneralIcon />;
       break;
     case "billing":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <BillingIcon />
-        </IconWrapper>
-      );
+      returnIcon = <BillingIcon />;
+      break;
+    case "search":
+      returnIcon = <SearchIcon />;
+      break;
+    case "close":
+      returnIcon = <CloseIcon />;
       break;
     default:
       returnIcon = null;
       break;
   }
-  return returnIcon;
+  return returnIcon ? (
+    <IconWrapper
+      className={props.className ? props.className : "ads-icon"}
+      {...props}
+      onClick={() => props.click && props.click()}
+    >
+      {returnIcon}
+    </IconWrapper>
+  ) : null;
 };
+
+export default Icon;
