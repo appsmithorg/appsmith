@@ -661,10 +661,10 @@ Cypress.Commands.add("copyEntityToPage", pageName => {
   cy.get(apiwidget.page)
     .contains(pageName)
     .click();
-  cy.wait("@saveAction").should(
+  cy.wait("@createNewApi").should(
     "have.nested.property",
     "response.body.responseMeta.status",
-    200,
+    201,
   );
 });
 

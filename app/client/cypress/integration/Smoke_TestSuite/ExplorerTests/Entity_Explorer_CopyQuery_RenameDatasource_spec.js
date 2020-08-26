@@ -5,9 +5,10 @@ const commonlocators = require("../../../locators/commonlocators.json");
 
 const pageid = "MyPage";
 let updatedName;
+let datasourceName;
 
 describe("Entity explorer tests related to copy query", function() {
-  it("Create a page/copyQuery/rename dataSource in explorer", function() {
+  it("Create a query with dataSource in explorer", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
 
@@ -20,7 +21,7 @@ describe("Entity explorer tests related to copy query", function() {
     cy.NavigateToQueryEditor();
 
     cy.get("@createDatasource").then(httpResponse => {
-      const datasourceName = httpResponse.response.body.data.name;
+      datasourceName = httpResponse.response.body.data.name;
 
       cy.get(".t--datasource-name")
         .contains(datasourceName)
@@ -42,7 +43,7 @@ describe("Entity explorer tests related to copy query", function() {
     cy.EvaluateCurrentValue("select * from users");
 
     cy.get("@createDatasource").then(httpResponse => {
-      const datasourceName = httpResponse.response.body.data.name;
+      datasourceName = httpResponse.response.body.data.name;
 
       cy.get(apiwidget.propertyList).then(function($lis) {
         expect($lis).to.have.length(3);
@@ -51,6 +52,9 @@ describe("Entity explorer tests related to copy query", function() {
         expect($lis.eq(2)).to.contain("{{Query1.run()}}");
       });
     });
+  });
+
+  it("Create a page and copy query in explorer", function() {
     cy.Createpage(pageid);
     cy.GlobalSearchEntity("Query1");
     cy.xpath(apiwidget.popover)
@@ -67,31 +71,31 @@ describe("Entity explorer tests related to copy query", function() {
       expect($lis.eq(1)).to.contain("{{Query1Copy.data}}");
       expect($lis.eq(2)).to.contain("{{Query1Copy.run()}}");
     });
+  });
+
+  it("Delete query and rename datasource in explorer", function() {
     cy.deleteQuery();
     cy.get(commonlocators.entityExplorersearch).clear();
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgresEntity).click();
-    cy.get("@createDatasource").then(httpResponse => {
-      const datasourceName = httpResponse.response.body.data.name;
-      cy.GlobalSearchEntity(`${datasourceName}`);
-      cy.get(`.t--entity-name:contains(${datasourceName})`).click();
-      cy.generateUUID().then(uid => {
-        updatedName = uid;
-        cy.log("complete uid :" + updatedName);
-        updatedName = uid.replace(/-/g, "_").slice(1, 15);
-        cy.log("sliced id :" + updatedName);
-        cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
-        cy.SearchEntityandOpen(updatedName);
-        cy.testSaveDatasource();
-        cy.hoverAndClick();
-        cy.get(apiwidget.delete).click({ force: true });
-        //This is check to make sure if a datasource is active 409
-        cy.wait("@deleteDatasource").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          409,
-        );
-      });
+    cy.GlobalSearchEntity(`${datasourceName}`);
+    cy.get(`.t--entity-name:contains(${datasourceName})`).click();
+    cy.generateUUID().then(uid => {
+      updatedName = uid;
+      cy.log("complete uid :" + updatedName);
+      updatedName = uid.replace(/-/g, "_").slice(1, 15);
+      cy.log("sliced id :" + updatedName);
+      cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
+      cy.SearchEntityandOpen(updatedName);
+      cy.testSaveDatasource();
+      cy.hoverAndClick();
+      cy.get(apiwidget.delete).click({ force: true });
+      //This is check to make sure if a datasource is active 409
+      cy.wait("@deleteDatasource").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        409,
+      );
     });
   });
 });
