@@ -118,6 +118,50 @@ const alertTypeGetter = (value: string) => {
   return "";
 };
 
+const storeKeyTextSetter = (changeValue: any, currentValue: string): string => {
+  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
+  const args = matches[0][2].split(",");
+  args[0] = `'${changeValue}'`;
+  const result = currentValue.replace(
+    ACTION_TRIGGER_REGEX,
+    `{{$1(${args.join(",")})}}`,
+  );
+  return result;
+};
+
+const storeKeyTextGetter = (value: string) => {
+  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+  if (matches.length) {
+    const funcArgs = matches[0][2];
+    const arg = funcArgs.split(",")[0];
+    return arg.substring(1, arg.length - 1);
+  }
+  return "";
+};
+
+const storeValueTextSetter = (
+  changeValue: any,
+  currentValue: string,
+): string => {
+  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
+  const args = matches[0][2].split(",");
+  args[1] = `'${changeValue}'`;
+  return currentValue.replace(
+    ACTION_TRIGGER_REGEX,
+    `{{$1(${args.join(",")})}}`,
+  );
+};
+
+const storeValueTextGetter = (value: string) => {
+  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+  if (matches.length) {
+    const funcArgs = matches[0][2];
+    const arg = funcArgs.split(",")[1];
+    return arg ? arg.substring(1, arg.length - 1) : "";
+  }
+  return "";
+};
+
 type ActionCreatorProps = {
   value: string;
   isValid: boolean;
@@ -133,6 +177,7 @@ const ActionType = {
   closeModal: "closeModal",
   navigateTo: "navigateTo",
   showAlert: "showAlert",
+  storeValue: "storeValue",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -235,6 +280,8 @@ const FieldType = {
   URL_FIELD: "URL_FIELD",
   ALERT_TEXT_FIELD: "ALERT_TEXT_FIELD",
   ALERT_TYPE_SELECTOR_FIELD: "ALERT_TYPE_SELECTOR_FIELD",
+  KEY_TEXT_FIELD: "KEY_TEXT_FIELD",
+  VALUE_TEXT_FIELD: "VALUE_TEXT_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -347,6 +394,16 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
+  [FieldType.KEY_TEXT_FIELD]: {
+    getter: storeKeyTextGetter,
+    setter: storeKeyTextSetter,
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.VALUE_TEXT_FIELD]: {
+    getter: storeValueTextGetter,
+    setter: storeValueTextSetter,
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 const baseOptions: any = [
@@ -378,6 +435,10 @@ const baseOptions: any = [
   {
     label: "Close Modal",
     value: ActionType.closeModal,
+  },
+  {
+    label: "Store Value",
+    value: ActionType.storeValue,
   },
 ];
 function getOptionsWithChildren(
@@ -493,6 +554,16 @@ function getFieldFromValue(
       },
       {
         field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
+      },
+    );
+  }
+  if (value.indexOf("storeValue") !== -1) {
+    fields.push(
+      {
+        field: FieldType.KEY_TEXT_FIELD,
+      },
+      {
+        field: FieldType.VALUE_TEXT_FIELD,
       },
     );
   }
@@ -622,11 +693,17 @@ function renderField(props: {
       break;
     case FieldType.ALERT_TEXT_FIELD:
     case FieldType.URL_FIELD:
+    case FieldType.KEY_TEXT_FIELD:
+    case FieldType.VALUE_TEXT_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
       } else if (fieldType === FieldType.URL_FIELD) {
         fieldLabel = "Page Name";
+      } else if (fieldType === FieldType.KEY_TEXT_FIELD) {
+        fieldLabel = "Key";
+      } else if (fieldType === FieldType.VALUE_TEXT_FIELD) {
+        fieldLabel = "Value";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
