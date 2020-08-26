@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
 import { isNumber, isString } from "lodash";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
+import { getType, Types } from "utils/TypeHelpers";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -34,11 +35,34 @@ const StyledTableWrapped = styled(TableWrapper)`
 
 const renderCell = (props: any) => {
   const value = props.cell.value;
-  const data =
-    isString(value) || isNumber(value)
-      ? value.toString()
-      : JSON.stringify(value);
-  return <AutoToolTipComponent title={data}>{data}</AutoToolTipComponent>;
+  let displayValue;
+  switch (getType(value)) {
+    case Types.NUMBER:
+    case Types.BOOLEAN:
+      displayValue = value.toString();
+      break;
+    case Types.ARRAY:
+    case Types.FUNCTION:
+    case Types.OBJECT:
+      displayValue = JSON.stringify(value);
+      break;
+    case Types.STRING:
+      displayValue = value;
+      break;
+    case Types.NULL:
+    case Types.UNDEFINED:
+    case Types.UNKNOWN:
+      displayValue = "";
+      break;
+    default:
+      displayValue = "";
+  }
+
+  return (
+    <AutoToolTipComponent title={displayValue}>
+      {displayValue}
+    </AutoToolTipComponent>
+  );
 };
 
 const Table = (props: TableProps) => {
