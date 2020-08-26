@@ -2,7 +2,7 @@ import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { Size } from "./Button";
-import { Icon } from "./Icon";
+import Icon from "./Icon";
 
 export enum SearchVariant {
   BACKGROUND = "BACKGROUND",
