@@ -67,6 +67,38 @@ export const runAction = (id: string, paginationField?: PaginationField) => {
   };
 };
 
+export const runActionInit = (
+  id: string,
+  paginationField?: PaginationField,
+) => {
+  return {
+    type: ReduxActionTypes.RUN_ACTION_INIT,
+    payload: {
+      id,
+      paginationField,
+    },
+  };
+};
+
+export const showRunActionConfirmModal = (show: boolean) => {
+  return {
+    type: ReduxActionTypes.SHOW_RUN_ACTION_CONFIRM_MODAL,
+    payload: show,
+  };
+};
+
+export const cancelRunActionConfirmModal = () => {
+  return {
+    type: ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL,
+  };
+};
+
+export const acceptRunActionConfirmModal = () => {
+  return {
+    type: ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL,
+  };
+};
+
 export const updateAction = (payload: { id: string }) => {
   return batchAction({
     type: ReduxActionTypes.UPDATE_ACTION_INIT,
