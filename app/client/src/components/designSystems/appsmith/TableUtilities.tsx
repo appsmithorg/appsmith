@@ -13,7 +13,7 @@ import {
   ColumnTypes,
   Condition,
 } from "widgets/TableWidget";
-import { isString, isNumber } from "lodash";
+import { isString } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
@@ -493,13 +493,9 @@ export const renderCell = (
         );
       }
     default:
-      const data =
-        isString(value) || isNumber(value)
-          ? value.toString()
-          : JSON.stringify(value);
       return (
-        <AutoToolTipComponent title={data} isHidden={isHidden}>
-          {data}
+        <AutoToolTipComponent title={value.toString()} isHidden={isHidden}>
+          {value.toString()}
         </AutoToolTipComponent>
       );
   }

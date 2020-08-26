@@ -21,6 +21,8 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
+import { isString, isNumber, isUndefined } from "lodash";
+
 const ReactTableComponent = lazy(() =>
   import("components/designSystems/appsmith/ReactTableComponent"),
 );
@@ -264,7 +266,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               }
               break;
             default:
-              tableRow[accessor] = value;
+              const data =
+                isString(value) || isNumber(value)
+                  ? value
+                  : isUndefined(value)
+                  ? ""
+                  : JSON.stringify(value);
+              tableRow[accessor] = data;
               break;
           }
         }
