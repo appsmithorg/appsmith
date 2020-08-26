@@ -2,7 +2,7 @@ import React from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
-import { Icon, IconName } from "./Icon";
+import Icon, { IconName } from "./Icon";
 import { Size } from "./Button";
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
