@@ -91,20 +91,18 @@ export function* fetchPageListSaga(
         isDefault: page.isDefault,
       }));
       yield put({
+        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
+        payload: {
+          orgId,
+        },
+      });
+      yield put({
         type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
         payload: {
           pages,
           applicationId,
         },
       });
-      yield put({
-        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
-        payload: {
-          orgId,
-        },
-      });
-
-      return;
     }
   } catch (error) {
     yield put({

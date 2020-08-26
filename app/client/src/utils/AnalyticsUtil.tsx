@@ -200,9 +200,14 @@ class AnalyticsUtil {
       });
     }
     if (windowDoc.hj) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      window.hj("identify", userData.email, { email: userData.email });
+      windowDoc.hj("identify", userData.email, { email: userData.email });
+    }
+    if (windowDoc.smartLook) {
+      windowDoc.smartlook("identify", userId, {
+        email: userData.email,
+        name: userData.name,
+        userId: userId,
+      });
     }
   }
 
