@@ -81,7 +81,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       nextPageKey: VALIDATION_TYPES.TEXT,
       prevPageKey: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
-      selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
     };
@@ -337,7 +336,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         JSON.stringify(prevProps.filters) ||
       this.props.searchText !== prevProps.searchText ||
       JSON.stringify(this.props.sortedColumn) !==
-        JSON.stringify(prevProps.sortedColumn)
+        JSON.stringify(prevProps.sortedColumn) ||
+      !this.props.filteredTableData
     ) {
       const filteredTableData = this.filterTableData();
       super.updateWidgetMetaProperty("filteredTableData", filteredTableData);

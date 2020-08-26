@@ -314,11 +314,7 @@ class DatasourceDBEditor extends React.Component<
         <br />
         <FormTitleContainer>
           <PluginImage src={this.props.pluginImage} alt="Datasource" />
-          <Field
-            name="name"
-            component={FormTitle}
-            focusOnMount={this.props.isNewDatasource}
-          />
+          <FormTitle focusOnMount={this.props.isNewDatasource} />
         </FormTitleContainer>
         {cloudHosting && (
           <CollapsibleWrapper>
