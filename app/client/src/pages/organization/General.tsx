@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { saveOrg } from "actions/orgActions";
 import { SaveOrgRequest } from "api/OrgApi";

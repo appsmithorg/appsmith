@@ -9,13 +9,10 @@ import {
 } from "selectors/organizationSelectors";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
-// import Button from "components/editorComponents/Button";
 import { RouteComponentProps } from "react-router";
 import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
-// import { useTable, useFlexLayout } from "react-table";
 import Table from "components/ads/Table";
 import Icon from "components/ads/Icon";
 import {
