@@ -49,6 +49,7 @@ const EditableTextWrapper = styled.div<{
 }>`
   width: ${props => (!props.fill ? "234px" : "100%")};
   .error-message {
+    margin-left: ${props => props.theme.spaces[5]}px;
     color: ${props => props.theme.colors.danger.main};
   }
 `;
@@ -159,7 +160,6 @@ export const AdsEditableText = (props: EditableTextProps) => {
     [isInvalid, isEditing, savingState],
   );
 
-  /* should I write ? */
   const editMode = useCallback((e: React.MouseEvent) => {
     setIsEditing(true);
     const errorMessage = props.isInvalid && props.isInvalid(props.defaultValue);

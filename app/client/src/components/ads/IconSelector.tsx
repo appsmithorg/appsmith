@@ -31,6 +31,8 @@ const IconPalette = styled.div<{ fill?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  padding: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[5]}px;
   width: ${props => (props.fill ? "100%" : "234px")};
 `;
 
@@ -50,7 +52,7 @@ const IconBox = styled.div<{
   cursor: pointer;
   position: relative;
 
-  &:last-child {
+  &:nth-child(6n) {
     margin-right: ${props => props.theme.spaces[0]}px;
   }
 `;

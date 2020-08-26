@@ -24,6 +24,8 @@ const Palette = styled.div<{ fill?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  padding: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[5]}px;
   width: ${props => (props.fill ? "100%" : "234px")};
 `;
 
@@ -41,7 +43,7 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
   }
 
   &:last-child {
-    margin-right: ${props => props.theme.spaces[1] - 1}px;
+    margin-right: 0px;
   }
 
   ${props =>
