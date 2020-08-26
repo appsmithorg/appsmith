@@ -15,6 +15,7 @@ import log from "loglevel";
 import produce from "immer";
 
 const findWidgets = (widgets: WidgetProps, keyword: string) => {
+  if (!widgets || !widgets.widgetName) return widgets;
   const widgetNameMached =
     widgets.widgetName.toLowerCase().indexOf(keyword) > -1;
   if (widgets.children) {

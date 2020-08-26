@@ -58,7 +58,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       action={switchPage}
       entityId={props.page.pageId}
       active={isCurrentPage}
-      isDefaultExpanded={isCurrentPage}
+      isDefaultExpanded={isCurrentPage || !!props.searchKeyword}
       updateEntityName={updatePage}
       contextMenu={contextMenu}
     >
