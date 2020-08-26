@@ -1,6 +1,6 @@
 import React from "react";
 import { action } from "@storybook/addon-actions";
-import ColorSelector, { appColorPalette } from "../ads/ColorSelector";
+import ColorSelector, { appColorPalette } from "components/ads/ColorSelector";
 import { withKnobs, array, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 
