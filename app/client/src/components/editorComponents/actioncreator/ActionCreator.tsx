@@ -133,6 +133,7 @@ const ActionType = {
   closeModal: "closeModal",
   navigateTo: "navigateTo",
   showAlert: "showAlert",
+  storeValue: "storeValue",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -235,6 +236,7 @@ const FieldType = {
   URL_FIELD: "URL_FIELD",
   ALERT_TEXT_FIELD: "ALERT_TEXT_FIELD",
   ALERT_TYPE_SELECTOR_FIELD: "ALERT_TYPE_SELECTOR_FIELD",
+  KEY_TEXT_FIELD: "KEY_TEXT_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -347,6 +349,15 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
+  [FieldType.KEY_TEXT_FIELD]: {
+    getter: (value: any) => {
+      return value;
+    },
+    setter: (value: any) => {
+      return value;
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 const baseOptions: any = [
@@ -378,6 +389,10 @@ const baseOptions: any = [
   {
     label: "Close Modal",
     value: ActionType.closeModal,
+  },
+  {
+    label: "Store Value",
+    value: ActionType.storeValue,
   },
 ];
 function getOptionsWithChildren(
@@ -495,6 +510,11 @@ function getFieldFromValue(
         field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
       },
     );
+  }
+  if (value.indexOf("storeValue") !== -1) {
+    fields.push({
+      field: FieldType.KEY_TEXT_FIELD,
+    });
   }
   return fields;
 }
@@ -622,11 +642,14 @@ function renderField(props: {
       break;
     case FieldType.ALERT_TEXT_FIELD:
     case FieldType.URL_FIELD:
+    case FieldType.KEY_TEXT_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
       } else if (fieldType === FieldType.URL_FIELD) {
         fieldLabel = "Page Name";
+      } else if (fieldType === FieldType.KEY_TEXT_FIELD) {
+        fieldLabel = "Key";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
