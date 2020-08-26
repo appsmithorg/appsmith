@@ -3,8 +3,9 @@ import React from "react";
 import styled from "styled-components";
 import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
 import { ReactComponent as UpperArrow } from "../../assets/icons/ads/upper_arrow.svg";
+import { Classes } from "@blueprintjs/core/lib/esm/common";
 
-const Styles = styled.div`
+const Styles = styled.div<{ isLoading?: boolean }>`
   table {
     border-spacing: 0;
     width: 100%;
@@ -14,11 +15,14 @@ const Styles = styled.div`
         background-color: ${props => props.theme.colors.blackShades[2]};
 
         th:first-child {
-          padding: 0 ${props => props.theme.spaces[9]}px;
+          padding: ${props => props.theme.spaces[5]}px
+            ${props => props.theme.spaces[9]}px;
         }
 
         th {
-          padding: ${props => props.theme.spaces[5]}px 0;
+          padding: ${props => props.theme.spaces[5]}px
+            ${props => props.theme.spaces[5]}px
+            ${props => props.theme.spaces[5]}px 0;
           text-align: left;
           color: ${props => props.theme.colors.blackShades[5]};
           font-weight: ${props => props.theme.fontWeights[1]};
@@ -48,18 +52,30 @@ const Styles = styled.div`
       tr {
         td:first-child {
           color: ${props => props.theme.colors.blackShades[7]};
-          padding: 0 ${props => props.theme.spaces[9]}px;
+          ${props =>
+            props.isLoading
+              ? `padding: ${props.theme.spaces[4]}px 0 ${props.theme.spaces[4]}px ${props.theme.spaces[9]}px`
+              : `padding: ${props.theme.spaces[4]}px ${props.theme.spaces[9]}px`};
           font-weight: ${props => props.theme.fontWeights[1]};
         }
 
         td {
-          padding: ${props => props.theme.spaces[4]}px 0;
+          ${props =>
+            props.isLoading
+              ? `padding: ${props.theme.spaces[4]}px 0`
+              : `padding: ${props.theme.spaces[4]}px ${props.theme.spaces[4]}px ${props.theme.spaces[4]}px 0`};
           color: ${props => props.theme.colors.blackShades[6]};
           font-size: ${props => props.theme.typography.p1.fontSize}px;
           line-height: ${props => props.theme.typography.p1.lineHeight}px;
           letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
           font-weight: normal;
-          border-bottom: 1px solid ${props => props.theme.colors.blackShades[3]};
+          border-bottom: 1px solid ${props =>
+            props.theme.colors.blackShades[3]};
+        }
+
+        td:last-child {
+          padding: ${props => props.theme.spaces[4]}px ${props =>
+  props.theme.spaces[4]}px ${props => props.theme.spaces[4]}px 0};
         }
 
         &:hover {
@@ -78,12 +94,31 @@ const Styles = styled.div`
         }
       }
     }
+
+    .bp3-skeleton {
+      border-radius: 0px !important;
+    }
   }
 `;
 
+const RowLoader = styled.div<{ isLoading?: boolean }>`
+  ${props => (props.isLoading ? "height: 23px" : null)}
+`;
+
+const HeaderLoader = styled.div<{ isLoading?: boolean }>`
+  ${props => (props.isLoading ? "height: 16px" : null)}
+`;
+
+interface TableColumnProps {
+  Header: string;
+  accessor: string;
+  Cell?: (props: { cell: { value: any } }) => JSX.Element;
+}
+
 interface TableProps {
-  data: any[];
-  columns: any[];
+  data: object[];
+  columns: TableColumnProps[];
+  isLoading?: boolean;
 }
 
 function Table(props: TableProps) {
@@ -100,7 +135,7 @@ function Table(props: TableProps) {
   } = useTable({ columns, data }, useSortBy);
 
   return (
-    <Styles>
+    <Styles isLoading={props.isLoading}>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup, index) => (
@@ -110,15 +145,24 @@ function Table(props: TableProps) {
                   {...column.getHeaderProps(column.getSortByToggleProps())}
                   key={index}
                 >
-                  {column.render("Header")}
-                  {column.isSorted ? (
-                    column.isSortedDesc ? (
-                      <UpperArrow />
-                    ) : (
-                      <DownArrow />
-                    )
+                  {props.isLoading ? (
+                    <HeaderLoader
+                      isLoading={props.isLoading}
+                      className={props.isLoading ? Classes.SKELETON : ""}
+                    ></HeaderLoader>
                   ) : (
-                    ""
+                    <div>
+                      {column.render("Header")}
+                      {column.isSorted ? (
+                        column.isSortedDesc ? (
+                          <UpperArrow />
+                        ) : (
+                          <DownArrow />
+                        )
+                      ) : (
+                        ""
+                      )}
+                    </div>
                   )}
                 </th>
               ))}
@@ -133,7 +177,14 @@ function Table(props: TableProps) {
                 {row.cells.map((cell, index) => {
                   return (
                     <td {...cell.getCellProps()} key={index}>
-                      {cell.render("Cell")}
+                      {props.isLoading ? (
+                        <RowLoader
+                          isLoading={props.isLoading}
+                          className={props.isLoading ? Classes.SKELETON : ""}
+                        ></RowLoader>
+                      ) : (
+                        cell.render("Cell")
+                      )}
                     </td>
                   );
                 })}
@@ -145,5 +196,7 @@ function Table(props: TableProps) {
     </Styles>
   );
 }
+
+Table.displayName = "Table";
 
 export default Table;
