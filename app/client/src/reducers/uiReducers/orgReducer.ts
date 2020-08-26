@@ -145,14 +145,16 @@ const orgReducer = createReducer(initialState, {
       orgUsers: _orgUsers,
     };
   },
-  [ReduxActionTypes.CHANGE_ORG_USER_ROLE_ERROR]: (state: OrgReduxState) => {
+  [ReduxActionErrorTypes.CHANGE_ORG_USER_ROLE_ERROR]: (
+    state: OrgReduxState,
+  ) => {
     const _orgUsers = state.orgUsers.map(user => ({
       ...user,
       isChangingRole: false,
     }));
     return { ...state, orgUsers: _orgUsers };
   },
-  [ReduxActionTypes.DELETE_ORG_USER_ERROR]: (state: OrgReduxState) => {
+  [ReduxActionErrorTypes.DELETE_ORG_USER_ERROR]: (state: OrgReduxState) => {
     const _orgUsers = state.orgUsers.map(user => ({
       ...user,
       isDeleting: false,

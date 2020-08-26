@@ -128,9 +128,9 @@ const TextInput = forwardRef(
   },
 );
 
-TextInput.defaultProps = {
-  fill: false,
-};
+// TextInput.defaultProps = {
+//   fill: 0,
+// };
 
 TextInput.displayName = "TextInput";
 

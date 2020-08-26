@@ -115,6 +115,9 @@ export function* changeOrgUserRoleSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CHANGE_ORG_USER_ROLE_ERROR,
+      payload: {
+        error,
+      },
     });
   }
 }

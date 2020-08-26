@@ -82,7 +82,7 @@ const TableDropdown = (props: DropdownProps) => {
   return (
     <Popover
       usePortal={false}
-      position={props.position || Position.BOTTOM}
+      position={props.position || Position.BOTTOM_LEFT}
       isOpen={isDropdownOpen}
       onInteraction={state => setIsDropdownOpen(state)}
       interactionKind={PopoverInteractionKind.CLICK}
