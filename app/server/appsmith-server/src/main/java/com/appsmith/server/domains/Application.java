@@ -30,6 +30,9 @@ public class Application extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Boolean isPublic = false;
 
+    @JsonIgnore
+    Boolean cloneOnSignUp = false;
+
     List<ApplicationPage> pages;
 
     @Transient

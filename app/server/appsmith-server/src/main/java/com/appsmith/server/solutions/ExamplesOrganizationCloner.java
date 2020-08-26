@@ -157,7 +157,7 @@ public class ExamplesOrganizationCloner {
         final List<Page> clonedPages = new ArrayList<>();
 
         return applicationRepository
-                .findByOrganizationIdAndIsPublicTrue(fromOrganizationId)
+                .findByOrganizationIdAndCloneOnSignUpTrue(fromOrganizationId)
                 .flatMap(application -> {
                     application.setOrganizationId(toOrganizationId);
 

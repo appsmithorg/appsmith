@@ -183,7 +183,7 @@ public class ExamplesOrganizationClonerTests {
                     Application app1 = new Application();
                     app1.setName("1 - public app");
                     app1.setOrganizationId(organization.getId());
-                    app1.setIsPublic(true);
+                    app1.setCloneOnSignUp(true);
 
                     Application app2 = new Application();
                     app2.setOrganizationId(organization.getId());
@@ -215,7 +215,7 @@ public class ExamplesOrganizationClonerTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneOrganizationWithOnlyPublicApplications() {
+    public void cloneOrganizationWithOnlyApplicationsThatShouldBeCloned() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization 2");
         final Mono<OrganizationData> resultMono = Mono
@@ -229,12 +229,12 @@ public class ExamplesOrganizationClonerTests {
                     Application app1 = new Application();
                     app1.setName("1 - public app more");
                     app1.setOrganizationId(organization.getId());
-                    app1.setIsPublic(true);
+                    app1.setCloneOnSignUp(true);
 
                     Application app2 = new Application();
                     app2.setOrganizationId(organization.getId());
                     app2.setName("2 - another public app more");
-                    app2.setIsPublic(true);
+                    app2.setCloneOnSignUp(true);
 
                     return Mono.zip(
                             applicationPageService.createApplication(app1),
@@ -406,12 +406,12 @@ public class ExamplesOrganizationClonerTests {
                     final Application app1 = new Application();
                     app1.setName("first application");
                     app1.setOrganizationId(organization.getId());
-                    app1.setIsPublic(true);
+                    app1.setCloneOnSignUp(true);
 
                     final Application app2 = new Application();
                     app2.setName("second application");
                     app2.setOrganizationId(organization.getId());
-                    app2.setIsPublic(true);
+                    app2.setCloneOnSignUp(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -470,12 +470,12 @@ public class ExamplesOrganizationClonerTests {
                     final Application app1 = new Application();
                     app1.setName("first application");
                     app1.setOrganizationId(organization.getId());
-                    app1.setIsPublic(true);
+                    app1.setCloneOnSignUp(true);
 
                     final Application app2 = new Application();
                     app2.setName("second application");
                     app2.setOrganizationId(organization.getId());
-                    app2.setIsPublic(true);
+                    app2.setCloneOnSignUp(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
