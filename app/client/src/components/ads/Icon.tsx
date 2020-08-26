@@ -53,7 +53,7 @@ export type IconProps = {
   name?: IconName;
   invisible?: boolean;
   className?: string;
-  click?: () => void;
+  onClick?: () => void;
 };
 
 const Icon = (props: IconProps) => {
@@ -85,7 +85,7 @@ const Icon = (props: IconProps) => {
     <IconWrapper
       className={props.className ? props.className : "ads-icon"}
       {...props}
-      onClick={() => props.click && props.click()}
+      onClick={() => props.onClick && props.onClick()}
     >
       {returnIcon}
     </IconWrapper>
