@@ -10,13 +10,19 @@ const Styles = styled.div<{ isLoading?: boolean }>`
     border-spacing: 0;
     width: 100%;
 
+    .bp3-skeleton {
+      border-radius: 0px !important;  
+    }
+
     thead {
       tr {
         background-color: ${props => props.theme.colors.blackShades[2]};
 
         th:first-child {
-          padding: ${props => props.theme.spaces[5]}px
-            ${props => props.theme.spaces[9]}px;
+          ${props =>
+            props.isLoading
+              ? `padding: ${props.theme.spaces[5]}px ${props.theme.spaces[5]}px ${props.theme.spaces[5]}px ${props.theme.spaces[9]}px`
+              : `padding: ${props.theme.spaces[5]}px ${props.theme.spaces[9]}px`};
         }
 
         th {
@@ -37,7 +43,8 @@ const Styles = styled.div<{ isLoading?: boolean }>`
 
           &:hover {
             color: ${props => props.theme.colors.blackShades[7]};
-            cursor: pointer;
+            ${props =>
+              props.isLoading ? `cursor: normal` : `cursor: pointer`};
             svg {
               path {
                 fill: ${props => props.theme.colors.blackShades[7]};
@@ -50,36 +57,11 @@ const Styles = styled.div<{ isLoading?: boolean }>`
 
     tbody {
       tr {
-        td:first-child {
-          color: ${props => props.theme.colors.blackShades[7]};
-          ${props =>
-            props.isLoading
-              ? `padding: ${props.theme.spaces[4]}px 0 ${props.theme.spaces[4]}px ${props.theme.spaces[9]}px`
-              : `padding: ${props.theme.spaces[4]}px ${props.theme.spaces[9]}px`};
-          font-weight: ${props => props.theme.fontWeights[1]};
-        }
-
-        td {
-          ${props =>
-            props.isLoading
-              ? `padding: ${props.theme.spaces[4]}px 0`
-              : `padding: ${props.theme.spaces[4]}px ${props.theme.spaces[4]}px ${props.theme.spaces[4]}px 0`};
-          color: ${props => props.theme.colors.blackShades[6]};
-          font-size: ${props => props.theme.typography.p1.fontSize}px;
-          line-height: ${props => props.theme.typography.p1.lineHeight}px;
-          letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
-          font-weight: normal;
-          border-bottom: 1px solid ${props =>
-            props.theme.colors.blackShades[3]};
-        }
-
-        td:last-child {
-          padding: ${props => props.theme.spaces[4]}px ${props =>
-  props.theme.spaces[4]}px ${props => props.theme.spaces[4]}px 0};
-        }
-
         &:hover {
-          background-color: ${props => props.theme.colors.blackShades[4]};
+          ${props =>
+            !props.isLoading
+              ? `background-color: ${props.theme.colors.blackShades[4]}`
+              : `background-color: transparent`};
           .ads-icon {
             path {
               fill: ${props => props.theme.colors.blackShades[9]};
@@ -93,20 +75,39 @@ const Styles = styled.div<{ isLoading?: boolean }>`
           }
         }
       }
-    }
 
-    .bp3-skeleton {
-      border-radius: 0px !important;
+      td:first-child {
+        color: ${props => props.theme.colors.blackShades[7]};
+        ${props =>
+          props.isLoading
+            ? `padding: ${props.theme.spaces[4]}px 0 ${props.theme.spaces[4]}px ${props.theme.spaces[9]}px`
+            : `padding: ${props.theme.spaces[4]}px ${props.theme.spaces[9]}px`};
+        font-weight: ${props => props.theme.fontWeights[1]};
+      }
+
+      td {
+        ${props =>
+          props.isLoading
+            ? `padding: ${props.theme.spaces[4]}px 0`
+            : `padding: ${props.theme.spaces[4]}px ${props.theme.spaces[4]}px ${props.theme.spaces[4]}px 0`};
+        color: ${props => props.theme.colors.blackShades[6]};
+        font-size: ${props => props.theme.typography.p1.fontSize}px;
+        line-height: ${props => props.theme.typography.p1.lineHeight}px;
+        letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
+        font-weight: normal;
+        border-bottom: 1px solid ${props => props.theme.colors.blackShades[3]};
+      }
+
+      td:last-child {
+        padding: ${props => props.theme.spaces[4]}px ${props =>
+  props.theme.spaces[4]}px ${props => props.theme.spaces[4]}px 0};
+      }
     }
   }
 `;
 
-const RowLoader = styled.div<{ isLoading?: boolean }>`
-  ${props => (props.isLoading ? "height: 23px" : null)}
-`;
-
-const HeaderLoader = styled.div<{ isLoading?: boolean }>`
-  ${props => (props.isLoading ? "height: 16px" : null)}
+const Loader = styled.div<{ isLoading?: boolean }>`
+  ${props => (props.isLoading ? "height: 20px" : null)}
 `;
 
 interface TableColumnProps {
@@ -144,10 +145,10 @@ function Table(props: TableProps) {
                   key={index}
                 >
                   {props.isLoading ? (
-                    <HeaderLoader
+                    <Loader
                       isLoading={props.isLoading}
                       className={props.isLoading ? Classes.SKELETON : ""}
-                    ></HeaderLoader>
+                    ></Loader>
                   ) : (
                     <div>
                       {column.render("Header")}
@@ -176,10 +177,10 @@ function Table(props: TableProps) {
                   return (
                     <td {...cell.getCellProps()} key={index}>
                       {props.isLoading ? (
-                        <RowLoader
+                        <Loader
                           isLoading={props.isLoading}
                           className={props.isLoading ? Classes.SKELETON : ""}
-                        ></RowLoader>
+                        ></Loader>
                       ) : (
                         cell.render("Cell")
                       )}
