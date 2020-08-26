@@ -9,4 +9,6 @@ public interface ApplicationRepository extends BaseRepository<Application, Strin
 
     Flux<Application> findByOrganizationIdAndIsPublicTrue(String organizationId);
 
+    Flux<Application> findByOrganizationId(String organizationId);
+
 }

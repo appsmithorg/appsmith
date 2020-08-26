@@ -28,6 +28,7 @@ export type AppDataState = {
   mode?: APP_MODE;
   user: AuthUserState;
   URL: UrlDataState;
+  store: object;
 };
 
 const initialState: AppDataState = {
@@ -46,6 +47,7 @@ const initialState: AppDataState = {
     hash: "",
     fullPath: "",
   },
+  store: {},
 };
 
 const appReducer = createReducer(initialState, {
@@ -74,6 +76,15 @@ const appReducer = createReducer(initialState, {
     return {
       ...state,
       URL: action.payload,
+    };
+  },
+  [ReduxActionTypes.UPDATE_APP_STORE]: (
+    state: AppDataState,
+    action: ReduxAction<object>,
+  ) => {
+    return {
+      ...state,
+      store: action.payload,
     };
   },
 });

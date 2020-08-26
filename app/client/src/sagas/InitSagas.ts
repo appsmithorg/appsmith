@@ -8,7 +8,12 @@ import {
 } from "constants/ReduxActionConstants";
 
 import { fetchEditorConfigs } from "actions/configsActions";
-import { fetchPage, fetchPageList, setAppMode } from "actions/pageActions";
+import {
+  fetchPage,
+  fetchPageList,
+  setAppMode,
+  updateAppStore,
+} from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
@@ -20,6 +25,19 @@ import PageApi, { FetchPageResponse } from "api/PageApi";
 import { validateResponse } from "./ErrorSagas";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { getAppStoreName } from "constants/AppConstants";
+
+const getAppStore = (appId: string) => {
+  const appStoreName = getAppStoreName(appId);
+  const storeString = localStorage.getItem(appStoreName) || "{}";
+  let store;
+  try {
+    store = JSON.parse(storeString);
+  } catch (e) {
+    store = {};
+  }
+  return store;
+};
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -52,6 +70,7 @@ function* initializeEditorSaga(
 
   // Step 5: Set app mode
   yield put(setAppMode(APP_MODE.EDIT));
+  yield put(updateAppStore(getAppStore(applicationId)));
 
   const currentApplication = yield select(getCurrentApplication);
 
@@ -142,6 +161,7 @@ export function* initializeAppViewerSaga(
   ]);
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
+  yield put(updateAppStore(getAppStore(applicationId)));
 
   yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
