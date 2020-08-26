@@ -3,7 +3,8 @@ import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
-
+import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
+import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import styled from "styled-components";
 import { Size } from "./Button";
 import { sizeHandler } from "./Spinner";
@@ -14,6 +15,8 @@ export type IconName =
   | "user"
   | "general"
   | "billing"
+  | "search"
+  | "close"
   | undefined;
 
 const IconWrapper = styled.div<IconProps>`
@@ -50,6 +53,7 @@ export type IconProps = {
   name?: IconName;
   invisible?: boolean;
   className?: string;
+  click?: () => void;
 };
 
 const Icon = (props: IconProps) => {
@@ -67,6 +71,12 @@ const Icon = (props: IconProps) => {
     case "billing":
       returnIcon = <BillingIcon />;
       break;
+    case "search":
+      returnIcon = <SearchIcon />;
+      break;
+    case "close":
+      returnIcon = <CloseIcon />;
+      break;
     default:
       returnIcon = null;
       break;
@@ -75,6 +85,7 @@ const Icon = (props: IconProps) => {
     <IconWrapper
       className={props.className ? props.className : "ads-icon"}
       {...props}
+      onClick={() => props.click && props.click()}
     >
       {returnIcon}
     </IconWrapper>
