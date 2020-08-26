@@ -719,6 +719,7 @@ public class DatabaseChangelog {
             final List<Map<String, Object>> embeddedPages = new ArrayList<>();
 
             application.put(FieldName.ORGANIZATION_ID, organizationId);
+            application.put(FieldName.CREATED_AT, Instant.now());
             mongoTemplate.insert(application, mongoTemplate.getCollectionName(Application.class));
             final String applicationId = ((ObjectId) application.get("_id")).toHexString();
 

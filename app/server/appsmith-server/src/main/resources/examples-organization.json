@@ -49,6 +49,7 @@
     {
       "name": "Charts Tutorial",
       "isPublic": true,
+      "cloneOnSignUp": true,
       "$pages": [
         {
           "name": "1. Display Chart Data",
@@ -1105,6 +1106,7 @@
     {
       "name": "Customer Support Dashboard",
       "isPublic": true,
+      "cloneOnSignUp": true,
       "$pages": [
         {
           "name": "Users Page",
@@ -5178,6 +5180,7 @@
     {
       "name": "Form Tutorial",
       "isPublic": true,
+      "cloneOnSignUp": true,
       "$pages": [
         {
           "name": "1. Simple Form Submit",
@@ -9654,6 +9657,7 @@
       "name": "Table Tutorial",
       "organizationId": "5f2a944780ca1f6faaed4e38",
       "isPublic": true,
+      "cloneOnSignUp": true,
       "$pages": [
         {
           "name": "1. Displaying Data",
