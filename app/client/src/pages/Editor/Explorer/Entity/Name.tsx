@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import EditableText, {
@@ -62,8 +62,19 @@ export interface EntityNameProps {
 
 export const EntityName = (props: EntityNameProps) => {
   const { name, updateEntityName, searchKeyword } = props;
+
+  const nameUpdateError = useSelector((state: AppState) => {
+    return state.ui.explorer.updateEntityError === props.entityId;
+  });
+
   const [updatedName, setUpdatedName] = useState(name);
+
+  useEffect(() => {
+    setUpdatedName(name);
+  }, [name, nameUpdateError]);
+
   const dispatch = useDispatch();
+
   const existingPageNames: string[] = useSelector((state: AppState) =>
     state.entities.pageList.pages.map((page: Page) => page.pageName),
   );

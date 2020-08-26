@@ -409,7 +409,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       },
     });
     AppToaster.show({
-      message: `Unable to update API name`,
+      message: `Unable to update Action name`,
       type: ToastType.ERROR,
     });
     console.error(e);
