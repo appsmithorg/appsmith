@@ -1,10 +1,10 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { convertToCamelCase } from "utils/helpers";
+import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
 import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
@@ -57,10 +57,12 @@ export interface EntityNameProps {
   entityId: string;
   searchKeyword?: string;
   className?: string;
+  nameTransformFn?: (input: string, limit?: number) => string;
 }
 
 export const EntityName = (props: EntityNameProps) => {
   const { name, updateEntityName, searchKeyword } = props;
+  const [updatedName, setUpdatedName] = useState(name);
   const dispatch = useDispatch();
   const existingPageNames: string[] = useSelector((state: AppState) =>
     state.entities.pageList.pages.map((page: Page) => page.pageName),
@@ -103,6 +105,7 @@ export const EntityName = (props: EntityNameProps) => {
   const handleAPINameChange = useCallback(
     (newName: string) => {
       if (name && newName !== name && !isInvalidName(newName)) {
+        setUpdatedName(newName);
         dispatch(updateEntityName(newName));
       }
     },
@@ -112,7 +115,7 @@ export const EntityName = (props: EntityNameProps) => {
   const searchHighlightedName = useMemo(() => {
     if (searchKeyword) {
       const regex = new RegExp(searchKeyword, "gi");
-      const delimited = name.replace(regex, function(str) {
+      const delimited = updatedName.replace(regex, function(str) {
         return searchTokenizationDelimiter + str + searchTokenizationDelimiter;
       });
 
@@ -123,8 +126,8 @@ export const EntityName = (props: EntityNameProps) => {
       );
       return final;
     }
-    return name;
-  }, [searchKeyword, name]);
+    return updatedName;
+  }, [searchKeyword, updatedName]);
 
   const exitEditMode = useCallback(() => {
     dispatch({
@@ -155,11 +158,11 @@ export const EntityName = (props: EntityNameProps) => {
       <EditableText
         type="text"
         className={`${props.className} editing`}
-        defaultValue={name}
+        defaultValue={updatedName}
         placeholder="Name"
         onTextChanged={handleAPINameChange}
         isInvalid={isInvalidName}
-        valueTransform={convertToCamelCase}
+        valueTransform={props.nameTransformFn || removeSpecialChars}
         isEditingDefault
         editInteractionKind={EditInteractionKind.SINGLE}
         minimal
