@@ -1,4 +1,4 @@
-import React, { useRef, MutableRefObject, useEffect } from "react";
+import React, { useRef, MutableRefObject } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import { useFilteredEntities } from "./hooks";
@@ -7,8 +7,6 @@ import ExplorerPageGroup from "./Pages/PageGroup";
 import ExplorerDatasourcesGroup from "./Datasources/DatasourcesGroup";
 import { scrollbarDark } from "constants/DefaultTheme";
 import { NonIdealState, Classes } from "@blueprintjs/core";
-import { ENTITY_EXPLORER_SEARCH_LOCATION_HASH } from "constants/Explorer";
-import { useLocation } from "react-router";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -20,6 +18,10 @@ const NoResult = styled(NonIdealState)`
   &.${Classes.NON_IDEAL_STATE} {
     height: auto;
   }
+`;
+
+const StyledDivider = styled(Divider)`
+  border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
 
 const EntityExplorer = () => {
@@ -36,13 +38,6 @@ const EntityExplorer = () => {
     searchKeyword,
     clearSearch,
   } = useFilteredEntities(searchInputRef);
-
-  const location = useLocation();
-  useEffect(() => {
-    if (location.hash === ENTITY_EXPLORER_SEARCH_LOCATION_HASH) {
-      searchInputRef.current?.focus();
-    }
-  }, [location, searchInputRef]);
 
   const explorerPageGroup = (
     <ExplorerPageGroup
@@ -89,7 +84,7 @@ const EntityExplorer = () => {
       <Search ref={searchInputRef} clear={clearSearch} />
       {!noPageEntities && explorerPageGroup}
       {noResults && noResultMessage}
-      <Divider />
+      <StyledDivider />
       {!noDatsourceEntities && datasourcesGroup}
     </Wrapper>
   );

@@ -105,6 +105,30 @@ export const createPage = (applicationId: string, pageName: string) => {
   };
 };
 
+export const clonePageInit = (pageId: string) => {
+  return {
+    type: ReduxActionTypes.CLONE_PAGE_INIT,
+    payload: {
+      id: pageId,
+    },
+  };
+};
+
+export const clonePageSuccess = (
+  pageId: string,
+  pageName: string,
+  layoutId: string,
+) => {
+  return {
+    type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
+    payload: {
+      pageId,
+      pageName,
+      layoutId,
+    },
+  };
+};
+
 export const updatePage = (id: string, name: string) => {
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
@@ -186,6 +210,13 @@ export const setUrlData = (
 export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   return {
     type: ReduxActionTypes.SET_APP_MODE,
+    payload,
+  };
+};
+
+export const updateAppStore = (payload: object): ReduxAction<object> => {
+  return {
+    type: ReduxActionTypes.UPDATE_APP_STORE,
     payload,
   };
 };

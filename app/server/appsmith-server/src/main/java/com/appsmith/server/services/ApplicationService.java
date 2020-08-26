@@ -16,6 +16,8 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Flux<Application> findByOrganizationId(String organizationId, AclPermission permission);
 
+    Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
+
     Mono<Application> findByName(String name, AclPermission permission);
 
     Mono<Boolean> publish(String applicationId);
@@ -27,4 +29,6 @@ public interface ApplicationService extends CrudService<Application, String> {
     Mono<Application> archive(Application application);
 
     Mono<Application> changeViewAccess (String id, ApplicationAccessDTO applicationAccessDTO);
+
+    Flux<Application> findAllApplicationsByOrganizationId(String organizationId);
 }

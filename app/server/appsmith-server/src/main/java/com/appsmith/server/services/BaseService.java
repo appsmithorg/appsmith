@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -23,6 +22,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,7 +35,8 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
-public abstract class BaseService<R extends BaseRepository & AppsmithRepository, T extends BaseDomain, ID> implements CrudService<T, ID> {
+public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepository<T>, T extends BaseDomain, ID extends Serializable>
+        implements CrudService<T, ID> {
 
     final Scheduler scheduler;
 
@@ -85,7 +86,7 @@ public abstract class BaseService<R extends BaseRepository & AppsmithRepository,
 
         return mongoTemplate.updateFirst(query, updateObj, resource.getClass())
                 .flatMap(obj -> repository.findById(id))
-                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), (T) updatedObj));
+                .flatMap(analyticsService::sendUpdateEvent);
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
@@ -96,8 +97,7 @@ public abstract class BaseService<R extends BaseRepository & AppsmithRepository,
                     .map(entry -> {
                         String key = entry.getKey();
                         List<String> values = entry.getValue();
-                        Criteria criteria = Criteria.where(key).in(values);
-                        return criteria;
+                        return Criteria.where(key).in(values);
                     })
                     .collect(Collectors.toList());
         }
@@ -126,7 +126,7 @@ public abstract class BaseService<R extends BaseRepository & AppsmithRepository,
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .flatMap(savedObj -> analyticsService.sendEvent(AnalyticsEvents.CREATE + "_" + savedObj.getClass().getSimpleName().toUpperCase(), (T) savedObj));
+                .flatMap(analyticsService::sendCreateEvent);
     }
 
     protected DBObject getDbObject(Object o) {
@@ -149,7 +149,7 @@ public abstract class BaseService<R extends BaseRepository & AppsmithRepository,
      */
     protected Mono<T> validateObject(T obj) {
         return Mono.just(obj)
-                .map(o -> validator.validate(o))
+                .map(validator::validate)
                 .flatMap(constraint -> {
                     if (constraint.isEmpty()) {
                         return Mono.just(obj);

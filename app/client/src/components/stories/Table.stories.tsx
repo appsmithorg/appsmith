@@ -1,7 +1,7 @@
 import React from "react";
 import Table from "../ads/Table";
 import Button, { Category, Variant, Size } from "../ads/Button";
-import { Icon } from "../ads/Icon";
+import Icon from "../ads/Icon";
 
 export default {
   title: "Table",

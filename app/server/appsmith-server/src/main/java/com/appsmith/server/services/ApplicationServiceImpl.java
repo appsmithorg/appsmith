@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -108,6 +107,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
+    public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
+        return repository.findByClonedFromApplicationId(applicationId, permission);
+    }
+
+    @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
         return repository.findByName(name, permission)
                 .flatMap(this::setTransientFields);
@@ -132,7 +136,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> update(String id, Application resource) {
         return repository.updateById(id, resource, AclPermission.MANAGE_APPLICATIONS)
-                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), updatedObj));
+                .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override
@@ -145,10 +149,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
      * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
      * the publishedDsl.
      *
-     * @param applicationId
-     * @return Application
+     * @param applicationId The id of the application that will be published.
+     * @return Publishes a Boolean true, when the application has been published.
      */
-
     @Override
     public Mono<Boolean> publish(String applicationId) {
         Mono<Application> applicationMono = findById(applicationId)
@@ -201,6 +204,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     application.setIsPublic(applicationAccessDTO.getPublicAccess());
                     return generateAndSetPoliciesForPublicView(application, applicationAccessDTO.getPublicAccess());
                 });
+    }
+
+    @Override
+    public Flux<Application> findAllApplicationsByOrganizationId(String organizationId) {
+        return repository.findByOrganizationId(organizationId);
     }
 
     private Mono<Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {

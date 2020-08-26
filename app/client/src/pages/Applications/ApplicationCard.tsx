@@ -4,7 +4,7 @@ import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
-import { Card, Classes } from "@blueprintjs/core";
+import { Card, Classes, HTMLDivProps, ICardProps } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import { theme, getColorWithOpacity } from "constants/DefaultTheme";
@@ -18,12 +18,16 @@ import {
 } from "pages/Applications/permissionHelpers";
 import { getInitialsAndColorCode, getColorCode } from "utils/AppsmithUtils";
 import { ControlIcons } from "icons/ControlIcons";
-import history from "utils/history";
+import { omit } from "lodash";
 
-const NameWrapper = styled.div<{
+type NameWrapperProps = {
   hasReadPermission: boolean;
   showOverlay: boolean;
-}>`
+};
+
+const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
+  <div {...omit(props, ["hasReadPermission", "showOverlay"])} />
+))`
   ${props =>
     props.showOverlay &&
     `
@@ -81,10 +85,14 @@ const Name = styled.div`
   letter-spacing: 0.1px;
 `;
 
-const Wrapper = styled(Card)<{
-  hasReadPermission?: boolean;
-  backgroundColor: string;
-}>`
+const Wrapper = styled(
+  (
+    props: ICardProps & {
+      hasReadPermission?: boolean;
+      backgroundColor: string;
+    },
+  ) => <Card {...omit(props, ["hasReadPermission", "backgroundColor"])} />,
+)`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -142,6 +150,7 @@ const Control = styled.div<{ fixed?: boolean }>`
 
   .${Classes.BUTTON_TEXT} {
     font-size: 12px;
+    color: white;
   }
 
   .more {
@@ -260,7 +269,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
 
                 {hasEditPermission && (
                   <Button
-                    onClick={() => history.push(editApplicationURL)}
+                    href={editApplicationURL}
                     filled
                     text="EDIT"
                     intent="primary"
@@ -276,8 +285,8 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                   />
                 )}
                 <Button
-                  onClick={() => history.push(viewApplicationURL)}
                   intent="none"
+                  href={viewApplicationURL}
                   outline
                   fluid
                   text="LAUNCH"

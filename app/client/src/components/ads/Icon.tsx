@@ -56,38 +56,23 @@ export type IconProps = {
   size?: Size;
   name?: IconName;
   invisible?: boolean;
+  className?: string;
 };
 
-export const Icon = (props: IconProps) => {
+const Icon = (props: IconProps) => {
   let returnIcon;
   switch (props.name) {
     case "delete":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <DeleteIcon />
-        </IconWrapper>
-      );
+      returnIcon = <DeleteIcon />;
       break;
     case "user":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <UserIcon />
-        </IconWrapper>
-      );
+      returnIcon = <UserIcon />;
       break;
     case "general":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <GeneralIcon />
-        </IconWrapper>
-      );
+      returnIcon = <GeneralIcon />;
       break;
     case "billing":
-      returnIcon = (
-        <IconWrapper className="ads-icon" {...props}>
-          <BillingIcon />
-        </IconWrapper>
-      );
+      returnIcon = <BillingIcon />;
       break;
     case "edit":
       returnIcon = (
@@ -114,5 +99,14 @@ export const Icon = (props: IconProps) => {
       returnIcon = null;
       break;
   }
-  return returnIcon;
+  return returnIcon ? (
+    <IconWrapper
+      className={props.className ? props.className : "ads-icon"}
+      {...props}
+    >
+      {returnIcon}
+    </IconWrapper>
+  ) : null;
 };
+
+export default Icon;

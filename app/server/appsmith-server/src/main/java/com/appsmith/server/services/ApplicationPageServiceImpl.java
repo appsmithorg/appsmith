@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -34,7 +33,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
@@ -125,7 +123,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, Page page, Boolean isDefault) {
-        return applicationRepository.addPageToApplication(application, page, isDefault)
+        return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
                         log.error("Add page to application didn't update anything, probably because application wasn't found.");
@@ -133,7 +131,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    public Mono<Page> getPage(String pageId, Boolean viewMode) {
+    @Override
+    public Mono<Page> getPage(String pageId, boolean viewMode) {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return pageService.findById(pageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
@@ -149,7 +148,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode) {
+    public Mono<Page> getPageByName(String applicationName, String pageName, boolean viewMode) {
         AclPermission appPermission;
         AclPermission pagePermission;
         if (viewMode) {
@@ -178,6 +177,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
+    public Mono<Application> makePageDefault(Page page) {
+        return makePageDefault(page.getApplicationId(), page.getId());
+    }
+
+    @Override
     public Mono<Application> makePageDefault(String applicationId, String pageId) {
         return pageService.findById(pageId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
@@ -190,20 +194,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 })
                 .then(applicationService.findById(applicationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-                .flatMap(application -> {
-                    List<ApplicationPage> pages = application.getPages();
-
-                    // We are guaranteed to find the pageId in this list.
-                    pages.stream().forEach(page -> {
-                        if (page.getId().equals(pageId)) {
-                            page.setIsDefault(true);
-                        } else {
-                            page.setIsDefault(false);
-                        }
-                    });
-                    application.setPages(pages);
-                    return applicationService.save(application);
-                });
+                .flatMap(application ->
+                        applicationRepository
+                                .setDefaultPage(applicationId, pageId)
+                                .then(applicationService.getById(applicationId))
+                );
     }
 
     @Override
@@ -222,18 +217,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = userMono
-                .flatMap(user -> {
-                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
-
-                    return orgMono.map(org -> {
-                        application.setOrganizationId(org.getId());
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Organization.class, Application.class);
-                        application.setPolicies(documentPolicies);
-                        return application;
-                    });
-                });
+        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
         return applicationWithPoliciesMono
                 .flatMap(applicationService::createDefault)
@@ -259,8 +243,23 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
+    private Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
+        return userMono
+                .flatMap(user -> {
+                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
+
+                    return orgMono.map(org -> {
+                        application.setOrganizationId(org.getId());
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Organization.class, Application.class);
+                        application.setPolicies(documentPolicies);
+                        return application;
+                    });
+                });
+    }
+
     @Override
-    public Mono<Application> cloneApplication(Application application) {
+    public Mono<Application> cloneExampleApplication(Application application) {
         if (!StringUtils.hasText(application.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
@@ -271,31 +270,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         // Clean the object so that it will be saved as a new application for the currently signed in user.
+        application.setClonedFromApplicationId(application.getId());
         application.setId(null);
         application.setPolicies(new HashSet<>());
         application.setPages(new ArrayList<>());
+        application.setIsPublic(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = userMono
-                .flatMap(user -> {
-                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
-
-                    return orgMono.map(org -> {
-                        application.setOrganizationId(org.getId());
-                        // At the organization level, filter out all the application specific policies and apply them
-                        // to the new application that we are creating.
-                        Set<Policy> policySet = org.getPolicies().stream()
-                                .filter(policy ->
-                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
-                                ).collect(Collectors.toSet());
-
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Application.class);
-                        application.setPolicies(documentPolicies);
-                        return application;
-                    });
-                });
+        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
         return applicationWithPoliciesMono
                 .flatMap(applicationService::createDefault);
@@ -329,18 +311,25 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .collectList()
                             .thenReturn(application);
                 })
-                .flatMap(application -> applicationService.archive(application));
+                .flatMap(applicationService::archive);
 
         return applicationMono
-                .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj));
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
     @Override
     public Mono<Page> clonePage(String pageId) {
 
+        return pageService.findById(pageId, MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
+                .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId()));
+    }
+
+    private Mono<Page> clonePageGivenApplicationId(String pageId, String applicationId) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
         Mono<Page> sourcePageMono = pageService.findById(pageId, MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
                 .flatMap(page -> Flux.fromIterable(page.getLayouts())
                         .map(layout -> layout.getDsl())
                         .map(dsl -> {
@@ -356,7 +345,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             return page;
                         }));
 
-        Flux<Action> sourceActionFlux = actionService.findByPageId(pageId, MANAGE_ACTIONS);
+        // This call is without
+        Flux<Action> sourceActionFlux = actionService.findByPageId(pageId, MANAGE_ACTIONS)
+                // In case there are no actions in the page being cloned, return empty
+                .switchIfEmpty(Flux.empty());
 
         return sourcePageMono
                 .flatMap(page -> {
@@ -380,6 +372,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 // Now we have a unique name. Proceed with creating the copy of the page
                                 page.setId(null);
                                 page.setName(newPageName);
+                                page.setApplicationId(applicationId);
                                 return pageService.createDefault(page);
                             });
                 })
@@ -409,10 +402,74 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .flatMap(application -> {
                                 ApplicationPage applicationPage = new ApplicationPage();
                                 applicationPage.setId(page.getId());
+                                applicationPage.setIsDefault(false);
                                 application.getPages().add(applicationPage);
                                 return applicationService.save(application)
                                         .thenReturn(page);
                             });
+                });
+    }
+
+    @Override
+    public Mono<Application> cloneApplication(String applicationId) {
+
+        Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
+                .cache();
+
+        // Find the name for the cloned application which wouldn't lead to duplicate key exception
+        Mono<String> newAppNameMono = applicationMono
+                .flatMap(application -> applicationService.findAllApplicationsByOrganizationId(application.getOrganizationId())
+                        .map(application1 -> application1.getName())
+                        .collect(Collectors.toSet())
+                        .map(appNames -> {
+                            log.debug("app names for this organization are : {}", appNames);
+                            String newAppName = application.getName() + " Copy";
+                            int i = 0;
+                            String name = newAppName;
+                            while (appNames.contains(name)) {
+                                i++;
+                                name = newAppName + i;
+                            }
+                            return name;
+                        }));
+
+        return Mono.zip(applicationMono, newAppNameMono)
+                .flatMap(tuple -> {
+                    Application sourceApplication = tuple.getT1();
+                    String newName = tuple.getT2();
+
+                    sourceApplication.setId(null);
+                    sourceApplication.setIsPublic(false);
+                    sourceApplication.setName(newName);
+
+                    Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+                    // First set the correct policies for the new cloned application
+                   return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), sourceApplication)
+                           // Create the cloned application with the new name and policies before proceeding further.
+                           .flatMap(applicationService::createDefault)
+                           // Now fetch the pages of the source application, clone and add them to this new application
+                           .flatMap(savedApplication -> applicationMono
+                                   .flatMap(application -> Flux.fromIterable(application.getPages())
+                                           .flatMap(applicationPage -> {
+                                               String pageId = applicationPage.getId();
+                                               Boolean isDefault = applicationPage.getIsDefault();
+                                               return this.clonePageGivenApplicationId(pageId, savedApplication.getId())
+                                                       .map(page -> {
+                                                           ApplicationPage newApplicationPage = new ApplicationPage();
+                                                           newApplicationPage.setId(page.getId());
+                                                           newApplicationPage.setIsDefault(isDefault);
+                                                           return newApplicationPage;
+                                                       });
+                                           })
+                                           .collectList()
+                                   )
+                                   // Set the cloned pages into the cloned application and save.
+                                   .flatMap(clonedPages -> {
+                                       savedApplication.setPages(clonedPages);
+                                       return applicationRepository.save(savedApplication);
+                                   })
+                           );
                 });
     }
 

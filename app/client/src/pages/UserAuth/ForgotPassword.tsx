@@ -23,7 +23,6 @@ import {
 } from "constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import FormMessage from "components/editorComponents/form/FormMessage";
-
 import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import Button from "components/editorComponents/Button";
@@ -33,6 +32,9 @@ import {
   ForgotPasswordFormValues,
   forgotPasswordSubmitHandler,
 } from "./helpers";
+import { getAppsmithConfigs } from "configs";
+
+const { mailEnabled } = getAppsmithConfigs();
 
 const validate = (values: ForgotPasswordFormValues) => {
   const errors: ForgotPasswordFormValues = {};
@@ -67,6 +69,21 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
         <FormMessage
           intent="primary"
           message={`${FORGOT_PASSWORD_SUCCESS_TEXT} ${props.emailValue}`}
+        />
+      )}
+      {!mailEnabled && (
+        <FormMessage
+          intent="warning"
+          message={
+            "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
+          }
+          actions={[
+            {
+              url: "https://docs.appsmith.com/third-party-services/email",
+              text: "Configure Email service",
+              intent: "primary",
+            },
+          ]}
         />
       )}
       {submitFailed && error && <FormMessage intent="danger" message={error} />}
