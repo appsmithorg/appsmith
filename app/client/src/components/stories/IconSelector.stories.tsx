@@ -3,6 +3,7 @@ import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import IconSelector from "../ads/IconSelector";
 import { action } from "@storybook/addon-actions";
+import { AppIconName } from "../ads/AppIcon";
 
 export default {
   title: "IconSelector",
@@ -10,11 +11,29 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-export const IconSelectorStory = () => (
+export const IconPicker = () => (
   <div style={{ padding: "50px", background: "#2B2B2B", height: "500px" }}>
     <IconSelector
       onSelect={action("icon-selected")}
       fill={boolean("fill", false)}
+      selectedIcon={select(
+        "select icon",
+        [
+          AppIconName.BAG,
+          AppIconName.PRODUCT,
+          AppIconName.BOOK,
+          AppIconName.CAMERA,
+          AppIconName.FILE,
+          AppIconName.CHAT,
+          AppIconName.CALENDER,
+          AppIconName.FLIGHT,
+          AppIconName.FRAME,
+          AppIconName.GLOBE,
+          AppIconName.SHOPPER,
+          AppIconName.HEART,
+        ],
+        AppIconName.BAG,
+      )}
       selectedColor={select(
         "select color",
         [

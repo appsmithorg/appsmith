@@ -47,6 +47,7 @@ export const sizeHandler = (size: Size) => {
 };
 
 const IconWrapper = styled.div<AppIconProps>`
+  cursor: pointer;
   &:focus {
     outline: none;
   }

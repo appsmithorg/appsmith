@@ -1,27 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import AppIcon, { AppIconName } from "./AppIcon";
 import { Size } from "./Button";
 import { CommonComponentProps } from "./common";
 
-export const appIconPalette: AppIconName[] = [
-  "bag",
-  "product",
-  "book",
-  "camera",
-  "file",
-  "chat",
-  "calender",
-  "flight",
-  "frame",
-  "globe",
-  "shopper",
-  "heart",
+export const appIconPalette = [
+  AppIconName.BAG,
+  AppIconName.PRODUCT,
+  AppIconName.BOOK,
+  AppIconName.CAMERA,
+  AppIconName.FILE,
+  AppIconName.CHAT,
+  AppIconName.CALENDER,
+  AppIconName.FLIGHT,
+  AppIconName.FRAME,
+  AppIconName.GLOBE,
+  AppIconName.SHOPPER,
+  AppIconName.HEART,
 ];
 
 type IconSelectorProps = CommonComponentProps & {
   onSelect?: (icon: AppIconName) => void;
   selectedColor: string;
+  selectedIcon?: AppIconName;
   iconPalette?: AppIconName[];
   fill?: boolean;
 };
@@ -57,6 +58,12 @@ const IconBox = styled.div<{
 const IconSelector = (props: IconSelectorProps) => {
   const [selected, setSelected] = useState<AppIconName>(appIconPalette[0]);
 
+  useEffect(() => {
+    if (props.selectedIcon) {
+      setSelected(props.selectedIcon);
+    }
+  }, [props.selectedIcon]);
+
   return (
     <IconPalette fill={props.fill}>
       {props.iconPalette &&
@@ -72,7 +79,7 @@ const IconSelector = (props: IconSelectorProps) => {
                 props.onSelect && props.onSelect(iconName);
               }}
             >
-              <AppIcon name={iconName} size={Size.large} />
+              <AppIcon name={iconName} size={Size.small} />
             </IconBox>
           );
         })}
