@@ -5,7 +5,7 @@ import { withDesign } from "storybook-addon-designs";
 import { IconName } from "../ads/Icon";
 
 export default {
-  title: "tabs",
+  title: "Tabs",
   component: AdsTabComponent,
   decorators: [withKnobs, withDesign],
 };

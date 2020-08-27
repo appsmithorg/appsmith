@@ -58,7 +58,14 @@ const IconBox = styled.div<{
 `;
 
 const IconSelector = (props: IconSelectorProps) => {
-  const [selected, setSelected] = useState<AppIconName>(appIconPalette[0]);
+  function firstSelectedIcon() {
+    if (props.iconPalette && props.iconPalette[0]) {
+      return props.iconPalette[0];
+    }
+    return appIconPalette[0];
+  }
+
+  const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
 
   useEffect(() => {
     if (props.selectedIcon) {

@@ -67,8 +67,7 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
 `;
 
 const ColorSelector = (props: ColorSelectorProps) => {
-  const [selected, setSelected] = useState<string>("");
-  console.log("colors", props.colorPalette);
+  const [selected, setSelected] = useState<string>(appColorPalette[0]);
 
   return (
     <Palette fill={props.fill}>
@@ -92,6 +91,7 @@ const ColorSelector = (props: ColorSelectorProps) => {
 
 ColorSelector.defaultProps = {
   fill: false,
+  colorPalette: appColorPalette,
 };
 
 export default ColorSelector;
