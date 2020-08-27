@@ -67,9 +67,14 @@ interface TableColumnsVisibilityProps {
 
 const VisibilityIcon = (props: { visible?: boolean }) => {
   return props.visible ? (
-    <Icon icon="eye-open" iconSize={20} color={Colors.OXFORD_BLUE} />
+    <Icon
+      className="visible-icon"
+      icon="eye-open"
+      iconSize={20}
+      color={Colors.OXFORD_BLUE}
+    />
   ) : (
-    <VisibleIcon />
+    <VisibleIcon className="hidden-icon" />
   );
 };
 
@@ -105,6 +110,7 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
         onClick={e => {
           selectMenu(true);
         }}
+        className="t--table-column-visibility-toggle-btn"
       >
         <Tooltip
           autoFocus={false}
@@ -135,6 +141,7 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
               }
               props.updateHiddenColumns(hiddenColumns);
             }}
+            className="t--table-column-visibility-column-toggle"
           >
             <div className="option-title">{option.Header}</div>
             <VisibilityIcon visible={!option.isHidden} />
@@ -146,6 +153,7 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
             text="Show All"
             filled
             size="small"
+            className="t--table-column-show-all-btn"
             onClick={() => {
               props.updateHiddenColumns([]);
             }}

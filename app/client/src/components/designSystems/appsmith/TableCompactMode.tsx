@@ -91,6 +91,7 @@ const TableCompactMode = (props: TableCompactModeProps) => {
         onClick={e => {
           selectMenu(!selected);
         }}
+        className="t--table-compact-mode-toggle-btn"
       >
         <Tooltip
           autoFocus={false}
@@ -118,7 +119,7 @@ const TableCompactMode = (props: TableCompactModeProps) => {
               onClick={() => {
                 props.updateCompactMode(item.value);
               }}
-              className={Classes.POPOVER_DISMISS}
+              className={`${Classes.POPOVER_DISMISS} t--table-compact-mode-option`}
             >
               {item.title}
             </OptionWrapper>
