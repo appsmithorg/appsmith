@@ -45,9 +45,11 @@ export type FetchPublishedPageResponse = ApiResponse & {
 };
 
 export interface SavePageResponse extends ApiResponse {
-  id: string;
-  layoutOnLoadActions: PageAction[];
-  dsl: Partial<ContainerWidgetProps<any>>;
+  data: {
+    id: string;
+    layoutOnLoadActions: PageAction[][];
+    dsl: Partial<ContainerWidgetProps<any>>;
+  };
 }
 
 export interface CreatePageRequest {

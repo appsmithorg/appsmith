@@ -249,17 +249,17 @@ function* savePageSaga() {
     const isValidResponse = yield validateResponse(savePageResponse);
     if (isValidResponse) {
       if (
-        savePageResponse.layoutOnLoadActions &&
-        savePageResponse.layoutOnLoadActions.length > 0
-      )
-        yield put(
-          setActionsToExecuteOnPageLoad(
-            savePageResponse.layoutOnLoadActions.map(a => a.id),
-          ),
-        );
+        savePageResponse.data.layoutOnLoadActions &&
+        savePageResponse.data.layoutOnLoadActions.length > 0
+      ) {
+        for (const actionSet of savePageResponse.data.layoutOnLoadActions) {
+          yield put(setActionsToExecuteOnPageLoad(actionSet.map(a => a.id)));
+        }
+      }
       yield put(savePageSuccess(savePageResponse));
     }
   } catch (error) {
+    console.log({ error });
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {
