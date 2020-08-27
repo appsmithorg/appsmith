@@ -156,8 +156,8 @@ public class ExamplesOrganizationCloner {
         final Mono<Map<String, Datasource>> cloneDatasourcesMono = cloneDatasources(fromOrganizationId, toOrganizationId).cache();
         final List<Page> clonedPages = new ArrayList<>();
 
-        return applicationRepository
-                .findByOrganizationIdAndIsPublicTrue(fromOrganizationId)
+        return configService
+                .getTemplateApplications()
                 .flatMap(application -> {
                     application.setOrganizationId(toOrganizationId);
 
