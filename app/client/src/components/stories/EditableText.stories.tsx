@@ -7,6 +7,7 @@ import AdsEditableText, {
   SavingState,
 } from "../ads/EditableText";
 import { action } from "@storybook/addon-actions";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "EditableText",
@@ -37,7 +38,7 @@ const errorFunction = (name: string) => {
 };
 
 export const EditableTextStory = () => (
-  <div style={{ padding: "50px", background: "black", height: "500px" }}>
+  <StoryWrapper>
     <AdsEditableText
       defaultValue={text("defaultValue", "Product design app")}
       editInteractionKind={select(
@@ -56,5 +57,5 @@ export const EditableTextStory = () => (
         calls(value, callback)
       }
     ></AdsEditableText>
-  </div>
+  </StoryWrapper>
 );

@@ -14,6 +14,7 @@ import AdsEditableText, {
   EditInteractionKind,
   SavingStateHandler,
 } from "../ads/EditableText";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "Menu",
@@ -45,7 +46,7 @@ export const MenuStory = () => {
   return (
     <div
       style={{
-        background: "black",
+        background: "#1A191C",
         height: "500px",
         display: "flex",
         alignItems: "center",

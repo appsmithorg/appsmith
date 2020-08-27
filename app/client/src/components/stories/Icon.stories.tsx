@@ -4,6 +4,7 @@ import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import Icon from "../ads/Icon";
 import AppIcon, { AppIconName } from "../ads/AppIcon";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "Icon",
@@ -12,7 +13,7 @@ export default {
 };
 
 export const ButtonIcon = () => (
-  <div style={{ padding: "50px", background: "#2B2B2B", height: "500px" }}>
+  <StoryWrapper>
     <Button
       size={select("size", [Size.small, Size.medium, Size.large], Size.large)}
       category={select(
@@ -29,20 +30,20 @@ export const ButtonIcon = () => (
       isLoading={boolean("Loading", false)}
       disabled={boolean("Disabled", false)}
     ></Button>
-  </div>
+  </StoryWrapper>
 );
 
 export const BordelessIcon = () => (
-  <div style={{ padding: "50px", background: "#2B2B2B", height: "500px" }}>
+  <StoryWrapper>
     <Icon
       size={select("size", [Size.small, Size.medium, Size.large], Size.large)}
       name={select("iconName", ["delete", "user"], "delete")}
     />
-  </div>
+  </StoryWrapper>
 );
 
 export const BorderlessAppIcon = () => (
-  <div style={{ padding: "50px", background: "#2B2B2B", height: "500px" }}>
+  <StoryWrapper>
     <AppIcon
       size={select("size", [Size.small, Size.medium, Size.large], Size.small)}
       name={select(
@@ -64,5 +65,5 @@ export const BorderlessAppIcon = () => (
         AppIconName.BAG,
       )}
     />
-  </div>
+  </StoryWrapper>
 );
