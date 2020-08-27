@@ -1,6 +1,8 @@
 // Events
 import * as log from "loglevel";
 import FeatureFlag from "./featureFlags";
+import smartlookClient from "smartlook-client";
+import { getAppsmithConfigs } from "configs";
 
 export type EventName =
   | "LOGIN_CLICK"
@@ -27,15 +29,12 @@ export type EventName =
   | "PREVIEW_APP"
   | "EDITOR_OPEN"
   | "CREATE_API"
-  | "IMPORT_API"
-  | "IMPORT_API_CLICK"
   | "SAVE_API"
   | "SAVE_API_CLICK"
   | "RUN_API"
   | "RUN_API_CLICK"
   | "DELETE_API"
   | "DELETE_API_CLICK"
-  | "DUPLICATE_API_CLICK"
   | "IMPORT_API"
   | "EXPAND_API"
   | "IMPORT_API_CLICK"
@@ -85,20 +84,8 @@ function getApplicationId(location: Location) {
 
 class AnalyticsUtil {
   static user: any = undefined;
-  static initializeHotjar(id: string, sv: string) {
-    (function init(h: any, o: any, t: any, j: any, a?: any, r?: any) {
-      h.hj =
-        h.hj ||
-        function() {
-          (h.hj.q = h.hj.q || []).push(arguments); //eslint-disable-line prefer-rest-params
-        };
-      h._hjSettings = { hjid: id, hjsv: sv };
-      a = o.getElementsByTagName("head")[0];
-      r = o.createElement("script");
-      r.async = 1;
-      r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
-      a.appendChild(r);
-    })(window, document, "//static.hotjar.com/c/hotjar-", ".js?sv=");
+  static initializeSmartLook(id: string) {
+    smartlookClient.init(id);
   }
 
   static initializeSegment(key: string) {
@@ -199,15 +186,9 @@ class AnalyticsUtil {
         userId: userId,
       });
     }
-    if (windowDoc.hj) {
-      windowDoc.hj("identify", userData.email, { email: userData.email });
-    }
-    if (windowDoc.smartLook) {
-      windowDoc.smartlook("identify", userId, {
-        email: userData.email,
-        name: userData.name,
-        userId: userId,
-      });
+    const { smartLook } = getAppsmithConfigs();
+    if (smartLook.enabled) {
+      smartlookClient.identify(userData.email, { email: userData.email });
     }
   }
 
