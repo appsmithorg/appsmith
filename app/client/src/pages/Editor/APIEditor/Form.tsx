@@ -237,14 +237,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         actionConfig={actionConfigurationHeaders}
                         placeholder="Value"
                         dataTreePath={`${actionName}.config.headers`}
-                        pushFields
                       />
                     </HeadersSection>
                     <KeyValueFieldArray
                       name="actionConfiguration.queryParameters"
                       label="Params"
                       dataTreePath={`${actionName}.config.queryParameters`}
-                      pushFields
                     />
                     {allowPostBody && (
                       <PostBodyData

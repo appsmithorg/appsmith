@@ -119,6 +119,9 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     Query query = new Query(Criteria.where("id").is(id));
                     query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
 
+                    // Set policies to null in the update object
+                    resource.setPolicies(null);
+
                     DBObject update = getDbObject(resource);
                     Update updateObj = new Update();
                     Map<String, Object> updateMap = update.toMap();
