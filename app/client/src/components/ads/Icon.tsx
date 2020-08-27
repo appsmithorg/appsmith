@@ -8,6 +8,7 @@ import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import styled from "styled-components";
 import { Size } from "./Button";
 import { sizeHandler } from "./Spinner";
+import { CommonComponentProps } from "./common";
 
 export type IconName =
   | "Select icon"
@@ -56,7 +57,7 @@ export type IconProps = {
   onClick?: () => void;
 };
 
-const Icon = (props: IconProps) => {
+const Icon = (props: IconProps & CommonComponentProps) => {
   let returnIcon;
   switch (props.name) {
     case "delete":
@@ -84,6 +85,7 @@ const Icon = (props: IconProps) => {
   return returnIcon ? (
     <IconWrapper
       className={props.className ? props.className : "ads-icon"}
+      data-cy={props.cypressSelector}
       {...props}
       onClick={() => props.onClick && props.onClick()}
     >

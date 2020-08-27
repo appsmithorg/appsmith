@@ -130,7 +130,11 @@ function Table(props: TableProps) {
               <tr {...row.getRowProps()} key={index}>
                 {row.cells.map((cell, index) => {
                   return (
-                    <td {...cell.getCellProps()} key={index}>
+                    <td
+                      {...cell.getCellProps()}
+                      key={index}
+                      data-colindex={index}
+                    >
                       {cell.render("Cell")}
                     </td>
                   );

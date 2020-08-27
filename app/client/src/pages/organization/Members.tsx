@@ -122,6 +122,7 @@ export default function MemberSettings(props: PageProps) {
           <Icon
             name={"delete"}
             size={Size.large}
+            cypressSelector="t--deleteUser"
             onClick={() => {
               dispatch(
                 deleteOrgUser(orgId, cellProps.cell.row.values.username),
@@ -142,6 +143,7 @@ export default function MemberSettings(props: PageProps) {
         <FormDialogComponent
           trigger={
             <Button
+              cypressSelector="t--invite-users"
               variant={Variant.info}
               text="Invite Users"
               size={Size.medium}
