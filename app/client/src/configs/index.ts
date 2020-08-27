@@ -1,9 +1,13 @@
 import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
+import { Integrations } from "@sentry/tracing";
+
 type INJECTED_CONFIGS = {
   sentry: {
     dsn: string;
     release: string;
     environment: string;
+    integrations: any[];
+    tracesSampleRate: number;
   };
   hotjar: {
     id: string;
@@ -51,6 +55,8 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       dsn: process.env.REACT_APP_SENTRY_DSN || "",
       release: process.env.REACT_APP_SENTRY_RELEASE || "",
       environment: capitalizeText(process.env.NODE_ENV),
+      integrations: [new Integrations.BrowserTracing()],
+      tracesSampleRate: 1.0,
     },
     hotjar: {
       id: process.env.REACT_APP_HOTJAR_HJID || "",
