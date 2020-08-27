@@ -184,7 +184,7 @@ class ActionAPI extends API {
   }
 
   static toggleActionExecuteOnLoad(actionId: string, shouldExecute: boolean) {
-    return API.get(ActionAPI.url + `/executeOnLoad/${actionId}`, {
+    return API.put(ActionAPI.url + `/executeOnLoad/${actionId}`, undefined, {
       flag: shouldExecute.toString(),
     });
   }
