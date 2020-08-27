@@ -247,6 +247,12 @@ public class ExamplesOrganizationCloner {
                                         if (actionIdsMap.containsKey(actionDTO.getId())) {
                                             actionDTO.setId(actionIdsMap.get(actionDTO.getId()));
                                             shouldSave = true;
+                                        } else {
+                                            log.error(
+                                                    "Couldn't find cloned action ID for layoutOnLoadAction {} in page {}",
+                                                    actionDTO.getId(),
+                                                    page.getId()
+                                            );
                                         }
                                     }
                                 }
@@ -257,6 +263,12 @@ public class ExamplesOrganizationCloner {
                                         if (actionIdsMap.containsKey(actionDTO.getId())) {
                                             actionDTO.setId(actionIdsMap.get(actionDTO.getId()));
                                             shouldSave = true;
+                                        } else {
+                                            log.error(
+                                                    "Couldn't find cloned action ID for publishedLayoutOnLoadAction {} in page {}",
+                                                    actionDTO.getId(),
+                                                    page.getId()
+                                            );
                                         }
                                     }
                                 }

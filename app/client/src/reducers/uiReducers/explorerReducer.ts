@@ -20,7 +20,7 @@ const setUpdatingEntity = (
 };
 
 const setEntityUpdateError = (state: ExplorerReduxState) => {
-  return { updatingEntity: undefined };
+  return { updatingEntity: undefined, updateEntityError: state.updatingEntity };
 };
 
 const setEntityUpdateSuccess = () => {
