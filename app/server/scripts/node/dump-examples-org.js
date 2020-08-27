@@ -141,7 +141,6 @@ async function main() {
 	}
 
 	for (const application of $applications) {
-		const defaultPageId = application.pages.filter(app => app.isDefault)[0]._id;
 		application.$pages = [];
 		for (const page of application.pages) {
 			application.$pages.push(pagesById[page._id]);
