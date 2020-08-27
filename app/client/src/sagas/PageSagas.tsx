@@ -65,7 +65,10 @@ import {
   getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import { fetchActionsForPage } from "actions/actionActions";
+import {
+  fetchActionsForPage,
+  setActionsToExecuteOnPageLoad,
+} from "actions/actionActions";
 import { clearCaches } from "utils/DynamicBindingUtils";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { getQueryParams } from "utils/AppsmithUtils";
@@ -245,6 +248,15 @@ function* savePageSaga() {
     );
     const isValidResponse = yield validateResponse(savePageResponse);
     if (isValidResponse) {
+      if (
+        savePageResponse.layoutOnLoadActions &&
+        savePageResponse.layoutOnLoadActions.length > 0
+      )
+        yield put(
+          setActionsToExecuteOnPageLoad(
+            savePageResponse.layoutOnLoadActions.map(a => a.id),
+          ),
+        );
       yield put(savePageSuccess(savePageResponse));
     }
   } catch (error) {

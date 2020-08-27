@@ -228,6 +228,13 @@ export const updateActionProperty = (
   });
 };
 
+export const setActionsToExecuteOnPageLoad = (actions: string[]) => {
+  return {
+    type: ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD,
+    payload: actions,
+  };
+};
+
 export default {
   createAction: createActionRequest,
   fetchActions,

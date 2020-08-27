@@ -9,12 +9,12 @@ export const queryActionSettingsConfig = [
         controlType: "SWITCH",
         info: "Will refresh data everytime page is reloaded",
       },
-      {
-        label: "Request confirmation before running query",
-        configProperty: "requestConfirmation",
-        controlType: "SWITCH",
-        info: "Ask confirmation from the user everytime before refreshing data",
-      },
+      // {
+      //   label: "Request confirmation before running query",
+      //   configProperty: "requestConfirmation",
+      //   controlType: "SWITCH",
+      //   info: "Ask confirmation from the user everytime before refreshing data",
+      // },
     ],
   },
 ];
@@ -30,12 +30,12 @@ export const apiActionSettingsConfig = [
         controlType: "SWITCH",
         info: "Will refresh data everytime page is reloaded",
       },
-      {
-        label: "Request confirmation before running api",
-        configProperty: "requestConfirmation",
-        controlType: "SWITCH",
-        info: "Ask confirmation from the user everytime before refreshing data",
-      },
+      // {
+      //   label: "Request confirmation before running api",
+      //   configProperty: "requestConfirmation",
+      //   controlType: "SWITCH",
+      //   info: "Ask confirmation from the user everytime before refreshing data",
+      // },
     ],
   },
 ];

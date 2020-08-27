@@ -508,14 +508,22 @@ function* confirmRunActionSaga(
     paginationField: PaginationField;
   }>,
 ) {
-  yield put(showRunActionConfirmModal(true));
+  const action = yield select(getAction, reduxAction.payload.id);
+  if (action.requestConfirmation) {
+    yield put(showRunActionConfirmModal(true));
 
-  const { accept } = yield race({
-    cancel: take(ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL),
-    accept: take(ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL),
-  });
+    const { accept } = yield race({
+      cancel: take(ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL),
+      accept: take(ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL),
+    });
 
-  if (accept) {
+    if (accept) {
+      yield put({
+        type: ReduxActionTypes.RUN_ACTION_REQUEST,
+        payload: reduxAction.payload,
+      });
+    }
+  } else {
     yield put({
       type: ReduxActionTypes.RUN_ACTION_REQUEST,
       payload: reduxAction.payload,
