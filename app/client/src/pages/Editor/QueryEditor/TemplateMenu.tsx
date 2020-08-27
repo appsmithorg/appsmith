@@ -6,11 +6,9 @@ import { getPluginTemplates } from "selectors/entitiesSelector";
 
 const Container = styled.div`
   display: flex;
-  height: 185px;
   padding: 16px 24px;
   flex: 1;
   border-radius: 4px;
-  border: 1px solid #d0d7dd;
   flex-direction: column;
   color: #4e5d78;
 `;
