@@ -1542,6 +1542,15 @@ Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
   return tabVal;
 });
 
+Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const tabVal = cy
+    .get(selector)
+    .scrollIntoView()
+    .invoke("text");
+  return tabVal;
+});
+
 Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
