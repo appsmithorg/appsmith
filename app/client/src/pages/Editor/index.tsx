@@ -215,6 +215,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default Sentry.withProfiler(
-  withRouter(connect(mapStateToProps, mapDispatchToProps)(Editor)),
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Editor));

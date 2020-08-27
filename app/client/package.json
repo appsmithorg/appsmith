@@ -16,7 +16,6 @@
     "@craco/craco": "^5.6.1",
     "@manaflair/redux-batch": "^1.0.0",
     "@optimizely/optimizely-sdk": "^4.0.0",
-    "@sentry/browser": "^5.22.0",
     "@sentry/react": "^5.22.0",
     "@sentry/tracing": "^5.22.0",
     "@sentry/webpack-plugin": "^1.12.1",

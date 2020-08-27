@@ -2719,7 +2719,7 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@sentry/browser@5.22.0", "@sentry/browser@^5.22.0":
+"@sentry/browser@5.22.0":
   version "5.22.0"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-5.22.0.tgz#d019fddbd885a1b735436b573067e79c81909043"
   integrity sha512-+wsMegqvhdC4H/qlKvGFvYff9VIztENBiTHsSXqOHTFuVeQgyESbeHsJae2Fm4kuYDUtpAmUoIZe7cwwbPJNew==
