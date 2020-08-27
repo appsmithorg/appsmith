@@ -9258,6 +9258,11 @@ immer@1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/immer/-/immer-1.10.0.tgz#bad67605ba9c810275d91e1c2a47d4582e98286d"
 
+immer@^7.0.8:
+  version "7.0.8"
+  resolved "https://registry.yarnpkg.com/immer/-/immer-7.0.8.tgz#41dcbc5669a76500d017bef3ad0d03ce0a1d7c1e"
+  integrity sha512-XnpIN8PXBBaOD43U8Z17qg6RQiKQYGDGGCIbz1ixmLGwBkSWwmrmx5X7d+hTtXDM8ur7m5OdLE0PiO+y5RB3pw==
+
 immutable@3.8.2:
   version "3.8.2"
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
