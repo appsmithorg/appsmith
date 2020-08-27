@@ -10,8 +10,8 @@ import java.util.Set;
 @Repository
 public interface ActionRepository extends BaseRepository<Action, String>, CustomActionRepository {
 
-    Flux<Action> findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(
-            Set<String> names, String pageId, String httpMethod);
+    Flux<Action> findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(
+            Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad);
 
     Flux<Action> findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(
             Set<String> names, String pageId);

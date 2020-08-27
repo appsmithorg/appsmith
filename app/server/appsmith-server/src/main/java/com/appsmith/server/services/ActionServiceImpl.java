@@ -522,7 +522,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
      */
     public Flux<Action> findOnLoadActionsInPage(Set<String> names, String pageId) {
         final Flux<Action> getApiActions = repository
-                .findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, "GET");
+                .findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(names, pageId, "GET", false);
 
         final Flux<Action> explicitOnLoadActions = repository
                 .findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId);
