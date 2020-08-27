@@ -165,11 +165,17 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         newAction.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
                     }
 
-                    Action updateAction = new Action();
-                    updateAction.setExecuteOnLoad(true);
+                    // If the executeOnLoad field isn't true, set it to true
+                    if (!Boolean.TRUE.equals(action.getExecuteOnLoad())) {
+                        Action updateAction = new Action();
+                        updateAction.setExecuteOnLoad(true);
 
-                    return actionService.update(action.getId(), updateAction)
-                            .thenReturn(newAction);
+                        return actionService.update(action.getId(), updateAction)
+                                .thenReturn(newAction);
+                    }
+
+                    return Mono.just(newAction);
+
                 })
                 .collect(toSet())
                 .flatMap(actions -> {
