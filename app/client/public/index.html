@@ -20,7 +20,7 @@
     // INTERCOM SETUP
     const APP_ID = "%REACT_APP_INTERCOM_APP_ID%"
     const CLOUD_HOSTING = "%REACT_APP_CLOUD_HOSTING%"
-    if (APP_ID.length && CLOUD_HOSTING.length) {
+    if (APP_ID.length && APP_ID[0] !== "%" && CLOUD_HOSTING.length) {
       (function () { var w = window; var ic = w.Intercom; if (typeof ic === "function") { ic('reattach_activator'); ic('update', w.intercomSettings); } else { var d = document; var i = function () { i.c(arguments); }; i.q = []; i.c = function (args) { i.q.push(args); }; w.Intercom = i; var l = function () { var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = 'https://widget.intercom.io/widget/' + APP_ID; var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }; if (document.readyState === 'complete') { l(); } else if (w.attachEvent) { w.attachEvent('onload', l); } else { w.addEventListener('load', l, false); } } })();
     }
   </script>
@@ -32,18 +32,6 @@
     gtag('js', new Date());
 
     gtag('config', "%REACT_APP_GOOGLE_ANALYTICS_ID%");
-  </script>
-  <script type='text/javascript'>
-    // SMART LOOK SETUP
-    const SMART_LOOK_ID = "%REACT_APP_SMART_LOOK_ID%";
-    if (SMART_LOOK_ID.length && CLOUD_HOSTING.length) {
-      window.smartlook||(function(d) {
-        var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
-        var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
-        c.charset='utf-8';c.src='https://rec.smartlook.com/recorder.js';h.appendChild(c);
-      })(document);
-      smartlook('init', SMART_LOOK_ID);
-    }
   </script>
 </head>
 
@@ -87,9 +75,8 @@
         release: parseConfig("__APPSMITH_SENTRY_RELEASE__"),
         environment: parseConfig("__APPSMITH_SENTRY_ENVIRONMENT__"),
       },
-      hotjar: {
-        id: parseConfig("__APPSMITH_HOTJAR_HJID__"),
-        sv: parseConfig("__APPSMITH_HOTJAR_HJSV__"),
+      smartLook: {
+        id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
       enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__").length > 0,
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__").length > 0,

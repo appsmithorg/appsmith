@@ -5,11 +5,6 @@ export type SentryConfig = {
   environment: string;
 };
 
-export type HotjarConfig = {
-  id: string;
-  sv: string;
-};
-
 type Milliseconds = number;
 
 export enum FeatureFlagsEnum {}
@@ -30,10 +25,9 @@ export type AppsmithUIConfigs = {
     release: string;
     environment: string;
   };
-  hotjar: {
+  smartLook: {
     enabled: boolean;
     id: string;
-    sv: string;
   };
   segment: {
     enabled: boolean;

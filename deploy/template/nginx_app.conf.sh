@@ -31,8 +31,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         try_files $uri /index.html =404;
 
         sub_filter __APPSMITH_SENTRY_DSN__ '\''${APPSMITH_SENTRY_DSN}'\'';
-        sub_filter __APPSMITH_APPSMITH_HOTJAR_HJID__ '\''${APPSMITH_HOTJAR_HJID}'\'';
-        sub_filter __APPSMITH_HOTJAR_HJSV__ '\''${APPSMITH_HOTJAR_HJSV}'\'';
+        sub_filter __APPSMITH_SMART_LOOK_ID__ '\''${APPSMITH_SMART_LOOK_ID}'\'';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\''${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}'\'';
         sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\''${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}'\'';
         sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\''${APPSMITH_MARKETPLACE_ENABLED}'\'';
@@ -87,8 +86,7 @@ $NGINX_SSL_CMNT    location / {
 $NGINX_SSL_CMNT        try_files $uri /index.html =404;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_SENTRY_DSN__ '\''${APPSMITH_SENTRY_DSN}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_APPSMITH_HOTJAR_HJID__ '\''${APPSMITH_HOTJAR_HJID}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_HOTJAR_HJSV__ '\''${APPSMITH_HOTJAR_HJSV}'\'';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_SMART_LOOK_ID__ '\''${APPSMITH_SMART_LOOK_ID}'\'';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\''${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}'\'';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\''${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}'\'';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\''${APPSMITH_MARKETPLACE_ENABLED}'\'';
