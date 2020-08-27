@@ -75,16 +75,10 @@ export const scrollElementIntoParentCanvasView = (
   }
 };
 
-export const convertToCamelCase = (value: string, limit?: number) => {
+export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
     .split(separatorRegex)
-    .map((token, index) => {
-      if (index > 0) {
-        return token.charAt(0).toLocaleUpperCase() + token.slice(1);
-      }
-      return token;
-    })
     .join("_")
     .slice(0, limit || 30);
 };
@@ -105,4 +99,12 @@ export const flashElementById = (id: string) => {
   });
 
   if (el) flashElement(el);
+};
+
+export const resolveAsSpaceChar = (value: string, limit?: number) => {
+  const separatorRegex = /[\W_]+/;
+  return value
+    .split(separatorRegex)
+    .join(" ")
+    .slice(0, limit || 30);
 };
