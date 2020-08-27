@@ -167,6 +167,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Mono<Datasource> validateDatasource(Datasource datasource) {
         Set<String> invalids = new HashSet<>();
+        datasource.setInvalids(invalids);
 
         if (!StringUtils.hasText(datasource.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
@@ -174,13 +175,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         if (datasource.getPluginId() == null) {
             invalids.add(AppsmithError.PLUGIN_ID_NOT_GIVEN.getMessage());
-            datasource.setInvalids(invalids);
             return Mono.just(datasource);
         }
 
         if (datasource.getOrganizationId() == null) {
             invalids.add(AppsmithError.ORGANIZATION_ID_NOT_GIVEN.getMessage());
-            datasource.setInvalids(invalids);
             return Mono.just(datasource);
         }
 
@@ -188,7 +187,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .findByIdAndPluginsPluginId(datasource.getOrganizationId(), datasource.getPluginId())
                 .switchIfEmpty(Mono.defer(() -> {
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
-                    datasource.setInvalids(invalids);
                     return Mono.just(new Organization());
                 }));
 
@@ -204,7 +202,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                         for (final Endpoint endpoint : datasource.getDatasourceConfiguration().getEndpoints()) {
                             if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
                                 invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
-                                datasource.setInvalids(invalids);
                             }
                         }
                     }
@@ -222,7 +219,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                         invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
                     }
 
-                    datasource.setInvalids(invalids);
                     return Mono.just(datasource);
                 });
     }
