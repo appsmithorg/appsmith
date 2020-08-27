@@ -8,7 +8,7 @@ import { updateWidgetName } from "actions/propertyPaneActions";
 import { AppState } from "reducers";
 import Spinner from "components/editorComponents/Spinner";
 import { getExistingWidgetNames } from "sagas/selectors";
-import { convertToCamelCase } from "utils/helpers";
+import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 const Wrapper = styled.div`
   display: flex;
@@ -59,7 +59,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     <Wrapper>
       <EditableText
         type="text"
-        valueTransform={convertToCamelCase}
+        valueTransform={removeSpecialChars}
         defaultValue={name}
         onTextChanged={updateTitle}
         placeholder={props.title}

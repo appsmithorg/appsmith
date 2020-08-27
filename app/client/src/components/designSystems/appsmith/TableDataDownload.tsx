@@ -87,6 +87,7 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
       onClick={() => {
         downloadTableData();
       }}
+      className="t--table-download-btn"
     >
       <Tooltip
         autoFocus={false}
