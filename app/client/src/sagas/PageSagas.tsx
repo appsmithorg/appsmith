@@ -259,7 +259,6 @@ function* savePageSaga() {
       yield put(savePageSuccess(savePageResponse));
     }
   } catch (error) {
-    console.log({ error });
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {
