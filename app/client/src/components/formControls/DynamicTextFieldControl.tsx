@@ -24,7 +24,7 @@ import {
 const Wrapper = styled.div`
   .dynamic-text-field {
     border-radius: 4px;
-    border: 1px solid #d0d7dd;
+    border: none;
     font-size: 14px;
     height: calc(100vh / 4);
   }
