@@ -165,6 +165,7 @@ const TableFilters = (props: TableFilterProps) => {
       isOpen={selected}
     >
       <TableIconWrapper
+        className="t--table-filter-toggle-btn"
         selected={selected}
         onClick={e => {
           selectMenu(true);
@@ -225,6 +226,7 @@ const TableFilters = (props: TableFilterProps) => {
                 size="small"
                 onClick={addFilter}
                 icon="plus"
+                className="t--add-filter-btn"
               />
             </ButtonWrapper>
           ) : null}

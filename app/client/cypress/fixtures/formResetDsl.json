@@ -1,0 +1,297 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "dynamicBindings": {
+    },
+    "version": 5,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "widgetName": "Form1",
+        "backgroundColor": "white",
+        "children": [
+          {
+            "isVisible": true,
+            "widgetName": "Canvas1",
+            "containerStyle": "none",
+            "canExtend": false,
+            "detachFromLayout": true,
+            "children": [
+              {
+                "isVisible": true,
+                "text": "Form",
+                "textStyle": "HEADING",
+                "textAlign": "LEFT",
+                "widgetName": "Text1",
+                "type": "TEXT_WIDGET",
+                "isLoading": false,
+                "leftColumn": 0,
+                "rightColumn": 12,
+                "topRow": 0,
+                "bottomRow": 1,
+                "parentId": "qrqizehc5b",
+                "widgetId": "c481ah2q0i"
+              },
+              {
+                "isVisible": true,
+                "widgetName": "FormButton1",
+                "text": "Submit",
+                "isDefaultClickDisabled": true,
+                "buttonStyle": "PRIMARY_BUTTON",
+                "disabledWhenInvalid": true,
+                "resetFormOnClick": true,
+                "type": "FORM_BUTTON_WIDGET",
+                "isLoading": false,
+                "leftColumn": 12,
+                "rightColumn": 16,
+                "topRow": 12,
+                "bottomRow": 13,
+                "parentId": "qrqizehc5b",
+                "widgetId": "zsu1y41p1e"
+              },
+              {
+                "isVisible": true,
+                "widgetName": "FormButton2",
+                "text": "Reset",
+                "isDefaultClickDisabled": true,
+                "buttonStyle": "SECONDARY_BUTTON",
+                "disabledWhenInvalid": false,
+                "resetFormOnClick": true,
+                "type": "FORM_BUTTON_WIDGET",
+                "isLoading": false,
+                "leftColumn": 8,
+                "rightColumn": 12,
+                "topRow": 12,
+                "bottomRow": 13,
+                "parentId": "qrqizehc5b",
+                "widgetId": "7o0r2rp3s1"
+              },
+              {
+                "isVisible": true,
+                "label": "Data",
+                "widgetName": "Table1",
+                "searchKey": "",
+                "tableData": "[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]",
+                "type": "TABLE_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.5,
+                "parentRowSpace": 40,
+                "leftColumn": 0,
+                "rightColumn": 16,
+                "topRow": 1,
+                "bottomRow": 8,
+                "parentId": "qrqizehc5b",
+                "widgetId": "xptqefixji",
+                "dynamicBindings": {
+                }
+              },
+              {
+                "isVisible": true,
+                "inputType": "TEXT",
+                "label": "",
+                "widgetName": "Input1",
+                "type": "INPUT_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.5,
+                "parentRowSpace": 40,
+                "leftColumn": 0,
+                "rightColumn": 5,
+                "topRow": 10,
+                "bottomRow": 11,
+                "parentId": "qrqizehc5b",
+                "widgetId": "r3xvjtuhad",
+                "dynamicBindings": {
+                  "defaultText": true,
+                  "isValid": true,
+                  "value": true
+                },
+                "defaultText": "{{Table1.selectedRow.email}}"
+              },
+              {
+                "isVisible": true,
+                "text": "Email",
+                "textStyle": "LABEL",
+                "textAlign": "LEFT",
+                "widgetName": "Text2",
+                "type": "TEXT_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.5,
+                "parentRowSpace": 40,
+                "leftColumn": 0,
+                "rightColumn": 4,
+                "topRow": 9,
+                "bottomRow": 10,
+                "parentId": "qrqizehc5b",
+                "widgetId": "672gf8vm2q",
+                "dynamicBindings": {
+                  "value": true
+                }
+              }
+            ],
+            "blueprint": {
+              "view": [
+                {
+                  "type": "TEXT_WIDGET",
+                  "size": {
+                    "rows": 1,
+                    "cols": 12
+                  },
+                  "position": {
+                    "top": 0,
+                    "left": 0
+                  },
+                  "props": {
+                    "text": "Form",
+                    "textStyle": "HEADING"
+                  }
+                },
+                {
+                  "type": "FORM_BUTTON_WIDGET",
+                  "size": {
+                    "rows": 1,
+                    "cols": 4
+                  },
+                  "position": {
+                    "top": 11,
+                    "left": 12
+                  },
+                  "props": {
+                    "text": "Submit",
+                    "buttonStyle": "PRIMARY_BUTTON",
+                    "disabledWhenInvalid": true,
+                    "resetFormOnClick": true
+                  }
+                },
+                {
+                  "type": "FORM_BUTTON_WIDGET",
+                  "size": {
+                    "rows": 1,
+                    "cols": 4
+                  },
+                  "position": {
+                    "top": 11,
+                    "left": 8
+                  },
+                  "props": {
+                    "text": "Reset",
+                    "buttonStyle": "SECONDARY_BUTTON",
+                    "disabledWhenInvalid": false,
+                    "resetFormOnClick": true
+                  }
+                }
+              ]
+            },
+            "minHeight": 520,
+            "type": "CANVAS_WIDGET",
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "parentRowSpace": 1,
+            "leftColumn": 0,
+            "rightColumn": 518,
+            "topRow": 0,
+            "bottomRow": 520,
+            "parentId": "ozm6zwjk4b",
+            "widgetId": "qrqizehc5b"
+          }
+        ],
+        "blueprint": {
+          "view": [
+            {
+              "type": "CANVAS_WIDGET",
+              "position": {
+                "top": 0,
+                "left": 0
+              },
+              "props": {
+                "containerStyle": "none",
+                "canExtend": false,
+                "detachFromLayout": true,
+                "children": [
+                ],
+                "blueprint": {
+                  "view": [
+                    {
+                      "type": "TEXT_WIDGET",
+                      "size": {
+                        "rows": 1,
+                        "cols": 12
+                      },
+                      "position": {
+                        "top": 0,
+                        "left": 0
+                      },
+                      "props": {
+                        "text": "Form",
+                        "textStyle": "HEADING"
+                      }
+                    },
+                    {
+                      "type": "FORM_BUTTON_WIDGET",
+                      "size": {
+                        "rows": 1,
+                        "cols": 4
+                      },
+                      "position": {
+                        "top": 11,
+                        "left": 12
+                      },
+                      "props": {
+                        "text": "Submit",
+                        "buttonStyle": "PRIMARY_BUTTON",
+                        "disabledWhenInvalid": true,
+                        "resetFormOnClick": true
+                      }
+                    },
+                    {
+                      "type": "FORM_BUTTON_WIDGET",
+                      "size": {
+                        "rows": 1,
+                        "cols": 4
+                      },
+                      "position": {
+                        "top": 11,
+                        "left": 8
+                      },
+                      "props": {
+                        "text": "Reset",
+                        "buttonStyle": "SECONDARY_BUTTON",
+                        "disabledWhenInvalid": false,
+                        "resetFormOnClick": true
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "type": "FORM_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 0,
+        "rightColumn": 16,
+        "topRow": 0,
+        "bottomRow": 14,
+        "parentId": "0",
+        "widgetId": "ozm6zwjk4b"
+      }
+    ]
+  }
+}
+

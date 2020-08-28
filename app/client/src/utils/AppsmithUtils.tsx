@@ -1,6 +1,6 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "configs";
-import * as Sentry from "@sentry/browser";
+import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
@@ -32,9 +32,9 @@ export const appInitializer = () => {
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init(appsmithConfigs.sentry);
   }
-  if (appsmithConfigs.hotjar.enabled) {
-    const { id, sv } = appsmithConfigs.hotjar;
-    AnalyticsUtil.initializeHotjar(id, sv);
+  if (appsmithConfigs.smartLook.enabled) {
+    const { id } = appsmithConfigs.smartLook;
+    AnalyticsUtil.initializeSmartLook(id);
   }
   if (appsmithConfigs.segment.enabled) {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);

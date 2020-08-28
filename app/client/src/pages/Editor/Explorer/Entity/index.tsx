@@ -80,6 +80,7 @@ export type EntityProps = {
   step: number;
   updateEntityName?: (id: string, name: string) => any;
   runActionOnExpand?: boolean;
+  nameTransformFn?: (input: string, limit?: number) => string;
 };
 
 export const Entity = (props: EntityProps) => {
@@ -136,6 +137,7 @@ export const Entity = (props: EntityProps) => {
         />
         {props.icon}
         <EntityName
+          nameTransformFn={props.nameTransformFn}
           entityId={props.entityId}
           className={`${EntityClassNames.NAME}`}
           name={props.name}
