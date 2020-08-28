@@ -1,4 +1,11 @@
-import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
+import React, {
+  forwardRef,
+  Ref,
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+} from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { Size } from "./Button";
@@ -88,6 +95,10 @@ const SearchInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
     const [searchValue, setSearchValue] = useState(props.defaultValue);
     const [isFocused, setIsFocused] = useState(false);
+
+    useEffect(() => {
+      setSearchValue(props.defaultValue);
+    }, [props.defaultValue]);
 
     const memoizedChangeHandler = useCallback(
       el => {

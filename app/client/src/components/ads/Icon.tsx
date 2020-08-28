@@ -3,6 +3,9 @@ import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
+import { ReactComponent as EditIcon } from "assets/icons/ads/edit.svg";
+import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
+import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import styled from "styled-components";
@@ -16,6 +19,9 @@ export type IconName =
   | "user"
   | "general"
   | "billing"
+  | "edit"
+  | "error"
+  | "success"
   | "search"
   | "close"
   | undefined;
@@ -26,10 +32,12 @@ const IconWrapper = styled.div<IconProps>`
   }
   display: flex;
   svg {
-    width: ${props => sizeHandler(props)}px;
-    height: ${props => sizeHandler(props)}px;
+    width: ${props =>
+      props.size ? sizeHandler(props) : props.theme.spaces[9]}px;
+    height: ${props =>
+      props.size ? sizeHandler(props) : props.theme.spaces[9]}px;
     path {
-      fill: ${props => props.theme.colors.blackShades[4]};
+      fill: ${props => props.theme.colors.blackShades[5]};
     }
   }
   visibility: ${props => (props.invisible ? "hidden" : "visible")};
@@ -71,6 +79,15 @@ const Icon = (props: IconProps & CommonComponentProps) => {
       break;
     case "billing":
       returnIcon = <BillingIcon />;
+      break;
+    case "edit":
+      returnIcon = <EditIcon />;
+      break;
+    case "error":
+      returnIcon = <ErrorIcon />;
+      break;
+    case "success":
+      returnIcon = <SuccessIcon />;
       break;
     case "search":
       returnIcon = <SearchIcon />;

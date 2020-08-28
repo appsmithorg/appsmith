@@ -39,6 +39,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -192,6 +193,7 @@ class Editor extends Component<Props> {
             </div>
           </Dialog>
         </div>
+        <ConfirmRunModal />
       </DndProvider>
     );
   }

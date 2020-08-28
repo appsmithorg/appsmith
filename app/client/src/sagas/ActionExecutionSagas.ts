@@ -19,6 +19,7 @@ import {
   take,
   takeEvery,
   takeLatest,
+  race,
 } from "redux-saga/effects";
 import {
   evaluateDataTreeWithFunctions,
@@ -50,6 +51,7 @@ import {
   executeApiActionRequest,
   executeApiActionSuccess,
   updateAction,
+  showRunActionConfirmModal,
 } from "actions/actionActions";
 import { Action, RestAction } from "entities/Action";
 import ActionAPI, {
@@ -500,6 +502,35 @@ function* runActionSaga(
   }
 }
 
+function* confirmRunActionSaga(
+  reduxAction: ReduxAction<{
+    id: string;
+    paginationField: PaginationField;
+  }>,
+) {
+  const action = yield select(getAction, reduxAction.payload.id);
+  if (action.requestConfirmation) {
+    yield put(showRunActionConfirmModal(true));
+
+    const { accept } = yield race({
+      cancel: take(ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL),
+      accept: take(ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL),
+    });
+
+    if (accept) {
+      yield put({
+        type: ReduxActionTypes.RUN_ACTION_REQUEST,
+        payload: reduxAction.payload,
+      });
+    }
+  } else {
+    yield put({
+      type: ReduxActionTypes.RUN_ACTION_REQUEST,
+      payload: reduxAction.payload,
+    });
+  }
+}
+
 function* executePageLoadAction(pageAction: PageAction) {
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
@@ -545,6 +576,7 @@ export function* watchActionExecutionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
+    takeLatest(ReduxActionTypes.RUN_ACTION_INIT, confirmRunActionSaga),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,

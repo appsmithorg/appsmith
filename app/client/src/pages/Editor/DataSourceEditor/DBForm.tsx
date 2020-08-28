@@ -16,7 +16,7 @@ import FormControlFactory from "utils/FormControlFactory";
 import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "api/DatasourcesApi";
-import { reduxForm, InjectedFormProps, Field } from "redux-form";
+import { reduxForm, InjectedFormProps } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { APPSMITH_IP_ADDRESS } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "configs";

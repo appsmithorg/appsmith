@@ -4,7 +4,8 @@ import Button, { Category, Variant, Size } from "components/ads/Button";
 import Icon from "components/ads/Icon";
 import TableDropdown from "components/ads/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-
+import { StoryWrapper } from "./Tabs.stories";
+        
 export default {
   title: "Table",
   component: Table,
@@ -121,8 +122,8 @@ const data = [
   },
 ];
 
-export const AdsTable = () => (
-  <div style={{ background: "#131216", padding: "50px" }}>
+export const TableStory = () => (
+  <StoryWrapper>
     <Table columns={columns} data={data}></Table>
-  </div>
+  </StoryWrapper>
 );
