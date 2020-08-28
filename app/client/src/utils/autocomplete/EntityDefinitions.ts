@@ -239,6 +239,6 @@ export const GLOBAL_FUNCTIONS = {
   },
   download: {
     "!doc": "Download anything as a file",
-    "!type": "fn(data: string | array | object, fileName: string, fileType?: string) -> void",
+    "!type": "fn(data: any, fileName: string, fileType?: string) -> void",
   },
 };
