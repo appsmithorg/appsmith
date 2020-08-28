@@ -36,6 +36,7 @@ export const SettingsHeading = styled(Text)`
 const Loader = styled.div`
   height: 38px;
   width: 260px;
+  border-radius: 0;
 `;
 
 export function GeneralSettings() {
