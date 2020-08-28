@@ -49,10 +49,7 @@ export const UserAuth = () => {
                 component={ForgotPassword}
                 name={"ForgotPassword"}
               />
-              <AppRoute
-                component={PageNotFound}
-                name={"PageNotFound"}
-              />
+              <AppRoute component={PageNotFound} name={"PageNotFound"} />
             </Switch>
           </AuthCard>
         </Centered>

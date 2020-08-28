@@ -3,11 +3,7 @@ import { CommonComponentProps, hexToRgba, ThemeProp } from "./common";
 import styled from "styled-components";
 import Icon, { IconName } from "./Icon";
 import Spinner from "./Spinner";
-import {
-  mediumButton,
-  smallButton,
-  largeButton,
-} from "../../constants/DefaultTheme";
+import { mediumButton, smallButton, largeButton } from "constants/DefaultTheme";
 
 export enum Category {
   primary = "primary",

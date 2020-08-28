@@ -14,6 +14,9 @@ if (env === "PRODUCTION" || env === "STAGING") {
       include: "build",
       ignore: ["node_modules", "webpack.config.js"],
       release: process.env.REACT_APP_SENTRY_RELEASE,
+      setCommits: {
+        auto: true
+      }
     }),
   );
 }
