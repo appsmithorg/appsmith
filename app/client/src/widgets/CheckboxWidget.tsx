@@ -12,6 +12,7 @@ import {
   TriggerPropertiesMap,
   DerivedPropertiesMap,
 } from "utils/WidgetFactory";
+import * as Sentry from "@sentry/react";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -87,3 +88,4 @@ export interface CheckboxWidgetProps extends WidgetProps {
 }
 
 export default CheckboxWidget;
+export const ProfiledCheckboxWidget = Sentry.withProfiler(CheckboxWidget);

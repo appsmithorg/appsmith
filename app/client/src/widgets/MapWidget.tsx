@@ -8,6 +8,7 @@ import { EventType } from "constants/ActionConstants";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { getAppsmithConfigs } from "configs";
 import styled from "styled-components";
+import * as Sentry from "@sentry/react";
 
 const { google } = getAppsmithConfigs();
 
@@ -198,3 +199,4 @@ export interface MapWidgetProps extends WidgetProps {
 }
 
 export default MapWidget;
+export const ProfiledMapWidget = Sentry.withProfiler(MapWidget);

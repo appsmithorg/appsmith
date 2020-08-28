@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import * as Sentry from "@sentry/react";
+
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppRoute = ({
   component: Component,
@@ -22,7 +25,7 @@ const AppRoute = ({
     }
   }, [rest.name, rest.logDisable, rest.location.pathname]);
   return (
-    <Route
+    <SentryRoute
       {...rest}
       render={props => {
         return <Component {...props}></Component>;
