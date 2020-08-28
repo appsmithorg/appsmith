@@ -178,19 +178,28 @@ const orgReducer = createReducer(initialState, {
     ...state,
     currentOrg: action.payload,
   }),
-  [ReduxActionTypes.FETCH_ORG_INIT]: (state: OrgReduxState) => ({
-    ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      isFetchingOrg: true,
-    },
-  }),
+  [ReduxActionTypes.FETCH_CURRENT_ORG]: (state: OrgReduxState) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        isFetchingOrg: true,
+      },
+    };
+  },
   [ReduxActionTypes.FETCH_ORG_SUCCESS]: (
     state: OrgReduxState,
     action: ReduxAction<Org>,
   ) => ({
     ...state,
     currentOrg: action.payload,
+    loadingStates: {
+      ...state.loadingStates,
+      isFetchingOrg: false,
+    },
+  }),
+  [ReduxActionErrorTypes.FETCH_ORG_ERROR]: (state: OrgReduxState) => ({
+    ...state,
     loadingStates: {
       ...state.loadingStates,
       isFetchingOrg: false,
