@@ -7,6 +7,7 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
   ERROR_MESSAGE_NAME_EMPTY,
 } from "constants/messages";
+import { isEmail } from "utils/formhelpers";
 
 export type Validator = (
   value: string,
@@ -16,8 +17,7 @@ export type Validator = (
 };
 
 export function emailValidator(email: string) {
-  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  const isValid = re.test(String(email).toLowerCase());
+  const isValid = isEmail(email);
   return {
     isValid: isValid,
     message: !isValid ? FORM_VALIDATION_INVALID_EMAIL : "",
