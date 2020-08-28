@@ -325,7 +325,7 @@ export const TableIconWrapper = styled.div<{
   box-shadow: ${props =>
     props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
   width: 48px;
-  height: 45px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -339,4 +339,26 @@ export const TableIconWrapper = styled.div<{
 
 export const SortIconWrapper = styled.div<{ rotate: string }>`
   transform: ${props => (props.rotate === "true" ? "rotate(180deg)" : "none")};
+`;
+
+export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 150px;
+  background: ${props => props.selected && Colors.GREEN};
+  position: relative;
+  .title {
+    color: ${props => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
+    width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .type {
+    position: absolute;
+    left: 135px;
+    font-size: 12px !important;
+    color: ${props => (props.selected ? Colors.WHITE : Colors.BLUE_BAYOUX)};
+  }
 `;

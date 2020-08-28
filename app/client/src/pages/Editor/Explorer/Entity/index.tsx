@@ -88,6 +88,7 @@ export type EntityProps = {
   step: number;
   updateEntityName?: (id: string, name: string) => any;
   runActionOnExpand?: boolean;
+  nameTransformFn?: (input: string, limit?: number) => string;
 };
 
 export const Entity = forwardRef(
@@ -154,6 +155,7 @@ export const Entity = forwardRef(
             className={`${EntityClassNames.NAME}`}
             ref={itemRef}
             name={props.name}
+            nameTransformFn={props.nameTransformFn}
             isEditing={!!props.updateEntityName && isEditing}
             updateEntityName={updateNameCallback}
             searchKeyword={props.searchKeyword}

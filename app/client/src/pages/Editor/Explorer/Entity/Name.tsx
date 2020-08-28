@@ -1,10 +1,16 @@
-import React, { useCallback, useMemo, forwardRef } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+  forwardRef,
+} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { convertToCamelCase } from "utils/helpers";
+import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
 import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
@@ -58,12 +64,22 @@ export interface EntityNameProps {
   entityId: string;
   searchKeyword?: string;
   className?: string;
+  nameTransformFn?: (input: string, limit?: number) => string;
 }
 
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, updateEntityName, searchKeyword } = props;
-    const dispatch = useDispatch();
+    const nameUpdateError = useSelector((state: AppState) => {
+      return state.ui.explorer.updateEntityError === props.entityId;
+    });
+
+    const [updatedName, setUpdatedName] = useState(name);
+
+    useEffect(() => {
+      setUpdatedName(name);
+    }, [name, nameUpdateError]);
+
     const existingPageNames: string[] = useSelector((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageName),
     );
@@ -73,6 +89,7 @@ export const EntityName = forwardRef(
         widget => widget.widgetName,
       ),
     );
+    const dispatch = useDispatch();
 
     const existingActionNames: string[] = useSelector((state: AppState) =>
       state.entities.actions.map(
@@ -105,6 +122,7 @@ export const EntityName = forwardRef(
     const handleAPINameChange = useCallback(
       (newName: string) => {
         if (name && newName !== name && !isInvalidName(newName)) {
+          setUpdatedName(newName);
           dispatch(updateEntityName(newName));
         }
       },
@@ -114,7 +132,7 @@ export const EntityName = forwardRef(
     const searchHighlightedName = useMemo(() => {
       if (searchKeyword) {
         const regex = new RegExp(searchKeyword, "gi");
-        const delimited = name.replace(regex, function(str) {
+        const delimited = updatedName.replace(regex, function(str) {
           return (
             searchTokenizationDelimiter + str + searchTokenizationDelimiter
           );
@@ -127,8 +145,8 @@ export const EntityName = forwardRef(
         );
         return final;
       }
-      return name;
-    }, [searchKeyword, name]);
+      return updatedName;
+    }, [searchKeyword, updatedName]);
 
     const exitEditMode = useCallback(() => {
       dispatch({
@@ -163,11 +181,11 @@ export const EntityName = forwardRef(
         <EditableText
           type="text"
           className={`${props.className} editing`}
-          defaultValue={name}
+          defaultValue={updatedName}
           placeholder="Name"
           onTextChanged={handleAPINameChange}
           isInvalid={isInvalidName}
-          valueTransform={convertToCamelCase}
+          valueTransform={props.nameTransformFn || removeSpecialChars}
           isEditingDefault
           editInteractionKind={EditInteractionKind.SINGLE}
           minimal

@@ -88,7 +88,11 @@ const getContentSection = (
           return (
             <Option
               key={index}
-              className={shouldClose ? Classes.POPOVER_DISMISS : ""}
+              className={
+                shouldClose
+                  ? `${Classes.POPOVER_DISMISS} t--dropdown-option`
+                  : "t--dropdown-option"
+              }
               onClick={option.onSelect}
               active={!!option.active}
               disabled={!!option.disabled}

@@ -3,6 +3,7 @@ package com.appsmith.server.domains;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Property;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -66,6 +67,9 @@ public class Action extends BaseDomain {
 
     @Transient
     String pluginId;
+
+    @JsonIgnore
+    Boolean userSetOnLoad = false;
 
     Documentation documentation;
 

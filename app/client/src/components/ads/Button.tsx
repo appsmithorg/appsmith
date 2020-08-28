@@ -1,13 +1,9 @@
 import React from "react";
 import { CommonComponentProps, hexToRgba, ThemeProp } from "./common";
 import styled from "styled-components";
-import { IconName, Icon } from "./Icon";
+import Icon, { IconName } from "./Icon";
 import Spinner from "./Spinner";
-import {
-  mediumButton,
-  smallButton,
-  largeButton,
-} from "../../constants/DefaultTheme";
+import { mediumButton, smallButton, largeButton } from "constants/DefaultTheme";
 
 export enum Category {
   primary = "primary",
@@ -233,7 +229,7 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
       buttonFont = largeButton;
       padding =
         !props.text && props.icon
-          ? `${props.theme.spaces[5] - 1}px ${props.theme.spaces[5] - 1}px`
+          ? `${props.theme.spaces[3]}px`
           : `${props.theme.spaces[5] - 1}px ${props.theme.spaces[12] - 4}px`;
       break;
   }

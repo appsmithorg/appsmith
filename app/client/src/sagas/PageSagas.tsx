@@ -65,7 +65,10 @@ import {
   getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import { fetchActionsForPage } from "actions/actionActions";
+import {
+  fetchActionsForPage,
+  setActionsToExecuteOnPageLoad,
+} from "actions/actionActions";
 import { clearCaches } from "utils/DynamicBindingUtils";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { getQueryParams } from "utils/AppsmithUtils";
@@ -91,20 +94,18 @@ export function* fetchPageListSaga(
         isDefault: page.isDefault,
       }));
       yield put({
+        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
+        payload: {
+          orgId,
+        },
+      });
+      yield put({
         type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
         payload: {
           pages,
           applicationId,
         },
       });
-      yield put({
-        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
-        payload: {
-          orgId,
-        },
-      });
-
-      return;
     }
   } catch (error) {
     yield put({
@@ -256,6 +257,14 @@ function* savePageSaga() {
     );
     const isValidResponse = yield validateResponse(savePageResponse);
     if (isValidResponse) {
+      if (
+        savePageResponse.data.layoutOnLoadActions &&
+        savePageResponse.data.layoutOnLoadActions.length > 0
+      ) {
+        for (const actionSet of savePageResponse.data.layoutOnLoadActions) {
+          yield put(setActionsToExecuteOnPageLoad(actionSet.map(a => a.id)));
+        }
+      }
       yield put(savePageSuccess(savePageResponse));
     }
   } catch (error) {

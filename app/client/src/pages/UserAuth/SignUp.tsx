@@ -2,7 +2,12 @@ import React from "react";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
-import { Link, RouteComponentProps, useLocation, withRouter } from "react-router-dom";
+import {
+  Link,
+  RouteComponentProps,
+  useLocation,
+  withRouter,
+} from "react-router-dom";
 import Divider from "components/editorComponents/Divider";
 import {
   AuthCardHeader,
@@ -83,7 +88,8 @@ const validate = (values: SignupFormValues) => {
   return errors;
 };
 
-type SignUpFormProps = InjectedFormProps<SignupFormValues> & RouteComponentProps<{ email: string }>;
+type SignUpFormProps = InjectedFormProps<SignupFormValues> &
+  RouteComponentProps<{ email: string }>;
 
 export const SignUp = (props: SignUpFormProps) => {
   const { error, submitting, pristine, valid } = props;
@@ -164,17 +170,14 @@ export const SignUp = (props: SignUpFormProps) => {
   );
 };
 
-export default connect(
-  (state: AppState, props: SignUpFormProps) => {
-    const queryParams = new URLSearchParams(props.location.search);
-    return {
-      initialValues: {
-        email: queryParams.get("email"),
-      },
-    };
-  },
-  null,
-)(
+export default connect((state: AppState, props: SignUpFormProps) => {
+  const queryParams = new URLSearchParams(props.location.search);
+  return {
+    initialValues: {
+      email: queryParams.get("email"),
+    },
+  };
+}, null)(
   reduxForm<SignupFormValues>({
     validate,
     form: SIGNUP_FORM_NAME,

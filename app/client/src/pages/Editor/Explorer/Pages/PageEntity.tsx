@@ -14,6 +14,7 @@ import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { homePageIcon, pageIcon } from "../ExplorerIcons";
 import { getActionGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
+import { resolveAsSpaceChar } from "utils/helpers";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -61,6 +62,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       isDefaultExpanded={isCurrentPage || !!props.searchKeyword}
       updateEntityName={updatePage}
       contextMenu={contextMenu}
+      nameTransformFn={resolveAsSpaceChar}
     >
       <ExplorerWidgetGroup
         step={props.step + 1}

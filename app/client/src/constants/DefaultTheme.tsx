@@ -540,6 +540,7 @@ export const theme: Theme = {
     },
     info: {
       main: "#CB4810",
+      light: "#F86A2B",
       dark: "#8B2E05",
       darker: "#A03C12",
       darkest: "#2B2B2B",
@@ -754,8 +755,8 @@ export const scrollbarLight = css<{ backgroundColor?: Color }>`
 
   scrollbar-width: thin;
   &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
   &::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px
