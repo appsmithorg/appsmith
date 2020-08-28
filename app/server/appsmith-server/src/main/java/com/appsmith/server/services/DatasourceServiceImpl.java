@@ -194,8 +194,13 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
         }
 
-        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId())
-                .map(plugin -> {
+        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId()).cache();
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
+
+        return checkPluginInstallationAndThenReturnOrganizationMono
+                .then(pluginMono)
+                .flatMap(plugin -> {
                     if (PluginType.DB.equals(plugin.getType())
                             && datasource.getDatasourceConfiguration() != null
                             && datasource.getDatasourceConfiguration().getEndpoints() != null) {
@@ -205,14 +210,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                             }
                         }
                     }
-                    return plugin;
-                });
-
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
-
-        return checkPluginInstallationAndThenReturnOrganizationMono
-                .then(pluginExecutorMono)
+                    return pluginExecutorMono;
+                })
                 .flatMap(pluginExecutor -> {
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
