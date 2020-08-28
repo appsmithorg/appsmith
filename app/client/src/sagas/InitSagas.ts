@@ -60,7 +60,11 @@ function* initializeEditorSaga(
   ]);
 
   // Step 3: Call all the APIs which needs Organization Id from PageList API response.
-  yield all([put(fetchPlugins()), put(fetchDatasources())]);
+  yield all([
+    put(fetchPlugins()),
+    put(fetchDatasources()),
+    put({ type: ReduxActionTypes.FORCE_EVAL }),
+  ]);
 
   // Step 4: Wait for all data to be in the state
   yield all([
@@ -162,7 +166,7 @@ export function* initializeAppViewerSaga(
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(updateAppStore(getAppStore(applicationId)));
-
+  yield put({ type: ReduxActionTypes.FORCE_EVAL });
   yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
   });

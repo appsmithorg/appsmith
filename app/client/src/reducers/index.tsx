@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
 import entityReducer from "./entityReducers";
 import uiReducer from "./uiReducers";
+import dataTreeReducer from "./dataTreeReducer";
 import { reducer as formReducer } from "redux-form";
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
@@ -33,10 +34,12 @@ import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
 import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 const appReducer = combineReducers({
   entities: entityReducer,
   ui: uiReducer,
+  dataTree: dataTreeReducer,
   form: formReducer,
 });
 
@@ -78,4 +81,5 @@ export interface AppState {
     meta: MetaState;
     app: AppDataState;
   };
+  dataTree: DataTree;
 }
