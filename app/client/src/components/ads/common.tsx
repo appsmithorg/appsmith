@@ -1,4 +1,4 @@
-import { Theme } from "../../constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false

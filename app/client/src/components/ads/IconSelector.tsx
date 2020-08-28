@@ -31,6 +31,8 @@ const IconPalette = styled.div<{ fill?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  padding: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[5]}px;
   width: ${props => (props.fill ? "100%" : "234px")};
 `;
 
@@ -50,13 +52,20 @@ const IconBox = styled.div<{
   cursor: pointer;
   position: relative;
 
-  &:last-child {
+  &:nth-child(6n) {
     margin-right: ${props => props.theme.spaces[0]}px;
   }
 `;
 
 const IconSelector = (props: IconSelectorProps) => {
-  const [selected, setSelected] = useState<AppIconName>(appIconPalette[0]);
+  function firstSelectedIcon() {
+    if (props.iconPalette && props.iconPalette[0]) {
+      return props.iconPalette[0];
+    }
+    return appIconPalette[0];
+  }
+
+  const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
 
   useEffect(() => {
     if (props.selectedIcon) {
