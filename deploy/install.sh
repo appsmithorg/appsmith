@@ -400,10 +400,6 @@ mkdir -p "$templates_dir"
         https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
-if [[ -d /vagrant/template ]]; then
-    cp /vagrant/template/* "$templates_dir/"
-fi
-
 # Create needed folder structure.
 mkdir -p "$install_dir/data/"{nginx,certbot/{conf,www},mongo/db}
 
