@@ -754,8 +754,8 @@ export const scrollbarLight = css<{ backgroundColor?: Color }>`
 
   scrollbar-width: thin;
   &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
   &::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px

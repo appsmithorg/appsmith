@@ -3,6 +3,7 @@ import * as log from "loglevel";
 import FeatureFlag from "./featureFlags";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
+import * as Sentry from "@sentry/react";
 
 export type EventName =
   | "LOGIN_CLICK"
@@ -186,6 +187,13 @@ class AnalyticsUtil {
         userId: userId,
       });
     }
+    Sentry.configureScope(function(scope) {
+      scope.setUser({
+        id: userData.userId,
+        username: userData.email,
+        email: userData.email,
+      });
+    });
     const { smartLook } = getAppsmithConfigs();
     if (smartLook.enabled) {
       smartlookClient.identify(userData.email, { email: userData.email });
