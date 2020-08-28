@@ -142,6 +142,13 @@ function* downloadSaga(
 ) {
   try {
     const { data, name, type } = action;
+    if (!name) {
+      AppToaster.show({
+        message: "Download failed. File name was not provided",
+        type: "error",
+      });
+      return;
+    }
     const dataType = getType(data);
     if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
       const jsonString = JSON.stringify(data, null, 2);
@@ -151,6 +158,10 @@ function* downloadSaga(
     }
     if (event.callback) event.callback({ success: true });
   } catch (err) {
+    AppToaster.show({
+      message: `Download failed. ${err}`,
+      type: "error",
+    });
     if (event.callback) event.callback({ success: false });
   }
 }
