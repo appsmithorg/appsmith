@@ -11,6 +11,7 @@ import {
 } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import * as Sentry from "@sentry/react";
 
 class FormButtonWidget extends BaseWidget<
   FormButtonWidgetProps,
@@ -119,3 +120,4 @@ export interface FormButtonWidgetState extends WidgetState {
 }
 
 export default FormButtonWidget;
+export const ProfiledFormButtonWidget = Sentry.withProfiler(FormButtonWidget);

@@ -13,6 +13,7 @@ import {
 } from "constants/WidgetConstants";
 
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import * as Sentry from "@sentry/react";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -98,3 +99,4 @@ export interface ContainerWidgetProps<T extends WidgetProps>
 }
 
 export default ContainerWidget;
+export const ProfiledContainerWidget = Sentry.withProfiler(ContainerWidget);

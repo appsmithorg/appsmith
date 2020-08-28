@@ -9,6 +9,7 @@ import {
 } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import * as Sentry from "@sentry/react";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -96,3 +97,4 @@ export interface RadioGroupWidgetProps extends WidgetProps {
 }
 
 export default RadioGroupWidget;
+export const ProfiledRadioGroupWidget = Sentry.withProfiler(RadioGroupWidget);
