@@ -718,7 +718,12 @@ export function sortTableFunction(
     )?.metaProperties?.type || ColumnTypes.TEXT;
   return tableData.sort(
     (a: { [key: string]: any }, b: { [key: string]: any }) => {
-      if (a[sortedColumn] !== undefined && b[sortedColumn] !== undefined) {
+      if (
+        a[sortedColumn] !== undefined &&
+        a[sortedColumn] !== null &&
+        b[sortedColumn] !== undefined &&
+        b[sortedColumn] !== null
+      ) {
         switch (columnType) {
           case ColumnTypes.CURRENCY:
           case ColumnTypes.NUMBER:

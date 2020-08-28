@@ -49,6 +49,7 @@ const EditableTextWrapper = styled.div<{
 }>`
   width: ${props => (!props.fill ? "234px" : "100%")};
   .error-message {
+    margin-left: ${props => props.theme.spaces[5]}px;
     color: ${props => props.theme.colors.danger.main};
   }
 `;
@@ -134,7 +135,7 @@ const IconWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-export const AdsEditableText = (props: EditableTextProps) => {
+export const EditableText = (props: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
   const [value, setValue] = useState(props.defaultValue);
   const [lastValidValue, setLastValidValue] = useState(props.defaultValue);
@@ -159,7 +160,6 @@ export const AdsEditableText = (props: EditableTextProps) => {
     [isInvalid, isEditing, savingState],
   );
 
-  /* should I write ? */
   const editMode = useCallback((e: React.MouseEvent) => {
     setIsEditing(true);
     const errorMessage = props.isInvalid && props.isInvalid(props.defaultValue);
@@ -285,8 +285,8 @@ export const AdsEditableText = (props: EditableTextProps) => {
   );
 };
 
-AdsEditableText.defaultProps = {
+EditableText.defaultProps = {
   fill: false,
 };
 
-export default AdsEditableText;
+export default EditableText;

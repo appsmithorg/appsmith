@@ -1,7 +1,8 @@
 import React from "react";
-import Table from "../ads/Table";
-import Button, { Category, Variant, Size } from "../ads/Button";
-import Icon from "../ads/Icon";
+import Table from "components/ads/Table";
+import Button, { Category, Variant, Size } from "components/ads/Button";
+import Icon from "components/ads/Icon";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "Table",
@@ -83,8 +84,8 @@ const data = [
   },
 ];
 
-export const AdsTable = () => (
-  <div style={{ background: "#131216", padding: "50px" }}>
+export const TableStory = () => (
+  <StoryWrapper>
     <Table columns={columns} data={data}></Table>
-  </div>
+  </StoryWrapper>
 );

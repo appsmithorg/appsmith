@@ -1,7 +1,7 @@
 import { useTable, useSortBy } from "react-table";
 import React from "react";
 import styled from "styled-components";
-import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
+import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 
 const Styles = styled.div`
   table {

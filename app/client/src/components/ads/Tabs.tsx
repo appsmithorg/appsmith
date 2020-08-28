@@ -111,7 +111,7 @@ type TabbedViewComponentType = {
   overflow?: boolean;
 };
 
-export const AdsTabComponent = (props: TabbedViewComponentType) => {
+export const TabComponent = (props: TabbedViewComponentType) => {
   return (
     <TabsWrapper shouldOverflow={props.overflow}>
       <Tabs

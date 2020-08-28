@@ -231,8 +231,18 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   componentDidMount() {
     this.createGraph();
     FusionCharts.ready(() => {
-      this.chartInstance.render();
+      /* Component could be unmounted before FusionCharts is ready, 
+      this check ensure we don't render on unmounted component */
+      if (this.chartInstance) {
+        this.chartInstance.render();
+      }
     });
+  }
+
+  componentWillUnmount() {
+    if (this.chartInstance) {
+      this.chartInstance = null;
+    }
   }
 
   componentDidUpdate(prevProps: ChartComponentProps) {
