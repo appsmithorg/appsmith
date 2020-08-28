@@ -197,6 +197,14 @@ export class DataTreeFactory {
         };
       };
       actionPaths.push("storeValue");
+
+      dataTree.download = function(data: string, name: string, type: string) {
+        return {
+          type: "DOWNLOAD",
+          payload: { data, name, type },
+        };
+      };
+      actionPaths.push("download");
     }
 
     dataTree.pageList = pageList;
