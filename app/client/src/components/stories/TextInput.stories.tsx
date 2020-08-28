@@ -1,6 +1,6 @@
 import React from "react";
 import { withKnobs, boolean, text } from "@storybook/addon-knobs";
-import TextInput from "../ads/TextInput";
+import TextInput from "components/ads/TextInput";
 import { action } from "@storybook/addon-actions";
 import { StoryWrapper } from "./Tabs.stories";
 

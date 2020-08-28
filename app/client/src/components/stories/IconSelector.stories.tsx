@@ -1,9 +1,9 @@
 import React from "react";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import IconSelector from "../ads/IconSelector";
+import IconSelector from "components/ads/IconSelector";
 import { action } from "@storybook/addon-actions";
-import { AppIconName } from "../ads/AppIcon";
+import { AppIconName } from "components/ads/AppIcon";
 import { StoryWrapper } from "./Tabs.stories";
 
 export default {

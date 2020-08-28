@@ -1,7 +1,7 @@
 import React from "react";
 import { withKnobs, boolean, text, select } from "@storybook/addon-knobs";
 import { action } from "@storybook/addon-actions";
-import SearchInput, { SearchVariant } from "../ads/SearchInput";
+import SearchInput, { SearchVariant } from "components/ads/SearchInput";
 import { StoryWrapper } from "./Tabs.stories";
 
 export default {

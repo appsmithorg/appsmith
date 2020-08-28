@@ -5,7 +5,7 @@ import EditableText, {
   EditInteractionKind,
   SavingStateHandler,
   SavingState,
-} from "../ads/EditableText";
+} from "components/ads/EditableText";
 import { action } from "@storybook/addon-actions";
 import { StoryWrapper } from "./Tabs.stories";
 

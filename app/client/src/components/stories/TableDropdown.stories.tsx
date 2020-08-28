@@ -1,7 +1,7 @@
 import React from "react";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import TableDropdown from "../ads/TableDropdown";
+import TableDropdown from "components/ads/TableDropdown";
 import { StoryWrapper } from "./Tabs.stories";
 
 export default {

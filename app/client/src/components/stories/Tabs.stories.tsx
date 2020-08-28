@@ -2,7 +2,7 @@ import React from "react";
 import { TabComponent } from "components/ads/Tabs";
 import { select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { IconName } from "../ads/Icon";
+import { IconName } from "components/ads/Icon";
 import styled from "styled-components";
 
 export default {
