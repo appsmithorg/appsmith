@@ -8,6 +8,7 @@ import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
 import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
+import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import styled from "styled-components";
 import { Size } from "./Button";
 import { sizeHandler } from "./Spinner";
@@ -22,6 +23,7 @@ export type IconName =
   | "error"
   | "success"
   | "search"
+  | "downArrow"
   | "close"
   | undefined;
 
@@ -93,6 +95,9 @@ const Icon = (props: IconProps) => {
       break;
     case "close":
       returnIcon = <CloseIcon />;
+      break;
+    case "downArrow":
+      returnIcon = <DownArrow />;
       break;
     default:
       returnIcon = null;
