@@ -3,10 +3,7 @@ import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import { useLocation } from "react-router";
 
-const Wrapper = styled.section<{
-  background: string;
-}>`
-  background: ${props => props.background};
+const Wrapper = styled.section`
   && .fade {
     position: relative;
   }
@@ -52,10 +49,9 @@ type PageWrapperProps = {
 
 export const PageWrapper = (props: PageWrapperProps) => {
   const location = useLocation();
-  const isSettingsPage = location.pathname.indexOf("settings") !== -1;
 
   return (
-    <Wrapper background={isSettingsPage ? "#1B1B1D" : "inherit"}>
+    <Wrapper>
       <Helmet>
         <title>{`${
           props.displayName ? `${props.displayName} | ` : ""

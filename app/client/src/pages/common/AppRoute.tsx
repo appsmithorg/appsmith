@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as Sentry from "@sentry/react";
+import { useLocation } from "react-router";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -16,6 +17,15 @@ const AppRoute = ({
   name: string;
   location?: any;
 }) => {
+  const location = useLocation();
+  if (
+    location.pathname === "/applications" ||
+    location.pathname.indexOf("/settings/") !== -1
+  ) {
+    document.body.style.backgroundColor = "#1C1C1E";
+  } else {
+    document.body.style.backgroundColor = "#efefef";
+  }
   useEffect(() => {
     if (!rest.logDisable) {
       AnalyticsUtil.logEvent("NAVIGATE_EDITOR", {
