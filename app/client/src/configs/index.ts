@@ -5,9 +5,8 @@ type INJECTED_CONFIGS = {
     release: string;
     environment: string;
   };
-  hotjar: {
+  smartLook: {
     id: string;
-    sv: string;
   };
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
@@ -51,9 +50,8 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       release: process.env.REACT_APP_SENTRY_RELEASE || "",
       environment: capitalizeText(process.env.NODE_ENV),
     },
-    hotjar: {
-      id: process.env.REACT_APP_HOTJAR_HJID || "",
-      sv: process.env.REACT_APP_HOTJAR_HJSV || "",
+    smartLook: {
+      id: process.env.REACT_APP_SMART_LOOK_ID || "",
     },
     enableGoogleOAuth: process.env.REACT_APP_OAUTH2_GOOGLE_CLIENT_ID
       ? process.env.REACT_APP_OAUTH2_GOOGLE_CLIENT_ID.length > 0
@@ -142,13 +140,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
 
   // As the following shows, the config variables can be set using a combination
   // of env variables and injected configs
-  const hotjarId = getConfig(
-    ENV_CONFIG.hotjar.id,
-    APPSMITH_FEATURE_CONFIGS.hotjar.id,
-  );
-  const hotjarSV = getConfig(
-    ENV_CONFIG.hotjar.sv,
-    APPSMITH_FEATURE_CONFIGS.hotjar.sv,
+  const smartLook = getConfig(
+    ENV_CONFIG.smartLook.id,
+    APPSMITH_FEATURE_CONFIGS.smartLook.id,
   );
 
   const algoliaAPIID = getConfig(
@@ -171,10 +165,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       release: sentryRelease.value,
       environment: sentryENV.value,
     },
-    hotjar: {
-      enabled: hotjarId.enabled && hotjarSV.enabled,
-      id: hotjarId.value,
-      sv: hotjarSV.value, //parse as int?
+    smartLook: {
+      enabled: smartLook.enabled,
+      id: smartLook.value,
     },
     segment: {
       enabled: segment.enabled,

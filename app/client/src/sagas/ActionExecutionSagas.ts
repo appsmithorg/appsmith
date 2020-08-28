@@ -19,6 +19,7 @@ import {
   take,
   takeEvery,
   takeLatest,
+  race,
 } from "redux-saga/effects";
 import {
   evaluateDataTreeWithFunctions,
@@ -50,6 +51,7 @@ import {
   executeApiActionRequest,
   executeApiActionSuccess,
   updateAction,
+  showRunActionConfirmModal,
 } from "actions/actionActions";
 import { Action, RestAction } from "entities/Action";
 import ActionAPI, {
@@ -71,6 +73,8 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { ToastType } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
+import { updateAppStore } from "actions/pageActions";
+import { getAppStoreName } from "constants/AppConstants";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -108,6 +112,25 @@ function* navigateActionSaga(
       url = "https://" + url;
     }
     window.location.assign(url);
+  }
+}
+
+function* storeValueLocally(
+  action: { key: string; value: string },
+  event: ExecuteActionPayloadEvent,
+) {
+  try {
+    const appId = yield select(getCurrentApplicationId);
+    const appStoreName = getAppStoreName(appId);
+    const existingStore = yield localStorage.getItem(appStoreName) || "{}";
+    const storeObj = JSON.parse(existingStore);
+    storeObj[action.key] = action.value;
+    const storeString = JSON.stringify(storeObj);
+    yield localStorage.setItem(appStoreName, storeString);
+    yield put(updateAppStore(storeObj));
+    if (event.callback) event.callback({ success: true });
+  } catch (err) {
+    if (event.callback) event.callback({ success: false });
   }
 }
 
@@ -357,6 +380,9 @@ function* executeActionTriggers(
         yield put(trigger);
         if (event.callback) event.callback({ success: true });
         break;
+      case "STORE_VALUE":
+        yield call(storeValueLocally, trigger.payload, event);
+        break;
       default:
         yield put(
           executeActionError({
@@ -476,6 +502,35 @@ function* runActionSaga(
   }
 }
 
+function* confirmRunActionSaga(
+  reduxAction: ReduxAction<{
+    id: string;
+    paginationField: PaginationField;
+  }>,
+) {
+  const action = yield select(getAction, reduxAction.payload.id);
+  if (action.requestConfirmation) {
+    yield put(showRunActionConfirmModal(true));
+
+    const { accept } = yield race({
+      cancel: take(ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL),
+      accept: take(ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL),
+    });
+
+    if (accept) {
+      yield put({
+        type: ReduxActionTypes.RUN_ACTION_REQUEST,
+        payload: reduxAction.payload,
+      });
+    }
+  } else {
+    yield put({
+      type: ReduxActionTypes.RUN_ACTION_REQUEST,
+      payload: reduxAction.payload,
+    });
+  }
+}
+
 function* executePageLoadAction(pageAction: PageAction) {
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
@@ -521,6 +576,7 @@ export function* watchActionExecutionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
+    takeLatest(ReduxActionTypes.RUN_ACTION_INIT, confirmRunActionSaga),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,

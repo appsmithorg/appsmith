@@ -213,3 +213,10 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
     payload,
   };
 };
+
+export const updateAppStore = (payload: object): ReduxAction<object> => {
+  return {
+    type: ReduxActionTypes.UPDATE_APP_STORE,
+    payload,
+  };
+};
