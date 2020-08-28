@@ -3,7 +3,10 @@ import React from "react";
 import { saveOrg } from "actions/orgActions";
 import { SaveOrgRequest } from "api/OrgApi";
 import { throttle } from "lodash";
-import TextInput from "components/ads/TextInput";
+import TextInput, {
+  emailValidator,
+  notEmptyValidator,
+} from "components/ads/TextInput";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { useParams } from "react-router-dom";
@@ -33,7 +36,6 @@ export const SettingsHeading = styled(Text)`
 const Loader = styled.div`
   height: 38px;
   width: 260px;
-  margin-bottom: 4px;
 `;
 
 export function GeneralSettings() {
@@ -67,7 +69,6 @@ export function GeneralSettings() {
     });
   }, throttleTimeout);
 
-  const isLoading = true;
   const { isFetchingOrg } = useSelector(getOrgLoadingStates);
 
   console.log({ isFetchingOrg });
@@ -81,6 +82,7 @@ export function GeneralSettings() {
         {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
         {!isFetchingOrg && (
           <TextInput
+            validator={notEmptyValidator}
             placeholder="Workspace name"
             onChange={onWorkspaceNameChange}
             defaultValue={currentOrg.name}
@@ -109,6 +111,7 @@ export function GeneralSettings() {
         {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
         {!isFetchingOrg && (
           <TextInput
+            validator={emailValidator}
             placeholder="Email"
             onChange={onEmailChange}
             defaultValue={currentOrg.email || ""}
