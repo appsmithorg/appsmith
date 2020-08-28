@@ -6,8 +6,6 @@ type INJECTED_CONFIGS = {
     dsn: string;
     release: string;
     environment: string;
-    integrations: any[];
-    tracesSampleRate: number;
   };
   smartLook: {
     id: string;
@@ -55,8 +53,6 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       environment:
         process.env.REACT_APP_SENTRY_ENVIRONMENT ||
         capitalizeText(process.env.NODE_ENV),
-      integrations: [new Integrations.BrowserTracing()],
-      tracesSampleRate: 1.0,
     },
     smartLook: {
       id: process.env.REACT_APP_SMART_LOOK_ID || "",
@@ -172,6 +168,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       dsn: sentryDSN.value,
       release: sentryRelease.value,
       environment: sentryENV.value,
+      integrations: [new Integrations.BrowserTracing()],
+      tracesSampleRate: 1.0,
     },
     smartLook: {
       enabled: smartLook.enabled,
