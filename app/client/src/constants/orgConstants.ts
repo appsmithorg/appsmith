@@ -11,6 +11,7 @@ export type Org = {
   id: string;
   name: string;
   website?: string;
+  email?: string;
 };
 
 export type OrgUser = {
