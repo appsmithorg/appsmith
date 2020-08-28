@@ -1,12 +1,13 @@
 import React from "react";
-import { AdsTabComponent } from "components/ads/Tabs";
+import { TabComponent } from "components/ads/Tabs";
 import { select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { IconName } from "../ads/Icon";
+import { IconName } from "components/ads/Icon";
+import styled from "styled-components";
 
 export default {
-  title: "tabs",
-  component: AdsTabComponent,
+  title: "Tabs",
+  component: TabComponent,
   decorators: [withKnobs, withDesign],
 };
 
@@ -85,14 +86,9 @@ const TabStory = (props: any) => {
   }
 
   return (
-    <div
-      style={{
-        height: "200px",
-        overflow: "hidden",
-      }}
-    >
-      <AdsTabComponent tabs={tabArr}></AdsTabComponent>
-    </div>
+    <StoryWrapper>
+      <TabComponent tabs={tabArr} />
+    </StoryWrapper>
   );
 };
 
@@ -124,3 +120,9 @@ export const Tabs = () => (
     title4={text("title4", "")}
   />
 );
+
+export const StoryWrapper = styled.div`
+  background: #1a191c;
+  height: 700px;
+  padding: 50px 100px;
+`;

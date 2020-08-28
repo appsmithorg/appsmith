@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { CommonComponentProps, hexToRgba } from "./common";
-import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
+import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import Text, { TextType } from "./Text";
 import styled from "styled-components";
 
