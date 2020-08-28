@@ -1,5 +1,5 @@
 import React from "react";
-import { TabComponent } from "components/ads/Tabs";
+import { TabComponent, TabProp } from "components/ads/Tabs";
 import { select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { IconName } from "components/ads/Icon";
@@ -11,15 +11,8 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-type tabSingle = {
-  key: string;
-  title: string;
-  panelComponent: JSX.Element;
-  icon: IconName;
-};
-
 const TabStory = (props: any) => {
-  const tabArr: tabSingle[] = [
+  const tabArr: TabProp[] = [
     {
       key: "1",
       title: props.title1,

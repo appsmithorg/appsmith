@@ -302,7 +302,7 @@ const OrgInviteUsersForm = (props: any) => {
             filled
             intent="primary"
             onClick={() => {
-              history.push(`/org/${props.orgId}/settings`);
+              history.push(`/org/${props.orgId}/settings/members`);
             }}
           />
         )}

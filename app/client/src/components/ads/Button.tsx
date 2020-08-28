@@ -293,7 +293,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
 
 Button.defaultProps = {
   category: Category.primary,
-  variant: Variant.success,
+  variant: Variant.info,
   size: Size.small,
   isLoading: false,
   disabled: false,

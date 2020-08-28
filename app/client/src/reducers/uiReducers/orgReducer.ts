@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/AppsmithUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -11,6 +11,7 @@ const initialState: OrgReduxState = {
     fetchingRoles: false,
     isFetchAllRoles: false,
     isFetchAllUsers: false,
+    isFetchingOrg: false,
   },
   orgUsers: [],
   orgRoles: [],
@@ -20,161 +21,121 @@ const initialState: OrgReduxState = {
   },
 };
 
-const orgReducer = createReducer(initialState, {
-  [ReduxActionTypes.FETCH_ORG_ROLES_INIT]: (state: OrgReduxState) => ({
-    ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      fetchingRoles: true,
-    },
-  }),
-  [ReduxActionTypes.FETCH_ALL_ROLES_INIT]: (state: OrgReduxState) => ({
-    ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      isFetchAllRoles: true,
-    },
-  }),
-  [ReduxActionTypes.FETCH_ALL_USERS_INIT]: (state: OrgReduxState) => ({
-    ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      isFetchAllUsers: true,
-    },
-  }),
-
+const orgReducer = createImmerReducer(initialState, {
+  [ReduxActionTypes.FETCH_ORG_ROLES_INIT]: (draftState: OrgReduxState) => {
+    draftState.loadingStates.isFetchAllRoles = true;
+  },
+  [ReduxActionTypes.FETCH_ALL_ROLES_INIT]: (draftState: OrgReduxState) => {
+    draftState.loadingStates.isFetchAllRoles = true;
+  },
+  [ReduxActionTypes.FETCH_ALL_USERS_INIT]: (draftState: OrgReduxState) => {
+    draftState.loadingStates.isFetchAllUsers = true;
+  },
   [ReduxActionTypes.FETCH_ORG_ROLES_SUCCESS]: (
-    state: OrgReduxState,
+    draftState: OrgReduxState,
     action: ReduxAction<OrgRole[]>,
-  ) => ({
-    ...state,
-    roles: action.payload,
-    loadingStates: {
-      ...state.loadingStates,
-      fetchingRoles: false,
-    },
-  }),
-  [ReduxActionErrorTypes.FETCH_ORG_ROLES_ERROR]: (state: OrgReduxState) => ({
-    ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      fetchingRoles: false,
-    },
-  }),
+  ) => {
+    draftState.orgRoles = action.payload;
+    draftState.loadingStates.fetchingRoles = false;
+  },
+  [ReduxActionErrorTypes.FETCH_ORG_ROLES_ERROR]: (
+    draftState: OrgReduxState,
+  ) => {
+    draftState.loadingStates.fetchingRoles = false;
+  },
   [ReduxActionTypes.FETCH_ALL_USERS_SUCCESS]: (
-    state: OrgReduxState,
-    action: ReduxAction<Org[]>,
-  ) => ({
-    ...state,
-    orgUsers: action.payload,
-    loadingStates: {
-      ...state.loadingStates,
-      isFetchAllUsers: false,
-    },
-  }),
+    draftState: OrgReduxState,
+    action: ReduxAction<OrgUser[]>,
+  ) => {
+    draftState.orgUsers = action.payload;
+    draftState.loadingStates.isFetchAllUsers = false;
+  },
   [ReduxActionTypes.FETCH_ALL_ROLES_SUCCESS]: (
-    state: OrgReduxState,
+    draftState: OrgReduxState,
     action: ReduxAction<Org[]>,
-  ) => ({
-    ...state,
-    orgRoles: action.payload,
-    loadingStates: {
-      ...state.loadingStates,
-      isFetchAllRoles: false,
-    },
-  }),
+  ) => {
+    draftState.orgRoles = action.payload;
+    draftState.loadingStates.isFetchAllRoles = false;
+  },
   [ReduxActionTypes.CHANGE_ORG_USER_ROLE_SUCCESS]: (
-    state: OrgReduxState,
+    draftState: OrgReduxState,
     action: ReduxAction<{ username: string; roleName: string }>,
   ) => {
-    const _orgUsers = state.orgUsers.map((user: OrgUser) => {
+    draftState.orgUsers.forEach((user: OrgUser) => {
       if (user.username === action.payload.username) {
-        return {
-          ...user,
-          roleName: action.payload.roleName,
-          isChangingRole: false,
-        };
+        user.roleName = action.payload.roleName;
       }
-      return user;
     });
-    return {
-      ...state,
-      orgUsers: _orgUsers,
-    };
   },
   [ReduxActionTypes.CHANGE_ORG_USER_ROLE_INIT]: (
-    state: OrgReduxState,
+    draftState: OrgReduxState,
     action: ReduxAction<{ username: string }>,
   ) => {
-    const _orgUsers = state.orgUsers.map((user: OrgUser) => {
+    draftState.orgUsers.forEach((user: OrgUser) => {
       if (user.username === action.payload.username) {
-        return {
-          ...user,
-          isChangingRole: true,
-        };
+        user.isChangingRole = true;
       }
-      return user;
     });
-    return { ...state, orgUsers: _orgUsers };
   },
   [ReduxActionTypes.DELETE_ORG_USER_INIT]: (
-    state: OrgReduxState,
+    draftState: OrgReduxState,
     action: ReduxAction<{ username: string }>,
   ) => {
-    const _orgUsers = state.orgUsers.map((user: OrgUser) => {
+    draftState.orgUsers.forEach((user: OrgUser) => {
       if (user.username === action.payload.username) {
-        return {
-          ...user,
-          isDeleting: true,
-        };
+        user.isDeleting = true;
       }
-      return user;
     });
-    return { ...state, orgUsers: _orgUsers };
   },
   [ReduxActionTypes.DELETE_ORG_USER_SUCCESS]: (
-    state: OrgReduxState,
+    draftState: OrgReduxState,
     action: ReduxAction<{ username: string }>,
   ) => {
-    const _orgUsers = state.orgUsers.filter(
+    draftState.orgUsers = draftState.orgUsers.filter(
       (user: OrgUser) => user.username !== action.payload.username,
     );
-    return {
-      ...state,
-      orgUsers: _orgUsers,
-    };
   },
-  [ReduxActionTypes.CHANGE_ORG_USER_ROLE_ERROR]: (state: OrgReduxState) => {
-    const _orgUsers = state.orgUsers.map(user => ({
-      ...user,
-      isChangingRole: false,
-    }));
-    return { ...state, orgUsers: _orgUsers };
+  [ReduxActionErrorTypes.CHANGE_ORG_USER_ROLE_ERROR]: (
+    draftState: OrgReduxState,
+  ) => {
+    draftState.orgUsers.forEach((user: OrgUser) => {
+      //TODO: This will change the status to false even if one role change api fails.
+      user.isChangingRole = false;
+    });
   },
-  [ReduxActionTypes.DELETE_ORG_USER_ERROR]: (state: OrgReduxState) => {
-    const _orgUsers = state.orgUsers.map(user => ({
-      ...user,
-      isDeleting: false,
-    }));
-    return { ...state, orgUsers: _orgUsers };
+  [ReduxActionErrorTypes.DELETE_ORG_USER_ERROR]: (
+    draftState: OrgReduxState,
+  ) => {
+    draftState.orgUsers.forEach((user: OrgUser) => {
+      //TODO: This will change the status to false even if one delete fails.
+      user.isDeleting = false;
+    });
   },
   [ReduxActionTypes.SET_CURRENT_ORG_ID]: (
-    state: OrgReduxState,
+    draftState: OrgReduxState,
     action: ReduxAction<{ orgId: string }>,
-  ) => ({
-    ...state,
-    currentOrg: {
-      ...state.currentOrg,
-      id: action.payload.orgId,
-    },
-  }),
-  [ReduxActionTypes.FETCH_ORG_SUCCESS]: (
-    state: OrgReduxState,
+  ) => {
+    draftState.currentOrg.id = action.payload.orgId;
+  },
+  [ReduxActionTypes.SET_CURRENT_ORG]: (
+    draftState: OrgReduxState,
     action: ReduxAction<Org>,
-  ) => ({
-    ...state,
-    currentOrg: action.payload,
-  }),
+  ) => {
+    draftState.currentOrg = action.payload;
+  },
+  [ReduxActionTypes.FETCH_CURRENT_ORG]: (draftState: OrgReduxState) => {
+    draftState.loadingStates.isFetchingOrg = true;
+  },
+  [ReduxActionTypes.FETCH_ORG_SUCCESS]: (
+    draftState: OrgReduxState,
+    action: ReduxAction<Org>,
+  ) => {
+    draftState.currentOrg = action.payload;
+    draftState.loadingStates.isFetchingOrg = false;
+  },
+  [ReduxActionErrorTypes.FETCH_ORG_ERROR]: (draftState: OrgReduxState) => {
+    draftState.loadingStates.isFetchingOrg = false;
+  },
 });
 
 export interface OrgReduxState {
@@ -184,6 +145,7 @@ export interface OrgReduxState {
     fetchingRoles: boolean;
     isFetchAllRoles: boolean;
     isFetchAllUsers: boolean;
+    isFetchingOrg: boolean;
   };
   orgUsers: OrgUser[];
   orgRoles: any;

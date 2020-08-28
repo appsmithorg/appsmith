@@ -1,8 +1,8 @@
 import React from "react";
+import Icon from "components/ads/Icon";
 import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import Icon from "components/ads/Icon";
 import AppIcon, { AppIconName } from "components/ads/AppIcon";
 import { StoryWrapper } from "./Tabs.stories";
 
