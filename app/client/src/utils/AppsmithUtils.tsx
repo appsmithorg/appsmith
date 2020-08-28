@@ -1,6 +1,6 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "configs";
-import * as Sentry from "@sentry/browser";
+import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
