@@ -6,9 +6,7 @@ describe("Test curl import flow", function() {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
     cy.get(ApiEditor.curlImage).click({ force: true });
-    cy.get("textarea").type(
-      "curl -X GET http://app.appsmith.com/scrap/api?slugifiedName=Freshdesk&ownerName=volodimir.kudriachenko",
-    );
+    cy.get("textarea").type("curl -X GET https://mock-api.appsmith.com/users");
     cy.importCurl();
     cy.get("@curlImport").then(response => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
