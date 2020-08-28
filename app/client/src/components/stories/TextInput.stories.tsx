@@ -1,7 +1,8 @@
 import React from "react";
 import { withKnobs, boolean, text } from "@storybook/addon-knobs";
-import TextInput from "../ads/TextInput";
+import TextInput from "components/ads/TextInput";
 import { action } from "@storybook/addon-actions";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "Text Input",
@@ -17,7 +18,7 @@ const callValidator1 = () => {
 };
 
 export const TextInputStory = () => (
-  <div style={{ background: "#302D2D", height: "500px", padding: "100px" }}>
+  <StoryWrapper>
     <TextInput
       placeholder={text("placeholder", "Your name")}
       disabled={boolean("disabled", false)}
@@ -26,7 +27,7 @@ export const TextInputStory = () => (
       onChange={action("input value changed")}
       validator={() => callValidator1()}
     ></TextInput>
-  </div>
+  </StoryWrapper>
 );
 
 const callValidator2 = () => {
@@ -37,7 +38,7 @@ const callValidator2 = () => {
 };
 
 export const ErrorTextInputStory = () => (
-  <div style={{ background: "#302D2D", height: "500px", padding: "100px" }}>
+  <StoryWrapper>
     <TextInput
       placeholder={text("placeholder", "Your name")}
       disabled={boolean("disabled", false)}
@@ -46,5 +47,5 @@ export const ErrorTextInputStory = () => (
       defaultValue={text("defaultValue", "This is wrong")}
       validator={() => callValidator2()}
     ></TextInput>
-  </div>
+  </StoryWrapper>
 );

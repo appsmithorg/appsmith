@@ -1,16 +1,17 @@
 import React from "react";
 import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import AdsEditableText, {
+import EditableText, {
   EditInteractionKind,
   SavingStateHandler,
   SavingState,
-} from "../ads/EditableText";
+} from "components/ads/EditableText";
 import { action } from "@storybook/addon-actions";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "EditableText",
-  component: AdsEditableText,
+  component: EditableText,
   decorators: [withKnobs, withDesign],
 };
 
@@ -37,8 +38,8 @@ const errorFunction = (name: string) => {
 };
 
 export const EditableTextStory = () => (
-  <div style={{ padding: "50px", background: "black", height: "500px" }}>
-    <AdsEditableText
+  <StoryWrapper>
+    <EditableText
       defaultValue={text("defaultValue", "Product design app")}
       editInteractionKind={select(
         "editInteractionKind",
@@ -55,6 +56,6 @@ export const EditableTextStory = () => (
       onSubmit={(value: string, callback: SavingStateHandler) =>
         calls(value, callback)
       }
-    ></AdsEditableText>
-  </div>
+    ></EditableText>
+  </StoryWrapper>
 );

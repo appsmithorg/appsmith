@@ -1,12 +1,19 @@
-import React from "react";
-import { select, withKnobs } from "@storybook/addon-knobs";
+import React, { useState } from "react";
+import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import Menu from "../ads/Menu";
-import { decorate } from "@storybook/addon-actions";
-import Icon from "../ads/Icon";
-import { Size } from "../ads/Button";
+import Menu from "components/ads/Menu";
+import { action } from "@storybook/addon-actions";
+import MenuDivider from "components/ads/MenuDivider";
+import MenuItem from "components/ads/MenuItem";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import Text, { TextType } from "../ads/Text";
+import ColorSelector, { appColorPalette } from "components/ads/ColorSelector";
+import { AppIconName } from "components/ads/AppIcon";
+import IconSelector from "components/ads/IconSelector";
+import EditableText, {
+  SavingState,
+  EditInteractionKind,
+  SavingStateHandler,
+} from "components/ads/EditableText";
 
 export default {
   title: "Menu",
@@ -14,73 +21,130 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-const firstArg = decorate([args => args.slice(0, 1)]);
+const calls = (value: string, callback: any) => {
+  setTimeout(() => {
+    return callback(false, SavingState.SUCCESS);
+  }, 2000);
 
-export const TextMenu = () => (
-  <Menu
-    onSelect={firstArg.action("text-click")}
-    position={select(
-      "position",
-      [
-        Position.RIGHT,
-        Position.RIGHT_BOTTOM,
-        Position.RIGHT_TOP,
-        Position.LEFT,
-        Position.LEFT_BOTTOM,
-        Position.LEFT_TOP,
-        Position.TOP_LEFT,
-        Position.BOTTOM,
-        Position.BOTTOM_LEFT,
-        Position.BOTTOM_RIGHT,
-        Position.TOP,
-        Position.TOP_LEFT,
-        Position.TOP_RIGHT,
-      ],
-      Position.RIGHT,
-    )}
-    target={<button>Click to show menu</button>}
-  >
-    <Text type={TextType.P1}>First Option</Text>
-    <Text type={TextType.P1}>Second option</Text>
-    <Text type={TextType.P1}>Third option</Text>
-  </Menu>
-);
+  return callback(true);
+};
 
-export const IconAndTextMenu = () => (
-  <Menu
-    onSelect={firstArg.action("icon-click")}
-    position={select(
-      "position",
-      [
-        Position.RIGHT,
-        Position.RIGHT_BOTTOM,
-        Position.RIGHT_TOP,
-        Position.LEFT,
-        Position.LEFT_BOTTOM,
-        Position.LEFT_TOP,
-        Position.TOP_LEFT,
-        Position.BOTTOM,
-        Position.BOTTOM_LEFT,
-        Position.BOTTOM_RIGHT,
-        Position.TOP,
-        Position.TOP_LEFT,
-        Position.TOP_RIGHT,
-      ],
-      Position.RIGHT,
-    )}
-    target={<button>Click to show menu</button>}
-  >
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <Icon name={"delete"} size={Size.large} />
-      <Text style={{ marginLeft: "10px" }} type={TextType.P1}>
-        Delete
-      </Text>
+const errorFunction = (name: string) => {
+  if (name === "") {
+    return "Name cannot be empty";
+  } else {
+    return false;
+  }
+};
+
+export const MenuStory = () => {
+  const [selectedColor, setSelectedColor] = useState<string>(
+    appColorPalette[0],
+  );
+
+  return (
+    <div
+      style={{
+        background: "#1A191C",
+        height: "500px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Menu
+        position={select(
+          "Position",
+          [Position.RIGHT, Position.LEFT, Position.BOTTOM, Position.TOP],
+          Position.RIGHT,
+        )}
+        target={
+          <div>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 22 22"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect width="22" height="22" fill="black" fillOpacity="0.1" />
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M6 11C6 12.105 5.105 13 4 13C2.895 13 2 12.105 2 11C2 9.895 2.895 9 4 9C5.105 9 6 9.895 6 11ZM11 9C12.105 9 13 9.895 13 11C13 12.105 12.105 13 11 13C9.895 13 9 12.105 9 11C9 9.895 9.895 9 11 9ZM20 11C20 9.895 19.105 9 18 9C16.895 9 16 9.895 16 11C16 12.105 16.895 13 18 13C19.105 13 20 12.105 20 11Z"
+                fill="white"
+              />
+            </svg>
+          </div>
+        }
+      >
+        <EditableText
+          defaultValue="Product design app"
+          editInteractionKind={EditInteractionKind.SINGLE}
+          onTextChanged={action("editable-input-changed")}
+          valueTransform={(value: any) => value.toUpperCase()}
+          placeholder={"Edit text input"}
+          hideEditIcon={false}
+          isInvalid={(name: any) => errorFunction(name)}
+          isEditingDefault={false}
+          fill={false}
+          onSubmit={(value: string, callback: SavingStateHandler) =>
+            calls(value, callback)
+          }
+        />
+        <ColorSelector
+          onSelect={(value: string) => setSelectedColor(value)}
+          fill={false}
+          colorPalette={appColorPalette}
+        />
+        <MenuDivider />
+        <IconSelector
+          onSelect={action("icon-selected")}
+          fill={false}
+          selectedIcon={select(
+            "Select app icon",
+            [
+              AppIconName.BAG,
+              AppIconName.PRODUCT,
+              AppIconName.BOOK,
+              AppIconName.CAMERA,
+              AppIconName.FILE,
+              AppIconName.CHAT,
+              AppIconName.CALENDER,
+              AppIconName.FLIGHT,
+              AppIconName.FRAME,
+              AppIconName.GLOBE,
+              AppIconName.SHOPPER,
+              AppIconName.HEART,
+            ],
+            AppIconName.BAG,
+          )}
+          selectedColor={selectedColor}
+        />
+        <MenuDivider />
+        <MenuItem
+          text={text("First option", "Invite user")}
+          icon={select("First Icon", ["Select icon", "delete", "user"], "user")}
+          onSelect={action("clicked-first-option")}
+          label={<span>W</span>}
+        />
+        {boolean("First menu item divider", false) ? <MenuDivider /> : null}
+        <MenuItem
+          text={text("Second option", "Are you sure")}
+          icon={select(
+            "Second Icon",
+            ["Select icon", "delete", "user"],
+            "delete",
+          )}
+          onSelect={action("clicked-second-option")}
+          label={<span>W</span>}
+        />
+        {boolean("Second menu item divider", false) ? <MenuDivider /> : null}
+        <MenuItem
+          text={text("Third option", "Third option text only")}
+          onSelect={action("clicked-third-option")}
+        />
+      </Menu>
     </div>
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <Icon name={"user"} size={Size.large} />
-      <Text style={{ marginLeft: "10px" }} type={TextType.P1}>
-        Invite user
-      </Text>
-    </div>
-  </Menu>
-);
+  );
+};
