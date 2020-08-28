@@ -52,7 +52,9 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     sentry: {
       dsn: process.env.REACT_APP_SENTRY_DSN || "",
       release: process.env.REACT_APP_SENTRY_RELEASE || "",
-      environment: capitalizeText(process.env.NODE_ENV),
+      environment:
+        process.env.REACT_APP_SENTRY_ENVIRONMENT ||
+        capitalizeText(process.env.NODE_ENV),
       integrations: [new Integrations.BrowserTracing()],
       tracesSampleRate: 1.0,
     },
