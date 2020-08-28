@@ -18,7 +18,7 @@ if (env === "PRODUCTION" || env === "STAGING") {
         auto: true
       },
       deploy: {
-        env: REACT_APP_SENTRY_ENVIRONMENT
+        env: process.env.REACT_APP_SENTRY_ENVIRONMENT
       }
     }),
   );
