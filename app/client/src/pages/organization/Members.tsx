@@ -10,7 +10,7 @@ import {
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { RouteComponentProps } from "react-router";
-import Spinner from "components/editorComponents/Spinner";
+// import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Table from "components/ads/Table";
@@ -26,11 +26,17 @@ import Button, { Size, Variant } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import { TextType } from "components/ads/Text";
 import { SettingsHeading } from "./General";
+import styled from "styled-components";
+import { Classes } from "@blueprintjs/core";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
 }>;
 
+const Loader = styled.div`
+  height: 120px;
+  width: 100%;
+`;
 export default function MemberSettings(props: PageProps) {
   const {
     match: {
@@ -156,7 +162,7 @@ export default function MemberSettings(props: PageProps) {
         />
       </PageSectionHeader>
       {isFetchingAllUsers && isFetchingAllRoles ? (
-        <Spinner size={30} />
+        <Loader className={Classes.SKELETON} />
       ) : (
         <Table data={userTableData} columns={columns}></Table>
       )}
