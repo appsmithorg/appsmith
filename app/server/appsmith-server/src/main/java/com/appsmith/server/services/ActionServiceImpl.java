@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -521,7 +522,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
      */
     public Flux<Action> findOnLoadActionsInPage(Set<String> names, String pageId) {
         final Flux<Action> getApiActions = repository
-                .findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, "GET");
+                .findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(names, pageId, "GET", false);
 
         final Flux<Action> explicitOnLoadActions = repository
                 .findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId);
@@ -585,9 +586,20 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
+    public Mono<Action> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
+        return repository.findById(id, MANAGE_ACTIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
+                .flatMap(action -> {
+                    action.setUserSetOnLoad(true);
+                    action.setExecuteOnLoad(isExecuteOnLoad);
+                    return repository.save(action);
+                });
+    }
+
+    @Override
     public Mono<Action> delete(String id) {
         Mono<Action> actionMono = repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
                 .flatMap(toDelete -> repository.delete(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);

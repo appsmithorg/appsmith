@@ -12,6 +12,7 @@ import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
+import { resolveAsSpaceChar } from "utils/helpers";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -52,6 +53,7 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
       isDefaultExpanded={props.isCurrentPage || !!props.searchKeyword}
       updateEntityName={updatePage}
       contextMenu={contextMenu}
+      nameTransformFn={resolveAsSpaceChar}
     >
       {!(!props.widgets && props.searchKeyword) && (
         <ExplorerWidgetGroup

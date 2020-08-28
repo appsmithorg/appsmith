@@ -174,6 +174,7 @@ const RenderOptions = (props: {
   selectItem: (column: DropdownOption) => void;
   placeholder: string;
   value?: string | Condition;
+  className?: string;
 }) => {
   const [selectedValue, selectValue] = useState(props.placeholder);
   const configs = {
@@ -195,7 +196,7 @@ const RenderOptions = (props: {
     openDirection: Directions.DOWN,
     trigger: {
       content: (
-        <DropdownTrigger>
+        <DropdownTrigger className={props.className}>
           <AutoToolTipComponentWrapper title={selectedValue}>
             {selectedValue}
           </AutoToolTipComponentWrapper>
@@ -225,6 +226,7 @@ const RenderOptions = (props: {
 const RenderInput = (props: {
   value: string;
   onChange: (value: string) => void;
+  className?: string;
 }) => {
   const debouncedOnChange = useCallback(debounce(props.onChange, 400), []);
   const [value, setValue] = useState(props.value);
@@ -242,6 +244,7 @@ const RenderInput = (props: {
       onChange={onChange}
       type="text"
       defaultValue={value}
+      className={props.className}
     />
   );
 };
@@ -472,12 +475,13 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
     conditions,
   } = state;
   return (
-    <FieldWrapper>
+    <FieldWrapper className="t--table-filter">
       <StyledRemoveIcon
         onClick={handleRemoveFilter}
         height={16}
         width={16}
         color={Colors.RIVER_BED}
+        className="t--table-filter-remove-btn"
       />
       {index === 1 ? (
         <DropdownWrapper width={75}>
@@ -486,6 +490,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
             selectItem={selectOperator}
             value={operator}
             placeholder="or"
+            className="t--table-filter-operators-dropdown"
           />
         </DropdownWrapper>
       ) : (
@@ -499,6 +504,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
           selectItem={selectColumn}
           value={column}
           placeholder="Attribute"
+          className="t--table-filter-columns-dropdown"
         />
       </DropdownWrapper>
       {showConditions ? (
@@ -508,14 +514,19 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
             selectItem={selectCondition}
             value={condition}
             placeholder=""
+            className="t--table-filter-conditions-dropdown"
           />
         </DropdownWrapper>
       ) : null}
       {showInput ? (
-        <RenderInput onChange={onValueChange} value={value} />
+        <RenderInput
+          className="t--table-filter-value-input"
+          onChange={onValueChange}
+          value={value}
+        />
       ) : null}
       {showDateInput ? (
-        <DatePickerWrapper>
+        <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
             label=""
             dateFormat="DD/MM/YYYY"

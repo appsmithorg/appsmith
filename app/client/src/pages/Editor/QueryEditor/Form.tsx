@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  formValueSelector,
-  InjectedFormProps,
-  reduxForm,
-  Field,
-} from "redux-form";
+import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
 import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
 import {
@@ -22,6 +17,7 @@ import FormRow from "components/editorComponents/FormRow";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "api/DatasourcesApi";
+import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
@@ -39,7 +35,8 @@ import {
 import FormControlFactory from "utils/FormControlFactory";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { SwitchField } from "components/formControls/SwitchControl";
+import ActionSettings from "pages/Editor/ActionSettings";
+import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 
 const QueryFormContainer = styled.div`
   padding: 20px 32px;
@@ -214,6 +211,22 @@ const CollapsibleWrapper = styled.div`
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
+`;
+
+const TabContainerView = styled.div`
+  height: calc(100vh / 3);
+
+  .react-tabs__tab-panel {
+    border: 1px solid #ebeff2;
+  }
+  .react-tabs__tab-list {
+    margin: 0px;
+  }
+`;
+
+const SettingsWrapper = styled.div`
+  padding-left: 15px;
+  padding-top: 8px;
 `;
 
 type QueryFormProps = {
@@ -442,29 +455,44 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           )}
         </div>
 
-        {editorConfig && editorConfig.length > 0 ? (
-          editorConfig.map(renderEachConfig)
-        ) : (
-          <>
-            <ErrorMessage>An unexpected error occurred</ErrorMessage>
-            <Tag
-              round
-              intent="warning"
-              interactive
-              minimal
-              onClick={() => window.location.reload()}
-            >
-              Refresh
-            </Tag>
-          </>
-        )}
-        <div className="executeOnLoad">
-          <Field
-            name="executeOnLoad"
-            component={SwitchField}
-            label={"Run on Page Load"}
+        <TabContainerView>
+          <BaseTabbedView
+            tabs={[
+              {
+                key: "query",
+                title: "Query",
+                panelComponent:
+                  editorConfig && editorConfig.length > 0 ? (
+                    editorConfig.map(renderEachConfig)
+                  ) : (
+                    <>
+                      <ErrorMessage>An unexpected error occurred</ErrorMessage>
+                      <Tag
+                        round
+                        intent="warning"
+                        interactive
+                        minimal
+                        onClick={() => window.location.reload()}
+                      >
+                        Refresh
+                      </Tag>
+                    </>
+                  ),
+              },
+              {
+                key: "settings",
+                title: "Settings",
+                panelComponent: (
+                  <SettingsWrapper>
+                    <ActionSettings
+                      actionSettingsConfig={queryActionSettingsConfig}
+                    />
+                  </SettingsWrapper>
+                ),
+              },
+            ]}
           />
-        </div>
+        </TabContainerView>
       </form>
 
       {dataSources.length === 0 && (

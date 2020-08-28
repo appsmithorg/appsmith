@@ -25,6 +25,8 @@ import EmbeddedDatasourcePathField from "components/editorComponents/form/fields
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
+import ActionSettings from "pages/Editor/ActionSettings";
+import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
 
 const Form = styled.form`
   display: flex;
@@ -109,6 +111,13 @@ const RequestParamsWrapper = styled.div`
   padding-top: 6px;
   padding-left: 17px;
   padding-right: 10px;
+`;
+
+const SettingsWrapper = styled.div`
+  padding-left: 15px;
+  ${FormLabel} {
+    padding: 0px;
+  }
 `;
 
 const HeadersSection = styled.div`
@@ -254,6 +263,17 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                     onTestClick={props.onRunClick}
                     paginationType={props.paginationType}
                   />
+                ),
+              },
+              {
+                key: "settings",
+                title: "Settings",
+                panelComponent: (
+                  <SettingsWrapper>
+                    <ActionSettings
+                      actionSettingsConfig={apiActionSettingsConfig}
+                    />
+                  </SettingsWrapper>
                 ),
               },
             ]}
