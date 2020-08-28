@@ -1,5 +1,5 @@
 import React from "react";
-import { AdsTabComponent } from "components/ads/Tabs";
+import { TabComponent } from "components/ads/Tabs";
 import { select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { IconName } from "../ads/Icon";
@@ -7,7 +7,7 @@ import styled from "styled-components";
 
 export default {
   title: "Tabs",
-  component: AdsTabComponent,
+  component: TabComponent,
   decorators: [withKnobs, withDesign],
 };
 
@@ -87,7 +87,7 @@ const TabStory = (props: any) => {
 
   return (
     <StoryWrapper>
-      <AdsTabComponent tabs={tabArr}></AdsTabComponent>
+      <TabComponent tabs={tabArr} />
     </StoryWrapper>
   );
 };

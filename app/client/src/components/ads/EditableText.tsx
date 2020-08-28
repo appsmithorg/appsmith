@@ -135,7 +135,7 @@ const IconWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-export const AdsEditableText = (props: EditableTextProps) => {
+export const EditableText = (props: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
   const [value, setValue] = useState(props.defaultValue);
   const [lastValidValue, setLastValidValue] = useState(props.defaultValue);
@@ -285,8 +285,8 @@ export const AdsEditableText = (props: EditableTextProps) => {
   );
 };
 
-AdsEditableText.defaultProps = {
+EditableText.defaultProps = {
   fill: false,
 };
 
-export default AdsEditableText;
+export default EditableText;

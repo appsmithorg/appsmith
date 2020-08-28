@@ -9,7 +9,7 @@ import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import ColorSelector, { appColorPalette } from "../ads/ColorSelector";
 import { AppIconName } from "../ads/AppIcon";
 import IconSelector from "../ads/IconSelector";
-import AdsEditableText, {
+import EditableText, {
   SavingState,
   EditInteractionKind,
   SavingStateHandler,
@@ -79,7 +79,7 @@ export const MenuStory = () => {
           </div>
         }
       >
-        <AdsEditableText
+        <EditableText
           defaultValue="Product design app"
           editInteractionKind={EditInteractionKind.SINGLE}
           onTextChanged={action("editable-input-changed")}
@@ -92,7 +92,7 @@ export const MenuStory = () => {
           onSubmit={(value: string, callback: SavingStateHandler) =>
             calls(value, callback)
           }
-        ></AdsEditableText>
+        />
         <ColorSelector
           onSelect={(value: string) => setSelectedColor(value)}
           fill={false}

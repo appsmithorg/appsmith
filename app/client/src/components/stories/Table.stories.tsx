@@ -84,7 +84,7 @@ const data = [
   },
 ];
 
-export const AdsTable = () => (
+export const TableStory = () => (
   <StoryWrapper>
     <Table columns={columns} data={data}></Table>
   </StoryWrapper>
