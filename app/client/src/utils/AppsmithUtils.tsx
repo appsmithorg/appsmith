@@ -31,7 +31,7 @@ export const appInitializer = () => {
 
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init(appsmithConfigs.sentry);
-    Sentry.captureMessage("App Initialised");
+    Sentry.captureEvent({ message: "Initalised" });
   }
   if (appsmithConfigs.smartLook.enabled) {
     const { id } = appsmithConfigs.smartLook;
