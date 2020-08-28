@@ -163,7 +163,7 @@ const TextInput = forwardRef(
           isValid={validation.isValid}
           defaultValue={props.defaultValue}
           {...props}
-          placeholder={props.placeholder ? props.placeholder : ""}
+          placeholder={props.placeholder}
           onChange={memoizedChangeHandler}
         />
         {ErrorMessage}
