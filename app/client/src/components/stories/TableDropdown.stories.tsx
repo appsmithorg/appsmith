@@ -1,7 +1,8 @@
 import React from "react";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import TableDropdown from "../ads/TableDropdown";
+import TableDropdown from "components/ads/TableDropdown";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "Dropdown",
@@ -25,13 +26,11 @@ const options = [
 ];
 
 export const TableDropdownStory = () => (
-  <div
-    style={{ padding: "50px 200px", height: "500px", background: "#1A191C" }}
-  >
+  <StoryWrapper>
     <TableDropdown
       options={options}
       onSelect={(selectedValue: string) => console.log(selectedValue)}
       selectedOption={options[0]}
     ></TableDropdown>
-  </div>
+  </StoryWrapper>
 );
