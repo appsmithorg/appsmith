@@ -12,6 +12,7 @@ import styled from "styled-components";
 import { Size } from "./Button";
 import { sizeHandler } from "./Spinner";
 import { CommonComponentProps } from "./common";
+import { noop } from "lodash";
 
 export type IconName =
   | "Select icon"
@@ -104,7 +105,7 @@ const Icon = (props: IconProps & CommonComponentProps) => {
       className={props.className ? props.className : "ads-icon"}
       data-cy={props.cypressSelector}
       {...props}
-      onClick={() => props.onClick && props.onClick()}
+      onClick={props.onClick || noop}
     >
       {returnIcon}
     </IconWrapper>
