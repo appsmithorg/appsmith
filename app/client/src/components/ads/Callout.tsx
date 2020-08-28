@@ -1,10 +1,30 @@
+import React from "react";
 import { CommonComponentProps } from "./common";
 import { Variant } from "./Button";
+import Text, { TextType } from "./Text";
+import styled from "styled-components";
 
 type CalloutProps = CommonComponentProps & {
-  variant?: Variant; //default info
+  variant: Variant;
+  text: string;
 };
 
-export default function Callout(props: CalloutProps) {
-  return null;
+const CalloutContainer = styled.div<{ variant: Variant }>`
+  padding: ${props => props.theme.spaces[5]}px
+    ${props => props.theme.spaces[5]}px;
+  background: ${props => props.theme.colors[props.variant].darkest};
+
+  span {
+    color: ${props => props.theme.colors[props.variant].main};
+  }
+`;
+
+function Callout(props: CalloutProps) {
+  return (
+    <CalloutContainer variant={props.variant}>
+      <Text type={TextType.P2}>{props.text}</Text>
+    </CalloutContainer>
+  );
 }
+
+export default Callout;
