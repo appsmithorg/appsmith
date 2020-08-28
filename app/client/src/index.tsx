@@ -5,10 +5,11 @@ import { Provider } from "react-redux";
 import "./index.css";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
 import { appInitializer } from "utils/AppsmithUtils";
-import { Slide, ToastContainer } from "react-toastify";
+import { Slide } from "react-toastify";
 import store from "./store";
 import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "./AppRouter";
+import { StyledToastContainer } from "./components/ads/Toast";
 
 appInitializer();
 
@@ -17,12 +18,13 @@ const App = () => {
     <Provider store={store}>
       <LayersContext.Provider value={Layers}>
         <ThemeProvider theme={theme}>
-          <ToastContainer
+          <StyledToastContainer
             hideProgressBar
             draggable={false}
             transition={Slide}
             autoClose={5000}
             closeButton={false}
+            pauseOnHover={false}
           />
           <AppRouter />
         </ThemeProvider>
