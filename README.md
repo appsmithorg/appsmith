@@ -40,6 +40,7 @@ Do all this without depending on multiple UI libraries, coding authentication lo
 ## Example Applications
 
 * [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
+* [Job Application Tracker](http://bit.ly/job-tracker-appsmith)
 
 ## Getting Started
 You can try our online sandbox or deploy a Docker image on a server.

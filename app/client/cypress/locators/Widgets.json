@@ -5,6 +5,7 @@
     "inputPropsDataType": ".t--property-control-datatype",
     "inputdatatypeplaceholder": ".t--property-control-placeholder",
     "buttonWidget": ".t--draggable-buttonwidget",
+    "formButtonWidget": ".t--widget-formbuttonwidget",
     "textWidget": ".t--draggable-textwidget",
     "tableWidget": ".t--draggable-tablewidget",
     "tableOnRowSelected": ".t--property-control-onrowselected",
