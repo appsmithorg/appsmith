@@ -4,7 +4,7 @@ import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { StyledSwitch } from "components/propertyControls/StyledControls";
-import Spinner from "components/ads/Spinner";
+import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const ShareWithPublicOption = styled.div`
