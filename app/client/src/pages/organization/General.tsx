@@ -72,7 +72,6 @@ export function GeneralSettings() {
 
   const { isFetchingOrg } = useSelector(getOrgLoadingStates);
 
-  console.log({ isFetchingOrg });
   return (
     <>
       <SettingsHeading type={TextType.H2}>General</SettingsHeading>
