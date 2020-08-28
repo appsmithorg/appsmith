@@ -12,6 +12,7 @@
     REACT_APP_CLOUD_HOSTING = "true"
     REACT_APP_INTERCOM_APP_ID = "y10e7138"
     REACT_APP_MAIL_ENABLED = "true"
+    REACT_APP_SENTRY_DSN = "https://78e9c79f210f4f83ab6d96e097f47b6f@o296332.ingest.sentry.io/1546547"
 
 
 [context.production]
@@ -22,18 +23,19 @@
     REACT_APP_SEGMENT_KEY = "9OnZ6LnDztuZZo4zXfoutEEBB2wftHUH"
     REACT_APP_BASE_URL = "https://api.appsmith.com"
     APP_HOST = "app.appsmith.com"
-    REACT_APP_SENTRY_DSN = "https://78e9c79f210f4f83ab6d96e097f47b6f@o296332.ingest.sentry.io/1546547"
     REACT_APP_CLIENT_LOG_LEVEL = "error"
 
 [context.release]
   [context.release.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_SENTRY_ENVIRONMENT = "Staging"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
     APP_HOST = "release.app.appsmith.com"
 
 [context.deploy-preview]
   [context.deploy-preview.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_SENTRY_ENVIRONMENT = "Development"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
     # Not adding an APP_HOST here because the URL is dynamic in nature and cannot be determined.
 
