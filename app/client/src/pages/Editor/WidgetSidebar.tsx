@@ -56,6 +56,7 @@ const WidgetSidebar = (props: IPanelProps) => {
   return (
     <>
       <CloseIcon
+        className="t--close-widgets-sidebar"
         icon="cross"
         iconSize={16}
         color={Colors.WHITE}
