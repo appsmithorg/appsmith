@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Icon, { IconName } from "./Icon";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
@@ -9,62 +9,53 @@ type DropdownOption = {
   label?: string;
   value: string;
   id?: string;
-  icon?: IconName; // Create an icon library
+  icon?: IconName;
   onSelect?: (option: DropdownOption) => void;
   children?: DropdownOption[];
 };
 
-// export enum DropdownDisplayType {
-//   TAGS = "TAGS",
-//   CHECKBOXES = "CHECKBOXES",
-// }
-
 type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
-  selectHandler: (selectedValue: string) => void;
   selected: DropdownOption;
-  // multiselectDisplayType?: DropdownDisplayType;
-  // checked?: boolean;
-  // multi?: boolean;
-  // autocomplete?: boolean;
-  // addItem?: {
-  //   displayText: string;
-  //   addItemHandler: (name: string) => void;
-  // };
-  // toggle?: ReactNode;
 };
 
 const DropdownContainer = styled.div`
   width: 260px;
 `;
 
-const Select = styled.div<{ isOpen: boolean }>`
+const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
-  background: ${props => props.theme.colors.blackShades[0]};
+  background: ${props =>
+    props.disabled
+      ? props.theme.colors.blackShades[2]
+      : props.theme.colors.blackShades[0]};
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   cursor: pointer;
-  ${props => (props.isOpen ? "border: 1.2px solid #CB4810" : null)};
-  ${props => (props.isOpen ? "box-sizing: border-box" : null)};
   ${props =>
-    props.isOpen
+    props.isOpen && !props.disabled
+      ? `border: 1.2px solid ${props.theme.colors.info.main}`
+      : null};
+  ${props =>
+    props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
+  ${props =>
+    props.isOpen && !props.disabled
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
-
-  .ads-icon {
-    svg {
-      width: 8px;
-      height: 5px;
-    }
+  span {
+    ${props =>
+      props.disabled
+        ? `color: ${props.theme.colors.blackShades[6]}`
+        : `color: ${props.theme.colors.blackShades[7]}`};
   }
 `;
 
 const DropdownWrapper = styled.div`
-  margin-top: 5px;
-  background: #2b2b2b;
+  margin-top: ${props => props.theme.spaces[2] - 1}px;
+  background: ${props => props.theme.colors.blackShades[3]};
   box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.6);
   width: 100%;
 `;
@@ -75,38 +66,49 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
   cursor: pointer;
   display: flex;
   align-items: center;
-  ${props => (props.selected ? "background: #404040" : null)};
+  ${props =>
+    props.selected ? `background: ${props.theme.colors.blackShades[4]}` : null};
   span {
-    ${props => (props.selected ? "color: #FFFFFF" : null)};
+    ${props =>
+      props.selected ? `color: ${props.theme.colors.blackShades[9]}` : null};
   }
   .ads-icon {
-    margin-right: 12px;
+    margin-right: ${props => props.theme.spaces[5]}px;
     svg {
       path {
-        ${props => (props.selected ? "fill: #E9E9E9" : "fill: #9F9F9F")};
+        ${props =>
+          props.selected
+            ? `fill: ${props.theme.colors.blackShades[8]}`
+            : `fill: ${props.theme.colors.blackShades[6]}`};
       }
     }
   }
 
   &:hover {
     span {
-      color: #ffffff;
+      color: ${props => props.theme.colors.blackShades[9]};
     }
     svg {
       path {
-        fill: #e9e9e9;
+        fill: ${props => props.theme.colors.blackShades[8]};
       }
     }
   }
 `;
 
-const LabelWrapper = styled.div`
+const LabelWrapper = styled.div<{ label?: string }>`
   display: flex;
   flex-direction: column;
   align-item: flex-start;
 
-  span {
-  }
+  ${props =>
+    props.label
+      ? `
+    span:last-child {
+      margin-top: ${props.theme.spaces[2] - 1}px;
+    }
+    `
+      : null}
 `;
 
 export default function Dropdown(props: DropdownProps) {
@@ -125,30 +127,37 @@ export default function Dropdown(props: DropdownProps) {
 
   const selectedHandler = useCallback(() => {
     setIsOpen(!isOpen);
-    selected.onSelect && selected.onSelect(selected);
   }, []);
 
   return (
     <DropdownContainer tabIndex={0} onBlur={() => setIsOpen(false)}>
-      <Select isOpen={isOpen} onClick={selectedHandler}>
+      <Selected
+        isOpen={isOpen}
+        disabled={props.disabled}
+        onClick={selectedHandler}
+      >
         <Text type={TextType.P1}>{selected.value}</Text>
         <Icon name="downArrow" size={Size.small} />
-      </Select>
+      </Selected>
 
-      {isOpen ? (
+      {isOpen && !props.disabled ? (
         <DropdownWrapper>
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <OptionWrapper
                 key={index}
-                selected={props.selected.value === option.value}
+                selected={selected.value === option.value}
                 onClick={() => optionClickHandler(option)}
               >
                 {option.icon ? (
                   <Icon name={option.icon} size={Size.large} />
                 ) : null}
-                <LabelWrapper>
-                  <Text type={TextType.P1}>{option.value}</Text>
+                <LabelWrapper label={option.label}>
+                  {option.label ? (
+                    <Text type={TextType.H5}>{option.value}</Text>
+                  ) : (
+                    <Text type={TextType.P1}>{option.value}</Text>
+                  )}
                   {option.label ? (
                     <Text type={TextType.P3}>{option.label}</Text>
                   ) : null}
