@@ -5,10 +5,8 @@ import styled from "styled-components";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { getColorWithOpacity } from "constants/DefaultTheme";
-
-type WidgetSidebarProps = {
-  cards: { [id: string]: WidgetCardProps[] };
-};
+import { IPanelProps, Icon, Classes } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -43,22 +41,39 @@ const CardsWrapper = styled.div`
   align-items: stretch;
 `;
 
-const WidgetSidebar = () => {
+const CloseIcon = styled(Icon)`
+  &&.${Classes.ICON} {
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    cursor: pointer;
+  }
+`;
+
+const WidgetSidebar = (props: IPanelProps) => {
   const cards = useSelector(getWidgetCards);
   const groups = Object.keys(cards);
   return (
-    <MainWrapper>
-      {groups.map((group: string) => (
-        <React.Fragment key={group}>
-          <h5>{group}</h5>
-          <CardsWrapper>
-            {cards[group].map((card: WidgetCardProps) => (
-              <WidgetCard details={card} key={card.key} />
-            ))}
-          </CardsWrapper>
-        </React.Fragment>
-      ))}
-    </MainWrapper>
+    <>
+      <CloseIcon
+        icon="cross"
+        iconSize={16}
+        color={Colors.WHITE}
+        onClick={props.closePanel}
+      />
+      <MainWrapper>
+        {groups.map((group: string) => (
+          <React.Fragment key={group}>
+            <h5>{group}</h5>
+            <CardsWrapper>
+              {cards[group].map((card: WidgetCardProps) => (
+                <WidgetCard details={card} key={card.key} />
+              ))}
+            </CardsWrapper>
+          </React.Fragment>
+        ))}
+      </MainWrapper>
+    </>
   );
 };
 

@@ -639,7 +639,7 @@ export const theme: Theme = {
     },
   ],
   sidebarWidth: "320px",
-  headerHeight: "50px",
+  headerHeight: "48px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,

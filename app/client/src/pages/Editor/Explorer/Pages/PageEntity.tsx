@@ -22,6 +22,7 @@ type ExplorerPageEntityProps = {
   actions: any[];
   step: number;
   searchKeyword?: string;
+  showWidgetsSidebar: () => void;
 };
 export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
@@ -50,6 +51,9 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
 
   const icon = props.page.isDefault ? homePageIcon : pageIcon;
 
+  let addWidgetsFn = undefined;
+  if (isCurrentPage) addWidgetsFn = props.showWidgetsSidebar;
+
   return (
     <Entity
       icon={icon}
@@ -69,6 +73,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
         searchKeyword={props.searchKeyword}
         widgets={props.widgets}
         pageId={props.page.pageId}
+        addWidgetsFn={addWidgetsFn}
       />
 
       {getActionGroups(

@@ -1,4 +1,4 @@
-import React, { useRef, MutableRefObject } from "react";
+import React, { useRef, MutableRefObject, useCallback } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import {
@@ -11,7 +11,8 @@ import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
 import ExplorerDatasourcesGroup from "./Datasources/DatasourcesGroup";
 import { scrollbarDark } from "constants/DefaultTheme";
-import { NonIdealState, Classes } from "@blueprintjs/core";
+import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
+import WidgetSidebar from "../WidgetSidebar";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -29,7 +30,7 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
 
-const EntityExplorer = () => {
+const EntityExplorer = (props: IPanelProps) => {
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
@@ -51,6 +52,14 @@ const EntityExplorer = () => {
     const noDatasource = !datasources || datasources.length === 0;
     noResults = noWidgets && noActions && noDatasource;
   }
+  const { openPanel } = props;
+  const showWidgetsSidebar = useCallback(
+    () =>
+      openPanel({
+        component: WidgetSidebar,
+      }),
+    [openPanel],
+  );
 
   return (
     <Wrapper ref={explorerRef}>
@@ -60,6 +69,7 @@ const EntityExplorer = () => {
         step={0}
         widgets={widgets}
         actions={actions}
+        showWidgetsSidebar={showWidgetsSidebar}
       />
       {noResults && (
         <NoResult
