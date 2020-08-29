@@ -13,6 +13,7 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATORS } from "utils/Validators";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
+import * as Sentry from "@sentry/react";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -207,3 +208,4 @@ export interface DropdownWidgetProps extends WidgetProps {
 }
 
 export default DropdownWidget;
+export const ProfiledDropDownWidget = Sentry.withProfiler(DropdownWidget);

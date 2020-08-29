@@ -7,6 +7,7 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import * as Sentry from "@sentry/react";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -42,3 +43,4 @@ export interface ImageWidgetProps extends WidgetProps {
 }
 
 export default ImageWidget;
+export const ProfiledImageWidget = Sentry.withProfiler(ImageWidget);

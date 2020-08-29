@@ -1,5 +1,6 @@
 export const ERROR_MESSAGE_SELECT_ACTION = "Please select an action";
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = "Please select an action type";
+export const ERROR_MESSAGE_NAME_EMPTY = "Please select a name";
 export const ERROR_MESSAGE_CREATE_APPLICATION =
   "We could not create the Application";
 export const API_PATH_START_WITH_SLASH_ERROR = "Path cannot start with /";

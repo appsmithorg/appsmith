@@ -38,6 +38,7 @@ import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
+import * as Sentry from "@sentry/react";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -209,4 +210,6 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Editor));
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(Sentry.withProfiler(Editor)),
+);
