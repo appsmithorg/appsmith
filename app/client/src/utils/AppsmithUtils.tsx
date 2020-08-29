@@ -10,6 +10,7 @@ import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
 import { appCardColors } from "constants/AppConstants";
+import produce from "immer";
 
 export const createReducer = (
   initialState: any,
@@ -24,6 +25,19 @@ export const createReducer = (
   };
 };
 
+export const createImmerReducer = (
+  initialState: any,
+  handlers: { [type: string]: any },
+) => {
+  return function reducer(state = initialState, action: ReduxAction<any>) {
+    if (handlers.hasOwnProperty(action.type)) {
+      return produce(handlers[action.type])(state, action);
+    } else {
+      return state;
+    }
+  };
+};
+
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
@@ -31,7 +45,6 @@ export const appInitializer = () => {
 
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init(appsmithConfigs.sentry);
-    Sentry.captureEvent({ message: "Initalised" });
   }
   if (appsmithConfigs.smartLook.enabled) {
     const { id } = appsmithConfigs.smartLook;

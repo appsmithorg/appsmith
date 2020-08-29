@@ -132,7 +132,7 @@ const SearchInput = forwardRef(
             name="close"
             size={Size.large}
             className="close-icon"
-            click={() => setSearchValue("")}
+            onClick={() => setSearchValue("")}
           />
         ) : null}
       </InputWrapper>
