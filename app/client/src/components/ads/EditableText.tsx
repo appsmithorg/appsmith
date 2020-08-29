@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Size } from "./Button";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
 import { hexToRgba } from "./common";
 import { theme } from "constants/DefaultTheme";
 import { noop } from "lodash";
-import Icon from "./Icon";
+import Icon, { IconSize, IconName } from "./Icon";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -218,12 +217,12 @@ export const EditableText = (props: EditableTextProps) => {
 
   const iconName =
     !isEditing && savingState.name === SavingState.NOT_STARTED
-      ? "edit"
+      ? IconName.EDIT
       : !isEditing && savingState.name === SavingState.SUCCESS
-      ? "success"
+      ? IconName.SUCCESS
       : (isEditing && savingState.name === SavingState.ERROR) ||
         (isEditing && !!isInvalid)
-      ? "error"
+      ? IconName.ERROR
       : undefined;
 
   const nonEditMode = () => {
@@ -270,9 +269,9 @@ export const EditableText = (props: EditableTextProps) => {
 
         <IconWrapper className="icon-wrapper">
           {savingState.isSaving ? (
-            <Spinner size={Size.large} />
+            <Spinner size={IconSize.XL} />
           ) : (
-            <Icon name={iconName} size={Size.large} />
+            <Icon name={iconName} size={IconSize.XL} />
           )}
         </IconWrapper>
       </TextContainer>
