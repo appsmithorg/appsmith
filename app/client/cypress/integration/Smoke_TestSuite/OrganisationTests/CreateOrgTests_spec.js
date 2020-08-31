@@ -98,11 +98,11 @@ describe("Create new org and share with a user", function() {
       homePage.viewerRole,
     );
     cy.navigateToOrgSettings(orgid);
-    cy.get(homePage.emailList).then(function($lis) {
-      expect($lis).to.have.length(3);
-      expect($lis.eq(0)).to.contain(Cypress.env("USERNAME"));
-      expect($lis.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
-      expect($lis.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
+    cy.get(homePage.emailList).then(function($list) {
+      expect($list).to.have.length(3);
+      expect($list.eq(0)).to.contain(Cypress.env("USERNAME"));
+      expect($list.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
+      expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
   });
 
@@ -117,14 +117,15 @@ describe("Create new org and share with a user", function() {
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
     cy.navigateToOrgSettings(orgid);
-    cy.get(homePage.emailList).then(function($lis) {
-      expect($lis).to.have.length(3);
-      expect($lis.eq(0)).to.contain(Cypress.env("USERNAME"));
-      expect($lis.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
-      expect($lis.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
+    cy.get(homePage.emailList).then(function($list) {
+      expect($list).to.have.length(3);
+      expect($list.eq(0)).to.contain(Cypress.env("USERNAME"));
+      expect($list.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
+      expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
     cy.xpath(homePage.appHome)
       .should("be.visible")
+      .first()
       .click();
     cy.wait("@applications").should(
       "have.nested.property",

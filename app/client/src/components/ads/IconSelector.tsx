@@ -31,32 +31,30 @@ const IconPalette = styled.div<{ fill?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  padding: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[5]}px;
   width: ${props => (props.fill ? "100%" : "234px")};
 `;
 
-const IconBox = styled.div<{
-  iconName: AppIconName;
-  selected: AppIconName;
-  bgColor: string;
-}>`
-  padding: ${props => props.theme.spaces[2]}px
-    ${props => props.theme.spaces[2] - 1}px;
+const IconBox = styled.div`
   margin: 0 ${props => props.theme.spaces[2]}px
     ${props => props.theme.spaces[2]}px 0;
-  background-color: ${props =>
-    props.selected === props.iconName
-      ? props.bgColor
-      : props.theme.colors.blackShades[2]};
-  cursor: pointer;
   position: relative;
 
-  &:last-child {
+  &:nth-child(6n) {
     margin-right: ${props => props.theme.spaces[0]}px;
   }
 `;
 
 const IconSelector = (props: IconSelectorProps) => {
-  const [selected, setSelected] = useState<AppIconName>(appIconPalette[0]);
+  function firstSelectedIcon() {
+    if (props.iconPalette && props.iconPalette[0]) {
+      return props.iconPalette[0];
+    }
+    return appIconPalette[0];
+  }
+
+  const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
 
   useEffect(() => {
     if (props.selectedIcon) {
@@ -71,15 +69,16 @@ const IconSelector = (props: IconSelectorProps) => {
           return (
             <IconBox
               key={index}
-              selected={selected}
-              iconName={iconName}
-              bgColor={props.selectedColor}
               onClick={() => {
                 setSelected(iconName);
                 props.onSelect && props.onSelect(iconName);
               }}
             >
-              <AppIcon name={iconName} size={Size.small} />
+              <AppIcon
+                name={iconName}
+                size={Size.small}
+                color={selected === iconName ? props.selectedColor : "#232324"}
+              />
             </IconBox>
           );
         })}

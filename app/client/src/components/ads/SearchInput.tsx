@@ -1,8 +1,13 @@
-import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
+import React, {
+  forwardRef,
+  Ref,
+  useCallback,
+  useState,
+  useEffect,
+} from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
-import { Size } from "./Button";
-import Icon from "./Icon";
+import Icon, { IconSize, IconName } from "./Icon";
 
 export enum SearchVariant {
   BACKGROUND = "BACKGROUND",
@@ -89,6 +94,10 @@ const SearchInput = forwardRef(
     const [searchValue, setSearchValue] = useState(props.defaultValue);
     const [isFocused, setIsFocused] = useState(false);
 
+    useEffect(() => {
+      setSearchValue(props.defaultValue);
+    }, [props.defaultValue]);
+
     const memoizedChangeHandler = useCallback(
       el => {
         setSearchValue(el.target.value);
@@ -104,7 +113,11 @@ const SearchInput = forwardRef(
         variant={props.variant}
         fill={props.fill}
       >
-        <Icon name="search" size={Size.large} className="search-icon" />
+        <Icon
+          name={IconName.SEARCH}
+          size={IconSize.SMALL}
+          className="search-icon"
+        />
         <StyledInput
           type="text"
           ref={ref}
@@ -118,10 +131,10 @@ const SearchInput = forwardRef(
         />
         {searchValue && props.variant === SearchVariant.BACKGROUND ? (
           <Icon
-            name="close"
-            size={Size.large}
+            name={IconName.SEARCH}
+            size={IconSize.MEDIUM}
             className="close-icon"
-            click={() => setSearchValue("")}
+            onClick={() => setSearchValue("")}
           />
         ) : null}
       </InputWrapper>

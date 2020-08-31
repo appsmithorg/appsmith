@@ -16,6 +16,7 @@ import {
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
 import _ from "lodash";
+import * as Sentry from "@sentry/react";
 
 class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
   debouncedHandleTextChanged = _.debounce(
@@ -221,3 +222,4 @@ interface InputWidgetState extends WidgetState {
 }
 
 export default InputWidget;
+export const ProfiledInputWidget = Sentry.withProfiler(InputWidget);

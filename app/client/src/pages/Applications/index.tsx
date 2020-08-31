@@ -175,7 +175,7 @@ class Applications extends Component<
                 content: "Organization Settings",
                 onSelect: () =>
                   getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                    path: `/org/${orgId}/settings`,
+                    path: `/org/${orgId}/settings/general`,
                   }),
               },
               {
@@ -189,7 +189,7 @@ class Applications extends Component<
                 content: "Members",
                 onSelect: () =>
                   getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                    path: `/org/${orgId}/settings`,
+                    path: `/org/${orgId}/settings/members`,
                   }),
               },
             ],

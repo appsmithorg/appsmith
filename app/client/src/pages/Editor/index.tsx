@@ -39,6 +39,8 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
+import * as Sentry from "@sentry/react";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -192,6 +194,7 @@ class Editor extends Component<Props> {
             </div>
           </Dialog>
         </div>
+        <ConfirmRunModal />
       </DndProvider>
     );
   }
@@ -214,4 +217,6 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Editor));
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(Sentry.withProfiler(Editor)),
+);

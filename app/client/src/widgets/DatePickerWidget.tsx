@@ -12,6 +12,7 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
+import * as Sentry from "@sentry/react";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -105,3 +106,4 @@ export interface DatePickerWidgetProps extends WidgetProps {
 }
 
 export default DatePickerWidget;
+export const ProfiledDatePickerWidget = Sentry.withProfiler(DatePickerWidget);

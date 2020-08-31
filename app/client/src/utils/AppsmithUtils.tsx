@@ -1,6 +1,6 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "configs";
-import * as Sentry from "@sentry/browser";
+import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
@@ -10,6 +10,7 @@ import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
 import { appCardColors } from "constants/AppConstants";
+import produce from "immer";
 
 export const createReducer = (
   initialState: any,
@@ -24,6 +25,19 @@ export const createReducer = (
   };
 };
 
+export const createImmerReducer = (
+  initialState: any,
+  handlers: { [type: string]: any },
+) => {
+  return function reducer(state = initialState, action: ReduxAction<any>) {
+    if (handlers.hasOwnProperty(action.type)) {
+      return produce(handlers[action.type])(state, action);
+    } else {
+      return state;
+    }
+  };
+};
+
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
@@ -32,9 +46,9 @@ export const appInitializer = () => {
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init(appsmithConfigs.sentry);
   }
-  if (appsmithConfigs.hotjar.enabled) {
-    const { id, sv } = appsmithConfigs.hotjar;
-    AnalyticsUtil.initializeHotjar(id, sv);
+  if (appsmithConfigs.smartLook.enabled) {
+    const { id } = appsmithConfigs.smartLook;
+    AnalyticsUtil.initializeSmartLook(id);
   }
   if (appsmithConfigs.segment.enabled) {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);

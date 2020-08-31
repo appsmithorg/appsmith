@@ -11,6 +11,9 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 function* fetchPluginsSaga() {
   try {
     const orgId = yield select(getCurrentOrgId);
+    if (!orgId) {
+      throw Error("Org id does not exist");
+    }
     const pluginsResponse = yield call(PluginsApi.fetchPlugins, orgId);
     const isValid = yield validateResponse(pluginsResponse);
     if (isValid) {

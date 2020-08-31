@@ -47,8 +47,9 @@ export interface FetchAllRolesRequest {
 
 export interface SaveOrgRequest {
   id: string;
-  name: string;
-  website: string;
+  name?: string;
+  website?: string;
+  email?: string;
 }
 
 export interface CreateOrgRequest {

@@ -1,7 +1,10 @@
 import React from "react";
-import Table from "../ads/Table";
-import Button, { Category, Variant, Size } from "../ads/Button";
-import Icon from "../ads/Icon";
+import Table from "components/ads/Table";
+import Button, { Category, Variant, Size } from "components/ads/Button";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
+import TableDropdown from "components/ads/TableDropdown";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "Table",
@@ -35,11 +38,33 @@ const columns = [
   },
 ];
 
+const options = [
+  {
+    name: "Admin",
+    desc: "Can edit, view and invite other user to an app",
+  },
+  {
+    name: "Developer",
+    desc: "Can view and invite other user to an app",
+  },
+  {
+    name: "User",
+    desc: "Can view and invite other user to an app and...",
+  },
+];
+
 const data = [
   {
     col1: "Dustin Howard",
     col2: "dustin_01@jlegue.com",
-    col3: "Developer",
+    col3: (
+      <TableDropdown
+        position={Position.BOTTOM}
+        options={options}
+        onSelect={selectedValue => console.log(selectedValue)}
+        selectedIndex={0}
+      ></TableDropdown>
+    ),
     col4: "App Access",
     col5: (
       <Button
@@ -49,12 +74,19 @@ const data = [
         text={"approve"}
       />
     ),
-    col6: <Icon name={"delete"} size={Size.large} />,
+    col6: <Icon name={IconName.DELETE} size={IconSize.LARGE} />,
   },
   {
     col1: "Austin Howard",
     col2: "dustin_02@jlegue.com",
-    col3: "User",
+    col3: (
+      <TableDropdown
+        position={Position.BOTTOM}
+        options={options}
+        onSelect={selectedValue => console.log(selectedValue)}
+        selectedIndex={1}
+      ></TableDropdown>
+    ),
     col4: "Map Access",
     col5: (
       <Button
@@ -64,12 +96,19 @@ const data = [
         text={"accepted"}
       />
     ),
-    col6: <Icon name={"delete"} size={Size.large} />,
+    col6: <Icon name={IconName.DELETE} size={IconSize.LARGE} />,
   },
   {
     col1: "Justing Howard",
     col2: "dustin_03@jlegue.com",
-    col3: "Admin",
+    col3: (
+      <TableDropdown
+        position={Position.BOTTOM}
+        options={options}
+        onSelect={selectedValue => console.log(selectedValue)}
+        selectedIndex={2}
+      ></TableDropdown>
+    ),
     col4: "Dm Access",
     col5: (
       <Button
@@ -79,12 +118,12 @@ const data = [
         text={"on hold"}
       />
     ),
-    col6: <Icon name={"delete"} size={Size.large} />,
+    col6: <Icon name={IconName.DELETE} size={IconSize.LARGE} />,
   },
 ];
 
-export const AdsTable = () => (
-  <div style={{ background: "#131216", padding: "50px" }}>
+export const TableStory = () => (
+  <StoryWrapper>
     <Table columns={columns} data={data}></Table>
-  </div>
+  </StoryWrapper>
 );

@@ -1,42 +1,81 @@
 import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
 import { WidgetTypes } from "constants/WidgetConstants";
-import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
-import TextWidget, { TextWidgetProps } from "widgets/TextWidget";
-import InputWidget, { InputWidgetProps } from "widgets/InputWidget";
-import CheckboxWidget, { CheckboxWidgetProps } from "widgets/CheckboxWidget";
+import ContainerWidget, {
+  ContainerWidgetProps,
+  ProfiledContainerWidget,
+} from "widgets/ContainerWidget";
+import TextWidget, {
+  TextWidgetProps,
+  ProfiledTextWidget,
+} from "widgets/TextWidget";
+import InputWidget, {
+  InputWidgetProps,
+  ProfiledInputWidget,
+} from "widgets/InputWidget";
+import CheckboxWidget, {
+  CheckboxWidgetProps,
+  ProfiledCheckboxWidget,
+} from "widgets/CheckboxWidget";
 import RadioGroupWidget, {
   RadioGroupWidgetProps,
+  ProfiledRadioGroupWidget,
 } from "widgets/RadioGroupWidget";
 import WidgetFactory from "./WidgetFactory";
 import React from "react";
-import ButtonWidget, { ButtonWidgetProps } from "widgets/ButtonWidget";
-import DropdownWidget, { DropdownWidgetProps } from "widgets/DropdownWidget";
-import ImageWidget, { ImageWidgetProps } from "widgets/ImageWidget";
-import TableWidget, { TableWidgetProps } from "widgets/TableWidget";
+import ButtonWidget, {
+  ButtonWidgetProps,
+  ProfiledButtonWidget,
+} from "widgets/ButtonWidget";
+import DropdownWidget, {
+  DropdownWidgetProps,
+  ProfiledDropDownWidget,
+} from "widgets/DropdownWidget";
+import ImageWidget, {
+  ImageWidgetProps,
+  ProfiledImageWidget,
+} from "widgets/ImageWidget";
+import TableWidget, {
+  TableWidgetProps,
+  ProfiledTableWidget,
+} from "widgets/TableWidget";
 import TabsWidget, {
   TabsWidgetProps,
   TabContainerWidgetProps,
+  ProfiledTabsWidget,
 } from "widgets/TabsWidget";
-import ModalWidget, { ModalWidgetProps } from "widgets/ModalWidget";
+import { ModalWidgetProps, ProfiledModalWidget } from "widgets/ModalWidget";
 import RichTextEditorWidget, {
   RichTextEditorWidgetProps,
+  ProfiledRichTextEditorWidget,
 } from "widgets/RichTextEditorWidget";
-import ChartWidget, { ChartWidgetProps } from "widgets/ChartWidget";
-import MapWidget, { MapWidgetProps } from "widgets/MapWidget";
+import ChartWidget, {
+  ChartWidgetProps,
+  ProfiledChartWidget,
+} from "widgets/ChartWidget";
+import MapWidget, {
+  MapWidgetProps,
+  ProfiledMapWidget,
+} from "widgets/MapWidget";
 
 import FilePickerWidget, {
   FilePickerWidgetProps,
+  ProfiledFilePickerWidget,
 } from "widgets/FilepickerWidget";
 import DatePickerWidget, {
   DatePickerWidgetProps,
+  ProfiledDatePickerWidget,
 } from "widgets/DatePickerWidget";
-import FormWidget from "widgets/FormWidget";
+import FormWidget, { ProfiledFormWidget } from "widgets/FormWidget";
 import FormButtonWidget, {
   FormButtonWidgetProps,
+  ProfiledFormButtonWidget,
 } from "widgets/FormButtonWidget";
-import IconWidget, { IconWidgetProps } from "widgets/IconWidget";
+import IconWidget, {
+  IconWidgetProps,
+  ProfiledIconWidget,
+} from "widgets/IconWidget";
 
-import CanvasWidget from "widgets/CanvasWidget";
+import CanvasWidget, { ProfiledCanvasWidget } from "widgets/CanvasWidget";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -45,7 +84,7 @@ export default class WidgetBuilderRegistry {
         buildWidget(
           widgetData: ContainerWidgetProps<WidgetProps>,
         ): JSX.Element {
-          return <ContainerWidget {...widgetData} />;
+          return <ProfiledContainerWidget {...widgetData} />;
         },
       },
       ContainerWidget.getPropertyValidationMap(),
@@ -59,7 +98,7 @@ export default class WidgetBuilderRegistry {
       "TEXT_WIDGET",
       {
         buildWidget(widgetData: TextWidgetProps): JSX.Element {
-          return <TextWidget {...widgetData} />;
+          return <ProfiledTextWidget {...widgetData} />;
         },
       },
       TextWidget.getPropertyValidationMap(),
@@ -73,7 +112,7 @@ export default class WidgetBuilderRegistry {
       "BUTTON_WIDGET",
       {
         buildWidget(widgetData: ButtonWidgetProps): JSX.Element {
-          return <ButtonWidget {...widgetData} />;
+          return <ProfiledButtonWidget {...widgetData} />;
         },
       },
       ButtonWidget.getPropertyValidationMap(),
@@ -87,7 +126,7 @@ export default class WidgetBuilderRegistry {
       "INPUT_WIDGET",
       {
         buildWidget(widgetData: InputWidgetProps): JSX.Element {
-          return <InputWidget {...widgetData} />;
+          return <ProfiledInputWidget {...widgetData} />;
         },
       },
       InputWidget.getPropertyValidationMap(),
@@ -101,7 +140,7 @@ export default class WidgetBuilderRegistry {
       "CHECKBOX_WIDGET",
       {
         buildWidget(widgetData: CheckboxWidgetProps): JSX.Element {
-          return <CheckboxWidget {...widgetData} />;
+          return <ProfiledCheckboxWidget {...widgetData} />;
         },
       },
       CheckboxWidget.getPropertyValidationMap(),
@@ -115,7 +154,7 @@ export default class WidgetBuilderRegistry {
       "DROP_DOWN_WIDGET",
       {
         buildWidget(widgetData: DropdownWidgetProps): JSX.Element {
-          return <DropdownWidget {...widgetData} />;
+          return <ProfiledDropDownWidget {...widgetData} />;
         },
       },
       DropdownWidget.getPropertyValidationMap(),
@@ -129,7 +168,7 @@ export default class WidgetBuilderRegistry {
       "RADIO_GROUP_WIDGET",
       {
         buildWidget(widgetData: RadioGroupWidgetProps): JSX.Element {
-          return <RadioGroupWidget {...widgetData} />;
+          return <ProfiledRadioGroupWidget {...widgetData} />;
         },
       },
       RadioGroupWidget.getPropertyValidationMap(),
@@ -143,7 +182,7 @@ export default class WidgetBuilderRegistry {
       "IMAGE_WIDGET",
       {
         buildWidget(widgetData: ImageWidgetProps): JSX.Element {
-          return <ImageWidget {...widgetData} />;
+          return <ProfiledImageWidget {...widgetData} />;
         },
       },
       ImageWidget.getPropertyValidationMap(),
@@ -156,7 +195,7 @@ export default class WidgetBuilderRegistry {
       "TABLE_WIDGET",
       {
         buildWidget(widgetData: TableWidgetProps): JSX.Element {
-          return <TableWidget {...widgetData} />;
+          return <ProfiledTableWidget {...widgetData} />;
         },
       },
       TableWidget.getPropertyValidationMap(),
@@ -169,7 +208,7 @@ export default class WidgetBuilderRegistry {
       "FILE_PICKER_WIDGET",
       {
         buildWidget(widgetData: FilePickerWidgetProps): JSX.Element {
-          return <FilePickerWidget {...widgetData} />;
+          return <ProfiledFilePickerWidget {...widgetData} />;
         },
       },
       FilePickerWidget.getPropertyValidationMap(),
@@ -182,7 +221,7 @@ export default class WidgetBuilderRegistry {
       "DATE_PICKER_WIDGET",
       {
         buildWidget(widgetData: DatePickerWidgetProps): JSX.Element {
-          return <DatePickerWidget {...widgetData} />;
+          return <ProfiledDatePickerWidget {...widgetData} />;
         },
       },
       DatePickerWidget.getPropertyValidationMap(),
@@ -197,7 +236,7 @@ export default class WidgetBuilderRegistry {
         buildWidget(
           widgetProps: TabsWidgetProps<TabContainerWidgetProps>,
         ): JSX.Element {
-          return <TabsWidget {...widgetProps} />;
+          return <ProfiledTabsWidget {...widgetProps} />;
         },
       },
       TabsWidget.getPropertyValidationMap(),
@@ -210,7 +249,7 @@ export default class WidgetBuilderRegistry {
       WidgetTypes.MODAL_WIDGET,
       {
         buildWidget(widgetProps: ModalWidgetProps): JSX.Element {
-          return <ModalWidget {...widgetProps} />;
+          return <ProfiledModalWidget {...widgetProps} />;
         },
       },
       BaseWidget.getPropertyValidationMap(),
@@ -223,7 +262,7 @@ export default class WidgetBuilderRegistry {
       "RICH_TEXT_EDITOR_WIDGET",
       {
         buildWidget(widgetData: RichTextEditorWidgetProps): JSX.Element {
-          return <RichTextEditorWidget {...widgetData} />;
+          return <ProfiledRichTextEditorWidget {...widgetData} />;
         },
       },
       RichTextEditorWidget.getPropertyValidationMap(),
@@ -236,7 +275,7 @@ export default class WidgetBuilderRegistry {
       "CHART_WIDGET",
       {
         buildWidget(widgetData: ChartWidgetProps): JSX.Element {
-          return <ChartWidget {...widgetData} />;
+          return <ProfiledChartWidget {...widgetData} />;
         },
       },
       ChartWidget.getPropertyValidationMap(),
@@ -251,7 +290,7 @@ export default class WidgetBuilderRegistry {
         buildWidget(
           widgetProps: ContainerWidgetProps<WidgetProps>,
         ): JSX.Element {
-          return <FormWidget {...widgetProps} />;
+          return <ProfiledFormWidget {...widgetProps} />;
         },
       },
       FormWidget.getPropertyValidationMap(),
@@ -265,7 +304,7 @@ export default class WidgetBuilderRegistry {
       "FORM_BUTTON_WIDGET",
       {
         buildWidget(widgetProps: FormButtonWidgetProps): JSX.Element {
-          return <FormButtonWidget {...widgetProps} />;
+          return <ProfiledFormButtonWidget {...widgetProps} />;
         },
       },
       FormButtonWidget.getPropertyValidationMap(),
@@ -279,7 +318,7 @@ export default class WidgetBuilderRegistry {
       "MAP_WIDGET",
       {
         buildWidget(widgetProps: MapWidgetProps): JSX.Element {
-          return <MapWidget {...widgetProps} />;
+          return <ProfiledMapWidget {...widgetProps} />;
         },
       },
       MapWidget.getPropertyValidationMap(),
@@ -295,7 +334,7 @@ export default class WidgetBuilderRegistry {
         buildWidget(
           widgetData: ContainerWidgetProps<WidgetProps>,
         ): JSX.Element {
-          return <CanvasWidget {...widgetData} />;
+          return <ProfiledCanvasWidget {...widgetData} />;
         },
       },
       CanvasWidget.getPropertyValidationMap(),
@@ -309,7 +348,7 @@ export default class WidgetBuilderRegistry {
       WidgetTypes.ICON_WIDGET,
       {
         buildWidget(widgetProps: IconWidgetProps): JSX.Element {
-          return <IconWidget {...widgetProps} />;
+          return <ProfiledIconWidget {...widgetProps} />;
         },
       },
       IconWidget.getPropertyValidationMap(),

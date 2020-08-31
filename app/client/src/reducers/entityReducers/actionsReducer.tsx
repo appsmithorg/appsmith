@@ -9,6 +9,8 @@ import { ExecuteErrorPayload } from "constants/ActionConstants";
 import _ from "lodash";
 import { RapidApiAction, RestAction } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/actionActions";
+import produce from "immer";
+
 export interface ActionData {
   isLoading: boolean;
   config: RestAction | RapidApiAction;
@@ -294,6 +296,18 @@ const actionsReducer = createReducer(initialState, {
 
       return true;
     }),
+  [ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD]: (
+    state: ActionDataState,
+    actionIds: ReduxAction<string[]>,
+  ) => {
+    return produce(state, draft => {
+      draft.forEach((action, index) => {
+        if (actionIds.payload.indexOf(action.config.id) > -1) {
+          draft[index].config.executeOnLoad = true;
+        }
+      });
+    });
+  },
 });
 
 export default actionsReducer;

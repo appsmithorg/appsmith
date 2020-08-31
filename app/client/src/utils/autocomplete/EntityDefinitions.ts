@@ -237,4 +237,8 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Store key value data locally",
     "!type": "fn(key: string, value: any) -> void",
   },
+  download: {
+    "!doc": "Download anything as a file",
+    "!type": "fn(data: any, fileName: string, fileType?: string) -> void",
+  },
 };

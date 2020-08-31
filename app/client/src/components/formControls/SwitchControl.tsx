@@ -21,21 +21,30 @@ const SwitchWrapped = styled.div`
   }
 `;
 
+const Info = styled.div`
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 8px;
+`;
+
 export class SwitchField extends React.Component<Props> {
   render() {
-    const { label, isRequired, input } = this.props;
+    const { label, isRequired, input, info } = this.props;
 
     return (
-      <SwitchWrapped>
-        <StyledFormLabel>
-          {label} {isRequired && "*"}
-        </StyledFormLabel>
-        <StyledSwitch
-          checked={input.value}
-          onChange={value => input.onChange(value)}
-          large
-        />
-      </SwitchWrapped>
+      <div>
+        <SwitchWrapped>
+          <StyledFormLabel>
+            {label} {isRequired && "*"}
+          </StyledFormLabel>
+          <StyledSwitch
+            checked={input.value}
+            onChange={value => input.onChange(value)}
+            large
+          />
+        </SwitchWrapped>
+        {info && <Info>{info}</Info>}
+      </div>
     );
   }
 }
@@ -56,6 +65,8 @@ class SwitchControl extends BaseControl<SwitchControlProps> {
   }
 }
 
-export type SwitchControlProps = ControlProps;
+export interface SwitchControlProps extends ControlProps {
+  info?: string;
+}
 
 export default SwitchControl;
