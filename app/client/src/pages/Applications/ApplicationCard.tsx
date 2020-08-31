@@ -19,6 +19,7 @@ import {
 import { getInitialsAndColorCode, getColorCode } from "utils/AppsmithUtils";
 import { ControlIcons } from "icons/ControlIcons";
 import { omit } from "lodash";
+import Text, { TextType } from "components/ads/Text";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -32,7 +33,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     props.showOverlay &&
     `
       {
-        background-color: white;
+        // background-color: white;
 
         .overlay {
           ${props.hasReadPermission &&
@@ -63,7 +64,6 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
         }
       }
    `}
-  border-radius: ${props => props.theme.radii[1]}px;
   width: ${props => props.theme.card.minWidth + props.theme.spaces[5] * 2}px;
   margin: ${props => props.theme.spaces[5]}px
     ${props => props.theme.spaces[5]}px;
@@ -99,7 +99,6 @@ const Wrapper = styled(
   width: ${props => props.theme.card.minWidth}px;
   height: ${props => props.theme.card.minHeight}px;
   position: relative;
-  border-radius: ${props => props.theme.radii[1]}px;
   background-color: ${props => props.backgroundColor};
   margin: ${props => props.theme.spaces[5]}px
     ${props => props.theme.spaces[5]}px;
@@ -111,6 +110,9 @@ const Wrapper = styled(
     height: 100%;
     width: 100%;
     ${props => !props.hasReadPermission && `pointer-events: none;`}
+  }
+  .bp3-card {
+    border-radius: 0;
   }
 `;
 
@@ -299,7 +301,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           </div>
         )}
       </Wrapper>
-      <Name>{props.application.name}</Name>
+      <Text type={TextType.H3}>{props.application.name}</Text>
     </NameWrapper>
   );
 };

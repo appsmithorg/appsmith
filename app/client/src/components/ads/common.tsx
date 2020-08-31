@@ -1,4 +1,5 @@
 import { Theme } from "constants/DefaultTheme";
+import styled from "styled-components";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
@@ -9,6 +10,15 @@ export interface CommonComponentProps {
 export type ThemeProp = {
   theme: Theme;
 };
+
+export enum Classes {
+  "ICON" = "ads-icon",
+}
+
+const Dropdown = styled.div`
+  .${Classes.ICON} {
+  }
+`;
 
 export const hexToRgb = (
   hex: string,

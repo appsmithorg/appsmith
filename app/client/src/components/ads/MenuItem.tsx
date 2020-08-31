@@ -8,17 +8,19 @@ type MenuItemProps = CommonComponentProps & {
   icon?: IconName;
   text: string;
   label?: ReactNode;
+  href?: string;
   onSelect?: () => void;
 };
 
-const ItemRow = styled.div`
+const ItemRow = styled.a`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  text-decoration: none;
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
-
   &:hover {
+    text-decoration: none;
     cursor: pointer;
     background-color: ${props => props.theme.colors.blackShades[4]};
     span {
@@ -32,7 +34,7 @@ const ItemRow = styled.div`
   }
 `;
 
-const IconContainer = styled.div`
+const IconContainer = styled.span`
   display: flex;
   align-items: center;
 
@@ -43,7 +45,7 @@ const IconContainer = styled.div`
 
 function MenuItem(props: MenuItemProps) {
   return (
-    <ItemRow onClick={props.onSelect}>
+    <ItemRow href={props.href} onClick={props.onSelect}>
       <IconContainer>
         {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
         {props.text ? <Text type={TextType.P1}>{props.text}</Text> : null}

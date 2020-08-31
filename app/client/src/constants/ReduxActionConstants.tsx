@@ -1,5 +1,6 @@
 import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/ActionConstants";
+import { Org } from "./orgConstants";
 
 export const ReduxActionTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR: "INITIALIZE_EDITOR",
@@ -433,7 +434,7 @@ export type ApplicationPayload = {
 };
 
 export type OrganizationDetails = {
-  organization: {};
+  organization: Org;
   applications: [];
 };
 

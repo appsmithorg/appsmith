@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useLocation } from "react-router";
 
 const Wrapper = styled.section`
+  margin-top: ${props => props.theme.homePage.header}px;
   && .fade {
     position: relative;
   }
@@ -26,16 +27,14 @@ const Wrapper = styled.section`
 `;
 
 const PageBody = styled.div`
-  width: ${props => props.theme.pageContentWidth}px;
   height: calc(
-    100vh - ${props => props.theme.headerHeight} +
-      ${props => props.theme.spaces[12]}px
+    100vh - ${props => props.theme.homePage.header}px
   );
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  padding-top: ${props => props.theme.spaces[12]}px;
+  // padding-top: ${props => props.theme.spaces[12]}px;
   margin: 0 auto;
   & > * {
     width: 100%;
@@ -48,8 +47,6 @@ type PageWrapperProps = {
 };
 
 export const PageWrapper = (props: PageWrapperProps) => {
-  const location = useLocation();
-
   return (
     <Wrapper>
       <Helmet>

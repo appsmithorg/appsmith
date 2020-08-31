@@ -280,6 +280,7 @@ export type Theme = {
   };
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
+  homePage: any;
   sidebarWidth: string;
   canvasPadding: string;
   sideNav: {
@@ -646,6 +647,19 @@ export const theme: Theme = {
   ],
   sidebarWidth: "320px",
   headerHeight: "50px",
+  homePage: {
+    header: 52,
+    background: "#1C1C1E",
+    leftPane: {
+      width: 240,
+      leftPadding: 16,
+      rightMargin: 113,
+    },
+    search: {
+      height: 68,
+      paddingTop: 30,
+    },
+  },
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,
