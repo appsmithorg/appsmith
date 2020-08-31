@@ -424,7 +424,6 @@ class Applications extends Component<
           }}
         />
         <ApplicationsSection></ApplicationsSection>
-        <PageSectionDivider />
       </PageWrapper>
     );
   }
