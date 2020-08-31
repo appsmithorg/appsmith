@@ -103,13 +103,16 @@ public class MySqlPlugin extends BasePlugin {
                             } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                 value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
 
-                            } else if ("datetime".equalsIgnoreCase(typeName)) {
+                            } else if ("datetime".equalsIgnoreCase(typeName) || "timestamp".equalsIgnoreCase(typeName)) {
                                 value = DateTimeFormatter.ISO_DATE_TIME.format(
                                         LocalDateTime.of(
                                                 resultSet.getDate(i).toLocalDate(),
                                                 resultSet.getTime(i).toLocalTime()
                                         )
                                 ) + "Z";
+
+                            } else if ("year".equalsIgnoreCase(typeName)) {
+                                value = resultSet.getDate(i).toLocalDate().getYear();
 
                             } else {
                                 value = resultSet.getObject(i);
