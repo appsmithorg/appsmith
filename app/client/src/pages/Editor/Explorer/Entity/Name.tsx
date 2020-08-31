@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useState, useEffect } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+  forwardRef,
+} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import EditableText, {
@@ -17,6 +23,7 @@ const Wrapper = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0 4px;
+  line-height: 13px;
   & span.token {
     color: ${Colors.OCEAN_GREEN};
   }
@@ -60,127 +67,135 @@ export interface EntityNameProps {
   nameTransformFn?: (input: string, limit?: number) => string;
 }
 
-export const EntityName = (props: EntityNameProps) => {
-  const { name, updateEntityName, searchKeyword } = props;
-
-  const nameUpdateError = useSelector((state: AppState) => {
-    return state.ui.explorer.updateEntityError === props.entityId;
-  });
-
-  const [updatedName, setUpdatedName] = useState(name);
-
-  useEffect(() => {
-    setUpdatedName(name);
-  }, [name, nameUpdateError]);
-
-  const dispatch = useDispatch();
-
-  const existingPageNames: string[] = useSelector((state: AppState) =>
-    state.entities.pageList.pages.map((page: Page) => page.pageName),
-  );
-
-  const existingWidgetNames: string[] = useSelector((state: AppState) =>
-    Object.values(state.entities.canvasWidgets).map(
-      widget => widget.widgetName,
-    ),
-  );
-
-  const existingActionNames: string[] = useSelector((state: AppState) =>
-    state.entities.actions.map(
-      (action: { config: { name: string } }) => action.config.name,
-    ),
-  );
-
-  const hasNameConflict = useCallback(
-    (newName: string) =>
-      !(
-        existingPageNames.indexOf(newName) === -1 &&
-        existingActionNames.indexOf(newName) === -1 &&
-        existingWidgetNames.indexOf(newName) === -1
-      ),
-    [existingPageNames, existingActionNames, existingWidgetNames],
-  );
-
-  const isInvalidName = useCallback(
-    (newName: string): string | boolean => {
-      if (!newName || newName.trim().length === 0) {
-        return "Please enter a name";
-      } else if (newName !== name && hasNameConflict(newName)) {
-        return `${newName} is already being used.`;
-      }
-      return false;
-    },
-    [name, hasNameConflict],
-  );
-
-  const handleAPINameChange = useCallback(
-    (newName: string) => {
-      if (name && newName !== name && !isInvalidName(newName)) {
-        setUpdatedName(newName);
-        dispatch(updateEntityName(newName));
-      }
-    },
-    [dispatch, isInvalidName, name, updateEntityName],
-  );
-
-  const searchHighlightedName = useMemo(() => {
-    if (searchKeyword) {
-      const regex = new RegExp(searchKeyword, "gi");
-      const delimited = updatedName.replace(regex, function(str) {
-        return searchTokenizationDelimiter + str + searchTokenizationDelimiter;
-      });
-
-      const final = replace(
-        delimited,
-        searchTokenizationDelimiter,
-        searchHighlightSpanClassName,
-      );
-      return final;
-    }
-    return updatedName;
-  }, [searchKeyword, updatedName]);
-
-  const exitEditMode = useCallback(() => {
-    dispatch({
-      type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
+export const EntityName = forwardRef(
+  (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
+    const { name, updateEntityName, searchKeyword } = props;
+    const nameUpdateError = useSelector((state: AppState) => {
+      return state.ui.explorer.updateEntityError === props.entityId;
     });
-  }, [dispatch]);
 
-  const enterEditMode = useCallback(
-    () =>
-      props.updateEntityName &&
+    const [updatedName, setUpdatedName] = useState(name);
+
+    useEffect(() => {
+      setUpdatedName(name);
+    }, [name, nameUpdateError]);
+
+    const existingPageNames: string[] = useSelector((state: AppState) =>
+      state.entities.pageList.pages.map((page: Page) => page.pageName),
+    );
+
+    const existingWidgetNames: string[] = useSelector((state: AppState) =>
+      Object.values(state.entities.canvasWidgets).map(
+        widget => widget.widgetName,
+      ),
+    );
+    const dispatch = useDispatch();
+
+    const existingActionNames: string[] = useSelector((state: AppState) =>
+      state.entities.actions.map(
+        (action: { config: { name: string } }) => action.config.name,
+      ),
+    );
+
+    const hasNameConflict = useCallback(
+      (newName: string) =>
+        !(
+          existingPageNames.indexOf(newName) === -1 &&
+          existingActionNames.indexOf(newName) === -1 &&
+          existingWidgetNames.indexOf(newName) === -1
+        ),
+      [existingPageNames, existingActionNames, existingWidgetNames],
+    );
+
+    const isInvalidName = useCallback(
+      (newName: string): string | boolean => {
+        if (!newName || newName.trim().length === 0) {
+          return "Please enter a name";
+        } else if (newName !== name && hasNameConflict(newName)) {
+          return `${newName} is already being used.`;
+        }
+        return false;
+      },
+      [name, hasNameConflict],
+    );
+
+    const handleAPINameChange = useCallback(
+      (newName: string) => {
+        if (name && newName !== name && !isInvalidName(newName)) {
+          setUpdatedName(newName);
+          dispatch(updateEntityName(newName));
+        }
+      },
+      [dispatch, isInvalidName, name, updateEntityName],
+    );
+
+    const searchHighlightedName = useMemo(() => {
+      if (searchKeyword) {
+        const regex = new RegExp(searchKeyword, "gi");
+        const delimited = updatedName.replace(regex, function(str) {
+          return (
+            searchTokenizationDelimiter + str + searchTokenizationDelimiter
+          );
+        });
+
+        const final = replace(
+          delimited,
+          searchTokenizationDelimiter,
+          searchHighlightSpanClassName,
+        );
+        return final;
+      }
+      return updatedName;
+    }, [searchKeyword, updatedName]);
+
+    const exitEditMode = useCallback(() => {
       dispatch({
-        type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
-        payload: {
-          id: props.entityId,
-        },
-      }),
-    [dispatch, props.entityId, props.updateEntityName],
-  );
+        type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
+      });
+    }, [dispatch]);
 
-  if (!props.isEditing)
+    const enterEditMode = useCallback(
+      () =>
+        props.updateEntityName &&
+        dispatch({
+          type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
+          payload: {
+            id: props.entityId,
+          },
+        }),
+      [dispatch, props.entityId, props.updateEntityName],
+    );
+
+    if (!props.isEditing)
+      return (
+        <Wrapper
+          className={props.className}
+          ref={ref}
+          onDoubleClick={enterEditMode}
+        >
+          {searchHighlightedName}
+        </Wrapper>
+      );
     return (
-      <Wrapper className={props.className} onDoubleClick={enterEditMode}>
-        {searchHighlightedName}
+      <Wrapper ref={ref}>
+        <EditableText
+          type="text"
+          className={`${props.className} editing`}
+          defaultValue={updatedName}
+          placeholder="Name"
+          onTextChanged={handleAPINameChange}
+          isInvalid={isInvalidName}
+          valueTransform={props.nameTransformFn || removeSpecialChars}
+          isEditingDefault
+          editInteractionKind={EditInteractionKind.SINGLE}
+          minimal
+          onBlur={exitEditMode}
+        />
       </Wrapper>
     );
-  return (
-    <Wrapper>
-      <EditableText
-        type="text"
-        className={`${props.className} editing`}
-        defaultValue={updatedName}
-        placeholder="Name"
-        onTextChanged={handleAPINameChange}
-        isInvalid={isInvalidName}
-        valueTransform={props.nameTransformFn || removeSpecialChars}
-        isEditingDefault
-        editInteractionKind={EditInteractionKind.SINGLE}
-        minimal
-        onBlur={exitEditMode}
-      />
-    </Wrapper>
-  );
-};
+  },
+);
+
+EntityName.displayName = "EntityName";
 
 export default EntityName;
