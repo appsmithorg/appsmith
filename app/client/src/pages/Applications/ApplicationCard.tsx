@@ -6,7 +6,7 @@ import {
 } from "constants/routes";
 import { Card, Classes, HTMLDivProps, ICardProps } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import Button from "components/editorComponents/Button";
+// import Button from "components/editorComponents/Button";
 import { theme, getColorWithOpacity } from "constants/DefaultTheme";
 import ContextDropdown, {
   ContextDropdownOption,
@@ -20,6 +20,8 @@ import { getInitialsAndColorCode, getColorCode } from "utils/AppsmithUtils";
 import { ControlIcons } from "icons/ControlIcons";
 import { omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
+import Button, { Category, Size } from "components/ads/Button";
+import { IconName } from "components/ads/Icon";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -29,11 +31,16 @@ type NameWrapperProps = {
 const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   <div {...omit(props, ["hasReadPermission", "showOverlay"])} />
 ))`
+  .bp3-card {
+    border-radius: 0;
+  }
   ${props =>
     props.showOverlay &&
     `
       {
         background-color: #404040;
+        justify-content: center;
+        align-items: center;
 
         .overlay {
           ${props.hasReadPermission &&
@@ -270,31 +277,13 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                 )}
 
                 {hasEditPermission && (
-                  <Button
-                    href={editApplicationURL}
-                    filled
-                    text="EDIT"
-                    intent="primary"
-                    icon={
-                      <ControlIcons.EDIT_WHITE
-                        color={Colors.WHITE}
-                        width={9}
-                        height={9}
-                      />
-                    }
-                    className="t--application-edit-link"
-                    fluid
-                  />
+                  <Button text="Edit" size={Size.medium} icon={IconName.EDIT} />
                 )}
                 <Button
-                  intent="none"
-                  href={viewApplicationURL}
-                  outline
-                  fluid
                   text="LAUNCH"
-                  icon={<ControlIcons.LAUNCH_CONTROL width={9} height={9} />}
-                  size="small"
-                  className="t--application-view-link"
+                  size={Size.medium}
+                  category={Category.tertiary}
+                  icon={IconName.LAUNCH}
                 />
               </Control>
             </ApplicationImage>

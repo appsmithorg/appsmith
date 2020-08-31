@@ -31,6 +31,6 @@ type DropdownProps = CommonComponentProps & {
   toggle?: ReactNode;
 };
 
-export default function Button(props: DropdownProps) {
+export default function Dropdown(props: DropdownProps) {
   return null;
 }
