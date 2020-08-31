@@ -351,7 +351,13 @@ const ApplicationsSection = () => {
                   PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
                 ) && (
                   <FormDialogComponent
-                    trigger={<Button text={"Share"} size={Size.medium} />}
+                    trigger={
+                      <Button
+                        text={"Share"}
+                        icon={IconName.SHARE}
+                        size={Size.small}
+                      />
+                    }
                     canOutsideClickClose={true}
                     Form={OrgInviteUsersForm}
                     orgId={organization.id}
