@@ -28,6 +28,7 @@ export interface ControlData {
   propertyValue?: any;
   isValid: boolean;
   validationMessage?: string;
+  validationRegex?: string;
   dataType?: InputType;
   isRequired?: boolean;
 }
