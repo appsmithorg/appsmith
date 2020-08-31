@@ -21,18 +21,7 @@ describe("Table Widget Functionality", function() {
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
-    // cy.ExportVerify(commonlocators.pdfSupport, "PDF Export");
-    // cy.ExportVerify(commonlocators.ExcelSupport, "Excel Export");
-    // cy.ExportVerify(commonlocators.csvSupport, "CSV Export");
     cy.get(widgetsPage.ColumnAction).click({ force: true });
-    // cy.readTabledata("1", "5").then(tabData => {
-    //   const tabValue = tabData;
-    //   expect(tabValue).to.be.equal("Action");
-    //   cy.log("the value is" + tabValue);
-    // });
-    /*
-    cy.openPropertyPane("tablewidget");
-      */
     cy.get(widgetsPage.tableOnRowSelected)
       .get(commonlocators.dropdownSelectButton)
       .first()
@@ -150,51 +139,37 @@ describe("Table Widget Functionality", function() {
     });
   });
 
-  it("Table Widget Functionality To Verify The PageNo", function() {
+  it("Table Widget Functionality To Verify The Visiblity mode functionality", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
+    cy.isSelectRow(1);
+    cy.readTabledataPublish("1", "2").then(tabData => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Lindsay Ferguson");
+      cy.log("the value is" + tabValue);
+      cy.get(publish.visibilityMode).click();
+      cy.get(publish.visibilityOpt)
+        .contains("userName")
+        .click();
+      cy.get(publish.containerWidget).click();
+      cy.readTabledataPublish("1", "2").then(tabData => {
+        const tabValue = tabData;
+        expect(tabValue).to.not.equal("Lindsay Ferguson");
+      });
+      cy.get(publish.visibilityMode).click();
+      cy.get(publish.visibilityOpt)
+        .contains("userName")
+        .click();
+      cy.get(publish.containerWidget).click();
+      cy.readTabledataPublish("1", "2").then(tabData => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Lindsay Ferguson");
+      });
+    });
   });
-  // it("Table Widget Functionality To Verify The Extension Support", function() {
-  //   cy.openPropertyPane("tablewidget");
-  //   cy.togglebar(commonlocators.pdfSupport);
-  //   cy.PublishtheApp();
-  //   cy.get(publish.tableWidget + " " + "button").should(
-  //     "contain",
-  //     "PDF Export",
-  //   );
-  //   cy.get(publish.backToEditor).click();
-  //   cy.openPropertyPane("tablewidget");
-  //   cy.togglebarDisable(commonlocators.pdfSupport);
-  //   cy.togglebar(commonlocators.ExcelSupport);
-  //   cy.PublishtheApp();
-  //   cy.get(publish.tableWidget + " " + "button").should(
-  //     "not.contain",
-  //     "PDF Export",
-  //   );
-  //   cy.get(publish.tableWidget + " " + "button").should(
-  //     "contain",
-  //     "Excel Export",
-  //   );
-  // });
-});
-Cypress.on("test:after:run", attributes => {
-  /* eslint-disable no-console */
-  console.log(
-    'Test "%s" has finished in %dms',
-    attributes.title,
-    attributes.duration,
-  );
-});
-afterEach(() => {
-  // put your clean up code if any
-});
 
-Cypress.on("test:after:run", attributes => {
-  /* eslint-disable no-console */
-  console.log(
-    'Test "%s" has finished in %dms',
-    attributes.title,
-    attributes.duration,
-  );
+  afterEach(() => {
+    // put your clean up code if any
+  });
 });
