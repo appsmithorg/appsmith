@@ -3,7 +3,7 @@ import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { StoryWrapper } from "./Tabs.stories";
 import { action } from "@storybook/addon-actions";
-import CheckboxComponent from "../ads/Checkbox";
+import CheckboxComponent from "components/ads/Checkbox";
 
 export default {
   title: "Checkbox",
