@@ -114,8 +114,8 @@ public class PostgresPluginTest {
                                 ")");
             }
 
-    } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
         }
     }
 
