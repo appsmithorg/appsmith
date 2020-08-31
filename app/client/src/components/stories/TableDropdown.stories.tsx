@@ -31,11 +31,7 @@ export const TableDropdownStory = () => (
     style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
   >
     <TableDropdown
-      position={select(
-        "position",
-        [Position.RIGHT, Position.LEFT, Position.BOTTOM, Position.TOP],
-        Position.BOTTOM,
-      )}
+      position={select("position", Object.values(Position), Position.BOTTOM)}
       options={options}
       onSelect={selectedValue => console.log(selectedValue)}
       selectedIndex={0}

@@ -14,17 +14,9 @@ export default {
 export const withDynamicProps = () => (
   <StoryWrapper>
     <Button
-      size={select("size", [Size.small, Size.medium, Size.large], Size.large)}
-      category={select(
-        "category",
-        [Category.primary, Category.secondary, Category.tertiary],
-        Category.primary,
-      )}
-      variant={select(
-        "variant",
-        [Variant.info, Variant.success, Variant.danger, Variant.warning],
-        Variant.info,
-      )}
+      size={select("size", Object.values(Size), Size.large)}
+      category={select("category", Object.values(Category), Category.primary)}
+      variant={select("variant", Object.values(Variant), Variant.info)}
       icon={select("Icon name", IconCollection, undefined)}
       isLoading={boolean("Loading", false)}
       disabled={boolean("Disabled", false)}
