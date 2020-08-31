@@ -248,8 +248,8 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   padding: ${props => btnFontStyles(props).padding};
   .${Classes.ICON} {
     margin-right: ${props =>
-        props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
-      path {
+      props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`};
+    path {
       fill: ${props => btnColorStyles(props, "main").txtColor};
     }
   }
@@ -261,8 +261,8 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .${Classes.ICON} {
       margin-right: ${props =>
-          props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
-        path {
+        props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`};
+      path {
         fill: ${props => btnColorStyles(props, "hover").txtColor};
       }
     }
