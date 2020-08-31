@@ -386,7 +386,8 @@ Cypress.Commands.add("EditApiNameFromExplorer", apiname => {
   cy.get(explorer.editNameField)
     .clear()
     .type(apiname, { force: true })
-    .should("have.value", apiname);
+    .should("have.value", apiname)
+    .blur();
   cy.wait(3000);
 });
 
