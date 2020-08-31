@@ -149,7 +149,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
         Set<String> bindingNames = new HashSet<>();
         return actionService.findOnLoadActionsInPage(dynamicBindingNames, pageId)
-                .map(action -> {
+                .flatMap(action -> {
                     if (!CollectionUtils.isEmpty(action.getJsonPathKeys())) {
                         for (String mustacheKey : action.getJsonPathKeys()) {
                             extractWordsAndAddToSet(bindingNames, mustacheKey);
@@ -164,7 +164,18 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     if (action.getActionConfiguration() != null) {
                         newAction.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
                     }
-                    return newAction;
+
+                    // If the executeOnLoad field isn't true, set it to true
+                    if (!Boolean.TRUE.equals(action.getExecuteOnLoad())) {
+                        Action updateAction = new Action();
+                        updateAction.setExecuteOnLoad(true);
+
+                        return actionService.update(action.getId(), updateAction)
+                                .thenReturn(newAction);
+                    }
+
+                    return Mono.just(newAction);
+
                 })
                 .collect(toSet())
                 .flatMap(actions -> {

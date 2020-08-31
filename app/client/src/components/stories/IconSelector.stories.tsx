@@ -1,9 +1,10 @@
 import React from "react";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import IconSelector from "../ads/IconSelector";
+import IconSelector from "components/ads/IconSelector";
 import { action } from "@storybook/addon-actions";
-import { AppIconName } from "../ads/AppIcon";
+import { AppIconName } from "components/ads/AppIcon";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "IconSelector",
@@ -12,7 +13,7 @@ export default {
 };
 
 export const IconPicker = () => (
-  <div style={{ padding: "50px", background: "#2B2B2B", height: "500px" }}>
+  <StoryWrapper>
     <IconSelector
       onSelect={action("icon-selected")}
       fill={boolean("fill", false)}
@@ -50,5 +51,5 @@ export const IconPicker = () => (
         "#54A9FB",
       )}
     />
-  </div>
+  </StoryWrapper>
 );

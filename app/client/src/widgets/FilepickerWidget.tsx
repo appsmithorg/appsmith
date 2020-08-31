@@ -20,6 +20,7 @@ import {
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
+import * as Sentry from "@sentry/react";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -231,3 +232,4 @@ export interface FilePickerWidgetProps extends WidgetProps {
 }
 
 export default FilePickerWidget;
+export const ProfiledFilePickerWidget = Sentry.withProfiler(FilePickerWidget);

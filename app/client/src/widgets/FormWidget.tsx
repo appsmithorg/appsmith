@@ -5,6 +5,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ContainerComponentProps } from "components/designSystems/appsmith/ContainerComponent";
 import shallowEqual from "shallowequal";
+import * as Sentry from "@sentry/react";
 
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
@@ -72,3 +73,4 @@ export interface FormWidgetProps extends ContainerComponentProps {
 }
 
 export default FormWidget;
+export const ProfiledFormWidget = Sentry.withProfiler(FormWidget);

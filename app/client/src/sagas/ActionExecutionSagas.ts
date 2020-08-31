@@ -15,6 +15,7 @@ import {
   all,
   call,
   put,
+  race,
   select,
   take,
   takeEvery,
@@ -50,6 +51,7 @@ import {
   executeApiActionRequest,
   executeApiActionSuccess,
   updateAction,
+  showRunActionConfirmModal,
 } from "actions/actionActions";
 import { Action, RestAction } from "entities/Action";
 import ActionAPI, {
@@ -73,6 +75,8 @@ import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { updateAppStore } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
+import downloadjs from "downloadjs";
+import { getType, Types } from "utils/TypeHelpers";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -128,6 +132,36 @@ function* storeValueLocally(
     yield put(updateAppStore(storeObj));
     if (event.callback) event.callback({ success: true });
   } catch (err) {
+    if (event.callback) event.callback({ success: false });
+  }
+}
+
+function* downloadSaga(
+  action: { data: any; name: string; type: string },
+  event: ExecuteActionPayloadEvent,
+) {
+  try {
+    const { data, name, type } = action;
+    if (!name) {
+      AppToaster.show({
+        message: "Download failed. File name was not provided",
+        type: "error",
+      });
+      return;
+    }
+    const dataType = getType(data);
+    if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
+      const jsonString = JSON.stringify(data, null, 2);
+      downloadjs(jsonString, name, type);
+    } else {
+      downloadjs(data, name, type);
+    }
+    if (event.callback) event.callback({ success: true });
+  } catch (err) {
+    AppToaster.show({
+      message: `Download failed. ${err}`,
+      type: "error",
+    });
     if (event.callback) event.callback({ success: false });
   }
 }
@@ -381,6 +415,9 @@ function* executeActionTriggers(
       case "STORE_VALUE":
         yield call(storeValueLocally, trigger.payload, event);
         break;
+      case "DOWNLOAD":
+        yield call(downloadSaga, trigger.payload, event);
+        break;
       default:
         yield put(
           executeActionError({
@@ -500,6 +537,35 @@ function* runActionSaga(
   }
 }
 
+function* confirmRunActionSaga(
+  reduxAction: ReduxAction<{
+    id: string;
+    paginationField: PaginationField;
+  }>,
+) {
+  const action = yield select(getAction, reduxAction.payload.id);
+  if (action.requestConfirmation) {
+    yield put(showRunActionConfirmModal(true));
+
+    const { accept } = yield race({
+      cancel: take(ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL),
+      accept: take(ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL),
+    });
+
+    if (accept) {
+      yield put({
+        type: ReduxActionTypes.RUN_ACTION_REQUEST,
+        payload: reduxAction.payload,
+      });
+    }
+  } else {
+    yield put({
+      type: ReduxActionTypes.RUN_ACTION_REQUEST,
+      payload: reduxAction.payload,
+    });
+  }
+}
+
 function* executePageLoadAction(pageAction: PageAction) {
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
@@ -545,6 +611,7 @@ export function* watchActionExecutionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
+    takeLatest(ReduxActionTypes.RUN_ACTION_INIT, confirmRunActionSaga),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,

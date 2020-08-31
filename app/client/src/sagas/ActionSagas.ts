@@ -442,6 +442,7 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   const { actionId, value, propertyName } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
+
   const actionObj = yield select(getAction, actionId);
   const effects: Record<string, any> = {};
   // Value change effect
@@ -457,7 +458,40 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
       put(updateActionProperty({ id: actionId, field, value: effects[field] })),
     ),
   );
+  if (propertyName === "executeOnLoad") {
+    yield put({
+      type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
+      payload: {
+        actionId,
+        shouldExecute: value,
+      },
+    });
+    return;
+  }
   yield put(updateAction({ id: actionId }));
+}
+
+function* toggleActionExecuteOnLoadSaga(
+  action: ReduxAction<{ actionId: string; shouldExecute: boolean }>,
+) {
+  try {
+    const response = yield call(
+      ActionAPI.toggleActionExecuteOnLoad,
+      action.payload.actionId,
+      action.payload.shouldExecute,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_ERROR,
+      payload: error,
+    });
+  }
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -499,5 +533,9 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionErrorTypes.MOVE_ACTION_ERROR, handleMoveOrCopySaga),
     takeEvery(ReduxActionErrorTypes.COPY_ACTION_ERROR, handleMoveOrCopySaga),
+    takeLatest(
+      ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
+      toggleActionExecuteOnLoadSaga,
+    ),
   ]);
 }
