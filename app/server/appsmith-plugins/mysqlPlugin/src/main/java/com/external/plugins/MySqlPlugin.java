@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,6 +102,14 @@ public class MySqlPlugin extends BasePlugin {
 
                             } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                 value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
+
+                            } else if ("datetime".equalsIgnoreCase(typeName)) {
+                                value = DateTimeFormatter.ISO_DATE_TIME.format(
+                                        LocalDateTime.of(
+                                                resultSet.getDate(i).toLocalDate(),
+                                                resultSet.getTime(i).toLocalTime()
+                                        )
+                                ) + "Z";
 
                             } else {
                                 value = resultSet.getObject(i);
