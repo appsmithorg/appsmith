@@ -16,11 +16,13 @@ import {
 import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
-import EntityProperty, { EntityPropertyProps } from "../Entity/EntityProperty";
+import { EntityPropertyProps } from "../Entity/EntityProperty";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { isFunction, noop } from "lodash";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import EntityProperties from "../Entity/EntityProperties";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -133,12 +135,13 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   let children: ReactNode = props.children;
   if (!props.children) {
-    children = getWidgetProperies(
-      props.widgetProps,
-      props.step + 1,
-    ).map((widgetProperty: EntityPropertyProps) => (
-      <EntityProperty {...widgetProperty} key={widgetProperty.propertyName} />
-    ));
+    children = (
+      <EntityProperties
+        entityType={ENTITY_TYPE.WIDGET}
+        entityName={props.widgetProps.widgetName}
+        step={props.step + 1}
+      />
+    );
   }
 
   const contextMenu = (
