@@ -93,6 +93,8 @@ public class MySqlPlugin extends BasePlugin {
                     int colCount = metaData.getColumnCount();
                     while (resultSet.next()) {
                         Map<String, Object> row = new HashMap<>(colCount);
+                        rowsList.add(row);
+
                         for (int i = 1; i <= colCount; i++) {
                             Object value;
                             final String typeName = metaData.getColumnTypeName(i);
@@ -119,9 +121,8 @@ public class MySqlPlugin extends BasePlugin {
 
                             }
 
-                            row.put(metaData.getColumnName(i), value);
+                            row.put(metaData.getColumnLabel(i), value);
                         }
-                        rowsList.add(row);
                     }
 
                 } else {
