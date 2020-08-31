@@ -12,7 +12,6 @@ import MemberSettings from "./Members";
 import IconComponent from "components/designSystems/appsmith/IconComponent";
 import { fetchOrg } from "actions/orgActions";
 import { GeneralSettings } from "./General";
-import { IconName } from "components/ads/Icon";
 
 const LinkToApplications = styled(Link)`
   margin-bottom: 35px;
@@ -57,13 +56,13 @@ export default function Settings() {
       key: "general",
       title: "General",
       panelComponent: SettingsRenderer,
-      icon: IconName.GENERAL,
+      icon: "general",
     },
     {
       key: "members",
       title: "Members",
       panelComponent: SettingsRenderer,
-      icon: IconName.USER,
+      icon: "user",
     },
   ];
   const isMembersPage = location.pathname.indexOf("members") !== -1;
