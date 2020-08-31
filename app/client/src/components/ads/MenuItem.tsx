@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Text, { TextType, FontWeight } from "./Text";
@@ -21,7 +21,7 @@ const ItemRow = styled.div`
   &:hover {
     cursor: pointer;
     background-color: ${props => props.theme.colors.blackShades[4]};
-    span {
+    .${Classes.TEXT} {
       color: ${props => props.theme.colors.blackShades[9]};
     }
     .ads-icon {

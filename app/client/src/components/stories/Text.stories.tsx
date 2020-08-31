@@ -49,12 +49,8 @@ const ValueWrapper = (props: { type: TextType; value: string }) => (
     underline={boolean("underline", false)}
     italic={boolean("italic", false)}
     highlight={boolean("highlight", false)}
-    case={select(
-      "Case",
-      [Case.UPPERCASE, Case.LOWERCASE, Case.CAPITALIZE],
-      undefined,
-    )}
-    weight={select("Weight", [FontWeight.BOLD, FontWeight.NORMAL], undefined)}
+    case={select("Case", Object.values(Case), undefined)}
+    weight={select("Weight", Object.values(FontWeight), undefined)}
   >
     {props.value}
   </Text>
@@ -63,21 +59,7 @@ const ValueWrapper = (props: { type: TextType; value: string }) => (
 export const CustomizeText = () => (
   <StoryWrapper>
     <ValueWrapper
-      type={select(
-        "type",
-        [
-          TextType.H1,
-          TextType.H2,
-          TextType.H3,
-          TextType.H4,
-          TextType.H5,
-          TextType.H6,
-          TextType.P1,
-          TextType.P2,
-          TextType.P3,
-        ],
-        TextType.H1,
-      )}
+      type={select("type", Object.values(TextType), TextType.H1)}
       value={text("text", "Hi There I am Earth")}
     />
   </StoryWrapper>

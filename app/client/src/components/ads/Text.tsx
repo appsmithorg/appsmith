@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ThemeProp } from "./common";
+import { ThemeProp, Classes } from "./common";
 
 export enum TextType {
   P1 = "p1",
@@ -52,7 +52,9 @@ const typeSelector = (props: TextProps & ThemeProp): string => {
   return color;
 };
 
-const Text = styled.span<TextProps>`
+const Text = styled.span.attrs(() => ({
+  className: Classes.TEXT,
+}))<TextProps>`
   text-decoration: ${props => (props.underline ? "underline" : "unset")};
   font-style: ${props => (props.italic ? "italic" : "normal")};
   font-weight: ${props =>
