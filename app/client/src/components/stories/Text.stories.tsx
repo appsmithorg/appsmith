@@ -49,7 +49,11 @@ const ValueWrapper = (props: { type: TextType; value: string }) => (
     underline={boolean("underline", false)}
     italic={boolean("italic", false)}
     highlight={boolean("highlight", false)}
-    case={select("Case", [Case.UPPERCASE, Case.LOWERCASE], undefined)}
+    case={select(
+      "Case",
+      [Case.UPPERCASE, Case.LOWERCASE, Case.CAPITALIZE],
+      undefined,
+    )}
     weight={select("Weight", [FontWeight.BOLD, FontWeight.NORMAL], undefined)}
   >
     {props.value}

@@ -16,6 +16,7 @@ export enum TextType {
 export enum Case {
   UPPERCASE = "uppercase",
   LOWERCASE = "lowercase",
+  CAPITALIZE = "capitalize",
 }
 
 export enum FontWeight {
@@ -57,7 +58,7 @@ const Text = styled.span<TextProps>`
   font-weight: ${props =>
     props.weight
       ? props.weight === FontWeight.BOLD
-        ? "500"
+        ? props.theme.fontWeights[2]
         : "normal"
       : props.theme.typography[props.type].fontWeight};
   font-size: ${props => props.theme.typography[props.type].fontSize}px;
