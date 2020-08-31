@@ -90,7 +90,7 @@ public class MySqlPlugin extends BasePlugin {
                     while (resultSet.next()) {
                         Map<String, Object> row = new HashMap<>(colCount);
                         for (int i = 1; i <= colCount; i++) {
-                            row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                            row.put(metaData.getColumnLabel(i), resultSet.getObject(i));
                         }
                         rowsList.add(row);
                     }
