@@ -190,22 +190,29 @@ const StyledAnchor = styled.a`
   // height: 0;
 `;
 
+const WorkpsacesNavigator = styled.div`
+  overflow: scroll;
+  height: calc(100vh - ${props => props.theme.homePage.header + 36 + 25}px);
+`;
+
 function LeftPane() {
   const userOrgs = useSelector(getUserApplicationsOrgs);
 
   return (
     <LeftPaneWrapper>
       <LeftPaneSection heading="WORKSPACES">
-        {userOrgs &&
-          userOrgs.map((org: any) => (
-            <MenuItem
-              key={org.organization.name}
-              href={`${window.location.pathname}#${org.organization.name}`}
-              text={org.organization.name}
-            />
-          ))}
+        <WorkpsacesNavigator>
+          {userOrgs &&
+            userOrgs.map((org: any) => (
+              <MenuItem
+                key={org.organization.name}
+                href={`${window.location.pathname}#${org.organization.name}`}
+                text={org.organization.name}
+              />
+            ))}
+        </WorkpsacesNavigator>
       </LeftPaneSection>
-      <LeftPaneSection heading="GETTING STARTED"></LeftPaneSection>
+      {/* <LeftPaneSection heading="GETTING STARTED"></LeftPaneSection> */}
     </LeftPaneWrapper>
   );
 }
