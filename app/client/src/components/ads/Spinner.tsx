@@ -1,23 +1,6 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
-import { ThemeProp } from "./common";
-import { Size } from "./Button";
-
-export const sizeHandler = (props: ThemeProp & SpinnerProp) => {
-  let iconSize = 0;
-  switch (props.size) {
-    case Size.small:
-      iconSize = props.theme.iconSizes.small;
-      break;
-    case Size.medium:
-      iconSize = props.theme.iconSizes.medium;
-      break;
-    case Size.large:
-      iconSize = props.theme.iconSizes.large;
-      break;
-  }
-  return iconSize;
-};
+import { sizeHandler, IconSize } from "./Icon";
 
 const rotate = keyframes`
   100% {
@@ -42,8 +25,8 @@ const dash = keyframes`
 
 const SvgContainer = styled("svg")<SpinnerProp>`
   animation: ${rotate} 2s linear infinite;
-  width: ${props => sizeHandler(props)}px;
-  height: ${props => sizeHandler(props)}px;
+  width: ${props => sizeHandler(props.size)}px;
+  height: ${props => sizeHandler(props.size)}px;
 `;
 
 const SvgCircle = styled("circle")`
@@ -54,7 +37,7 @@ const SvgCircle = styled("circle")`
 `;
 
 export type SpinnerProp = {
-  size?: Size;
+  size?: IconSize;
 };
 
 Spinner.defaultProp = {
