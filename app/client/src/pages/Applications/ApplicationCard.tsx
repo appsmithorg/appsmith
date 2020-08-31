@@ -33,7 +33,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     props.showOverlay &&
     `
       {
-        // background-color: white;
+        background-color: #404040;
 
         .overlay {
           ${props.hasReadPermission &&
