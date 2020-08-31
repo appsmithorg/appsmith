@@ -36,9 +36,12 @@ public class MySqlPluginTest {
 
     MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
 
+    @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
     public static MySQLContainer mySQLContainer = new MySQLContainer()
-            .withUsername("mysql").withPassword("password").withDatabaseName("mysql");
+            .withUsername("mysql")
+            .withPassword("password")
+            .withDatabaseName("mysql");
 
     String address;
     Integer port;
@@ -70,15 +73,11 @@ public class MySqlPluginTest {
         )) {
 
             try (Statement statement = connection.createStatement()) {
-                statement.execute("SET @@time_zone = '+00:00'");
-            }
-
-            try (Statement statement = connection.createStatement()) {
                 statement.execute("DROP TABLE IF EXISTS users");
             }
 
             try (Statement statement = connection.createStatement()) {
-                statement.execute("CREATE TABLE users(\n" +
+                statement.execute("CREATE TABLE users (\n" +
                         "    id serial PRIMARY KEY,\n" +
                         "    username VARCHAR (50) UNIQUE NOT NULL,\n" +
                         "    password VARCHAR (50) NOT NULL,\n" +
@@ -211,7 +210,33 @@ public class MySqlPluginTest {
                     }
                 })
                 .verifyComplete();
+    }
 
+    @Test
+    public void testAliasColumnNames() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertArrayEquals(
+                            new String[]{
+                                    "user_id"
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -222,12 +247,11 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
-
+                .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -239,29 +263,22 @@ public class MySqlPluginTest {
                     assertTrue(node.get("created_on").asText().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
                     assertTrue(node.get("updated_on").asText().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
 
-                    // Check the order of the columns.
                     assertArrayEquals(
-                            List
-                                    .of(
-                                            "id",
-                                            "username",
-                                            "password",
-                                            "email",
-                                            "spouse_dob",
-                                            "dob",
-                                            "yob",
-                                            "time1",
-                                            "created_on",
-                                            "updated_on"
-                                    )
-                                    .stream()
-                                    .sorted()
-                                    .toArray(),
+                            new String[]{
+                                    "id",
+                                    "username",
+                                    "password",
+                                    "email",
+                                    "spouse_dob",
+                                    "dob",
+                                    "yob",
+                                    "time1",
+                                    "created_on",
+                                    "updated_on"
+                            },
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
-                                    .stream()
-                                    .sorted()
                                     .toArray()
                     );
                 })
