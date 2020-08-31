@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from "react";
-import { CommonComponentProps, hexToRgba } from "./common";
+import React, { useState } from "react";
+import { CommonComponentProps, hexToRgba, Classes } from "./common";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import Text, { TextType } from "./Text";
 import styled from "styled-components";
@@ -27,7 +27,7 @@ const SelectedItem = styled.div`
   cursor: pointer;
   user-select: none;
 
-  span {
+  .${Classes.TEXT} {
     margin-right: ${props => props.theme.spaces[1] + 1}px;
   }
 `;
@@ -54,12 +54,12 @@ const DropdownOption = styled.div<{
       ? `background-color: ${props.theme.colors.blackShades[4]}`
       : null};
 
-  span:last-child {
+  .${Classes.TEXT}:last-child {
     margin-top: ${props => props.theme.spaces[1] + 1}px;
   }
 
   &:hover {
-    span {
+    .${Classes.TEXT} {
       color: ${props => props.theme.colors.blackShades[9]};
     }
   }

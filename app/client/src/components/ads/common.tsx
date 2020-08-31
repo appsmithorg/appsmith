@@ -12,13 +12,8 @@ export type ThemeProp = {
 };
 
 export enum Classes {
-  "ICON" = "ads-icon",
+  TEXT = "cs-text",
 }
-
-const Dropdown = styled.div`
-  .${Classes.ICON} {
-  }
-`;
 
 export const hexToRgb = (
   hex: string,
