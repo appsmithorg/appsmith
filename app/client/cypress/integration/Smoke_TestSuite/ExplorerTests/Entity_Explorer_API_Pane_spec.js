@@ -35,6 +35,9 @@ describe("Entity explorer API pane related testcases", function() {
       expect($lis.eq(1)).to.contain("{{FirstAPI.data}}");
       expect($lis.eq(2)).to.contain("{{FirstAPI.run()}}");
     });
+    cy.get(apiwidget.actionlist)
+      .contains(testdata.Get)
+      .should("be.visible");
     cy.Createpage(pageid);
     cy.GlobalSearchEntity("FirstAPI");
     cy.EditApiNameFromExplorer("SecondAPI");
