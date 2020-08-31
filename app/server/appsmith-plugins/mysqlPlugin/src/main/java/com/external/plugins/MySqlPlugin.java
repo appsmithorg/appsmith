@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +43,8 @@ public class MySqlPlugin extends BasePlugin {
     private static final String USER = "user";
     private static final String PASSWORD = "password";
     private static final int VALIDITY_CHECK_TIMEOUT = 5;
+
+    private static final String DATE_COLUMN_TYPE_NAME = "date";
 
     public MySqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -90,7 +93,21 @@ public class MySqlPlugin extends BasePlugin {
                     while (resultSet.next()) {
                         Map<String, Object> row = new HashMap<>(colCount);
                         for (int i = 1; i <= colCount; i++) {
-                            row.put(metaData.getColumnLabel(i), resultSet.getObject(i));
+                            Object value;
+                            final String typeName = metaData.getColumnTypeName(i);
+
+                            if (resultSet.getObject(i) == null) {
+                                value = null;
+
+                            } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
+
+                            } else {
+                                value = resultSet.getObject(i);
+
+                            }
+
+                            row.put(metaData.getColumnName(i), value);
                         }
                         rowsList.add(row);
                     }
