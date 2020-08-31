@@ -88,29 +88,58 @@ const TabStory = (props: any) => {
 export const Tabs = () => (
   <TabStory
     icon1={select(
-      "icon1",
-      ["Select icon", "general", "billing", "delete", "user"],
-      "general",
+      "Icon 1",
+      [
+        IconName.DELETE,
+        IconName.USER,
+        IconName.BILLING,
+        IconName.LAUNCH,
+        IconName.SHARE,
+        IconName.CLOSE,
+      ],
+      IconName.GENERAL,
     )}
-    title1={text("title1", "General")}
+    title1={text("Title 1", "General")}
     icon2={select(
-      "icon2",
-      ["Select icon", "general", "billing", "delete", "user"],
-      "user",
+      "Icon 2",
+      [
+        IconName.DELETE,
+        IconName.USER,
+        IconName.BILLING,
+        IconName.LAUNCH,
+        IconName.SHARE,
+        IconName.CLOSE,
+      ],
+      IconName.USER,
     )}
-    title2={text("title2", "User")}
+    title2={text("Title 2", "User")}
     icon3={select(
-      "icon3",
-      ["Select icon", "general", "billing", "delete", "user"],
-      "billing",
+      "Icon 3",
+      [
+        IconName.DELETE,
+        IconName.USER,
+        IconName.BILLING,
+        IconName.LAUNCH,
+        IconName.SHARE,
+        IconName.CLOSE,
+      ],
+      IconName.BILLING,
     )}
-    title3={text("title3", "Billing")}
+    title3={text("Title 3", "Billing")}
     icon4={select(
-      "icon4",
-      ["Select icon", "general", "billing", "delete", "user"],
-      undefined,
+      "Icon 4",
+      [
+        IconName.DELETE,
+        IconName.USER,
+        IconName.BILLING,
+        IconName.LAUNCH,
+        IconName.SHARE,
+        IconName.CLOSE,
+        IconName.NO_ICON,
+      ],
+      IconName.NO_ICON,
     )}
-    title4={text("title4", "")}
+    title4={text("Title 4", "")}
   />
 );
 

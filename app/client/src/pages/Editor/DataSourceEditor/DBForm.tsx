@@ -184,7 +184,7 @@ class DatasourceDBEditor extends React.Component<
       }
     });
 
-    return !_.isEmpty(errors);
+    return !_.isEmpty(errors) || this.props.invalid;
   };
 
   render() {

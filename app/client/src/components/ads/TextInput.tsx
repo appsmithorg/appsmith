@@ -1,5 +1,5 @@
 import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
-import { CommonComponentProps, hexToRgba } from "./common";
+import { CommonComponentProps, hexToRgba, Classes } from "./common";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import { theme } from "constants/DefaultTheme";
@@ -102,7 +102,7 @@ const InputWrapper = styled.div`
   align-items: flex-start;
   position: relative;
 
-  span {
+  .${Classes.TEXT} {
     color: ${props => props.theme.colors.danger.main};
   }
 `;
@@ -127,8 +127,8 @@ const TextInput = forwardRef(
     }>(initialValidation());
 
     const inputStyle = useMemo(() => boxStyles(props, validation.isValid), [
-      props.disabled,
-      validation,
+      props,
+      validation.isValid,
     ]);
 
     const memoizedChangeHandler = useCallback(

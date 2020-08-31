@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ReactComponent as BagIcon } from "assets/icons/ads/bag.svg";
 import { ReactComponent as ProductIcon } from "assets/icons/ads/product.svg";
 import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
@@ -30,43 +30,63 @@ export enum AppIconName {
   HEART = "heart",
 }
 
-export const sizeHandler = (size: Size) => {
-  let iconSize = 0;
-  switch (size) {
-    case Size.small:
-      iconSize = 20;
-      break;
-    case Size.medium:
-      iconSize = 30;
-      break;
-    case Size.large:
-      iconSize = 54;
-      break;
-  }
-  return iconSize;
+type cssAttributes = {
+  width: number;
+  height: number;
+  padding: number;
 };
 
-const IconWrapper = styled.div<AppIconProps>`
+const appSizeHandler = (size: Size): cssAttributes => {
+  let width, height, padding;
+  switch (size) {
+    case Size.small:
+      width = 20;
+      height = 20;
+      padding = 5;
+      break;
+    case Size.medium:
+      width = 32;
+      height = 32;
+      padding = 20;
+      break;
+    case Size.large:
+      width = 50;
+      height = 50;
+      padding = 50;
+      break;
+  }
+  return { width, height, padding };
+};
+
+const IconWrapper = styled.div<AppIconProps & { styledProps: cssAttributes }>`
   cursor: pointer;
   &:focus {
     outline: none;
   }
   display: flex;
+  width: ${props => props.styledProps.width + 2 * props.styledProps.padding}px;
+  height: ${props =>
+    props.styledProps.height + 2 * props.styledProps.padding}px;
   svg {
-    width: ${props => sizeHandler(props.size)}px;
-    height: ${props => sizeHandler(props.size)}px;
+    width: ${props => props.styledProps.width}px;
+    height: ${props => props.styledProps.height}px;
     path {
       fill: ${props => props.theme.colors.blackShades[9]};
     }
   }
+  padding: ${props => props.styledProps.padding}px;
+  background-color: ${props => props.color};
 `;
 
 export type AppIconProps = {
   size: Size;
+  color: string;
   name: AppIconName;
 };
 
 const AppIcon = (props: AppIconProps) => {
+  const styledProps = useMemo(() => appSizeHandler(props.size), [props]);
+
   let returnIcon;
   switch (props.name) {
     case AppIconName.BAG:
@@ -109,7 +129,11 @@ const AppIcon = (props: AppIconProps) => {
       returnIcon = null;
       break;
   }
-  return returnIcon ? <IconWrapper {...props}>{returnIcon}</IconWrapper> : null;
+  return returnIcon ? (
+    <IconWrapper {...props} styledProps={styledProps}>
+      {returnIcon}
+    </IconWrapper>
+  ) : null;
 };
 
 export default AppIcon;

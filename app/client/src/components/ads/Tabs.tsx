@@ -2,8 +2,7 @@ import React from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
-import Icon, { IconName } from "./Icon";
-import { Size } from "./Button";
+import Icon, { IconName, IconSize } from "./Icon";
 
 export type TabProp = {
   key: string;
@@ -128,7 +127,7 @@ export const TabComponent = (props: TabbedViewComponentType) => {
         <TabList>
           {props.tabs.map(tab => (
             <Tab key={tab.key}>
-              {tab.icon ? <Icon name={tab.icon} size={Size.large} /> : null}
+              {tab.icon ? <Icon name={tab.icon} size={IconSize.LARGE} /> : null}
               <TabTitle>{tab.title}</TabTitle>
             </Tab>
           ))}
