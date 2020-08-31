@@ -54,11 +54,7 @@ export const MenuStory = () => {
       }}
     >
       <Menu
-        position={select(
-          "Position",
-          [Position.RIGHT, Position.LEFT, Position.BOTTOM, Position.TOP],
-          Position.RIGHT,
-        )}
+        position={select("Position", Object.values(Position), Position.RIGHT)}
         target={
           <div>
             <svg
