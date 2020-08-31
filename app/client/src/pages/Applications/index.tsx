@@ -153,9 +153,19 @@ const LeftPaneWrapper = styled.div`
 const ApplicationContainer = styled.div`
   height: calc(100vh - ${props => props.theme.homePage.search.height - 40}px);
   overflow: scroll;
+  padding-right: ${props => props.theme.homePage.leftPane.rightMargin}px;
   margin-top: ${props => props.theme.homePage.search.height}px;
-  margin-left: 369px;
-  width: calc(100% - 369px);
+  margin-left: ${props =>
+    props.theme.homePage.leftPane.width +
+    props.theme.homePage.leftPane.rightMargin +
+    props.theme.homePage.leftPane.leftPadding}px;
+  width: calc(
+    100% -
+      ${props =>
+        props.theme.homePage.leftPane.width +
+        props.theme.homePage.leftPane.rightMargin +
+        props.theme.homePage.leftPane.leftPadding}px
+  );
 `;
 
 const ItemWrapper = styled.div`
