@@ -2,14 +2,12 @@ import React, {
   forwardRef,
   Ref,
   useCallback,
-  useMemo,
   useState,
   useEffect,
 } from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
-import { Size } from "./Button";
-import Icon from "./Icon";
+import Icon, { IconSize, IconName } from "./Icon";
 
 export enum SearchVariant {
   BACKGROUND = "BACKGROUND",
@@ -115,7 +113,11 @@ const SearchInput = forwardRef(
         variant={props.variant}
         fill={props.fill}
       >
-        <Icon name="search" size={Size.large} className="search-icon" />
+        <Icon
+          name={IconName.SEARCH}
+          size={IconSize.SMALL}
+          className="search-icon"
+        />
         <StyledInput
           type="text"
           ref={ref}
@@ -129,8 +131,8 @@ const SearchInput = forwardRef(
         />
         {searchValue && props.variant === SearchVariant.BACKGROUND ? (
           <Icon
-            name="close"
-            size={Size.large}
+            name={IconName.SEARCH}
+            size={IconSize.MEDIUM}
             className="close-icon"
             onClick={() => setSearchValue("")}
           />

@@ -14,6 +14,7 @@ import EditableText, {
   EditInteractionKind,
   SavingStateHandler,
 } from "components/ads/EditableText";
+import { IconName } from "components/ads/Icon";
 
 export default {
   title: "Menu",
@@ -124,7 +125,11 @@ export const MenuStory = () => {
         <MenuDivider />
         <MenuItem
           text={text("First option", "Invite user")}
-          icon={select("First Icon", ["Select icon", "delete", "user"], "user")}
+          icon={select(
+            "First Icon",
+            [IconName.DELETE, IconName.USER, IconName.NO_ICON],
+            IconName.NO_ICON,
+          )}
           onSelect={action("clicked-first-option")}
           label={<span>W</span>}
         />
@@ -133,8 +138,8 @@ export const MenuStory = () => {
           text={text("Second option", "Are you sure")}
           icon={select(
             "Second Icon",
-            ["Select icon", "delete", "user"],
-            "delete",
+            [IconName.DELETE, IconName.USER, IconName.NO_ICON],
+            IconName.NO_ICON,
           )}
           onSelect={action("clicked-second-option")}
           label={<span>W</span>}

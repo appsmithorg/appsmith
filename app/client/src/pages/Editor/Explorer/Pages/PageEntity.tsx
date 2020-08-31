@@ -51,7 +51,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
 
   const icon = props.page.isDefault ? homePageIcon : pageIcon;
 
-  let addWidgetsFn = undefined;
+  let addWidgetsFn;
   if (isCurrentPage) addWidgetsFn = props.showWidgetsSidebar;
 
   return (
