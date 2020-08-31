@@ -21,6 +21,7 @@ export const withDynamicProps = () => (
       isLoading={boolean("Loading", false)}
       disabled={boolean("Disabled", false)}
       text={text("text", "Get")}
+      fill={boolean("fill", false)}
     ></Button>
   </StoryWrapper>
 );

@@ -54,6 +54,7 @@ type ButtonProps = CommonComponentProps & {
   variant?: Variant;
   icon?: IconName;
   size?: Size;
+  fill?: boolean;
 };
 
 const stateStyles = (
@@ -237,6 +238,7 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
 };
 
 const StyledButton = styled("button")<ThemeProp & ButtonProps>`
+  width: ${props => (props.fill ? "100%" : "auto")};
   border: none;
   outline: none;
   text-transform: uppercase;
@@ -282,6 +284,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   }
   display: flex;
   align-items: center;
+  justify-content: center;
   position: relative;
   .new-spinner {
     position: absolute;
@@ -314,6 +317,7 @@ Button.defaultProps = {
   size: Size.small,
   isLoading: false,
   disabled: false,
+  fill: false,
 };
 
 function Button(props: ButtonProps) {
