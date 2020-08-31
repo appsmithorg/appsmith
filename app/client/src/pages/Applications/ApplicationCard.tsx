@@ -176,6 +176,10 @@ const Initials = styled.span`
   margin: auto;
 `;
 
+const AppNameWrapper = styled.div`
+  padding: 12px;
+  padding-top: 0;
+`;
 const APPLICATION_CONTROL_FONTSIZE_INDEX = 5;
 
 type ApplicationCardProps = {
@@ -290,7 +294,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           </div>
         )}
       </Wrapper>
-      <Text type={TextType.H3}>{props.application.name}</Text>
+      <AppNameWrapper>
+        <Text type={TextType.H3}>{props.application.name}</Text>
+      </AppNameWrapper>
     </NameWrapper>
   );
 };
