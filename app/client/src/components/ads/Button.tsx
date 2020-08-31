@@ -1,5 +1,5 @@
 import React from "react";
-import { CommonComponentProps, hexToRgba, ThemeProp } from "./common";
+import { CommonComponentProps, hexToRgba, ThemeProp, Classes } from "./common";
 import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Spinner from "./Spinner";
@@ -246,7 +246,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   border-radius: ${props => props.theme.radii[0]};
   ${props => btnFontStyles(props).buttonFont};
   padding: ${props => btnFontStyles(props).padding};
-  .ads-icon {
+  .${Classes.ICON} {
     margin-right: ${props =>
         props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
       path {
@@ -259,7 +259,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     border: ${props => btnColorStyles(props, "hover").border};
     cursor: ${props =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
-    .ads-icon {
+    .${Classes.ICON} {
       margin-right: ${props =>
           props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
         path {
@@ -274,7 +274,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     border: ${props => btnColorStyles(props, "active").border};
     cursor: ${props =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
-    .ads-icon {
+    .${Classes.ICON} {
       path {
         fill: ${props => btnColorStyles(props, "active").txtColor};
       }

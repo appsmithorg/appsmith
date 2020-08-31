@@ -9,13 +9,13 @@ import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as ShareIcon } from "assets/icons/ads/share.svg";
-import { ReactComponent as LaunchIcon } from "assets/icons/ads/launch.svg";
+import { ReactComponent as RocketIcon } from "assets/icons/ads/launch.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspace.svg";
 import { ReactComponent as CreateNewIcon } from "assets/icons/ads/create-new.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
 import styled from "styled-components";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
 
@@ -56,26 +56,27 @@ export const sizeHandler = (size?: IconSize) => {
   return iconSize;
 };
 
-export enum IconName {
-  NO_ICON = "no icon",
-  DELETE = "delete",
-  USER = "user",
-  GENERAL = "general",
-  BILLING = "billing",
-  EDIT = "edit",
-  ERROR = "error",
-  SUCCESS = "success",
-  SEARCH = "search",
-  CLOSE = "close",
-  SHARE = "share",
-  LAUNCH = "launch",
-  WORKSPACE = "workspace",
-  CREATE_NEW = "create new",
-  INVITE_USER = "invite user",
-  VIEW_ALL = "view all",
-}
+export const IconCollection = [
+  "delete",
+  "user",
+  "general",
+  "billing",
+  "edit",
+  "error",
+  "success",
+  "search",
+  "close",
+  "share",
+  "rocket",
+  "workspace",
+  "plus",
+  "invite-user",
+  "view-all",
+] as const;
 
-const IconWrapper = styled.div<IconProps>`
+export type IconName = typeof IconCollection[number];
+
+const IconWrapper = styled.span<IconProps>`
   &:focus {
     outline: none;
   }
@@ -115,49 +116,49 @@ export type IconProps = {
 const Icon = (props: IconProps & CommonComponentProps) => {
   let returnIcon;
   switch (props.name) {
-    case IconName.DELETE:
+    case "delete":
       returnIcon = <DeleteIcon />;
       break;
-    case IconName.USER:
+    case "user":
       returnIcon = <UserIcon />;
       break;
-    case IconName.GENERAL:
+    case "general":
       returnIcon = <GeneralIcon />;
       break;
-    case IconName.BILLING:
+    case "billing":
       returnIcon = <BillingIcon />;
       break;
-    case IconName.EDIT:
+    case "edit":
       returnIcon = <EditIcon />;
       break;
-    case IconName.ERROR:
+    case "error":
       returnIcon = <ErrorIcon />;
       break;
-    case IconName.SUCCESS:
+    case "success":
       returnIcon = <SuccessIcon />;
       break;
-    case IconName.SEARCH:
+    case "search":
       returnIcon = <SearchIcon />;
       break;
-    case IconName.CLOSE:
+    case "close":
       returnIcon = <CloseIcon />;
       break;
-    case IconName.SHARE:
+    case "share":
       returnIcon = <ShareIcon />;
       break;
-    case IconName.LAUNCH:
-      returnIcon = <LaunchIcon />;
+    case "rocket":
+      returnIcon = <RocketIcon />;
       break;
-    case IconName.WORKSPACE:
+    case "workspace":
       returnIcon = <WorkspaceIcon />;
       break;
-    case IconName.CREATE_NEW:
+    case "plus":
       returnIcon = <CreateNewIcon />;
       break;
-    case IconName.INVITE_USER:
+    case "invite-user":
       returnIcon = <InviteUserIcon />;
       break;
-    case IconName.VIEW_ALL:
+    case "view-all":
       returnIcon = <ViewAllIcon />;
       break;
     default:
@@ -166,7 +167,7 @@ const Icon = (props: IconProps & CommonComponentProps) => {
   }
   return returnIcon ? (
     <IconWrapper
-      className={props.className ? props.className : "ads-icon"}
+      className={Classes.ICON}
       data-cy={props.cypressSelector}
       {...props}
       onClick={props.onClick || noop}
