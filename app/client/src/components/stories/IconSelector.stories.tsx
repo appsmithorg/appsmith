@@ -1,5 +1,5 @@
 import React from "react";
-import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
+import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import IconSelector from "components/ads/IconSelector";
 import { action } from "@storybook/addon-actions";

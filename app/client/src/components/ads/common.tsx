@@ -10,6 +10,10 @@ export type ThemeProp = {
   theme: Theme;
 };
 
+export enum Classes {
+  TEXT = "cs-text",
+}
+
 export const hexToRgb = (
   hex: string,
 ): {
