@@ -1,7 +1,7 @@
 import React from "react";
 import { CommonComponentProps, hexToRgba, ThemeProp } from "./common";
 import styled from "styled-components";
-import Icon, { IconName } from "./Icon";
+import Icon, { IconName, IconSize } from "./Icon";
 import Spinner from "./Spinner";
 import { mediumButton, smallButton, largeButton } from "constants/DefaultTheme";
 
@@ -281,6 +281,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     }
   }
   display: flex;
+  align-items: center;
   position: relative;
   .new-spinner {
     position: absolute;
@@ -291,6 +292,22 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   }
 `;
 
+export const VisibilityWrapper = styled.div`
+  visibility: hidden;
+`;
+
+const IconSizeProp = (size?: Size) => {
+  if (size === Size.small) {
+    return IconSize.SMALL;
+  } else if (size === Size.medium) {
+    return IconSize.MEDIUM;
+  } else if (size === Size.large) {
+    return IconSize.LARGE;
+  } else {
+    return IconSize.SMALL;
+  }
+};
+
 Button.defaultProps = {
   category: Category.primary,
   variant: Variant.info,
@@ -299,13 +316,9 @@ Button.defaultProps = {
   disabled: false,
 };
 
-export const VisibilityWrapper = styled.div`
-  visibility: hidden;
-`;
-
 function Button(props: ButtonProps) {
   const IconLoadingState = (
-    <Icon name={props.icon} size={props.size} invisible={true} />
+    <Icon name={props.icon} size={IconSizeProp(props.size)} invisible={true} />
   );
 
   const TextLoadingState = <VisibilityWrapper>{props.text}</VisibilityWrapper>;
@@ -322,13 +335,13 @@ function Button(props: ButtonProps) {
         props.isLoading ? (
           IconLoadingState
         ) : (
-          <Icon name={props.icon} size={props.size} />
+          <Icon name={props.icon} size={IconSizeProp(props.size)} />
         )
       ) : null}
 
       {props.text ? (props.isLoading ? TextLoadingState : props.text) : null}
 
-      {props.isLoading ? <Spinner size={props.size} /> : null}
+      {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
     </StyledButton>
   );
 }

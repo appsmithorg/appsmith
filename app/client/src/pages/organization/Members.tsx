@@ -14,7 +14,7 @@ import { RouteComponentProps } from "react-router";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Table from "components/ads/Table";
-import Icon from "components/ads/Icon";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 import {
   fetchUsersForOrg,
   fetchRolesForOrg,
@@ -126,8 +126,8 @@ export default function MemberSettings(props: PageProps) {
         }
         return (
           <Icon
-            name={"delete"}
-            size={Size.large}
+            name={IconName.DELETE}
+            size={IconSize.LARGE}
             cypressSelector="t--deleteUser"
             onClick={() => {
               dispatch(

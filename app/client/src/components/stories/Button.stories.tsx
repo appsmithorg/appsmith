@@ -3,6 +3,7 @@ import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { StoryWrapper } from "./Tabs.stories";
+import { IconName } from "components/ads/Icon";
 
 export default {
   title: "Button",
@@ -24,7 +25,11 @@ export const withDynamicProps = () => (
         [Variant.info, Variant.success, Variant.danger, Variant.warning],
         Variant.info,
       )}
-      icon={select("iconName", ["Select icon", "delete", "user"], undefined)}
+      icon={select(
+        "Icon name",
+        [IconName.DELETE, IconName.USER, IconName.NO_ICON],
+        IconName.NO_ICON,
+      )}
       isLoading={boolean("Loading", false)}
       disabled={boolean("Disabled", false)}
       text={text("text", "Get")}
