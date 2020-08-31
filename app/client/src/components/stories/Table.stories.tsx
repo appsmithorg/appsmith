@@ -1,11 +1,11 @@
 import React from "react";
 import Table from "components/ads/Table";
 import Button, { Category, Variant, Size } from "components/ads/Button";
-import Icon from "components/ads/Icon";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 import TableDropdown from "components/ads/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { StoryWrapper } from "./Tabs.stories";
-        
+
 export default {
   title: "Table",
   component: Table,
@@ -74,7 +74,7 @@ const data = [
         text={"approve"}
       />
     ),
-    col6: <Icon name={"delete"} size={Size.large} />,
+    col6: <Icon name={IconName.DELETE} size={IconSize.LARGE} />,
   },
   {
     col1: "Austin Howard",
@@ -96,7 +96,7 @@ const data = [
         text={"accepted"}
       />
     ),
-    col6: <Icon name={"delete"} size={Size.large} />,
+    col6: <Icon name={IconName.DELETE} size={IconSize.LARGE} />,
   },
   {
     col1: "Justing Howard",
@@ -118,7 +118,7 @@ const data = [
         text={"on hold"}
       />
     ),
-    col6: <Icon name={"delete"} size={Size.large} />,
+    col6: <Icon name={IconName.DELETE} size={IconSize.LARGE} />,
   },
 ];
 

@@ -27,7 +27,9 @@ const options = [
 ];
 
 export const TableDropdownStory = () => (
-  <StoryWrapper>
+  <StoryWrapper
+    style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+  >
     <TableDropdown
       position={select(
         "position",

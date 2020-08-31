@@ -5,6 +5,7 @@ import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { noop } from "lodash";
 import { ContextMenuPopoverModifiers } from "../helpers";
+import { initExplorerEntityNameEdit } from "actions/explorerActions";
 
 export const DataSourceContextMenu = (props: {
   datasourceId: string;
@@ -14,6 +15,10 @@ export const DataSourceContextMenu = (props: {
   const dispatchDelete = useCallback(() => {
     dispatch(deleteDatasource({ id: props.datasourceId }));
   }, [dispatch, props.datasourceId]);
+  const editDatasourceName = useCallback(
+    () => dispatch(initExplorerEntityNameEdit(props.datasourceId)),
+    [dispatch, props.datasourceId],
+  );
   return (
     <TreeDropdown
       className={props.className}
@@ -22,6 +27,11 @@ export const DataSourceContextMenu = (props: {
       onSelect={noop}
       selectedValue=""
       optionTree={[
+        {
+          value: "rename",
+          onSelect: editDatasourceName,
+          label: "Edit Name",
+        },
         {
           value: "delete",
           onSelect: dispatchDelete,

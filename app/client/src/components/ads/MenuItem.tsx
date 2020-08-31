@@ -1,9 +1,8 @@
 import React, { ReactNode } from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
-import Icon, { IconName } from "./Icon";
+import Icon, { IconName, IconSize } from "./Icon";
 import Text, { TextType, FontWeight } from "./Text";
-import { Size } from "./Button";
 
 type MenuItemProps = CommonComponentProps & {
   icon?: IconName;
@@ -46,7 +45,7 @@ function MenuItem(props: MenuItemProps) {
   return (
     <ItemRow onClick={props.onSelect}>
       <IconContainer>
-        {props.icon ? <Icon name={props.icon} size={Size.large} /> : null}
+        {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
         {props.text ? (
           <Text type={TextType.H5} weight={FontWeight.NORMAL}>
             {props.text}
