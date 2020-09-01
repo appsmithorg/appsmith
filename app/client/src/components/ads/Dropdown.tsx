@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Icon, { IconName } from "./Icon";
-import { CommonComponentProps } from "./common";
+import Icon, { IconName, IconSize } from "./Icon";
+import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
-import { Size } from "./Button";
 
 type DropdownOption = {
   label?: string;
@@ -45,7 +44,7 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
     props.isOpen && !props.disabled
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
-  span {
+  .${Classes.TEXT} {
     ${props =>
       props.disabled
         ? `color: ${props.theme.colors.blackShades[6]}`
@@ -68,11 +67,11 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
   align-items: center;
   ${props =>
     props.selected ? `background: ${props.theme.colors.blackShades[4]}` : null};
-  span {
+  .${Classes.TEXT} {
     ${props =>
       props.selected ? `color: ${props.theme.colors.blackShades[9]}` : null};
   }
-  .ads-icon {
+  .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[5]}px;
     svg {
       path {
@@ -85,12 +84,14 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
   }
 
   &:hover {
-    span {
+    .${Classes.TEXT} {
       color: ${props => props.theme.colors.blackShades[9]};
     }
-    svg {
-      path {
-        fill: ${props => props.theme.colors.blackShades[8]};
+    .${Classes.ICON} {
+      svg {
+        path {
+          fill: ${props => props.theme.colors.blackShades[8]};
+        }
       }
     }
   }
@@ -104,7 +105,7 @@ const LabelWrapper = styled.div<{ label?: string }>`
   ${props =>
     props.label
       ? `
-    span:last-child {
+    .${Classes.TEXT}:last-child {
       margin-top: ${props.theme.spaces[2] - 1}px;
     }
     `
@@ -137,7 +138,7 @@ export default function Dropdown(props: DropdownProps) {
         onClick={selectedHandler}
       >
         <Text type={TextType.P1}>{selected.value}</Text>
-        <Icon name="downArrow" size={Size.small} />
+        <Icon name="downArrow" size={IconSize.SMALL} />
       </Selected>
 
       {isOpen && !props.disabled ? (
@@ -150,7 +151,7 @@ export default function Dropdown(props: DropdownProps) {
                 onClick={() => optionClickHandler(option)}
               >
                 {option.icon ? (
-                  <Icon name={option.icon} size={Size.large} />
+                  <Icon name={option.icon} size={IconSize.LARGE} />
                 ) : null}
                 <LabelWrapper label={option.label}>
                   {option.label ? (

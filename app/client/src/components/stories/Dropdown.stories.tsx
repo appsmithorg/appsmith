@@ -1,8 +1,10 @@
 import React from "react";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import Dropdown from "../ads/Dropdown";
+import Dropdown from "components/ads/Dropdown";
 import { action } from "@storybook/addon-actions";
+import { IconCollection } from "components/ads/Icon";
+import { StoryWrapper } from "./Tabs.stories";
 
 export default {
   title: "Dropdown",
@@ -11,9 +13,7 @@ export default {
 };
 
 export const Text = () => (
-  <div
-    style={{ background: "#2B2B2B", padding: "50px 100px", height: "700px" }}
-  >
+  <StoryWrapper>
     <Dropdown
       options={[
         {
@@ -38,43 +38,29 @@ export const Text = () => (
       }}
       disabled={boolean("disabled", false)}
     ></Dropdown>
-  </div>
+  </StoryWrapper>
 );
 
 export const IconAndText = () => (
-  <div
-    style={{ background: "#2B2B2B", padding: "50px 100px", height: "700px" }}
-  >
+  <StoryWrapper>
     <Dropdown
       options={[
         {
           id: "111abc",
           value: text("1st Option", "Delete"),
-          icon: select(
-            "1st Icon",
-            ["Select icon", "delete", "user", "general"],
-            "delete",
-          ),
+          icon: select("1st Icon", IconCollection, "delete"),
           onSelect: action("selected-option"),
         },
         {
           id: "222abc",
           value: text("2nd Option", "User"),
-          icon: select(
-            "2nd Icon",
-            ["Select icon", "delete", "user", "general"],
-            "user",
-          ),
+          icon: select("2nd Icon", IconCollection, "user"),
           onSelect: action("selected-option"),
         },
         {
           id: "322abc",
           value: text("3rd Option", "General"),
-          icon: select(
-            "3rd Icon",
-            ["Select icon", "delete", "user", "general"],
-            "general",
-          ),
+          icon: select("3rd Icon", IconCollection, "general"),
           onSelect: action("selected-option"),
         },
       ]}
@@ -84,13 +70,11 @@ export const IconAndText = () => (
       }}
       disabled={boolean("disabled", false)}
     ></Dropdown>
-  </div>
+  </StoryWrapper>
 );
 
 export const LabelAndText = () => (
-  <div
-    style={{ background: "#2B2B2B", padding: "50px 100px", height: "700px" }}
-  >
+  <StoryWrapper>
     <Dropdown
       options={[
         {
@@ -124,5 +108,5 @@ export const LabelAndText = () => (
       }}
       disabled={boolean("disabled", false)}
     ></Dropdown>
-  </div>
+  </StoryWrapper>
 );
