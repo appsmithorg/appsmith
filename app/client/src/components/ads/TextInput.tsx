@@ -1,8 +1,36 @@
 import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
-import { CommonComponentProps, hexToRgba } from "./common";
+import { CommonComponentProps, hexToRgba, Classes } from "./common";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import { theme } from "constants/DefaultTheme";
+import {
+  FORM_VALIDATION_INVALID_EMAIL,
+  ERROR_MESSAGE_NAME_EMPTY,
+} from "constants/messages";
+import { isEmail } from "utils/formhelpers";
+
+export type Validator = (
+  value: string,
+) => {
+  isValid: boolean;
+  message: string;
+};
+
+export function emailValidator(email: string) {
+  const isValid = isEmail(email);
+  return {
+    isValid: isValid,
+    message: !isValid ? FORM_VALIDATION_INVALID_EMAIL : "",
+  };
+}
+
+export function notEmptyValidator(value: string) {
+  const isValid = !!value;
+  return {
+    isValid: isValid,
+    message: !isValid ? ERROR_MESSAGE_NAME_EMPTY : "",
+  };
+}
 
 export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
@@ -43,7 +71,6 @@ const StyledInput = styled.input<
   border-radius: 0;
   outline: 0;
   box-shadow: none;
-  margin-bottom: ${props => props.theme.spaces[1]}px;
   border: 1px solid ${props => props.inputStyle.borderColor};
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
@@ -73,12 +100,17 @@ const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  position: relative;
 
-  span {
+  .${Classes.TEXT} {
     color: ${props => props.theme.colors.danger.main};
   }
 `;
 
+const ErrorWrapper = styled.div`
+  position absolute;
+  bottom: -17px; 
+`;
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
     const initialValidation = () => {
@@ -95,19 +127,32 @@ const TextInput = forwardRef(
     }>(initialValidation());
 
     const inputStyle = useMemo(() => boxStyles(props, validation.isValid), [
-      props.disabled,
-      validation,
+      props,
+      validation.isValid,
     ]);
 
     const memoizedChangeHandler = useCallback(
       el => {
-        props.validator && setValidation(props.validator(el.target.value));
-        return props.onChange && props.onChange(el.target.value);
+        const validation = props.validator && props.validator(el.target.value);
+        if (validation) {
+          props.validator && setValidation(validation);
+          return (
+            validation.isValid &&
+            props.onChange &&
+            props.onChange(el.target.value)
+          );
+        } else {
+          return props.onChange && props.onChange(el.target.value);
+        }
       },
       [props],
     );
 
-    const ErrorMessage = <Text type={TextType.P3}>{validation.message}</Text>;
+    const ErrorMessage = (
+      <ErrorWrapper>
+        <Text type={TextType.P3}>{validation.message}</Text>
+      </ErrorWrapper>
+    );
 
     return (
       <InputWrapper>
@@ -118,18 +163,14 @@ const TextInput = forwardRef(
           isValid={validation.isValid}
           defaultValue={props.defaultValue}
           {...props}
-          placeholder={props.placeholder ? props.placeholder : ""}
+          placeholder={props.placeholder}
           onChange={memoizedChangeHandler}
         />
-        {validation.isValid ? null : ErrorMessage}
+        {ErrorMessage}
       </InputWrapper>
     );
   },
 );
-
-TextInput.defaultProps = {
-  fill: false,
-};
 
 TextInput.displayName = "TextInput";
 

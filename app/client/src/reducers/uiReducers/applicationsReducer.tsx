@@ -15,6 +15,7 @@ const initialState: ApplicationsReduxState = {
   applicationList: [],
   creatingApplication: false,
   deletingApplication: false,
+  duplicatingApplication: false,
   userOrgs: [],
 };
 
@@ -139,6 +140,26 @@ const applicationsReducer = createReducer(initialState, {
       searchKeyword: action.payload.keyword,
     };
   },
+  [ReduxActionTypes.DUPLICATE_APPLICATION_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return { ...state, duplicatingApplication: true };
+  },
+  [ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ApplicationPayload>,
+  ) => {
+    return {
+      ...state,
+      duplicatingApplication: false,
+      applicationList: [...state.applicationList, action.payload],
+    };
+  },
+  [ReduxActionTypes.DUPLICATE_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return { ...state, duplicatingApplication: false };
+  },
 });
 
 export interface ApplicationsReduxState {
@@ -150,6 +171,7 @@ export interface ApplicationsReduxState {
   creatingApplication: boolean;
   createApplicationError?: string;
   deletingApplication: boolean;
+  duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
   userOrgs: any;
 }
