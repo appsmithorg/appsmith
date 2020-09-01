@@ -43,7 +43,7 @@ export const EditableTextStory = () => (
       defaultValue={text("defaultValue", "Product design app")}
       editInteractionKind={select(
         "editInteractionKind",
-        [EditInteractionKind.SINGLE, EditInteractionKind.DOUBLE],
+        Object.values(EditInteractionKind),
         EditInteractionKind.SINGLE,
       )}
       onTextChanged={action("text-changed")}

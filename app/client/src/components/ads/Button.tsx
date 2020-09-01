@@ -1,7 +1,7 @@
 import React from "react";
-import { CommonComponentProps, hexToRgba, ThemeProp } from "./common";
+import { CommonComponentProps, hexToRgba, ThemeProp, Classes } from "./common";
 import styled from "styled-components";
-import Icon, { IconName } from "./Icon";
+import Icon, { IconName, IconSize } from "./Icon";
 import Spinner from "./Spinner";
 import { mediumButton, smallButton, largeButton } from "constants/DefaultTheme";
 
@@ -54,6 +54,7 @@ type ButtonProps = CommonComponentProps & {
   variant?: Variant;
   icon?: IconName;
   size?: Size;
+  fill?: boolean;
 };
 
 const stateStyles = (
@@ -237,6 +238,7 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
 };
 
 const StyledButton = styled("button")<ThemeProp & ButtonProps>`
+  width: ${props => (props.fill ? "100%" : "auto")};
   border: none;
   outline: none;
   text-transform: uppercase;
@@ -246,10 +248,10 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   border-radius: ${props => props.theme.radii[0]};
   ${props => btnFontStyles(props).buttonFont};
   padding: ${props => btnFontStyles(props).padding};
-  .ads-icon {
+  .${Classes.ICON} {
     margin-right: ${props =>
-        props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
-      path {
+      props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`};
+    path {
       fill: ${props => btnColorStyles(props, "main").txtColor};
     }
   }
@@ -259,10 +261,10 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     border: ${props => btnColorStyles(props, "hover").border};
     cursor: ${props =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
-    .ads-icon {
+    .${Classes.ICON} {
       margin-right: ${props =>
-          props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
-        path {
+        props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`};
+      path {
         fill: ${props => btnColorStyles(props, "hover").txtColor};
       }
     }
@@ -274,13 +276,15 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     border: ${props => btnColorStyles(props, "active").border};
     cursor: ${props =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
-    .ads-icon {
+    .${Classes.ICON} {
       path {
         fill: ${props => btnColorStyles(props, "active").txtColor};
       }
     }
   }
   display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   .new-spinner {
     position: absolute;
@@ -291,21 +295,34 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   }
 `;
 
+export const VisibilityWrapper = styled.div`
+  visibility: hidden;
+`;
+
+const IconSizeProp = (size?: Size) => {
+  if (size === Size.small) {
+    return IconSize.SMALL;
+  } else if (size === Size.medium) {
+    return IconSize.MEDIUM;
+  } else if (size === Size.large) {
+    return IconSize.LARGE;
+  } else {
+    return IconSize.SMALL;
+  }
+};
+
 Button.defaultProps = {
   category: Category.primary,
   variant: Variant.info,
   size: Size.small,
   isLoading: false,
   disabled: false,
+  fill: false,
 };
-
-export const VisibilityWrapper = styled.div`
-  visibility: hidden;
-`;
 
 function Button(props: ButtonProps) {
   const IconLoadingState = (
-    <Icon name={props.icon} size={props.size} invisible={true} />
+    <Icon name={props.icon} size={IconSizeProp(props.size)} invisible={true} />
   );
 
   const TextLoadingState = <VisibilityWrapper>{props.text}</VisibilityWrapper>;
@@ -322,13 +339,13 @@ function Button(props: ButtonProps) {
         props.isLoading ? (
           IconLoadingState
         ) : (
-          <Icon name={props.icon} size={props.size} />
+          <Icon name={props.icon} size={IconSizeProp(props.size)} />
         )
       ) : null}
 
       {props.text ? (props.isLoading ? TextLoadingState : props.text) : null}
 
-      {props.isLoading ? <Spinner size={props.size} /> : null}
+      {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
     </StyledButton>
   );
 }

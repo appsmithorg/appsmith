@@ -16,7 +16,7 @@ export const SearchInputStory = () => (
       placeholder={text("placeholder", "Search for apps...")}
       variant={select(
         "variant",
-        [SearchVariant.BACKGROUND, SearchVariant.SEAMLESS],
+        Object.values(SearchVariant),
         SearchVariant.SEAMLESS,
       )}
       fill={boolean("fill", false)}

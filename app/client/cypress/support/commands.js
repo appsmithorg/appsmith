@@ -242,7 +242,9 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton).click({ force: true });
+  cy.get(homePage.deleteButton)
+    .contains("Delete")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("DeletepageFromSideBar", () => {
@@ -386,7 +388,8 @@ Cypress.Commands.add("EditApiNameFromExplorer", apiname => {
   cy.get(explorer.editNameField)
     .clear()
     .type(apiname, { force: true })
-    .should("have.value", apiname);
+    .should("have.value", apiname)
+    .blur();
   cy.wait(3000);
 });
 

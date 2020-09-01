@@ -37,6 +37,8 @@ const getApplicationSearchKeyword = (state: AppState) =>
   state.ui.applications.searchKeyword;
 export const getIsDeletingApplication = (state: AppState) =>
   state.ui.applications.deletingApplication;
+export const getIsDuplicatingApplication = (state: AppState) =>
+  state.ui.applications.duplicatingApplication;
 export const getUserApplicationsOrgs = (state: AppState) => {
   return state.ui.applications.userOrgs;
 };

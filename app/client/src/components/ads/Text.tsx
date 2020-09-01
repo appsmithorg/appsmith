@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ThemeProp } from "./common";
+import { ThemeProp, Classes } from "./common";
 
 export enum TextType {
   P1 = "p1",
@@ -13,10 +13,24 @@ export enum TextType {
   H6 = "h6",
 }
 
+export enum Case {
+  UPPERCASE = "uppercase",
+  LOWERCASE = "lowercase",
+  CAPITALIZE = "capitalize",
+}
+
+export enum FontWeight {
+  BOLD = "bold",
+  NORMAL = "normal",
+}
+
 export type TextProps = {
   type: TextType;
   underline?: boolean;
   italic?: boolean;
+  case?: Case;
+  weight?: FontWeight;
+  highlight?: boolean;
 };
 
 const typeSelector = (props: TextProps & ThemeProp): string => {
@@ -38,15 +52,24 @@ const typeSelector = (props: TextProps & ThemeProp): string => {
   return color;
 };
 
-const Text = styled.span<TextProps>`
+const Text = styled.span.attrs(() => ({
+  className: Classes.TEXT,
+}))<TextProps>`
   text-decoration: ${props => (props.underline ? "underline" : "unset")};
   font-style: ${props => (props.italic ? "italic" : "normal")};
-  font-weight: ${props => props.theme.typography[props.type].fontWeight};
+  font-weight: ${props =>
+    props.weight
+      ? props.weight === FontWeight.BOLD
+        ? props.theme.fontWeights[2]
+        : "normal"
+      : props.theme.typography[props.type].fontWeight};
   font-size: ${props => props.theme.typography[props.type].fontSize}px;
   line-height: ${props => props.theme.typography[props.type].lineHeight}px;
   letter-spacing: ${props =>
     props.theme.typography[props.type].letterSpacing}px;
-  color: ${props => typeSelector(props)};
+  color: ${props =>
+    props.highlight ? props.theme.colors.blackShades[9] : typeSelector(props)};
+  text-transform: ${props => (props.case ? props.case : "none")};
 `;
 
 export default Text;
