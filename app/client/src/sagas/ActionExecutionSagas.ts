@@ -284,8 +284,14 @@ export function* executeActionSaga(
 ) {
   const { actionId, onSuccess, onError, params } = apiAction;
   try {
-    yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const api: RestAction = yield select(getAction, actionId);
+    if (api.requestConfirmation) {
+      const confirmed = yield call(confirmRunActionSaga);
+      if (!confirmed) {
+        return;
+      }
+    }
+    yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const actionParams: Property[] = yield call(
       getActionParams,
       api.jsonPathKeys,
