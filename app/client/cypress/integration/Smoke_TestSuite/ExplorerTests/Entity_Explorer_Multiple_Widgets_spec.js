@@ -47,7 +47,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
       expect($lis.eq(5)).to.contain("{{Table1.isVisible}}");
       expect($lis.eq(6)).to.contain("{{Table1.searchText}}");
     });
-    cy.GlobalSearchEntity("Text1");
+    cy.SearchEntityandOpen("Text1");
     cy.get(explorer.collapse)
       .last()
       .click({ force: true });
