@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
 import { ReactComponent as UpperArrow } from "../../assets/icons/ads/upper_arrow.svg";
+import { Classes } from "./common";
 
 const Styles = styled.div`
   table {
@@ -64,7 +65,7 @@ const Styles = styled.div`
 
         &:hover {
           background-color: ${props => props.theme.colors.blackShades[4]};
-          .ads-icon {
+          .${Classes.ICON} {
             path {
               fill: ${props => props.theme.colors.blackShades[9]};
             }
