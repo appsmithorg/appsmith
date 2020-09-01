@@ -1,8 +1,8 @@
 import React from "react";
-import { CommonComponentProps } from "./common";
-import { Variant, Size } from "./Button";
+import { CommonComponentProps, Classes } from "./common";
+import { Variant } from "./Button";
 import styled from "styled-components";
-import Icon from "./Icon";
+import Icon, { IconSize } from "./Icon";
 import Text, { TextType } from "./Text";
 import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -52,7 +52,7 @@ const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
   display: flex;
   align-items: center;
 
-  .ads-icon {
+  .${Classes.ICON} {
     cursor: auto;
     margin-right: ${props => props.theme.spaces[3]}px;
     svg {
@@ -65,7 +65,7 @@ const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
     }
   }
 
-  span {
+  .${Classes.TEXT} {
     color: ${props =>
       props.variant === Variant.danger
         ? props.theme.colors.message.dangerColor
@@ -77,7 +77,7 @@ const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
   ${props =>
     props.onUndo
       ? `
-    span:last-child {
+    .${Classes.TEXT}:last-child {
       cursor: pointer;
       margin-left: ${props.theme.spaces[3]}px;
       color: ${props.theme.colors.info.main};
@@ -90,12 +90,12 @@ const ToastComponent = (props: ToastProps) => {
   return (
     <ToastBody variant={props.variant} onUndo={props.onUndo}>
       {props.variant === Variant.success ? (
-        <Icon name="success" size={Size.large} />
+        <Icon name="success" size={IconSize.LARGE} />
       ) : props.variant === Variant.warning ? (
-        <Icon name="warning" size={Size.large} />
+        <Icon name="warning" size={IconSize.LARGE} />
       ) : null}
       {props.variant === Variant.danger ? (
-        <Icon name="error" size={Size.large} />
+        <Icon name="error" size={IconSize.LARGE} />
       ) : null}
       <Text type={TextType.P1}>{props.text}</Text>
       {props.onUndo ? (

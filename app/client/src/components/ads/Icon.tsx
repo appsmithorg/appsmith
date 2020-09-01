@@ -147,6 +147,7 @@ const Icon = (props: IconProps & CommonComponentProps) => {
       break;
     case "warning":
       returnIcon = <WarningIcon />;
+      break;
     case "share":
       returnIcon = <ShareIcon />;
       break;
