@@ -265,7 +265,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
     "TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS",
   TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT: "TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT",
   UPDATE_DATA_TREE: "UPDATE_DATA_TREE",
-  FORCE_EVAL: "FORCE_EVAL",
+  EVALUATE_DATA_TREE: "EVALUATE_DATA_TREE",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

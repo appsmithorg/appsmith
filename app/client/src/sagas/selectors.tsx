@@ -10,7 +10,7 @@ import { Page } from "constants/ReduxActionConstants";
 export const getWidgets = (
   state: AppState,
 ): { [widgetId: string]: FlattenedWidgetProps } => {
-  return state.entities.canvasWidgets;
+  return _.clone(state.entities.canvasWidgets);
 };
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;

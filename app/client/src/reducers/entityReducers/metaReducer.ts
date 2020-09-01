@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 
@@ -6,28 +6,26 @@ export type MetaState = Record<string, object>;
 
 const initialState: MetaState = {};
 
-export const metaReducer = createReducer(initialState, {
+export const metaReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_META_PROP]: (
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
   ) => {
-    const next = { ...state };
-    let widgetMetaProps: Record<string, any> = next[action.payload.widgetId];
+    let widgetMetaProps: Record<string, any> = state[action.payload.widgetId];
     if (widgetMetaProps === undefined) {
       widgetMetaProps = {};
-      next[action.payload.widgetId] = widgetMetaProps;
+      state[action.payload.widgetId] = widgetMetaProps;
     }
     (widgetMetaProps as Record<string, any>)[action.payload.propertyName] =
       action.payload.propertyValue;
-    return next;
+    return;
   },
   [ReduxActionTypes.WIDGET_DELETE]: (
     state: MetaState,
     action: ReduxAction<{ widgetId: string }>,
   ) => {
-    const next = { ...state };
-    delete next[action.payload.widgetId];
-    return next;
+    delete state[action.payload.widgetId];
+    return;
   },
   [ReduxActionTypes.RESET_WIDGET_META]: (
     state: MetaState,
@@ -35,15 +33,14 @@ export const metaReducer = createReducer(initialState, {
   ) => {
     const widgetId = action.payload.widgetId;
     if (widgetId in state) {
-      const resetData: Record<string, any> = {
-        ...state[widgetId],
-      };
-      Object.keys(resetData).forEach((key: string) => {
-        resetData[key] = undefined;
+      Object.keys(state[widgetId]).forEach((key: string) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        state[widgetId][key] = undefined;
       });
-      return { ...state, [widgetId]: { ...resetData } };
+      return;
     }
-    return state;
+    return;
   },
   [ReduxActionTypes.FETCH_PAGE_SUCCESS]: (
     state: MetaState,

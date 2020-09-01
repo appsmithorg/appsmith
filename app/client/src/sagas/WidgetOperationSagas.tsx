@@ -92,6 +92,7 @@ function* generateChildWidgets(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ): any {
   const widget = yield getChildWidgetProps(parent, params, widgets);
+  console.log({ widget, widgets });
   widgets[widget.widgetId] = widget;
   if (widget.blueprint && widget.blueprint.view) {
     const childWidgetList: WidgetAddChild[] = yield call(

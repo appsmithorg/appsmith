@@ -1,4 +1,11 @@
-import { takeLatest, select, call, put } from "redux-saga/effects";
+import {
+  takeLatest,
+  select,
+  all,
+  put,
+  take,
+  debounce,
+} from "redux-saga/effects";
 import { AppState } from "reducers";
 import {
   getActionsForCurrentPage,
@@ -9,6 +16,7 @@ import { getPageList } from "selectors/editorSelectors";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import _ from "lodash";
 
 function* evaluateSaga() {
   console.log("Eval start");
@@ -36,15 +44,42 @@ function* evaluateSaga() {
 }
 
 let oldState: AppState["entities"];
-function* checkForChangesSaga() {
-  const state: AppState = yield select();
-  if (state.entities !== oldState) {
-    yield call(evaluateSaga);
-    oldState = state.entities;
+function* evaluationListener() {
+  while (true) {
+    yield take("*");
+    const entities: AppState["entities"] = yield select(
+      (state: AppState) => state.entities,
+    );
+    const changes = Object.keys(entities).map(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      (key: keyof AppState["entities"]) => {
+        if (key && oldState && key in oldState) {
+          return { [key]: oldState[key] !== entities[key] };
+        } else {
+          return { [key]: true };
+        }
+      },
+    );
+    console.log({ changes });
+    if (_.some(_.values(changes))) {
+      if (entities !== oldState) {
+        oldState = entities;
+        yield put({
+          type: ReduxActionTypes.EVALUATE_DATA_TREE,
+        });
+      }
+    }
   }
 }
 
 export default function* evaluationTriggerSaga() {
-  yield takeLatest(ReduxActionTypes.FORCE_EVAL, evaluateSaga);
-  // yield takeLatest("*", checkForChangesSaga);
+  yield all([
+    takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, evaluationListener),
+    takeLatest(
+      ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+      evaluationListener,
+    ),
+    takeLatest(ReduxActionTypes.EVALUATE_DATA_TREE, evaluateSaga),
+  ]);
 }

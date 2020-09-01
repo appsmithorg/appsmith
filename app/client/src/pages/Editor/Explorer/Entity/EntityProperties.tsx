@@ -9,7 +9,7 @@ import {
   DataTree,
 } from "entities/DataTree/dataTreeFactory";
 import { useSelector } from "react-redux";
-import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 
 export const EntityProperties = (props: {
   entityType: ENTITY_TYPE;
@@ -18,15 +18,9 @@ export const EntityProperties = (props: {
   step: number;
   entity?: any;
 }) => {
-  let entity: any;
-  const dataTree: DataTree = useSelector(evaluateDataTreeWithoutFunctions);
-  if (props.isCurrentPage && dataTree[props.entityName]) {
-    entity = dataTree[props.entityName];
-  } else if (props.entity) {
-    entity = props.entity;
-  } else {
-    return null;
-  }
+  const dataTree: DataTree = useSelector(getDataTree);
+  const entity: any = dataTree[props.entityName];
+  if (!entity) return null;
 
   let config: any;
   let entityProperties: Array<EntityPropertyProps> = [];
