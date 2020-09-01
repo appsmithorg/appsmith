@@ -158,7 +158,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("Api_user's Example Applications");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
@@ -200,7 +200,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("Api_user's Example Applications");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(1);
@@ -252,7 +252,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("Api_user's Example Applications");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -307,7 +307,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("Api_user's Example Applications");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
@@ -358,7 +358,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("Api_user's Example Applications");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.datasources).hasSize(2);
@@ -434,7 +434,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("Api_user's Example Applications");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -580,7 +580,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("Api_user's Example Applications");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);

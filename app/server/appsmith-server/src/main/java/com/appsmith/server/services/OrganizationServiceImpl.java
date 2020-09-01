@@ -23,6 +23,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -104,11 +105,12 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
      * is discarded.
      * @param organization Organization object to be created.
      * @param user User to whom this organization will belong to, as a personal organization.
+     * @param suffix A string suffix to append to the organization name.
      * @return Publishes the saved organization.
      */
     @Override
-    public Mono<Organization> createPersonal(final Organization organization, User user) {
-        organization.setName(user.computeFirstName() + "'s Personal Organization");
+    public Mono<Organization> createPersonal(final Organization organization, User user, String suffix) {
+        organization.setName(StringUtils.capitalize(user.computeFirstName()) + "'s " + suffix);
         return create(organization, user);
     }
 
