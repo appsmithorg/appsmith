@@ -1,6 +1,6 @@
 import React from "react";
 import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
-import Text, { TextType } from "components/ads/Text";
+import Text, { TextType, Case, FontWeight } from "components/ads/Text";
 import styled from "styled-components";
 import { StoryWrapper } from "./Tabs.stories";
 
@@ -48,29 +48,18 @@ const ValueWrapper = (props: { type: TextType; value: string }) => (
     type={props.type}
     underline={boolean("underline", false)}
     italic={boolean("italic", false)}
+    highlight={boolean("highlight", false)}
+    case={select("Case", Object.values(Case), undefined)}
+    weight={select("Weight", Object.values(FontWeight), undefined)}
   >
     {props.value}
   </Text>
 );
 
-export const SingleText = () => (
+export const CustomizeText = () => (
   <StoryWrapper>
     <ValueWrapper
-      type={select(
-        "type",
-        [
-          TextType.H1,
-          TextType.H2,
-          TextType.H3,
-          TextType.H4,
-          TextType.H5,
-          TextType.H6,
-          TextType.P1,
-          TextType.P2,
-          TextType.P3,
-        ],
-        TextType.H1,
-      )}
+      type={select("type", Object.values(TextType), TextType.H1)}
       value={text("text", "Hi There I am Earth")}
     />
   </StoryWrapper>
