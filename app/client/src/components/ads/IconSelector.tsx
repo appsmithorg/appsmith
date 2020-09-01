@@ -1,23 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import AppIcon, { AppIconName } from "./AppIcon";
+import AppIcon, { AppIconName, AppIconCollection } from "./AppIcon";
 import { Size } from "./Button";
 import { CommonComponentProps } from "./common";
-
-export const appIconPalette = [
-  AppIconName.BAG,
-  AppIconName.PRODUCT,
-  AppIconName.BOOK,
-  AppIconName.CAMERA,
-  AppIconName.FILE,
-  AppIconName.CHAT,
-  AppIconName.CALENDER,
-  AppIconName.FLIGHT,
-  AppIconName.FRAME,
-  AppIconName.GLOBE,
-  AppIconName.SHOPPER,
-  AppIconName.HEART,
-];
 
 type IconSelectorProps = CommonComponentProps & {
   onSelect?: (icon: AppIconName) => void;
@@ -51,7 +36,7 @@ const IconSelector = (props: IconSelectorProps) => {
     if (props.iconPalette && props.iconPalette[0]) {
       return props.iconPalette[0];
     }
-    return appIconPalette[0];
+    return AppIconCollection[0];
   }
 
   const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
@@ -88,7 +73,7 @@ const IconSelector = (props: IconSelectorProps) => {
 
 IconSelector.defaultProps = {
   fill: false,
-  iconPalette: appIconPalette,
+  iconPalette: AppIconCollection,
 };
 
 export default IconSelector;
