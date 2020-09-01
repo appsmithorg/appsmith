@@ -126,16 +126,12 @@ export default function Dropdown(props: DropdownProps) {
     option.onSelect && option.onSelect(option);
   }, []);
 
-  const selectedHandler = useCallback(() => {
-    setIsOpen(!isOpen);
-  }, []);
-
   return (
     <DropdownContainer tabIndex={0} onBlur={() => setIsOpen(false)}>
       <Selected
         isOpen={isOpen}
         disabled={props.disabled}
-        onClick={selectedHandler}
+        onClick={() => setIsOpen(!isOpen)}
       >
         <Text type={TextType.P1}>{selected.value}</Text>
         <Icon name="downArrow" size={IconSize.SMALL} />
