@@ -1,8 +1,12 @@
 import React, { ReactNode } from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
+import { useLocation } from "react-router";
 
-const Wrapper = styled.section`
+const Wrapper = styled.section<{
+  background: string;
+}>`
+  background: ${props => props.background};
   && .fade {
     position: relative;
   }
@@ -34,7 +38,8 @@ const PageBody = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  margin: ${props => props.theme.spaces[12]}px auto;
+  padding-top: ${props => props.theme.spaces[12]}px;
+  margin: 0 auto;
   & > * {
     width: 100%;
   }
@@ -45,15 +50,20 @@ type PageWrapperProps = {
   displayName?: string;
 };
 
-export const PageWrapper = (props: PageWrapperProps) => (
-  <Wrapper>
-    <Helmet>
-      <title>{`${
-        props.displayName ? `${props.displayName} | ` : ""
-      }Appsmith`}</title>
-    </Helmet>
-    <PageBody>{props.children}</PageBody>
-  </Wrapper>
-);
+export const PageWrapper = (props: PageWrapperProps) => {
+  const location = useLocation();
+  const isSettingsPage = location.pathname.indexOf("settings") !== -1;
+
+  return (
+    <Wrapper background={isSettingsPage ? "#1B1B1D" : "inherit"}>
+      <Helmet>
+        <title>{`${
+          props.displayName ? `${props.displayName} | ` : ""
+        }Appsmith`}</title>
+      </Helmet>
+      <PageBody>{props.children}</PageBody>
+    </Wrapper>
+  );
+};
 
 export default PageWrapper;

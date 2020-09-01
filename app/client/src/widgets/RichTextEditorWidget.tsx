@@ -9,6 +9,7 @@ import {
   DerivedPropertiesMap,
 } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
+import * as Sentry from "@sentry/react";
 
 const RichtextEditorComponent = lazy(() =>
   import(
@@ -103,3 +104,6 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
 }
 
 export default RichTextEditorWidget;
+export const ProfiledRichTextEditorWidget = Sentry.withProfiler(
+  RichTextEditorWidget,
+);

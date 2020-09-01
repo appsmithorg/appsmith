@@ -158,6 +158,15 @@ export function* fetchPageSaga(
       yield put(fetchPageSuccess());
       // Execute page load actions
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+
+      // Add this to the page DSLs for entity explorer
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+        payload: {
+          pageId: id,
+          dsl: extractCurrentDSL(fetchPageResponse),
+        },
+      });
     }
   } catch (error) {
     console.log(error);
@@ -457,6 +466,14 @@ export function* updateWidgetNameSaga(
         yield updateCanvasWithDSL(response.data, pageId, layoutId);
 
         yield put(updateWidgetNameSuccess());
+        // Add this to the page DSLs for entity explorer
+        yield put({
+          type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+          payload: {
+            pageId: pageId,
+            dsl: response.data.dsl,
+          },
+        });
       }
     } else {
       yield put({

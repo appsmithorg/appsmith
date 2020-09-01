@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ReactComponent as BagIcon } from "assets/icons/ads/bag.svg";
 import { ReactComponent as ProductIcon } from "assets/icons/ads/product.svg";
 import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
@@ -15,101 +15,127 @@ import { ReactComponent as FlightIcon } from "assets/icons/ads/flight.svg";
 import styled from "styled-components";
 import { Size } from "./Button";
 
-export enum AppIconName {
-  BAG = "bag",
-  PRODUCT = "product",
-  BOOK = "book",
-  CAMERA = "camera",
-  FILE = "file",
-  CHAT = "chat",
-  CALENDER = "calender",
-  FLIGHT = "flight",
-  FRAME = "frame",
-  GLOBE = "globe",
-  SHOPPER = "shopper",
-  HEART = "heart",
-}
+export const AppIconCollection = [
+  "bag",
+  "product",
+  "book",
+  "camera",
+  "file",
+  "chat",
+  "calender",
+  "flight",
+  "frame",
+  "globe",
+  "shopper",
+  "heart",
+] as const;
 
-export const sizeHandler = (size: Size) => {
-  let iconSize = 0;
-  switch (size) {
-    case Size.small:
-      iconSize = 20;
-      break;
-    case Size.medium:
-      iconSize = 30;
-      break;
-    case Size.large:
-      iconSize = 54;
-      break;
-  }
-  return iconSize;
+export type AppIconName = typeof AppIconCollection[number];
+
+type cssAttributes = {
+  width: number;
+  height: number;
+  padding: number;
 };
 
-const IconWrapper = styled.div<AppIconProps>`
+const appSizeHandler = (size: Size): cssAttributes => {
+  let width, height, padding;
+  switch (size) {
+    case Size.small:
+      width = 20;
+      height = 20;
+      padding = 5;
+      break;
+    case Size.medium:
+      width = 32;
+      height = 32;
+      padding = 20;
+      break;
+    case Size.large:
+      width = 50;
+      height = 50;
+      padding = 50;
+      break;
+  }
+  return { width, height, padding };
+};
+
+const IconWrapper = styled.div<AppIconProps & { styledProps: cssAttributes }>`
   cursor: pointer;
   &:focus {
     outline: none;
   }
   display: flex;
+  width: ${props => props.styledProps.width + 2 * props.styledProps.padding}px;
+  height: ${props =>
+    props.styledProps.height + 2 * props.styledProps.padding}px;
   svg {
-    width: ${props => sizeHandler(props.size)}px;
-    height: ${props => sizeHandler(props.size)}px;
+    width: ${props => props.styledProps.width}px;
+    height: ${props => props.styledProps.height}px;
     path {
       fill: ${props => props.theme.colors.blackShades[9]};
     }
   }
+  padding: ${props => props.styledProps.padding}px;
+  background-color: ${props => props.color};
 `;
 
 export type AppIconProps = {
   size: Size;
+  color: string;
   name: AppIconName;
 };
 
 const AppIcon = (props: AppIconProps) => {
+  const styledProps = useMemo(() => appSizeHandler(props.size), [props]);
+
   let returnIcon;
   switch (props.name) {
-    case AppIconName.BAG:
+    case "bag":
       returnIcon = <BagIcon />;
       break;
-    case AppIconName.PRODUCT:
+    case "product":
       returnIcon = <ProductIcon />;
       break;
-    case AppIconName.BOOK:
+    case "book":
       returnIcon = <BookIcon />;
       break;
-    case AppIconName.CAMERA:
+    case "camera":
       returnIcon = <CameraIcon />;
       break;
-    case AppIconName.FILE:
+    case "file":
       returnIcon = <FileIcon />;
       break;
-    case AppIconName.CHAT:
+    case "chat":
       returnIcon = <ChatIcon />;
       break;
-    case AppIconName.CALENDER:
+    case "calender":
       returnIcon = <CalenderIcon />;
       break;
-    case AppIconName.FRAME:
+    case "frame":
       returnIcon = <FrameIcon />;
       break;
-    case AppIconName.GLOBE:
+    case "globe":
       returnIcon = <GlobeIcon />;
       break;
-    case AppIconName.SHOPPER:
+    case "shopper":
       returnIcon = <ShopperIcon />;
       break;
-    case AppIconName.HEART:
+    case "heart":
       returnIcon = <HeartIcon />;
       break;
-    case AppIconName.FLIGHT:
+    case "flight":
       returnIcon = <FlightIcon />;
       break;
     default:
       returnIcon = null;
       break;
   }
-  return returnIcon ? <IconWrapper {...props}>{returnIcon}</IconWrapper> : null;
+  return returnIcon ? (
+    <IconWrapper {...props} styledProps={styledProps}>
+      {returnIcon}
+    </IconWrapper>
+  ) : null;
 };
 
 export default AppIcon;

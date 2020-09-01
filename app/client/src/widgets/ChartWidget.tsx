@@ -4,6 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
+import * as Sentry from "@sentry/react";
 
 const ChartComponent = lazy(() =>
   import(
@@ -74,3 +75,4 @@ export interface ChartWidgetProps extends WidgetProps {
 }
 
 export default ChartWidget;
+export const ProfiledChartWidget = Sentry.withProfiler(ChartWidget);
