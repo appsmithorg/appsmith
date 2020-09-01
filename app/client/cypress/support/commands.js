@@ -1552,7 +1552,6 @@ Cypress.Commands.add("ValidatePublishTableData", value => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
-  cy.NavigateToEntityExplorer();
   cy.NavigateToApiEditor();
   cy.SearchEntityandOpen("Api2");
   cy.NavigateToPaginationTab();
