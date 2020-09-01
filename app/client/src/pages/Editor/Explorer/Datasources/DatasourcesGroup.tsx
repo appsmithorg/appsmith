@@ -9,8 +9,8 @@ import history from "utils/history";
 import { Plugin } from "api/PluginApi";
 import DatasourcePluginGroup from "./PluginGroup";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import { Datasource } from "@appsmith/api/DatasourcesApi";
+import { AppState } from "reducers";
+import { Datasource } from "api/DatasourcesApi";
 
 type ExplorerDatasourcesGroupProps = {
   step: number;
