@@ -8,6 +8,7 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/ValidationFactory";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import * as Sentry from "@sentry/react";
 
 const LINE_HEIGHTS: { [key in TextStyle]: number } = {
   // The following values are arrived at by multiplying line-height with font-size
@@ -72,3 +73,4 @@ export interface TextWidgetProps extends WidgetProps {
 }
 
 export default TextWidget;
+export const ProfiledTextWidget = Sentry.withProfiler(TextWidget);

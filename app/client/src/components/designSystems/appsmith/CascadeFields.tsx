@@ -19,6 +19,7 @@ import {
   DropdownOption,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableFilters";
+import { RenderOptionWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import { debounce } from "lodash";
 
 const StyledRemoveIcon = styled(
@@ -169,11 +170,35 @@ const operatorOptions: DropdownOption[] = [
   { label: "AND", value: OperatorTypes.AND, type: "" },
 ];
 
+const columnTypeNameMap: Record<ColumnTypes, string> = {
+  [ColumnTypes.TEXT]: "Text",
+  [ColumnTypes.VIDEO]: "Video",
+  [ColumnTypes.IMAGE]: "Image",
+  [ColumnTypes.NUMBER]: "Num",
+  [ColumnTypes.DATE]: "Date",
+  [ColumnTypes.CURRENCY]: "Curr",
+  [ColumnTypes.TIME]: "Time",
+};
+
+const RenderOption = (props: {
+  type: string;
+  title: string;
+  active: boolean;
+}) => {
+  return (
+    <RenderOptionWrapper selected={props.active}>
+      <div className="title">{props.title}</div>
+      <div className="type">{columnTypeNameMap[props.type as ColumnTypes]}</div>
+    </RenderOptionWrapper>
+  );
+};
+
 const RenderOptions = (props: {
   columns: DropdownOption[];
   selectItem: (column: DropdownOption) => void;
   placeholder: string;
   value?: string | Condition;
+  showType?: boolean;
   className?: string;
 }) => {
   const [selectedValue, selectValue] = useState(props.placeholder);
@@ -181,10 +206,19 @@ const RenderOptions = (props: {
     sections: [
       {
         options: props.columns.map((column: DropdownOption) => {
+          const isActive = column.value === props.value;
           return {
-            content: column.label,
+            content: props.showType ? (
+              <RenderOption
+                title={column.label}
+                type={column.type}
+                active={isActive}
+              />
+            ) : (
+              column.label
+            ),
             value: column.value,
-            active: column.value === props.value,
+            active: isActive,
             onSelect: () => {
               selectValue(column.label);
               props.selectItem(column);
@@ -207,19 +241,19 @@ const RenderOptions = (props: {
     skin: Skin.LIGHT,
   };
   useEffect(() => {
-    if (props.value && configs.sections[0].options) {
-      const selectedOptions = configs.sections[0].options.filter(
+    if (props.value && props.columns) {
+      const selectedOptions = props.columns.filter(
         i => i.value === props.value,
       );
       if (selectedOptions && selectedOptions.length) {
-        selectValue(selectedOptions[0].content);
+        selectValue(selectedOptions[0].value);
       } else {
         selectValue(props.placeholder);
       }
     } else {
       selectValue(props.placeholder);
     }
-  }, [props.value, props.placeholder, configs.sections]);
+  }, [props.value, props.placeholder, props.columns]);
   return <CustomizedDropdown {...configs} />;
 };
 
@@ -503,6 +537,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
           columns={props.columns}
           selectItem={selectColumn}
           value={column}
+          showType
           placeholder="Attribute"
           className="t--table-filter-columns-dropdown"
         />

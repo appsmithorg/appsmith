@@ -1,9 +1,8 @@
 import React, { ReactNode } from "react";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
-import Icon, { IconName } from "./Icon";
-import Text, { TextType } from "./Text";
-import { Size } from "./Button";
+import Icon, { IconName, IconSize } from "./Icon";
+import Text, { TextType, FontWeight } from "./Text";
 
 type MenuItemProps = CommonComponentProps & {
   icon?: IconName;
@@ -22,10 +21,10 @@ const ItemRow = styled.div`
   &:hover {
     cursor: pointer;
     background-color: ${props => props.theme.colors.blackShades[4]};
-    span {
+    .${Classes.TEXT} {
       color: ${props => props.theme.colors.blackShades[9]};
     }
-    .ads-icon {
+    .${Classes.ICON} {
       path {
         fill: ${props => props.theme.colors.blackShades[9]};
       }
@@ -37,7 +36,7 @@ const IconContainer = styled.div`
   display: flex;
   align-items: center;
 
-  .ads-icon {
+  .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[5]}px;
   }
 `;
@@ -46,8 +45,12 @@ function MenuItem(props: MenuItemProps) {
   return (
     <ItemRow onClick={props.onSelect}>
       <IconContainer>
-        {props.icon ? <Icon name={props.icon} size={Size.large} /> : null}
-        {props.text ? <Text type={TextType.P1}>{props.text}</Text> : null}
+        {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
+        {props.text ? (
+          <Text type={TextType.H5} weight={FontWeight.NORMAL}>
+            {props.text}
+          </Text>
+        ) : null}
       </IconContainer>
       {props.label ? <Text type={TextType.P1}>{props.label}</Text> : null}
     </ItemRow>
