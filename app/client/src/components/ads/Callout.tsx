@@ -1,5 +1,5 @@
 import React from "react";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, Classes } from "./common";
 import { Variant } from "./Button";
 import Text, { TextType } from "./Text";
 import styled from "styled-components";
@@ -14,7 +14,7 @@ const CalloutContainer = styled.div<{ variant: Variant }>`
     ${props => props.theme.spaces[5]}px;
   background: ${props => props.theme.colors[props.variant].darkest};
 
-  span {
+  .${Classes.TEXT} {
     color: ${props => props.theme.colors[props.variant].main};
   }
 `;

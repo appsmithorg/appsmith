@@ -14,11 +14,7 @@ export const CalloutStory = () => (
   <StoryWrapper>
     <Callout
       text="Lorem ipsum dolar sit adicipling dolare."
-      variant={select(
-        "variant",
-        [Variant.success, Variant.danger, Variant.info, Variant.warning],
-        Variant.success,
-      )}
+      variant={select("variant", Object.values(Variant), Variant.success)}
     />
   </StoryWrapper>
 );
