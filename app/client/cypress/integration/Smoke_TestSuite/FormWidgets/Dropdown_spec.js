@@ -9,7 +9,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Dropdown Widget Functionality", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("dropdownwidget");
     /**
      * @param{Text} Random Text
@@ -48,7 +47,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To Unchecked Visible Widget", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("dropdownwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -56,7 +54,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To Check Visible Widget", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("dropdownwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
