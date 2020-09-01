@@ -122,7 +122,8 @@ export type WidgetEntityProps = {
 };
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
-  const params = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
+
   const { navigateToWidget, isWidgetSelected } = useWidget(
     props.widgetProps.widgetId,
     props.widgetProps.type,
@@ -139,7 +140,9 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       <EntityProperties
         entityType={ENTITY_TYPE.WIDGET}
         entityName={props.widgetProps.widgetName}
+        isCurrentPage={pageId === props.pageId}
         step={props.step + 1}
+        entity={props.widgetProps}
       />
     );
   }
@@ -162,15 +165,13 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       active={isWidgetSelected}
       entityId={props.widgetProps.widgetId}
       step={props.step}
-      updateEntityName={
-        props.pageId === params?.pageId ? updateWidgetName : noop
-      }
+      updateEntityName={props.pageId === pageId ? updateWidgetName : noop}
       searchKeyword={props.searchKeyword}
       isDefaultExpanded={
         (!!props.searchKeyword && !!props.widgetProps.children) ||
         !!props.isDefaultExpanded
       }
-      contextMenu={props.pageId === params?.pageId && contextMenu}
+      contextMenu={props.pageId === pageId && contextMenu}
     >
       {children}
     </Entity>
