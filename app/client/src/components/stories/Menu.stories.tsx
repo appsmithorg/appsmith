@@ -6,7 +6,7 @@ import { action } from "@storybook/addon-actions";
 import MenuDivider from "components/ads/MenuDivider";
 import MenuItem from "components/ads/MenuItem";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import ColorSelector, { appColorPalette } from "components/ads/ColorSelector";
+import ColorSelector from "components/ads/ColorSelector";
 import { AppIconCollection } from "components/ads/AppIcon";
 import IconSelector from "components/ads/IconSelector";
 import EditableText, {
@@ -15,6 +15,7 @@ import EditableText, {
   SavingStateHandler,
 } from "components/ads/EditableText";
 import { IconCollection } from "components/ads/Icon";
+import { appCardColors } from "constants/AppConstants";
 
 export default {
   title: "Menu",
@@ -39,9 +40,7 @@ const errorFunction = (name: string) => {
 };
 
 export const MenuStory = () => {
-  const [selectedColor, setSelectedColor] = useState<string>(
-    appColorPalette[0],
-  );
+  const [selectedColor, setSelectedColor] = useState<string>(appCardColors[0]);
 
   return (
     <div
@@ -92,7 +91,7 @@ export const MenuStory = () => {
         <ColorSelector
           onSelect={(value: string) => setSelectedColor(value)}
           fill={false}
-          colorPalette={appColorPalette}
+          colorPalette={appCardColors}
         />
         <MenuDivider />
         <IconSelector

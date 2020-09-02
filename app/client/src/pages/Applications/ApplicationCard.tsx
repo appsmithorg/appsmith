@@ -279,6 +279,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application.defaultPageId,
   );
 
+  debugger;
   return (
     <NameWrapper
       showOverlay={showOverlay}

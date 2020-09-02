@@ -5,15 +5,15 @@ export const CANVAS_DEFAULT_GRID_WIDTH_PX = 1;
 export const CANVAS_BACKGROUND_COLOR = "#FFFFFF";
 
 export const appCardColors = [
-  "#A64C0C",
-  "#650094",
-  "#D4D420",
-  "#0BA780",
-  "#5BB01A",
-  "#2965CC",
-  "#4E5D78",
-  "#CC293F",
-  "#6BA3FD",
+  "#4F70FD",
+  "#54A9FB",
+  "#5ED3DA",
+  "#F56AF4",
+  "#F36380",
+  "#FE9F44",
+  "#E9C951",
+  "#A8D76C",
+  "#6C4CF1",
 ];
 
 const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
