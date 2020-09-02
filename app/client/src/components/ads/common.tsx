@@ -13,6 +13,7 @@ export type ThemeProp = {
 export enum Classes {
   ICON = "cs-icon",
   TEXT = "cs-text",
+  SPINNER = "cs-spinner",
 }
 
 export const hexToRgb = (
