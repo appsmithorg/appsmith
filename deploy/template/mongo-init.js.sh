@@ -1,12 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ ! -f mongo-init.js ]; then
-    touch mongo-init.js
-fi
+set -o nounset
 
+mongo_root_user="$1"
+mongo_root_password="$2"
 
-
-cat >| mongo-init.js  << EOF
+cat << EOF
 let error = false
 print("**** Going to start Mongo seed ****")
 
@@ -1534,7 +1533,4 @@ printjson(res)
 if (error) {
   print('Error occurred while inserting the records')
 }
-
-
-
 EOF

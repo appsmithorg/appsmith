@@ -3,46 +3,68 @@
 set -o errexit
 
 is_command_present() {
-  type "$1" >/dev/null 2>&1
+    type "$1" >/dev/null 2>&1
+}
+
+is_mac() {
+    [[ $OSTYPE == darwin* ]]
 }
 
 # This function checks if the relevant ports required by Appsmith are available or not
 # The script should error out in case they aren't available
 check_ports_occupied() {
-    ports_occupied="$(
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            sudo netstat -anp tcp
-        else
-            sudo netstat -tupln tcp
-        fi | awk '$6 == "LISTEN" && $4 ~ /^.*[.:](80|443)$/' | wc -l | grep -o '[[:digit:]]\+'
-    )"
+    local port_check_output
+    local ports_pattern="80|443"
+
+    if is_mac; then
+        port_check_output="$(netstat -anp tcp | awk '$6 == "LISTEN" && $4 ~ /^.*\.('"$ports_pattern"')$/')"
+    elif is_command_present ss; then
+        # The `ss` command seems to be a better/faster version of `netstat`, but is not available on all Linux
+        # distributions by default. Other distributions have `ss` but no `netstat`. So, we try for `ss` first, then
+        # fallback to `netstat`.
+        port_check_output="$(ss --all --numeric --tcp | awk '$1 == "LISTEN" && $4 ~ /^.*:('"$ports_pattern"')$/')"
+    elif is_command_present netstat; then
+        port_check_output="$(netstat --all --numeric --tcp | awk '$6 == "LISTEN" && $4 ~ /^.*:('"$ports_pattern"')$/')"
+    fi
+
+    if [[ -n $port_check_output ]]; then
+        echo "+++++++++++ ERROR ++++++++++++++++++++++"
+        echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
+        echo "++++++++++++++++++++++++++++++++++++++++"
+        echo ""
+        bye
+    fi
 }
 
 install_docker() {
-    if [[ $package_manager -eq apt-get ]];then
-        echo "++++++++++++++++++++++++"
-        echo "Setting up docker repos"
-        sudo $package_manager update  --quiet
+    echo "++++++++++++++++++++++++"
+    echo "Setting up docker repos"
 
-        sudo apt-get  -y --quiet install gnupg-agent
+    if [[ $package_manager == apt-get ]]; then
+        apt_cmd="sudo apt-get --yes --quiet"
+        $apt_cmd update
+        $apt_cmd install gnupg-agent
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
         sudo add-apt-repository \
-        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-        $(lsb_release -cs) \
-        stable"
+            "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        $apt_cmd update
+        echo "Installing docker"
+        $apt_cmd install docker-ce docker-ce-cli containerd.io
+
     else
-        sudo yum install -y yum-utils
+        yum_cmd="sudo yum --assumeyes --quiet"
+        $yum_cmd install yum-utils
         sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        echo "Installing docker"
+        $yum_cmd install docker-ce docker-ce-cli containerd.io
+
     fi
 
-    sudo ${package_manager} -y update --quiet
-    echo "Installing docker"
-    sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
 }
 
 install_docker_compose() {
-    if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
-        if [ ! -f /usr/bin/docker-compose ];then
+    if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
+        if [[ ! -f /usr/bin/docker-compose ]];then
             echo "Installing docker-compose..."
             sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
@@ -67,29 +89,29 @@ start_docker() {
 }
 
 check_os() {
-    if [[ "$OSTYPE" == "darwin"* ]]; then
+    if is_mac; then
         package_manager="brew"
         desired_os=1
         return
     fi
 
-    os_name=`cat /etc/*-release | egrep "^NAME="`
-    os_name="${os_name#*=}"
+    os_name="$(cat /etc/*-release | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }')"
 
-    case "${os_name}" in
-        \"Ubuntu*\")
+    case "$os_name" in
+        Ubuntu*)
             desired_os=1
             package_manager="apt-get"
             ;;
-        \"Red\ Hat*\")
-            desired_os=0
+        Red\ Hat*)
+            desired_os=1
             package_manager="yum"
             ;;
-        \"CentOS*\")
-            desired_os=0
+        CentOS*)
+            desired_os=1
             package_manager="yum"
             ;;
-        *)          desired_os=0
+        *)
+            desired_os=0
     esac
 }
 
@@ -98,16 +120,11 @@ overwrite_file() {
     local template_file="$2"
     local full_path="$install_dir/$relative_path"
 
-    if [[ -f $full_path ]]; then
-        read -p "File $relative_path already exists. Would you like to replace it? [Y]: " value
-        value=${value:-Y}
-
-        if ! [[ $value == "Y" || $value == "y" || $value == "yes" || $value == "Yes" ]]; then
-            echo "You chose not to replace existing file: '$full_path'."
-            rm -f "$template_file"
-            echo "File $template_file removed from source directory."
-            echo ""
-        fi
+    if [[ -f $full_path ]] && ! confirm y "File $relative_path already exists. Would you like to replace it?"; then
+        echo "You chose NOT to replace existing file: '$full_path'."
+        rm -f "$template_file"
+        echo "File $template_file removed from source directory."
+        echo ""
     else
         mv -f "$template_file" "$full_path"
         echo "File $full_path moved successfully!"
@@ -116,30 +133,28 @@ overwrite_file() {
 
 # This function prompts the user for an input for a non-empty Mongo root password. 
 read_mongo_password() {
-    read -sp 'Set the mongo password: ' mongo_root_password
-    while [[ -z $mongo_root_password ]] 
-    do
+    read -srp 'Set the mongo password: ' mongo_root_password
+    while [[ -z $mongo_root_password ]]; do
         echo ""
         echo ""
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "The mongo password cannot be empty. Please input a valid password string."
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
-        read -sp 'Set the mongo password: ' mongo_root_password
+        read -srp 'Set the mongo password: ' mongo_root_password
     done 
 }
 
 # This function prompts the user for an input for a non-empty Mongo username. 
 read_mongo_username() {
-    read -p 'Set the mongo root user: ' mongo_root_user
-    while [[ -z $mongo_root_user ]] 
-    do
+    read -rp 'Set the mongo root user: ' mongo_root_user
+    while [[ -z $mongo_root_user ]]; do
         echo ""
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "The mongo username cannot be empty. Please input a valid username string."
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
-        read -p 'Set the mongo root user: ' mongo_root_user
+        read -rp 'Set the mongo root user: ' mongo_root_user
     done
 }
 
@@ -163,7 +178,7 @@ wait_for_containers_start() {
 
 urlencode() {
     # urlencode <string>
-    old_lc_collate=$LC_COLLATE
+    local old_lc_collate="$LC_COLLATE"
     LC_COLLATE=C
 
     local length="${#1}"
@@ -175,13 +190,44 @@ urlencode() {
         esac
     done
 
-    LC_COLLATE=$old_lc_collate
+    LC_COLLATE="$old_lc_collate"
+}
+
+generate_password() {
+    # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
+    LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
+}
+
+confirm() {
+    local default="$1"  # Should be `y` or `n`.
+    local prompt="$2"
+
+    local options="y/N"
+    if [[ $default == y || $default == Y ]]; then
+        options="Y/n"
+    fi
+
+    local answer
+    read -n1 -rp "$prompt [$options] " answer
+    if [[ -z $answer ]]; then
+        # No answer given, the user just hit the Enter key. Take the default value as the answer.
+        answer="$default"
+    else
+        # An answer was given. This means the user didn't get to hit Enter so the cursor on the same line. Do an empty
+        # echo so the cursor moves to a new line.
+        echo
+    fi
+
+    [[ yY =~ $answer ]]
+}
+
+echo_contact_support() {
+    echo "Please contact <support@appsmith.com> with your OS details and version${1:-.}"
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
-    echo ""
-    echo -e "Exiting for now. Bye! \U1F44B"
-    exit
+    echo -e "\nExiting for now. Bye! \U1F44B\n"
+    exit 1
 }
 
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
@@ -196,32 +242,38 @@ check_os
 if [[ $desired_os -eq 0 ]];then
     echo ""
     echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
-    echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
+    echo_contact_support " if you wish to extend this support."
     bye
 else
     echo "You're on an OS that is supported by this installation script."
     echo ""
 fi
 
-if [[ "$OSTYPE" == "darwin"* && "$EUID" -eq 0 ]]; then
-    echo "Please do not run this script with root permissions on macOS."
-    echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
+if [[ $EUID -eq 0 ]]; then
+    echo "Please do not run this script as root/sudo."
+    echo_contact_support
     bye
 fi
 
 check_ports_occupied
 
-if [[ $ports_occupied -ne 0 ]]; then
-    echo "+++++++++++ ERROR ++++++++++++++++++++++"
-    echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
-    echo "++++++++++++++++++++++++++++++++++++++++"
-    echo ""
-    bye
+read -rp 'Installation Directory [appsmith]: ' install_dir
+install_dir="${install_dir:-appsmith}"
+if [[ $install_dir != /* ]]; then
+    # If it's not an absolute path, prepend current working directory to it, to make it an absolute path.
+    install_dir="$PWD/$install_dir"
+fi
+
+if [[ -e "$install_dir" ]]; then
+    echo "The path '$install_dir' is already present. Please run the script again with a different path to install new."
+    echo "If you're trying to update your existing installation, that happens automatically through WatchTower."
+    echo_contact_support " if you're facing problems with the auto-updates."
+    exit
 fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
-if ! is_command_present docker ;then
-    if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
+if ! is_command_present docker; then
+    if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
         install_docker
     else
         echo ""
@@ -229,7 +281,7 @@ if ! is_command_present docker ;then
         echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / Redhat / Cent OS"
         echo "https://docs.docker.com/docker-for-mac/install/"
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
-        exit
+        exit 1
     fi
 fi
 
@@ -243,46 +295,40 @@ if [[ $package_manager == "yum" || $package_manager == "apt-get" ]]; then
     start_docker
 fi
 
-read -p 'Installation Directory [appsmith]: ' install_dir
-install_dir="${install_dir:-appsmith}"
-mkdir -p "$PWD/$install_dir"
-install_dir="$PWD/$install_dir"
-read -p 'Is this a fresh installation? [Y/n]' fresh_install
-fresh_install="${fresh_install:-Y}"
+echo "Installing Appsmith to '$install_dir'."
+mkdir -p "$install_dir"
 echo ""
 
-if [ $fresh_install == "N" -o $fresh_install == "n" -o $fresh_install == "no" -o $fresh_install == "No" ];then
-    read -p 'Enter your current mongo db host: ' mongo_host
-    read -p 'Enter your current mongo root user: ' mongo_root_user
-    read -sp 'Enter your current mongo password: ' mongo_root_password
-    read -p 'Enter your current mongo database name: ' mongo_database
-    # It is possible that this isn't the first installation. 
-    echo ""
-    read -p 'Do you have any existing data in the database?[Y/n]: ' existing_encrypted_data
-    existing_encrypted_data=${existing_encrypted_data:-Y}
-    # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
-    if [ $existing_encrypted_data == "N" -o $existing_encrypted_data == "n" -o $existing_encrypted_data == "no" -o $existing_encrypted_data == "No" ];then
-        auto_generate_encryption="true"
-    else
-        auto_generate_encryption="false"
-    fi
-elif [ $fresh_install == "Y" -o $fresh_install == "y" -o $fresh_install == "yes" -o $fresh_install == "Yes" ];then
-    echo "Appsmith needs to create a mongo db"
+if confirm y "Is this a fresh installation?"; then
+    echo "Appsmith needs to create a MongoDB instance."
     mongo_host="mongo"
     mongo_database="appsmith"
-    
+
     # We invoke functions to read the mongo credentials from the user because they MUST be non-empty
     read_mongo_username
     read_mongo_password
 
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
+else
+    read -rp 'Enter your current mongo db host: ' mongo_host
+    read -rp 'Enter your current mongo root user: ' mongo_root_user
+    read -srp 'Enter your current mongo password: ' mongo_root_password
+    read -rp 'Enter your current mongo database name: ' mongo_database
+    # It is possible that this isn't the first installation.
+    echo ""
+    # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
+    if confirm y "Do you have any existing data in the database?"; then
+        auto_generate_encryption="false"
+    else
+        auto_generate_encryption="true"
+    fi
 fi
 echo ""
 
 # urlencoding the Mongo username and password
-encoded_mongo_root_user=$( urlencode $mongo_root_user )
-encoded_mongo_root_password=$( urlencode $mongo_root_password )
+encoded_mongo_root_user=$(urlencode "$mongo_root_user")
+encoded_mongo_root_password=$(urlencode "$mongo_root_password")
 
 encryptionEnv=./template/encryption.env
 if test -f "$encryptionEnv"; then
@@ -290,14 +336,14 @@ if test -f "$encryptionEnv"; then
     echo "1) No. Conserve the older encryption password and salt and continue"
     echo "2) Yes. Overwrite the existing encryption (NOT SUGGESTED) with autogenerated encryption password and salt"
     echo "3) Yes. Overwrite the existing encryption (NOT SUGGESTED) with manually entering the encryption password and salt"
-    read -p 'Enter option number [1]: ' overwrite_encryption
+    read -rp 'Enter option number [1]: ' overwrite_encryption
     overwrite_encryption=${overwrite_encryption:-1}
     auto_generate_encryption="false"
     if [[ $overwrite_encryption -eq 1 ]];then
         setup_encryption="false"
     elif [[ $overwrite_encryption -eq 2 ]];then
         setup_encryption="true"
-        auto_generate_encryption="true" 
+        auto_generate_encryption="true"
     elif [[ $overwrite_encryption -eq 3 ]];then
         setup_encryption="true"
         auto_generate_encryption="false"
@@ -309,22 +355,17 @@ fi
 if [[ "$setup_encryption" = "true" ]];then
     if [[ "$auto_generate_encryption" = "false" ]];then
         echo "Please enter the salt and password found in the encyption.env file of your previous appsmith installation "
-        read -p 'Enter your encryption password: ' user_encryption_password
-        read -p 'Enter your encryption salt: ' user_encryption_salt 
-    elif [[ "$auto_generate_encryption" = "true" ]];then
-   # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
-        user_encryption_password=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
-        user_encryption_salt=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
+        read -rp 'Enter your encryption password: ' user_encryption_password
+        read -rp 'Enter your encryption salt: ' user_encryption_salt
+    elif [[ "$auto_generate_encryption" = "true" ]]; then
+        user_encryption_password=$(generate_password)
+        user_encryption_salt=$(generate_password)
     fi
 fi
 
 echo ""
-read -p 'Do you have a custom domain that you would like to link? (Only for cloud installations) [N/y]: ' setup_domain
-setup_domain=${setup_domain:-N}
-# Setting default value for the setup_ssl variable. Without this, the script errors out in the if condition later
-setup_ssl='N'
 
-if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
+if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
     echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
@@ -333,12 +374,9 @@ if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $
     echo "+++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
-    read -p '(Your DNS records must be updated for us to proceed) [Y/n]: ' setup_ssl
-    setup_ssl=${setup_ssl:-Y}
-fi
-
-if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ]; then
-	read -p 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
+    if confirm y '(Your DNS records must be updated for us to proceed)'; then
+        read -rp 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
+    fi
 fi
 
 NGINX_SSL_CMNT=""
@@ -348,33 +386,34 @@ fi
 
 echo ""
 echo "Downloading the configuration templates..."
-mkdir -p template
-( cd template
-curl --remote-name-all --silent --show-error \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
+templates_dir="$(mktemp -d)"
+mkdir -p "$templates_dir"
+
+(
+    cd "$templates_dir"
+    curl --remote-name-all --silent --show-error \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
-# Role - Folder
-for directory_name in nginx certbot/conf certbot/www mongo/db
-do
-    mkdir -p "$install_dir/data/$directory_name"
-done
+# Create needed folder structure.
+mkdir -p "$install_dir/data/"{nginx,certbot/{conf,www},mongo/db}
 
 echo ""
 echo "Generating the configuration files from the templates"
-. ./template/nginx_app.conf.sh
-. ./template/docker-compose.yml.sh
-. ./template/mongo-init.js.sh
-. ./template/init-letsencrypt.sh.sh
-. ./template/docker.env.sh
-if [[ "$setup_encryption" = "true" ]];then
-   . ./template/encryption.env.sh
+bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
+bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > docker-compose.yml
+bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
+bash "$templates_dir"/init-letsencrypt.sh.sh "$custom_domain" > init-letsencrypt.sh
+bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" > docker.env
+if [[ "$setup_encryption" = "true" ]]; then
+    bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
 fi
+rm -rf "$templates_dir"
 chmod 0755 init-letsencrypt.sh
 
 overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
@@ -430,5 +469,4 @@ else
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
 fi
 
-echo ""
-echo -e "Peace out \U1F596\n"
+echo -e "\nPeace out \U1F596\n"

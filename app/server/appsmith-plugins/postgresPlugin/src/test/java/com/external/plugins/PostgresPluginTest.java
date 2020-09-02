@@ -38,6 +38,7 @@ public class PostgresPluginTest {
 
     PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor();
 
+    @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
     public static final PostgreSQLContainer pgsqlContainer = new PostgreSQLContainer<>("postgres:alpine")
             .withExposedPorts(5432)
@@ -79,7 +80,7 @@ public class PostgresPluginTest {
             }
 
             try (Statement statement = connection.createStatement()) {
-                statement.execute("CREATE TABLE users(\n" +
+                statement.execute("CREATE TABLE users (\n" +
                         "    id serial PRIMARY KEY,\n" +
                         "    username VARCHAR (50) UNIQUE NOT NULL,\n" +
                         "    password VARCHAR (50) NOT NULL,\n" +
@@ -114,8 +115,8 @@ public class PostgresPluginTest {
                                 ")");
             }
 
-    } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
         }
     }
 
@@ -152,6 +153,33 @@ public class PostgresPluginTest {
     }
 
     @Test
+    public void testAliasColumnNames() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertArrayEquals(
+                            new String[]{
+                                    "user_id"
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testExecute() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -159,12 +187,11 @@ public class PostgresPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
-
+                .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());

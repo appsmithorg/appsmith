@@ -1,10 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ ! -f docker-compose.yml ]; then
-    touch docker-compose.yml
-fi
+set -o nounset
 
-cat >| docker.env  << EOF
+encoded_mongo_root_user="$1"
+encoded_mongo_root_password="$2"
+mongo_host="$3"
+
+cat << EOF
 # Read our documentation on how to configure these features
 # https://docs.appsmith.com/v/v1.1/enabling-3p-services
 
