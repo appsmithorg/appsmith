@@ -17,6 +17,7 @@ import {
   getIsDeletingApplication,
   getUserApplicationsOrgsList,
   getUserApplicationsOrgs,
+  getIsDuplicatingApplication,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -29,8 +30,6 @@ import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
-import { DELETING_APPLICATION } from "constants/messages";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
 import CustomizedDropdown, {
@@ -48,6 +47,8 @@ import Button, { Size } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
+import { HeaderIcons } from "icons/HeaderIcons";
+import { duplicateApplication } from "actions/applicationActions";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -254,6 +255,10 @@ const ApplicationsSection = () => {
     }
   };
 
+  const duplicateApplicationDispatch = (applicationId: string) => {
+    dispatch(duplicateApplication(applicationId));
+  };
+
   const [selectedOrgId, setSelectedOrgId] = useState();
   const Form: any = OrgInviteUsersForm;
   const DropdownProps = (
@@ -352,11 +357,7 @@ const ApplicationsSection = () => {
                 ) && (
                   <FormDialogComponent
                     trigger={
-                      <Button
-                        text={"Share"}
-                        icon={IconName.SHARE}
-                        size={Size.small}
-                      />
+                      <Button text={"Share"} icon={"share"} size={Size.small} />
                     }
                     canOutsideClickClose={true}
                     Form={OrgInviteUsersForm}
@@ -372,10 +373,7 @@ const ApplicationsSection = () => {
                   trigger={
                     <PaddingWrapper>
                       <ApplicationAddCardWrapper>
-                        <Icon
-                          name={IconName.CREATE_NEW}
-                          size={IconSize.LARGE}
-                        ></Icon>
+                        <Icon name={"plus"} size={IconSize.LARGE}></Icon>
                         <CreateNewLabel type={TextType.H4}>
                           Create New
                         </CreateNewLabel>
@@ -393,6 +391,7 @@ const ApplicationsSection = () => {
                         key={application.id}
                         application={application}
                         delete={deleteApplication}
+                        duplicate={duplicateApplicationDispatch}
                       />
                     )
                   );
@@ -414,6 +413,7 @@ type ApplicationProps = {
   createApplicationError?: string;
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
+  duplicatingApplication: boolean;
   getAllApplication: () => void;
   userOrgs: any;
   currentUser?: User;
@@ -436,9 +436,6 @@ class Applications extends Component<
   public render() {
     return (
       <PageWrapper displayName="Applications">
-        {this.props.deletingApplication
-          ? AppToaster.show({ message: DELETING_APPLICATION })
-          : AppToaster.clear()}
         <LeftPane />
         <SubHeader
           search={{
@@ -451,12 +448,14 @@ class Applications extends Component<
     );
   }
 }
+
 const mapStateToProps = (state: AppState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
+  duplicatingApplication: getIsDuplicatingApplication(state),
   userOrgs: getUserApplicationsOrgsList(state),
   currentUser: getCurrentUser(state),
 });

@@ -31,7 +31,7 @@ import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
 import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
 import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
-import { AppDataState } from "@appsmith/reducers/entityReducers/appReducer";
+import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
 
 const appReducer = combineReducers({

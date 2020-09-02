@@ -26,7 +26,7 @@ const ItemRow = styled.a`
     .${Classes.TEXT} {
       color: ${props => props.theme.colors.blackShades[9]};
     }
-    .ads-icon {
+    .${Classes.ICON} {
       path {
         fill: ${props => props.theme.colors.blackShades[9]};
       }
@@ -38,7 +38,7 @@ const IconContainer = styled.span`
   display: flex;
   align-items: center;
 
-  .ads-icon {
+  .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[5]}px;
   }
 `;
