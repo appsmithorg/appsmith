@@ -242,7 +242,9 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton).click({ force: true });
+  cy.get(homePage.deleteButton)
+    .contains("Delete")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("DeletepageFromSideBar", () => {
@@ -1601,8 +1603,6 @@ Cypress.Commands.add("ValidatePublishTableData", value => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
-  cy.NavigateToEntityExplorer();
-  cy.NavigateToApiEditor();
   cy.SearchEntityandOpen("Api2");
   cy.NavigateToPaginationTab();
   cy.RunAPI();
@@ -1620,7 +1620,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
       const respBody = tabData.match(/"(.*)"/)[0];
       localStorage.setItem("respBody", respBody);
       cy.log(respBody);
-      cy.get(pages.widgetsEditor).click({ force: true });
+      cy.SearchEntityandOpen("Table1");
       // cy.openPropertyPane("tablewidget");
       // cy.testJsontext("tabledata", "{{Api2.data.results}}");
       cy.isSelectRow(0);

@@ -9,7 +9,6 @@ describe("Form Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Form Widget Functionality", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("formwidget");
     /**
      * @param{Text} Random Text
@@ -45,7 +44,6 @@ describe("Form Widget Functionality", function() {
   });
   it("Form Widget Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("formwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();

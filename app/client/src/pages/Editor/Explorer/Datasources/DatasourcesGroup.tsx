@@ -9,8 +9,8 @@ import history from "utils/history";
 import { Plugin } from "api/PluginApi";
 import DatasourcePluginGroup from "./PluginGroup";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import { Datasource } from "@appsmith/api/DatasourcesApi";
+import { AppState } from "reducers";
+import { Datasource } from "api/DatasourcesApi";
 
 type ExplorerDatasourcesGroupProps = {
   step: number;
@@ -66,7 +66,7 @@ export const ExplorerDatasourcesGroup = (
         ) > -1 || !!props.searchKeyword
       }
       disabled={disableDatasourceGroup}
-      createFn={() => {
+      onCreate={() => {
         history.push(
           DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
         );

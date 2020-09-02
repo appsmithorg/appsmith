@@ -124,6 +124,7 @@ export const CREATE_PASSWORD_INVALID_TOKEN =
   "The invite link is invalid. Please try request a new invite";
 
 export const DELETING_APPLICATION = "Deleting application...";
+export const DUPLICATING_APPLICATION = "Duplicating application...";
 
 export const CURL_IMPORT_SUCCESS = "Curl Import Successfull";
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Login";
@@ -156,3 +157,7 @@ export const SHOW_REQUEST = "Show Request";
 
 export const TABLE_FILTER_COLUMN_TYPE_CALLOUT =
   "Change column datatype to see filter operators";
+
+export const WIDGET_SIDEBAR_TITLE = "Widgets";
+export const WIDGET_SIDEBAR_CAPTION =
+  "To add a widget, please drag and drop a widget on the canvas to the right";

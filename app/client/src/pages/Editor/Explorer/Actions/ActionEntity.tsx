@@ -5,6 +5,8 @@ import history from "utils/history";
 import { saveActionName } from "actions/actionActions";
 import EntityProperties from "../Entity/EntityProperties";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ExplorerURLParams } from "../helpers";
+import { useParams } from "react-router";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -21,6 +23,7 @@ type ExplorerActionEntityProps = {
 };
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
+  const { pageId } = useParams<ExplorerURLParams>();
   const switchToAction = useCallback(() => {
     props.url && history.push(props.url);
   }, [props.url]);
@@ -51,7 +54,9 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       <EntityProperties
         entityName={props.action.config.name}
         entityType={ENTITY_TYPE.ACTION}
+        isCurrentPage={props.pageId === pageId}
         step={props.step + 1}
+        entity={props.action}
       />
     </Entity>
   );

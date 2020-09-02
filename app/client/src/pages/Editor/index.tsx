@@ -5,7 +5,6 @@ import { withRouter, RouteComponentProps } from "react-router-dom";
 import {
   BuilderRouteParams,
   getApplicationViewerPageURL,
-  BUILDER_PAGE_URL,
 } from "constants/routes";
 import { AppState } from "reducers";
 import MainContainer from "./MainContainer";
@@ -32,9 +31,8 @@ import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
 import {
   ENTITY_EXPLORER_SEARCH_ID,
-  ENTITY_EXPLORER_SEARCH_LOCATION_HASH,
+  WIDGETS_SEARCH_ID,
 } from "constants/Explorer";
-import history from "utils/history";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -66,19 +64,14 @@ class Editor extends Component<Props> {
           combo="meta + f"
           label="Search entities"
           onKeyDown={(e: any) => {
-            //TODO(abhinav): make this id into a constant.
-            const el = document.getElementById(ENTITY_EXPLORER_SEARCH_ID);
-            if (!el) {
-              history.push(
-                `${BUILDER_PAGE_URL(
-                  this.props.currentApplicationId,
-                  this.props.currentPageId,
-                )}${ENTITY_EXPLORER_SEARCH_LOCATION_HASH}`,
-              );
-            } else {
-              el?.focus();
-            }
-
+            const entitySearchInput = document.getElementById(
+              ENTITY_EXPLORER_SEARCH_ID,
+            );
+            const widgetSearchInput = document.getElementById(
+              WIDGETS_SEARCH_ID,
+            );
+            if (entitySearchInput) entitySearchInput.focus();
+            if (widgetSearchInput) widgetSearchInput.focus();
             e.preventDefault();
             e.stopPropagation();
           }}

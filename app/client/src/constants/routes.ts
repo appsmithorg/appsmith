@@ -50,19 +50,6 @@ export const BUILDER_PAGE_URL = (
   );
 };
 
-export const WIDGETS_URL = (
-  applicationId = ":applicationId",
-  pageId = ":pageId",
-  params?: Record<string, string>,
-): string => {
-  if (!pageId) return APPLICATIONS_URL;
-  const queryParams = convertToQueryParams(params);
-  return (
-    `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit/widgets` +
-    queryParams
-  );
-};
-
 export const API_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",

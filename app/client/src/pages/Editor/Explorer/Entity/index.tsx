@@ -82,13 +82,13 @@ export type EntityProps = {
   action?: () => void;
   active?: boolean;
   isDefaultExpanded?: boolean;
-  createFn?: () => void;
+  onCreate?: () => void;
   contextMenu?: ReactNode;
   searchKeyword?: string;
   step: number;
   updateEntityName?: (id: string, name: string) => any;
   runActionOnExpand?: boolean;
-  nameTransformFn?: (input: string, limit?: number) => string;
+  onNameEdit?: (input: string, limit?: number) => string;
 };
 
 export const Entity = forwardRef(
@@ -155,13 +155,13 @@ export const Entity = forwardRef(
             className={`${EntityClassNames.NAME}`}
             ref={itemRef}
             name={props.name}
-            nameTransformFn={props.nameTransformFn}
+            nameTransformFn={props.onNameEdit}
             isEditing={!!props.updateEntityName && isEditing}
             updateEntityName={updateNameCallback}
             searchKeyword={props.searchKeyword}
           />
           <AddButton
-            onClick={props.createFn}
+            onClick={props.onCreate}
             className={`${EntityClassNames.ADD_BUTTON}`}
           />
           {props.contextMenu}
