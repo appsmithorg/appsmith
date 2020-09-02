@@ -84,16 +84,16 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
         }
       }
    `}
-  width: ${props => props.theme.card.minWidth + props.theme.spaces[5] * 2}px;
-  margin: ${props => props.theme.spaces[5]}px
-    ${props => props.theme.spaces[5]}px;
+  width: ${props => props.theme.card.minWidth + props.theme.spaces[4] * 2}px;
+  margin: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[4]}px;
   overflow: hidden;
 `;
 
 const Name = styled.div`
-  padding-left: ${props => props.theme.spaces[5]}px;
-  padding-right: ${props => props.theme.spaces[5]}px;
-  padding-bottom: ${props => props.theme.spaces[5]}px;
+  padding-left: ${props => props.theme.spaces[4]}px;
+  padding-right: ${props => props.theme.spaces[4]}px;
+  padding-bottom: ${props => props.theme.spaces[4]}px;
   height: 45px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -120,8 +120,8 @@ const Wrapper = styled(
   height: ${props => props.theme.card.minHeight}px;
   position: relative;
   background-color: ${props => props.backgroundColor};
-  margin: ${props => props.theme.spaces[5]}px
-    ${props => props.theme.spaces[5]}px;
+  margin: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[4]}px;
   .overlay {
     display: block;
     position: absolute;
