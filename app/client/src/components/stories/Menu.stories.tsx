@@ -107,6 +107,7 @@ export const MenuStory = () => {
           icon={select("First Icon", IconCollection, undefined)}
           onSelect={action("clicked-first-option")}
           label={<span>W</span>}
+          disabled={boolean("First option disabled", false)}
         />
         {boolean("First menu item divider", false) ? <MenuDivider /> : null}
         <MenuItem
