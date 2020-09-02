@@ -14,7 +14,7 @@ import java.util.List;
 @Component
 public class PluginExecutorHelper {
 
-    private PluginManager pluginManager;
+    private final PluginManager pluginManager;
 
     @Autowired
     public PluginExecutorHelper(PluginManager pluginManager) {
