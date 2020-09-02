@@ -1,12 +1,12 @@
 import { CommonComponentProps } from "./common";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { RadioGroup, Radio } from "@blueprintjs/core";
 
 type OptionProps = {
   label: string;
   value: string;
   disabled?: boolean;
+  onSelect?: (value: string) => void;
 };
 
 type Align = "horizontal" | "vertical" | "column" | "row";
@@ -15,70 +15,89 @@ type RadioProps = CommonComponentProps & {
   align?: Align;
   columns?: number;
   rows?: number;
-  rowsHeight?: string;
   defaultValue: string;
   onSelect?: (value: string) => void;
   options: OptionProps[];
 };
 
-const RadioContainer = styled.div<{
+const RadioGroup = styled.div<{
+  align?: Align;
+}>`
+  display: flex;
+  flex-wrap: wrap;
+  ${props =>
+    props.align === "vertical" || props.align === "row"
+      ? `
+      flex-direction: column;
+      height: 100%;
+      `
+      : null};
+`;
+
+const Radio = styled.label<{
   disabled?: boolean;
   align?: Align;
   columns?: number;
   rows?: number;
-  rowsHeight?: string;
 }>`
-  .radio-group-container {
-    display: flex;
-    ${props =>
-      props.align === "vertical" || props.align === "row"
-        ? `flex-direction: column`
-        : null};
-    flex-wrap: wrap;
-    height: ${props => props.rowsHeight};
+  display: block;
+  position: relative;
+  padding-left: ${props => props.theme.spaces[12] - 2}px;
+  cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
+  font-size: ${props => props.theme.typography.p1.fontSize}px;
+  font-weight: ${props => props.theme.typography.p1.fontWeight};
+  line-height: ${props => props.theme.typography.p1.lineHeight}px;
+  letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
+  color: ${props => props.theme.colors.blackShades[9]};
+  ${props =>
+    props.align === "row" ? `flex-basis: calc(100% / ${props.rows})` : null};
+  ${props =>
+    props.align === "column"
+      ? `flex-basis: calc(100% / ${props.columns})`
+      : null};
+  ${props =>
+    props.align === "horizontal"
+      ? `margin-right: ${props.theme.spaces[11] + 1}px`
+      : null};
+  ${props =>
+    props.align === "vertical" || props.align === "column"
+      ? `margin-bottom: ${props.theme.spaces[11] + 1}px`
+      : `margin-bottom: ${props.theme.spaces[0]}px`};
+
+  input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
   }
 
-  &&&& .bp3-control {
-    font-size: ${props => props.theme.typography.p1.fontSize}px;
-    font-weight: ${props => props.theme.typography.p1.fontWeight};
-    line-height: ${props => props.theme.typography.p1.lineHeight}px;
-    letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
-    color: ${props => props.theme.colors.blackShades[9]};
-    ${props =>
-      props.align === "row" ? `flex-basis: calc(100% / ${props.rows})` : null};
-    ${props =>
-      props.align === "column"
-        ? `flex-basis: calc(100% / ${props.columns})`
-        : null};
-    ${props =>
-      props.align === "horizontal"
-        ? `margin-right: ${props.theme.spaces[11] + 1}px`
-        : null};
-    ${props =>
-      props.align === "vertical" || props.align === "column"
-        ? `margin-bottom: ${props.theme.spaces[11] + 1}px`
-        : `margin-bottom: ${props.theme.spaces[0]}px`};
-  }
-
-  &&&& .bp3-control .bp3-control-indicator {
+  .checkbox {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: ${props => props.theme.spaces[8]}px;
     height: ${props => props.theme.spaces[8]}px;
-    box-shadow: none;
-    background-image: none;
     background-color: transparent;
     border: ${props => props.theme.spaces[1] - 2}px solid
       ${props => props.theme.colors.blackShades[4]};
+    border-radius: 50%;
     margin-top: ${props => props.theme.spaces[0]}px;
   }
 
-  &&&&
-    .bp3-control.bp3-radio
-    input:checked:disabled
-    ~ .bp3-control-indicator::before {
+  .checkbox:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+  input:checked ~ .checkbox:after {
+    display: block;
+  }
+
+  input:disabled ~ .checkbox:after {
     background-color: ${props => props.theme.colors.disabled};
   }
 
-  &&&& .bp3-control.bp3-radio input:checked ~ .bp3-control-indicator::before {
+  .checkbox:after {
     content: "";
     position: absolute;
     width: ${props => props.theme.spaces[4]}px;
@@ -89,7 +108,6 @@ const RadioContainer = styled.div<{
         : `background-color: ${props.theme.colors.info.main};`};
     top: ${props => props.theme.spaces[1] - 2}px;
     left: ${props => props.theme.spaces[1] - 2}px;
-    background-image: none;
     border-radius: 50%;
   }
 `;
@@ -107,30 +125,30 @@ export default function RadioComponent(props: RadioProps) {
   };
 
   return (
-    <RadioContainer
-      disabled={props.disabled}
+    <RadioGroup
       align={props.align}
-      columns={props.columns}
-      rows={props.rows}
-      rowsHeight={props.rowsHeight}
+      onChange={(e: any) => onChangeHandler(e.target.value)}
     >
-      <RadioGroup
-        disabled={props.disabled}
-        className="radio-group-container"
-        onChange={(event: React.FormEvent<HTMLInputElement>) =>
-          onChangeHandler(event.currentTarget.value)
-        }
-        selectedValue={selected}
-      >
-        {props.options.map((option: OptionProps, index: number) => (
-          <Radio
-            label={option.label}
-            key={index}
+      {props.options.map((option: OptionProps, index: number) => (
+        <Radio
+          key={index}
+          align={props.align}
+          columns={props.columns}
+          rows={props.rows}
+          disabled={props.disabled || option.disabled}
+        >
+          {option.label}
+          <input
+            type="radio"
             value={option.value}
-            disabled={option.disabled}
+            disabled={props.disabled || option.disabled}
+            onChange={e => option.onSelect && option.onSelect(e.target.value)}
+            checked={selected === option.value}
+            name="radio"
           />
-        ))}
-      </RadioGroup>
-    </RadioContainer>
+          <span className="checkbox"></span>
+        </Radio>
+      ))}
+    </RadioGroup>
   );
 }
