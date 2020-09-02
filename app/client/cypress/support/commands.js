@@ -242,7 +242,9 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton).click({ force: true });
+  cy.get(homePage.deleteButton)
+    .contains("Delete")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("DeletepageFromSideBar", () => {
@@ -386,9 +388,28 @@ Cypress.Commands.add("EditApiNameFromExplorer", apiname => {
   cy.get(explorer.editNameField)
     .clear()
     .type(apiname, { force: true })
-    .should("have.value", apiname);
+    .should("have.value", apiname)
+    .blur();
   cy.wait(3000);
 });
+
+Cypress.Commands.add(
+  "EditEntityNameByDoubleClick",
+  (entityName, updatedName) => {
+    cy.get(explorer.entity)
+      .contains(entityName)
+      .dblclick({ force: true });
+    cy.log(updatedName);
+    cy.get(explorer.editEntityField)
+      .clear()
+      .type(updatedName + "{enter}", { force: true });
+    cy.wait("@saveDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  },
+);
 
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
@@ -637,6 +658,21 @@ Cypress.Commands.add("MoveAPIToPage", pageName => {
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
+  );
+});
+
+Cypress.Commands.add("copyEntityToPage", pageName => {
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.copyTo).click({ force: true });
+  cy.get(apiwidget.page)
+    .contains(pageName)
+    .click();
+  cy.wait("@createNewApi").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
   );
 });
 
@@ -1205,20 +1241,27 @@ Cypress.Commands.add("NavigateToQueryEditor", () => {
   cy.xpath(queryEditor.addQueryEntity).click({ force: true });
 });
 
-Cypress.Commands.add("testSaveDatasource", () => {
+Cypress.Commands.add("testDatasource", () => {
   cy.get(".t--test-datasource").click();
   cy.wait("@testDatasource").should(
     "have.nested.property",
     "response.body.data.success",
     true,
   );
+});
 
+Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click();
   cy.wait("@saveDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add("testSaveDatasource", () => {
+  cy.testDatasource();
+  cy.saveDatasource();
 });
 
 Cypress.Commands.add("fillMongoDatasourceForm", () => {
@@ -1509,6 +1552,15 @@ Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
   return tabVal;
 });
 
+Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const tabVal = cy
+    .get(selector)
+    .scrollIntoView()
+    .invoke("text");
+  return tabVal;
+});
+
 Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")
@@ -1551,8 +1603,6 @@ Cypress.Commands.add("ValidatePublishTableData", value => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
-  cy.NavigateToEntityExplorer();
-  cy.NavigateToApiEditor();
   cy.SearchEntityandOpen("Api2");
   cy.NavigateToPaginationTab();
   cy.RunAPI();
@@ -1570,7 +1620,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
       const respBody = tabData.match(/"(.*)"/)[0];
       localStorage.setItem("respBody", respBody);
       cy.log(respBody);
-      cy.get(pages.widgetsEditor).click({ force: true });
+      cy.SearchEntityandOpen("Table1");
       // cy.openPropertyPane("tablewidget");
       // cy.testJsontext("tabledata", "{{Api2.data.results}}");
       cy.isSelectRow(0);

@@ -5,6 +5,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
@@ -37,6 +38,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -520,6 +522,52 @@ public class DatasourceServiceTest {
                     AuthenticationDTO authentication = updatedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createDatasourceWithInvalidCharsInHost() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByPackageName("installed-db-plugin");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name with invalid hostnames");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setEndpoints(new ArrayList<>());
+        datasourceConfiguration.getEndpoints().add(new Endpoint("hostname/", 5432L));
+        datasourceConfiguration.getEndpoints().add(new Endpoint("hostname:", 5432L));
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
+                    assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getInvalids()).containsExactlyInAnyOrder(
+                            "Host value cannot contain `/` or `:` characters. Found `hostname/`.",
+                            "Host value cannot contain `/` or `:` characters. Found `hostname:`."
+                    );
+
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+
+                    assertThat(createdDatasource.getPolicies()).isNotEmpty();
+                    assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                 })
                 .verifyComplete();
     }

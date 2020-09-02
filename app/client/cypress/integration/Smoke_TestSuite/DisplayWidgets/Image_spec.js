@@ -10,7 +10,6 @@ describe("Image Widget Functionality", function() {
   });
 
   it("Image Widget Functionality", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("imagewidget");
     /**
      * @param{Text} Random Text
@@ -43,7 +42,6 @@ describe("Image Widget Functionality", function() {
   });
   it("Image Widget Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("imagewidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -51,7 +49,6 @@ describe("Image Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Image Widget Functionality To Check Visible Widget", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("imagewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();

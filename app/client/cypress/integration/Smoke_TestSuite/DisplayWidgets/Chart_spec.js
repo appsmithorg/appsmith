@@ -10,7 +10,6 @@ describe("Chart Widget Functionality", function() {
   });
 
   beforeEach(() => {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("chartwidget");
   });
 

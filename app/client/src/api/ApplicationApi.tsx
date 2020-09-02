@@ -55,6 +55,10 @@ export interface DeleteApplicationRequest {
   applicationId: string;
 }
 
+export interface DuplicateApplicationRequest {
+  applicationId: string;
+}
+
 export interface GetAllApplicationResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
 }
@@ -143,6 +147,12 @@ class ApplicationApi extends Api {
     request: DeleteApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.delete(ApplicationApi.baseURL + request.applicationId);
+  }
+
+  static duplicateApplication(
+    request: DuplicateApplicationRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(ApplicationApi.baseURL + "clone/" + request.applicationId);
   }
 }
 

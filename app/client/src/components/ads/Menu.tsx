@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
 import { Popover } from "@blueprintjs/core/lib/esm/components/popover/popover";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -19,7 +19,7 @@ const MenuWrapper = styled.div`
 const MenuOption = styled.div`
   color: ${props => props.theme.colors.blackShades[6]};
   font-family: ${props => props.theme.fonts[3]};
-  .ads-icon {
+  .${Classes.ICON} {
     path {
       fill: ${props => props.theme.colors.blackShades[6]};
     }
