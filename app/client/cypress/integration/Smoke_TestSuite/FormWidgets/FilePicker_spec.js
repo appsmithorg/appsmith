@@ -7,7 +7,6 @@ describe("FilePicker Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("FilePicker Widget Functionality", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("filepickerwidget");
 
     //Checking the edit props for FilePicker and also the properties of FilePicker widget

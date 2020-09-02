@@ -646,7 +646,6 @@ export const theme: Theme = {
     },
   ],
   sidebarWidth: "320px",
-  headerHeight: "50px",
   homePage: {
     header: 52,
     background: "#1C1C1E",
@@ -660,6 +659,7 @@ export const theme: Theme = {
       paddingTop: 30,
     },
   },
+  headerHeight: "48px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,
