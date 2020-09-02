@@ -470,11 +470,11 @@ mkdir -p "$templates_dir"
 (
     cd "$templates_dir"
     curl --remote-name-all --silent --show-error \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/docker-compose.yml.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/mongo-init.js.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/docker.env.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/nginx_app.conf.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/encryption.env.sh
 )
 
 # Create needed folder structure.
