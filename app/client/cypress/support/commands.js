@@ -242,7 +242,9 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton).click({ force: true });
+  cy.get(homePage.deleteButton)
+    .contains("Delete")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("DeletepageFromSideBar", () => {

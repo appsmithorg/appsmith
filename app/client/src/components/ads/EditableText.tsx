@@ -6,7 +6,7 @@ import Spinner from "./Spinner";
 import { hexToRgba, Classes } from "./common";
 import { theme } from "constants/DefaultTheme";
 import { noop } from "lodash";
-import Icon, { IconSize, IconName } from "./Icon";
+import Icon, { IconSize } from "./Icon";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -224,12 +224,12 @@ export const EditableText = (props: EditableTextProps) => {
 
   const iconName =
     !isEditing && savingState.name === SavingState.NOT_STARTED
-      ? IconName.EDIT
+      ? "edit"
       : !isEditing && savingState.name === SavingState.SUCCESS
-      ? IconName.SUCCESS
+      ? "success"
       : (isEditing && savingState.name === SavingState.ERROR) ||
         (isEditing && !!isInvalid)
-      ? IconName.ERROR
+      ? "error"
       : undefined;
 
   const nonEditMode = () => {

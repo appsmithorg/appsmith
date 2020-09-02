@@ -124,6 +124,7 @@ export const CREATE_PASSWORD_INVALID_TOKEN =
   "The invite link is invalid. Please try request a new invite";
 
 export const DELETING_APPLICATION = "Deleting application...";
+export const DUPLICATING_APPLICATION = "Duplicating application...";
 
 export const CURL_IMPORT_SUCCESS = "Curl Import Successfull";
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Login";

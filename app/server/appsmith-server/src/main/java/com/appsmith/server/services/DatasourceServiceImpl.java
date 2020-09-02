@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -10,6 +11,8 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -164,6 +167,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Mono<Datasource> validateDatasource(Datasource datasource) {
         Set<String> invalids = new HashSet<>();
+        datasource.setInvalids(invalids);
 
         if (!StringUtils.hasText(datasource.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
@@ -171,13 +175,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         if (datasource.getPluginId() == null) {
             invalids.add(AppsmithError.PLUGIN_ID_NOT_GIVEN.getMessage());
-            datasource.setInvalids(invalids);
             return Mono.just(datasource);
         }
 
         if (datasource.getOrganizationId() == null) {
             invalids.add(AppsmithError.ORGANIZATION_ID_NOT_GIVEN.getMessage());
-            datasource.setInvalids(invalids);
             return Mono.just(datasource);
         }
 
@@ -185,7 +187,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .findByIdAndPluginsPluginId(datasource.getOrganizationId(), datasource.getPluginId())
                 .switchIfEmpty(Mono.defer(() -> {
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
-                    datasource.setInvalids(invalids);
                     return Mono.just(new Organization());
                 }));
 
@@ -193,18 +194,30 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
         }
 
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId()).cache();
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
 
         return checkPluginInstallationAndThenReturnOrganizationMono
-                .then(pluginExecutorMono)
+                .then(pluginMono)
+                .flatMap(plugin -> {
+                    if (PluginType.DB.equals(plugin.getType())
+                            && datasource.getDatasourceConfiguration() != null
+                            && datasource.getDatasourceConfiguration().getEndpoints() != null) {
+                        for (final Endpoint endpoint : datasource.getDatasourceConfiguration().getEndpoints()) {
+                            if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
+                                invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
+                            }
+                        }
+                    }
+                    return pluginExecutorMono;
+                })
                 .flatMap(pluginExecutor -> {
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
                         invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
                     }
 
-                    datasource.setInvalids(invalids);
                     return Mono.just(datasource);
                 });
     }
