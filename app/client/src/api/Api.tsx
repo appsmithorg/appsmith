@@ -1,8 +1,8 @@
 import _ from "lodash";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import {
-  REQUEST_TIMEOUT_MS,
   API_REQUEST_HEADERS,
+  REQUEST_TIMEOUT_MS,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
 import {
@@ -12,6 +12,10 @@ import {
 } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
+import monitor, {
+  PerformanceTransactionName,
+} from "../utils/PerformanceMonitor";
+import { Transaction } from "@sentry/tracing";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -22,10 +26,20 @@ export const apiRequestConfig = {
 };
 
 const axiosInstance: AxiosInstance = axios.create();
-
+let apiTransaction: Transaction;
 const executeActionRegex = /actions\/execute/;
 const currentUserRegex = /\/me$/;
+
 axiosInstance.interceptors.request.use((config: any) => {
+  apiTransaction = monitor.startTransaction(
+    PerformanceTransactionName.API_CALL,
+    {
+      tags: {
+        requestUrl: config.url,
+        method: config.method,
+      },
+    },
+  ) as Transaction;
   return { ...config, timer: performance.now() };
 });
 
@@ -44,6 +58,9 @@ const is404orAuthPath = () => {
 
 axiosInstance.interceptors.response.use(
   (response: any): any => {
+    apiTransaction.setTag("success", "true");
+    apiTransaction.setData("response", response);
+    apiTransaction.finish();
     if (response.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(response);
     }
@@ -51,6 +68,9 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
+    apiTransaction.setTag("success", "false");
+    apiTransaction.setData("error", error);
+    apiTransaction.finish();
     if (error.code === "ECONNABORTED") {
       if (error.config.url.match(currentUserRegex)) {
         history.replace({ pathname: SERVER_ERROR_URL });

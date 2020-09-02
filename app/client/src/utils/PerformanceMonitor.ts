@@ -1,10 +1,11 @@
 import * as Sentry from "@sentry/react";
 import { Span, Transaction } from "@sentry/tracing";
+import { TransactionContext } from "@sentry/types";
 import log from "loglevel";
 
 export enum PerformanceTransactionName {
   DATA_TREE_EVALUATION = "DATA_TREE_EVALUATION",
-  INPUT_WIDGET_VALUE_CHANGE = "INPUT_WIDGET_VALUE_CHANGE",
+  API_CALL = "API_CALL",
 }
 
 export enum PerformanceSpanName {
@@ -32,10 +33,14 @@ class PerformanceMonitor {
     this.tags.set(tagName, value);
   };
 
-  startTransaction = (name: PerformanceTransactionName) => {
-    const transaction = Sentry.startTransaction({ name });
-    this.tags.forEach((value, key) => transaction.setTag(key, value));
+  startTransaction = (
+    name: PerformanceTransactionName,
+    otherContext: Partial<TransactionContext> = {},
+  ) => {
+    const transaction = Sentry.startTransaction({ name, ...otherContext });
     this.transactions.set(name, transaction as Transaction);
+    this.tags.forEach((value, key) => transaction.setTag(key, value));
+    return transaction;
   };
 
   startSpan = (
