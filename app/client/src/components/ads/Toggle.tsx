@@ -4,19 +4,17 @@ import styled from "styled-components";
 import Spinner from "./Spinner";
 
 type ToggleProps = CommonComponentProps & {
-  onToggle?: (value: boolean) => void;
-  label: string;
-  switchOn: boolean;
+  onToggle: (value: boolean) => void;
+  value: boolean;
 };
 
 const StyledToggle = styled.label<{
   isLoading?: boolean;
   disabled?: boolean;
-  switchOn: boolean;
+  value: boolean;
 }>`
   position: relative;
   display: block;
-  padding-left: 56px;
   font-weight: ${props => props.theme.typography.p1.fontWeight};
   font-size: ${props => props.theme.typography.p1.fontSize}px;
   line-height: ${props => props.theme.typography.p1.lineHeight}px;
@@ -62,16 +60,14 @@ const StyledToggle = styled.label<{
       top: 2px;
       left: 2px;
       background-color: ${
-        props.isLoading
-          ? props.theme.colors.blackShades[3]
-          : props.theme.colors.blackShades[9]
+        props.disabled ? "#565656" : props.theme.colors.blackShades[9]
       };
       box-shadow: ${
-        props.switchOn
+        props.value
           ? "1px 0px 3px rgba(0, 0, 0, 0.16)"
           : "-1px 0px 3px rgba(0, 0, 0, 0.16)"
       };
-      opacity: ${props.switchOn ? 1 : 0.9};
+      opacity: ${props.value ? 1 : 0.9};
       transition: .4s;
       border-radius: 50%;
     }`}
@@ -81,11 +77,11 @@ const StyledToggle = styled.label<{
   }
 
   input:focus + .slider:before {
-    ${props => (props.switchOn ? 0.6 : 0.7)};
+    ${props => (props.value ? "opacity: 0.6" : "opacity: 0.7")};
   }
 
   input:disabled + .slider:before {
-    ${props => (props.switchOn ? 0.24 : 1)};
+    ${props => (props.value ? "opacity: 0.24" : "opacity: 1")};
   }
 
   input:checked + .slider:before {
@@ -98,12 +94,12 @@ const StyledToggle = styled.label<{
 
   input:hover + .slider,
   input:focus + .slider {
-    background-color: ${props => (props.switchOn ? "#F56426" : "#5E5E5E")};
+    background-color: ${props => (props.value ? "#F56426" : "#5E5E5E")};
   }
 
   input:disabled + .slider {
     background-color: ${props =>
-      props.switchOn && !props.isLoading
+      props.value && !props.isLoading
         ? "#3D2219"
         : props.theme.colors.info.darkest};
   }
@@ -116,14 +112,14 @@ const StyledToggle = styled.label<{
 `;
 
 export default function Toggle(props: ToggleProps) {
-  const [switchOn, setSwitchOn] = useState(false);
+  const [value, setValue] = useState(false);
 
   useEffect(() => {
-    setSwitchOn(props.switchOn);
-  }, [props.switchOn]);
+    setValue(props.value);
+  }, [props.value]);
 
   const onChangeHandler = (value: boolean) => {
-    setSwitchOn(value);
+    setValue(value);
     props.onToggle && props.onToggle(value);
   };
 
@@ -131,12 +127,11 @@ export default function Toggle(props: ToggleProps) {
     <StyledToggle
       isLoading={props.isLoading}
       disabled={props.disabled}
-      switchOn={switchOn}
+      value={value}
     >
-      {props.label}
       <input
         type="checkbox"
-        checked={switchOn}
+        checked={value}
         disabled={props.disabled || props.isLoading}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChangeHandler(e.target.checked)

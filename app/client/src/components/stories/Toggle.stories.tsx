@@ -14,8 +14,7 @@ export default {
 export const CustomToggle = () => (
   <StoryWrapper>
     <Toggle
-      label={text("label", "Checked")}
-      switchOn={boolean("switchOn", false)}
+      value={boolean("switchOn", false)}
       disabled={boolean("disabled", false)}
       isLoading={boolean("isLoading", false)}
       onToggle={action("toggle-on")}
