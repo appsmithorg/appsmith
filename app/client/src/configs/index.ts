@@ -171,6 +171,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       dsn: sentryDSN.value,
       release: sentryRelease.value,
       environment: sentryENV.value,
+      normalizeDepth: 7,
       integrations: [
         new Integrations.BrowserTracing({
           // Can also use reactRouterV4Instrumentation
