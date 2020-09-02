@@ -208,7 +208,7 @@ const ContextDropdownWrapper = styled.div`
 `;
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
-  const [showOverlay, setShowOverlay] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const hasEditPermission = isPermitted(
     props.application?.userPermissions ?? [],
@@ -283,7 +283,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     <NameWrapper
       showOverlay={showOverlay}
       onMouseEnter={() => setShowOverlay(true)}
-      onMouseLeave={() => setShowOverlay(true)}
+      onMouseLeave={() => setShowOverlay(false)}
       hasReadPermission={hasReadPermission}
       className="t--application-card"
     >
