@@ -393,7 +393,7 @@ mkdir -p "$templates_dir"
     cd "$templates_dir"
     curl --remote-name-all --silent --show-error \
         https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh \
         https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh \
         https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
         https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
@@ -401,25 +401,21 @@ mkdir -p "$templates_dir"
 )
 
 # Create needed folder structure.
-mkdir -p "$install_dir/data/"{nginx,certbot/{conf,www},mongo/db}
+mkdir -p "$install_dir/data/"{nginx,mongo/db}
 
 echo ""
 echo "Generating the configuration files from the templates"
 bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
 bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > docker-compose.yml
 bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
-bash "$templates_dir"/init-letsencrypt.sh.sh "$custom_domain" > init-letsencrypt.sh
 bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" > docker.env
 if [[ "$setup_encryption" = "true" ]]; then
     bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
 fi
-rm -rf "$templates_dir"
-chmod 0755 init-letsencrypt.sh
 
 overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
 overwrite_file "docker-compose.yml" "docker-compose.yml"
 overwrite_file "data/mongo/init.js" "mongo-init.js"
-overwrite_file "init-letsencrypt.sh" "init-letsencrypt.sh"
 overwrite_file "docker.env" "docker.env"
 overwrite_file "encryption.env" "encryption.env"
 
@@ -428,10 +424,12 @@ echo ""
 cd "$install_dir"
 if [[ -n $custom_domain ]]; then
     echo "Running init-letsencrypt.sh..."
-    sudo ./init-letsencrypt.sh
+    sudo bash "$templates_dir/init-letsencrypt.sh" "$custom_domain"
 else
     echo "No domain found. Skipping generation of SSL certificate."
 fi
+
+rm -rf "$templates_dir"
 
 echo ""
 echo "Pulling the latest container images"
