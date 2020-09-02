@@ -1,15 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ ! -f nginx_app.conf ]; then
-    touch nginx_app.conf
-fi
+set -o nounset
 
-# This template file is different from the others because of the sub_filter commands in the Nginx configuration
-# Those variables are substituted inside the Docker container for appsmith-editor during bootup.
-# Hence we wish to prevent environment substitution here.
-# Relevant variables will be replaced at the end of this file via sed command
+# In the config file, there's three types of variables, all represented with the syntax `$name`. The ones that are not
+# escaped with a backslash are rendered within this script. Among the ones that are escaped with a backslash, the ones
+# starting with `APPSMITH_` will be rendered at boot-up time by appsmith-editor docker container. The rest (like $scheme
+# and $host) are for nginx to work out.
 
-content='
+NGINX_SSL_CMNT="$1"
+custom_domain="$2"
+
+cat <<EOF
 server {
     listen 80;
 $NGINX_SSL_CMNT    server_name $custom_domain ;
@@ -24,29 +25,29 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         root /var/www/certbot;
     }
 
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_set_header X-Forwarded-Host \$host;
 
     location / {
-        try_files $uri /index.html =404;
+        try_files \$uri /index.html =404;
 
-        sub_filter __APPSMITH_SENTRY_DSN__ '\''${APPSMITH_SENTRY_DSN}'\'';
-        sub_filter __APPSMITH_SMART_LOOK_ID__ '\''${APPSMITH_SMART_LOOK_ID}'\'';
-        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\''${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}'\'';
-        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\''${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}'\'';
-        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\''${APPSMITH_MARKETPLACE_ENABLED}'\'';
-        sub_filter __APPSMITH_SEGMENT_KEY__ '\''${APPSMITH_SEGMENT_KEY}'\'';
-        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '\''${APPSMITH_OPTIMIZELY_KEY}'\'';
-        sub_filter __APPSMITH_ALGOLIA_API_ID__ '\''${APPSMITH_ALGOLIA_API_ID}'\'';
-        sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\''${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}'\'';
-        sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\''${APPSMITH_ALGOLIA_API_KEY}'\'';
-        sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '\''${APPSMITH_CLIENT_LOG_LEVEL}'\'';
-        sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '\''${APPSMITH_GOOGLE_MAPS_API_KEY}'\'';
-        sub_filter __APPSMITH_TNC_PP__ '\''${APPSMITH_TNC_PP}'\'';
-        sub_filter __APPSMITH_VERSION_ID__ '\''${APPSMITH_VERSION_ID}'\'';
-        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\''${APPSMITH_VERSION_RELEASE_DATE}'\'';
-        sub_filter __APPSMITH_INTERCOM_APP_ID__ '\''${APPSMITH_INTERCOM_APP_ID}'\'';
-        sub_filter __APPSMITH_MAIL_ENABLED__ '\''${APPSMITH_MAIL_ENABLED}'\'';
+        sub_filter __APPSMITH_SENTRY_DSN__ '\${APPSMITH_SENTRY_DSN}';
+        sub_filter __APPSMITH_SMART_LOOK_ID__ '\${APPSMITH_SMART_LOOK_ID}';
+        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
+        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
+        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\${APPSMITH_MARKETPLACE_ENABLED}';
+        sub_filter __APPSMITH_SEGMENT_KEY__ '\${APPSMITH_SEGMENT_KEY}';
+        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '\${APPSMITH_OPTIMIZELY_KEY}';
+        sub_filter __APPSMITH_ALGOLIA_API_ID__ '\${APPSMITH_ALGOLIA_API_ID}';
+        sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
+        sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\${APPSMITH_ALGOLIA_API_KEY}';
+        sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '\${APPSMITH_CLIENT_LOG_LEVEL}';
+        sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '\${APPSMITH_GOOGLE_MAPS_API_KEY}';
+        sub_filter __APPSMITH_TNC_PP__ '\${APPSMITH_TNC_PP}';
+        sub_filter __APPSMITH_VERSION_ID__ '\${APPSMITH_VERSION_ID}';
+        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\${APPSMITH_VERSION_RELEASE_DATE}';
+        sub_filter __APPSMITH_INTERCOM_APP_ID__ '\${APPSMITH_INTERCOM_APP_ID}';
+        sub_filter __APPSMITH_MAIL_ENABLED__ '\${APPSMITH_MAIL_ENABLED}';
     }
 
     location /f {
@@ -76,32 +77,32 @@ $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    include /etc/letsencrypt/options-ssl-nginx.conf;
 $NGINX_SSL_CMNT    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 $NGINX_SSL_CMNT
-$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto $scheme;
-$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Host $host;
+$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$scheme;
+$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Host \$host;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    root /var/www/appsmith;
 $NGINX_SSL_CMNT    index index.html index.htm;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location / {
-$NGINX_SSL_CMNT        try_files $uri /index.html =404;
+$NGINX_SSL_CMNT        try_files \$uri /index.html =404;
 $NGINX_SSL_CMNT
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_SENTRY_DSN__ '\''${APPSMITH_SENTRY_DSN}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_SMART_LOOK_ID__ '\''${APPSMITH_SMART_LOOK_ID}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\''${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\''${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\''${APPSMITH_MARKETPLACE_ENABLED}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_SEGMENT_KEY__ '\''${APPSMITH_SEGMENT_KEY}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '\''${APPSMITH_OPTIMIZELY_KEY}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_ID__ '\''${APPSMITH_ALGOLIA_API_ID}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\''${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\''${APPSMITH_ALGOLIA_API_KEY}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '\''${APPSMITH_CLIENT_LOG_LEVEL}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '\''${APPSMITH_GOOGLE_MAPS_API_KEY}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_TNC_PP__ '\''${APPSMITH_TNC_PP}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_VERSION_ID__ '\''${APPSMITH_VERSION_ID}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\''${APPSMITH_VERSION_RELEASE_DATE}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_INTERCOM_APP_ID__ '\''${APPSMITH_INTERCOM_APP_ID}'\'';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_MAIL_ENABLED__ '\''${APPSMITH_MAIL_ENABLED}'\'';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_SENTRY_DSN__ '\${APPSMITH_SENTRY_DSN}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_SMART_LOOK_ID__ '\${APPSMITH_SMART_LOOK_ID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\${APPSMITH_MARKETPLACE_ENABLED}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_SEGMENT_KEY__ '\${APPSMITH_SEGMENT_KEY}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '\${APPSMITH_OPTIMIZELY_KEY}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_ID__ '\${APPSMITH_ALGOLIA_API_ID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\${APPSMITH_ALGOLIA_API_KEY}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '\${APPSMITH_CLIENT_LOG_LEVEL}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '\${APPSMITH_GOOGLE_MAPS_API_KEY}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_TNC_PP__ '\${APPSMITH_TNC_PP}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_VERSION_ID__ '\${APPSMITH_VERSION_ID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\${APPSMITH_VERSION_RELEASE_DATE}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_INTERCOM_APP_ID__ '\${APPSMITH_INTERCOM_APP_ID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_MAIL_ENABLED__ '\${APPSMITH_MAIL_ENABLED}';
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /f {
@@ -121,8 +122,4 @@ $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT }
-'
-
-echo "$content" \
-    | sed -e "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" -e "s/\$custom_domain/$custom_domain/g" \
-    >| nginx_app.conf
+EOF
