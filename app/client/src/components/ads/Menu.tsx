@@ -5,9 +5,9 @@ import { Popover } from "@blueprintjs/core/lib/esm/components/popover/popover";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 type MenuProps = CommonComponentProps & {
-  children: ReactNode[];
+  children?: ReactNode[];
   target: JSX.Element;
-  position: Position;
+  position?: Position;
 };
 
 const MenuWrapper = styled.div`
@@ -28,12 +28,13 @@ const MenuOption = styled.div`
 
 const Menu = (props: MenuProps) => {
   return (
-    <Popover minimal position={props.position}>
+    <Popover minimal position={props.position || Position.BOTTOM}>
       {props.target}
       <MenuWrapper>
-        {props.children.map((el, index) => {
-          return <MenuOption key={index}>{el}</MenuOption>;
-        })}
+        {props.children &&
+          props.children.map((el, index) => {
+            return <MenuOption key={index}>{el}</MenuOption>;
+          })}
       </MenuWrapper>
     </Popover>
   );

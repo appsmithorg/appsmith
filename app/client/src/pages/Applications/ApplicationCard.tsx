@@ -4,7 +4,13 @@ import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
-import { Card, Classes, HTMLDivProps, ICardProps } from "@blueprintjs/core";
+import {
+  Card,
+  Classes,
+  HTMLDivProps,
+  ICardProps,
+  Position,
+} from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 // import Button from "components/editorComponents/Button";
 import { theme, getColorWithOpacity } from "constants/DefaultTheme";
@@ -21,7 +27,9 @@ import { ControlIcons } from "icons/ControlIcons";
 import { omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
-import { IconName } from "components/ads/Icon";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
+import Menu from "components/ads/Menu";
+import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -193,8 +201,14 @@ const EditButton = styled(Button)`
   margin-bottom: 8px;
 `;
 
+const ContextDropdownWrapper = styled.div`
+  position: absolute;
+  top: 3px;
+  right: 7px;
+`;
+
 export const ApplicationCard = (props: ApplicationCardProps) => {
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
 
   const hasEditPermission = isPermitted(
     props.application?.userPermissions ?? [],
@@ -213,29 +227,41 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const deleteApp = () => {
     props.delete && props.delete(props.application.id);
   };
-  const moreActionItems: ContextDropdownOption[] = [];
+  const moreActionItems: MenuItemProps[] = [];
   if (props.share) {
     moreActionItems.push({
-      value: "share",
       onSelect: shareApp,
-      label: "Share",
+      text: "Share",
+      icon: "share",
     });
   }
   if (props.duplicate) {
     moreActionItems.push({
-      value: "duplicate",
       onSelect: duplicateApp,
-      label: "Duplicate",
+      text: "Duplicate",
+      icon: "duplicate",
     });
   }
   if (props.delete && hasEditPermission) {
     moreActionItems.push({
-      value: "delete",
       onSelect: deleteApp,
-      label: "Delete",
-      intent: "danger",
+      text: "Delete",
+      icon: "delete",
     });
   }
+
+  const ContextMenu = (
+    <ContextDropdownWrapper>
+      <Menu
+        position={Position.BOTTOM_LEFT}
+        target={<Icon name="context-menu" size={IconSize.XXXL}></Icon>}
+      >
+        {moreActionItems.map((item: MenuItemProps) => {
+          return <MenuItem key={item.text} {...item}></MenuItem>;
+        })}
+      </Menu>
+    </ContextDropdownWrapper>
+  );
   let initials = getInitialsAndColorCode(props.application.name)[0];
 
   if (initials.length < 2 && props.application.name.length > 1) {
@@ -257,7 +283,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     <NameWrapper
       showOverlay={showOverlay}
       onMouseEnter={() => setShowOverlay(true)}
-      onMouseLeave={() => setShowOverlay(false)}
+      onMouseLeave={() => setShowOverlay(true)}
       hasReadPermission={hasReadPermission}
       className="t--application-card"
     >
@@ -271,7 +297,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           <div className="overlay">
             <ApplicationImage className="image-container">
               <Control className="control">
-                {!!moreActionItems.length && (
+                {!!moreActionItems.length && ContextMenu}
+
+                {/* {!!moreActionItems.length && (
                   <ContextDropdown
                     options={moreActionItems}
                     toggle={{
@@ -282,7 +310,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                     }}
                     className="more"
                   />
-                )}
+                )} */}
 
                 {hasEditPermission && (
                   <EditButton

@@ -15,6 +15,8 @@ import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspace.svg"
 import { ReactComponent as CreateNewIcon } from "assets/icons/ads/create-new.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
+import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
+import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -82,6 +84,8 @@ export const IconCollection = [
   "invite-user",
   "view-all",
   "downArrow",
+  "context-menu",
+  "duplicate",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -173,6 +177,12 @@ const Icon = (props: IconProps & CommonComponentProps) => {
       break;
     case "view-all":
       returnIcon = <ViewAllIcon />;
+      break;
+    case "context-menu":
+      returnIcon = <ContextMenuIcon />;
+      break;
+    case "duplicate":
+      returnIcon = <DuplicateIcon />;
       break;
     default:
       returnIcon = null;

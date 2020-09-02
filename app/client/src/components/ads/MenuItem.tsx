@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Text, { TextType, FontWeight } from "./Text";
 
-type MenuItemProps = CommonComponentProps & {
+export type MenuItemProps = CommonComponentProps & {
   icon?: IconName;
   text: string;
   label?: ReactNode;
@@ -17,6 +17,7 @@ const ItemRow = styled.a`
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
+  min-width: 260px;
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
   &:hover {
