@@ -44,6 +44,7 @@ export const appInitializer = () => {
   FeatureFlag.initialize(appsmithConfigs.featureFlag);
 
   if (appsmithConfigs.sentry.enabled) {
+    log.debug(appsmithConfigs.sentry);
     Sentry.init(appsmithConfigs.sentry);
   }
   if (appsmithConfigs.smartLook.enabled) {
