@@ -93,35 +93,6 @@ const PaddingWrapper = styled.div`
     ${props => props.theme.spaces[5]}px;
 `;
 
-const ApplicationAddCardWrapper = styled(Card)`
-  display: flex;
-  flex-direction: column;
-  // justify-content: center;
-  background: #232324;
-  align-items: center;
-  width: ${props => props.theme.card.minWidth}px;
-  height: ${props => props.theme.card.minHeight}px;
-  position: relative;
-  box-shadow: none;
-  border-radius: 0;
-  padding: 0;
-  padding-top: 52px;
-  margin: ${props => props.theme.spaces[11]}px
-    ${props => props.theme.spaces[5]}px;
-  a {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: calc(100% - ${props => props.theme.card.titleHeight}px);
-    width: 100%;
-  }
-  cursor: pointer;
-  &:hover {
-    background: #404040;
-  }
-`;
-
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   && {
     background: white;
@@ -207,26 +178,97 @@ const WorkpsacesNavigator = styled.div`
   height: calc(100vh - ${props => props.theme.homePage.header + 36 + 25}px);
 `;
 
-const CreateOrgButton = styled(MenuItem)`
-  &&&.${Classes.TEXT} {
-    color: #9f9f9f;
+// const iconTextCss = styled.css<{
+//   color: string;
+//   hover: string
+// }>`
+//   &&&&&& {
+//     .${Classes.TEXT},.${Classes.ICON} {
+//       color: #9f9f9f;
+//     }
+
+//     &:hover {
+//       .${Classes.TEXT},.${Classes.ICON} {
+//         color: #d4d4d4;
+//       }
+//     }
+//   }
+// `
+
+const textIconStyles = (props: { color: string; hover: string }) => {
+  return `
+    &&&&&& {
+      .${Classes.TEXT},.${Classes.ICON} svg path {
+        color: ${props.color};
+        stroke: ${props.color};
+      }
+
+
+      &:hover {
+        .${Classes.TEXT},.${Classes.ICON} svg path {
+          color: #d4d4d4;
+          stroke: #d4d4d4;
+          color: ${props.hover};
+          stroke: ${props.hover};
+        }
+      }
+    }
+  `;
+};
+
+const NewWorkspaceWrapper = styled.div`
+  ${textIconStyles({
+    color: "#9f9f9f",
+    hover: "#d4d4d4",
+  })}
+`;
+
+const ApplicationAddCardWrapper = styled(Card)`
+  display: flex;
+  flex-direction: column;
+  // justify-content: center;
+  background: #232324;
+  align-items: center;
+  width: ${props => props.theme.card.minWidth}px;
+  height: ${props => props.theme.card.minHeight}px;
+  position: relative;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  padding-top: 52px;
+  margin: ${props => props.theme.spaces[11]}px
+    ${props => props.theme.spaces[5]}px;
+  a {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: calc(100% - ${props => props.theme.card.titleHeight}px);
+    width: 100%;
   }
-  &&&.${Classes.ICON} {
-    color: #9f9f9f;
+  cursor: pointer;
+  &:hover {
+    background: #404040;
   }
+  ${textIconStyles({
+    color: "#9f9f9f",
+    hover: "#d4d4d4",
+  })}
 `;
 
 function LeftPane() {
   const userOrgs = useSelector(getUserApplicationsOrgs);
-  const CreateOrg = (
-    <CreateOrgButton key={"create-org"} text={"New Workspace"} icon="plus" />
+  const NewWorkspaceTrigger = (
+    <NewWorkspaceWrapper>
+      <MenuItem key={"new-workspace"} text={"New Workspace"} icon="plus" />
+    </NewWorkspaceWrapper>
   );
   return (
     <LeftPaneWrapper>
       <LeftPaneSection heading="WORKSPACES">
         <WorkpsacesNavigator>
           <FormDialogComponent
-            trigger={CreateOrg}
+            trigger={NewWorkspaceTrigger}
             Form={CreateOrganizationForm}
             title={CREATE_ORGANIZATION_FORM_NAME}
           />
