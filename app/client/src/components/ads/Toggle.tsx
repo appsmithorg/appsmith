@@ -1,4 +1,4 @@
-import { CommonComponentProps, Classes } from "./common";
+import { CommonComponentProps, Classes, lighten, darken } from "./common";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Spinner from "./Spinner";
@@ -60,7 +60,9 @@ const StyledToggle = styled.label<{
       top: 2px;
       left: 2px;
       background-color: ${
-        props.disabled ? "#565656" : props.theme.colors.blackShades[9]
+        props.disabled && !props.value
+          ? lighten(props.theme.colors.tertiary.dark, 16)
+          : props.theme.colors.blackShades[9]
       };
       box-shadow: ${
         props.value
@@ -94,14 +96,18 @@ const StyledToggle = styled.label<{
 
   input:hover + .slider,
   input:focus + .slider {
-    background-color: ${props => (props.value ? "#F56426" : "#5E5E5E")};
+    background-color: ${props =>
+      props.value
+        ? lighten(props.theme.colors.info.main, 12)
+        : lighten(props.theme.colors.blackShades[3], 16)};
   }
 
   input:disabled + .slider {
+    cursor: not-allowed;
     background-color: ${props =>
       props.value && !props.isLoading
-        ? "#3D2219"
-        : props.theme.colors.info.darkest};
+        ? darken(props.theme.colors.info.darker, 20)
+        : props.theme.colors.tertiary.dark};
   }
 
   .${Classes.SPINNER} {

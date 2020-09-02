@@ -1,4 +1,5 @@
 import { Theme } from "constants/DefaultTheme";
+import tinycolor from "tinycolor2";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
@@ -40,4 +41,16 @@ export const hexToRgb = (
 export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
+};
+
+export const lighten = (color: string, amount: number) => {
+  return tinycolor(color)
+    .lighten(amount)
+    .toString();
+};
+
+export const darken = (color: string, amount: number) => {
+  return tinycolor(color)
+    .darken(amount)
+    .toString();
 };
