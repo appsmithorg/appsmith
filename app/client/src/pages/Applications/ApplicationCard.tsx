@@ -189,6 +189,10 @@ type ApplicationCardProps = {
   delete?: (applicationId: string) => void;
 };
 
+const EditButton = styled(Button)`
+  margin-bottom: 8px;
+`;
+
 export const ApplicationCard = (props: ApplicationCardProps) => {
   const [showOverlay, setShowOverlay] = useState(false);
 
@@ -281,13 +285,21 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                 )}
 
                 {hasEditPermission && (
-                  <Button text="Edit" size={Size.medium} icon={IconName.EDIT} />
+                  <EditButton
+                    text="Edit"
+                    size={Size.medium}
+                    icon={"edit"}
+                    fill
+                    href={editApplicationURL}
+                  />
                 )}
                 <Button
                   text="LAUNCH"
                   size={Size.medium}
                   category={Category.tertiary}
-                  icon={IconName.LAUNCH}
+                  icon={"rocket"}
+                  href={viewApplicationURL}
+                  fill
                 />
               </Control>
             </ApplicationImage>

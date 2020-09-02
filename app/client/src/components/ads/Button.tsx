@@ -55,6 +55,7 @@ type ButtonProps = CommonComponentProps & {
   icon?: IconName;
   size?: Size;
   fill?: boolean;
+  href?: string;
 };
 
 const stateStyles = (
@@ -237,9 +238,10 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
   return { buttonFont, padding };
 };
 
-const StyledButton = styled("button")<ThemeProp & ButtonProps>`
+const StyledButton = styled("a")<ThemeProp & ButtonProps>`
   width: ${props => (props.fill ? "100%" : "auto")};
   border: none;
+  text-decoration: none;
   outline: none;
   text-transform: uppercase;
   background-color: ${props => btnColorStyles(props, "main").bgColor};
@@ -329,6 +331,7 @@ function Button(props: ButtonProps) {
 
   return (
     <StyledButton
+      href={props.href}
       data-cy={props.cypressSelector}
       {...props}
       onClick={(e: React.MouseEvent<HTMLElement>) =>
