@@ -63,7 +63,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       action={noop}
       entityId="Pages"
       step={props.step}
-      createFn={createPageCallback}
+      onCreate={createPageCallback}
     >
       {pageEntities}
     </Entity>

@@ -66,7 +66,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       isDefaultExpanded={isCurrentPage || !!props.searchKeyword}
       updateEntityName={updatePage}
       contextMenu={contextMenu}
-      nameTransformFn={resolveAsSpaceChar}
+      onNameEdit={resolveAsSpaceChar}
     >
       <ExplorerWidgetGroup
         step={props.step + 1}

@@ -175,7 +175,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
         !!props.searchKeyword ||
         (params.pageId === props.pageId && !!selectedWidget)
       }
-      createFn={props.addWidgetsFn}
+      onCreate={props.addWidgetsFn}
     >
       {childNode}
     </Entity>
