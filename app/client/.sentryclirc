@@ -1,0 +1,7 @@
+[auth]
+token=a86809ea5ede4755936cb72aa7c23f9555be3c21fb2449e6b1f47be6b00a9098
+[defaults]
+project=appsmith
+org=appsmith
+dsn=https://a63362b692d64edeb175741f1f80b091@sentry.io/1546547
+log-level=debug
