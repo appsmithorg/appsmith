@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.Url;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +38,9 @@ public class Organization extends BaseDomain {
     @JsonIgnore
     private List<UserRole> userRoles;
 
+    @JsonIgnore
+    private String logoAssetId;
+
     public String makeSlug() {
         return toSlug(name);
     }
@@ -44,4 +48,9 @@ public class Organization extends BaseDomain {
     public static String toSlug(String text) {
         return text == null ? null : text.replaceAll("[^\\w\\d]+", "-").toLowerCase();
     }
+
+    public String getLogoUrl() {
+        return Url.ASSET_URL + "/" + logoAssetId;
+    }
+
 }

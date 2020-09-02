@@ -6,6 +6,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
@@ -13,23 +14,35 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.annotation.NonNull;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +92,9 @@ public class OrganizationServiceTest {
 
     @Autowired
     RoleGraph roleGraph;
+
+    @Autowired
+    private AssetRepository assetRepository;
 
     Organization organization;
 
@@ -593,7 +609,7 @@ public class OrganizationServiceTest {
 
                     assertThat(datasource.getPolicies()).isNotEmpty();
                     assertThat(datasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy,
-                                                                            executeDatasourcePolicy));
+                            executeDatasourcePolicy));
 
                 })
                 .verifyComplete();
@@ -933,6 +949,76 @@ public class OrganizationServiceTest {
                     assertThat(appsmithRoles).containsAll(Set.of(viewerRole));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void uploadOrganizationLogo() throws IOException {
+        final InputStream imageResourceStream = getClass().getClassLoader()
+                .getResourceAsStream("test_assets/OrganizationServiceTest/my_organization_logo.png");
+        assertThat(imageResourceStream).isNotNull();
+
+        final byte[] bytes = imageResourceStream.readAllBytes();
+        final InMemoryFilePart filePart = new InMemoryFilePart(bytes, MediaType.IMAGE_PNG);
+
+        final String organizationId = organizationRepository
+                .findByName("Spring Test Organization")
+                .blockOptional(Duration.ofSeconds(3))
+                .map(Organization::getId)
+                .orElse(null);
+
+        assertThat(organizationId).isNotNull();
+
+        final Mono<Tuple2<Organization, Asset>> resultMono = organizationService
+                .uploadLogo(organizationId, filePart)
+                .flatMap(organizationWithLogo -> Mono.zip(
+                        Mono.just(organizationWithLogo),
+                        assetRepository.findById(organizationWithLogo.getLogoAssetId())
+                ));
+
+        StepVerifier.create(resultMono)
+                .assertNext(tuple -> {
+                    final Organization organizationWithLogo = tuple.getT1();
+                    assertThat(organizationWithLogo.getLogoUrl()).isNotNull();
+                    assertThat(organizationWithLogo.getLogoUrl()).contains(organizationWithLogo.getLogoAssetId());
+
+                    final Asset asset = tuple.getT2();
+                    assertThat(asset).isNotNull();
+                    assertThat(asset.getData()).isEqualTo(bytes);
+                })
+                .verifyComplete();
+    }
+
+    private static class InMemoryFilePart implements Part {
+
+        private final DataBuffer buffer;
+        private final HttpHeaders headers;
+
+        public InMemoryFilePart(byte[] bytes, MediaType contentType) {
+            this.buffer = new DefaultDataBufferFactory().wrap(bytes);
+            headers = new HttpHeaders();
+            headers.setContentType(contentType);
+        }
+
+        @Override
+        @NonNull
+        public String name() {
+            throw new NotImplementedException(
+                    "This is a FilePart made for testing. The name() method is not implemented.");
+        }
+
+        @Override
+        @NonNull
+        public HttpHeaders headers() {
+            return headers;
+        }
+
+        @Override
+        @NonNull
+        public Flux<DataBuffer> content() {
+            return Flux.just(buffer);
+        }
+
     }
 
 }

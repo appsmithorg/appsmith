@@ -49,7 +49,6 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
   );
 
   const icon = props.page.isDefault ? homePageIcon : pageIcon;
-
   return (
     <Entity
       icon={icon}
