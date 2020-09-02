@@ -19,7 +19,7 @@
     SENTRY_DSN = "https://95c55da9896c4683913cf7e5c1ec4180@newsentry.appsmith.com/2"
     SENTRY_ORG = "appsmith"
     SENTRY_PROJECT = "appsmith"
-    SENTRY_LOG_LEVEL = "info"
+    SENTRY_LOG_LEVEL = "debug"
 
 
 [context.production]
