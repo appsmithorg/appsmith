@@ -185,6 +185,9 @@ class ChartDataControl extends BaseControl<ControlProps> {
       isValid,
       chartData.length,
     );
+    if (this.props.widgetProperties.chartType === "PIE_CHART") {
+      chartData.splice(1, chartData.length - 1);
+    }
     return (
       <React.Fragment>
         {chartData.map((data, index) => {
@@ -202,13 +205,15 @@ class ChartDataControl extends BaseControl<ControlProps> {
             />
           );
         })}
-        <StyledPropertyPaneButton
-          text="Add Series"
-          icon="plus"
-          color="#FFFFFF"
-          minimal
-          onClick={this.addOption}
-        />
+        {this.props.widgetProperties.chartType !== "PIE_CHART" ? (
+          <StyledPropertyPaneButton
+            text="Add Series"
+            icon="plus"
+            color="#FFFFFF"
+            minimal
+            onClick={this.addOption}
+          />
+        ) : null}
       </React.Fragment>
     );
   }
