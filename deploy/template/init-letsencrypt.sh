@@ -8,9 +8,8 @@ if ! [[ -x "$(command -v docker-compose)" ]]; then
     exit 1
 fi
 
-domains=("$@")
-echo "Have ${#domains[@]} domain(s) to create certificates for."
-echo "domains: '${domains[*]}'."
+domain="$1"
+echo "Creating certificate for '$domain'."
 
 rsa_key_size=4096
 data_path="./data/certbot"
@@ -33,39 +32,28 @@ if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/
     echo
 fi
 
-for domain in "${domains[@]}"; do
-    echo "### Creating dummy certificate for '$domain'..."
-    live_path="/etc/letsencrypt/live/$domain"
-    docker-compose run --rm --entrypoint \
-        "sh -c \"mkdir -p '$live_path' && openssl req -x509 -nodes -newkey rsa:1024 -days 1 \
-            -keyout '$live_path/privkey.pem' \
-            -out '$live_path/fullchain.pem' \
-            -subj '/CN=localhost' \
-            \"" \
-        certbot
-    echo
-done
+echo "### Generating OpenSSL key for '$domain'..."
+live_path="/etc/letsencrypt/live/$domain"
+docker-compose run --rm --entrypoint \
+    "sh -c \"mkdir -p '$live_path' && openssl req -x509 -nodes -newkey rsa:1024 -days 1 \
+        -keyout '$live_path/privkey.pem' \
+        -out '$live_path/fullchain.pem' \
+        -subj '/CN=localhost' \
+        \"" \
+    certbot
+echo
 
 echo "### Starting nginx..."
 docker-compose up --force-recreate --detach nginx
 echo
 
-for domain in "${domains[@]}"; do
-    echo "### Deleting dummy certificate for $domain..."
-    docker-compose run --rm --entrypoint "\
-            rm -Rf /etc/letsencrypt/live/$domain && \
-            rm -Rf /etc/letsencrypt/archive/$domain && \
-            rm -Rf /etc/letsencrypt/renewal/$domain.conf" \
-        certbot
-done
+echo "### Removing key now that validation is done for $domain..."
+docker-compose run --rm --entrypoint \
+    "rm -Rfv /etc/letsencrypt/live/$domain /etc/letsencrypt/archive/$domain /etc/letsencrypt/renewal/$domain.conf" \
+    certbot
 echo
 
-echo "### Requesting Let's Encrypt certificate for '${domains[*]}'..."
-domain_args=""
-for domain in "${domains[@]}"; do
-    domain_args="$domain_args -d $domain"
-done
-
+echo "### Requesting Let's Encrypt certificate for '$domain'..."
 # Select appropriate email arg
 case "$email" in
     "") email_arg="--register-unsafely-without-email" ;;
@@ -82,10 +70,10 @@ fi
 # So we explicitly ignore such failure with a `|| true` in the end, to avoid bash quitting on us because this looks like
 # a failed command.
 docker-compose run --rm --entrypoint "\
-        certbot certonly --webroot -w /var/www/certbot \
+        certbot certonly --webroot --webroot-path=/var/www/certbot \
             $staging_arg \
             $email_arg \
-            $domain_args \
+            --domains $domain \
             --rsa-key-size $rsa_key_size \
             --agree-tos \
             --force-renewal" \
