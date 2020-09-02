@@ -136,8 +136,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS.sentry.release,
   );
   const sentryENV = getConfig(
-    APPSMITH_FEATURE_CONFIGS.sentry.environment,
     ENV_CONFIG.sentry.environment,
+    APPSMITH_FEATURE_CONFIGS.sentry.environment,
   );
   const segment = getConfig(
     ENV_CONFIG.segment,
