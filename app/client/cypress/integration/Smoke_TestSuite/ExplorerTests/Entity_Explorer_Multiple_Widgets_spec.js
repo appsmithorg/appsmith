@@ -9,9 +9,8 @@ const explorer = require("../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
 describe("Entity explorer tests related to widgets and validation", function() {
-  it("Widget edit/delete/copy to clipboard validation", function() {
+  it("Add a widget to default page and verify the properties", function() {
     cy.addDsl(dsl);
-    cy.NavigateToEntityExplorer();
     cy.SearchEntityandOpen("Text1");
     cy.get(explorer.collapse)
       .last()
@@ -24,12 +23,13 @@ describe("Entity explorer tests related to widgets and validation", function() {
       expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
       expect($lis.eq(1)).to.contain("{{Text1.text}}");
     });
+  });
+
+  it("Create another page and add another widget and verify properties", function() {
     cy.Createpage(pageid);
     cy.addDsl(tdsl);
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
-    cy.NavigateToEntityExplorer();
     cy.GlobalSearchEntity("Table1");
     cy.get(explorer.collapse)
       .last()
@@ -47,6 +47,9 @@ describe("Entity explorer tests related to widgets and validation", function() {
       expect($lis.eq(5)).to.contain("{{Table1.isVisible}}");
       expect($lis.eq(6)).to.contain("{{Table1.searchText}}");
     });
+  });
+
+  it("Toggle between widgets in different pages using search functionality", function() {
     cy.SearchEntityandOpen("Text1");
     cy.get(explorer.collapse)
       .last()
