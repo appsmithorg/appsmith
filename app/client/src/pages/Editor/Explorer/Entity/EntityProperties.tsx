@@ -14,11 +14,19 @@ import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
 export const EntityProperties = (props: {
   entityType: ENTITY_TYPE;
   entityName: string;
+  isCurrentPage: boolean;
   step: number;
+  entity?: any;
 }) => {
+  let entity: any;
   const dataTree: DataTree = useSelector(evaluateDataTreeWithoutFunctions);
-  const entity: any = dataTree[props.entityName];
-  if (!entity) return null;
+  if (props.isCurrentPage && dataTree[props.entityName]) {
+    entity = dataTree[props.entityName];
+  } else if (props.entity) {
+    entity = props.entity;
+  } else {
+    return null;
+  }
 
   let config: any;
   let entityProperties: Array<EntityPropertyProps> = [];
@@ -42,7 +50,7 @@ export const EntityProperties = (props: {
             }
             return {
               propertyName: actionProperty,
-              entityName: entity.name,
+              entityName: props.entityName,
               value,
               step: props.step,
             };

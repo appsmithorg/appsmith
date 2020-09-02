@@ -155,14 +155,9 @@ export function* deleteDatasourceSaga(
   }
 }
 
-function* updateDatasourceSaga(
-  actionPayload: ReduxAction<{
-    datasource: Datasource;
-    reinitializeForm: boolean;
-  }>,
-) {
+function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   try {
-    const datasourcePayload = _.omit(actionPayload.payload.datasource, "name");
+    const datasourcePayload = _.omit(actionPayload.payload, "name");
 
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
@@ -184,9 +179,6 @@ function* updateDatasourceSaga(
           id: response.data.id,
         },
       });
-      if (actionPayload.payload.reinitializeForm) {
-        yield put(initialize(DATASOURCE_DB_FORM, datasourcePayload));
-      }
     }
   } catch (error) {
     yield put({

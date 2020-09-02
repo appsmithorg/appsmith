@@ -66,7 +66,7 @@ export const ExplorerDatasourcesGroup = (
         ) > -1 || !!props.searchKeyword
       }
       disabled={disableDatasourceGroup}
-      createFn={() => {
+      onCreate={() => {
         history.push(
           DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
         );
