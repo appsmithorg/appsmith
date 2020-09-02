@@ -21,6 +21,8 @@ import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
 
 export enum IconSize {
+  XXS = "extraExtraSmall",
+  XS = "extraSmall",
   SMALL = "small",
   MEDIUM = "medium",
   LARGE = "large",
@@ -32,6 +34,12 @@ export enum IconSize {
 export const sizeHandler = (size?: IconSize) => {
   let iconSize = 0;
   switch (size) {
+    case IconSize.XXS:
+      iconSize = theme.iconSizes.XXS;
+      break;
+    case IconSize.XS:
+      iconSize = theme.iconSizes.XS;
+      break;
     case IconSize.SMALL:
       iconSize = theme.iconSizes.SMALL;
       break;

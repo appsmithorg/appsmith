@@ -368,10 +368,12 @@ export type Theme = {
       };
     };
   };
-  iconSizes: iconSizeType;
+  iconSizes: IconSizeType;
 };
 
-type iconSizeType = {
+type IconSizeType = {
+  XXS: number;
+  XS: number;
   SMALL: number;
   MEDIUM: number;
   LARGE: number;
@@ -509,6 +511,8 @@ export const theme: Theme = {
     },
   },
   iconSizes: {
+    XXS: 8,
+    XS: 10,
     SMALL: 12,
     MEDIUM: 14,
     LARGE: 15,
