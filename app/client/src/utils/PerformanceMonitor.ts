@@ -4,6 +4,7 @@ import log from "loglevel";
 
 export enum PerformanceTransactionName {
   DATA_TREE_EVALUATION = "DATA_TREE_EVALUATION",
+  INPUT_WIDGET_VALUE_CHANGE = "INPUT_WIDGET_VALUE_CHANGE",
 }
 
 export enum PerformanceSpanName {
@@ -13,15 +14,27 @@ export enum PerformanceSpanName {
   DATA_TREE_EVAL_VALIDATE_TREE = "DATA_TREE_EVAL_VALIDATE_TREE",
 }
 
+export enum PerformanceTagNames {
+  PAGE_ID = "pageId",
+  APP_ID = "appId",
+  APP_MODE = "appMode",
+}
+
 class PerformanceMonitor {
   private transactions: Map<
     PerformanceTransactionName,
     Transaction
   > = new Map();
   private spans: Map<PerformanceSpanName, Span> = new Map();
+  private tags: Map<PerformanceTagNames, string> = new Map();
+
+  setTag = (tagName: PerformanceTagNames, value: string) => {
+    this.tags.set(tagName, value);
+  };
 
   startTransaction = (name: PerformanceTransactionName) => {
     const transaction = Sentry.startTransaction({ name });
+    this.tags.forEach((value, key) => transaction.setTag(key, value));
     this.transactions.set(name, transaction as Transaction);
   };
 

@@ -9,8 +9,8 @@ import {
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
 import {
-  deletePageSuccess,
   clonePageSuccess,
+  deletePageSuccess,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
   savePageSuccess,
@@ -20,6 +20,7 @@ import {
   updateWidgetNameSuccess,
 } from "actions/pageActions";
 import PageApi, {
+  ClonePageRequest,
   CreatePageRequest,
   DeletePageRequest,
   FetchPageListResponse,
@@ -32,7 +33,6 @@ import PageApi, {
   UpdatePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
-  ClonePageRequest,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -72,6 +72,7 @@ import {
 import { clearCaches } from "utils/DynamicBindingUtils";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { getQueryParams } from "utils/AppsmithUtils";
+import monitor, { PerformanceTagNames } from "utils/PerformanceMonitor";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -148,6 +149,8 @@ export function* fetchPageSaga(
       clearCaches();
       // Set url params
       yield call(setDataUrl);
+      // Set page id on perf monitor
+      monitor.setTag(PerformanceTagNames.PAGE_ID, id);
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       // Update the canvas
@@ -198,6 +201,8 @@ export function* fetchPublishedPageSaga(
       clearCaches();
       // Set url params
       yield call(setDataUrl);
+      // Set page id on perf monitor
+      monitor.setTag(PerformanceTagNames.PAGE_ID, pageId);
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
       // Update the canvas

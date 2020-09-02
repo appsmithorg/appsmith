@@ -26,6 +26,7 @@ import { validateResponse } from "./ErrorSagas";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppStoreName } from "constants/AppConstants";
+import monitor, { PerformanceTagNames } from "utils/PerformanceMonitor";
 
 const getAppStore = (appId: string) => {
   const appStoreName = getAppStoreName(appId);
@@ -75,12 +76,14 @@ function* initializeEditorSaga(
   const currentApplication = yield select(getCurrentApplication);
 
   const appName = currentApplication ? currentApplication.name : "";
-  const appId = currentApplication ? currentApplication.id : "";
 
   AnalyticsUtil.logEvent("EDITOR_OPEN", {
-    appId: appId,
+    appId: applicationId,
     appName: appName,
   });
+
+  monitor.setTag(PerformanceTagNames.APP_ID, applicationId);
+  monitor.setTag(PerformanceTagNames.APP_MODE, APP_MODE.EDIT);
 
   // Step 6: Notify UI that the editor is ready to go
   yield put({
@@ -162,6 +165,9 @@ export function* initializeAppViewerSaga(
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(updateAppStore(getAppStore(applicationId)));
+
+  monitor.setTag(PerformanceTagNames.APP_ID, applicationId);
+  monitor.setTag(PerformanceTagNames.APP_MODE, APP_MODE.PUBLISHED);
 
   yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
