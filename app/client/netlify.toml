@@ -20,6 +20,7 @@
     SENTRY_ORG = "appsmith"
     SENTRY_PROJECT = "appsmith"
     SENTRY_LOG_LEVEL = "info"
+    REACT_APP_SENTRY_RELEASE = "test"
 
 
 [context.production]
