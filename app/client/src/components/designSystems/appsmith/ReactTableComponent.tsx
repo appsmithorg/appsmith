@@ -23,7 +23,7 @@ export interface ColumnMenuOptionProps {
 }
 
 export interface ColumnMenuSubOptionProps {
-  content: string;
+  content: string | JSX.Element;
   isSelected?: boolean;
   closeOnClick?: boolean;
   onClick?: (columnIndex: number) => void;

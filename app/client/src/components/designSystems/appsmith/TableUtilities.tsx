@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Icon, InputGroup } from "@blueprintjs/core";
+import { Icon, InputGroup, Tag } from "@blueprintjs/core";
 import {
   MenuColumnWrapper,
   CellWrapper,
   ActionWrapper,
   SortIconWrapper,
+  MenuCategoryWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ColumnMenuOptionProps } from "components/designSystems/appsmith/ReactTableComponent";
@@ -24,6 +25,13 @@ import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import moment from "moment";
 
+const StyledRemoveIcon = styled(
+  ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
+)`
+  padding: 0;
+  position: relative;
+  cursor: pointer;
+`;
 interface MenuOptionProps {
   columnAccessor?: string;
   isColumnHidden: boolean;
@@ -260,9 +268,18 @@ export const getMenuOptions = (props: MenuOptionProps) => {
       isSelected: props.columnType === ColumnTypes.DATE,
       options: [
         {
-          content: "Date Input Format",
-          id: "date_input",
+          content: (
+            <MenuCategoryWrapper>
+              <div>Date Input Format</div>
+              {props.inputFormat && <Tag>Clear</Tag>}
+            </MenuCategoryWrapper>
+          ),
           category: true,
+          closeOnClick: false,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(columnIndex, props.format || "", "");
+          },
+          id: "date_input",
         },
         {
           content: "Epoch",
@@ -325,9 +342,21 @@ export const getMenuOptions = (props: MenuOptionProps) => {
           },
         },
         {
-          content: "Date Output Format",
-          id: "date_output",
+          content: (
+            <MenuCategoryWrapper>
+              <div>Date Output Format</div>
+              {props.format && <Tag>Clear</Tag>}
+            </MenuCategoryWrapper>
+          ),
+          closeOnClick: false,
           category: true,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(
+              columnIndex,
+              "",
+              props.inputFormat || "",
+            );
+          },
         },
         {
           content: "Same as Input",
