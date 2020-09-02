@@ -258,6 +258,7 @@ const StyledButton = styled("a")<ThemeProp & ButtonProps>`
     }
   }
   &:hover {
+    text-decoration: none;
     background-color: ${props => btnColorStyles(props, "hover").bgColor};
     color: ${props => btnColorStyles(props, "hover").txtColor};
     border: ${props => btnColorStyles(props, "hover").border};
