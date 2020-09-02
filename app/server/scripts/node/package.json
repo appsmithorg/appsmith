@@ -4,7 +4,8 @@
 	"description": "",
 	"private": true,
 	"scripts": {
-		"acl-migration": "node acl-migration.js"
+		"acl-migration": "node acl-migration.js",
+		"dump-examples-org": "node dump-examples-org.js"
 	},
 	"keywords": [],
 	"author": "Appsmith",
