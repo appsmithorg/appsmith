@@ -11,6 +11,7 @@ import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
 import { appCardColors } from "constants/AppConstants";
 import produce from "immer";
+import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 
 export const createReducer = (
   initialState: any,
@@ -164,6 +165,14 @@ export const getColorCode = (initials: string): string => {
     asciiSum += initials[i].charCodeAt(0);
   }
   return appCardColors[asciiSum % appCardColors.length];
+};
+
+export const getApplicationIcon = (initials: string): AppIconName => {
+  let asciiSum = 0;
+  for (let i = 0; i < initials.length; i++) {
+    asciiSum += initials[i].charCodeAt(0);
+  }
+  return AppIconCollection[asciiSum % AppIconCollection.length];
 };
 
 export function hexToRgb(

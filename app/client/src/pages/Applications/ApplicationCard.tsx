@@ -22,7 +22,11 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getInitialsAndColorCode, getColorCode } from "utils/AppsmithUtils";
+import {
+  getInitialsAndColorCode,
+  getColorCode,
+  getApplicationIcon,
+} from "utils/AppsmithUtils";
 import { ControlIcons } from "icons/ControlIcons";
 import { omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
@@ -30,6 +34,7 @@ import Button, { Category, Size } from "components/ads/Button";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import Menu from "components/ads/Menu";
 import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
+import AppIcon, { AppIconName } from "components/ads/AppIcon";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -207,6 +212,10 @@ const ContextDropdownWrapper = styled.div`
   right: 7px;
 `;
 
+const StyledAppIcon = styled(AppIcon)`
+  margin: 0 auto;
+`;
+
 export const ApplicationCard = (props: ApplicationCardProps) => {
   const [showOverlay, setShowOverlay] = useState(false);
 
@@ -292,7 +301,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         hasReadPermission={hasReadPermission}
         backgroundColor={colorCode}
       >
-        <Initials>{initials}</Initials>
+        <StyledAppIcon
+          size={Size.large}
+          name={getApplicationIcon(props.application.id) as AppIconName}
+        />
+        {/* <Initials>{initials}</Initials> */}
         {showOverlay && (
           <div className="overlay">
             <ApplicationImage className="image-container">
