@@ -261,6 +261,7 @@ function LeftPane() {
           {userOrgs &&
             userOrgs.map((org: any) => (
               <MenuItem
+                icon="workspace"
                 key={org.organization.name}
                 href={`${window.location.pathname}#${org.organization.name}`}
                 text={org.organization.name}
