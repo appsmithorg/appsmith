@@ -8,7 +8,6 @@ describe("Entity explorer tests related to widgets and validation", function() {
   });
 
   it("Widget edit/delete/copy to clipboard validation", function() {
-    cy.NavigateToEntityExplorer();
     cy.SearchEntityandOpen("Text1");
     cy.get(explorer.collapse)
       .last()

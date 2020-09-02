@@ -23,7 +23,6 @@ describe("Duplicate application", function() {
       .contains("Duplicate")
       .click({ force: true });
 
-    cy.get(explorerlocators.entityExplorer).should("be.visible");
     cy.wait("@getPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
