@@ -1,61 +1,58 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import Entity from "../Entity";
 import { pageGroupIcon } from "../ExplorerIcons";
-import { noop, compact } from "lodash";
-import { useDispatch } from "react-redux";
+import { noop } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { Page } from "constants/ReduxActionConstants";
-import { WidgetTree } from "../Widgets/WidgetEntity";
 import ExplorerPageEntity from "./PageEntity";
-import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
+import { AppState } from "reducers";
+import { WidgetProps } from "widgets/BaseWidget";
 
 type ExplorerPageGroupProps = {
-  pages: Page[];
-  widgets?: (WidgetTree | undefined)[];
-  actions: DataTreeAction[];
-  currentPageId?: string;
   searchKeyword?: string;
   step: number;
+  widgets?: Record<string, WidgetProps>;
+  actions: Record<string, any[]>;
+  showWidgetsSidebar: () => void;
 };
 
 export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
 
+  const pages = useSelector((state: AppState) => {
+    return state.entities.pageList.pages;
+  });
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
       "Page",
-      props.pages.map((page: Page) => page.pageName),
+      pages.map((page: Page) => page.pageName),
     );
     dispatch(createPage(params.applicationId, name));
-  }, [dispatch, props.pages, params.applicationId]);
+  }, [dispatch, pages, params.applicationId]);
 
-  const pageEntityList = useMemo(
-    () =>
-      compact(
-        props.pages.map((page: Page) => {
-          const widgets = props.widgets?.find(
-            (tree?: WidgetTree) => tree && tree.pageId === page.pageId,
-          );
-          const actions = props.actions.filter(
-            (action: DataTreeAction & { pageId?: string }) =>
-              action.pageId === page.pageId,
-          );
-          if (
-            (!widgets || widgets.length === 0) &&
-            actions.length === 0 &&
-            props.searchKeyword
-          ) {
-            return null;
-          }
-          return { page, widgets, actions };
-        }),
-      ),
-    [props.widgets, props.actions, props.pages, props.searchKeyword],
-  );
+  const pageEntities = pages.map(page => {
+    const pageWidgets = props.widgets && props.widgets[page.pageId];
+    const pageActions = props.actions[page.pageId] || [];
+    if (!pageWidgets && pageActions.length === 0) return null;
+    return (
+      <ExplorerPageEntity
+        key={page.pageId}
+        step={props.step + 1}
+        widgets={pageWidgets}
+        actions={pageActions}
+        searchKeyword={props.searchKeyword}
+        page={page}
+        showWidgetsSidebar={props.showWidgetsSidebar}
+      />
+    );
+  });
+
+  if (pageEntities.filter(Boolean).length === 0) return null;
 
   return (
     <Entity
@@ -66,21 +63,9 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       action={noop}
       entityId="Pages"
       step={props.step}
-      createFn={createPageCallback}
+      onCreate={createPageCallback}
     >
-      {pageEntityList.map(({ page, widgets, actions }) => {
-        return (
-          <ExplorerPageEntity
-            key={page.pageId}
-            isCurrentPage={props.currentPageId === page.pageId}
-            widgets={widgets}
-            actions={actions}
-            step={props.step + 1}
-            searchKeyword={props.searchKeyword}
-            page={page}
-          />
-        );
-      })}
+      {pageEntities}
     </Entity>
   );
 };

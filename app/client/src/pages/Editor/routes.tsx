@@ -19,7 +19,6 @@ import {
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
-  WIDGETS_URL,
 } from "constants/routes";
 import styled from "styled-components";
 import AppRoute from "pages/common/AppRoute";
@@ -63,8 +62,7 @@ class EditorsRouter extends React.Component<
     this.state = {
       isVisible:
         this.props.location.pathname !==
-          BUILDER_PAGE_URL(applicationId, pageId) &&
-        this.props.location.pathname !== WIDGETS_URL(applicationId, pageId),
+        BUILDER_PAGE_URL(applicationId, pageId),
     };
   }
 
@@ -74,8 +72,7 @@ class EditorsRouter extends React.Component<
       this.setState({
         isVisible:
           this.props.location.pathname !==
-            BUILDER_PAGE_URL(applicationId, pageId) &&
-          this.props.location.pathname !== WIDGETS_URL(applicationId, pageId),
+          BUILDER_PAGE_URL(applicationId, pageId),
       });
     }
   }

@@ -9,6 +9,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
+import * as Sentry from "@sentry/react";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -217,3 +218,4 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
 }
 
 export default TabsWidget;
+export const ProfiledTabsWidget = Sentry.withProfiler(TabsWidget);

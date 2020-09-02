@@ -4,14 +4,12 @@ import { Page } from "constants/ReduxActionConstants";
 import { ExplorerURLParams, getActionIdFromURL } from "../helpers";
 import { ActionGroupConfig } from "./helpers";
 import { useParams } from "react-router";
-import { ApiActionConfig } from "entities/Action";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import history from "utils/history";
-import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 
 type ExplorerActionsGroupProps = {
-  actions: DataTreeAction[];
+  actions: any[];
   step: number;
   searchKeyword?: string;
   config: ActionGroupConfig;
@@ -19,21 +17,21 @@ type ExplorerActionsGroupProps = {
 };
 export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
   const params = useParams<ExplorerURLParams>();
-  let childNode: ReactNode = props.actions.map((action: DataTreeAction) => {
+  let childNode: ReactNode = props.actions.map((action: any) => {
     const url = props.config?.getURL(
       params.applicationId,
       props.page.pageId,
-      action.actionId,
+      action.config.id,
     );
     const actionId = getActionIdFromURL();
-    const active = actionId === action.actionId;
+    const active = actionId === action.config.id;
 
     let method = undefined;
-    method = (action.config as ApiActionConfig).httpMethod;
+    method = action.config.actionConfiguration.httpMethod;
     const icon = props.config?.getIcon(method);
     return (
       <ExplorerActionEntity
-        key={action.actionId}
+        key={action.config.id}
         action={action}
         url={url}
         active={active}
@@ -73,7 +71,7 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
       entityId={props.page.pageId + "_" + props.config?.type}
       step={props.step}
       disabled={!!props.searchKeyword && (!childNode || !props.actions.length)}
-      createFn={switchToCreateActionPage}
+      onCreate={switchToCreateActionPage}
       isDefaultExpanded={
         props.config?.isGroupExpanded(params, props.page.pageId) ||
         !!props.searchKeyword

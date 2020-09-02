@@ -1,0 +1,68 @@
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { SaveOrgRequest } from "api/OrgApi";
+
+export const fetchOrg = (orgId: string) => {
+  return {
+    type: ReduxActionTypes.FETCH_CURRENT_ORG,
+    payload: {
+      orgId,
+    },
+  };
+};
+
+export const changeOrgName = (name: string) => {
+  return {
+    type: ReduxActionTypes.UPDATE_ORG_NAME_INIT,
+    payload: {
+      name,
+    },
+  };
+};
+
+export const changeOrgUserRole = (
+  orgId: string,
+  role: string,
+  username: string,
+) => {
+  return {
+    type: ReduxActionTypes.CHANGE_ORG_USER_ROLE_INIT,
+    payload: {
+      orgId,
+      role,
+      username,
+    },
+  };
+};
+
+export const deleteOrgUser = (orgId: string, username: string) => {
+  return {
+    type: ReduxActionTypes.DELETE_ORG_USER_INIT,
+    payload: {
+      orgId,
+      username,
+    },
+  };
+};
+export const fetchUsersForOrg = (orgId: string) => {
+  return {
+    type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
+    payload: {
+      orgId,
+    },
+  };
+};
+export const fetchRolesForOrg = (orgId: string) => {
+  return {
+    type: ReduxActionTypes.FETCH_ALL_ROLES_INIT,
+    payload: {
+      orgId,
+    },
+  };
+};
+
+export const saveOrg = (orgSettings: SaveOrgRequest) => {
+  return {
+    type: ReduxActionTypes.SAVE_ORG_INIT,
+    payload: orgSettings,
+  };
+};

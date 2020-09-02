@@ -22,7 +22,7 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isString, isNumber, isUndefined } from "lodash";
-
+import * as Sentry from "@sentry/react";
 const ReactTableComponent = lazy(() =>
   import("components/designSystems/appsmith/ReactTableComponent"),
 );
@@ -43,21 +43,21 @@ export enum CompactModeTypes {
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 45,
+    TABLE_HEADER_HEIGHT: 42,
     ROW_HEIGHT: 40,
-    ROW_FONT_SIZE: 12,
+    ROW_FONT_SIZE: 14,
   },
   [CompactModeTypes.SHORT]: {
     COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 45,
+    TABLE_HEADER_HEIGHT: 42,
     ROW_HEIGHT: 20,
-    ROW_FONT_SIZE: 10,
+    ROW_FONT_SIZE: 12,
   },
   [CompactModeTypes.TALL]: {
     COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 45,
+    TABLE_HEADER_HEIGHT: 42,
     ROW_HEIGHT: 60,
-    ROW_FONT_SIZE: 12,
+    ROW_FONT_SIZE: 18,
   },
 };
 
@@ -83,7 +83,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       nextPageKey: VALIDATION_TYPES.TEXT,
       prevPageKey: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
-      selectedRowIndex: VALIDATION_TYPES.NUMBER,
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
     };
@@ -362,7 +361,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         JSON.stringify(prevProps.filters) ||
       this.props.searchText !== prevProps.searchText ||
       JSON.stringify(this.props.sortedColumn) !==
-        JSON.stringify(prevProps.sortedColumn)
+        JSON.stringify(prevProps.sortedColumn) ||
+      !this.props.filteredTableData
     ) {
       const filteredTableData = this.filterTableData();
       super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
@@ -640,3 +640,4 @@ export interface TableWidgetProps extends WidgetProps {
 }
 
 export default TableWidget;
+export const ProfiledTableWidget = Sentry.withProfiler(TableWidget);

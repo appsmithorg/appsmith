@@ -30,7 +30,9 @@ import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
 import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
-import { AppDataState } from "@appsmith/reducers/entityReducers/appReducer";
+import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
+import { AppDataState } from "reducers/entityReducers/appReducer";
+import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -62,6 +64,8 @@ export interface AppState {
     apiName: ApiNameReduxState;
     explorer: ExplorerReduxState;
     pageDSLs: PageDSLsReduxState;
+    confirmRunAction: ConfirmRunActionReduxState;
+    datasourceName: DatasourceNameReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

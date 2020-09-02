@@ -3,45 +3,17 @@ import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history from "utils/history";
 import { saveActionName } from "actions/actionActions";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import EntityProperty from "../Entity/EntityProperty";
-import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
+import EntityProperties from "../Entity/EntityProperties";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ExplorerURLParams } from "../helpers";
+import { useParams } from "react-router";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
 };
 
-const getActionProperties = (action: any, step: number) => {
-  const config = entityDefinitions.ACTION(action);
-
-  return (
-    config &&
-    Object.keys(config)
-      .filter(k => k.indexOf("!") === -1)
-      .map((actionProperty: string) => {
-        let value = action[actionProperty];
-        if (actionProperty === "run") {
-          value = "Function";
-          actionProperty = actionProperty + "()";
-        }
-        if (actionProperty === "data") {
-          value = action.data;
-        }
-        return (
-          <EntityProperty
-            key={actionProperty}
-            propertyName={actionProperty}
-            entityName={action.name}
-            value={value}
-            step={step}
-          />
-        );
-      })
-  );
-};
-
 type ExplorerActionEntityProps = {
-  action: DataTreeAction;
+  action: any;
   url: string;
   icon: ReactNode;
   active: boolean;
@@ -51,34 +23,41 @@ type ExplorerActionEntityProps = {
 };
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
+  const { pageId } = useParams<ExplorerURLParams>();
   const switchToAction = useCallback(() => {
     props.url && history.push(props.url);
   }, [props.url]);
 
   const contextMenu = (
     <ActionEntityContextMenu
-      id={props.action.actionId}
-      name={props.action.name}
+      id={props.action.config.id}
+      name={props.action.config.name}
       className={EntityClassNames.CONTEXT_MENU}
       pageId={props.pageId}
     />
   );
   return (
     <Entity
-      key={props.action.actionId}
+      key={props.action.config.id}
       icon={props.icon}
-      name={props.action.name}
+      name={props.action.config.name}
       action={switchToAction}
       isDefaultExpanded={props.active}
       active={props.active}
-      entityId={props.action.actionId}
+      entityId={props.action.config.id}
       step={props.step}
       updateEntityName={getUpdateActionNameReduxAction}
       searchKeyword={props.searchKeyword}
       contextMenu={contextMenu}
       className="action"
     >
-      {getActionProperties(props.action, props.step + 1)}
+      <EntityProperties
+        entityName={props.action.config.name}
+        entityType={ENTITY_TYPE.ACTION}
+        isCurrentPage={props.pageId === pageId}
+        step={props.step + 1}
+        entity={props.action}
+      />
     </Entity>
   );
 });

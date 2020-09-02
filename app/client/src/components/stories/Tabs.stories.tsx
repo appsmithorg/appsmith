@@ -1,24 +1,18 @@
 import React from "react";
-import { AdsTabComponent } from "components/ads/Tabs";
+import { TabComponent, TabProp } from "components/ads/Tabs";
 import { select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { IconName } from "../ads/Icon";
+import { IconCollection } from "components/ads/Icon";
+import styled from "styled-components";
 
 export default {
-  title: "tabs",
-  component: AdsTabComponent,
+  title: "Tabs",
+  component: TabComponent,
   decorators: [withKnobs, withDesign],
 };
 
-type tabSingle = {
-  key: string;
-  title: string;
-  panelComponent: JSX.Element;
-  icon: IconName;
-};
-
 const TabStory = (props: any) => {
-  const tabArr: tabSingle[] = [
+  const tabArr: TabProp[] = [
     {
       key: "1",
       title: props.title1,
@@ -85,42 +79,27 @@ const TabStory = (props: any) => {
   }
 
   return (
-    <div
-      style={{
-        height: "200px",
-        overflow: "hidden",
-      }}
-    >
-      <AdsTabComponent tabs={tabArr}></AdsTabComponent>
-    </div>
+    <StoryWrapper>
+      <TabComponent tabs={tabArr} />
+    </StoryWrapper>
   );
 };
 
 export const Tabs = () => (
   <TabStory
-    icon1={select(
-      "icon1",
-      ["Select icon", "general", "billing", "delete", "user"],
-      "general",
-    )}
-    title1={text("title1", "General")}
-    icon2={select(
-      "icon2",
-      ["Select icon", "general", "billing", "delete", "user"],
-      "user",
-    )}
-    title2={text("title2", "User")}
-    icon3={select(
-      "icon3",
-      ["Select icon", "general", "billing", "delete", "user"],
-      "billing",
-    )}
-    title3={text("title3", "Billing")}
-    icon4={select(
-      "icon4",
-      ["Select icon", "general", "billing", "delete", "user"],
-      undefined,
-    )}
-    title4={text("title4", "")}
+    icon1={select("Icon 1", IconCollection, "general")}
+    title1={text("Title 1", "General")}
+    icon2={select("Icon 2", IconCollection, "user")}
+    title2={text("Title 2", "User")}
+    icon3={select("Icon 3", IconCollection, "billing")}
+    title3={text("Title 3", "Billing")}
+    icon4={select("Icon 4", IconCollection, undefined)}
+    title4={text("Title 4", "")}
   />
 );
+
+export const StoryWrapper = styled.div`
+  background: #1a191c;
+  height: 700px;
+  padding: 50px 100px;
+`;

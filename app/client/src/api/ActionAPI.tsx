@@ -182,6 +182,12 @@ class ActionAPI extends API {
   static executeQuery(executeAction: any): AxiosPromise<ActionApiResponse> {
     return API.post(ActionAPI.url + "/execute", executeAction);
   }
+
+  static toggleActionExecuteOnLoad(actionId: string, shouldExecute: boolean) {
+    return API.put(ActionAPI.url + `/executeOnLoad/${actionId}`, undefined, {
+      flag: shouldExecute.toString(),
+    });
+  }
 }
 
 export default ActionAPI;

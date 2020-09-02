@@ -15,15 +15,17 @@ export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   };
 };
 
-export const updateDatasource = (
-  payload: Datasource,
-  reinitializeForm?: boolean,
-) => {
+export const updateDatasource = (payload: Datasource) => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,
-    payload: { datasource: payload, reinitializeForm: !!reinitializeForm },
+    payload,
   };
 };
+
+export const saveDatasourceName = (payload: { id: string; name: string }) => ({
+  type: ReduxActionTypes.SAVE_DATASOURCE_NAME,
+  payload: payload,
+});
 
 export const changeDatasource = (payload: Datasource) => {
   return {

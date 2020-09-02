@@ -1,4 +1,4 @@
-import { Theme } from "../../constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
@@ -9,6 +9,11 @@ export interface CommonComponentProps {
 export type ThemeProp = {
   theme: Theme;
 };
+
+export enum Classes {
+  ICON = "cs-icon",
+  TEXT = "cs-text",
+}
 
 export const hexToRgb = (
   hex: string,
