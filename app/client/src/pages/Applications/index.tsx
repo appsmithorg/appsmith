@@ -50,6 +50,8 @@ import MenuItem from "components/ads/MenuItem";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { duplicateApplication } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
+import Menu from "components/ads/Menu";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -178,38 +180,21 @@ const WorkpsacesNavigator = styled.div`
   height: calc(100vh - ${props => props.theme.homePage.header + 36 + 25}px);
 `;
 
-// const iconTextCss = styled.css<{
-//   color: string;
-//   hover: string
-// }>`
-//   &&&&&& {
-//     .${Classes.TEXT},.${Classes.ICON} {
-//       color: #9f9f9f;
-//     }
-
-//     &:hover {
-//       .${Classes.TEXT},.${Classes.ICON} {
-//         color: #d4d4d4;
-//       }
-//     }
-//   }
-// `
-
 const textIconStyles = (props: { color: string; hover: string }) => {
   return `
     &&&&&& {
       .${Classes.TEXT},.${Classes.ICON} svg path {
         color: ${props.color};
         stroke: ${props.color};
+        fill: ${props.color};
       }
 
 
       &:hover {
         .${Classes.TEXT},.${Classes.ICON} svg path {
-          color: #d4d4d4;
-          stroke: #d4d4d4;
           color: ${props.hover};
           stroke: ${props.hover};
+          fill: ${props.hover};
         }
       }
     }
@@ -292,6 +277,22 @@ const CreateNewLabel = styled(Text)`
   margin-top: 18px;
 `;
 
+const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
+cursor: ${props => (!props.disabled ? "pointer" : "inherit")};
+${props => {
+  const color = props.disabled ? "#d4d4d4" : "#fff";
+  return `${textIconStyles({
+    color: color,
+    hover: color,
+  })}`;
+}}
+
+.${Classes.ICON} {
+  display: ${props => (!props.disabled ? "inline" : "none")};;
+  margin-left: 8px;
+}
+`;
+
 const ApplicationsSection = () => {
   const dispatch = useDispatch();
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -321,95 +322,89 @@ const ApplicationsSection = () => {
 
   const [selectedOrgId, setSelectedOrgId] = useState();
   const Form: any = OrgInviteUsersForm;
-  const DropdownProps = (
-    user: User,
-    orgName: string,
-    orgId: string,
-  ): CustomizedDropdownProps => {
-    return {
-      sections: [
-        {
-          options: [
-            {
-              content: orgName,
-              disabled: true,
-              shouldCloseDropdown: false,
-            },
-            {
-              content: "Organization Settings",
-              onSelect: () =>
-                getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                  path: `/org/${orgId}/settings/general`,
-                }),
-            },
-            {
-              content: "Share",
-              onSelect: () => setSelectedOrgId(orgId),
-            },
-            {
-              content: "Members",
-              onSelect: () =>
-                getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                  path: `/org/${orgId}/settings/members`,
-                }),
-            },
-          ],
-        },
-      ],
-      trigger: {
-        content: (
-          <DropDownTrigger className="t--org-name">
-            <StyledAnchor id={orgName}></StyledAnchor>
-            <Text type={TextType.H1}>{orgName}</Text>
-            <Icon></Icon>
-          </DropDownTrigger>
-        ),
-        outline: false,
-      },
-      openDirection: Directions.DOWN,
-    };
+  const OrgMenu = (props: {
+    orgName: string;
+    orgId: string;
+    disabled?: boolean;
+    setSelectedOrgId: Function;
+  }) => {
+    const { orgName, orgId, disabled } = props;
+
+    const OrgName = (
+      <OrgNameWrapper disabled={disabled}>
+        <StyledAnchor id={orgName}></StyledAnchor>
+        <Text type={TextType.H1}>
+          {orgName}
+          <Icon name="downArrow" size={IconSize.XXS}></Icon>
+        </Text>
+      </OrgNameWrapper>
+    );
+    return disabled ? (
+      OrgName
+    ) : (
+      <Menu target={OrgName} position={Position.BOTTOM_RIGHT}>
+        <MenuItem text={orgName} disabled />
+        <MenuItem
+          icon="general"
+          text="Organization Settings"
+          onSelect={() =>
+            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+              path: `/org/${orgId}/settings/general`,
+            })
+          }
+        />
+        <MenuItem
+          text="Share"
+          icon="share"
+          onSelect={() => setSelectedOrgId(orgId)}
+        ></MenuItem>
+        <MenuItem
+          icon="user"
+          text="Members"
+          onSelect={() =>
+            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+              path: `/org/${orgId}/settings/members`,
+            })
+          }
+        />
+      </Menu>
+    );
   };
+
   return (
     <ApplicationContainer>
       {userOrgs &&
         userOrgs.map((organizationObject: any, index: number) => {
           const { organization, applications } = organizationObject;
+          const hasManageOrgPermissions = isPermitted(
+            organization.userPermissions,
+            PERMISSION_TYPE.MANAGE_ORGANIZATION,
+          );
           return (
             <OrgSection className="t--org-section" key={index}>
               <OrgDropDown>
-                {!isPermitted(
-                  organization.userPermissions,
-                  PERMISSION_TYPE.MANAGE_ORGANIZATION,
-                ) ? (
-                  <div>
-                    <StyledAnchor id={organization.name}></StyledAnchor>
-                    <Text type={TextType.H1}>{organization.name}</Text>
-                  </div>
-                ) : (
-                  <>
-                    {currentUser && (
-                      <CustomizedDropdown
-                        {...DropdownProps(
-                          currentUser,
-                          organization.name,
-                          organization.id,
-                        )}
-                      />
-                    )}
+                {currentUser && (
+                  <OrgMenu
+                    setSelectedOrgId={setSelectedOrgId}
+                    orgId={organization.id}
+                    orgName={organization.name}
+                    disabled={!hasManageOrgPermissions}
+                  ></OrgMenu>
+                )}
 
-                    <StyledDialog
-                      canOutsideClickClose={false}
-                      canEscapeKeyClose={false}
-                      title={`Invite Users to ${organization.name}`}
-                      onClose={() => setSelectedOrgId("")}
-                      isOpen={selectedOrgId === organization.id}
-                      setMaxWidth
-                    >
-                      <div className={BlueprintClasses.DIALOG_BODY}>
-                        <Form orgId={organization.id} />
-                      </div>
-                    </StyledDialog>
-                  </>
+                {hasManageOrgPermissions && (
+                  <StyledDialog
+                    canOutsideClickClose={false}
+                    canEscapeKeyClose={false}
+                    title={`Invite Users to ${organization.name}`}
+                    onClose={() => setSelectedOrgId("")}
+                    isOpen={selectedOrgId === organization.id}
+                    setMaxWidth
+                  >
+                    <div className={BlueprintClasses.DIALOG_BODY}>
+                      <Form orgId={organization.id} />
+                    </div>
+                  </StyledDialog>
                 )}
                 {isPermitted(
                   organization.userPermissions,
