@@ -1,88 +1,120 @@
 import { CommonComponentProps } from "./common";
 import React, { useState, useEffect } from "react";
-import { Checkbox } from "@blueprintjs/core/lib/esm/components";
 import styled from "styled-components";
+
+type CheckboxAlign = "left" | "right";
 
 type CheckboxProps = CommonComponentProps & {
   label: string;
-  isChecked: boolean;
-  onCheckChange: (isChecked: boolean) => void;
-  align: "left" | "right";
+  isChecked?: boolean;
+  onCheckChange?: (isChecked: boolean) => void;
+  align?: CheckboxAlign;
 };
 
-const CheckboxContainer = styled.div<{ disabled?: boolean }>`
-  &&&& .bp3-control {
-    font-weight: ${props => props.theme.typography.p1.fontWeight};
-    font-size: ${props => props.theme.typography.p1.fontSize}px;
-    line-height: ${props => props.theme.typography.p1.lineHeight}px;
-    letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
-    color: ${props => props.theme.colors.blackShades[7]};
+const StyledCheckbox = styled.label<{
+  disabled?: boolean;
+  align?: CheckboxAlign;
+  isChecked?: boolean;
+}>`
+  position: relative;
+  display: block;
+  width: 100%;
+  cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
+  font-weight: ${props => props.theme.typography.p1.fontWeight};
+  font-size: ${props => props.theme.typography.p1.fontSize}px;
+  line-height: ${props => props.theme.typography.p1.lineHeight}px;
+  letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
+  color: ${props => props.theme.colors.blackShades[7]};
+  padding-left: ${props =>
+    props.align === "left" ? props.theme.spaces[12] - 2 : 0}px;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
   }
 
-  &&&& .bp3-control input:checked ~ .bp3-control-indicator {
-    background-color: ${props =>
-      props.disabled
-        ? props.theme.colors.blackShades[3]
-        : props.theme.colors.info.main};
-    background-image: none;
-    box-shadow: none;
-    border: 2px solid
-      ${props =>
-        props.disabled
-          ? props.theme.colors.blackShades[3]
-          : props.theme.colors.info.main};
-  }
-
-  &&&& .bp3-control.bp3-checkbox .bp3-control-indicator {
-    border-radius: 0px;
-  }
-
-  &&&& .bp3-control-indicator {
+  .checkmark {
+    position: absolute;
+    top: 1px;
+    ${props => (props.align === "left" ? `left: 0` : `right: 0`)};
     width: ${props => props.theme.spaces[8]}px;
     height: ${props => props.theme.spaces[8]}px;
-    margin-top: 0px;
-    box-shadow: none;
-    border: 2px solid ${props => props.theme.colors.blackShades[4]};
-    background: transparent;
+    background-color: ${props =>
+      props.isChecked
+        ? props.disabled
+          ? props.theme.colors.blackShades[3]
+          : props.theme.colors.info.main
+        : "transparent"};
+    border: 2px solid
+      ${props =>
+        props.isChecked
+          ? props.disabled
+            ? props.theme.colors.blackShades[3]
+            : props.theme.colors.info.main
+          : props.theme.colors.blackShades[4]};
   }
 
-  &&&&
-    .bp3-control.bp3-checkbox
-    input:checked
-    ~ .bp3-control-indicator::before {
-    background-image: none;
+  .checkmark:after {
+    content: "";
     position: absolute;
+    display: none;
+  }
+
+  input:checked ~ .checkmark:after {
+    display: block;
+  }
+
+  .checkmark::after {
     top: 0px;
-    left: ${props => props.theme.spaces[1]}px;
-    width: ${props => props.theme.spaces[2]}px;
-    height: ${props => props.theme.spaces[5] - 1}px;
-    border: solid ${props => (props.disabled ? "#565656" : "#FFFFFF")};
+    left: 4px;
+    width: 6px;
+    height: 11px;
+    border: solid
+      ${props =>
+        props.disabled ? "#565656" : props.theme.colors.blackShades[9]};
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
   }
 `;
 
-const CheckboxComponent = (props: CheckboxProps) => {
+const Checkbox = (props: CheckboxProps) => {
   const [checked, setChecked] = useState<boolean>(false);
 
   useEffect(() => {
-    setChecked(props.isChecked);
+    if (props.isChecked) {
+      setChecked(props.isChecked);
+    }
   }, [props.isChecked]);
 
+  const onChangeHandler = (checked: boolean) => {
+    setChecked(checked);
+    props.onCheckChange && props.onCheckChange(checked);
+  };
+
   return (
-    <CheckboxContainer disabled={props.disabled}>
-      <Checkbox
+    <StyledCheckbox
+      disabled={props.disabled}
+      align={props.align}
+      isChecked={checked}
+    >
+      {props.label}
+      <input
+        type="checkbox"
         checked={checked}
         disabled={props.disabled}
-        alignIndicator={props.align}
-        label={props.label}
-        onChange={(e: any) => {
-          setChecked(e.target.checked);
-          props.onCheckChange(e.target.checked);
-        }}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChangeHandler(e.target.checked)
+        }
       />
-    </CheckboxContainer>
+      <span className="checkmark"></span>
+    </StyledCheckbox>
   );
 };
 
-export default CheckboxComponent;
+Checkbox.defaultProps = {
+  isChecked: false,
+  align: "left",
+};
+
+export default Checkbox;
