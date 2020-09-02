@@ -16,6 +16,7 @@ if (env === "PRODUCTION" || env === "STAGING") {
       setCommits: {
         auto: true
       },
+      release: process.env.REACT_APP_SENTRY_RELEASE,
       deploy: {
         env: process.env.REACT_APP_SENTRY_ENVIRONMENT
       }
