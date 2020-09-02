@@ -6,7 +6,7 @@ import {
   Card,
   Icon as BlueprintIcon,
   Dialog,
-  Classes,
+  Classes as BlueprintClasses,
   Colors,
 } from "@blueprintjs/core";
 import {
@@ -49,6 +49,7 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { duplicateApplication } from "actions/applicationActions";
+import { Classes } from "components/ads/common";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -206,13 +207,30 @@ const WorkpsacesNavigator = styled.div`
   height: calc(100vh - ${props => props.theme.homePage.header + 36 + 25}px);
 `;
 
+const CreateOrgButton = styled(MenuItem)`
+  &&&.${Classes.TEXT} {
+    color: #9f9f9f;
+  }
+  &&&.${Classes.ICON} {
+    color: #9f9f9f;
+  }
+`;
+
 function LeftPane() {
   const userOrgs = useSelector(getUserApplicationsOrgs);
-
+  const CreateOrg = (
+    <CreateOrgButton key={"create-org"} text={"New Workspace"} icon="plus" />
+  );
   return (
     <LeftPaneWrapper>
       <LeftPaneSection heading="WORKSPACES">
         <WorkpsacesNavigator>
+          <FormDialogComponent
+            trigger={CreateOrg}
+            Form={CreateOrganizationForm}
+            title={CREATE_ORGANIZATION_FORM_NAME}
+          />
+          {/* {CreateOrg} */}
           {userOrgs &&
             userOrgs.map((org: any) => (
               <MenuItem
@@ -345,7 +363,7 @@ const ApplicationsSection = () => {
                       isOpen={selectedOrgId === organization.id}
                       setMaxWidth
                     >
-                      <div className={Classes.DIALOG_BODY}>
+                      <div className={BlueprintClasses.DIALOG_BODY}>
                         <Form orgId={organization.id} />
                       </div>
                     </StyledDialog>
