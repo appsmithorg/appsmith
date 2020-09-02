@@ -14,7 +14,7 @@
     REACT_APP_MAIL_ENABLED = "true"
     REACT_APP_SENTRY_DSN = "https://95c55da9896c4683913cf7e5c1ec4180@newsentry.appsmith.com/2"
     REACT_APP_SENTRY_ENVIRONMENT = "Production"
-    SENTRY_AUTH_TOKEN = "194220827ab64adcb2e3f5e1da2560382f34ac49a84545a597d0309a4e140338"
+    SENTRY_AUTH_TOKEN = "4aabea1cf28544d4b59df86b2cc662b54a77863b54854734a90745396cead67d"
     SENTRY_URL = "https://newsentry.appsmith.com"
     SENTRY_DSN = "https://95c55da9896c4683913cf7e5c1ec4180@newsentry.appsmith.com/2"
     SENTRY_ORG = "appsmith"
