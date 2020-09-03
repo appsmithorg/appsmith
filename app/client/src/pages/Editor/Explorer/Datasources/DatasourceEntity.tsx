@@ -7,7 +7,7 @@ import { ExplorerURLParams, getDatasourceIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
-import { updateDatasource } from "actions/datasourceActions";
+import { saveDatasourceName } from "actions/datasourceActions";
 
 type ExplorerDatasourceEntityProps = {
   datasource: Datasource;
@@ -32,12 +32,9 @@ export const ExplorerDatasourceEntity = (
   const datasourceIdFromURL = getDatasourceIdFromURL();
   const active = datasourceIdFromURL === props.datasource.id;
 
-  const updateDatasourceName = useCallback(
-    (id: string, name: string) => {
-      return updateDatasource({ ...props.datasource, name: name }, active);
-    },
-    [props.datasource, active],
-  );
+  const updateDatasourceName = (id: string, name: string) =>
+    saveDatasourceName({ id, name });
+
   return (
     <Entity
       entityId={props.datasource.id}

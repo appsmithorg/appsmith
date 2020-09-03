@@ -42,7 +42,7 @@ Assuming you have node (>=v12), use the following command to run the migration:
 
 ```sh
 npm install
-node main.js 'https://localhost/api/v1/' 'mongodb://localhost:27017/mobtools'
+node acl-migration.js 'https://localhost/api/v1/' 'mongodb://localhost:27017/mobtools'
 ```
 
 The first argument should be a running API endpoint, and the second argument should be a URI to the database that this

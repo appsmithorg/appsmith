@@ -4,8 +4,8 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { ContainerWidgetProps } from "@appsmith/widgets/ContainerWidget";
-import { WidgetProps } from "@appsmith/widgets/BaseWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export type PageDSLsReduxState = {
   [pageId: string]: ContainerWidgetProps<WidgetProps>;

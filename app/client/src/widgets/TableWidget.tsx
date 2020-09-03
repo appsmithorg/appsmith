@@ -21,6 +21,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
+import * as Sentry from "@sentry/react";
 const ReactTableComponent = lazy(() =>
   import("components/designSystems/appsmith/ReactTableComponent"),
 );
@@ -612,3 +613,4 @@ export interface TableWidgetProps extends WidgetProps {
 }
 
 export default TableWidget;
+export const ProfiledTableWidget = Sentry.withProfiler(TableWidget);

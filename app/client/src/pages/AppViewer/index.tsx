@@ -23,6 +23,7 @@ import {
 } from "actions/metaActions";
 import AppRoute from "pages/common/AppRoute";
 import { editorInitializer } from "utils/EditorUtils";
+import * as Sentry from "@sentry/react";
 
 const AppViewerBody = styled.section`
   display: flex;
@@ -134,5 +135,5 @@ const mapDispatchToProps = (dispatch: any) => ({
 });
 
 export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(AppViewer),
+  connect(mapStateToProps, mapDispatchToProps)(Sentry.withProfiler(AppViewer)),
 );

@@ -2,7 +2,7 @@ import React from "react";
 import { withKnobs, boolean, text, select } from "@storybook/addon-knobs";
 import { action } from "@storybook/addon-actions";
 import SearchInput, { SearchVariant } from "components/ads/SearchInput";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Search Input",
@@ -16,7 +16,7 @@ export const SearchInputStory = () => (
       placeholder={text("placeholder", "Search for apps...")}
       variant={select(
         "variant",
-        [SearchVariant.BACKGROUND, SearchVariant.SEAMLESS],
+        Object.values(SearchVariant),
         SearchVariant.SEAMLESS,
       )}
       fill={boolean("fill", false)}

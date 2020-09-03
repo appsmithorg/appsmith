@@ -25,9 +25,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -42,6 +44,8 @@ public class MySqlPlugin extends BasePlugin {
     private static final String USER = "user";
     private static final String PASSWORD = "password";
     private static final int VALIDITY_CHECK_TIMEOUT = 5;
+
+    private static final String DATE_COLUMN_TYPE_NAME = "date";
 
     public MySqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -88,11 +92,38 @@ public class MySqlPlugin extends BasePlugin {
                     ResultSetMetaData metaData = resultSet.getMetaData();
                     int colCount = metaData.getColumnCount();
                     while (resultSet.next()) {
-                        Map<String, Object> row = new HashMap<>(colCount);
-                        for (int i = 1; i <= colCount; i++) {
-                            row.put(metaData.getColumnName(i), resultSet.getObject(i));
-                        }
+                        // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
+                        Map<String, Object> row = new LinkedHashMap<>(colCount);
                         rowsList.add(row);
+
+                        for (int i = 1; i <= colCount; i++) {
+                            Object value;
+                            final String typeName = metaData.getColumnTypeName(i);
+
+                            if (resultSet.getObject(i) == null) {
+                                value = null;
+
+                            } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
+
+                            } else if ("datetime".equalsIgnoreCase(typeName) || "timestamp".equalsIgnoreCase(typeName)) {
+                                value = DateTimeFormatter.ISO_DATE_TIME.format(
+                                        LocalDateTime.of(
+                                                resultSet.getDate(i).toLocalDate(),
+                                                resultSet.getTime(i).toLocalTime()
+                                        )
+                                ) + "Z";
+
+                            } else if ("year".equalsIgnoreCase(typeName)) {
+                                value = resultSet.getDate(i).toLocalDate().getYear();
+
+                            } else {
+                                value = resultSet.getObject(i);
+
+                            }
+
+                            row.put(metaData.getColumnLabel(i), value);
+                        }
                     }
 
                 } else {

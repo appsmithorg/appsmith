@@ -1,5 +1,8 @@
 import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
 import { Integrations } from "@sentry/tracing";
+import * as Sentry from "@sentry/react";
+import { createBrowserHistory } from "history";
+const history = createBrowserHistory();
 
 type INJECTED_CONFIGS = {
   sentry: {
@@ -133,8 +136,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS.sentry.release,
   );
   const sentryENV = getConfig(
-    APPSMITH_FEATURE_CONFIGS.sentry.environment,
     ENV_CONFIG.sentry.environment,
+    APPSMITH_FEATURE_CONFIGS.sentry.environment,
   );
   const segment = getConfig(
     ENV_CONFIG.segment,
@@ -168,7 +171,13 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       dsn: sentryDSN.value,
       release: sentryRelease.value,
       environment: sentryENV.value,
-      integrations: [new Integrations.BrowserTracing()],
+      normalizeDepth: 7,
+      integrations: [
+        new Integrations.BrowserTracing({
+          // Can also use reactRouterV4Instrumentation
+          routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
+        }),
+      ],
       tracesSampleRate: 1.0,
     },
     smartLook: {

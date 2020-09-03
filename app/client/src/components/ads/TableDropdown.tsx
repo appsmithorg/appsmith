@@ -1,24 +1,25 @@
-import React, { useCallback, useState } from "react";
-import { CommonComponentProps, hexToRgba } from "./common";
+import React, { useState } from "react";
+import { CommonComponentProps, hexToRgba, Classes } from "./common";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import Text, { TextType } from "./Text";
 import styled from "styled-components";
+import {
+  Popover,
+  PopoverInteractionKind,
+} from "@blueprintjs/core/lib/esm/components/popover/popover";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 type DropdownOption = {
-  label: string;
-  value: string;
+  name: string;
+  desc: string;
 };
 
 type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
-  onSelect: (selectedValue: string) => void;
-  selectedOption: DropdownOption;
+  onSelect: (selectedValue: DropdownOption) => void;
+  selectedIndex: number;
+  position?: Position;
 };
-
-const DropdownWrapper = styled.div`
-  width: 100%;
-  position: relative;
-`;
 
 const SelectedItem = styled.div`
   display: flex;
@@ -26,15 +27,12 @@ const SelectedItem = styled.div`
   cursor: pointer;
   user-select: none;
 
-  span {
+  .${Classes.TEXT} {
     margin-right: ${props => props.theme.spaces[1] + 1}px;
   }
 `;
 
 const OptionsWrapper = styled.div`
-  position: absolute;
-  margin-top: ${props => props.theme.spaces[8]}px;
-  left: -60px;
   width: 200px;
   display: flex;
   flex-direction: column;
@@ -45,64 +43,67 @@ const OptionsWrapper = styled.div`
 `;
 
 const DropdownOption = styled.div<{
-  selected: DropdownOption;
-  option: DropdownOption;
+  isSelected: boolean;
 }>`
   display: flex;
   flex-direction: column;
   padding: 10px 12px;
   cursor: pointer;
-  background-color: ${props =>
-    props.option.label === props.selected.label
-      ? props.theme.colors.blackShades[4]
-      : "transparent"};
+  ${props =>
+    props.isSelected
+      ? `background-color: ${props.theme.colors.blackShades[4]}`
+      : null};
 
-  span:last-child {
+  .${Classes.TEXT}:last-child {
     margin-top: ${props => props.theme.spaces[1] + 1}px;
   }
 
   &:hover {
-    span {
+    .${Classes.TEXT} {
       color: ${props => props.theme.colors.blackShades[9]};
     }
   }
 `;
 
 const TableDropdown = (props: DropdownProps) => {
-  const [selected, setSelected] = useState(props.selectedOption);
+  const [selectedIndex, setSelectedIndex] = useState(props.selectedIndex);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(
+    props.options[props.selectedIndex] || {},
+  );
 
-  const dropdownHandler = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const optionSelector = (option: DropdownOption) => {
-    setSelected(option);
+  const optionSelector = (index: number) => {
+    setSelectedIndex(index);
+    setSelectedOption(props.options[index]);
+    props.onSelect && props.onSelect(props.options[index]);
     setIsDropdownOpen(false);
   };
 
   return (
-    <DropdownWrapper>
-      <SelectedItem onClick={() => dropdownHandler()}>
-        <Text type={TextType.P1}>{selected.label}</Text>
+    <Popover
+      usePortal={false}
+      position={props.position || Position.BOTTOM_LEFT}
+      isOpen={isDropdownOpen}
+      onInteraction={state => setIsDropdownOpen(state)}
+      interactionKind={PopoverInteractionKind.CLICK}
+    >
+      <SelectedItem>
+        <Text type={TextType.P1}>{selectedOption.name}</Text>
         <DownArrow />
       </SelectedItem>
-      {isDropdownOpen ? (
-        <OptionsWrapper>
-          {props.options.map((el: DropdownOption, index: number) => (
-            <DropdownOption
-              key={index}
-              selected={selected}
-              option={el}
-              onClick={() => optionSelector(el)}
-            >
-              <Text type={TextType.H5}>{el.label}</Text>
-              <Text type={TextType.P3}>{el.value}</Text>
-            </DropdownOption>
-          ))}
-        </OptionsWrapper>
-      ) : null}
-    </DropdownWrapper>
+      <OptionsWrapper>
+        {props.options.map((el: DropdownOption, index: number) => (
+          <DropdownOption
+            key={index}
+            isSelected={selectedIndex === index}
+            onClick={() => optionSelector(index)}
+          >
+            <Text type={TextType.H5}>{el.name}</Text>
+            <Text type={TextType.P3}>{el.desc}</Text>
+          </DropdownOption>
+        ))}
+      </OptionsWrapper>
+    </Popover>
   );
 };
 

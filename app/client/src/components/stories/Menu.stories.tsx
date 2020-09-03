@@ -7,13 +7,14 @@ import MenuDivider from "components/ads/MenuDivider";
 import MenuItem from "components/ads/MenuItem";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import ColorSelector, { appColorPalette } from "components/ads/ColorSelector";
-import { AppIconName } from "components/ads/AppIcon";
+import { AppIconCollection } from "components/ads/AppIcon";
 import IconSelector from "components/ads/IconSelector";
 import EditableText, {
   SavingState,
   EditInteractionKind,
   SavingStateHandler,
 } from "components/ads/EditableText";
+import { IconCollection } from "components/ads/Icon";
 
 export default {
   title: "Menu",
@@ -53,11 +54,7 @@ export const MenuStory = () => {
       }}
     >
       <Menu
-        position={select(
-          "Position",
-          [Position.RIGHT, Position.LEFT, Position.BOTTOM, Position.TOP],
-          Position.RIGHT,
-        )}
+        position={select("Position", Object.values(Position), Position.RIGHT)}
         target={
           <div>
             <svg
@@ -101,41 +98,21 @@ export const MenuStory = () => {
         <IconSelector
           onSelect={action("icon-selected")}
           fill={false}
-          selectedIcon={select(
-            "Select app icon",
-            [
-              AppIconName.BAG,
-              AppIconName.PRODUCT,
-              AppIconName.BOOK,
-              AppIconName.CAMERA,
-              AppIconName.FILE,
-              AppIconName.CHAT,
-              AppIconName.CALENDER,
-              AppIconName.FLIGHT,
-              AppIconName.FRAME,
-              AppIconName.GLOBE,
-              AppIconName.SHOPPER,
-              AppIconName.HEART,
-            ],
-            AppIconName.BAG,
-          )}
+          selectedIcon={select("Select app icon", AppIconCollection, "bag")}
           selectedColor={selectedColor}
         />
         <MenuDivider />
         <MenuItem
           text={text("First option", "Invite user")}
-          icon={select("First Icon", ["Select icon", "delete", "user"], "user")}
+          icon={select("First Icon", IconCollection, undefined)}
           onSelect={action("clicked-first-option")}
           label={<span>W</span>}
+          disabled={boolean("First option disabled", false)}
         />
         {boolean("First menu item divider", false) ? <MenuDivider /> : null}
         <MenuItem
           text={text("Second option", "Are you sure")}
-          icon={select(
-            "Second Icon",
-            ["Select icon", "delete", "user"],
-            "delete",
-          )}
+          icon={select("Second Icon", IconCollection, undefined)}
           onSelect={action("clicked-second-option")}
           label={<span>W</span>}
         />

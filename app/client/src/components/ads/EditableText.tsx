@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Size } from "./Button";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
-import { hexToRgba } from "./common";
+import { hexToRgba, Classes } from "./common";
 import { theme } from "constants/DefaultTheme";
 import { noop } from "lodash";
-import Icon from "./Icon";
+import Icon, { IconSize } from "./Icon";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -48,7 +47,7 @@ const EditableTextWrapper = styled.div<{
   fill?: boolean;
 }>`
   width: ${props => (!props.fill ? "234px" : "100%")};
-  .error-message {
+  .${Classes.TEXT} {
     margin-left: ${props => props.theme.spaces[5]}px;
     color: ${props => props.theme.colors.danger.main};
   }
@@ -160,13 +159,17 @@ export const EditableText = (props: EditableTextProps) => {
     [isInvalid, isEditing, savingState],
   );
 
-  const editMode = useCallback((e: React.MouseEvent) => {
-    setIsEditing(true);
-    const errorMessage = props.isInvalid && props.isInvalid(props.defaultValue);
-    setIsInvalid(errorMessage ? errorMessage : false);
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
+  const editMode = useCallback(
+    (e: React.MouseEvent) => {
+      setIsEditing(true);
+      const errorMessage =
+        props.isInvalid && props.isInvalid(props.defaultValue);
+      setIsInvalid(errorMessage ? errorMessage : false);
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [props],
+  );
 
   const onConfirm = (_value: string) => {
     if (
@@ -183,21 +186,24 @@ export const EditableText = (props: EditableTextProps) => {
     setChangeStarted(false);
   };
 
-  const onInputchange = useCallback((_value: string) => {
-    let finalVal: string = _value;
-    if (props.valueTransform) {
-      finalVal = props.valueTransform(_value);
-    }
-    setValue(finalVal);
+  const onInputchange = useCallback(
+    (_value: string) => {
+      let finalVal: string = _value;
+      if (props.valueTransform) {
+        finalVal = props.valueTransform(_value);
+      }
+      setValue(finalVal);
 
-    const errorMessage = props.isInvalid && props.isInvalid(finalVal);
-    const error = errorMessage ? errorMessage : false;
-    if (!error) {
-      setLastValidValue(finalVal);
-    }
-    setIsInvalid(error);
-    setChangeStarted(true);
-  }, []);
+      const errorMessage = props.isInvalid && props.isInvalid(finalVal);
+      const error = errorMessage ? errorMessage : false;
+      if (!error) {
+        setLastValidValue(finalVal);
+      }
+      setIsInvalid(error);
+      setChangeStarted(true);
+    },
+    [props],
+  );
 
   const SavingStateHandler = (isSaving: boolean, state?: SavingState) => {
     setIsEditing(false);
@@ -217,7 +223,9 @@ export const EditableText = (props: EditableTextProps) => {
   };
 
   const iconName =
-    !isEditing && savingState.name === SavingState.NOT_STARTED
+    !isEditing &&
+    savingState.name === SavingState.NOT_STARTED &&
+    !props.hideEditIcon
       ? "edit"
       : !isEditing && savingState.name === SavingState.SUCCESS
       ? "success"
@@ -270,16 +278,14 @@ export const EditableText = (props: EditableTextProps) => {
 
         <IconWrapper className="icon-wrapper">
           {savingState.isSaving ? (
-            <Spinner size={Size.large} />
+            <Spinner size={IconSize.XL} />
           ) : (
-            <Icon name={iconName} size={Size.large} />
+            <Icon name={iconName} size={IconSize.XL} />
           )}
         </IconWrapper>
       </TextContainer>
       {isEditing && !!isInvalid ? (
-        <Text type={TextType.P2} className="error-message">
-          {isInvalid}
-        </Text>
+        <Text type={TextType.P2}>{isInvalid}</Text>
       ) : null}
     </EditableTextWrapper>
   );

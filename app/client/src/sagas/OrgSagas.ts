@@ -1,4 +1,4 @@
-import { call, takeLatest, put, all } from "redux-saga/effects";
+import { call, takeLatest, put, all, select } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -26,6 +26,7 @@ import OrgApi, {
 import { ApiResponse } from "api/ApiResponses";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
+import { getCurrentOrg } from "selectors/organizationSelectors";
 
 export function* fetchRolesSaga() {
   try {
@@ -114,6 +115,9 @@ export function* changeOrgUserRoleSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CHANGE_ORG_USER_ROLE_ERROR,
+      payload: {
+        error,
+      },
     });
   }
 }
@@ -172,6 +176,17 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
     const response: ApiResponse = yield call(OrgApi.saveOrg, request);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const currentOrg = yield select(getCurrentOrg);
+      if (currentOrg && currentOrg.id === request.id) {
+        const updatedOrg = {
+          ...currentOrg,
+          ...request,
+        };
+        yield put({
+          type: ReduxActionTypes.SET_CURRENT_ORG,
+          payload: updatedOrg,
+        });
+      }
       yield put({
         type: ReduxActionTypes.SAVE_ORG_SUCCESS,
       });
