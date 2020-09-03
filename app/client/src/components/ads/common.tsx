@@ -1,5 +1,6 @@
 import { Theme } from "constants/DefaultTheme";
 import tinycolor from "tinycolor2";
+import styled from "styled-components";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
@@ -54,3 +55,8 @@ export const darken = (color: string, amount: number) => {
     .darken(amount)
     .toString();
 };
+export const StoryWrapper = styled.div`
+  background: #1a191c;
+  height: 700px;
+  padding: 50px 100px;
+`;

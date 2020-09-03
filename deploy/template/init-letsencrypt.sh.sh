@@ -1,12 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ ! -f init-letsencrypt.sh ]; then
-    touch init-letsencrypt.sh
-fi
+set -o nounset
 
+custom_domain="$1"
 
-
-cat >| init-letsencrypt.sh  << EOF
+cat << EOF
 #!/bin/bash
 
 if ! [ -x "\$(command -v docker-compose)" ]; then

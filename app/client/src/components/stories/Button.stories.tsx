@@ -2,7 +2,7 @@ import React from "react";
 import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 import { IconCollection } from "components/ads/Icon";
 
 export default {
