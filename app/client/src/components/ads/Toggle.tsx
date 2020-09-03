@@ -15,11 +15,6 @@ const StyledToggle = styled.label<{
 }>`
   position: relative;
   display: block;
-  font-weight: ${props => props.theme.typography.p1.fontWeight};
-  font-size: ${props => props.theme.typography.p1.fontSize}px;
-  line-height: ${props => props.theme.typography.p1.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
-  color: ${props => props.theme.colors.blackShades[7]};
 
   input {
     opacity: 0;
