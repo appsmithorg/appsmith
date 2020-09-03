@@ -12,7 +12,6 @@ type ToastProps = ToastOptions &
     text: string;
     variant?: Variant;
     duration: number;
-    pauseOnHover?: boolean;
     onUndo?: () => void;
     onComplete?: Function;
   };
@@ -118,7 +117,7 @@ export const Toaster = {
         }}
       />,
       {
-        pauseOnHover: config.pauseOnHover,
+        pauseOnHover: true,
         autoClose: config.duration,
         closeOnClick: false,
       },

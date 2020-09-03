@@ -1,11 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  withKnobs,
-  text,
-  number,
-  select,
-  boolean,
-} from "@storybook/addon-knobs";
+import { withKnobs, text, number, select } from "@storybook/addon-knobs";
 import { Toaster, StyledToastContainer } from "components/ads/Toast";
 import Button, { Variant, Size, Category } from "components/ads/Button";
 import { action } from "@storybook/addon-actions";
@@ -24,7 +18,6 @@ export const ToastStory = () => {
       text: text("message", "Archived successfully"),
       duration: number("duration", 5000),
       variant: select("variant", Object.values(Variant), Variant.info),
-      pauseOnHover: boolean("pauseOnHover", false),
       onUndo: action("on-undo"),
     });
   }, []);
@@ -50,7 +43,6 @@ export const ToastStory = () => {
             duration: number("duration", 5000),
             variant: select("variant", Object.values(Variant), Variant.success),
             onUndo: action("on-undo"),
-            pauseOnHover: boolean("pauseOnHover", false),
           });
         }}
       />
