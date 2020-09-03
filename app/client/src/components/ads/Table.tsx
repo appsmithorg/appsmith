@@ -3,7 +3,8 @@ import React from "react";
 import styled from "styled-components";
 import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
 import { ReactComponent as UpperArrow } from "../../assets/icons/ads/upper_arrow.svg";
-import { Classes } from "@blueprintjs/core/lib/esm/common";
+import { Classes as BlueprintClasses } from "@blueprintjs/core/lib/esm/common";
+import { Classes } from "./common";
 
 const Styles = styled.div<{ isLoading?: boolean }>`
   table {
@@ -62,7 +63,7 @@ const Styles = styled.div<{ isLoading?: boolean }>`
             !props.isLoading
               ? `background-color: ${props.theme.colors.blackShades[4]}`
               : `background-color: transparent`};
-          .ads-icon {
+          .${Classes.ICON} {
             path {
               fill: ${props => props.theme.colors.blackShades[9]};
             }
@@ -147,7 +148,9 @@ function Table(props: TableProps) {
                   {props.isLoading ? (
                     <Loader
                       isLoading={props.isLoading}
-                      className={props.isLoading ? Classes.SKELETON : ""}
+                      className={
+                        props.isLoading ? BlueprintClasses.SKELETON : ""
+                      }
                     ></Loader>
                   ) : (
                     <div>
@@ -179,7 +182,9 @@ function Table(props: TableProps) {
                       {props.isLoading ? (
                         <Loader
                           isLoading={props.isLoading}
-                          className={props.isLoading ? Classes.SKELETON : ""}
+                          className={
+                            props.isLoading ? BlueprintClasses.SKELETON : ""
+                          }
                         ></Loader>
                       ) : (
                         cell.render("Cell")

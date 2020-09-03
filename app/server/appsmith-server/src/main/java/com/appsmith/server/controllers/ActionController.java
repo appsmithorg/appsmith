@@ -89,4 +89,11 @@ public class ActionController extends BaseController<ActionService, Action, Stri
         return service.getActionsForViewMode(applicationId).collectList()
                 .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
     }
+
+    @PutMapping("/executeOnLoad/{id}")
+    public Mono<ResponseDTO<Action>> setExecuteOnLoad(@PathVariable String id, @RequestParam Boolean flag) {
+        log.debug("Going to set execute on load for action id {} to {}", id, flag);
+        return service.setExecuteOnLoad(id, flag)
+                .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
+    }
 }

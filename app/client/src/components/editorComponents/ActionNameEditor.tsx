@@ -6,7 +6,7 @@ import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { convertToCamelCase } from "utils/helpers";
+import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
 import { RestAction } from "entities/Action";
 import { Page } from "constants/ReduxActionConstants";
@@ -128,7 +128,7 @@ export const ActionNameEditor = () => {
           forceDefault={forceUpdate}
           onTextChanged={handleAPINameChange}
           isInvalid={isInvalidActionName}
-          valueTransform={convertToCamelCase}
+          valueTransform={removeSpecialChars}
           isEditingDefault={isNew}
           updating={saveStatus.isSaving}
           editInteractionKind={EditInteractionKind.SINGLE}

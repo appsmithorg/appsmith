@@ -1,8 +1,13 @@
-import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
-import { CommonComponentProps } from "./common";
+import React, {
+  forwardRef,
+  Ref,
+  useCallback,
+  useState,
+  useEffect,
+} from "react";
+import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
-import { Size } from "./Button";
-import Icon from "./Icon";
+import Icon, { IconSize } from "./Icon";
 
 export enum SearchVariant {
   BACKGROUND = "BACKGROUND",
@@ -63,8 +68,13 @@ const InputWrapper = styled.div<{
         ? `box-shadow: 0px 1px 0px ${props.theme.colors.info.main}`
         : `box-shadow: 0px 1px 0px ${props.theme.colors.blackShades[4]}`
       : null}
+`;
 
-  .search-icon {
+const SearchIcon = styled.div<{
+  value?: string;
+  isFocused: boolean;
+}>`
+  .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[5]}px;
 
     svg {
@@ -77,8 +87,10 @@ const InputWrapper = styled.div<{
       }
     }
   }
+`;
 
-  .close-icon {
+const CloseIcon = styled.div`
+  .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[4]}px;
     margin-left: ${props => props.theme.spaces[4]}px;
   }
@@ -88,6 +100,10 @@ const SearchInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
     const [searchValue, setSearchValue] = useState(props.defaultValue);
     const [isFocused, setIsFocused] = useState(false);
+
+    useEffect(() => {
+      setSearchValue(props.defaultValue);
+    }, [props.defaultValue]);
 
     const memoizedChangeHandler = useCallback(
       el => {
@@ -104,7 +120,9 @@ const SearchInput = forwardRef(
         variant={props.variant}
         fill={props.fill}
       >
-        <Icon name="search" size={Size.large} className="search-icon" />
+        <SearchIcon value={searchValue} isFocused={isFocused}>
+          <Icon name="search" size={IconSize.SMALL} />
+        </SearchIcon>
         <StyledInput
           type="text"
           ref={ref}
@@ -117,12 +135,13 @@ const SearchInput = forwardRef(
           onChange={memoizedChangeHandler}
         />
         {searchValue && props.variant === SearchVariant.BACKGROUND ? (
-          <Icon
-            name="close"
-            size={Size.large}
-            className="close-icon"
-            onClick={() => setSearchValue("")}
-          />
+          <CloseIcon>
+            <Icon
+              name="close"
+              size={IconSize.MEDIUM}
+              onClick={() => setSearchValue("")}
+            />
+          </CloseIcon>
         ) : null}
       </InputWrapper>
     );

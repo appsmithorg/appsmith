@@ -3,13 +3,17 @@ import React from "react";
 import { saveOrg } from "actions/orgActions";
 import { SaveOrgRequest } from "api/OrgApi";
 import { throttle } from "lodash";
-import TextInput from "components/ads/TextInput";
+import TextInput, {
+  emailValidator,
+  notEmptyValidator,
+} from "components/ads/TextInput";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
-
+import { Classes } from "@blueprintjs/core";
+import { getOrgLoadingStates } from "selectors/organizationSelectors";
 const InputLabelWrapper = styled.div`
   width: 200px;
   display: flex;
@@ -27,6 +31,12 @@ export const SettingsHeading = styled(Text)`
   display: inline-block;
   margin-top: 25px;
   margin-bottom: 32px;
+`;
+
+const Loader = styled.div`
+  height: 38px;
+  width: 260px;
+  border-radius: 0;
 `;
 
 export function GeneralSettings() {
@@ -60,6 +70,8 @@ export function GeneralSettings() {
     });
   }, throttleTimeout);
 
+  const { isFetchingOrg } = useSelector(getOrgLoadingStates);
+
   return (
     <>
       <SettingsHeading type={TextType.H2}>General</SettingsHeading>
@@ -67,33 +79,44 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Workspace</Text>
         </InputLabelWrapper>
-        <TextInput
-          placeholder="Workspace name"
-          onChange={onWorkspaceNameChange}
-          defaultValue={currentOrg.name}
-        ></TextInput>
+        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
+        {!isFetchingOrg && (
+          <TextInput
+            validator={notEmptyValidator}
+            placeholder="Workspace name"
+            onChange={onWorkspaceNameChange}
+            defaultValue={currentOrg.name}
+          ></TextInput>
+        )}
       </SettingWrapper>
 
       <SettingWrapper>
         <InputLabelWrapper>
           <Text type={TextType.H4}>Website</Text>
         </InputLabelWrapper>
-        <TextInput
-          placeholder="Your website"
-          onChange={onWebsiteChange}
-          defaultValue={currentOrg.website || ""}
-        ></TextInput>
+        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
+        {!isFetchingOrg && (
+          <TextInput
+            placeholder="Your website"
+            onChange={onWebsiteChange}
+            defaultValue={currentOrg.website || ""}
+          ></TextInput>
+        )}
       </SettingWrapper>
 
       <SettingWrapper>
         <InputLabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </InputLabelWrapper>
-        <TextInput
-          placeholder="Email"
-          onChange={onEmailChange}
-          defaultValue={currentOrg.email || ""}
-        ></TextInput>
+        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
+        {!isFetchingOrg && (
+          <TextInput
+            validator={emailValidator}
+            placeholder="Email"
+            onChange={onEmailChange}
+            defaultValue={currentOrg.email || ""}
+          ></TextInput>
+        )}
       </SettingWrapper>
     </>
   );

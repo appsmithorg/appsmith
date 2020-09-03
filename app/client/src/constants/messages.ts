@@ -1,5 +1,6 @@
 export const ERROR_MESSAGE_SELECT_ACTION = "Please select an action";
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = "Please select an action type";
+export const ERROR_MESSAGE_NAME_EMPTY = "Please select a name";
 export const ERROR_MESSAGE_CREATE_APPLICATION =
   "We could not create the Application";
 export const API_PATH_START_WITH_SLASH_ERROR = "Path cannot start with /";
@@ -123,6 +124,7 @@ export const CREATE_PASSWORD_INVALID_TOKEN =
   "The invite link is invalid. Please try request a new invite";
 
 export const DELETING_APPLICATION = "Deleting application...";
+export const DUPLICATING_APPLICATION = "Duplicating application...";
 
 export const CURL_IMPORT_SUCCESS = "Curl Import Successfull";
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Login";
@@ -155,3 +157,7 @@ export const SHOW_REQUEST = "Show Request";
 
 export const TABLE_FILTER_COLUMN_TYPE_CALLOUT =
   "Change column datatype to see filter operators";
+
+export const WIDGET_SIDEBAR_TITLE = "Widgets";
+export const WIDGET_SIDEBAR_CAPTION =
+  "To add a widget, please drag and drop a widget on the canvas to the right";

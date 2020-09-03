@@ -1,8 +1,9 @@
 import React from "react";
-import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
+import { withKnobs, select } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import TableDropdown from "../ads/TableDropdown";
+import TableDropdown from "components/ads/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Dropdown",
@@ -26,16 +27,14 @@ const options = [
 ];
 
 export const TableDropdownStory = () => (
-  <div style={{ height: "1000px", background: "#1A191C" }}>
+  <StoryWrapper
+    style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+  >
     <TableDropdown
-      position={select(
-        "position",
-        [Position.RIGHT, Position.LEFT, Position.BOTTOM, Position.TOP],
-        Position.BOTTOM,
-      )}
+      position={select("position", Object.values(Position), Position.BOTTOM)}
       options={options}
       onSelect={selectedValue => console.log(selectedValue)}
       selectedIndex={0}
     ></TableDropdown>
-  </div>
+  </StoryWrapper>
 );

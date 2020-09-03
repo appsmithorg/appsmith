@@ -1,9 +1,10 @@
 import React from "react";
-import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
+import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import IconSelector from "../ads/IconSelector";
+import IconSelector from "components/ads/IconSelector";
 import { action } from "@storybook/addon-actions";
-import { AppIconName } from "../ads/AppIcon";
+import { AppIconCollection } from "components/ads/AppIcon";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "IconSelector",
@@ -12,28 +13,11 @@ export default {
 };
 
 export const IconPicker = () => (
-  <div style={{ padding: "50px", background: "#2B2B2B", height: "500px" }}>
+  <StoryWrapper>
     <IconSelector
       onSelect={action("icon-selected")}
       fill={boolean("fill", false)}
-      selectedIcon={select(
-        "select icon",
-        [
-          AppIconName.BAG,
-          AppIconName.PRODUCT,
-          AppIconName.BOOK,
-          AppIconName.CAMERA,
-          AppIconName.FILE,
-          AppIconName.CHAT,
-          AppIconName.CALENDER,
-          AppIconName.FLIGHT,
-          AppIconName.FRAME,
-          AppIconName.GLOBE,
-          AppIconName.SHOPPER,
-          AppIconName.HEART,
-        ],
-        AppIconName.BAG,
-      )}
+      selectedIcon={select("select icon", AppIconCollection, "bag")}
       selectedColor={select(
         "select color",
         [
@@ -50,5 +34,5 @@ export const IconPicker = () => (
         "#54A9FB",
       )}
     />
-  </div>
+  </StoryWrapper>
 );

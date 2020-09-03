@@ -33,6 +33,15 @@ const editorReducer = createReducer(initialState, {
   [ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, initialized: true };
   },
+  [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ id: string; name: string }>,
+  ) => {
+    if (action.payload.id === state.currentPageId) {
+      return { ...state, currentPageName: action.payload.name };
+    }
+    return state;
+  },
   [ReduxActionTypes.FETCH_PAGE_INIT]: (state: EditorReduxState) => ({
     ...state,
     loadingStates: {
@@ -102,6 +111,7 @@ const editorReducer = createReducer(initialState, {
       currentLayoutId,
       pageWidgetId,
       currentApplicationId,
+      currentPageId,
     } = action.payload;
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
@@ -111,6 +121,7 @@ const editorReducer = createReducer(initialState, {
       currentLayoutId,
       pageWidgetId,
       currentApplicationId,
+      currentPageId,
     };
   },
   [ReduxActionTypes.CLONE_PAGE_INIT]: (state: EditorReduxState) => {
@@ -166,6 +177,7 @@ export interface EditorReduxState {
   pageWidgetId?: string;
   currentLayoutId?: string;
   currentPageName?: string;
+  currentPageId?: string;
   loadingStates: {
     saving: boolean;
     savingError: boolean;

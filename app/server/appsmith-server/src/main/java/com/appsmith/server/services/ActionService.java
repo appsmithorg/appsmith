@@ -33,4 +33,6 @@ public interface ActionService extends CrudService<Action, String> {
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
+    Mono<Action> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
+
 }

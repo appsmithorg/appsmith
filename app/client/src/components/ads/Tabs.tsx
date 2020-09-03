@@ -2,8 +2,15 @@ import React from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
-import Icon, { IconName } from "./Icon";
-import { Size } from "./Button";
+import Icon, { IconName, IconSize } from "./Icon";
+import { Classes } from "./common";
+
+export type TabProp = {
+  key: string;
+  title: string;
+  panelComponent: JSX.Element;
+  icon: IconName;
+};
 
 export type TabProp = {
   key: string;
@@ -16,7 +23,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
   border-radius: 0px;
   height: 100%;
-  .ads-icon {
+  .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[3]}px;
     svg {
       width: ${props => props.theme.spaces[9]}px;
@@ -116,7 +123,7 @@ type TabbedViewComponentType = {
   overflow?: boolean;
 };
 
-export const AdsTabComponent = (props: TabbedViewComponentType) => {
+export const TabComponent = (props: TabbedViewComponentType) => {
   return (
     <TabsWrapper shouldOverflow={props.overflow}>
       <Tabs
@@ -128,7 +135,7 @@ export const AdsTabComponent = (props: TabbedViewComponentType) => {
         <TabList>
           {props.tabs.map(tab => (
             <Tab key={tab.key}>
-              {tab.icon ? <Icon name={tab.icon} size={Size.large} /> : null}
+              {tab.icon ? <Icon name={tab.icon} size={IconSize.LARGE} /> : null}
               <TabTitle>{tab.title}</TabTitle>
             </Tab>
           ))}

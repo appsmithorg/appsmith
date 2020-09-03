@@ -8,6 +8,7 @@ export const getRolesFromState = (state: AppState) => {
 
 export const getOrgLoadingStates = (state: AppState) => {
   return {
+    isFetchingOrg: state.ui.orgs.loadingStates.isFetchingOrg,
     isFetchingAllUsers: state.ui.orgs.loadingStates.isFetchAllUsers,
     isFetchingAllRoles: state.ui.orgs.loadingStates.isFetchAllRoles,
   };

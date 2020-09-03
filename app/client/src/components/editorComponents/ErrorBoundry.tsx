@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import styled from "styled-components";
-import * as Sentry from "@sentry/browser";
+import * as Sentry from "@sentry/react";
 
 type Props = { isValid: boolean; children: ReactNode };
 type State = { hasError: boolean };

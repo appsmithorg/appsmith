@@ -1,7 +1,8 @@
 import React from "react";
 import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
-import Text, { TextType } from "../ads/Text";
+import Text, { TextType, Case, FontWeight } from "components/ads/Text";
 import styled from "styled-components";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Text",
@@ -22,7 +23,7 @@ const StyledDiv = styled.div`
 `;
 
 export const Typography = () => (
-  <div style={{ padding: "20px", display: "flex" }}>
+  <StoryWrapper style={{ display: "flex" }}>
     <StyledDiv>
       <Text type={TextType.H1}>Hi there, I am h1 element.</Text>
       <Text type={TextType.H2}>Hi there, I am h2 element.</Text>
@@ -39,7 +40,7 @@ export const Typography = () => (
       <Text type={TextType.P2}>Hi there, I am p2 element.</Text>
       <Text type={TextType.P3}>Hi there, I am p3 element.</Text>
     </StyledDiv>
-  </div>
+  </StoryWrapper>
 );
 
 const ValueWrapper = (props: { type: TextType; value: string }) => (
@@ -47,28 +48,19 @@ const ValueWrapper = (props: { type: TextType; value: string }) => (
     type={props.type}
     underline={boolean("underline", false)}
     italic={boolean("italic", false)}
+    highlight={boolean("highlight", false)}
+    case={select("Case", Object.values(Case), undefined)}
+    weight={select("Weight", Object.values(FontWeight), undefined)}
   >
     {props.value}
   </Text>
 );
 
-export const SingleText = () => (
-  <ValueWrapper
-    type={select(
-      "type",
-      [
-        TextType.H1,
-        TextType.H2,
-        TextType.H3,
-        TextType.H4,
-        TextType.H5,
-        TextType.H6,
-        TextType.P1,
-        TextType.P2,
-        TextType.P3,
-      ],
-      TextType.H1,
-    )}
-    value={text("text", "Hi There I am Earth")}
-  />
+export const CustomizeText = () => (
+  <StoryWrapper>
+    <ValueWrapper
+      type={select("type", Object.values(TextType), TextType.H1)}
+      value={text("text", "Hi There I am Earth")}
+    />
+  </StoryWrapper>
 );

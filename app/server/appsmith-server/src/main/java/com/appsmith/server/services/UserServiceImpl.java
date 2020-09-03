@@ -29,6 +29,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
@@ -740,6 +741,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }
 
         return Mono.just(Boolean.TRUE);
+    }
+
+    @Override
+    public Flux<User> get(MultiValueMap<String, String> params) {
+        // Get All Users should not be supported. Return an error
+        return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
 }

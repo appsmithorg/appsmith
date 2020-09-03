@@ -1,12 +1,13 @@
 import React from "react";
 import Table from "components/ads/Table";
 import Button, { Category, Variant, Size } from "components/ads/Button";
-import Icon, { IconName } from "components/ads/Icon";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 import TableDropdown from "components/ads/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { action } from "@storybook/addon-actions";
-import { boolean, withKnobs } from "@storybook/addon-knobs";
+import { withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "TableAds",
@@ -83,7 +84,7 @@ const columns = [
     Cell: (props: { cell: { value: IconName } }) => (
       <Icon
         name={props.cell.value}
-        size={Size.large}
+        size={IconSize.LARGE}
         onClick={action("delete-clicked")}
       />
     ),
@@ -102,7 +103,14 @@ const data = [
   {
     col1: "Austin Howard",
     col2: "dustin_02@jlegue.com",
-    col3: "User",
+    col3: (
+      <TableDropdown
+        position={Position.BOTTOM}
+        options={options}
+        onSelect={selectedValue => console.log(selectedValue)}
+        selectedIndex={1}
+      ></TableDropdown>
+    ),
     col4: "Map Access",
     col5: "accepted",
     col6: "delete",
@@ -119,12 +127,8 @@ const data = [
 
 export const TableStory = () => {
   return (
-    <div style={{ background: "#131216", padding: "50px" }}>
-      <Table
-        isLoading={boolean("isLoading", false)}
-        columns={columns}
-        data={data}
-      ></Table>
-    </div>
+    <StoryWrapper>
+      <Table columns={columns} data={data}></Table>
+    </StoryWrapper>
   );
 };

@@ -46,5 +46,6 @@
   "deleteAPI": ".t--apiFormDeleteBtn",
   "editName": ".single-select >div:contains('Edit Name')",
   "page": ".single-select >div",
-  "propertyList": ".t--entity-property"
+  "propertyList": ".t--entity-property",
+  "actionlist": ".action div div"
 }

@@ -3,7 +3,7 @@ import { useRouteMatch, useLocation, useParams, Link } from "react-router-dom";
 import AppRoute from "pages/common/AppRoute";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import { AdsTabComponent, TabProp } from "components/ads/Tabs";
+import { TabComponent, TabProp } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
 import history from "utils/history";
 import styled from "styled-components";
@@ -73,7 +73,7 @@ export default function Settings() {
         <IconComponent iconName="chevron-left" color="#9F9F9F"></IconComponent>
         <Text type={TextType.H1}>{currentOrg.name}</Text>
       </LinkToApplications>
-      <AdsTabComponent
+      <TabComponent
         tabs={tabArr}
         selectedIndex={isMembersPage ? 1 : 0}
         onSelect={(index: number) => {
@@ -91,7 +91,7 @@ export default function Settings() {
           }
           history.push(newUrl);
         }}
-      ></AdsTabComponent>
+      ></TabComponent>
     </>
   );
 }

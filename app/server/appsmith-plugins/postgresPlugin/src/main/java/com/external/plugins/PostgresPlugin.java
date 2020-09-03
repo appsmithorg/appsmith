@@ -47,8 +47,9 @@ public class PostgresPlugin extends BasePlugin {
     private static final String USER = "user";
     private static final String PASSWORD = "password";
     private static final String SSL = "ssl";
-    private static final String DATE_COLUMN_TYPE_NAME = "date";
     private static final int VALIDITY_CHECK_TIMEOUT = 5;
+
+    private static final String DATE_COLUMN_TYPE_NAME = "date";
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);

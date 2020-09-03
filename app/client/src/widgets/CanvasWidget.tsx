@@ -5,6 +5,7 @@ import { WidgetTypes, GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
+import * as Sentry from "@sentry/react";
 
 class CanvasWidget extends ContainerWidget {
   getWidgetType = () => {
@@ -61,3 +62,4 @@ class CanvasWidget extends ContainerWidget {
 }
 
 export default CanvasWidget;
+export const ProfiledCanvasWidget = Sentry.withProfiler(CanvasWidget);

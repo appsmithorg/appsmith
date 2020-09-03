@@ -11,6 +11,7 @@ import {
 } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import * as Sentry from "@sentry/react";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -100,3 +101,4 @@ interface ButtonWidgetState extends WidgetState {
 }
 
 export default ButtonWidget;
+export const ProfiledButtonWidget = Sentry.withProfiler(ButtonWidget);
