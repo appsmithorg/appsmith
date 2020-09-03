@@ -34,7 +34,7 @@ const options = [
 const columns = [
   {
     Header: "NAME",
-    accessor: "col1", // accessor is the "key" in the data
+    accessor: "col1",
   },
   {
     Header: "EMAIL ID",
