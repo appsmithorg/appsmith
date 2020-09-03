@@ -3,8 +3,8 @@ import { withKnobs, text, number, select } from "@storybook/addon-knobs";
 import { Toaster, StyledToastContainer } from "components/ads/Toast";
 import Button, { Variant, Size, Category } from "components/ads/Button";
 import { action } from "@storybook/addon-actions";
-import { StoryWrapper } from "./Tabs.stories";
 import { Slide } from "react-toastify";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Toast",
