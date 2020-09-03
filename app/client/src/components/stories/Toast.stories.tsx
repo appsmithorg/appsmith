@@ -18,6 +18,7 @@ export const ToastStory = () => {
       text: text("message", "Archived successfully"),
       duration: number("duration", 5000),
       variant: select("variant", Object.values(Variant), Variant.info),
+      background: select("background", ["dark", "light"], "dark"),
       onUndo: action("on-undo"),
     });
   }, []);
@@ -42,6 +43,7 @@ export const ToastStory = () => {
             text: text("message", "App name saved successfully"),
             duration: number("duration", 5000),
             variant: select("variant", Object.values(Variant), Variant.success),
+            background: select("background", ["dark", "light"], "dark"),
             onUndo: action("on-undo"),
           });
         }}

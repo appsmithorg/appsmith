@@ -1,5 +1,5 @@
 import React from "react";
-import { CommonComponentProps, Classes } from "./common";
+import { CommonComponentProps, Classes, hexToRgba } from "./common";
 import { Variant } from "./Button";
 import styled from "styled-components";
 import Icon, { IconSize } from "./Icon";
@@ -7,10 +7,13 @@ import Text, { TextType } from "./Text";
 import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+type Background = "dark" | "light";
+
 type ToastProps = ToastOptions &
   CommonComponentProps & {
     text: string;
     variant?: Variant;
+    background?: Background;
     duration: number;
     onUndo?: () => void;
     onComplete?: Function;
@@ -26,7 +29,7 @@ const WrappedToastContainer = styled.div`
   .Toastify__toast {
     cursor: auto;
     min-height: auto;
-    border-radius: 0px;
+    border-radius: 0px !important;
     font-family: ${props => props.theme.fonts.text};
     margin-bottom: ${props => props.theme.spaces[4]}px;
   }
@@ -39,12 +42,28 @@ export const StyledToastContainer = (props: ToastOptions) => {
   );
 };
 
-const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
+const bgVariant = (color: string, background?: Background): string => {
+  let bgColor = "";
+  if (background === "light") {
+    bgColor = hexToRgba(color, 0.06);
+  } else if (background === "dark") {
+    bgColor = hexToRgba(color, 0.1);
+  }
+  return bgColor;
+};
+
+const ToastBody = styled.div<{
+  variant?: Variant;
+  onUndo?: () => void;
+  background?: Background;
+}>`
   background-color: ${props =>
     props.variant === Variant.danger
-      ? props.theme.colors.toast.dangerBackground
+      ? bgVariant(props.theme.colors.toast.dangerColor, props.background)
       : props.variant === Variant.warning
-      ? props.theme.colors.toast.warningBackground
+      ? bgVariant(props.theme.colors.toast.warningColor, props.background)
+      : props.background === "dark"
+      ? props.theme.colors.blackShades[8]
       : props.theme.colors.blackShades[0]};
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[5]}px;
@@ -59,7 +78,9 @@ const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
         fill: ${props =>
           props.variant === Variant.warning
             ? props.theme.colors.toast.warningColor
-            : props.theme.colors.blackShades[9]};
+            : props.variant === Variant.danger
+            ? props.theme.colors.blackShades[9]
+            : props.theme.colors.blackShades[6]};
       }
     }
   }
@@ -70,6 +91,8 @@ const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
         ? props.theme.colors.toast.dangerColor
         : props.variant === Variant.warning
         ? props.theme.colors.toast.warningColor
+        : props.background === "dark"
+        ? props.theme.colors.blackShades[0]
         : props.theme.colors.blackShades[7]};
   }
 
@@ -87,7 +110,11 @@ const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
 
 const ToastComponent = (props: ToastProps) => {
   return (
-    <ToastBody variant={props.variant} onUndo={props.onUndo}>
+    <ToastBody
+      variant={props.variant}
+      onUndo={props.onUndo}
+      background={props.background}
+    >
       {props.variant === Variant.success ? (
         <Icon name="success" size={IconSize.LARGE} />
       ) : props.variant === Variant.warning ? (

@@ -573,11 +573,8 @@ export const theme: Theme = {
       darkest: "#462F32",
     },
     toast: {
-      warningBackground: "#29251A",
       warningColor: "#E0B30E",
-      dangerBackground: "rgba(226, 44, 44, 0.08)",
       dangerColor: "#E22C2C",
-      infoBackground: "#241C1B",
       infoColor: "#EE5A1A",
     },
     primaryOld: Colors.GREEN,
