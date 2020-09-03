@@ -4,7 +4,7 @@ import Button, { Category, Variant, Size } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
 import TableDropdown from "components/ads/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Table",

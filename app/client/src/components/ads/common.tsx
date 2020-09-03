@@ -1,4 +1,5 @@
 import { Theme } from "constants/DefaultTheme";
+import styled from "styled-components";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
@@ -40,3 +41,9 @@ export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
 };
+
+export const StoryWrapper = styled.div`
+  background: #1a191c;
+  height: 700px;
+  padding: 50px 100px;
+`;
