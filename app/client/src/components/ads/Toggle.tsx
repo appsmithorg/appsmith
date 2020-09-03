@@ -69,7 +69,7 @@ const StyledToggle = styled.label<{
       border-radius: 50%;
     }`}
 
-  input:hover + .slider:before {
+  && input:hover + .slider:before {
     opacity: 1;
   }
 
