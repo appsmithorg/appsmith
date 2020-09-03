@@ -271,8 +271,8 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   // Create Dependencies DAG
 
   monitor.startSpan(
-    transactionName,
     PerformanceSpanName.DATA_TREE_EVAL_CREATE_DEPENDENCIES,
+    transactionName,
   );
   const createDepsStart = performance.now();
   const dataTreeString = JSON.stringify(dataTree);
@@ -297,8 +297,8 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
 
   // Evaluate Tree
   monitor.startSpan(
-    transactionName,
     PerformanceSpanName.DATA_TREE_EVAL_EVALUATE_TREE,
+    transactionName,
   );
   const evaluatedTreeStart = performance.now();
   const evaluatedTree = dependencySortedEvaluateDataTree(
@@ -311,8 +311,8 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
 
   // Set Loading Widgets
   monitor.startSpan(
-    transactionName,
     PerformanceSpanName.DATA_TREE_EVAL_SET_LOADING,
+    transactionName,
   );
   const loadingTreeStart = performance.now();
   const treeWithLoading = setTreeLoading(evaluatedTree, dependencyTree);
@@ -321,8 +321,8 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
 
   // Validate Widgets
   monitor.startSpan(
-    transactionName,
     PerformanceSpanName.DATA_TREE_EVAL_VALIDATE_TREE,
+    transactionName,
   );
   const validateTreeStart = performance.now();
   const validated = getValidatedTree(treeWithLoading);
