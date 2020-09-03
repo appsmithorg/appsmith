@@ -9,7 +9,6 @@ describe("Text-Chart Binding Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Text-Chart Binding Functionality View", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", JSON.stringify(this.data.chartInputValidate));
     cy.get(commonlocators.TextInside).should(
@@ -17,7 +16,6 @@ describe("Text-Chart Binding Functionality", function() {
       JSON.stringify(this.data.chartInputValidate),
     );
     cy.closePropertyPane();
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("chartwidget");
     cy.get(viewWidgetsPage.chartType)
       .find(commonlocators.dropdownbuttonclick)

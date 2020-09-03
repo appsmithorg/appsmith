@@ -9,6 +9,7 @@ import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
+import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import { ReactComponent as ShareIcon } from "assets/icons/ads/share.svg";
 import { ReactComponent as RocketIcon } from "assets/icons/ads/launch.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspace.svg";
@@ -74,6 +75,7 @@ export const IconCollection = [
   "invite-user",
   "view-all",
   "warning",
+  "downArrow",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -147,6 +149,9 @@ const Icon = (props: IconProps & CommonComponentProps) => {
       break;
     case "warning":
       returnIcon = <WarningIcon />;
+      break;
+    case "downArrow":
+      returnIcon = <DownArrow />;
       break;
     case "share":
       returnIcon = <ShareIcon />;

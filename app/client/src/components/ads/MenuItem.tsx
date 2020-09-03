@@ -11,25 +11,33 @@ type MenuItemProps = CommonComponentProps & {
   onSelect?: () => void;
 };
 
-const ItemRow = styled.div`
+const ItemRow = styled.div<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
 
-  &:hover {
-    cursor: pointer;
-    background-color: ${props => props.theme.colors.blackShades[4]};
-    .${Classes.TEXT} {
-      color: ${props => props.theme.colors.blackShades[9]};
-    }
-    .${Classes.ICON} {
-      path {
-        fill: ${props => props.theme.colors.blackShades[9]};
+  ${props =>
+    !props.disabled
+      ? ` 
+    &:hover {
+      cursor: pointer;
+      background-color: ${props.theme.colors.blackShades[4]};
+      .${Classes.TEXT} {
+        color: ${props.theme.colors.blackShades[9]};
       }
+      .${Classes.ICON} {
+        path {
+          fill: ${props.theme.colors.blackShades[9]};
+        }
+      }
+    }`
+      : `
+    &:hover {
+      cursor: not-allowed;
     }
-  }
+    `}
 `;
 
 const IconContainer = styled.div`
@@ -43,7 +51,7 @@ const IconContainer = styled.div`
 
 function MenuItem(props: MenuItemProps) {
   return (
-    <ItemRow onClick={props.onSelect}>
+    <ItemRow onClick={props.onSelect} disabled={props.disabled}>
       <IconContainer>
         {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
         {props.text ? (

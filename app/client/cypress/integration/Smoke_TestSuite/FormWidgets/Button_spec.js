@@ -12,7 +12,6 @@ describe("Button Widget Functionality", function() {
   });
 
   beforeEach(() => {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("buttonwidget");
   });
 

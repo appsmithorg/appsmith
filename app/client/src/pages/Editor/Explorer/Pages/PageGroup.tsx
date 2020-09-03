@@ -17,6 +17,7 @@ type ExplorerPageGroupProps = {
   step: number;
   widgets?: Record<string, WidgetProps>;
   actions: Record<string, any[]>;
+  showWidgetsSidebar: () => void;
 };
 
 export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
@@ -46,6 +47,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
         actions={pageActions}
         searchKeyword={props.searchKeyword}
         page={page}
+        showWidgetsSidebar={props.showWidgetsSidebar}
       />
     );
   });
@@ -61,7 +63,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       action={noop}
       entityId="Pages"
       step={props.step}
-      createFn={createPageCallback}
+      onCreate={createPageCallback}
     >
       {pageEntities}
     </Entity>

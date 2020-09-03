@@ -9,7 +9,6 @@ describe("Input Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Input Widget Functionality", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("inputwidget");
     /**
      * @param{Text} Random Text
@@ -65,7 +64,6 @@ describe("Input Widget Functionality", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Widget Functionality To Check Disabled Widget", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("inputwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
@@ -73,7 +71,6 @@ describe("Input Widget Functionality", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Widget Functionality To Check Enabled Widget", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("inputwidget");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
@@ -81,7 +78,6 @@ describe("Input Widget Functionality", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Functionality To Unchecked Visible Widget", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("inputwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -89,7 +85,6 @@ describe("Input Widget Functionality", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Functionality To Check Visible Widget", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("inputwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();

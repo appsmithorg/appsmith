@@ -10,7 +10,7 @@ import {
 } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { BUILDER_PAGE_URL, WIDGETS_URL } from "constants/routes";
+import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -108,6 +108,7 @@ type ExplorerWidgetGroupProps = {
   step: number;
   widgets?: WidgetTree;
   searchKeyword?: string;
+  addWidgetsFn?: () => void;
 };
 
 const StyledLink = styled(Link)`
@@ -155,13 +156,8 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
         ) : (
           "  "
         )}
-        click the{" "}
-        <React.Fragment>
-          <StyledLink to={WIDGETS_URL(params.applicationId, props.pageId)}>
-            Widgets
-          </StyledLink>
-        </React.Fragment>{" "}
-        navigation menu icon on the left to drag and drop widgets
+        click the <strong>+</strong> icon on the <strong>Widgets</strong> group
+        to drag and drop widgets
       </EntityPlaceholder>
     );
   } else if (!childNode && props.searchKeyword) return null;
@@ -170,7 +166,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     <Entity
       key={props.pageId + "_widgets"}
       icon={widgetIcon}
-      className="group widgets"
+      className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
       step={props.step}
       name="Widgets"
       disabled={!props.widgets && !!props.searchKeyword}
@@ -179,6 +175,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
         !!props.searchKeyword ||
         (params.pageId === props.pageId && !!selectedWidget)
       }
+      onCreate={props.addWidgetsFn}
     >
       {childNode}
     </Entity>
