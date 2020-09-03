@@ -87,3 +87,15 @@ export const forceOpenPropertyPane = (id: string) => {
     },
   };
 };
+
+export const copyWidget = () => {
+  return {
+    type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
+  };
+};
+
+export const pasteWidget = () => {
+  return {
+    type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+  };
+};

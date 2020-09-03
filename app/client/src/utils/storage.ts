@@ -4,6 +4,8 @@ import moment from "moment";
 const STORAGE_KEYS: { [id: string]: string } = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
+  COPIED_WIDGET: "CopiedWidget",
+  DELETED_WIDGET_PREFIX: "DeletedWidget-",
 };
 
 const store = localforage.createInstance({
@@ -25,4 +27,54 @@ export const hasAuthExpired = async () => {
     return true;
   }
   return false;
+};
+
+export const saveCopiedWidget = async (widgetJSON: string) => {
+  try {
+    await store.setItem(STORAGE_KEYS.COPIED_WIDGET, widgetJSON);
+    return true;
+  } catch (error) {
+    console.log("An error occurred when storing copied widget: ", error);
+    return false;
+  }
+};
+
+export const getCopiedWidget = async () => {
+  try {
+    const widget: string = await store.getItem(STORAGE_KEYS.COPIED_WIDGET);
+    if (widget && widget.length > 0) {
+      return JSON.parse(widget);
+    }
+  } catch (error) {
+    console.log("An error occurred when fetching copied widget: ", error);
+    return;
+  }
+};
+
+export const saveDeletedWidget = async (widgets: any, widgetId: string) => {
+  try {
+    await store.setItem(
+      `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
+      JSON.stringify(widgets),
+    );
+    return true;
+  } catch (error) {
+    console.log(
+      "An error occurred when temporarily storing delete widget: ",
+      error,
+    );
+  }
+};
+
+export const getDeletedWidgets = async (widgetId: string) => {
+  try {
+    const widgets: string = await store.getItem(
+      `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
+    );
+    if (widgets && widgets.length > 0) {
+      return JSON.parse(widgets);
+    }
+  } catch (error) {
+    console.log("An error occurred when fetching deleted widget: ", error);
+  }
 };

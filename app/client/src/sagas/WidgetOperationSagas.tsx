@@ -10,8 +10,11 @@ import {
   WidgetDelete,
   updateAndSaveLayout,
 } from "actions/pageActions";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets, getWidget } from "./selectors";
+import {
+  FlattenedWidgetProps,
+  CanvasWidgetsReduxState,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { getWidgets, getWidget, getSelectedWidget } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
@@ -39,10 +42,18 @@ import {
   executeWidgetBlueprintOperations,
 } from "sagas/WidgetBlueprintSagas";
 import { resetWidgetMetaProperty } from "actions/metaActions";
-import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  WidgetTypes,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { saveCopiedWidget, getCopiedWidget } from "utils/storage";
+import { AppToaster } from "components/editorComponents/ToastComponent";
+import { generateReactKey } from "utils/generators";
+import produce from "immer";
 
 function getChildWidgetProps(
   parent: ContainerWidgetProps<WidgetProps>,
@@ -162,10 +173,25 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   }
 }
 
+const getAllWidgetsInTree = (
+  widgetId: string,
+  canvasWidgets: CanvasWidgetsReduxState,
+) => {
+  const widget = canvasWidgets[widgetId];
+  const widgetList = [widget];
+  if (widget && widget.children) {
+    widget.children.forEach((childWidgetId: string) =>
+      widgetList.push(...getAllWidgetsInTree(childWidgetId, canvasWidgets)),
+    );
+  }
+  console.log({ widgetList });
+  return widgetList;
+};
+
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     const { widgetId, parentId } = deleteAction.payload;
-    const widgets = yield select(getWidgets);
+    let widgets = yield select(getWidgets);
     const widget = yield select(getWidget, widgetId);
     const parent = yield select(getWidget, parentId);
 
@@ -175,20 +201,27 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     );
     widgets[parentId] = parent;
 
+    const otherWidgetsToDelete = getAllWidgetsInTree(widget.widgetId, widgets);
+    widgets = produce(widgets, (draft: CanvasWidgetsReduxState) => {
+      otherWidgetsToDelete.forEach(widget => {
+        delete draft[widget.widgetId];
+      });
+    });
+    console.log({ widgets });
     // Remove child widgets if any
-    if (widget.children && widget.children.length > 0) {
-      yield all(
-        widget.children.map((child: string) => {
-          return deleteSaga({
-            type: "",
-            payload: { parentId: widget.widgetId, widgetId: child },
-          });
-        }),
-      );
-    }
+    // if (widget.children && widget.children.length > 0) {
+    //   yield all(
+    //     widget.children.map((child: string) => {
+    //       return deleteSaga({
+    //         type: "",
+    //         payload: { parentId: widget.widgetId, widgetId: child },
+    //       });
+    //     }),
+    //   );
+    // }
 
     // Remove widget
-    delete widgets[widgetId];
+    // delete widgets[widgetId];
 
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
@@ -201,6 +234,11 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     });
   }
 }
+
+// export function* undoDeleteSaga(action: ReduxAction<{widgetId: string}>) {
+//   // const deletedWidget = getDeletedWidgets(action.payload.widgetId);
+
+// }
 
 export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
   try {
@@ -409,6 +447,92 @@ function* updateCanvasSize(
   }
 }
 
+function* copyWidgetSaga() {
+  const selectedWidget = yield select(getSelectedWidget);
+  if (!selectedWidget) {
+    AppToaster.show({
+      message: "Please select a widget",
+      type: "info",
+    });
+  }
+  const saveResult = yield saveCopiedWidget(JSON.stringify(selectedWidget));
+  if (saveResult) {
+    AppToaster.show({
+      message: `Copied ${selectedWidget.widgetName}`,
+      type: "success",
+    });
+  }
+}
+
+function* calculateNewWidgetPosition(widget: WidgetProps) {
+  // Note: This is a very simple algorithm.
+  // We take the bottom most widget in the canvas, then calculate the top,left,right,bottom
+  // co-ordinates for the new widget, such that it can be placed at the bottom of the canvas.
+  const canvaswidgets = yield select(getWidgets);
+  const nextAvailableRow =
+    Object.values(canvaswidgets).reduce(
+      (prev: number, next: any) =>
+        next.widgetId !== MAIN_CONTAINER_WIDGET_ID && next.bottomRow > prev
+          ? next.bottomRow
+          : prev,
+      0,
+    ) + 1;
+  return {
+    leftColumn: 0,
+    rightColumn: widget.rightColumn - widget.leftColumn,
+    topRow: nextAvailableRow,
+    bottomRow: nextAvailableRow + (widget.bottomRow - widget.topRow),
+  };
+}
+
+function* pasteWidgetSaga() {
+  const copiedWidget: WidgetProps = yield getCopiedWidget();
+
+  if (!copiedWidget) return;
+  const {
+    leftColumn,
+    topRow,
+    rightColumn,
+    bottomRow,
+  } = yield calculateNewWidgetPosition(copiedWidget);
+  let widgets = yield select(getWidgets);
+
+  const defaultConfig: any = WidgetConfigResponse.config[copiedWidget.type];
+  const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
+  const newWidgetName = getNextEntityName(
+    defaultConfig.widgetName,
+    widgetNames,
+  );
+
+  const newWidget = produce(copiedWidget, (draft: WidgetProps) => {
+    draft.leftColumn = leftColumn;
+    draft.topRow = topRow;
+    draft.rightColumn = rightColumn;
+    draft.bottomRow = bottomRow;
+    //TODO (abhinav): In the future we should be able to paste into a selected container if available
+    draft.parentId = MAIN_CONTAINER_WIDGET_ID;
+    draft.widgetId = generateReactKey();
+    draft.widgetName = newWidgetName;
+  });
+
+  widgets = produce(widgets, (draft: any) => {
+    if (newWidget && newWidget.widgetId) {
+      draft[newWidget.widgetId] = newWidget;
+    }
+    if (newWidget && newWidget.parentId && draft[newWidget.parentId]) {
+      if (
+        draft[newWidget.parentId].children &&
+        Array.isArray(draft[newWidget.parentId].children)
+      ) {
+        draft[newWidget.parentId].children?.push(newWidget.widgetId);
+      } else {
+        draft[newWidget.parentId].children = [newWidget.widgetId];
+      }
+    }
+  });
+  yield put(updateAndSaveLayout(widgets));
+}
+
 export default function* widgetOperationSagas() {
   yield all([
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
@@ -428,5 +552,7 @@ export default function* widgetOperationSagas() {
       resetChildrenMetaSaga,
     ),
     takeLatest(ReduxActionTypes.UPDATE_CANVAS_SIZE, updateCanvasSize),
+    takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
+    takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
   ]);
 }
