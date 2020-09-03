@@ -1,19 +1,14 @@
 import { CommonComponentProps } from "./common";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-
-type CheckboxAlign = "left" | "right";
 
 type CheckboxProps = CommonComponentProps & {
   label: string;
-  isChecked?: boolean;
   onCheckChange?: (isChecked: boolean) => void;
-  align?: CheckboxAlign;
 };
 
 const StyledCheckbox = styled.label<{
   disabled?: boolean;
-  align?: CheckboxAlign;
   isChecked?: boolean;
 }>`
   position: relative;
@@ -25,19 +20,20 @@ const StyledCheckbox = styled.label<{
   line-height: ${props => props.theme.typography.p1.lineHeight}px;
   letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
   color: ${props => props.theme.colors.blackShades[7]};
-  padding-left: ${props =>
-    props.align === "left" ? props.theme.spaces[12] - 2 : 0}px;
+  padding-left: ${props => props.theme.spaces[12] - 2}px;
 
   input {
     position: absolute;
     opacity: 0;
     cursor: pointer;
+    height: 0;
+    width: 0;
   }
 
   .checkmark {
     position: absolute;
     top: 1px;
-    ${props => (props.align === "left" ? `left: 0` : `right: 0`)};
+    left: 0;
     width: ${props => props.theme.spaces[8]}px;
     height: ${props => props.theme.spaces[8]}px;
     background-color: ${props =>
@@ -81,23 +77,13 @@ const StyledCheckbox = styled.label<{
 const Checkbox = (props: CheckboxProps) => {
   const [checked, setChecked] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (props.isChecked) {
-      setChecked(props.isChecked);
-    }
-  }, [props.isChecked]);
-
   const onChangeHandler = (checked: boolean) => {
     setChecked(checked);
     props.onCheckChange && props.onCheckChange(checked);
   };
 
   return (
-    <StyledCheckbox
-      disabled={props.disabled}
-      align={props.align}
-      isChecked={checked}
-    >
+    <StyledCheckbox disabled={props.disabled} isChecked={checked}>
       {props.label}
       <input
         type="checkbox"
@@ -110,11 +96,6 @@ const Checkbox = (props: CheckboxProps) => {
       <span className="checkmark"></span>
     </StyledCheckbox>
   );
-};
-
-Checkbox.defaultProps = {
-  isChecked: false,
-  align: "left",
 };
 
 export default Checkbox;
