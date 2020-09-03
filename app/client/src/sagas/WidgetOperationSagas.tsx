@@ -1,28 +1,28 @@
 import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
   ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
-  WidgetAddChild,
-  WidgetResize,
-  WidgetMove,
-  WidgetDelete,
   updateAndSaveLayout,
+  WidgetAddChild,
+  WidgetDelete,
+  WidgetMove,
+  WidgetResize,
 } from "actions/pageActions";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets, getWidget } from "./selectors";
+import { getWidget, getWidgets } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
 } from "utils/WidgetPropsUtils";
 import {
+  all,
   call,
   put,
   select,
   takeEvery,
   takeLatest,
-  all,
 } from "redux-saga/effects";
 import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
@@ -43,6 +43,10 @@ import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import monitor, {
+  PerformanceSpanName,
+  PerformanceTransactionName,
+} from "../utils/PerformanceMonitor";
 
 function getChildWidgetProps(
   parent: ContainerWidgetProps<WidgetProps>,
@@ -317,8 +321,15 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyName, widgetId },
+    payload: { propertyValue, propertyName, widgetId, transaction },
   } = updateAction;
+  if (transaction) {
+    monitor.startSpan(
+      PerformanceSpanName.PROPERTY_PANE_UPDATE_DYNAMIC_UPDATE,
+      undefined,
+      transaction,
+    );
+  }
   const widget: WidgetProps = yield select(getWidget, widgetId);
 
   const dynamicTriggersUpdated = yield updateDynamicTriggers(
@@ -326,12 +337,24 @@ function* updateWidgetPropertySaga(
     propertyName,
     propertyValue,
   );
-  if (!dynamicTriggersUpdated)
+  if (!dynamicTriggersUpdated) {
     yield updateDynamicBindings(widget, propertyName, propertyValue);
-
+  }
+  if (transaction) {
+    monitor.endSpan(PerformanceSpanName.PROPERTY_PANE_UPDATE_DYNAMIC_UPDATE);
+    monitor.startSpan(
+      PerformanceSpanName.PROPERTY_PANE_UPDATE_CANVAS_UPDATE,
+      undefined,
+      transaction,
+    );
+  }
   yield put(updateWidgetProperty(widgetId, propertyName, propertyValue));
   const widgets = yield select(getWidgets);
   yield put(updateAndSaveLayout(widgets));
+  if (transaction) {
+    monitor.endSpan(PerformanceSpanName.PROPERTY_PANE_UPDATE_CANVAS_UPDATE);
+    monitor.endTransaction(PerformanceTransactionName.PROPERTY_PANE_UPDATE);
+  }
 }
 
 function* setWidgetDynamicPropertySaga(

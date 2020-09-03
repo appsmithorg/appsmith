@@ -5,16 +5,16 @@ import { AppState } from "reducers";
 import _ from "lodash";
 import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
 import {
-  updateWidgetPropertyRequest,
   setWidgetDynamicProperty,
+  updateWidgetPropertyRequest,
 } from "actions/controlActions";
 import {
   getCurrentWidgetId,
-  getPropertyConfig,
   getIsPropertyPaneVisible,
+  getPropertyConfig,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import { Divider, Icon, Tooltip, Position } from "@blueprintjs/core";
+import { Divider, Icon, Position, Tooltip } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { ControlProps } from "components/propertyControls/BaseControl";
@@ -30,6 +30,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import PaneWrapper from "pages/common/PaneWrapper";
 import { BindingText } from "pages/Editor/APIEditor/Form";
+import monitor, { PerformanceTransactionName } from "utils/PerformanceMonitor";
 
 const PropertySectionLabel = styled.div`
   color: ${props => props.theme.colors.paneSectionLabel};
@@ -269,10 +270,24 @@ class PropertyPane extends Component<
   }
 
   onPropertyChange(propertyName: string, propertyValue: any) {
+    const { widgetProperties } = this.props;
+    const transaction = monitor.startTransaction(
+      PerformanceTransactionName.PROPERTY_PANE_UPDATE,
+      {
+        tags: {
+          widgetType: widgetProperties ? widgetProperties.type : "",
+          propertyName,
+        },
+        data: {
+          propertyValue,
+        },
+      },
+    );
     this.props.updateWidgetProperty(
       this.props.widgetId,
       propertyName,
       propertyValue,
+      transaction,
     );
     if (this.props.widgetProperties) {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {

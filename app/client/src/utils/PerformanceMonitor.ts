@@ -6,6 +6,7 @@ import log from "loglevel";
 export enum PerformanceTransactionName {
   DATA_TREE_EVALUATION = "DATA_TREE_EVALUATION",
   API_CALL = "API_CALL",
+  PROPERTY_PANE_UPDATE = "PROPERTY_PANE_UPDATE",
 }
 
 export enum PerformanceSpanName {
@@ -13,6 +14,8 @@ export enum PerformanceSpanName {
   DATA_TREE_EVAL_EVALUATE_TREE = "DATA_TREE_EVAL_EVALUATE_TREE",
   DATA_TREE_EVAL_SET_LOADING = "DATA_TREE_EVAL_SET_LOADING",
   DATA_TREE_EVAL_VALIDATE_TREE = "DATA_TREE_EVAL_VALIDATE_TREE",
+  PROPERTY_PANE_UPDATE_DYNAMIC_UPDATE = "PROPERTY_PANE_UPDATE_DYNAMIC_UPDATE",
+  PROPERTY_PANE_UPDATE_CANVAS_UPDATE = "PROPERTY_PANE_UPDATE_CANVAS_UPDATE",
 }
 
 export enum PerformanceTagNames {
@@ -44,10 +47,18 @@ class PerformanceMonitor {
   };
 
   startSpan = (
-    transactionName: PerformanceTransactionName,
     spanName: PerformanceSpanName,
+    transactionName?: PerformanceTransactionName,
+    transactionObj?: Transaction,
   ) => {
-    const transaction = this.transactions.get(transactionName);
+    if (!transactionName || !transactionObj) {
+      log.error(`Transaction not found`);
+      return;
+    }
+    let transaction = transactionObj;
+    if (transactionName) {
+      transaction = this.transactions.get(transactionName) as Transaction;
+    }
     if (!transaction) {
       log.error(`Transaction ${transactionName} not found`);
       return;

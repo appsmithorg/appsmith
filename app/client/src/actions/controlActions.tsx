@@ -1,12 +1,14 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
+import { Transaction } from "@sentry/tracing";
 
 export const updateWidgetPropertyRequest = (
   widgetId: string,
   propertyName: string,
   propertyValue: any,
   renderMode: RenderMode,
+  transaction?: Transaction,
 ): ReduxAction<UpdateWidgetPropertyRequestPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
@@ -15,6 +17,7 @@ export const updateWidgetPropertyRequest = (
       propertyName,
       propertyValue,
       renderMode,
+      transaction,
     },
   };
 };
@@ -54,6 +57,7 @@ export interface UpdateWidgetPropertyRequestPayload {
   propertyName: string;
   propertyValue: any;
   renderMode: RenderMode;
+  transaction?: Transaction;
 }
 
 export interface UpdateWidgetPropertyPayload {
