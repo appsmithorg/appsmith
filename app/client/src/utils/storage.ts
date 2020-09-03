@@ -51,18 +51,21 @@ export const getCopiedWidget = async () => {
   }
 };
 
-export const saveDeletedWidget = async (widgets: any, widgetId: string) => {
+export const saveDeletedWidgets = async (widgets: any, widgetId: string) => {
   try {
     await store.setItem(
       `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
       JSON.stringify(widgets),
     );
+    await store.removeItem(`bladabooey`);
+
     return true;
   } catch (error) {
     console.log(
       "An error occurred when temporarily storing delete widget: ",
       error,
     );
+    return false;
   }
 };
 
@@ -76,5 +79,13 @@ export const getDeletedWidgets = async (widgetId: string) => {
     }
   } catch (error) {
     console.log("An error occurred when fetching deleted widget: ", error);
+  }
+};
+
+export const flushDeletedWidgets = async (widgetId: string) => {
+  try {
+    await store.removeItem(`${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`);
+  } catch (error) {
+    console.log("An error occurred when flushing deleted widgets: ", error);
   }
 };

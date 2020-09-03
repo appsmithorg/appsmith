@@ -4,6 +4,8 @@ import "react-toastify/dist/ReactToastify.css";
 import styled from "styled-components";
 import { theme } from "constants/DefaultTheme";
 import { AlertIcons } from "icons/AlertIcons";
+import { ReduxAction } from "constants/ReduxActionConstants";
+import { useDispatch } from "react-redux";
 
 const ToastBody = styled.div<{ type: TypeOptions }>`
   height: 100%;
@@ -21,6 +23,18 @@ const ToastMessage = styled.span`
   margin: 0 5px;
 `;
 
+const ToastAction = styled.button`
+  border: none;
+  background: none;
+  text-transform: uppercase;
+  font-size: 16px;
+  cursor: pointer;
+  float: right;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 const ToastIcon = {
   info: AlertIcons.INFO,
   success: AlertIcons.SUCCESS,
@@ -29,21 +43,31 @@ const ToastIcon = {
   default: AlertIcons.INFO,
 };
 
-type Props = ToastOptions & { message: string; closeToast?: () => void };
+type Props = ToastOptions & {
+  message: string;
+  closeToast?: () => void;
+  action?: { text: string; dispatchableAction: ReduxAction<any> };
+};
 
 const ToastComponent = (props: Props) => {
+  const dispatch = useDispatch();
   const alertType = props.type || ToastType.INFO;
   const Icon = ToastIcon[alertType];
   return (
     <ToastBody type={alertType}>
       <Icon color={theme.alert[alertType].color} width={20} height={20} />
       <ToastMessage>{props.message}</ToastMessage>
+      {props.action && (
+        <ToastAction onClick={() => dispatch(props.action?.dispatchableAction)}>
+          {props.action.text}
+        </ToastAction>
+      )}
     </ToastBody>
   );
 };
 
 const Toaster = {
-  show: (config: ToastOptions & { message: string }) => {
+  show: (config: Props) => {
     toast(<ToastComponent {...config} />);
   },
   clear: () => toast.dismiss(),

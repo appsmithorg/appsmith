@@ -46,14 +46,22 @@ import {
   GridDefaults,
   WidgetTypes,
   MAIN_CONTAINER_WIDGET_ID,
+  WIDGET_DELETE_UNDO_TIMEOUT,
 } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
-import { saveCopiedWidget, getCopiedWidget } from "utils/storage";
+import {
+  saveCopiedWidget,
+  getCopiedWidget,
+  saveDeletedWidgets,
+  flushDeletedWidgets,
+  getDeletedWidgets,
+} from "utils/storage";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { generateReactKey } from "utils/generators";
 import produce from "immer";
+import { flashElementById } from "utils/helpers";
 
 function getChildWidgetProps(
   parent: ContainerWidgetProps<WidgetProps>,
@@ -98,7 +106,7 @@ type GeneratedWidgetPayload = {
   widgets: { [widgetId: string]: FlattenedWidgetProps };
 };
 function* generateChildWidgets(
-  parent: ContainerWidgetProps<WidgetProps>,
+  parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ): any {
@@ -144,7 +152,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const { widgetId } = addChildAction.payload;
 
     // Get the current parent widget whose child will be the new widget.
-    const parent: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    let parent: FlattenedWidgetProps = yield select(getWidget, widgetId);
     // Get all the widgets from the canvasWidgetsReducer
     const widgets = yield select(getWidgets);
     // Generate the full WidgetProps of the widget to be added.
@@ -156,9 +164,10 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 
     // Update widgets to put back in the canvasWidgetsReducer
     // TODO(abhinav): This won't work if dont already have an empty children: []
-    if (parent.children) {
-      parent.children.push(childWidgetPayload.widgetId);
-    }
+    parent = produce(parent, draft => {
+      if (draft.children) draft.children.push(childWidgetPayload.widgetId);
+    });
+
     widgets[parent.widgetId] = parent;
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
@@ -180,11 +189,12 @@ const getAllWidgetsInTree = (
   const widget = canvasWidgets[widgetId];
   const widgetList = [widget];
   if (widget && widget.children) {
-    widget.children.forEach((childWidgetId: string) =>
-      widgetList.push(...getAllWidgetsInTree(childWidgetId, canvasWidgets)),
-    );
+    widget.children
+      .filter(Boolean)
+      .forEach((childWidgetId: string) =>
+        widgetList.push(...getAllWidgetsInTree(childWidgetId, canvasWidgets)),
+      );
   }
-  console.log({ widgetList });
   return widgetList;
 };
 
@@ -193,38 +203,50 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     const { widgetId, parentId } = deleteAction.payload;
     let widgets = yield select(getWidgets);
     const widget = yield select(getWidget, widgetId);
-    const parent = yield select(getWidget, parentId);
+    let parent: FlattenedWidgetProps = yield select(getWidget, parentId);
 
     // Remove entry from parent's children
-    parent.children = parent.children.filter(
-      (child: string) => child !== widgetId,
-    );
+    parent = produce(parent, draft => {
+      if (draft.children) {
+        const indexOfChild = draft.children.indexOf(widgetId);
+        if (indexOfChild > -1) delete draft.children[indexOfChild];
+        draft.children = draft.children.filter(Boolean);
+      }
+    });
+
     widgets[parentId] = parent;
 
-    const otherWidgetsToDelete = getAllWidgetsInTree(widget.widgetId, widgets);
+    const otherWidgetsToDelete = getAllWidgetsInTree(widgetId, widgets);
+    const saveStatus = yield saveDeletedWidgets(otherWidgetsToDelete, widgetId);
+    if (saveStatus) {
+      AppToaster.show({
+        message: `${widget.widgetName} deleted`,
+        autoClose: WIDGET_DELETE_UNDO_TIMEOUT - 2000,
+        type: "success",
+        hideProgressBar: false,
+        action: {
+          text: "UNDO",
+          dispatchableAction: {
+            type: ReduxActionTypes.UNDO_DELETE_WIDGET,
+            payload: {
+              widgetId,
+            },
+          },
+        },
+      });
+      setTimeout(() => {
+        flushDeletedWidgets(widgetId);
+      }, WIDGET_DELETE_UNDO_TIMEOUT);
+    }
     widgets = produce(widgets, (draft: CanvasWidgetsReduxState) => {
       otherWidgetsToDelete.forEach(widget => {
         delete draft[widget.widgetId];
       });
     });
-    console.log({ widgets });
-    // Remove child widgets if any
-    // if (widget.children && widget.children.length > 0) {
-    //   yield all(
-    //     widget.children.map((child: string) => {
-    //       return deleteSaga({
-    //         type: "",
-    //         payload: { parentId: widget.widgetId, widgetId: child },
-    //       });
-    //     }),
-    //   );
-    // }
-
-    // Remove widget
-    // delete widgets[widgetId];
 
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
+    console.log(error);
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
@@ -235,10 +257,26 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   }
 }
 
-// export function* undoDeleteSaga(action: ReduxAction<{widgetId: string}>) {
-//   // const deletedWidget = getDeletedWidgets(action.payload.widgetId);
-
-// }
+export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
+  const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
+    action.payload.widgetId,
+  );
+  if (deletedWidgets) {
+    let widgets = yield select(getWidgets);
+    widgets = produce(widgets, (draft: CanvasWidgetsReduxState) => {
+      deletedWidgets.forEach(widget => {
+        draft[widget.widgetId] = widget;
+        if (widget.widgetId === action.payload.widgetId) {
+          if (draft[widget.parentId].children)
+            draft[widget.parentId].children?.push(widget.widgetId);
+          else draft[widget.parentId].children = [widget.widgetId];
+        }
+      });
+    });
+    yield put(updateAndSaveLayout(widgets));
+    yield flushDeletedWidgets(action.payload.widgetId);
+  }
+}
 
 export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
   try {
@@ -251,9 +289,9 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
     } = moveAction.payload;
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     // Get all widgets from DSL/Redux Store
-    const widgets = yield select(getWidgets) as any;
+    let widgets = yield select(getWidgets) as any;
     // Get parent from DSL/Redux Store
-    const parent = yield select(getWidget, parentId);
+    let parent: FlattenedWidgetProps = yield select(getWidget, parentId);
     // Update position of widget
     widget = updateWidgetPosition(widget, leftColumn, topRow);
     // Replace widget with update widget props
@@ -261,13 +299,26 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
     // If the parent has changed i.e parentWidgetId is not parent.widgetId
     if (parent.widgetId !== newParentId && widgetId !== newParentId) {
       // Remove from the previous parent
-      parent.children = parent.children.filter(
-        (child: string) => child !== widgetId,
-      );
-      widgets[parent.widgetId] = parent;
+      parent = produce(parent, draft => {
+        if (draft.children) {
+          const indexOfChild = draft.children.indexOf(widgetId);
+          if (indexOfChild > -1) delete draft.children[indexOfChild];
+          draft.children = draft.children.filter(Boolean);
+        }
+      });
       // Add to new parent
-      widgets[newParentId].children.push(widgetId);
-      widgets[widgetId].parentId = newParentId;
+      widgets = produce(widgets, (draft: CanvasWidgetsReduxState) => {
+        draft[parent.widgetId] = parent;
+        if (
+          draft[newParentId].children &&
+          Array.isArray(draft[newParentId].children)
+        ) {
+          draft[newParentId].children?.push(widgetId);
+        } else {
+          draft[newParentId].children = [widgetId];
+        }
+        widgets[widgetId].parentId = newParentId;
+      });
     }
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
@@ -472,7 +523,9 @@ function* calculateNewWidgetPosition(widget: WidgetProps) {
   const nextAvailableRow =
     Object.values(canvaswidgets).reduce(
       (prev: number, next: any) =>
-        next.widgetId !== MAIN_CONTAINER_WIDGET_ID && next.bottomRow > prev
+        next.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
+        next.parentId === MAIN_CONTAINER_WIDGET_ID &&
+        next.bottomRow > prev
           ? next.bottomRow
           : prev,
       0,
@@ -515,6 +568,8 @@ function* pasteWidgetSaga() {
     draft.widgetName = newWidgetName;
   });
 
+  console.log({ copiedWidget }, { newWidget });
+
   widgets = produce(widgets, (draft: any) => {
     if (newWidget && newWidget.widgetId) {
       draft[newWidget.widgetId] = newWidget;
@@ -531,6 +586,7 @@ function* pasteWidgetSaga() {
     }
   });
   yield put(updateAndSaveLayout(widgets));
+  setTimeout(() => flashElementById(newWidget.widgetId), 100);
 }
 
 export default function* widgetOperationSagas() {
@@ -554,5 +610,6 @@ export default function* widgetOperationSagas() {
     takeLatest(ReduxActionTypes.UPDATE_CANVAS_SIZE, updateCanvasSize),
     takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
+    takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
   ]);
 }
