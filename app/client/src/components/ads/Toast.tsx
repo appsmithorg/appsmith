@@ -42,9 +42,9 @@ export const StyledToastContainer = (props: ToastOptions) => {
 const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
   background-color: ${props =>
     props.variant === Variant.danger
-      ? props.theme.colors.message.dangerBackground
+      ? props.theme.colors.toast.dangerBackground
       : props.variant === Variant.warning
-      ? props.theme.colors.message.warningBackground
+      ? props.theme.colors.toast.warningBackground
       : props.theme.colors.blackShades[0]};
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[5]}px;
@@ -58,7 +58,7 @@ const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
       path {
         fill: ${props =>
           props.variant === Variant.warning
-            ? props.theme.colors.message.warningColor
+            ? props.theme.colors.toast.warningColor
             : props.theme.colors.blackShades[9]};
       }
     }
@@ -67,9 +67,9 @@ const ToastBody = styled.div<{ variant?: Variant; onUndo?: () => void }>`
   .${Classes.TEXT} {
     color: ${props =>
       props.variant === Variant.danger
-        ? props.theme.colors.message.dangerColor
+        ? props.theme.colors.toast.dangerColor
         : props.variant === Variant.warning
-        ? props.theme.colors.message.warningColor
+        ? props.theme.colors.toast.warningColor
         : props.theme.colors.blackShades[7]};
   }
 
