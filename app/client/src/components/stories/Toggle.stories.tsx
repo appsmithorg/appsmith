@@ -1,5 +1,5 @@
 import React from "react";
-import { withKnobs, boolean, text } from "@storybook/addon-knobs";
+import { withKnobs, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { StoryWrapper } from "./Tabs.stories";
 import { action } from "@storybook/addon-actions";
