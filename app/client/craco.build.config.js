@@ -8,18 +8,6 @@ const env = process.env.REACT_APP_ENVIRONMENT;
 
 const plugins = [];
 
-if (env === "PRODUCTION" || env === "STAGING") {
-  plugins.push(
-    new SentryWebpackPlugin({
-      include: "build",
-      ignore: ["node_modules", "webpack.config.js"],
-      release: process.env.REACT_APP_SENTRY_RELEASE,
-      setCommits: {
-        auto: true
-      }
-    }),
-  );
-}
 plugins.push(
   new WorkboxPlugin.InjectManifest({
     swSrc: "./src/serviceWorker.js",
@@ -28,6 +16,21 @@ plugins.push(
     maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
   }),
 );
+
+if (env === "PRODUCTION" || env === "STAGING") {
+  plugins.push(
+    new SentryWebpackPlugin({
+      include: "build",
+      ignore: ["node_modules", "webpack.config.js"],
+      setCommits: {
+        auto: true
+      },
+      deploy: {
+        env: process.env.REACT_APP_SENTRY_ENVIRONMENT
+      }
+    }),
+  );
+}
 
 module.exports = merge(common, {
   webpack: {

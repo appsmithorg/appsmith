@@ -16,11 +16,13 @@ import {
 import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
-import EntityProperty, { EntityPropertyProps } from "../Entity/EntityProperty";
+import { EntityPropertyProps } from "../Entity/EntityProperty";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { isFunction, noop } from "lodash";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import EntityProperties from "../Entity/EntityProperties";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -120,7 +122,8 @@ export type WidgetEntityProps = {
 };
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
-  const params = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
+
   const { navigateToWidget, isWidgetSelected } = useWidget(
     props.widgetProps.widgetId,
     props.widgetProps.type,
@@ -133,12 +136,15 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   let children: ReactNode = props.children;
   if (!props.children) {
-    children = getWidgetProperies(
-      props.widgetProps,
-      props.step + 1,
-    ).map((widgetProperty: EntityPropertyProps) => (
-      <EntityProperty {...widgetProperty} key={widgetProperty.propertyName} />
-    ));
+    children = (
+      <EntityProperties
+        entityType={ENTITY_TYPE.WIDGET}
+        entityName={props.widgetProps.widgetName}
+        isCurrentPage={pageId === props.pageId}
+        step={props.step + 1}
+        entity={props.widgetProps}
+      />
+    );
   }
 
   const contextMenu = (
@@ -159,15 +165,13 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       active={isWidgetSelected}
       entityId={props.widgetProps.widgetId}
       step={props.step}
-      updateEntityName={
-        props.pageId === params?.pageId ? updateWidgetName : noop
-      }
+      updateEntityName={props.pageId === pageId ? updateWidgetName : noop}
       searchKeyword={props.searchKeyword}
       isDefaultExpanded={
         (!!props.searchKeyword && !!props.widgetProps.children) ||
         !!props.isDefaultExpanded
       }
-      contextMenu={props.pageId === params?.pageId && contextMenu}
+      contextMenu={props.pageId === pageId && contextMenu}
     >
       {children}
     </Entity>

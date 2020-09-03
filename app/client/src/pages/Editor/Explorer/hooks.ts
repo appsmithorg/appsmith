@@ -7,40 +7,25 @@ import {
 } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import {
-  ENTITY_TYPE,
-  DataTreeEntity,
-  DataTree,
-  DataTreeAction,
-} from "entities/DataTree/dataTreeFactory";
-import { compact } from "lodash";
+import { compact, groupBy } from "lodash";
 import { Datasource } from "api/DatasourcesApi";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
-import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
 import log from "loglevel";
+import produce from "immer";
 
 const findWidgets = (widgets: WidgetProps, keyword: string) => {
+  if (!widgets || !widgets.widgetName) return widgets;
+  const widgetNameMached =
+    widgets.widgetName.toLowerCase().indexOf(keyword) > -1;
   if (widgets.children) {
     widgets.children = compact(
       widgets.children.map((widget: WidgetProps) =>
         findWidgets(widget, keyword),
       ),
     );
-    return widgets.children.length > 0 ||
-      widgets.widgetName.toLowerCase().indexOf(keyword) > -1
-      ? widgets
-      : undefined;
   }
-  if (widgets.widgetName.toLowerCase().indexOf(keyword) > -1) return widgets;
-};
-
-const findActions = (actions: Array<DataTreeAction>, keyword: string) => {
-  return actions.filter(
-    (action: DataTreeAction) => action.name.toLowerCase().indexOf(keyword) > -1,
-  );
+  if (widgetNameMached || widgets.children?.length > 0) return widgets;
 };
 
 const findDataSources = (dataSources: Datasource[], keyword: string) => {
@@ -50,117 +35,81 @@ const findDataSources = (dataSources: Datasource[], keyword: string) => {
   );
 };
 
+export const useFilteredDatasources = (searchKeyword?: string) => {
+  const dataSources = useSelector((state: AppState) => {
+    return state.entities.datasources.list;
+  });
+
+  return useMemo(
+    () =>
+      searchKeyword
+        ? findDataSources(dataSources, searchKeyword.toLowerCase())
+        : dataSources,
+    [searchKeyword, dataSources],
+  );
+};
+
+export const useActions = (searchKeyword?: string) => {
+  const reducerActions = useSelector(
+    (state: AppState) => state.entities.actions,
+  );
+
+  const actions = useMemo(() => {
+    return groupBy(reducerActions, "config.pageId");
+  }, [reducerActions]);
+
+  return useMemo(() => {
+    if (searchKeyword) {
+      const start = performance.now();
+      const filteredActions = produce(actions, draft => {
+        for (const [key, value] of Object.entries(draft)) {
+          value.forEach((action, index) => {
+            const searchMatches =
+              action.config.name
+                .toLowerCase()
+                .indexOf(searchKeyword.toLowerCase()) > -1;
+            if (searchMatches) {
+              draft[key][index] = action;
+            } else {
+              delete draft[key][index];
+            }
+          });
+          draft[key] = draft[key].filter(Boolean);
+        }
+      });
+      log.debug("Filtered actions in:", performance.now() - start, "ms");
+      return filteredActions;
+    }
+    return actions;
+  }, [searchKeyword, actions]);
+};
+
+export const useWidgets = (searchKeyword?: string) => {
+  const pageDSLs = useSelector((state: AppState) => state.ui.pageDSLs);
+  return useMemo(() => {
+    if (searchKeyword && pageDSLs) {
+      const start = performance.now();
+      const filteredDSLs = produce(pageDSLs, draft => {
+        for (const [key, value] of Object.entries(draft)) {
+          const filteredWidgets = findWidgets(
+            value,
+            searchKeyword.toLowerCase(),
+          ) as WidgetProps;
+          draft[key] = filteredWidgets;
+        }
+      });
+      log.debug("Filtered widgets in: ", performance.now() - start, "ms");
+      return filteredDSLs;
+    }
+    return pageDSLs;
+  }, [searchKeyword, pageDSLs]);
+};
+
 export const useFilteredEntities = (
   ref: MutableRefObject<HTMLInputElement | null>,
 ) => {
   const start = performance.now();
   const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
-
-  const dataTree: DataTree = useSelector(evaluateDataTreeWithoutFunctions);
-  const pages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages;
-  });
-
-  const currentPageId = useSelector((state: AppState) => {
-    return state.entities.pageList.currentPageId;
-  });
-
-  const dataSources = useSelector((state: AppState) => {
-    return state.entities.datasources.list;
-  });
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-
-  const currentPageWidgetEntities = useMemo(() => {
-    const canvasWidgets: { [id: string]: any } = {};
-    Object.values(dataTree).forEach(
-      (
-        entity: DataTreeEntity & {
-          ENTITY_TYPE?: ENTITY_TYPE;
-          widgetId?: string;
-        },
-      ) => {
-        if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET && entity.widgetId) {
-          canvasWidgets[entity.widgetId] = entity;
-        }
-      },
-    );
-
-    const widgetTree = CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets,
-    });
-    widgetTree.pageId = currentPageId;
-
-    return searchKeyword !== null
-      ? findWidgets(widgetTree, searchKeyword.toLowerCase())
-      : widgetTree;
-  }, [searchKeyword, dataTree, currentPageId]);
-
-  const allPageDSLs = useSelector((state: AppState) => state.ui.pageDSLs);
-  const otherPagesWidgetEntities = useMemo(() => {
-    return Object.keys(allPageDSLs)
-      .filter((pageId: string) => pageId !== currentPageId)
-      .map((pageId: string) => {
-        const tree = allPageDSLs[pageId];
-        tree.pageId = pageId;
-
-        return searchKeyword !== null
-          ? findWidgets(tree, searchKeyword.toLowerCase())
-          : tree;
-      });
-  }, [searchKeyword, allPageDSLs, currentPageId]);
-
-  const actions = useMemo(
-    () =>
-      Object.values(dataTree).filter(
-        (entity: DataTreeEntity & { ENTITY_TYPE?: ENTITY_TYPE }) =>
-          entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
-      ),
-    [dataTree],
-  );
-
-  const allAppActions = useSelector(
-    (state: AppState) => state.entities.actions,
-  );
-
-  const actionEntities = useMemo(() => {
-    const otherPageDataTreeActions: DataTreeAction[] = allAppActions
-      .filter((action: ActionData) => action.config.pageId !== currentPageId)
-      .map((action: ActionData) => ({
-        isLoading: action.isLoading,
-        actionId: action.config.id,
-        pluginType: action.config.pluginType,
-        name: action.config.name,
-        pageId: action.config.pageId,
-        run: {},
-        dynamicBindingPathList: action.config.dynamicBindingPathList,
-        ENTITY_TYPE: ENTITY_TYPE.ACTION,
-        data: action.data || {},
-        config: {
-          paginationType: action.config.actionConfiguration.paginationType,
-          timeoutInMillisecond:
-            action.config.actionConfiguration.timeoutInMillisecond,
-          httpMethod: action.config.actionConfiguration.httpMethod,
-        },
-      }));
-    const currentPageActions = actions.map(action => ({
-      ...action,
-      pageId: currentPageId,
-    }));
-    const allActions = [...currentPageActions, ...otherPageDataTreeActions];
-    return searchKeyword !== null
-      ? findActions(allActions as DataTreeAction[], searchKeyword.toLowerCase())
-      : allActions;
-  }, [searchKeyword, actions, allAppActions, currentPageId]);
-
-  const datasourceEntities = useMemo(
-    () =>
-      searchKeyword !== null
-        ? findDataSources(dataSources, searchKeyword.toLowerCase())
-        : dataSources,
-    [searchKeyword, dataSources],
-  );
 
   const search = debounce((e: any) => {
     const keyword = e.target.value;
@@ -191,20 +140,10 @@ export const useFilteredEntities = (
       el?.dispatchEvent(event);
     }
   }, [ref, event]);
-  const allWidgetEntities = useMemo(
-    () => compact([currentPageWidgetEntities, ...otherPagesWidgetEntities]),
-    [currentPageWidgetEntities, otherPagesWidgetEntities],
-  );
 
   const stop = performance.now();
   log.debug("Explorer hook props calculations took", stop - start, "ms");
   return {
-    widgets: allWidgetEntities,
-    actions: actionEntities as DataTreeAction[],
-    dataSources: datasourceEntities,
-    currentPageId,
-    plugins,
-    pages,
     searchKeyword: searchKeyword ?? undefined,
     clearSearch,
   };

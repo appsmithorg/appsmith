@@ -1,8 +1,8 @@
 import React from "react";
 import EditorsRouter from "./routes";
-import Navbar from "./Navbar";
 import WidgetsEditor from "./WidgetsEditor";
 import styled from "styled-components";
+import Sidebar from "components/editorComponents/Sidebar";
 
 const Container = styled.div`
   display: flex;
@@ -17,7 +17,7 @@ const EditorContainer = styled.div`
 const MainContainer = () => {
   return (
     <Container>
-      <Navbar />
+      <Sidebar />
       <EditorContainer>
         <EditorsRouter />
         <WidgetsEditor />

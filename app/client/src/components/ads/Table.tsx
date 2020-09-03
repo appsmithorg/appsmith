@@ -1,7 +1,9 @@
 import { useTable, useSortBy } from "react-table";
 import React from "react";
 import styled from "styled-components";
-import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
+import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
+import { ReactComponent as UpperArrow } from "../../assets/icons/ads/upper_arrow.svg";
+import { Classes } from "./common";
 
 const Styles = styled.div`
   table {
@@ -63,7 +65,7 @@ const Styles = styled.div`
 
         &:hover {
           background-color: ${props => props.theme.colors.blackShades[4]};
-          .ads-icon {
+          .${Classes.ICON} {
             path {
               fill: ${props => props.theme.colors.blackShades[9]};
             }
@@ -80,10 +82,13 @@ const Styles = styled.div`
   }
 `;
 
-function Table(props: any) {
-  const data = React.useMemo(() => props.data, []);
+interface TableProps {
+  data: any[];
+  columns: any[];
+}
 
-  const columns = React.useMemo(() => props.columns, []);
+function Table(props: TableProps) {
+  const { data, columns } = props;
 
   const {
     getTableProps,
@@ -107,7 +112,7 @@ function Table(props: any) {
                   {column.render("Header")}
                   {column.isSorted ? (
                     column.isSortedDesc ? (
-                      " 🔼"
+                      <UpperArrow />
                     ) : (
                       <DownArrow />
                     )
@@ -126,7 +131,11 @@ function Table(props: any) {
               <tr {...row.getRowProps()} key={index}>
                 {row.cells.map((cell, index) => {
                   return (
-                    <td {...cell.getCellProps()} key={index}>
+                    <td
+                      {...cell.getCellProps()}
+                      key={index}
+                      data-colindex={index}
+                    >
                       {cell.render("Cell")}
                     </td>
                   );

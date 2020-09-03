@@ -7,6 +7,7 @@ import IconComponent, {
   IconType,
 } from "components/designSystems/appsmith/IconComponent";
 import { EventType, ExecutionResult } from "constants/ActionConstants";
+import * as Sentry from "@sentry/react";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -69,3 +70,4 @@ export interface IconWidgetProps extends WidgetProps {
 }
 
 export default IconWidget;
+export const ProfiledIconWidget = Sentry.withProfiler(IconWidget);

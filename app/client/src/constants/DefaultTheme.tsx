@@ -371,9 +371,12 @@ export type Theme = {
 };
 
 type iconSizeType = {
-  small: number;
-  medium: number;
-  large: number;
+  SMALL: number;
+  MEDIUM: number;
+  LARGE: number;
+  XL: number;
+  XXL: number;
+  XXXL: number;
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -505,9 +508,12 @@ export const theme: Theme = {
     },
   },
   iconSizes: {
-    small: 12,
-    medium: 14,
-    large: 15,
+    SMALL: 12,
+    MEDIUM: 14,
+    LARGE: 15,
+    XL: 16,
+    XXL: 18,
+    XXXL: 20,
   },
   propertyPane: {
     width: 270,
@@ -639,7 +645,7 @@ export const theme: Theme = {
     },
   ],
   sidebarWidth: "320px",
-  headerHeight: "50px",
+  headerHeight: "48px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,

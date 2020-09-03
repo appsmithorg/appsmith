@@ -7,7 +7,7 @@ import EditableText, {
   SavingState,
 } from "components/ads/EditableText";
 import { action } from "@storybook/addon-actions";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "EditableText",
@@ -43,7 +43,7 @@ export const EditableTextStory = () => (
       defaultValue={text("defaultValue", "Product design app")}
       editInteractionKind={select(
         "editInteractionKind",
-        [EditInteractionKind.SINGLE, EditInteractionKind.DOUBLE],
+        Object.values(EditInteractionKind),
         EditInteractionKind.SINGLE,
       )}
       onTextChanged={action("text-changed")}

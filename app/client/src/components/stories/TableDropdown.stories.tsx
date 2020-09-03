@@ -1,8 +1,9 @@
 import React from "react";
-import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
+import { withKnobs, select } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import TableDropdown from "components/ads/TableDropdown";
-import { StoryWrapper } from "./Tabs.stories";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Dropdown",
@@ -12,25 +13,28 @@ export default {
 
 const options = [
   {
-    label: "Admin",
-    value: "Can edit, view and invite other user to an app",
+    name: "Admin",
+    desc: "Can edit, view and invite other user to an app",
   },
   {
-    label: "Developer",
-    value: "Can view and invite other user to an app",
+    name: "Developer",
+    desc: "Can view and invite other user to an app",
   },
   {
-    label: "User",
-    value: "Can view and invite other user to an app and...",
+    name: "User",
+    desc: "Can view and invite other user to an app and...",
   },
 ];
 
 export const TableDropdownStory = () => (
-  <StoryWrapper>
+  <StoryWrapper
+    style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+  >
     <TableDropdown
+      position={select("position", Object.values(Position), Position.BOTTOM)}
       options={options}
-      onSelect={(selectedValue: string) => console.log(selectedValue)}
-      selectedOption={options[0]}
+      onSelect={selectedValue => console.log(selectedValue)}
+      selectedIndex={0}
     ></TableDropdown>
   </StoryWrapper>
 );
