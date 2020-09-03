@@ -4,7 +4,7 @@ import { withDesign } from "storybook-addon-designs";
 import IconSelector from "components/ads/IconSelector";
 import { action } from "@storybook/addon-actions";
 import { AppIconCollection } from "components/ads/AppIcon";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "IconSelector",

@@ -10,26 +10,29 @@ import store from "./store";
 import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "./AppRouter";
 import { StyledToastContainer } from "./components/ads/Toast";
+import * as Sentry from "@sentry/react";
 
 appInitializer();
 
 const App = () => {
   return (
-    <Provider store={store}>
-      <LayersContext.Provider value={Layers}>
-        <ThemeProvider theme={theme}>
-          <StyledToastContainer
-            hideProgressBar
-            draggable={false}
-            transition={Slide}
-            autoClose={5000}
-            closeButton={false}
-            pauseOnHover={false}
-          />
-          <AppRouter />
-        </ThemeProvider>
-      </LayersContext.Provider>
-    </Provider>
+    <Sentry.ErrorBoundary fallback={"An error has occured"}>
+      <Provider store={store}>
+        <LayersContext.Provider value={Layers}>
+          <ThemeProvider theme={theme}>
+            <StyledToastContainer
+              hideProgressBar
+              draggable={false}
+              transition={Slide}
+              autoClose={5000}
+              closeButton={false}
+              pauseOnHover={false}
+            />
+            <AppRouter />
+          </ThemeProvider>
+        </LayersContext.Provider>
+      </Provider>
+    </Sentry.ErrorBoundary>
   );
 };
 
