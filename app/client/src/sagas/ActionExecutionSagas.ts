@@ -285,12 +285,14 @@ export function* executeActionSaga(
   const { actionId, onSuccess, onError, params } = apiAction;
   try {
     const api: RestAction = yield select(getAction, actionId);
-    if (api.requestConfirmation) {
+
+    if (api.confirmBeforeExecute) {
       const confirmed = yield call(confirmRunActionSaga);
       if (!confirmed) {
         return;
       }
     }
+
     yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const actionParams: Property[] = yield call(
       getActionParams,
@@ -468,7 +470,7 @@ function* runActionInitSaga(
 ) {
   const action = yield select(getAction, reduxAction.payload.id);
 
-  if (action.requestConfirmation) {
+  if (action.confirmBeforeExecute) {
     const confirmed = yield call(confirmRunActionSaga);
     if (!confirmed) return;
   }
