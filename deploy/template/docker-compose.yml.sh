@@ -48,6 +48,7 @@ services:
       - mongo
     depends_on:
       - mongo
+      - redis
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     networks:
