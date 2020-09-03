@@ -26,12 +26,11 @@ export const apiRequestConfig = {
 };
 
 const axiosInstance: AxiosInstance = axios.create();
-let apiTransaction: Transaction;
 const executeActionRegex = /actions\/execute/;
 const currentUserRegex = /\/me$/;
 
 axiosInstance.interceptors.request.use((config: any) => {
-  apiTransaction = monitor.startTransaction(
+  const apiTransaction = monitor.startTransaction(
     PerformanceTransactionName.API_CALL,
     {
       tags: {
@@ -40,7 +39,7 @@ axiosInstance.interceptors.request.use((config: any) => {
       },
     },
   ) as Transaction;
-  return { ...config, timer: performance.now() };
+  return { ...config, timer: performance.now(), transaction: apiTransaction };
 });
 
 const makeExecuteActionResponse = (response: any): ActionApiResponse => ({
@@ -58,9 +57,9 @@ const is404orAuthPath = () => {
 
 axiosInstance.interceptors.response.use(
   (response: any): any => {
-    apiTransaction.setTag("success", "true");
-    apiTransaction.setData("response", response);
-    apiTransaction.finish();
+    response.config.transaction.setTag("success", "true");
+    response.config.apiTransaction.setData("response", response);
+    response.config.apiTransaction.finish();
     if (response.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(response);
     }
@@ -68,9 +67,9 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
-    apiTransaction.setTag("success", "false");
-    apiTransaction.setData("error", error);
-    apiTransaction.finish();
+    error.config.transaction.setTag("success", "false");
+    error.config.transaction.setData("error", error);
+    error.config.transaction.finish();
     if (error.code === "ECONNABORTED") {
       if (error.config.url.match(currentUserRegex)) {
         history.replace({ pathname: SERVER_ERROR_URL });
