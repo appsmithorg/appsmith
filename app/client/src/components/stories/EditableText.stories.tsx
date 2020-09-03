@@ -7,7 +7,7 @@ import EditableText, {
   SavingState,
 } from "components/ads/EditableText";
 import { action } from "@storybook/addon-actions";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "EditableText",
