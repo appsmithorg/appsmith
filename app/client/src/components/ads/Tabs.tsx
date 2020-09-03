@@ -12,13 +12,6 @@ export type TabProp = {
   icon: IconName;
 };
 
-export type TabProp = {
-  key: string;
-  title: string;
-  panelComponent: JSX.Element;
-  icon: IconName;
-};
-
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
   border-radius: 0px;
