@@ -100,7 +100,7 @@ class Editor extends Component<Props> {
         <Hotkey
           global={true}
           combo="meta + v"
-          label="Copy Widget"
+          label="Paste Widget"
           group="Canvas"
           onKeyDown={(e: any) => {
             this.props.pasteCopiedWidget();
