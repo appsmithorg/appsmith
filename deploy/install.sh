@@ -221,6 +221,84 @@ confirm() {
     [[ yY =~ $answer ]]
 }
 
+init_ssl_cert() {
+    local domain="$1"
+    echo "Creating certificate for '$domain'."
+
+    local rsa_key_size=4096
+    local data_path="./data/certbot"
+
+    if [[ -d "$data_path" ]]; then
+        if ! confirm n "Existing certificate data found at '$data_path'. Continue and replace existing certificate?"; then
+            return
+        fi
+    fi
+
+    mkdir -p "$data_path"/{conf,www}
+
+    if ! [[ -e "$data_path/conf/options-ssl-nginx.conf" && -e "$data_path/conf/ssl-dhparams.pem" ]]; then
+        echo "### Downloading recommended TLS parameters..."
+        curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf > "$data_path/conf/options-ssl-nginx.conf"
+        curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem > "$data_path/conf/ssl-dhparams.pem"
+        echo
+    fi
+
+    echo "### Requesting Let's Encrypt certificate for '$domain'..."
+
+    local email
+    read -rp 'Enter email address to create SSL certificate: (Optional, but strongly recommended): ' email
+    if [[ -z $email ]]; then
+        local email_arg="--register-unsafely-without-email"
+    else
+        local email_arg="--email $email --no-eff-email"
+    fi
+
+    if confirm n 'Do you want to create certificate in staging mode (which is used for dev purposes and is not subject to rate limits)?'; then
+        local staging_arg="--staging"
+    else
+        local staging_arg=""
+    fi
+
+    echo "### Generating OpenSSL key for '$domain'..."
+    local live_path="/etc/letsencrypt/live/$domain"
+    certbot_cmd \
+        "sh -c \"mkdir -p '$live_path' && openssl req -x509 -nodes -newkey rsa:1024 -days 1 \
+            -keyout '$live_path/privkey.pem' \
+            -out '$live_path/fullchain.pem' \
+            -subj '/CN=localhost' \
+            \""
+    echo
+
+    echo "### Starting nginx..."
+    sudo docker-compose up --force-recreate --detach nginx
+    echo
+
+    echo "### Removing key now that validation is done for $domain..."
+    certbot_cmd \
+        "rm -Rfv /etc/letsencrypt/live/$domain /etc/letsencrypt/archive/$domain /etc/letsencrypt/renewal/$domain.conf"
+    echo
+
+    # The following command exits with a non-zero status code even if the certificate was generated, but some checks failed.
+    # So we explicitly ignore such failure with a `|| true` in the end, to avoid bash quitting on us because this looks like
+    # a failed command.
+    certbot_cmd "certbot certonly --webroot --webroot-path=/var/www/certbot \
+            $staging_arg \
+            $email_arg \
+            --domains $domain \
+            --rsa-key-size $rsa_key_size \
+            --agree-tos \
+            --force-renewal" \
+        || true
+    echo
+
+    echo "### Reloading nginx..."
+    sudo docker-compose exec nginx nginx -s reload
+}
+
+certbot_cmd() {
+    sudo docker-compose run --rm --entrypoint "$1" certbot
+}
+
 echo_contact_support() {
     echo "Please contact <support@appsmith.com> with your OS details and version${1:-.}"
 }
@@ -392,34 +470,29 @@ mkdir -p "$templates_dir"
 (
     cd "$templates_dir"
     curl --remote-name-all --silent --show-error \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/docker-compose.yml.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/mongo-init.js.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/docker.env.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/nginx_app.conf.sh \
+        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/encryption.env.sh
 )
 
 # Create needed folder structure.
-mkdir -p "$install_dir/data/"{nginx,certbot/{conf,www},mongo/db}
+mkdir -p "$install_dir/data/"{nginx,mongo/db}
 
 echo ""
 echo "Generating the configuration files from the templates"
 bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
 bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > docker-compose.yml
 bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
-bash "$templates_dir"/init-letsencrypt.sh.sh "$custom_domain" > init-letsencrypt.sh
 bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" > docker.env
 if [[ "$setup_encryption" = "true" ]]; then
     bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
 fi
-rm -rf "$templates_dir"
-chmod 0755 init-letsencrypt.sh
 
 overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
 overwrite_file "docker-compose.yml" "docker-compose.yml"
 overwrite_file "data/mongo/init.js" "mongo-init.js"
-overwrite_file "init-letsencrypt.sh" "init-letsencrypt.sh"
 overwrite_file "docker.env" "docker.env"
 overwrite_file "encryption.env" "encryption.env"
 
@@ -427,11 +500,12 @@ echo ""
 
 cd "$install_dir"
 if [[ -n $custom_domain ]]; then
-    echo "Running init-letsencrypt.sh..."
-    sudo ./init-letsencrypt.sh
+    init_ssl_cert "$custom_domain"
 else
     echo "No domain found. Skipping generation of SSL certificate."
 fi
+
+rm -rf "$templates_dir"
 
 echo ""
 echo "Pulling the latest container images"
