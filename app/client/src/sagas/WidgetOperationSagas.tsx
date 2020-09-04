@@ -319,13 +319,6 @@ function* updateWidgetPropertySaga(
   const {
     payload: { propertyValue, propertyName, widgetId },
   } = updateAction;
-  // if (transaction) {
-  //   monitor.startSpan(
-  //     PerformanceSpanName.PROPERTY_PANE_UPDATE_DYNAMIC_UPDATE,
-  //     undefined,
-  //     transaction,
-  //   );
-  // }
   const widget: WidgetProps = yield select(getWidget, widgetId);
 
   const dynamicTriggersUpdated = yield updateDynamicTriggers(
@@ -336,21 +329,9 @@ function* updateWidgetPropertySaga(
   if (!dynamicTriggersUpdated) {
     yield updateDynamicBindings(widget, propertyName, propertyValue);
   }
-  // if (transaction) {
-  //   monitor.endSpan(PerformanceSpanName.PROPERTY_PANE_UPDATE_DYNAMIC_UPDATE);
-  //   monitor.startSpan(
-  //     PerformanceSpanName.PROPERTY_PANE_UPDATE_CANVAS_UPDATE,
-  //     undefined,
-  //     transaction,
-  //   );
-  // }
   yield put(updateWidgetProperty(widgetId, propertyName, propertyValue));
   const widgets = yield select(getWidgets);
   yield put(updateAndSaveLayout(widgets));
-  // if (transaction) {
-  //   monitor.endSpan(PerformanceSpanName.PROPERTY_PANE_UPDATE_CANVAS_UPDATE);
-  //   monitor.endTransaction(PerformanceTransactionName.PROPERTY_PANE_UPDATE);
-  // }
 }
 
 function* setWidgetDynamicPropertySaga(
