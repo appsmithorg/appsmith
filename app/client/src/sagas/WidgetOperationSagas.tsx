@@ -48,7 +48,6 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_DELETE_UNDO_TIMEOUT,
 } from "constants/WidgetConstants";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import {
