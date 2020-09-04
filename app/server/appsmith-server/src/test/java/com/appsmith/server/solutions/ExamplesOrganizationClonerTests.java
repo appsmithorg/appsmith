@@ -151,7 +151,7 @@ public class ExamplesOrganizationClonerTests {
         final Mono<OrganizationData> resultMono = organizationService.create(newOrganization)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
-                        examplesOrganizationCloner.cloneOrganizationForUser(tuple.getT1().getId(), tuple.getT2()))
+                        examplesOrganizationCloner.cloneOrganizationForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty()))
                 .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
@@ -313,7 +313,7 @@ public class ExamplesOrganizationClonerTests {
                     return Mono.when(
                             applicationPageService.createApplication(app1),
                             applicationPageService.createApplication(app2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
+                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2(), Flux.empty()));
                 })
                 .flatMap(this::loadOrganizationData);
 
@@ -364,7 +364,7 @@ public class ExamplesOrganizationClonerTests {
                     return Mono.when(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
+                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2(), Flux.empty()));
                 })
                 .flatMap(this::loadOrganizationData);
 
