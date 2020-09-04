@@ -99,3 +99,15 @@ export const pasteWidget = () => {
     type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
   };
 };
+
+export const deleteWidget = () => {
+  return {
+    type: ReduxActionTypes.DELETE_SELECTED_WIDGET,
+  };
+};
+
+export const cutWidget = () => {
+  return {
+    type: ReduxActionTypes.CUT_SELECTED_WIDGET,
+  };
+};

@@ -270,6 +270,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   PASTE_COPIED_WIDGET_INIT: "PASTE_COPIED_WIDGET_INIT",
   PASTE_COPIED_WIDGET_SUCCESS: "PASTE_COPIED_WIDGET_SUCCESS",
   UNDO_DELETE_WIDGET: "UNDO_DELETE_WIDGET",
+  DELETE_SELECTED_WIDGET: "DELETE_SELECTED_WIDGET",
+  CUT_SELECTED_WIDGET: "CUT_SELECTED_WIDGET",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

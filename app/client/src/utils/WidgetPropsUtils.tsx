@@ -19,6 +19,7 @@ import { OccupiedSpace } from "constants/editorConstants";
 import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -448,7 +449,7 @@ export const getSnapColumns = (): number => {
 };
 
 export const generateWidgetProps = (
-  parent: ContainerWidgetProps<WidgetProps>,
+  parent: FlattenedWidgetProps,
   type: WidgetType,
   leftColumn: number,
   topRow: number,

@@ -175,6 +175,7 @@ export type WidgetRemoveChild = {
 export type WidgetDelete = {
   widgetId: string;
   parentId: string;
+  disallowUndo?: boolean;
 };
 
 export type WidgetResize = {

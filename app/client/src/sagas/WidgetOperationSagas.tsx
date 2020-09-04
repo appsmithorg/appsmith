@@ -64,7 +64,7 @@ import produce from "immer";
 import { flashElementById } from "utils/helpers";
 
 function getChildWidgetProps(
-  parent: ContainerWidgetProps<WidgetProps>,
+  parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
@@ -200,7 +200,7 @@ const getAllWidgetsInTree = (
 
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
-    const { widgetId, parentId } = deleteAction.payload;
+    const { widgetId, parentId, disallowUndo } = deleteAction.payload;
     let widgets = yield select(getWidgets);
     const widget = yield select(getWidget, widgetId);
     let parent: FlattenedWidgetProps = yield select(getWidget, parentId);
@@ -218,7 +218,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
     const otherWidgetsToDelete = getAllWidgetsInTree(widgetId, widgets);
     const saveStatus = yield saveDeletedWidgets(otherWidgetsToDelete, widgetId);
-    if (saveStatus) {
+    if (saveStatus && !disallowUndo) {
       AppToaster.show({
         message: `${widget.widgetName} deleted`,
         autoClose: WIDGET_DELETE_UNDO_TIMEOUT - 2000,
@@ -257,10 +257,26 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   }
 }
 
+function* deleteSelectedWidgetSaga(
+  action?: ReduxAction<{ disallowUndo?: boolean }>,
+) {
+  const selectedWidget = yield select(getSelectedWidget);
+  if (!selectedWidget) return;
+  yield put({
+    type: ReduxActionTypes.WIDGET_DELETE,
+    payload: {
+      widgetId: selectedWidget.widgetId,
+      parentId: selectedWidget.parentId,
+      disallowUndo: !!action?.payload?.disallowUndo,
+    },
+  });
+}
+
 export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
     action.payload.widgetId,
   );
+
   if (deletedWidgets) {
     let widgets = yield select(getWidgets);
     widgets = produce(widgets, (draft: CanvasWidgetsReduxState) => {
@@ -500,12 +516,7 @@ function* updateCanvasSize(
 
 function* copyWidgetSaga() {
   const selectedWidget = yield select(getSelectedWidget);
-  if (!selectedWidget) {
-    AppToaster.show({
-      message: "Please select a widget",
-      type: "info",
-    });
-  }
+  if (!selectedWidget) return;
   const saveResult = yield saveCopiedWidget(JSON.stringify(selectedWidget));
   if (saveResult) {
     AppToaster.show({
@@ -567,9 +578,6 @@ function* pasteWidgetSaga() {
     draft.widgetId = generateReactKey();
     draft.widgetName = newWidgetName;
   });
-
-  console.log({ copiedWidget }, { newWidget });
-
   widgets = produce(widgets, (draft: any) => {
     if (newWidget && newWidget.widgetId) {
       draft[newWidget.widgetId] = newWidget;
@@ -587,6 +595,18 @@ function* pasteWidgetSaga() {
   });
   yield put(updateAndSaveLayout(widgets));
   setTimeout(() => flashElementById(newWidget.widgetId), 100);
+}
+
+function* cutWidgetSaga() {
+  yield put({
+    type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
+  });
+  yield put({
+    type: ReduxActionTypes.DELETE_SELECTED_WIDGET,
+    payload: {
+      disallowUndo: true,
+    },
+  });
 }
 
 export default function* widgetOperationSagas() {
@@ -611,5 +631,10 @@ export default function* widgetOperationSagas() {
     takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
+    takeEvery(
+      ReduxActionTypes.DELETE_SELECTED_WIDGET,
+      deleteSelectedWidgetSaga,
+    ),
+    takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
   ]);
 }

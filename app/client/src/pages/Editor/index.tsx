@@ -39,7 +39,12 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
-import { copyWidget, pasteWidget } from "actions/widgetActions";
+import {
+  copyWidget,
+  pasteWidget,
+  deleteWidget,
+  cutWidget,
+} from "actions/widgetActions";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -53,6 +58,8 @@ type EditorProps = {
   errorPublishing: boolean;
   copySelectedWidget: () => void;
   pasteCopiedWidget: () => void;
+  deleteSelectedWidget: () => void;
+  cutSelectedWidget: () => void;
   user?: User;
 };
 
@@ -97,6 +104,28 @@ class Editor extends Component<Props> {
           group="Canvas"
           onKeyDown={(e: any) => {
             this.props.pasteCopiedWidget();
+          }}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          global={true}
+          combo="del"
+          label="Delete Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            this.props.deleteSelectedWidget();
+          }}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          global={true}
+          combo="meta + x"
+          label="Cut Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            this.props.cutSelectedWidget();
           }}
           preventDefault
           stopPropagation
@@ -234,6 +263,8 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(initEditor(applicationId, pageId)),
     copySelectedWidget: () => dispatch(copyWidget()),
     pasteCopiedWidget: () => dispatch(pasteWidget()),
+    deleteSelectedWidget: () => dispatch(deleteWidget()),
+    cutSelectedWidget: () => dispatch(cutWidget()),
   };
 };
 
