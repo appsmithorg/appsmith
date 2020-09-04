@@ -13,9 +13,10 @@ const ToastBody = styled.div<{ type: TypeOptions }>`
   border-radius: 4px;
   background-color: white;
   color: black;
-  display: flex;
-  align-items: center;
   padding-left: 5px;
+  display: grid;
+  grid-template-columns: 20px 212px 60px;
+  align-items: center;
 `;
 
 const ToastMessage = styled.span`
@@ -25,13 +26,17 @@ const ToastMessage = styled.span`
 
 const ToastAction = styled.button`
   border: none;
-  background: none;
+  background: rgba(214, 65, 95, 0.08);
+
+  color: #d6415f;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 10px;
   text-transform: uppercase;
-  font-size: 16px;
   cursor: pointer;
   float: right;
   &:hover {
-    text-decoration: underline;
+    background: rgba(214, 65, 95, 0.2);
   }
 `;
 
@@ -58,7 +63,12 @@ const ToastComponent = (props: Props) => {
       <Icon color={theme.alert[alertType].color} width={20} height={20} />
       <ToastMessage>{props.message}</ToastMessage>
       {props.action && (
-        <ToastAction onClick={() => dispatch(props.action?.dispatchableAction)}>
+        <ToastAction
+          onClick={() => {
+            dispatch(props.action?.dispatchableAction);
+            props.closeToast && props.closeToast();
+          }}
+        >
           {props.action.text}
         </ToastAction>
       )}
@@ -68,7 +78,19 @@ const ToastComponent = (props: Props) => {
 
 const Toaster = {
   show: (config: Props) => {
-    toast(<ToastComponent {...config} />);
+    toast(
+      <ToastComponent
+        {...config}
+        closeToast={config.closeToast || toast.dismiss}
+      />,
+      {
+        pauseOnHover: false,
+        pauseOnFocusLoss: false,
+        autoClose: config.autoClose || 4000,
+        hideProgressBar:
+          config.hideProgressBar === undefined ? true : config.hideProgressBar,
+      },
+    );
   },
   clear: () => toast.dismiss(),
 };
