@@ -21,10 +21,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { Action } from "entities/Action";
-import monitor, {
-  PerformanceSpanName,
-  PerformanceTransactionName,
-} from "utils/PerformanceMonitor";
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -265,30 +261,16 @@ let dependencyTreeCache: any = {};
 let cachedDataTreeString = "";
 
 export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
-  const transactionName = PerformanceTransactionName.DATA_TREE_EVALUATION;
-  monitor.startTransaction(transactionName);
   const totalStart = performance.now();
   // Create Dependencies DAG
 
-  monitor.startSpan(
-    PerformanceSpanName.DATA_TREE_EVAL_CREATE_DEPENDENCIES,
-    transactionName,
-  );
   const createDepsStart = performance.now();
   const dataTreeString = JSON.stringify(dataTree);
   if (!equal(dataTreeString, cachedDataTreeString)) {
     cachedDataTreeString = dataTreeString;
     dependencyTreeCache = createDependencyTree(dataTree);
-    monitor.setSpanData(
-      PerformanceSpanName.DATA_TREE_EVAL_CREATE_DEPENDENCIES,
-      { isCache: false },
-    );
   }
   const createDepsEnd = performance.now();
-  monitor.setSpanData(PerformanceSpanName.DATA_TREE_EVAL_CREATE_DEPENDENCIES, {
-    dependencyCount: dependencyTreeCache.sortedDependencies.length,
-  });
-  monitor.endSpan(PerformanceSpanName.DATA_TREE_EVAL_CREATE_DEPENDENCIES);
   const {
     dependencyMap,
     sortedDependencies,
@@ -296,10 +278,6 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   } = dependencyTreeCache;
 
   // Evaluate Tree
-  monitor.startSpan(
-    PerformanceSpanName.DATA_TREE_EVAL_EVALUATE_TREE,
-    transactionName,
-  );
   const evaluatedTreeStart = performance.now();
   const evaluatedTree = dependencySortedEvaluateDataTree(
     dataTree,
@@ -307,27 +285,16 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
     sortedDependencies,
   );
   const evaluatedTreeEnd = performance.now();
-  monitor.endSpan(PerformanceSpanName.DATA_TREE_EVAL_EVALUATE_TREE);
 
   // Set Loading Widgets
-  monitor.startSpan(
-    PerformanceSpanName.DATA_TREE_EVAL_SET_LOADING,
-    transactionName,
-  );
   const loadingTreeStart = performance.now();
   const treeWithLoading = setTreeLoading(evaluatedTree, dependencyTree);
   const loadingTreeEnd = performance.now();
-  monitor.endSpan(PerformanceSpanName.DATA_TREE_EVAL_SET_LOADING);
 
   // Validate Widgets
-  monitor.startSpan(
-    PerformanceSpanName.DATA_TREE_EVAL_VALIDATE_TREE,
-    transactionName,
-  );
   const validateTreeStart = performance.now();
   const validated = getValidatedTree(treeWithLoading);
   const validateTreeEnd = performance.now();
-  monitor.endSpan(PerformanceSpanName.DATA_TREE_EVAL_VALIDATE_TREE);
 
   // End counting total time
   const endStart = performance.now();
@@ -343,7 +310,6 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   log.debug("data tree evaluated");
   log.debug(timeTaken);
   // dataTreeCache = validated;
-  monitor.endTransaction(transactionName);
   return validated;
 }
 

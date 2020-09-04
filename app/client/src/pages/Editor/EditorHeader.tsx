@@ -29,6 +29,7 @@ import { connect } from "react-redux";
 import { HeaderIcons } from "icons/HeaderIcons";
 import ThreeDotLoading from "components/designSystems/appsmith/header/ThreeDotsLoading";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
+import monitor, { PerformanceTransactionName } from "utils/PerformanceMonitor";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -127,7 +128,7 @@ type EditorHeaderProps = {
   applicationId?: string;
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
-  publishApplication: (appId: string) => void;
+  publishApplication: (appId: string, transactionId: string) => void;
 };
 
 export const EditorHeader = (props: EditorHeaderProps) => {
@@ -145,7 +146,10 @@ export const EditorHeader = (props: EditorHeaderProps) => {
 
   const handlePublish = () => {
     if (applicationId) {
-      publishApplication(applicationId);
+      const transactionId = monitor.startTransaction(
+        PerformanceTransactionName.DEPLOY_APPLICATION,
+      );
+      publishApplication(applicationId, transactionId);
 
       const appName = currentApplication ? currentApplication.name : "";
       AnalyticsUtil.logEvent("PUBLISH_APP", {
@@ -273,11 +277,12 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  publishApplication: (applicationId: string) => {
+  publishApplication: (applicationId: string, transactionId: string) => {
     dispatch({
       type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
       payload: {
         applicationId,
+        transactionId,
       },
     });
   },

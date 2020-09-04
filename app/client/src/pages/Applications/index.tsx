@@ -2,20 +2,20 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { Card, Icon, Dialog, Classes, Colors } from "@blueprintjs/core";
+import { Card, Classes, Colors, Dialog, Icon } from "@blueprintjs/core";
 import Button from "components/editorComponents/Button";
 import {
   getApplicationList,
-  getIsFetchingApplications,
-  getIsCreatingApplication,
   getCreateApplicationError,
+  getIsCreatingApplication,
   getIsDeletingApplication,
-  getUserApplicationsOrgsList,
   getIsDuplicatingApplication,
+  getIsFetchingApplications,
+  getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 import {
-  ReduxActionTypes,
   ApplicationPayload,
+  ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
@@ -23,7 +23,7 @@ import PageSectionDivider from "pages/common/PageSectionDivider";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
-import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
+import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
 import CustomizedDropdown, {
@@ -33,8 +33,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {
-  getOnSelectAction,
   DropdownOnSelectActions,
+  getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import { Directions } from "utils/helpers";
 import { HeaderIcons } from "icons/HeaderIcons";

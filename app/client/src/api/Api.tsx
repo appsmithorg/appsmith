@@ -12,10 +12,6 @@ import {
 } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
-import monitor, {
-  PerformanceTransactionName,
-} from "../utils/PerformanceMonitor";
-import { Transaction } from "@sentry/tracing";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -30,16 +26,7 @@ const executeActionRegex = /actions\/execute/;
 const currentUserRegex = /\/me$/;
 
 axiosInstance.interceptors.request.use((config: any) => {
-  const apiTransaction = monitor.startTransaction(
-    PerformanceTransactionName.API_CALL,
-    {
-      tags: {
-        requestUrl: config.url,
-        method: config.method,
-      },
-    },
-  ) as Transaction;
-  return { ...config, timer: performance.now(), transaction: apiTransaction };
+  return { ...config, timer: performance.now() };
 });
 
 const makeExecuteActionResponse = (response: any): ActionApiResponse => ({
@@ -57,9 +44,6 @@ const is404orAuthPath = () => {
 
 axiosInstance.interceptors.response.use(
   (response: any): any => {
-    response.config.transaction.setTag("success", "true");
-    response.config.apiTransaction.setData("response", response);
-    response.config.apiTransaction.finish();
     if (response.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(response);
     }
@@ -67,9 +51,6 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
-    error.config.transaction.setTag("success", "false");
-    error.config.transaction.setData("error", error);
-    error.config.transaction.finish();
     if (error.code === "ECONNABORTED") {
       if (error.config.url.match(currentUserRegex)) {
         history.replace({ pathname: SERVER_ERROR_URL });

@@ -4,94 +4,61 @@ import { TransactionContext } from "@sentry/types";
 import log from "loglevel";
 
 export enum PerformanceTransactionName {
-  DATA_TREE_EVALUATION = "DATA_TREE_EVALUATION",
-  API_CALL = "API_CALL",
-  PROPERTY_PANE_UPDATE = "PROPERTY_PANE_UPDATE",
+  DEPLOY_APPLICATION = "DEPLOY_APPLICATION",
 }
 
 export enum PerformanceSpanName {
-  DATA_TREE_EVAL_CREATE_DEPENDENCIES = "DATA_TREE_EVAL_CREATE_DEPENDENCIES",
-  DATA_TREE_EVAL_EVALUATE_TREE = "DATA_TREE_EVAL_EVALUATE_TREE",
-  DATA_TREE_EVAL_SET_LOADING = "DATA_TREE_EVAL_SET_LOADING",
-  DATA_TREE_EVAL_VALIDATE_TREE = "DATA_TREE_EVAL_VALIDATE_TREE",
-  PROPERTY_PANE_UPDATE_DYNAMIC_UPDATE = "PROPERTY_PANE_UPDATE_DYNAMIC_UPDATE",
-  PROPERTY_PANE_UPDATE_CANVAS_UPDATE = "PROPERTY_PANE_UPDATE_CANVAS_UPDATE",
+  TEST = "TEST",
 }
+
+type TransactionId = string;
 
 export enum PerformanceTagNames {
   PAGE_ID = "pageId",
   APP_ID = "appId",
   APP_MODE = "appMode",
+  TRANSACTION_SUCCESS = "transaction.success",
 }
 
 class PerformanceMonitor {
-  private transactions: Map<
-    PerformanceTransactionName,
-    Transaction
-  > = new Map();
+  private globalTags: Map<PerformanceTagNames, string> = new Map();
+  private transactionIdLookup: Record<TransactionId, Transaction> = {};
   private spans: Map<PerformanceSpanName, Span> = new Map();
-  private tags: Map<PerformanceTagNames, string> = new Map();
 
   setTag = (tagName: PerformanceTagNames, value: string) => {
-    this.tags.set(tagName, value);
+    this.globalTags.set(tagName, value);
   };
 
   startTransaction = (
     name: PerformanceTransactionName,
     otherContext: Partial<TransactionContext> = {},
-  ) => {
+  ): TransactionId => {
+    // Close any existing transaction
+    const currentTransaction = Sentry.getCurrentHub()
+      .getScope()
+      ?.getTransaction();
+    if (currentTransaction) {
+      log.debug("Force close transaction", currentTransaction);
+      currentTransaction.finish();
+    }
+    // Start new transaction
     const transaction = Sentry.startTransaction({ name, ...otherContext });
-    this.transactions.set(name, transaction as Transaction);
-    this.tags.forEach((value, key) => transaction.setTag(key, value));
-    return transaction;
+    this.globalTags.forEach((value, key) => transaction.setTag(key, value));
+    log.debug("Transaction started", transaction);
+    const transactionId = transaction.spanId;
+    this.transactionIdLookup[transactionId] = transaction as Transaction;
+    return transactionId;
   };
 
-  startSpan = (
-    spanName: PerformanceSpanName,
-    transactionName?: PerformanceTransactionName,
-    transactionObj?: Transaction,
-  ) => {
-    if (!transactionName || !transactionObj) {
-      log.error(`Transaction not found`);
+  startSpan = (spanName: PerformanceSpanName, transactionId: TransactionId) => {
+    if (!(transactionId in this.transactionIdLookup)) {
+      log.error(`Transaction ${transactionId} not found for ${spanName}`);
       return;
     }
-    let transaction = transactionObj;
-    if (transactionName) {
-      transaction = this.transactions.get(transactionName) as Transaction;
-    }
-    if (!transaction) {
-      log.error(`Transaction ${transactionName} not found`);
-      return;
-    }
+    const transaction = this.transactionIdLookup[transactionId];
     const span = transaction.startChild({ op: spanName });
     this.spans.set(spanName, span as Span);
-  };
-
-  setSpanData = (spanName: PerformanceSpanName, data: Record<string, any>) => {
-    const span = this.spans.get(spanName);
-    if (!span) {
-      log.error(`Span ${spanName} not found`);
-      return;
-    }
-    Object.keys(data).forEach(key => {
-      const value = data[key];
-      span.setData(key, value);
-    });
-  };
-
-  setTransactionData = (
-    transactionName: PerformanceTransactionName,
-    data: Record<string, any>,
-  ) => {
-    const transaction = this.transactions.get(transactionName);
-    if (!transaction) {
-      log.error(`Transaction ${transactionName} not found`);
-      return;
-    }
-    Object.keys(data).forEach(key => {
-      const value = data[key];
-      transaction.setData(key, value);
-    });
+    return span;
   };
 
   endSpan = (spanName: PerformanceSpanName) => {
@@ -103,14 +70,21 @@ class PerformanceMonitor {
     span.finish();
     this.spans.delete(spanName);
   };
-  endTransaction = (transactionName: PerformanceTransactionName) => {
-    const transaction = this.transactions.get(transactionName);
-    if (!transaction) {
-      log.error(`Transaction ${transactionName} not found`);
+
+  endTransaction = (transactionId: string, isSuccess?: boolean) => {
+    if (!(transactionId in this.transactionIdLookup)) {
+      log.error(`Transaction ${transactionId} not found to end it`);
       return;
     }
+    const transaction = this.transactionIdLookup[transactionId];
+    if (isSuccess !== undefined) {
+      transaction.setTag(
+        PerformanceTagNames.TRANSACTION_SUCCESS,
+        String(isSuccess),
+      );
+    }
+    delete this.transactionIdLookup[transactionId];
     transaction.finish();
-    this.transactions.delete(transactionName);
   };
 }
 

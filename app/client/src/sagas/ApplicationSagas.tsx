@@ -36,15 +36,18 @@ import {
   DUPLICATING_APPLICATION,
   DELETING_APPLICATION,
 } from "constants/messages";
+import monitor from "../utils/PerformanceMonitor";
 
 export function* publishApplicationSaga(
-  requestAction: ReduxAction<PublishApplicationRequest>,
+  requestAction: ReduxAction<
+    PublishApplicationRequest & { transactionId: string }
+  >,
 ) {
+  const { transactionId, applicationId } = requestAction.payload;
   try {
-    const request = requestAction.payload;
     const response: PublishApplicationResponse = yield call(
       ApplicationApi.publishApplication,
-      request,
+      { applicationId },
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -52,6 +55,7 @@ export function* publishApplicationSaga(
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
       });
     }
+    monitor.endTransaction(transactionId, true);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.PUBLISH_APPLICATION_ERROR,
@@ -59,6 +63,7 @@ export function* publishApplicationSaga(
         error,
       },
     });
+    monitor.endTransaction(transactionId, false);
   }
 }
 export function* getAllApplicationSaga() {
