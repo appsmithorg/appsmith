@@ -5,10 +5,14 @@ import log from "loglevel";
 
 export enum PerformanceTransactionName {
   DEPLOY_APPLICATION = "DEPLOY_APPLICATION",
+  RUN_ACTION = "RUN_ACTION",
+  PAGE_SWITCH_EDIT = "PAGE_SWITCH_EDIT",
+  PAGE_SWITCH_VIEW = "PAGE_SWITCH_VIEW",
+  CREATE_ACTION = "CREATE_ACTION",
 }
 
 export enum PerformanceSpanName {
-  TEST = "TEST",
+  RUN_ACTION_WAIT_FOR_SAVE = "RUN_ACTION_WAIT_FOR_SAVE",
 }
 
 type TransactionId = string;
@@ -83,6 +87,7 @@ class PerformanceMonitor {
         String(isSuccess),
       );
     }
+    log.debug("Ending transaction", transaction);
     delete this.transactionIdLookup[transactionId];
     transaction.finish();
   };

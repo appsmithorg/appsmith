@@ -72,7 +72,10 @@ import {
 import { clearCaches } from "utils/DynamicBindingUtils";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { getQueryParams } from "utils/AppsmithUtils";
-import monitor, { PerformanceTagNames } from "utils/PerformanceMonitor";
+import monitor, {
+  PerformanceTagNames,
+  PerformanceTransactionName,
+} from "utils/PerformanceMonitor";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -138,6 +141,12 @@ const getCanvasWidgetsPayload = (
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
+  const transactionId = monitor.startTransaction(
+    PerformanceTransactionName.PAGE_SWITCH_EDIT,
+    {
+      data: pageRequestAction.payload,
+    },
+  );
   try {
     const { id } = pageRequestAction.payload;
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
@@ -170,6 +179,7 @@ export function* fetchPageSaga(
           dsl: extractCurrentDSL(fetchPageResponse),
         },
       });
+      monitor.endTransaction(transactionId, true);
     }
   } catch (error) {
     console.log(error);
@@ -179,14 +189,21 @@ export function* fetchPageSaga(
         error,
       },
     });
+    monitor.endTransaction(transactionId, false);
   }
 }
 
 export function* fetchPublishedPageSaga(
   pageRequestAction: ReduxAction<{ pageId: string; bustCache: boolean }>,
 ) {
+  const { pageId, bustCache } = pageRequestAction.payload;
+  const transactionId = monitor.startTransaction(
+    PerformanceTransactionName.PAGE_SWITCH_VIEW,
+    {
+      data: pageRequestAction.payload,
+    },
+  );
   try {
-    const { pageId, bustCache } = pageRequestAction.payload;
     const request: FetchPublishedPageRequest = {
       pageId,
       bustCache,
@@ -219,6 +236,7 @@ export function* fetchPublishedPageSaga(
       );
       // Execute page load actions
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+      monitor.endTransaction(transactionId, true);
     }
   } catch (error) {
     yield put({
@@ -227,6 +245,7 @@ export function* fetchPublishedPageSaga(
         error,
       },
     });
+    monitor.endTransaction(transactionId, true);
   }
 }
 

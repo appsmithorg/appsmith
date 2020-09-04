@@ -50,8 +50,8 @@ import {
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
-  updateAction,
   showRunActionConfirmModal,
+  updateAction,
 } from "actions/actionActions";
 import { Action, RestAction } from "entities/Action";
 import ActionAPI, {
@@ -77,6 +77,10 @@ import { updateAppStore } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
+import monitor, {
+  PerformanceSpanName,
+  PerformanceTransactionName,
+} from "../utils/PerformanceMonitor";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -460,17 +464,36 @@ function* runActionSaga(
     paginationField: PaginationField;
   }>,
 ) {
+  const actionId = reduxAction.payload.id;
+  const isSaving = yield select(isActionSaving(actionId));
+  const isDirty = yield select(isActionDirty(actionId));
+  const actionObject = yield select(getAction, actionId);
+
+  const transactionId = monitor.startTransaction(
+    PerformanceTransactionName.RUN_ACTION,
+    {
+      tags: {
+        actionId,
+        "action.pluginType": actionObject.pluginType,
+      },
+    },
+  );
   try {
-    const actionId = reduxAction.payload.id;
-    const isSaving = yield select(isActionSaving(actionId));
-    const isDirty = yield select(isActionDirty(actionId));
     if (isSaving || isDirty) {
+      const waitSpan = monitor.startSpan(
+        PerformanceSpanName.RUN_ACTION_WAIT_FOR_SAVE,
+        transactionId,
+      );
+      if (waitSpan) {
+        waitSpan.setData("isSaving", isSaving);
+        waitSpan.setData("isDirty", isDirty);
+      }
       if (isDirty && !isSaving) {
         yield put(updateAction({ id: actionId }));
       }
       yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
+      waitSpan && waitSpan.finish();
     }
-    const actionObject = yield select(getAction, actionId);
     const action: ExecuteActionRequest["action"] = { id: actionId };
     const jsonPathKeys = actionObject.jsonPathKeys;
 
@@ -512,11 +535,13 @@ function* runActionSaga(
           message: "Action ran successfully",
           type: ToastType.SUCCESS,
         });
+        monitor.endTransaction(transactionId, true);
       } else {
         AppToaster.show({
           message: "Action returned an error response",
           type: ToastType.WARNING,
         });
+        monitor.endTransaction(transactionId, false);
       }
     } else {
       let error = "An unexpected error occurred";
@@ -527,6 +552,7 @@ function* runActionSaga(
         type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
         payload: { error, id: reduxAction.payload.id },
       });
+      monitor.endTransaction(transactionId, false);
     }
   } catch (error) {
     console.error(error);
@@ -534,6 +560,7 @@ function* runActionSaga(
       type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
       payload: { error, id: reduxAction.payload.id },
     });
+    monitor.endTransaction(transactionId, false);
   }
 }
 

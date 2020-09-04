@@ -55,13 +55,22 @@ import {
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  QUERIES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
+import monitor, {
+  PerformanceTransactionName,
+} from "../utils/PerformanceMonitor";
 
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
+  const transactionId = monitor.startTransaction(
+    PerformanceTransactionName.CREATE_ACTION,
+    {
+      data: actionPayload.payload,
+    },
+  );
   try {
     const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
       actionPayload.payload,
@@ -84,12 +93,14 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
         pageName: pageName,
       });
       yield put(createActionSuccess(response.data));
+      monitor.endTransaction(transactionId, true);
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACTION_ERROR,
       payload: actionPayload.payload,
     });
+    monitor.endTransaction(transactionId, false);
   }
 }
 
