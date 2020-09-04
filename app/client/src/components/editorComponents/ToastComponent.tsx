@@ -7,7 +7,7 @@ import { AlertIcons } from "icons/AlertIcons";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 
-const ToastBody = styled.div<{ type: TypeOptions }>`
+const ToastBody = styled.div<{ type: TypeOptions; action: boolean }>`
   height: 100%;
   border-left: 4px solid ${({ type }) => theme.alert[type].color};
   border-radius: 4px;
@@ -15,7 +15,8 @@ const ToastBody = styled.div<{ type: TypeOptions }>`
   color: black;
   padding-left: 5px;
   display: grid;
-  grid-template-columns: 20px 212px 60px;
+  grid-template-columns: ${props =>
+    props.action ? "20px 212px 60px" : "20px auto"};
   align-items: center;
 `;
 
@@ -59,7 +60,7 @@ const ToastComponent = (props: Props) => {
   const alertType = props.type || ToastType.INFO;
   const Icon = ToastIcon[alertType];
   return (
-    <ToastBody type={alertType}>
+    <ToastBody type={alertType} action={!!props.action}>
       <Icon color={theme.alert[alertType].color} width={20} height={20} />
       <ToastMessage>{props.message}</ToastMessage>
       {props.action && (
