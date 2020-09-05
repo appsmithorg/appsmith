@@ -67,11 +67,10 @@ export type EventName =
 
 export type Gender = "MALE" | "FEMALE";
 export interface User {
-  id: string;
+  username: string;
   name: string;
   email: string;
   gender: Gender;
-  username: string;
   currentOrganizationId?: string;
   applications: any[];
 }
