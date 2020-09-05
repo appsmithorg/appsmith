@@ -169,7 +169,9 @@ export function* fetchPageSaga(
       // dispatch fetch page success
       yield put(fetchPageSuccess());
       // Execute page load actions
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+      yield put(
+        executePageLoadActions(canvasWidgetsPayload.pageActions, transactionId),
+      );
 
       // Add this to the page DSLs for entity explorer
       yield put({
@@ -179,7 +181,6 @@ export function* fetchPageSaga(
           dsl: extractCurrentDSL(fetchPageResponse),
         },
       });
-      monitor.endTransaction(transactionId, true);
     }
   } catch (error) {
     console.log(error);

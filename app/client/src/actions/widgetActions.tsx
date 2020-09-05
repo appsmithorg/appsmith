@@ -27,10 +27,12 @@ export const executeActionError = (
 
 export const executePageLoadActions = (
   payload: PageAction[][],
+  transactionId?: string,
 ): BatchAction<PageAction[][]> =>
   batchAction({
     type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
     payload,
+    transactionId,
   });
 
 export const disableDragAction = (

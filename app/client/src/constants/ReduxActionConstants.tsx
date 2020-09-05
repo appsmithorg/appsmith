@@ -372,6 +372,7 @@ export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof Red
 export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
   payload: T;
+  transactionId?: string;
 }
 
 export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;

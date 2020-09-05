@@ -632,6 +632,9 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     // Load all sets in parallel
     yield* yield all(actionSet.map(a => call(executePageLoadAction, a)));
   }
+  if (action.transactionId) {
+    monitor.endTransaction(action.transactionId, true);
+  }
 }
 
 export function* watchActionExecutionSagas() {

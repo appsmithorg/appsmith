@@ -47,6 +47,7 @@ class PerformanceMonitor {
     }
     // Start new transaction
     const transaction = Sentry.startTransaction({ name, ...otherContext });
+    Sentry.configureScope(scope => scope.setSpan(transaction));
     this.globalTags.forEach((value, key) => transaction.setTag(key, value));
     log.debug("Transaction started", transaction);
     const transactionId = transaction.spanId;
