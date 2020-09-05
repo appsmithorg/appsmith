@@ -71,6 +71,7 @@ export interface User {
   name: string;
   email: string;
   gender: Gender;
+  username: string;
   currentOrganizationId?: string;
   applications: any[];
 }
@@ -163,7 +164,7 @@ class AnalyticsUtil {
       finalEventData = {
         ...finalEventData,
         userData: {
-          userId: userData.id,
+          userId: userData.username,
           email: userData.email,
           currentOrgId: userData.currentOrganizationId,
           appId: appId,
@@ -191,14 +192,14 @@ class AnalyticsUtil {
     }
     Sentry.configureScope(function(scope) {
       scope.setUser({
-        id: userData.id,
-        username: userData.email,
+        id: userId,
+        username: userData.username,
         email: userData.email,
       });
     });
     const { smartLook } = getAppsmithConfigs();
     if (smartLook.enabled) {
-      smartlookClient.identify(userData.email, { email: userData.email });
+      smartlookClient.identify(userId, { email: userData.email });
     }
   }
 
