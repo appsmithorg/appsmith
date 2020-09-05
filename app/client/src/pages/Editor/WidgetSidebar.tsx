@@ -80,11 +80,7 @@ const WidgetSidebar = (props: IPanelProps) => {
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const clearSearchInput = () => {
-    if (searchInputRef.current) searchInputRef.current.value = "";
-  };
-  const search = debounce((e: any) => {
-    const keyword = e.target.value.toLowerCase();
+  const filterCards = (keyword: string) => {
     let filteredCards = cards;
     if (keyword.trim().length > 0) {
       filteredCards = produce(cards, draft => {
@@ -102,6 +98,16 @@ const WidgetSidebar = (props: IPanelProps) => {
       });
     }
     setFilteredCards(filteredCards);
+  };
+  const clearSearchInput = () => {
+    if (searchInputRef.current) {
+      searchInputRef.current.value = "";
+    }
+    filterCards("");
+  };
+
+  const search = debounce((e: any) => {
+    filterCards(e.target.value.toLowerCase());
   }, 300);
   useEffect(() => {
     const el: HTMLInputElement | null = searchInputRef.current;

@@ -19,12 +19,7 @@ assignees: Nikhil-Nandagopal
 
 Good items to include here include:
 - Console / network logs from your browser
-
-### What you expected to happen
-A clear and concise description of what you expected to happen.
-
-### Screenshots
-If applicable, add screenshots to help explain your problem.
+- Screenshots
 
 ### Important Details
 
