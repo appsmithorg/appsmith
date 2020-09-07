@@ -196,7 +196,8 @@
     "storybook-addon-designs": "^5.4.0",
     "ts-jest": "^24.3.0",
     "webpack-merge": "^4.2.2",
-    "workbox-webpack-plugin": "^5.1.2"
+    "workbox-webpack-plugin": "^5.1.2",
+    "cypress-log-to-output": "^1.1.2"
   },
   "husky": {
     "hooks": {
