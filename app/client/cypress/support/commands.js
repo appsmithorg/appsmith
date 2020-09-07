@@ -1376,7 +1376,7 @@ Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.get(selector)
     .trigger("mousedown", { button: 0 }, { force: true })
-    .trigger("mousemove", 100, -100, { force: true });
+    .trigger("mousemove", 300, -300, { force: true });
   cy.get(explorer.dropHere)
     .click()
     .trigger("mouseup", { force: true });
