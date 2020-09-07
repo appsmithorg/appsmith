@@ -317,7 +317,7 @@ os_name=''
 echo -e "\U1F575  Detecting your OS"
 check_os
 
-curl --location --request POST 'https://api.segment.io/v1/track' \
+curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
 --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -542,7 +542,7 @@ if [[ $status_code -ne 401 ]]; then
     echo ""
     echo "Share your email so we can help you with the installation"
     read -rp 'Email: ' email
-    curl --location --request POST 'https://api.segment.io/v1/track' \
+    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
     --header 'Content-Type: application/json' \
     --data-raw '{
@@ -569,7 +569,7 @@ else
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
     echo "Share your email to receive support & updates"
     read -rp 'Email: ' email
-    curl --location --request POST 'https://api.segment.io/v1/track' \
+    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
     --header 'Content-Type: application/json' \
     --data-raw '{
