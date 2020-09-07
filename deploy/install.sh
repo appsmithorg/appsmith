@@ -313,7 +313,7 @@ echo ""
 
 # Checking OS and assigning package manager
 desired_os=0
-os_name="$(cat /etc/*-release | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }')"
+os_name=""
 echo -e "\U1F575  Detecting your OS"
 check_os
 
