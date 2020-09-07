@@ -530,7 +530,6 @@ wait_for_containers_start 60
 echo ""
 
 if [[ $status_code -ne 401 ]]; then
-    
     echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
@@ -538,7 +537,7 @@ if [[ $status_code -ne 401 ]]; then
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
-    echo "Share your email so we can help you with the installation"
+    echo "Please share your email to receive help with the installation"
     read -rp 'Email: ' email
     curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
@@ -551,6 +550,16 @@ if [[ $status_code -ne 401 ]]; then
       }
     }'
 else
+    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
+    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "anonymousId": "anonymousId",
+      "event": "Installation Success",
+      "properties": {
+        "osEnum": '$desired_os'
+      }
+    }'
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
@@ -564,14 +573,14 @@ else
     echo ""
     echo "Need help Getting Started?"
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
-    echo "Share your email to receive support & updates"
+    echo "Please share your email to receive support & updates about appsmith!"
     read -rp 'Email: ' email
     curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-      "anonymousId": "'"$email"'",
-      "event": "Installation Success",
+      "userId": "'"$email"'",
+      "event": "Identify Successful Installation",
       "properties": {
         "osEnum": '$desired_os'
       }
