@@ -51,8 +51,8 @@ const TooltipComponent = (props: TooltipProps) => {
 };
 
 TooltipComponent.defaultProps = {
-  position: Position.RIGHT,
-  background: "dark",
+  position: Position.TOP,
+  variant: "dark",
 };
 
 export default TooltipComponent;
