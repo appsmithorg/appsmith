@@ -1,18 +1,23 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ConfigRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -20,13 +25,17 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
 
     private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
 
+    private final ApplicationRepository applicationRepository;
+
     public ConfigServiceImpl(Scheduler scheduler,
                              Validator validator,
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              ConfigRepository repository,
-                             AnalyticsService analyticsService) {
+                             AnalyticsService analyticsService,
+                             ApplicationRepository applicationRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        this.applicationRepository = applicationRepository;
     }
 
     @Override
@@ -50,5 +59,13 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
     public Mono<String> getTemplateOrganizationId() {
         return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
                 .map(config -> config.getConfig().getAsString(FieldName.ORGANIZATION_ID));
+    }
+
+    @Override
+    public Flux<Application> getTemplateApplications() {
+        return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+                .map(config -> config.getConfig().getOrDefault("applicationIds", Collections.emptyList()))
+                .cast(List.class)
+                .flatMapMany(applicationRepository::findByIdIn);
     }
 }
