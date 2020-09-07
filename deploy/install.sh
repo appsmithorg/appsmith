@@ -527,14 +527,7 @@ wait_for_containers_start 60
 echo ""
 
 if [[ $status_code -ne 401 ]]; then
-    curl --location --request POST 'https://api.segment.io/v1/track' \
-    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
-    --header 'Content-Type: application/json' \
-    --data-raw '{
-      "anonymousId": "anonymousId",
-      "event": "Installation Failed",
-      "osType": $OSTYPE
-    }'
+    
     echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
@@ -542,15 +535,16 @@ if [[ $status_code -ne 401 ]]; then
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
-else
+    read -rp 'Share your email so we can help you with the installation ' email
     curl --location --request POST 'https://api.segment.io/v1/track' \
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-      "anonymousId": "anonymousId",
-      "event": "Installation Success",
+      "userId": $email,
+      "event": "Installation Failed",
       "osType": $OSTYPE
     }'
+else
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
@@ -562,8 +556,17 @@ else
     echo ""
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
-    echo "Need help troubleshooting?"
+    echo "Need help Getting Started?"
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
+    read -rp 'Share your email to receive support & updates' email
+    curl --location --request POST 'https://api.segment.io/v1/track' \
+    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "anonymousId": "anonymousId",
+      "event": "Installation Success",
+      "osType": $OSTYPE
+    }'
 fi
 
 echo -e "\nPeace out \U1F596\n"
