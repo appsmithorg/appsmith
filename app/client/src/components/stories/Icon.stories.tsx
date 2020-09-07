@@ -4,7 +4,7 @@ import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import AppIcon, { AppIconCollection } from "components/ads/AppIcon";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Icon",

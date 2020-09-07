@@ -3,7 +3,7 @@ import { TabComponent, TabProp } from "components/ads/Tabs";
 import { select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { IconCollection } from "components/ads/Icon";
-import styled from "styled-components";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Tabs",
@@ -97,9 +97,3 @@ export const Tabs = () => (
     title4={text("Title 4", "")}
   />
 );
-
-export const StoryWrapper = styled.div`
-  background: #1a191c;
-  height: 700px;
-  padding: 50px 100px;
-`;

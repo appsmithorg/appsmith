@@ -666,7 +666,7 @@ public class DatabaseChangelog {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    @ChangeSet(order = "021", id = "examples-organization", author = "")
+    @ChangeSet(order = "022", id = "examples-organization", author = "")
     public void examplesOrganization(MongoTemplate mongoTemplate, EncryptionService encryptionService) throws IOException {
         final Map<String, String> plugins = new HashMap<>();
 
@@ -793,4 +793,38 @@ public class DatabaseChangelog {
         config.setConfig(new JSONObject(Map.of("organizationId", organizationId)));
         mongoTemplate.insert(config);
     }
+
+    @ChangeSet(order = "023", id = "set-example-apps-in-config", author = "")
+    public void setExampleAppsInConfig(MongoTemplate mongoTemplate) {
+        final org.springframework.data.mongodb.core.query.Query configQuery = query(where("name").is("template-organization"));
+
+        final Config config = mongoTemplate.findOne(
+                configQuery,
+                Config.class
+        );
+
+        if (config == null) {
+            // No template organization configured. Nothing to migrate.
+            return;
+        }
+
+        final String organizationId = config.getConfig().getAsString("organizationId");
+
+        final List<Application> applications = mongoTemplate.find(
+                query(where(fieldName(QApplication.application.organizationId)).is(organizationId)),
+                Application.class
+        );
+
+        final List<String> applicationIds = new ArrayList<>();
+        for (final Application application : applications) {
+            applicationIds.add(application.getId());
+        }
+
+        mongoTemplate.updateFirst(
+                configQuery,
+                update("config.applicationIds", applicationIds),
+                Config.class
+        );
+    }
+
 }
