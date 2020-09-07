@@ -9,7 +9,14 @@ is_command_present() {
 is_mac() {
     [[ $OSTYPE == darwin* ]]
 }
-
+curl --location --request POST 'https://api.segment.io/v1/track' \
+--header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "anonymousId": "anonymousId",
+  "event": "Installation Started",
+  "osType": $OSTYPE
+}'
 # This function checks if the relevant ports required by Appsmith are available or not
 # The script should error out in case they aren't available
 check_ports_occupied() {
@@ -520,6 +527,14 @@ wait_for_containers_start 60
 echo ""
 
 if [[ $status_code -ne 401 ]]; then
+    curl --location --request POST 'https://api.segment.io/v1/track' \
+    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "anonymousId": "anonymousId",
+      "event": "Installation Failed",
+      "osType": $OSTYPE
+    }'
     echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
@@ -528,6 +543,14 @@ if [[ $status_code -ne 401 ]]; then
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
 else
+    curl --location --request POST 'https://api.segment.io/v1/track' \
+    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "anonymousId": "anonymousId",
+      "event": "Installation Success",
+      "osType": $OSTYPE
+    }'
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
