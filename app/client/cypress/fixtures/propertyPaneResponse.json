@@ -159,6 +159,12 @@
                             "propertyName": "exportCsv",
                             "label": "CSV Export",
                             "controlType": "SWITCH"
+                        },
+                        {
+                            "id": "7.1.7",
+                            "propertyName": "multiRowSelection",
+                            "label": "Enable multi row selection",
+                            "controlType": "SWITCH"
                         }
                     ]
                 },

@@ -92,8 +92,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo: 1,
       pageSize: undefined,
       selectedRowIndex: -1,
+      selectedRowsIndexes: [],
       searchText: undefined,
       selectedRow: {},
+      selectedRows: [],
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
     };
@@ -597,8 +599,10 @@ export interface TableWidgetProps extends WidgetProps {
   onRowSelected?: string;
   onSearchTextChanged: string;
   selectedRowIndex?: number;
+  selectedRowsIndexes?: number[];
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;
+  multiRowSelection?: boolean;
   hiddenColumns?: string[];
   columnOrder?: string[];
   columnNameMap?: { [key: string]: string };
