@@ -9,10 +9,21 @@ export enum PerformanceTransactionName {
   PAGE_SWITCH_EDIT = "PAGE_SWITCH_EDIT",
   PAGE_SWITCH_VIEW = "PAGE_SWITCH_VIEW",
   CREATE_ACTION = "CREATE_ACTION",
+  CURL_IMPORT = "CURL_IMPORT",
+  EXECUTE_WIDGET_ACTION = "EXECUTE_WIDGET_ACTION",
+  UPDATE_WIDGET_PROPERTY = "UPDATE_WIDGET_PROPERTY",
 }
 
 export enum PerformanceSpanName {
   RUN_ACTION_WAIT_FOR_SAVE = "RUN_ACTION_WAIT_FOR_SAVE",
+  DATA_TREE_EVALUATION = "DATA_TREE_EVALUATION",
+  DATA_TREE_EVALUATION_CREATE_DEPENDENCIES = "DATA_TREE_EVALUATION_CREATE_DEPENDENCIES",
+  DATA_TREE_EVALUATION_SORTED_EVALUATION = "DATA_TREE_EVALUATION_SORTED_EVALUATION",
+  DATA_TREE_EVALUATION_SET_LOADING = "DATA_TREE_EVALUATION_SET_LOADING",
+  DATA_TREE_EVALUATION_VALIDATE_AND_PARSE = "DATA_TREE_EVALUATION_VALIDATE_AND_PARSE",
+  EXECUTE_PAGE_LOAD_ACTIONS = "EXECUTE_PAGE_LOAD_ACTIONS",
+  SAVE_PAGE_LAYOUT = "SAVE_PAGE_LAYOUT",
+  SAVE_ACTION = "SAVE_ACTION",
 }
 
 type TransactionId = string;
@@ -62,6 +73,21 @@ class PerformanceMonitor {
     }
     const transaction = this.transactionIdLookup[transactionId];
     const span = transaction.startChild({ op: spanName });
+    this.spans.set(spanName, span as Span);
+    return span;
+  };
+
+  attachSpan = (spanName: PerformanceSpanName) => {
+    const currentTransaction = Sentry.getCurrentHub()
+      .getScope()
+      ?.getTransaction();
+    if (!currentTransaction) {
+      log.debug("No transaction is progress");
+      const newTransaction = Sentry.startTransaction({ name: spanName });
+      this.spans.set(spanName, newTransaction as Span);
+      return newTransaction;
+    }
+    const span = currentTransaction.startChild({ op: spanName });
     this.spans.set(spanName, span as Span);
     return span;
   };

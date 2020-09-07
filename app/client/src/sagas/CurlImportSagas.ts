@@ -1,8 +1,8 @@
-import { takeLatest, put, all, select } from "redux-saga/effects";
+import { all, put, select, takeLatest } from "redux-saga/effects";
 import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
   ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import CurlImportApi, { CurlImportRequest } from "api/ImportApi";
@@ -17,10 +17,17 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import { API_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
+import monitor, {
+  PerformanceTransactionName,
+} from "../utils/PerformanceMonitor";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { type, pageId, name } = action.payload;
   let { curl } = action.payload;
+  const transactionId = monitor.startTransaction(
+    PerformanceTransactionName.CURL_IMPORT,
+    { data: { curl } },
+  );
   try {
     curl = transformCurlImport(curl);
     const organizationId = yield select(getCurrentOrgId);
@@ -51,6 +58,7 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
       });
 
       history.push(API_EDITOR_ID_URL(applicationId, pageId, response.data.id));
+      monitor.endTransaction(transactionId, true);
     }
   } catch (error) {
     yield put({
@@ -59,6 +67,7 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         error,
       },
     });
+    monitor.endTransaction(transactionId, false);
   }
 }
 

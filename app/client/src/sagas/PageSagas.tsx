@@ -73,6 +73,7 @@ import { clearCaches } from "utils/DynamicBindingUtils";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { getQueryParams } from "utils/AppsmithUtils";
 import monitor, {
+  PerformanceSpanName,
   PerformanceTagNames,
   PerformanceTransactionName,
 } from "utils/PerformanceMonitor";
@@ -236,8 +237,9 @@ export function* fetchPublishedPageSaga(
         }),
       );
       // Execute page load actions
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
-      monitor.endTransaction(transactionId, true);
+      yield put(
+        executePageLoadActions(canvasWidgetsPayload.pageActions, transactionId),
+      );
     }
   } catch (error) {
     yield put({
@@ -264,6 +266,7 @@ export function* fetchAllPublishedPagesSaga() {
 }
 
 function* savePageSaga() {
+  const pageSaveSpan = monitor.attachSpan(PerformanceSpanName.SAVE_PAGE_LAYOUT);
   const widgets = yield select(getWidgets);
   const editorConfigs = yield select(getEditorConfigs) as any;
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
@@ -291,6 +294,7 @@ function* savePageSaga() {
         }
       }
       yield put(savePageSuccess(savePageResponse));
+      pageSaveSpan.finish();
     }
   } catch (error) {
     yield put({
@@ -299,6 +303,7 @@ function* savePageSaga() {
         error,
       },
     });
+    pageSaveSpan.finish();
   }
 }
 

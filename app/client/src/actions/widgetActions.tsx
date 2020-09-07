@@ -12,10 +12,12 @@ import { BatchAction, batchAction } from "actions/batchActions";
 
 export const executeAction = (
   payload: ExecuteActionPayload,
+  transactionId?: string,
 ): BatchAction<ExecuteActionPayload> =>
   batchAction({
     type: ReduxActionTypes.EXECUTE_ACTION,
     payload,
+    transactionId,
   });
 
 export const executeActionError = (

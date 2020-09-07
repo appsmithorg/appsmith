@@ -81,6 +81,7 @@ import monitor, {
   PerformanceSpanName,
   PerformanceTransactionName,
 } from "../utils/PerformanceMonitor";
+import { Span } from "@sentry/tracing";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -453,6 +454,9 @@ function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
     yield all(
       triggers.map(trigger => call(executeActionTriggers, trigger, event)),
     );
+    if (action.transactionId) {
+      monitor.endTransaction(action.transactionId);
+    }
   } else {
     if (event.callback) event.callback({ success: true });
   }
@@ -628,11 +632,24 @@ function* executePageLoadAction(pageAction: PageAction) {
 
 function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
+  let pageLoadActionsSpan: Span | undefined;
+  if (action.transactionId) {
+    pageLoadActionsSpan = monitor.startSpan(
+      PerformanceSpanName.EXECUTE_PAGE_LOAD_ACTIONS,
+      action.transactionId,
+    );
+    pageLoadActionsSpan?.setTag(
+      "pageActionExecuteCount",
+      _.flatten(pageActions).length.toString(),
+    );
+  }
+
   for (const actionSet of pageActions) {
     // Load all sets in parallel
     yield* yield all(actionSet.map(a => call(executePageLoadAction, a)));
   }
-  if (action.transactionId) {
+  if (action.transactionId && pageLoadActionsSpan) {
+    monitor.endSpan(PerformanceSpanName.EXECUTE_PAGE_LOAD_ACTIONS);
     monitor.endTransaction(action.transactionId, true);
   }
 }

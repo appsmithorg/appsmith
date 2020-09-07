@@ -1,8 +1,7 @@
 import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
-import { createBrowserHistory } from "history";
-const history = createBrowserHistory();
+import history from "utils/history";
 
 type INJECTED_CONFIGS = {
   sentry: {

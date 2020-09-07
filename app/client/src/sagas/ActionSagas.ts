@@ -61,6 +61,7 @@ import {
   QUERIES_EDITOR_URL,
 } from "constants/routes";
 import monitor, {
+  PerformanceSpanName,
   PerformanceTransactionName,
 } from "../utils/PerformanceMonitor";
 
@@ -170,8 +171,10 @@ export function* fetchActionsForPageSaga(
 }
 
 export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
+  let action: Action = yield select(getAction, actionPayload.payload.id);
+  const actionSaveSpan = monitor.attachSpan(PerformanceSpanName.SAVE_ACTION);
+  actionSaveSpan.setTag("action.pluginType", action.pluginType);
   try {
-    let action: Action = yield select(getAction, actionPayload.payload.id);
     const isApi = action.pluginType === "API";
     const isDB = action.pluginType === "DB";
 
@@ -206,12 +209,14 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       }
 
       yield put(updateActionSuccess({ data: response.data }));
+      actionSaveSpan.finish();
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
       payload: { error, id: actionPayload.payload.id },
     });
+    actionSaveSpan.finish();
   }
 }
 

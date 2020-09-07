@@ -34,6 +34,9 @@ import {
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
 import { clearPropertyCache } from "utils/DynamicBindingUtils";
+import monitor, {
+  PerformanceTransactionName,
+} from "../utils/PerformanceMonitor";
 
 /***
  * BaseWidget
@@ -91,7 +94,12 @@ abstract class BaseWidget<
    */
   executeAction(actionPayload: ExecuteActionPayload): void {
     const { executeAction } = this.context;
-    executeAction && executeAction(actionPayload);
+    if (executeAction) {
+      const transactionId = monitor.startTransaction(
+        PerformanceTransactionName.EXECUTE_WIDGET_ACTION,
+      );
+      executeAction(actionPayload, transactionId);
+    }
   }
 
   disableDrag(disable: boolean) {
@@ -111,8 +119,17 @@ abstract class BaseWidget<
   updateWidgetProperty(propertyName: string, propertyValue: any): void {
     const { updateWidgetProperty } = this.context;
     const { widgetId } = this.props;
-    updateWidgetProperty &&
-      updateWidgetProperty(widgetId, propertyName, propertyValue);
+    if (updateWidgetProperty) {
+      const transactionId = monitor.startTransaction(
+        PerformanceTransactionName.UPDATE_WIDGET_PROPERTY,
+      );
+      updateWidgetProperty(
+        widgetId,
+        propertyName,
+        propertyValue,
+        transactionId,
+      );
+    }
   }
 
   updateWidgetMetaProperty(propertyName: string, propertyValue: any): void {
