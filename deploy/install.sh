@@ -9,14 +9,6 @@ is_command_present() {
 is_mac() {
     [[ $OSTYPE == darwin* ]]
 }
-curl --location --request POST 'https://api.segment.io/v1/track' \
---header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
---header 'Content-Type: application/json' \
---data-raw '{
-  "anonymousId": "anonymousId",
-  "event": "Installation Started",
-  "osType": $OSTYPE
-}'
 # This function checks if the relevant ports required by Appsmith are available or not
 # The script should error out in case they aren't available
 check_ports_occupied() {
@@ -324,9 +316,18 @@ desired_os=0
 echo -e "\U1F575  Detecting your OS"
 check_os
 
+curl --location --request POST 'https://api.segment.io/v1/track' \
+--header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "anonymousId": "anonymousId",
+  "event": "Installation Started",
+  "osType": "$desired_os"
+}'
+
 if [[ $desired_os -eq 0 ]];then
     echo ""
-    echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
+    echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu machines."
     echo_contact_support " if you wish to extend this support."
     bye
 else
@@ -535,14 +536,15 @@ if [[ $status_code -ne 401 ]]; then
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
-    read -rp 'Share your email so we can help you with the installation ' email
+    echo "Share your email so we can help you with the installation"
+    read -rp 'Email: ' email
     curl --location --request POST 'https://api.segment.io/v1/track' \
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
     --header 'Content-Type: application/json' \
     --data-raw '{
       "userId": $email,
       "event": "Installation Failed",
-      "osType": $OSTYPE
+      "osType": $desired_os
     }'
 else
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
@@ -558,14 +560,15 @@ else
     echo ""
     echo "Need help Getting Started?"
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
-    read -rp 'Share your email to receive support & updates' email
+    echo "Share your email to receive support & updates"
+    read -rp 'Email: ' email
     curl --location --request POST 'https://api.segment.io/v1/track' \
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
     --header 'Content-Type: application/json' \
     --data-raw '{
       "anonymousId": "anonymousId",
       "event": "Installation Success",
-      "osType": $OSTYPE
+      "osType": $desired_os
     }'
 fi
 
