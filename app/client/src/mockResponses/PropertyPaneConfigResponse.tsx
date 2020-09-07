@@ -156,20 +156,380 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Visible",
             controlType: "SWITCH",
           },
+          {
+            id: "7.1.5",
+            helpText: "Existing Columns",
+            propertyName: "columns",
+            label: "Existing Columns",
+            controlType: "PRIMARY_COLUMNS",
+            childrenProperties: [
+              {
+                id: "7.1.5.1",
+                sectionName: "Column Control",
+                children: [
+                  {
+                    id: "7.1.5.1.0",
+                    propertyName: "columnType",
+                    label: "Column Type",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Plain Text",
+                        value: "text",
+                      },
+                      {
+                        label: "Number",
+                        value: "number",
+                      },
+                      {
+                        label: "Image",
+                        value: "image",
+                      },
+                      {
+                        label: "Video",
+                        value: "video",
+                      },
+                      {
+                        label: "Date",
+                        value: "date",
+                      },
+                      {
+                        label: "Time",
+                        value: "time",
+                      },
+                      {
+                        label: "Currency",
+                        value: "currencys",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.5.1.2",
+                    propertyName: "computedValue",
+                    label: "Computed Value",
+                    controlType: "INPUT_TEXT",
+                  },
+                  {
+                    id: "7.1.5.1.3",
+                    propertyName: "enableFilter",
+                    label: "Filtering",
+                    controlType: "SWITCH",
+                    isJSConvertible: true,
+                  },
+                  {
+                    id: "7.1.5.1.4",
+                    propertyName: "enableSort",
+                    label: "Sorting",
+                    controlType: "SWITCH",
+                    isJSConvertible: true,
+                  },
+                ],
+              },
+              {
+                id: "7.1.5.2",
+                sectionName: "Text",
+                children: [
+                  {
+                    id: "7.1.5.2.1",
+                    propertyName: "textAlign",
+                    label: "Text Align",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Left",
+                        value: "LEFT",
+                      },
+                      {
+                        label: "Center",
+                        value: "CENTER",
+                      },
+                      {
+                        label: "Right",
+                        value: "RIGHT",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.5.2.2",
+                    propertyName: "textSize",
+                    label: "Text Size",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Heading",
+                        value: "HEADING",
+                      },
+                      {
+                        label: "Label",
+                        value: "LABEL",
+                      },
+                      {
+                        label: "Body",
+                        value: "BODY",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.5.2.3",
+                    propertyName: "fontStyle",
+                    label: "Font Style",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Normal",
+                        value: "NORMAL",
+                      },
+                      {
+                        label: "Bold",
+                        value: "BOLD",
+                      },
+                      {
+                        label: "Italic",
+                        value: "ITALIC",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.5.2.4",
+                    propertyName: "verticalAlignment",
+                    label: "Vertical Alignment",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Top",
+                        value: "TOP",
+                      },
+                      {
+                        label: "Center",
+                        value: "CENTER",
+                      },
+                      {
+                        label: "Bottom",
+                        value: "BOTTOM",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.5.2.5",
+                    propertyName: "textColor",
+                    label: "Text Color",
+                    controlType: "INPUT_TEXT",
+                    isJSConvertible: true,
+                  },
+                ],
+              },
+              {
+                id: "7.1.5.3",
+                sectionName: "Actions",
+                children: [
+                  {
+                    id: "7.1.5.3.1",
+                    helpText:
+                      "Adds a button action for every row. Reference the Table.selectedRow property in the action",
+                    propertyName: "columnActions",
+                    label: "Row Button",
+                    controlType: "COLUMN_ACTION_SELECTOR",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            id: "7.1.6",
+            helpText: "Created Columns",
+            propertyName: "derivedColumns",
+            label: "Created Columns",
+            controlType: "ADDITIONAL_COLUMNS",
+            childrenProperties: [
+              {
+                id: "7.1.6.1",
+                sectionName: "Column Control",
+                children: [
+                  {
+                    id: "7.1.6.1.0",
+                    propertyName: "columnType",
+                    label: "Column Type",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Plain Text",
+                        value: "text",
+                      },
+                      {
+                        label: "Number",
+                        value: "number",
+                      },
+                      {
+                        label: "Image",
+                        value: "image",
+                      },
+                      {
+                        label: "Video",
+                        value: "video",
+                      },
+                      {
+                        label: "Date",
+                        value: "date",
+                      },
+                      {
+                        label: "Time",
+                        value: "time",
+                      },
+                      {
+                        label: "Currency",
+                        value: "currencys",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.6.1.1",
+                    propertyName: "computedValue",
+                    label: "Computed Value",
+                    controlType: "INPUT_TEXT",
+                  },
+                  {
+                    id: "7.1.6.1.2",
+                    propertyName: "enableFilter",
+                    label: "Filtering",
+                    controlType: "SWITCH",
+                    isJSConvertible: true,
+                  },
+                  {
+                    id: "7.1.6.1.3",
+                    propertyName: "enableSort",
+                    label: "Sorting",
+                    controlType: "SWITCH",
+                    isJSConvertible: true,
+                  },
+                ],
+              },
+              {
+                id: "7.1.6.3",
+                sectionName: "Text",
+                children: [
+                  {
+                    id: "7.1.6.3.1",
+                    propertyName: "textAlign",
+                    helpText: "Sets the alignments of the text",
+                    label: "Text Align",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Left",
+                        value: "LEFT",
+                      },
+                      {
+                        label: "Center",
+                        value: "CENTER",
+                      },
+                      {
+                        label: "Right",
+                        value: "RIGHT",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.6.3.2",
+                    propertyName: "textStyle",
+                    helpText: "Sets the font and style of the text",
+                    label: "Text Style",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Heading",
+                        value: "HEADING",
+                      },
+                      {
+                        label: "Label",
+                        value: "LABEL",
+                      },
+                      {
+                        label: "Body",
+                        value: "BODY",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.6.3.3",
+                    propertyName: "fontStyle",
+                    label: "Font Style",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Bold",
+                        value: "BOLD",
+                      },
+                      {
+                        label: "Italic",
+                        value: "ITALIC",
+                      },
+                      {
+                        label: "Normal",
+                        value: "NORMAL",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.6.3.4",
+                    propertyName: "verticalAlignment",
+                    label: "Vertical Alignment",
+                    controlType: "DROP_DOWN",
+                    isJSConvertible: true,
+                    options: [
+                      {
+                        label: "Top",
+                        value: "TOP",
+                      },
+                      {
+                        label: "Center",
+                        value: "CENTER",
+                      },
+                      {
+                        label: "Bottom",
+                        value: "BOTTOM",
+                      },
+                    ],
+                  },
+                  {
+                    id: "7.1.6.3.5",
+                    propertyName: "textColor",
+                    label: "Text Color",
+                    controlType: "INPUT_TEXT",
+                    isJSConvertible: true,
+                  },
+                ],
+              },
+              {
+                id: "7.1.6.2",
+                sectionName: "Actions",
+                children: [
+                  {
+                    id: "7.2.1",
+                    helpText:
+                      "Adds a button action for every row. Reference the Table.selectedRow property in the action",
+                    propertyName: "columnActions",
+                    label: "Row Button",
+                    controlType: "COLUMN_ACTION_SELECTOR",
+                  },
+                ],
+              },
+            ],
+          },
         ],
       },
       {
         id: "7.2",
         sectionName: "Actions",
         children: [
-          {
-            id: "7.2.1",
-            helpText:
-              "Adds a button action for every row. Reference the Table.selectedRow property in the action",
-            propertyName: "columnActions",
-            label: "Row Button",
-            controlType: "COLUMN_ACTION_SELECTOR",
-          },
           {
             id: "7.2.2",
             helpText: "Triggers an action when a table row is selected",

@@ -26,6 +26,8 @@ import StepControl, {
 import TabControl from "components/propertyControls/TabControl";
 import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
+import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
+import AdditionalColumnsControl from "components/propertyControls/AdditionalColumnsControl";
 import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
@@ -45,6 +47,8 @@ export const PropertyControls = {
   LocationSearchControl,
   StepControl,
   TabControl,
+  PrimaryColumnsControl,
+  AdditionalColumnsControl,
 };
 
 export type PropertyControlPropsType =

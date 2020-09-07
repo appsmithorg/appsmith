@@ -20,6 +20,7 @@ import { ReactComponent as DragIcon } from "assets/icons/control/drag.svg";
 import { ReactComponent as SortIcon } from "assets/icons/control/sort-icon.svg";
 import { ReactComponent as EditWhiteIcon } from "assets/icons/control/edit-white.svg";
 import { ReactComponent as LaunchIcon } from "assets/icons/control/launch.svg";
+import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -134,6 +135,11 @@ export const ControlIcons: {
   LAUNCH_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <LaunchIcon />
+    </IconWrapper>
+  ),
+  BACK_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BackIcon />
     </IconWrapper>
   ),
 };

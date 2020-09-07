@@ -96,6 +96,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRow: {},
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
+      currentRow: {},
     };
   }
 
@@ -308,15 +309,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return filteredTableData;
   };
 
+  getEmptyRow = () => {
+    const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
+    const selectedRow: { [key: string]: any } = {};
+    for (let i = 0; i < columnKeys.length; i++) {
+      selectedRow[columnKeys[i]] = undefined;
+    }
+    return selectedRow;
+  };
+
   getSelectedRow = (filteredTableData: object[]) => {
     const { selectedRowIndex } = this.props;
     if (selectedRowIndex === undefined || selectedRowIndex === -1) {
-      const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
-      const selectedRow: { [key: string]: any } = {};
-      for (let i = 0; i < columnKeys.length; i++) {
-        selectedRow[columnKeys[i]] = undefined;
-      }
-      return selectedRow;
+      return this.getEmptyRow();
     }
     return filteredTableData[selectedRowIndex];
   };
@@ -328,6 +333,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       "selectedRow",
       this.getSelectedRow(filteredTableData),
     );
+    super.updateWidgetMetaProperty("currentRow", this.getEmptyRow());
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
     if (
@@ -342,6 +348,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     ) {
       const filteredTableData = this.filterTableData();
       super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+      super.updateWidgetMetaProperty("currentRow", this.getEmptyRow());
       super.updateWidgetMetaProperty(
         "selectedRow",
         this.getSelectedRow(filteredTableData),

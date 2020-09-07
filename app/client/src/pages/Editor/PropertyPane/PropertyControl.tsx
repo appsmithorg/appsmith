@@ -11,12 +11,15 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyControlPropsType } from "components/propertyControls";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
+import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
+import { ChildProperties } from "pages/Editor/PropertyPane/PropertiesEditor";
 
 type Props = {
   widgetProperties: WidgetProps;
   propertyConfig: PropertyControlPropsType;
   toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
+  openNextPanel: (propertySections: PropertySection[]) => void;
 };
 
 const PropertyControl = (props: Props) => {
@@ -25,8 +28,8 @@ const PropertyControl = (props: Props) => {
     propertyConfig,
     toggleDynamicProperty,
     onPropertyChange,
+    openNextPanel,
   } = props;
-
   const getPropertyValidation = (
     propertyName: string,
   ): { isValid: boolean; validationMessage?: string } => {
@@ -61,9 +64,10 @@ const PropertyControl = (props: Props) => {
       validationMessage,
       dataTreePath,
       evaluatedValue,
-      widgetProperties: widgetProperties,
+      widgetProperties,
       expected: FIELD_EXPECTED_VALUE[widgetProperties.type][propertyName],
     };
+    console.log({ config });
     if (
       widgetProperties.dynamicTriggers &&
       widgetProperties.dynamicTriggers[propertyName]
@@ -114,6 +118,7 @@ const PropertyControl = (props: Props) => {
             config,
             {
               onPropertyChange: onPropertyChange,
+              openNextPanel: openNextPanel,
             },
             isDynamic,
           )}
