@@ -45,6 +45,7 @@ import {
   deleteWidget,
   cutWidget,
 } from "actions/widgetActions";
+import { isMac } from "utils/helpers";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -104,6 +105,28 @@ class Editor extends Component<Props> {
           group="Canvas"
           onKeyDown={(e: any) => {
             this.props.pasteCopiedWidget();
+          }}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          global={true}
+          combo="del"
+          label="Delete Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            this.props.deleteSelectedWidget();
+          }}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          global={true}
+          combo="backspace"
+          label="Delete Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            if (isMac()) this.props.deleteSelectedWidget();
           }}
           preventDefault
           stopPropagation
