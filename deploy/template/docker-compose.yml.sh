@@ -1,10 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ ! -f docker-compose.yml ]; then
-    touch docker-compose.yml
-fi
+set -o nounset
 
-cat >| docker-compose.yml  << EOF
+mongo_root_user="$1"
+mongo_root_password="$2"
+mongo_database="$3"
+
+cat <<EOF
 version: "3.7"
 
 services:
@@ -21,6 +23,8 @@ services:
     command: "/bin/sh -c 'while :; do sleep 6h & wait \$\${!}; nginx -s reload; done & /start-nginx.sh'"
     depends_on:
       - appsmith-internal-server
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
     networks:
       - appsmith
 
@@ -44,6 +48,9 @@ services:
       - mongo
     depends_on:
       - mongo
+      - redis
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
     networks:
       - appsmith
 
@@ -52,7 +59,7 @@ services:
     expose:
       - "27017"
     environment:
-      - MONGO_INITDB_DATABASE=appsmith
+      - MONGO_INITDB_DATABASE=$mongo_database
       - MONGO_INITDB_ROOT_USERNAME=$mongo_root_user
       - MONGO_INITDB_ROOT_PASSWORD=$mongo_root_password
     volumes:
@@ -68,8 +75,16 @@ services:
     networks:
       - appsmith
 
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Update check interval in seconds.
+    command: --interval 300 --label-enable
+    networks:
+      - appsmith
+
 networks:
   appsmith:
     driver: bridge
-
 EOF

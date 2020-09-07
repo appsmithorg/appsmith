@@ -1,10 +1,10 @@
 import React from "react";
-import Icon, { IconSize, IconName } from "components/ads/Icon";
+import Icon, { IconSize, IconCollection } from "components/ads/Icon";
 import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import AppIcon, { AppIconName } from "components/ads/AppIcon";
-import { StoryWrapper } from "./Tabs.stories";
+import AppIcon, { AppIconCollection } from "components/ads/AppIcon";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Icon",
@@ -15,29 +15,10 @@ export default {
 export const ButtonIcon = () => (
   <StoryWrapper>
     <Button
-      size={select("size", [Size.small, Size.medium, Size.large], Size.large)}
-      category={select(
-        "category",
-        [Category.primary, Category.secondary, Category.tertiary],
-        Category.primary,
-      )}
-      variant={select(
-        "variant",
-        [Variant.info, Variant.success, Variant.danger, Variant.warning],
-        Variant.info,
-      )}
-      icon={select(
-        "Icon name",
-        [
-          IconName.DELETE,
-          IconName.USER,
-          IconName.BILLING,
-          IconName.LAUNCH,
-          IconName.SHARE,
-          IconName.CLOSE,
-        ],
-        IconName.DELETE,
-      )}
+      size={select("size", Object.values(Size), Size.large)}
+      category={select("category", Object.values(Category), Category.primary)}
+      variant={select("variant", Object.values(Variant), Variant.info)}
+      icon={select("Icon name", IconCollection, "delete")}
       isLoading={boolean("Loading", false)}
       disabled={boolean("Disabled", false)}
     ></Button>
@@ -59,18 +40,7 @@ export const BordelessIcon = () => (
         ],
         IconSize.LARGE,
       )}
-      name={select(
-        "Icon name",
-        [
-          IconName.DELETE,
-          IconName.USER,
-          IconName.BILLING,
-          IconName.LAUNCH,
-          IconName.SHARE,
-          IconName.CLOSE,
-        ],
-        IconName.DELETE,
-      )}
+      name={select("Icon name", IconCollection, "delete")}
     />
   </StoryWrapper>
 );
@@ -98,24 +68,7 @@ export const AppIconVariant = () => (
         ],
         "#4F70FD",
       )}
-      name={select(
-        "Select Icon",
-        [
-          AppIconName.BAG,
-          AppIconName.PRODUCT,
-          AppIconName.BOOK,
-          AppIconName.CAMERA,
-          AppIconName.FILE,
-          AppIconName.CHAT,
-          AppIconName.CALENDER,
-          AppIconName.FLIGHT,
-          AppIconName.FRAME,
-          AppIconName.GLOBE,
-          AppIconName.SHOPPER,
-          AppIconName.HEART,
-        ],
-        AppIconName.BAG,
-      )}
+      name={select("Select Icon", AppIconCollection, "bag")}
     />
   </StoryWrapper>
 );

@@ -11,6 +11,7 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PageRepository;
@@ -140,6 +141,7 @@ public class SeedMongoData {
         };
         Object[][] pluginData = {
                 {"Installed Plugin Name", PluginType.API, "installed-plugin"},
+                {"Installed DB Plugin Name", PluginType.DB, "installed-db-plugin"},
                 {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
 
@@ -171,42 +173,38 @@ public class SeedMongoData {
                 .cache();
 
         // Seed the organization data into the DB
+        Flux<Organization> organizationFlux = mongoTemplate
+                .find(new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0])), Plugin.class)
+                .map(plugin -> new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.FREE))
+                .collectList()
+                .cache()
+                .repeat()
+                .zipWithIterable(List.of(orgData))
+                .map(tuple -> {
+                    final List<OrganizationPlugin> orgPlugins = tuple.getT1();
+                    final Object[] orgArray = tuple.getT2();
 
+                    Organization organization = new Organization();
+                    organization.setName((String) orgArray[0]);
+                    organization.setDomain((String) orgArray[1]);
+                    organization.setWebsite((String) orgArray[2]);
+                    organization.setSlug((String) orgArray[3]);
+                    organization.setPolicies((Set<Policy>) orgArray[4]);
+                    organization.setPlugins(orgPlugins);
 
-        Flux<Organization> organizationFlux = mongoTemplate.findOne(
-                new Query().addCriteria(where("name").is(pluginData[0][0])), Plugin.class
-        )
-                .map(plugin -> plugin.getId())
-                .flatMapMany(pluginId -> Flux.just(orgData)
-                        .map(array -> {
-                            log.debug("In the orgFlux for pluginId: {}", pluginId);
-                            Organization organization = new Organization();
-                            organization.setName((String) array[0]);
-                            organization.setDomain((String) array[1]);
-                            organization.setWebsite((String) array[2]);
-                            organization.setSlug((String) array[3]);
-                            organization.setPolicies((Set<Policy>) array[4]);
+                    List<UserRole> userRoles = new ArrayList<>();
+                    UserRole userRole = new UserRole();
+                    String roleName = "Administrator";
+                    userRole.setRole(AppsmithRole.generateAppsmithRoleFromName(roleName));
+                    userRole.setUsername(API_USER_EMAIL);
+                    userRole.setRoleName(roleName);
+                    userRoles.add(userRole);
+                    organization.setUserRoles(userRoles);
 
-                            OrganizationPlugin orgPlugin = new OrganizationPlugin();
-                            orgPlugin.setPluginId(pluginId);
-                            List<OrganizationPlugin> orgPlugins = new ArrayList<>();
-                            orgPlugins.add(orgPlugin);
-                            organization.setPlugins(orgPlugins);
-
-                            List<UserRole> userRoles = new ArrayList<>();
-                            UserRole userRole = new UserRole();
-                            String roleName = "Administrator";
-                            userRole.setRole(AppsmithRole.generateAppsmithRoleFromName(roleName));
-                            userRole.setUsername(API_USER_EMAIL);
-                            userRole.setRoleName(roleName);
-                            userRoles.add(userRole);
-                            organization.setUserRoles(userRoles);
-
-
-                            log.debug("In the orgFlux. Create Organization: {}", organization);
-                            return organization;
-                        }).flatMap(organizationRepository::save)
-                );
+                    log.debug("In the orgFlux. Create Organization: {}", organization);
+                    return organization;
+                })
+                .flatMap(organizationRepository::save);
 
         Flux<Organization> organizationFlux1 = organizationRepository.deleteAll()
                 .thenMany(pluginFlux)

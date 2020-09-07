@@ -49,7 +49,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import { AppState } from "reducers";
 const {
   enableGithubOAuth,
   enableGoogleOAuth,

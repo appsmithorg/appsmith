@@ -11,6 +11,7 @@ import {
   getCreateApplicationError,
   getIsDeletingApplication,
   getUserApplicationsOrgsList,
+  getIsDuplicatingApplication,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -23,8 +24,6 @@ import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
-import { DELETING_APPLICATION } from "constants/messages";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
 import CustomizedDropdown, {
@@ -39,6 +38,7 @@ import {
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import { Directions } from "utils/helpers";
 import { HeaderIcons } from "icons/HeaderIcons";
+import { duplicateApplication } from "actions/applicationActions";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -132,7 +132,9 @@ type ApplicationProps = {
   createApplicationError?: string;
   searchApplications: (keyword: string) => void;
   deleteApplication: (id: string) => void;
+  duplicateApplication: (id: string) => void;
   deletingApplication: boolean;
+  duplicatingApplication: boolean;
   getAllApplication: () => void;
   userOrgs: any;
   currentUser?: User;
@@ -207,9 +209,6 @@ class Applications extends Component<
 
     return (
       <PageWrapper displayName="Applications">
-        {this.props.deletingApplication
-          ? AppToaster.show({ message: DELETING_APPLICATION })
-          : AppToaster.clear()}
         <SubHeader
           add={{
             form: CreateOrganizationForm,
@@ -328,6 +327,7 @@ class Applications extends Component<
                           key={application.id}
                           application={application}
                           delete={this.props.deleteApplication}
+                          duplicate={this.props.duplicateApplication}
                         />
                       )
                     );
@@ -341,12 +341,14 @@ class Applications extends Component<
     );
   }
 }
+
 const mapStateToProps = (state: AppState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
+  duplicatingApplication: getIsDuplicatingApplication(state),
   userOrgs: getUserApplicationsOrgsList(state),
   currentUser: getCurrentUser(state),
 });
@@ -379,6 +381,9 @@ const mapDispatchToProps = (dispatch: any) => ({
         },
       });
     }
+  },
+  duplicateApplication: (applicationId: string) => {
+    dispatch(duplicateApplication(applicationId));
   },
 });
 

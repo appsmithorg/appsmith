@@ -67,10 +67,12 @@ export type EventName =
 
 export type Gender = "MALE" | "FEMALE";
 export interface User {
-  userId: string;
+  username: string;
   name: string;
   email: string;
   gender: Gender;
+  currentOrganizationId?: string;
+  applications: any[];
 }
 
 function getApplicationId(location: Location) {
@@ -84,7 +86,7 @@ function getApplicationId(location: Location) {
 }
 
 class AnalyticsUtil {
-  static user: any = undefined;
+  static user?: User = undefined;
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
@@ -161,7 +163,7 @@ class AnalyticsUtil {
       finalEventData = {
         ...finalEventData,
         userData: {
-          userId: userData.id,
+          userId: userData.username,
           email: userData.email,
           currentOrgId: userData.currentOrganizationId,
           appId: appId,
@@ -189,14 +191,14 @@ class AnalyticsUtil {
     }
     Sentry.configureScope(function(scope) {
       scope.setUser({
-        id: userData.userId,
-        username: userData.email,
+        id: userId,
+        username: userData.username,
         email: userData.email,
       });
     });
     const { smartLook } = getAppsmithConfigs();
     if (smartLook.enabled) {
-      smartlookClient.identify(userData.email, { email: userData.email });
+      smartlookClient.identify(userId, { email: userData.email });
     }
   }
 

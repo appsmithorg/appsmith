@@ -3,6 +3,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
+import { Classes } from "./common";
 
 export type TabProp = {
   key: string;
@@ -15,12 +16,8 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
   border-radius: 0px;
   height: 100%;
-  .ads-icon {
+  .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[3]}px;
-    svg {
-      width: ${props => props.theme.spaces[9]}px;
-      height: ${props => props.theme.spaces[9]}px;
-    }
   }
   .react-tabs {
     height: 100%;
@@ -127,7 +124,7 @@ export const TabComponent = (props: TabbedViewComponentType) => {
         <TabList>
           {props.tabs.map(tab => (
             <Tab key={tab.key}>
-              {tab.icon ? <Icon name={tab.icon} size={IconSize.LARGE} /> : null}
+              {tab.icon ? <Icon name={tab.icon} size={IconSize.XXXL} /> : null}
               <TabTitle>{tab.title}</TabTitle>
             </Tab>
           ))}
