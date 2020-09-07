@@ -57,8 +57,6 @@ export const saveDeletedWidgets = async (widgets: any, widgetId: string) => {
       `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
       JSON.stringify(widgets),
     );
-    await store.removeItem(`bladabooey`);
-
     return true;
   } catch (error) {
     console.log(
