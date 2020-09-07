@@ -313,6 +313,7 @@ echo ""
 
 # Checking OS and assigning package manager
 desired_os=0
+os_name=''
 echo -e "\U1F575  Detecting your OS"
 check_os
 
@@ -322,7 +323,10 @@ curl --location --request POST 'https://api.segment.io/v1/track' \
 --data-raw '{
   "anonymousId": "anonymousId",
   "event": "Installation Started",
-  "osType": "$desired_os"
+  "properties": {
+    "osEnum": "$desired_os",
+    "osName": "$os_name"
+  }
 }'
 
 if [[ $desired_os -eq 0 ]];then
@@ -544,7 +548,10 @@ if [[ $status_code -ne 401 ]]; then
     --data-raw '{
       "userId": $email,
       "event": "Installation Failed",
-      "osType": $desired_os
+      "properties": {
+        "osEnum": "$desired_os",
+        "osName": "$os_name"
+      }
     }'
 else
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
@@ -568,7 +575,10 @@ else
     --data-raw '{
       "anonymousId": "anonymousId",
       "event": "Installation Success",
-      "osType": $desired_os
+      "properties": {
+        "osEnum": "$desired_os",
+        "osName": "$os_name"
+      }
     }'
 fi
 
