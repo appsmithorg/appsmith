@@ -313,7 +313,7 @@ echo ""
 
 # Checking OS and assigning package manager
 desired_os=0
-os_name=''
+os_name="$(cat /etc/*-release | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }')"
 echo -e "\U1F575  Detecting your OS"
 check_os
 
@@ -324,8 +324,8 @@ curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
   "anonymousId": "anonymousId",
   "event": "Installation Started",
   "properties": {
-    "osEnum": $desired_os,
-    "osName": $os_name
+    "osEnum": '$desired_os',
+    "osName": '$os_name'
   }
 }'
 
@@ -549,8 +549,8 @@ if [[ $status_code -ne 401 ]]; then
       "userId": $email,
       "event": "Installation Failed",
       "properties": {
-        "osEnum": $desired_os,
-        "osName": $os_name
+        "osEnum": '$desired_os',
+        "osName": '$os_name'
       }
     }'
 else
@@ -576,8 +576,8 @@ else
       "anonymousId": $email,
       "event": "Installation Success",
       "properties": {
-        "osEnum": $desired_os,
-        "osName": $os_name
+        "osEnum": '$desired_os',
+        "osName": '$os_name'
       }
     }'
 fi
