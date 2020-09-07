@@ -71,6 +71,8 @@ public class Action extends BaseDomain {
     @JsonIgnore
     Boolean userSetOnLoad = false;
 
+    Boolean confirmBeforeExecute = false;
+
     Documentation documentation;
 
     /**
