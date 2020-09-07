@@ -313,7 +313,6 @@ echo ""
 
 # Checking OS and assigning package manager
 desired_os=0
-os_name=""
 echo -e "\U1F575  Detecting your OS"
 check_os
 
