@@ -323,8 +323,7 @@ curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
   "anonymousId": "anonymousId",
   "event": "Installation Started",
   "properties": {
-    "osEnum": '$desired_os',
-    "osName": '$os_name'
+    "osEnum": '$desired_os'
   }
 }'
 
@@ -548,8 +547,7 @@ if [[ $status_code -ne 401 ]]; then
       "userId": $email,
       "event": "Installation Failed",
       "properties": {
-        "osEnum": '$desired_os',
-        "osName": '$os_name'
+        "osEnum": '$desired_os'
       }
     }'
 else
@@ -575,8 +573,7 @@ else
       "anonymousId": $email,
       "event": "Installation Success",
       "properties": {
-        "osEnum": '$desired_os',
-        "osName": '$os_name'
+        "osEnum": '$desired_os'
       }
     }'
 fi
