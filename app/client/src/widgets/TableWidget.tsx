@@ -208,7 +208,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       for (let colIndex = 0; colIndex < columns.length; colIndex++) {
         const column = columns[colIndex];
         const { accessor } = column;
-        const value = data[accessor];
+        let value = data[accessor];
         if (column.metaProperties) {
           const type = column.metaProperties.type;
           const format = column.metaProperties.format;
@@ -229,15 +229,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 if (type !== "EPOCH" && type !== "Milliseconds") {
                   inputFormat = type;
                   moment(value, inputFormat);
-                } else {
-                  moment(value);
+                } else if (!isNumber(value)) {
+                  isValidDate = false;
                 }
               } catch (e) {
                 isValidDate = false;
               }
               if (isValidDate) {
-                if (this.props.format === "INPUT") {
+                if (outputFormat === "SAME_AS_INPUT") {
                   outputFormat = inputFormat;
+                }
+                if (column.metaProperties.inputFormat === "Milliseconds") {
+                  value = 1000 * Number(value);
                 }
                 tableRow[accessor] = moment(value, inputFormat).format(
                   outputFormat,

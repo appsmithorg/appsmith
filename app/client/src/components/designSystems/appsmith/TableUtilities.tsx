@@ -277,7 +277,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
           category: true,
           closeOnClick: false,
           onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(columnIndex, props.format || "", "");
+            props.updateColumnType(columnIndex, ColumnTypes.TEXT);
           },
           id: "date_input",
         },
@@ -345,7 +345,6 @@ export const getMenuOptions = (props: MenuOptionProps) => {
           content: (
             <MenuCategoryWrapper>
               <div>Date Output Format</div>
-              {props.format && <Tag>Clear</Tag>}
             </MenuCategoryWrapper>
           ),
           closeOnClick: false,
@@ -360,12 +359,12 @@ export const getMenuOptions = (props: MenuOptionProps) => {
         },
         {
           content: "Same as Input",
-          isSelected: props.format === "INPUT",
+          isSelected: props.format === "SAME_AS_INPUT",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
             props.handleDateFormatUpdate(
               columnIndex,
-              "INPUT",
+              "SAME_AS_INPUT",
               props.inputFormat || "",
             );
           },
