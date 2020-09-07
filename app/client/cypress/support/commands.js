@@ -34,6 +34,15 @@ Cypress.Commands.add("createOrg", orgName => {
   );
 });
 
+Cypress.Commands.add(
+  "dragTo",
+  { prevSubject: "element" },
+  (subject, targetEl) => {
+    cy.wrap(subject).trigger("dragstart");
+    cy.get(targetEl).trigger("drop");
+  },
+);
+
 Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
@@ -1361,6 +1370,16 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
+  const selector = `.t--widget-card-draggable-${widgetType}`;
+  cy.get(selector)
+    .trigger("mousedown", { button: 0 }, { force: true })
+    .trigger("mousemove", 100, -100, { force: true });
+  cy.get(explorer.dropHere)
+    .click()
+    .trigger("mouseup", { force: true });
 });
 
 Cypress.Commands.add("openPropertyPane", widgetType => {
