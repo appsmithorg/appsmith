@@ -544,7 +544,7 @@ if [[ $status_code -ne 401 ]]; then
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-      "userId": '$email',
+      "userId": "'"$email"'",
       "event": "Installation Failed",
       "properties": {
         "osEnum": '$desired_os'
@@ -570,7 +570,7 @@ else
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-      "anonymousId": '$email',
+      "anonymousId": "'"$email"'",
       "event": "Installation Success",
       "properties": {
         "osEnum": '$desired_os'
