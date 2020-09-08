@@ -22,6 +22,7 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import * as Sentry from "@sentry/react";
+// import { memoize } from "lodash";
 const ReactTableComponent = lazy(() =>
   import("components/designSystems/appsmith/ReactTableComponent"),
 );
@@ -92,7 +93,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo: 1,
       pageSize: undefined,
       selectedRowIndex: -1,
-      selectedRowsIndexes: [],
+      selectedRowIndexes: "",
       searchText: undefined,
       selectedRow: {},
       selectedRows: [],
@@ -344,15 +345,38 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     ) {
       const filteredTableData = this.filterTableData();
       super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-      super.updateWidgetMetaProperty(
-        "selectedRow",
-        this.getSelectedRow(filteredTableData),
-      );
+      if (!this.props.multiRowSelection) {
+        super.updateWidgetMetaProperty(
+          "selectedRow",
+          this.getSelectedRow(filteredTableData),
+        );
+      } else {
+        const selectedRowIndexes = this.getSelectedRowIndexes(
+          this.props.selectedRowIndexes,
+        );
+        super.updateWidgetMetaProperty(
+          "selectedRows",
+          filteredTableData.filter((item: object, i: number) => {
+            return selectedRowIndexes.includes(i);
+          }),
+        );
+      }
     }
   }
 
+  getSelectedRowIndexes = (selectedRowIndexes: string) => {
+    return selectedRowIndexes
+      ? selectedRowIndexes.split(",").map(i => Number(i))
+      : [];
+  };
+
   getPageView() {
-    const { tableData, hiddenColumns, filteredTableData } = this.props;
+    const {
+      tableData,
+      hiddenColumns,
+      filteredTableData,
+      selectedRowIndexes,
+    } = this.props;
     const tableColumns = this.getTableColumns(tableData);
 
     const transformedData = this.transformData(
@@ -413,6 +437,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               ? -1
               : this.props.selectedRowIndex
           }
+          multiRowSelection={this.props.multiRowSelection}
+          selectedRowIndexes={this.getSelectedRowIndexes(selectedRowIndexes)}
           serverSidePaginationEnabled={serverSidePaginationEnabled}
           onRowClick={this.handleRowClick}
           pageNo={pageNo}
@@ -505,11 +531,33 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleRowClick = (rowData: object, index: number) => {
     const { onRowSelected } = this.props;
-    super.updateWidgetMetaProperty("selectedRowIndex", index);
-    super.updateWidgetMetaProperty(
-      "selectedRow",
-      this.props.filteredTableData[index],
-    );
+    if (this.props.multiRowSelection) {
+      const selectedRowIndexes = this.getSelectedRowIndexes(
+        this.props.selectedRowIndexes,
+      );
+      if (selectedRowIndexes.includes(index)) {
+        const rowIndex = selectedRowIndexes.indexOf(index);
+        selectedRowIndexes.splice(rowIndex, 1);
+      } else {
+        selectedRowIndexes.push(index);
+      }
+      super.updateWidgetMetaProperty(
+        "selectedRowIndexes",
+        selectedRowIndexes.join(","),
+      );
+      super.updateWidgetMetaProperty(
+        "selectedRows",
+        this.props.filteredTableData.filter((item: object, i: number) => {
+          return selectedRowIndexes.includes(i);
+        }),
+      );
+    } else {
+      super.updateWidgetMetaProperty("selectedRowIndex", index);
+      super.updateWidgetMetaProperty(
+        "selectedRow",
+        this.props.filteredTableData[index],
+      );
+    }
     if (onRowSelected) {
       super.executeAction({
         dynamicString: onRowSelected,
@@ -537,6 +585,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   resetSelectedRowIndex = () => {
     super.updateWidgetMetaProperty("selectedRowIndex", -1);
+    super.updateWidgetMetaProperty("selectedRowIndexes", []);
   };
 
   handlePrevPageClick = () => {
@@ -599,7 +648,7 @@ export interface TableWidgetProps extends WidgetProps {
   onRowSelected?: string;
   onSearchTextChanged: string;
   selectedRowIndex?: number;
-  selectedRowsIndexes?: number[];
+  selectedRowIndexes: string;
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;
   multiRowSelection?: boolean;
