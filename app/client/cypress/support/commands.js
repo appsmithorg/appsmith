@@ -34,6 +34,15 @@ Cypress.Commands.add("createOrg", orgName => {
   );
 });
 
+Cypress.Commands.add(
+  "dragTo",
+  { prevSubject: "element" },
+  (subject, targetEl) => {
+    cy.wrap(subject).trigger("dragstart");
+    cy.get(targetEl).trigger("drop");
+  },
+);
+
 Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
@@ -1307,6 +1316,30 @@ Cypress.Commands.add("fillPostgresDatasourceForm", () => {
   );
 });
 
+Cypress.Commands.add("createPostgresDatasource", () => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(datasourceEditor.PostgreSQL).click();
+
+  cy.getPluginFormsAndCreateDatasource();
+
+  cy.fillPostgresDatasourceForm();
+
+  cy.testSaveDatasource();
+});
+
+Cypress.Commands.add("deletePostgresDatasource", datasourceName => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(".t--entity-name:contains(PostgreSQL)").click();
+  cy.get(`.t--entity-name:contains(${datasourceName})`).click();
+
+  cy.get(".t--delete-datasource").click();
+  cy.wait("@deleteDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
 Cypress.Commands.add("runQuery", () => {
   cy.get(queryEditor.runQuery).click();
   cy.wait("@postExecute").should(
@@ -1361,6 +1394,16 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
+  const selector = `.t--widget-card-draggable-${widgetType}`;
+  cy.get(selector)
+    .trigger("mousedown", { button: 0 }, { force: true })
+    .trigger("mousemove", 300, -300, { force: true });
+  cy.get(explorer.dropHere)
+    .click()
+    .trigger("mouseup", { force: true });
 });
 
 Cypress.Commands.add("openPropertyPane", widgetType => {
