@@ -19,6 +19,8 @@ class ConfirmRunModal extends React.Component<Props> {
     const { dispatch, isModalOpen } = this.props;
     const handleClose = () => {
       dispatch(showRunActionConfirmModal(false));
+
+      dispatch(cancelRunActionConfirmModal());
     };
 
     return (
