@@ -28,7 +28,7 @@
         "isAfter": {
             "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
             "!url": "https://momentjs.com/docs/#/query/is-after/",
-            "!doc": "Takes a string of tokens and replaces them with their corresponding values"
+            "!doc": "Check if a moment is after another moment."
         },
         "isSame": {
             "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
