@@ -1459,7 +1459,7 @@ Cypress.Commands.add("isSelectRow", index => {
 
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-  const selector = `.t--draggable-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
@@ -1630,10 +1630,10 @@ Cypress.Commands.add("NavigateToPaginationTab", () => {
 });
 
 Cypress.Commands.add("ValidateTableData", value => {
-  cy.isSelectRow(0);
+  // cy.isSelectRow(0);
   cy.readTabledata("0", "0").then(tabData => {
     const tableData = tabData;
-    expect(tableData).to.equal(value);
+    expect(tableData).to.equal(value.toString());
   });
 });
 
