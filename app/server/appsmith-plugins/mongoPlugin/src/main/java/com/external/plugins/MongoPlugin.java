@@ -118,8 +118,10 @@ public class MongoPlugin extends BasePlugin {
                     // For the `findAndModify` command, we don't get the count of modifications made. Instead, we either
                     // get the modified new value or the pre-modified old value (depending on the `new` field in the
                     // command. Let's return that value to the user.
-                    if (mongoOutput.containsKey(VALUE_STR)) {
-                        result.setBody(new JSONObject().put(VALUE_STR, mongoOutput.get(VALUE_STR)));
+                    if (outputJson.has(VALUE_STR)) {
+                        result.setBody(objectMapper.readTree(
+                                cleanUp(new JSONObject().put(VALUE_STR, outputJson.get(VALUE_STR))).toString()
+                        ));
                     }
 
                     //The json contains key "cursor" when find command was issued and there are 1 or more results. In case
