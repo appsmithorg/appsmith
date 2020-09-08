@@ -61,13 +61,13 @@ function* evaluationListener() {
         }
       },
     );
-    console.log({ changes });
     if (_.some(_.values(changes))) {
       if (entities !== oldState) {
         oldState = entities;
         yield put({
           type: ReduxActionTypes.EVALUATE_DATA_TREE,
         });
+        console.log({ changes });
       }
     }
   }

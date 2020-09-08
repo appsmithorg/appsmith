@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -28,7 +28,7 @@ const initialState: PluginDataState = {
   loadingFormConfigs: false,
 };
 
-const pluginsReducer = createReducer(initialState, {
+const pluginsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_PLUGINS_REQUEST]: (state: PluginDataState) => {
     return { ...state, loading: true };
   },

@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -20,7 +20,7 @@ const initialState: DatasourceDataState = {
   isDeleting: false,
 };
 
-const datasourceReducer = createReducer(initialState, {
+const datasourceReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_DATASOURCES_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
   },

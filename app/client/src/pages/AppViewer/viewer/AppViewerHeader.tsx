@@ -135,7 +135,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
   // Mark default page as first page
-  const appPages = pages;
+  const appPages = [...pages];
   if (appPages.length > 1) {
     appPages.forEach(function(item, i) {
       if (item.isDefault) {
