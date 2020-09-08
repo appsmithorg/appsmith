@@ -94,7 +94,7 @@ const Radio = styled.label<{
   }
 
   input:disabled ~ .checkbox:after {
-    background-color: ${props => props.theme.colors.disabled};
+    background-color: ${props => props.theme.colors.radio.disabled};
   }
 
   .checkbox:after {
@@ -104,7 +104,7 @@ const Radio = styled.label<{
     height: ${props => props.theme.spaces[4]}px;
     ${props =>
       props.disabled
-        ? `background-color: ${props.theme.colors.disabled}`
+        ? `background-color: ${props.theme.colors.radio.disabled}`
         : `background-color: ${props.theme.colors.info.main};`};
     top: ${props => props.theme.spaces[1] - 2}px;
     left: ${props => props.theme.spaces[1] - 2}px;

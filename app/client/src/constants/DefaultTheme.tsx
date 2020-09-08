@@ -572,7 +572,9 @@ export const theme: Theme = {
       darker: "#2B1A1D",
       darkest: "#462F32",
     },
-    disabled: "#565656",
+    radio: {
+      disabled: "#565656",
+    },
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
