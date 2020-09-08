@@ -86,18 +86,22 @@ const TableCompactMode = (props: TableCompactModeProps) => {
         selectMenu(false);
       }}
     >
-      <TableIconWrapper
-        selected={selected}
-        onClick={e => {
-          selectMenu(!selected);
+      <Tooltip
+        autoFocus={false}
+        hoverOpenDelay={1000}
+        content="Row Height"
+        position="top"
+        modifiers={{
+          preventOverflow: { enabled: false },
+          flip: { enabled: false },
         }}
-        className="t--table-compact-mode-toggle-btn"
       >
-        <Tooltip
-          autoFocus={false}
-          hoverOpenDelay={1000}
-          content="Row Height"
-          position="top"
+        <TableIconWrapper
+          selected={selected}
+          onClick={e => {
+            selectMenu(!selected);
+          }}
+          className="t--table-compact-mode-toggle-btn"
         >
           <IconWrapper
             width={20}
@@ -106,8 +110,8 @@ const TableCompactMode = (props: TableCompactModeProps) => {
           >
             <CompactIcon />
           </IconWrapper>
-        </Tooltip>
-      </TableIconWrapper>
+        </TableIconWrapper>
+      </Tooltip>
       <DropDownWrapper>
         {CompactModes.map((item: CompactModeItem, index: number) => {
           return (

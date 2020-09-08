@@ -4,6 +4,7 @@ import {
   PopoverInteractionKind,
   Position,
   Classes,
+  Tooltip,
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
@@ -164,25 +165,36 @@ const TableFilters = (props: TableFilterProps) => {
       }}
       isOpen={selected}
     >
-      <TableIconWrapper
-        className="t--table-filter-toggle-btn"
-        selected={selected}
-        onClick={e => {
-          selectMenu(true);
-          e.stopPropagation();
+      <Tooltip
+        autoFocus={false}
+        hoverOpenDelay={500}
+        content="Filters"
+        position="top"
+        modifiers={{
+          preventOverflow: { enabled: false },
+          flip: { enabled: false },
         }}
       >
-        <IconWrapper
-          width={20}
-          height={20}
-          color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+        <TableIconWrapper
+          className="t--table-filter-toggle-btn"
+          selected={selected}
+          onClick={e => {
+            selectMenu(true);
+            e.stopPropagation();
+          }}
         >
-          <FilterIcon />
-        </IconWrapper>
-        {showAddFilter ? (
-          <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
-        ) : null}
-      </TableIconWrapper>
+          <IconWrapper
+            width={20}
+            height={20}
+            color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+          >
+            <FilterIcon />
+          </IconWrapper>
+          {showAddFilter ? (
+            <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
+          ) : null}
+        </TableIconWrapper>
+      </Tooltip>
       <TableFilterOuterWrapper>
         <TableFilerWrapper onClick={e => e.stopPropagation()}>
           {filters.map((filter: ReactTableFilter, index: number) => {

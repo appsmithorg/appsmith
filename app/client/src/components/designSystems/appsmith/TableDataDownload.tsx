@@ -83,17 +83,21 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
     );
   }
   return (
-    <TableIconWrapper
-      onClick={() => {
-        downloadTableData();
+    <Tooltip
+      autoFocus={false}
+      hoverOpenDelay={500}
+      content="Download"
+      position="top"
+      modifiers={{
+        preventOverflow: { enabled: false },
+        flip: { enabled: false },
       }}
-      className="t--table-download-btn"
     >
-      <Tooltip
-        autoFocus={false}
-        hoverOpenDelay={1000}
-        content="Download"
-        position="top"
+      <TableIconWrapper
+        onClick={() => {
+          downloadTableData();
+        }}
+        className="t--table-download-btn"
       >
         <IconWrapper
           width={20}
@@ -102,8 +106,8 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
         >
           <DownloadIcon />
         </IconWrapper>
-      </Tooltip>
-    </TableIconWrapper>
+      </TableIconWrapper>
+    </Tooltip>
   );
 };
 

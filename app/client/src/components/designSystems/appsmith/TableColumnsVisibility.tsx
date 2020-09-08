@@ -105,18 +105,22 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
         selectMenu(false);
       }}
     >
-      <TableIconWrapper
-        selected={selected}
-        onClick={e => {
-          selectMenu(true);
+      <Tooltip
+        autoFocus={false}
+        hoverOpenDelay={1000}
+        content="Hidden Fields"
+        position="top"
+        modifiers={{
+          preventOverflow: { enabled: false },
+          flip: { enabled: false },
         }}
-        className="t--table-column-visibility-toggle-btn"
       >
-        <Tooltip
-          autoFocus={false}
-          hoverOpenDelay={1000}
-          content="Hidden Fields"
-          position="top"
+        <TableIconWrapper
+          selected={selected}
+          onClick={e => {
+            selectMenu(true);
+          }}
+          className="t--table-column-visibility-toggle-btn"
         >
           <IconWrapper
             width={20}
@@ -125,8 +129,8 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
           >
             <VisibilityIcon />
           </IconWrapper>
-        </Tooltip>
-      </TableIconWrapper>
+        </TableIconWrapper>
+      </Tooltip>
       <DropDownWrapper>
         {columns.map((option: ReactTableColumnProps, index: number) => (
           <OptionWrapper
