@@ -303,6 +303,16 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
+    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
+    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "anonymousId": "anonymousId",
+      "event": "Installation Exited",
+      "properties": {
+        "osEnum": '$desired_os'
+      }
+    }'
     echo -e "\nExiting for now. Bye! \U1F44B\n"
     exit 1
 }
