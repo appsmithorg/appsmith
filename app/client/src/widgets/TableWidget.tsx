@@ -585,7 +585,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   resetSelectedRowIndex = () => {
     super.updateWidgetMetaProperty("selectedRowIndex", -1);
-    super.updateWidgetMetaProperty("selectedRowIndexes", []);
+    super.updateWidgetMetaProperty("selectedRowIndexes", "");
   };
 
   handlePrevPageClick = () => {
