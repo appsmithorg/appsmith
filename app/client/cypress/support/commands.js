@@ -1307,6 +1307,30 @@ Cypress.Commands.add("fillPostgresDatasourceForm", () => {
   );
 });
 
+Cypress.Commands.add("createPostgresDatasource", () => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(datasourceEditor.PostgreSQL).click();
+
+  cy.getPluginFormsAndCreateDatasource();
+
+  cy.fillPostgresDatasourceForm();
+
+  cy.testSaveDatasource();
+});
+
+Cypress.Commands.add("deletePostgresDatasource", datasourceName => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(".t--entity-name:contains(PostgreSQL)").click();
+  cy.get(`.t--entity-name:contains(${datasourceName})`).click();
+
+  cy.get(".t--delete-datasource").click();
+  cy.wait("@deleteDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
 Cypress.Commands.add("runQuery", () => {
   cy.get(queryEditor.runQuery).click();
   cy.wait("@postExecute").should(

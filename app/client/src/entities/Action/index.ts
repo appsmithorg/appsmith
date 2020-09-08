@@ -71,6 +71,7 @@ export interface Action {
   providerId?: string;
   provider?: ActionProvider;
   documentation?: { text: string };
+  confirmBeforeExecute?: boolean;
 }
 
 export interface RestAction extends Action {
