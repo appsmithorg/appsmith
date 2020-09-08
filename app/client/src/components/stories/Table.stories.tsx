@@ -10,7 +10,7 @@ import { withDesign } from "storybook-addon-designs";
 import { StoryWrapper } from "components/ads/common";
 
 export default {
-  title: "TableAds",
+  title: "Table",
   component: Table,
   decorators: [withKnobs, withDesign],
 };
