@@ -311,8 +311,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return filteredTableData;
   };
 
-  getSelectedRow = (filteredTableData: object[]) => {
-    const { selectedRowIndex } = this.props;
+  getSelectedRow = (filteredTableData: object[], selectedRowIndex?: number) => {
     if (selectedRowIndex === undefined || selectedRowIndex === -1) {
       const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
       const selectedRow: { [key: string]: any } = {};
@@ -327,9 +326,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   componentDidMount() {
     const filteredTableData = this.filterTableData();
     super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+    const { selectedRowIndex } = this.props;
     super.updateWidgetMetaProperty(
       "selectedRow",
-      this.getSelectedRow(filteredTableData),
+      this.getSelectedRow(filteredTableData, selectedRowIndex),
     );
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -359,6 +359,37 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           filteredTableData.filter((item: object, i: number) => {
             return selectedRowIndexes.includes(i);
           }),
+        );
+      }
+    }
+    if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
+      if (this.props.multiRowSelection) {
+        const selectedRowIndexes = this.props.selectedRowIndex
+          ? [this.props.selectedRowIndex]
+          : [];
+        super.updateWidgetMetaProperty(
+          "selectedRowIndexes",
+          selectedRowIndexes.join(","),
+        );
+        super.updateWidgetMetaProperty("selectedRowIndex", -1);
+        const filteredTableData = this.filterTableData();
+        super.updateWidgetMetaProperty(
+          "selectedRows",
+          filteredTableData.filter((item: object, i: number) => {
+            return selectedRowIndexes.includes(i);
+          }),
+        );
+        super.updateWidgetMetaProperty(
+          "selectedRow",
+          this.getSelectedRow(filteredTableData),
+        );
+      } else {
+        const filteredTableData = this.filterTableData();
+        super.updateWidgetMetaProperty("selectedRowIndexes", "");
+        super.updateWidgetMetaProperty("selectedRows", []);
+        super.updateWidgetMetaProperty(
+          "selectedRow",
+          this.getSelectedRow(filteredTableData),
         );
       }
     }
