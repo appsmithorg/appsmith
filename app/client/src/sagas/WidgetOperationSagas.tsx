@@ -61,6 +61,7 @@ import { AppToaster } from "components/editorComponents/ToastComponent";
 import { generateReactKey } from "utils/generators";
 import produce from "immer";
 import { flashElementById } from "utils/helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -261,6 +262,10 @@ function* deleteSelectedWidgetSaga(
 ) {
   const selectedWidget = yield select(getSelectedWidget);
   if (!selectedWidget) return;
+  AnalyticsUtil.logEvent("WIDGET_DELETE_VIA_SHORTCUT", {
+    widgetName: selectedWidget.widgetName,
+    widgetType: selectedWidget.type,
+  });
   yield put({
     type: ReduxActionTypes.WIDGET_DELETE,
     payload: {
@@ -275,6 +280,15 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
     action.payload.widgetId,
   );
+  const deletedWidget = deletedWidgets.find(
+    widget => widget.widgetId === action.payload.widgetId,
+  );
+  if (deletedWidget) {
+    AnalyticsUtil.logEvent("WIDGET_DELETE_UNDO", {
+      widgetName: deletedWidget.widgetName,
+      widgetType: deletedWidget.type,
+    });
+  }
 
   if (deletedWidgets) {
     let widgets = yield select(getWidgets);
@@ -513,9 +527,16 @@ function* updateCanvasSize(
   }
 }
 
-function* copyWidgetSaga() {
+function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   const selectedWidget = yield select(getSelectedWidget);
   if (!selectedWidget) return;
+  const eventName = action.payload.isShortcut
+    ? "WIDGET_COPY_VIA_SHORTCUT"
+    : "WIDGET_COPY";
+  AnalyticsUtil.logEvent(eventName, {
+    widgetName: selectedWidget.widgetName,
+    widgetType: selectedWidget.type,
+  });
   const saveResult = yield saveCopiedWidget(JSON.stringify(selectedWidget));
   if (saveResult) {
     AppToaster.show({
@@ -525,7 +546,7 @@ function* copyWidgetSaga() {
   }
 }
 
-function* calculateNewWidgetPosition(widget: WidgetProps) {
+function* calculateNewWidgetPosition(widget: WidgetProps, parentId: string) {
   // Note: This is a very simple algorithm.
   // We take the bottom most widget in the canvas, then calculate the top,left,right,bottom
   // co-ordinates for the new widget, such that it can be placed at the bottom of the canvas.
@@ -533,8 +554,8 @@ function* calculateNewWidgetPosition(widget: WidgetProps) {
   const nextAvailableRow =
     Object.values(canvaswidgets).reduce(
       (prev: number, next: any) =>
-        next.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
-        next.parentId === MAIN_CONTAINER_WIDGET_ID &&
+        next.widgetId !== widget.parentId &&
+        next.parentId === parentId &&
         next.bottomRow > prev
           ? next.bottomRow
           : prev,
@@ -550,16 +571,40 @@ function* calculateNewWidgetPosition(widget: WidgetProps) {
 
 function* pasteWidgetSaga() {
   const copiedWidget: WidgetProps = yield getCopiedWidget();
-
+  // Don't try to paste if there is no copied widget
   if (!copiedWidget) return;
+
+  // Log the paste event
+  AnalyticsUtil.logEvent("WIDGET_PASTE", {
+    widgetName: copiedWidget.widgetName,
+    widgetType: copiedWidget.type,
+  });
+
+  // If selected widget is a container like,
+  // The new widget's parent will be canvas widget within the selected widget
+  // Else, the new widget's parent will be the main canvas
+  const selectedWidget = yield select(getSelectedWidget);
+  let newWidgetParentId = MAIN_CONTAINER_WIDGET_ID;
+  if (selectedWidget && selectedWidget.children) {
+    const childWidget = yield select(getWidget, selectedWidget.children[0]);
+    if (childWidget && childWidget.type === WidgetTypes.CANVAS_WIDGET) {
+      newWidgetParentId = childWidget.widgetId;
+    }
+  }
+
+  console.log({ selectedWidget });
+
+  // Compute the new widget's positional properties
   const {
     leftColumn,
     topRow,
     rightColumn,
     bottomRow,
-  } = yield calculateNewWidgetPosition(copiedWidget);
+  } = yield calculateNewWidgetPosition(copiedWidget, newWidgetParentId);
+
   let widgets = yield select(getWidgets);
 
+  // Compute the new widget's name
   const defaultConfig: any = WidgetConfigResponse.config[copiedWidget.type];
   const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
   const newWidgetName = getNextEntityName(
@@ -567,21 +612,36 @@ function* pasteWidgetSaga() {
     widgetNames,
   );
 
+  // Generate the new widget object
   const newWidget = produce(copiedWidget, (draft: WidgetProps) => {
     draft.leftColumn = leftColumn;
     draft.topRow = topRow;
     draft.rightColumn = rightColumn;
     draft.bottomRow = bottomRow;
-    //TODO (abhinav): In the future we should be able to paste into a selected container if available
-    draft.parentId = MAIN_CONTAINER_WIDGET_ID;
+    draft.parentId = newWidgetParentId;
     draft.widgetId = generateReactKey();
     draft.widgetName = newWidgetName;
   });
+
+  // Add the new widget to the canvas widgets
   widgets = produce(widgets, (draft: any) => {
     if (newWidget && newWidget.widgetId) {
       draft[newWidget.widgetId] = newWidget;
     }
     if (newWidget && newWidget.parentId && draft[newWidget.parentId]) {
+      // If the new widget goes beyond the bottomRow of the parent
+      // Make the parent scroll contents
+      // Note: MainContainer always scrolls contents.
+      if (
+        draft[newWidget.parentId].bottomRow *
+          draft[newWidget.parentId].parentRowSpace <=
+        newWidget.bottomRow * newWidget.parentRowSpace
+      ) {
+        if (newWidget.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+          draft[draft[newWidget.parentId].parentId].shouldScrollContents = true;
+        }
+      }
+      // Add the new widget's reference to the parent's children
       if (
         draft[newWidget.parentId].children &&
         Array.isArray(draft[newWidget.parentId].children)
@@ -592,7 +652,11 @@ function* pasteWidgetSaga() {
       }
     }
   });
+
+  // save the new DSL
   yield put(updateAndSaveLayout(widgets));
+
+  // Flash the newly pasted widget once the DSL is re-rendered
   setTimeout(() => flashElementById(newWidget.widgetId), 100);
 }
 

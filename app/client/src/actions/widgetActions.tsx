@@ -88,9 +88,12 @@ export const forceOpenPropertyPane = (id: string) => {
   };
 };
 
-export const copyWidget = () => {
+export const copyWidget = (isShortcut: boolean) => {
   return {
     type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
+    payload: {
+      isShortcut: !!isShortcut,
+    },
   };
 };
 

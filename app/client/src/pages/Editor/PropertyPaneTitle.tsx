@@ -92,7 +92,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   }, [props.title]);
 
   const handleDelete = useCallback(() => dispatch(deleteWidget()), [dispatch]);
-  const handleCopy = useCallback(() => dispatch(copyWidget()), [dispatch]);
+  const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
   const exitEditMode = useCallback(() => {
     props.widgetId && toggleEditWidgetName(props.widgetId, false);

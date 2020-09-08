@@ -284,7 +284,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (applicationId: string, pageId: string) =>
       dispatch(initEditor(applicationId, pageId)),
-    copySelectedWidget: () => dispatch(copyWidget()),
+    copySelectedWidget: () => dispatch(copyWidget(true)),
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteWidget()),
     cutSelectedWidget: () => dispatch(cutWidget()),
