@@ -156,12 +156,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Visible",
             controlType: "SWITCH",
           },
-          {
-            id: "7.1.5",
-            propertyName: "multiRowSelection",
-            label: "Enable multi row selection",
-            controlType: "SWITCH",
-          },
         ],
       },
       {
