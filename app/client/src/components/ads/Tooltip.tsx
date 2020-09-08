@@ -1,7 +1,8 @@
 import React from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
-import { Position, Tooltip } from "@blueprintjs/core";
+import { Position, Tooltip, Classes } from "@blueprintjs/core";
+import { Classes as CsClasses } from "./common";
 
 type Variant = "dark" | "light";
 
@@ -13,7 +14,7 @@ type TooltipProps = CommonComponentProps & {
 };
 
 const TooltipWrapper = styled.div<{ variant?: Variant }>`
-  .bp3-tooltip .bp3-popover-content {
+  .${Classes.TOOLTIP} .${Classes.POPOVER_CONTENT} {
     padding: 10px 12px;
     border-radius: 0px;
     background-color: ${props =>
@@ -21,14 +22,14 @@ const TooltipWrapper = styled.div<{ variant?: Variant }>`
         ? props.theme.colors.blackShades[0]
         : props.theme.colors.blackShades[8]};
   }
-  div.bp3-popover-arrow {
+  div.${Classes.POPOVER_ARROW} {
     display: block;
   }
-  .bp3-tooltip {
+  .${Classes.TOOLTIP} {
     box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.35);a
   }
-  .bp3-tooltip .bp3-popover-arrow-border,
-  &&&& .bp3-tooltip .bp3-popover-arrow-fill {
+  .${Classes.TOOLTIP} .${CsClasses.POPOVER_ARROW_BORDER},
+  &&&& .${Classes.TOOLTIP} .${CsClasses.POPOVER_ARROW_FILL} {
     fill: ${props =>
       props.variant === "dark"
         ? props.theme.colors.blackShades[0]

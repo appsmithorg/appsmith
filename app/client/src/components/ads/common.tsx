@@ -14,6 +14,8 @@ export type ThemeProp = {
 export enum Classes {
   ICON = "cs-icon",
   TEXT = "cs-text",
+  POPOVER_ARROW_BORDER = "bp3-popover-arrow-border",
+  POPOVER_ARROW_FILL = "bp3-popover-arrow-fill",
 }
 
 export const hexToRgb = (
