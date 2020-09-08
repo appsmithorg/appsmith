@@ -26,14 +26,9 @@ export const Radio = () => (
           ["React", "Angular", "Vue"],
           "React",
         )}
-        align={select(
-          "Alignment",
-          ["horizontal", "vertical", "column", "row"],
-          "horizontal",
-        )}
-        disabled={boolean("Radio group disabled", false)}
         columns={number("Column number", 2)}
         rows={number("Row number", 2)}
+        disabled={boolean("Radio group disabled", false)}
         onSelect={action("selected-radio-option")}
         options={[
           {

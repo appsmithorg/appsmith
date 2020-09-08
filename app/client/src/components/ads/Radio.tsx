@@ -9,10 +9,7 @@ type OptionProps = {
   onSelect?: (value: string) => void;
 };
 
-type Align = "horizontal" | "vertical" | "column" | "row";
-
 type RadioProps = CommonComponentProps & {
-  align?: Align;
   columns?: number;
   rows?: number;
   defaultValue: string;
@@ -21,12 +18,12 @@ type RadioProps = CommonComponentProps & {
 };
 
 const RadioGroup = styled.div<{
-  align?: Align;
+  rows?: number;
 }>`
   display: flex;
   flex-wrap: wrap;
   ${props =>
-    props.align === "vertical" || props.align === "row"
+    props.rows && props.rows > 0
       ? `
       flex-direction: column;
       height: 100%;
@@ -36,7 +33,6 @@ const RadioGroup = styled.div<{
 
 const Radio = styled.label<{
   disabled?: boolean;
-  align?: Align;
   columns?: number;
   rows?: number;
 }>`
@@ -50,19 +46,16 @@ const Radio = styled.label<{
   letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
   color: ${props => props.theme.colors.blackShades[9]};
   ${props =>
-    props.align === "row" ? `flex-basis: calc(100% / ${props.rows})` : null};
-  ${props =>
-    props.align === "column"
-      ? `flex-basis: calc(100% / ${props.columns})`
+    props.rows && props.rows > 0
+      ? `flex-basis: calc(100% / ${props.rows})`
       : null};
   ${props =>
-    props.align === "horizontal"
-      ? `margin-right: ${props.theme.spaces[11] + 1}px`
+    props.columns && props.columns > 0
+      ? `
+        flex-basis: calc(100% / ${props.columns});
+        margin-bottom: ${props.theme.spaces[11] + 1}px;
+        `
       : null};
-  ${props =>
-    props.align === "vertical" || props.align === "column"
-      ? `margin-bottom: ${props.theme.spaces[11] + 1}px`
-      : `margin-bottom: ${props.theme.spaces[0]}px`};
 
   input {
     position: absolute;
@@ -116,6 +109,14 @@ export default function RadioComponent(props: RadioProps) {
   const [selected, setSelected] = useState(props.defaultValue);
 
   useEffect(() => {
+    if (props.rows && props.columns && props.rows > 0 && props.columns > 0) {
+      console.error(
+        "Please pass either rows prop or column prop but not both.",
+      );
+    }
+  }, [props]);
+
+  useEffect(() => {
     setSelected(props.defaultValue);
   }, [props.defaultValue]);
 
@@ -126,13 +127,12 @@ export default function RadioComponent(props: RadioProps) {
 
   return (
     <RadioGroup
-      align={props.align}
+      rows={props.rows}
       onChange={(e: any) => onChangeHandler(e.target.value)}
     >
       {props.options.map((option: OptionProps, index: number) => (
         <Radio
           key={index}
-          align={props.align}
           columns={props.columns}
           rows={props.rows}
           disabled={props.disabled || option.disabled}
