@@ -28,8 +28,8 @@ const TooltipWrapper = styled.div<{ variant?: Variant }>`
   .${Classes.TOOLTIP} {
     box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.35);a
   }
-  .${Classes.TOOLTIP} .${CsClasses.POPOVER_ARROW_BORDER},
-  &&&& .${Classes.TOOLTIP} .${CsClasses.POPOVER_ARROW_FILL} {
+  .${Classes.TOOLTIP} .${CsClasses.BP3_POPOVER_ARROW_BORDER},
+  &&&& .${Classes.TOOLTIP} .${CsClasses.BP3_POPOVER_ARROW_FILL} {
     fill: ${props =>
       props.variant === "dark"
         ? props.theme.colors.blackShades[0]
