@@ -7,9 +7,47 @@ type CheckboxProps = CommonComponentProps & {
   onCheckChange?: (isChecked: boolean) => void;
 };
 
-const StyledCheckbox = styled.label<{
+const Checkmark = styled.span<{
   disabled?: boolean;
   isChecked?: boolean;
+}>`
+  position: absolute;
+  top: 1px;
+  left: 0;
+  width: ${props => props.theme.spaces[8]}px;
+  height: ${props => props.theme.spaces[8]}px;
+  background-color: ${props =>
+    props.isChecked
+      ? props.disabled
+        ? props.theme.colors.blackShades[3]
+        : props.theme.colors.info.main
+      : "transparent"};
+  border: 2px solid
+    ${props =>
+      props.isChecked
+        ? props.disabled
+          ? props.theme.colors.blackShades[3]
+          : props.theme.colors.info.main
+        : props.theme.colors.blackShades[4]};
+
+  &::after {
+    content: "";
+    position: absolute;
+    display: none;
+    top: 0px;
+    left: 4px;
+    width: 6px;
+    height: 11px;
+    border: solid
+      ${props =>
+        props.disabled ? "#565656" : props.theme.colors.blackShades[9]};
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+`;
+
+const StyledCheckbox = styled.label<{
+  disabled?: boolean;
 }>`
   position: relative;
   display: block;
@@ -30,47 +68,8 @@ const StyledCheckbox = styled.label<{
     width: 0;
   }
 
-  .checkmark {
-    position: absolute;
-    top: 1px;
-    left: 0;
-    width: ${props => props.theme.spaces[8]}px;
-    height: ${props => props.theme.spaces[8]}px;
-    background-color: ${props =>
-      props.isChecked
-        ? props.disabled
-          ? props.theme.colors.blackShades[3]
-          : props.theme.colors.info.main
-        : "transparent"};
-    border: 2px solid
-      ${props =>
-        props.isChecked
-          ? props.disabled
-            ? props.theme.colors.blackShades[3]
-            : props.theme.colors.info.main
-          : props.theme.colors.blackShades[4]};
-  }
-
-  .checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-  }
-
-  input:checked ~ .checkmark:after {
+  input:checked ~ ${Checkmark}:after {
     display: block;
-  }
-
-  .checkmark::after {
-    top: 0px;
-    left: 4px;
-    width: 6px;
-    height: 11px;
-    border: solid
-      ${props =>
-        props.disabled ? "#565656" : props.theme.colors.blackShades[9]};
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
   }
 `;
 
@@ -83,17 +82,17 @@ const Checkbox = (props: CheckboxProps) => {
   };
 
   return (
-    <StyledCheckbox disabled={props.disabled} isChecked={checked}>
+    <StyledCheckbox disabled={props.disabled}>
       {props.label}
       <input
         type="checkbox"
-        checked={checked}
         disabled={props.disabled}
+        checked={checked}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChangeHandler(e.target.checked)
         }
       />
-      <span className="checkmark"></span>
+      <Checkmark disabled={props.disabled} isChecked={checked} />
     </StyledCheckbox>
   );
 };
