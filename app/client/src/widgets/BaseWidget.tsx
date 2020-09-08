@@ -120,15 +120,7 @@ abstract class BaseWidget<
     const { updateWidgetProperty } = this.context;
     const { widgetId } = this.props;
     if (updateWidgetProperty) {
-      const transactionId = monitor.startTransaction(
-        PerformanceTransactionName.UPDATE_WIDGET_PROPERTY,
-      );
-      updateWidgetProperty(
-        widgetId,
-        propertyName,
-        propertyValue,
-        transactionId,
-      );
+      updateWidgetProperty(widgetId, propertyName, propertyValue);
     }
   }
 

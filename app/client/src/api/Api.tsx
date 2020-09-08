@@ -12,6 +12,7 @@ import {
 } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
+import * as Sentry from "@sentry/react";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -44,6 +45,11 @@ const is404orAuthPath = () => {
 
 axiosInstance.interceptors.response.use(
   (response: any): any => {
+    Sentry.addBreadcrumb({
+      category: "API_CALL_INFO",
+      message: "Call successful",
+      data: response,
+    });
     if (response.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(response);
     }
@@ -51,6 +57,11 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
+    Sentry.addBreadcrumb({
+      category: "API_CALL_INFO",
+      message: "Call Failed",
+      data: error,
+    });
     if (error.code === "ECONNABORTED") {
       if (error.config.url.match(currentUserRegex)) {
         history.replace({ pathname: SERVER_ERROR_URL });

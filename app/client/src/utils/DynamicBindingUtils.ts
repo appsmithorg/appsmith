@@ -262,20 +262,13 @@ let dependencyTreeCache: any = {};
 let cachedDataTreeString = "";
 
 export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
-  const mainSpan = monitor.attachSpan(PerformanceSpanName.DATA_TREE_EVALUATION);
   const totalStart = performance.now();
   // Create Dependencies DAG
-  const createDepSpan = mainSpan.startChild({
-    op: PerformanceSpanName.DATA_TREE_EVALUATION_CREATE_DEPENDENCIES,
-  });
   const createDepsStart = performance.now();
   const dataTreeString = JSON.stringify(dataTree);
   if (!equal(dataTreeString, cachedDataTreeString)) {
     cachedDataTreeString = dataTreeString;
     dependencyTreeCache = createDependencyTree(dataTree);
-    createDepSpan.setTag("dependency.cached", "false");
-  } else {
-    createDepSpan.setTag("dependency.cached", "true");
   }
   const createDepsEnd = performance.now();
   const {
@@ -283,13 +276,8 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
     sortedDependencies,
     dependencyTree,
   } = dependencyTreeCache;
-  createDepSpan.setTag("dependency.count", sortedDependencies.length);
-  createDepSpan.finish();
 
   // Evaluate Tree
-  const sortedEvalSpan = mainSpan.startChild({
-    op: PerformanceSpanName.DATA_TREE_EVALUATION_SORTED_EVALUATION,
-  });
   const evaluatedTreeStart = performance.now();
   const evaluatedTree = dependencySortedEvaluateDataTree(
     dataTree,
@@ -297,25 +285,16 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
     sortedDependencies,
   );
   const evaluatedTreeEnd = performance.now();
-  sortedEvalSpan.finish();
 
   // Set Loading Widgets
-  const treeLoadingSpan = mainSpan.startChild({
-    op: PerformanceSpanName.DATA_TREE_EVALUATION_SET_LOADING,
-  });
   const loadingTreeStart = performance.now();
   const treeWithLoading = setTreeLoading(evaluatedTree, dependencyTree);
   const loadingTreeEnd = performance.now();
-  treeLoadingSpan.finish();
 
   // Validate Widgets
-  const validationSpan = mainSpan.startChild({
-    op: PerformanceSpanName.DATA_TREE_EVALUATION_VALIDATE_AND_PARSE,
-  });
   const validateTreeStart = performance.now();
   const validated = getValidatedTree(treeWithLoading);
   const validateTreeEnd = performance.now();
-  validationSpan.finish();
 
   // End counting total time
   const endStart = performance.now();
@@ -330,7 +309,6 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   };
   log.debug("data tree evaluated");
   log.debug(timeTaken);
-  mainSpan.finish();
   // dataTreeCache = validated;
   return validated;
 }

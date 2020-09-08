@@ -11,7 +11,6 @@ export enum PerformanceTransactionName {
   CREATE_ACTION = "CREATE_ACTION",
   CURL_IMPORT = "CURL_IMPORT",
   EXECUTE_WIDGET_ACTION = "EXECUTE_WIDGET_ACTION",
-  UPDATE_WIDGET_PROPERTY = "UPDATE_WIDGET_PROPERTY",
 }
 
 export enum PerformanceSpanName {
