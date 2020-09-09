@@ -130,6 +130,7 @@ const TableHeader = (props: TableHeaderProps) => {
       {props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <PaginationItemWrapper
+            className="t--table-widget-prev-page"
             disabled={false}
             onClick={() => {
               props.prevPageClick();
@@ -141,6 +142,7 @@ const TableHeader = (props: TableHeaderProps) => {
             {props.pageNo + 1}
           </PaginationItemWrapper>
           <PaginationItemWrapper
+            className="t--table-widget-next-page"
             disabled={false}
             onClick={() => {
               props.nextPageClick();
@@ -156,6 +158,7 @@ const TableHeader = (props: TableHeaderProps) => {
             Showing {props.currentPageIndex + 1}-{props.pageCount} items
           </RowWrapper>
           <PaginationItemWrapper
+            className="t--table-widget-prev-page"
             disabled={props.currentPageIndex === 0}
             onClick={() => {
               const pageNo =
@@ -175,6 +178,7 @@ const TableHeader = (props: TableHeaderProps) => {
             of {props.pageCount}
           </RowWrapper>
           <PaginationItemWrapper
+            className="t--table-widget-next-page"
             disabled={props.currentPageIndex === props.pageCount - 1}
             onClick={() => {
               const pageNo =
