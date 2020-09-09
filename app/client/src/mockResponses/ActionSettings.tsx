@@ -28,7 +28,7 @@ export const queryActionSettingsConfig = [
       },
       {
         label: "Query Timeout (in milliseconds)",
-        configProperty: "actionConfiguration.timeoutInMillisecond.",
+        configProperty: "actionConfiguration.timeoutInMillisecond",
         controlType: "INPUT_TEXT",
         dataType: "NUMBER",
       },
