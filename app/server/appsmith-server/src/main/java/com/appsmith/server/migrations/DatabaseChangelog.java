@@ -896,8 +896,6 @@ public class DatabaseChangelog {
                         );
                         if (action != null) {
                             actionDTO.setId(action.getId());
-                            actionDTO.setJsonPathKeys(action.getJsonPathKeys());
-                            actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
                         }
                     }
                 }
