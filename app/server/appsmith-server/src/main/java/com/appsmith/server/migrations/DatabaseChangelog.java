@@ -832,7 +832,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "024", id = "clean-action-policies", author = "")
-    public void cleanActionPolicies(MongoTemplate mongoTemplate) {
+    public void updateErroenousActionIdInPage(MongoTemplate mongoTemplate) {
         final org.springframework.data.mongodb.core.query.Query configQuery = query(where("name").is("template-organization"));
 
         final Config config = mongoTemplate.findOne(
@@ -895,6 +895,7 @@ public class DatabaseChangelog {
                                 Action.class
                         );
                         if (action != null) {
+                           // update the erroneous action id (template action id) to the cloned action id
                             actionDTO.setId(action.getId());
                         }
                     }
