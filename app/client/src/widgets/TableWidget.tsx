@@ -392,6 +392,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   }
 
+  getSelectedRowIndexes = (selectedRowIndexes: string) => {
+    return selectedRowIndexes
+      ? selectedRowIndexes.split(",").map(i => Number(i))
+      : [];
+  };
+
   getPageView() {
     const {
       tableData,
