@@ -11,6 +11,8 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
+import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Page;
@@ -25,6 +27,7 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -63,6 +66,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -825,6 +829,87 @@ public class DatabaseChangelog {
                 update("config.applicationIds", applicationIds),
                 Config.class
         );
+    }
+
+    @ChangeSet(order = "024", id = "createNewPageIndex", author = "")
+    public void addNewPageIndex(MongoTemplate mongoTemplate) {
+        Index createdAtIndex = makeIndex("createdAt");
+
+
+        ensureIndexes(mongoTemplate, NewPage.class,
+                createdAtIndex
+        );
+    }
+
+    @ChangeSet(order = "025", id = "migrate-page", author = "")
+    public void migratePage(MongoTemplate mongoTemplate) {
+        final List<Page> pages = mongoTemplate.find(
+                query(where("deletedAt").is(null)),
+                Page.class
+        );
+
+        for (Page oldPage : pages) {
+            PageDTO unpublishedPage = new PageDTO();
+            PageDTO publishedPage = new PageDTO();
+
+            unpublishedPage.setName(oldPage.getName());
+            unpublishedPage.setLayouts(oldPage.getLayouts());
+
+            publishedPage.setName(oldPage.getName());
+            publishedPage.setLayouts(oldPage.getLayouts());
+
+            if (oldPage.getLayouts() != null && !oldPage.getLayouts().isEmpty()) {
+                unpublishedPage.setLayouts(new ArrayList<>());
+                publishedPage.setLayouts(new ArrayList<>());
+                for (Layout layout : oldPage.getLayouts()) {
+                    Layout unpublishedLayout = new Layout();
+                    copyNewFieldValuesIntoOldObject(layout, unpublishedLayout);
+                    unpublishedLayout.setPublishedDsl(null);
+                    unpublishedLayout.setPublishedLayoutOnLoadActions(null);
+                    unpublishedPage.getLayouts().add(unpublishedLayout);
+
+                    Layout publishedLayout = new Layout();
+                    publishedLayout.setViewMode(true);
+                    copyNewFieldValuesIntoOldObject(layout, publishedLayout);
+                    publishedLayout.setDsl(publishedLayout.getDsl());
+                    publishedLayout.setLayoutOnLoadActions(publishedLayout.getPublishedLayoutOnLoadActions());
+                    publishedPage.getLayouts().add(publishedLayout);
+                }
+            }
+
+            NewPage newPage = new NewPage();
+            newPage.setApplicationId(oldPage.getApplicationId());
+            newPage.setPublishedPage(publishedPage);
+            newPage.setUnpublishedPage(unpublishedPage);
+
+            //Set the base domain fields
+            newPage.setId(oldPage.getId());
+            newPage.setCreatedAt(oldPage.getCreatedAt());
+            newPage.setUpdatedAt(oldPage.getUpdatedAt());
+            newPage.setPolicies(oldPage.getPolicies());
+
+            mongoTemplate.insert(newPage, "newPage");
+        }
+
+    }
+
+    @ChangeSet(order = "026", id = "update-new-page", author = "")
+    public void updateNewPage(MongoTemplate mongoTemplate) {
+        final List<NewPage> pages = mongoTemplate.find(
+                query(where("deletedAt").is(null)),
+                NewPage.class
+        );
+
+        for (NewPage page : pages) {
+            PageDTO publishedPage = page.getPublishedPage();
+            if (publishedPage.getLayouts() != null && !publishedPage.getLayouts().isEmpty()) {
+                for (Layout layout : publishedPage.getLayouts()) {
+                    layout.setPublishedDsl(null);
+                    layout.setPublishedLayoutOnLoadActions(null);
+                }
+                mongoTemplate.save(page);
+            }
+        }
     }
 
 }
