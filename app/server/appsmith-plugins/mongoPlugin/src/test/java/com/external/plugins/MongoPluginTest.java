@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
@@ -38,6 +39,7 @@ public class MongoPluginTest {
     @ClassRule
     public static GenericContainer mongoContainer = new GenericContainer("mongo:4.2.0")
             .withExposedPorts(27017);
+    private JsonNode value;
 
     @Before
     public void setUp() {
@@ -172,6 +174,11 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+                    value = ((ObjectNode) result.getBody()).get("value");
+                    assertNotNull(value);
+                    assertEquals("M", value.get("gender").asText());
+                    assertEquals("Alden Cantrell", value.get("name").asText());
+                    assertEquals(30, value.get("age").asInt());
                 })
                 .verifyComplete();
     }
@@ -200,8 +207,8 @@ public class MongoPluginTest {
                     final JsonNode node = body.get(0);
                     assertTrue(node.get("_id").isTextual());
                     assertTrue(node.get("luckyNumber").isNumber());
-                    assertEquals(node.get("dob").asText(), "2018-12-31T00:00:00Z");
-                    assertEquals(node.get("netWorth").toString(), "123456.789012");
+                    assertEquals("2018-12-31T00:00:00Z", node.get("dob").asText());
+                    assertEquals("123456.789012", node.get("netWorth").toString());
                 })
                 .verifyComplete();
     }

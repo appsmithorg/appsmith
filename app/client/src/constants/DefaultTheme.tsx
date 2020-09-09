@@ -577,6 +577,9 @@ export const theme: Theme = {
       dangerColor: "#E22C2C",
       infoColor: "#EE5A1A",
     },
+    radio: {
+      disabled: "#565656",
+    },
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,

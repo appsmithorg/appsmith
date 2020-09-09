@@ -33,7 +33,7 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<User>,
   ) => {
     const users = [...state.users];
-    const userIndex = _.findIndex(users, { id: action.payload.id });
+    const userIndex = _.findIndex(users, { username: action.payload.username });
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
@@ -54,7 +54,7 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<User>,
   ) => {
     const users = [...state.list];
-    const userIndex = _.findIndex(users, { id: action.payload.id });
+    const userIndex = _.findIndex(users, { username: action.payload.username });
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
