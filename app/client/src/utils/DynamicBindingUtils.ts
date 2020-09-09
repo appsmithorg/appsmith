@@ -333,14 +333,23 @@ export const createDependencyTree = (
           Object.keys(entity.dynamicBindings).forEach(propertyName => {
             // using unescape to remove new lines from bindings which interfere with our regex extraction
             const unevalPropValue = _.get(entity, propertyName);
-            const unescapeUnevalPropValue = unescapeJS(unevalPropValue);
-            _.set(entity, propertyName, unescapeUnevalPropValue);
-            const { jsSnippets } = getDynamicBindings(unescapeUnevalPropValue);
-            const existingDeps =
-              dependencyMap[`${entityKey}.${propertyName}`] || [];
-            dependencyMap[`${entityKey}.${propertyName}`] = existingDeps.concat(
-              jsSnippets.filter(jsSnippet => !!jsSnippet),
-            );
+            if (
+              _.isString(unevalPropValue) &&
+              isDynamicValue(unevalPropValue)
+            ) {
+              const unescapeUnevalPropValue = unescapeJS(unevalPropValue);
+              _.set(entity, propertyName, unescapeUnevalPropValue);
+              const { jsSnippets } = getDynamicBindings(
+                unescapeUnevalPropValue,
+              );
+              const existingDeps =
+                dependencyMap[`${entityKey}.${propertyName}`] || [];
+              dependencyMap[
+                `${entityKey}.${propertyName}`
+              ] = existingDeps.concat(
+                jsSnippets.filter(jsSnippet => !!jsSnippet),
+              );
+            }
           });
         }
         if (entity.dynamicTriggers) {
@@ -354,14 +363,21 @@ export const createDependencyTree = (
           entity.dynamicBindingPathList.forEach(prop => {
             // using unescape to remove new lines from bindings which interfere with our regex extraction
             const unevalPropValue = _.get(entity, prop.key);
-            const unescapeUnevalPropValue = unescapeJS(unevalPropValue);
-            _.set(entity, prop.key, unescapeUnevalPropValue);
-            const { jsSnippets } = getDynamicBindings(unescapeUnevalPropValue);
-            const existingDeps =
-              dependencyMap[`${entityKey}.${prop.key}`] || [];
-            dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(
-              jsSnippets.filter(jsSnippet => !!jsSnippet),
-            );
+            if (
+              _.isString(unevalPropValue) &&
+              isDynamicValue(unevalPropValue)
+            ) {
+              const unescapeUnevalPropValue = unescapeJS(unevalPropValue);
+              _.set(entity, prop.key, unescapeUnevalPropValue);
+              const { jsSnippets } = getDynamicBindings(
+                unescapeUnevalPropValue,
+              );
+              const existingDeps =
+                dependencyMap[`${entityKey}.${prop.key}`] || [];
+              dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(
+                jsSnippets.filter(jsSnippet => !!jsSnippet),
+              );
+            }
           });
         }
       }
