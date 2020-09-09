@@ -847,10 +847,6 @@ public class DatabaseChangelog {
 
         final String organizationId = config.getConfig().getAsString("organizationId");
 
-        // get application ids in template org
-        // get action ids in template org
-        // get pages, where it's application is is NOT in the above list, and onload action id is in the above list
-
         final org.springframework.data.mongodb.core.query.Query query = query(where(FieldName.ORGANIZATION_ID).is(organizationId));
         query.fields().include("_id");
 
