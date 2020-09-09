@@ -2,12 +2,16 @@ import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
 import { debounce } from "lodash";
-import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
+import {
+  getMenuOptions,
+  getDefaultColumnProperties,
+} from "components/designSystems/appsmith/TableUtilities";
 import {
   ColumnTypes,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
+  ColumnProperties,
 } from "widgets/TableWidget";
 
 export interface ColumnMenuOptionProps {
@@ -42,6 +46,7 @@ interface ReactTableComponentProps {
   pageSize: number;
   tableData: object[];
   columnOrder?: string[];
+  columnProperties?: ColumnProperties[];
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: object, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -73,6 +78,7 @@ interface ReactTableComponentProps {
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
+  updateColumnProperties: (columnProperties: ColumnProperties[]) => void;
 }
 
 const ReactTableComponent = (props: ReactTableComponentProps) => {
@@ -193,6 +199,14 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         return item !== column.accessor;
       });
     }
+    const defaultProperties = getDefaultColumnProperties(
+      column.accessor,
+      columnIndex,
+    );
+    updateColumnProperties(columnIndex, {
+      ...defaultProperties,
+      isVisible: !isColumnHidden,
+    });
     props.updateHiddenColumns(hiddenColumns);
   };
 
@@ -203,6 +217,15 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       type: columnType,
       format: "",
     };
+    const defaultProperties = getDefaultColumnProperties(
+      column.accessor,
+      columnIndex,
+    );
+    updateColumnProperties(columnIndex, {
+      ...defaultProperties,
+      type: columnType,
+      format: undefined,
+    });
     props.updateColumnType(columnTypeMap);
   };
 
@@ -210,6 +233,14 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     const column = props.columns[columnIndex];
     const columnNameMap = props.columnNameMap || {};
     columnNameMap[column.accessor] = columnName;
+    const defaultProperties = getDefaultColumnProperties(
+      column.accessor,
+      columnIndex,
+    );
+    updateColumnProperties(columnIndex, {
+      ...defaultProperties,
+      label: columnName,
+    });
     props.updateColumnName(columnNameMap);
   };
 
@@ -223,6 +254,17 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       type: "currency",
       format: currencySymbol,
     };
+    const defaultProperties = getDefaultColumnProperties(
+      column.accessor,
+      columnIndex,
+    );
+    updateColumnProperties(columnIndex, {
+      ...defaultProperties,
+      type: "currency",
+      format: {
+        output: currencySymbol,
+      },
+    });
     props.updateColumnType(columnTypeMap);
   };
 
@@ -233,6 +275,17 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       type: "date",
       format: dateFormat,
     };
+    const defaultProperties = getDefaultColumnProperties(
+      column.accessor,
+      columnIndex,
+    );
+    updateColumnProperties(columnIndex, {
+      ...defaultProperties,
+      type: "date",
+      format: {
+        output: dateFormat,
+      },
+    });
     props.updateColumnType(columnTypeMap);
   };
 
@@ -256,6 +309,15 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     const columnSizeMap = props.columnSizeMap || {};
     const width = Number(columnWidth.split("px")[0]);
     columnSizeMap[column.accessor] = width;
+    const defaultProperties = getDefaultColumnProperties(
+      column.accessor,
+      columnIndex,
+    );
+    updateColumnProperties(columnIndex, {
+      ...defaultProperties,
+      id: column.accessor,
+      width: width,
+    });
     props.handleResizeColumn(columnSizeMap);
   };
 
@@ -266,6 +328,18 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     if (!isSelected) {
       props.onRowClick(row.original, row.index);
     }
+  };
+
+  const updateColumnProperties = (
+    columnIndex: number,
+    properties: ColumnProperties,
+  ) => {
+    const columnProperties = props.columnProperties || [];
+    columnProperties[columnIndex] = {
+      ...columnProperties[columnIndex],
+      ...properties,
+    };
+    props.updateColumnProperties([...columnProperties]);
   };
 
   return (

@@ -21,6 +21,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
+import { Colors } from "constants/Colors";
 import * as Sentry from "@sentry/react";
 const ReactTableComponent = lazy(() =>
   import("components/designSystems/appsmith/ReactTableComponent"),
@@ -37,6 +38,24 @@ export enum CompactModeTypes {
   SHORT = "SHORT",
   DEFAULT = "DEFAULT",
   TALL = "TALL",
+}
+
+export enum CellAlignmentTypes {
+  LEFT = "LEFT",
+  RIGHT = "RIGHT",
+  CENTER = "CENTER",
+}
+
+export enum TextTypes {
+  HEADING = "HEADING",
+  LABEL = "LABEL",
+  BODY = "BODY",
+}
+
+export enum FontStyleTypes {
+  BOLD = "BOLD",
+  ITALIC = "ITALIC",
+  NORMAL = "NORMAL",
 }
 
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
@@ -96,7 +115,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRow: {},
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
-      currentRow: {},
     };
   }
 
@@ -260,11 +278,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   filterTableData = () => {
     const { searchText, sortedColumn, filters, tableData } = this.props;
-    const columns = this.getTableColumns(tableData);
     if (!tableData || !tableData.length) {
       return [];
     }
     let sortedTableData = [];
+    const columns = this.getTableColumns(tableData);
     const searchKey = searchText ? searchText.toUpperCase() : "";
     if (sortedColumn) {
       const sortColumn = sortedColumn.column;
@@ -328,12 +346,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidMount() {
     const filteredTableData = this.filterTableData();
+    const selectedRow = this.getSelectedRow(filteredTableData);
     super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-    super.updateWidgetMetaProperty(
-      "selectedRow",
-      this.getSelectedRow(filteredTableData),
-    );
-    super.updateWidgetMetaProperty("currentRow", this.getEmptyRow());
+    super.updateWidgetMetaProperty("selectedRow", selectedRow);
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
     if (
@@ -347,16 +362,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       !this.props.filteredTableData
     ) {
       const filteredTableData = this.filterTableData();
+      const selectedRow = this.getSelectedRow(filteredTableData);
       super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-      super.updateWidgetMetaProperty("currentRow", this.getEmptyRow());
-      super.updateWidgetMetaProperty(
-        "selectedRow",
-        this.getSelectedRow(filteredTableData),
-      );
+      super.updateWidgetMetaProperty("selectedRow", selectedRow);
     }
   }
 
   getPageView() {
+    console.log("props", this.props);
     const { tableData, hiddenColumns, filteredTableData } = this.props;
     const tableColumns = this.getTableColumns(tableData);
 
@@ -423,8 +436,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           pageNo={pageNo}
           nextPageClick={this.handleNextPageClick}
           prevPageClick={this.handlePrevPageClick}
+          columnProperties={this.props.columnProperties}
           updatePageNo={(pageNo: number) => {
             super.updateWidgetMetaProperty("pageNo", pageNo);
+          }}
+          updateColumnProperties={(columnProperties: ColumnProperties[]) => {
+            super.updateWidgetProperty("columnProperties", columnProperties);
           }}
           updateHiddenColumns={(hiddenColumns?: string[]) => {
             super.updateWidgetProperty("hiddenColumns", hiddenColumns);
@@ -569,6 +586,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 export type CompactMode = keyof typeof CompactModeTypes;
 export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
+export type CellAlignment = keyof typeof CellAlignmentTypes;
+export type FontStyle = keyof typeof FontStyleTypes;
+export type TextType = keyof typeof TextTypes;
+
 export interface ReactTableFilter {
   column: string;
   operator: Operator;
@@ -592,6 +613,27 @@ export interface ReactTableColumnProps {
   Cell: (props: any) => JSX.Element;
 }
 
+export interface ColumnProperties {
+  id: string;
+  label: string;
+  type: string;
+  isVisible: boolean;
+  rowIndex: number;
+  width?: number;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: CellAlignment;
+  textSize?: TextType;
+  fontStyle?: FontStyle;
+  textColor?: string;
+  enableFilter?: boolean;
+  enableSort?: boolean;
+  sortAscending?: boolean;
+  format?: {
+    input?: string;
+    output: string;
+  };
+}
+
 export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
@@ -613,10 +655,13 @@ export interface TableWidgetProps extends WidgetProps {
   columnSizeMap?: { [key: string]: number };
   filters?: ReactTableFilter[];
   compactMode?: CompactMode;
+  derivedColumns?: ColumnProperties[];
+  primaryColumns?: ColumnProperties[];
   sortedColumn?: {
     column: string;
     asc: boolean;
   };
+  columnProperties?: ColumnProperties[];
 }
 
 export default TableWidget;

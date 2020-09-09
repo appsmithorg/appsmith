@@ -67,7 +67,7 @@ const PropertyControl = (props: Props) => {
       widgetProperties,
       expected: FIELD_EXPECTED_VALUE[widgetProperties.type][propertyName],
     };
-    console.log({ config });
+    // console.log({ config });
     if (
       widgetProperties.dynamicTriggers &&
       widgetProperties.dynamicTriggers[propertyName]

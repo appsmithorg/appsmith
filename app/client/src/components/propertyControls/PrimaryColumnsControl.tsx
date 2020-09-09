@@ -160,7 +160,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   };
   render() {
     const columns = this.getTableColumns();
-    // console.log("columns", columns);
+    console.log("columns", this.props.propertyValue);
     return (
       <TabsWrapper>
         <DroppableComponent

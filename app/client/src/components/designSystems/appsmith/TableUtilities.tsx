@@ -12,6 +12,8 @@ import {
   ReactTableColumnProps,
   ColumnTypes,
   Condition,
+  CellAlignmentTypes,
+  TextTypes,
 } from "widgets/TableWidget";
 import { isString, isNumber } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
@@ -844,4 +846,21 @@ export function compare(a: any, b: any, condition: Condition) {
     console.error(e);
   }
   return result;
+}
+
+export function getDefaultColumnProperties(accessor: string, index: number) {
+  return {
+    rowIndex: index,
+    width: 150,
+    id: accessor,
+    horizontalAlignment: CellAlignmentTypes.LEFT,
+    verticalAlignment: CellAlignmentTypes.CENTER,
+    type: ColumnTypes.TEXT,
+    textColor: Colors.BLUE_BAYOUX,
+    textSize: TextTypes.BODY,
+    enableFilter: true,
+    enableSort: true,
+    isVisible: true,
+    label: accessor,
+  };
 }
