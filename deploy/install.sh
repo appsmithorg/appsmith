@@ -303,12 +303,14 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
+    echo "Please share your email to receive support with the installation"
+    read -rp 'Email: ' email
     curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
     --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-      "anonymousId": "anonymousId",
-      "event": "Installation Exited",
+      "userId": "'"$email"'",
+      "event": "Installation Support",
       "properties": {
         "osEnum": '$desired_os'
       }
@@ -554,7 +556,7 @@ if [[ $status_code -ne 401 ]]; then
     --header 'Content-Type: application/json' \
     --data-raw '{
       "userId": "'"$email"'",
-      "event": "Installation Failed",
+      "event": "Installation Support",
       "properties": {
         "osEnum": '$desired_os'
       }

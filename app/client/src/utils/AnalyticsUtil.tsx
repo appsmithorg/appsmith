@@ -4,6 +4,7 @@ import FeatureFlag from "./featureFlags";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
+import { User } from "../constants/userConstants";
 
 export type EventName =
   | "LOGIN_CLICK"
@@ -64,16 +65,6 @@ export type EventName =
   | "PROPERTY_PANE_CLOSE"
   | "PROPERTY_PANE_OPEN_CLICK"
   | "PROPERTY_PANE_CLOSE_CLICK";
-
-export type Gender = "MALE" | "FEMALE";
-export interface User {
-  username: string;
-  name: string;
-  email: string;
-  gender: Gender;
-  currentOrganizationId?: string;
-  applications: any[];
-}
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -204,6 +195,9 @@ class AnalyticsUtil {
 
   static reset() {
     const windowDoc: any = window;
+    if (windowDoc.Intercom) {
+      windowDoc.Intercom("shutdown");
+    }
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
   }
