@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
@@ -11,6 +12,7 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Page;
@@ -24,6 +26,7 @@ import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
@@ -42,6 +45,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 
@@ -825,6 +829,91 @@ public class DatabaseChangelog {
                 update("config.applicationIds", applicationIds),
                 Config.class
         );
+    }
+
+    @ChangeSet(order = "024", id = "clean-action-policies", author = "")
+    public void cleanActionPolicies(MongoTemplate mongoTemplate) {
+        final org.springframework.data.mongodb.core.query.Query configQuery = query(where("name").is("template-organization"));
+
+        final Config config = mongoTemplate.findOne(
+                configQuery,
+                Config.class
+        );
+
+        if (config == null) {
+            // No template organization configured. Nothing to migrate.
+            return;
+        }
+
+        final String organizationId = config.getConfig().getAsString("organizationId");
+
+        // get application ids in template org
+        // get action ids in template org
+        // get pages, where it's application is is NOT in the above list, and onload action id is in the above list
+
+        final org.springframework.data.mongodb.core.query.Query query = query(where(FieldName.ORGANIZATION_ID).is(organizationId));
+        query.fields().include("_id");
+
+        // Get IDs of applications in the template org.
+        final List<String> applicationIds = mongoTemplate
+                .find(query, Application.class)
+                .stream()
+                .map(BaseDomain::getId)
+                .collect(Collectors.toList());
+
+        // Get IDs of actions in the template org.
+        final List<String> actionIds = mongoTemplate
+                .find(query, Action.class)
+                .stream()
+                .map(BaseDomain::getId)
+                .collect(Collectors.toList());
+
+        // Get pages that are not in applications in the template org, and have template org's action IDs in their
+        // layoutOnload lists.
+        final List<Page> pagesToFix = mongoTemplate.find(
+                query(where(FieldName.APPLICATION_ID).not().in(applicationIds))
+                        .addCriteria(where("layouts.layoutOnLoadActions").elemMatch(new Criteria().elemMatch(where("_id").in(actionIds)))),
+                Page.class
+        );
+
+        for (Page page : pagesToFix) {
+            for (Layout layout : page.getLayouts()) {
+                final ArrayList<HashSet<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
+                if (layout.getLayoutOnLoadActions() != null) {
+                    layoutOnLoadActions.addAll(layout.getLayoutOnLoadActions());
+                }
+                if (layout.getPublishedLayoutOnLoadActions() != null) {
+                    layoutOnLoadActions.addAll(layout.getPublishedLayoutOnLoadActions());
+                }
+                for (HashSet<DslActionDTO> actionSet : layoutOnLoadActions) {
+                    for (DslActionDTO actionDTO : actionSet) {
+                        final String actionName = actionDTO.getName();
+                        final Action action = mongoTemplate.findOne(
+                                query(where("pageId").is(page.getId()))
+                                        .addCriteria(where("name").is(actionName)),
+                                Action.class
+                        );
+                        if (action != null) {
+                            actionDTO.setId(action.getId());
+                            actionDTO.setJsonPathKeys(action.getJsonPathKeys());
+                            actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
+                        }
+                    }
+                }
+            }
+
+            mongoTemplate.save(page);
+        }
+
+        final long unfixablePagesCount = mongoTemplate.count(
+                query(where(FieldName.APPLICATION_ID).not().in(applicationIds))
+                        .addCriteria(where("layouts.layoutOnLoadActions").elemMatch(new Criteria().elemMatch(where("_id").in(actionIds)))),
+                Page.class
+        );
+
+        if (unfixablePagesCount > 0) {
+            log.info("Not all pages' onLoad actions could be fixed. Some old applications might not auto-run actions.");
+        }
     }
 
 }
