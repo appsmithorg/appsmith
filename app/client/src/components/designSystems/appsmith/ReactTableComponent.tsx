@@ -59,6 +59,8 @@ interface ReactTableComponentProps {
   serverSidePaginationEnabled: boolean;
   columnActions?: ColumnAction[];
   selectedRowIndex: number;
+  selectedRowIndexes: number[];
+  multiRowSelection?: boolean;
   hiddenColumns?: string[];
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: {
@@ -325,7 +327,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     row: { original: object; index: number },
     isSelected: boolean,
   ) => {
-    if (!isSelected) {
+    if (!isSelected || !!props.multiRowSelection) {
       props.onRowClick(row.original, row.index);
     }
   };
@@ -373,6 +375,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       }}
       serverSidePaginationEnabled={props.serverSidePaginationEnabled}
       selectedRowIndex={props.selectedRowIndex}
+      selectedRowIndexes={props.selectedRowIndexes}
       disableDrag={() => {
         props.disableDrag(true);
       }}

@@ -63,5 +63,7 @@
   "saveStatusContainer": ".t--save-status-container",
   "saveStatusIsSaving": "t--save-status-is-saving",
   "saveStatusSuccess": ".t--save-status-success",
-  "saveStatusError": ".t--save-status-error"
+  "saveStatusError": ".t--save-status-error",
+  "tableNextPage": ".t--table-widget-next-page",
+  "tablePrevPage": ".t--table-widget-prev-page"
 }

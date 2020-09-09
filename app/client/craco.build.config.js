@@ -8,6 +8,15 @@ const env = process.env.REACT_APP_ENVIRONMENT;
 
 const plugins = [];
 
+plugins.push(
+  new WorkboxPlugin.InjectManifest({
+    swSrc: "./src/serviceWorker.js",
+    mode: "development",
+    swDest: "./pageService.js",
+    maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+  }),
+);
+
 if (env === "PRODUCTION" || env === "STAGING") {
   plugins.push(
     new SentryWebpackPlugin({
@@ -22,14 +31,6 @@ if (env === "PRODUCTION" || env === "STAGING") {
     }),
   );
 }
-plugins.push(
-  new WorkboxPlugin.InjectManifest({
-    swSrc: "./src/serviceWorker.js",
-    mode: "development",
-    swDest: "./pageService.js",
-    maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-  }),
-);
 
 module.exports = merge(common, {
   webpack: {

@@ -12,6 +12,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -31,6 +32,8 @@ public class Datasource extends BaseDomain {
     String organizationId;
 
     DatasourceConfiguration datasourceConfiguration;
+
+    List structure;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> invalids;

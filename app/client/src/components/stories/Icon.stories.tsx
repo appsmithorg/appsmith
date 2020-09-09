@@ -4,7 +4,7 @@ import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import AppIcon, { AppIconCollection } from "components/ads/AppIcon";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Icon",
@@ -28,18 +28,7 @@ export const ButtonIcon = () => (
 export const BordelessIcon = () => (
   <StoryWrapper>
     <Icon
-      size={select(
-        "Icon size",
-        [
-          IconSize.SMALL,
-          IconSize.MEDIUM,
-          IconSize.LARGE,
-          IconSize.XL,
-          IconSize.XXL,
-          IconSize.XXXL,
-        ],
-        IconSize.LARGE,
-      )}
+      size={select("Icon size", Object.values(IconSize), IconSize.LARGE)}
       name={select("Icon name", IconCollection, "delete")}
     />
   </StoryWrapper>
@@ -48,11 +37,7 @@ export const BordelessIcon = () => (
 export const AppIconVariant = () => (
   <StoryWrapper>
     <AppIcon
-      size={select(
-        "Icon size",
-        [Size.small, Size.medium, Size.large],
-        Size.small,
-      )}
+      size={select("Icon size", Object.values(Size), Size.small)}
       color={select(
         "Icon color",
         [

@@ -34,13 +34,10 @@ import {
   WIDGETS_SEARCH_ID,
 } from "constants/Explorer";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
-
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -85,7 +82,6 @@ class Editor extends Component<Props> {
   };
 
   componentDidMount() {
-    const { user } = this.props;
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
@@ -93,21 +89,8 @@ class Editor extends Component<Props> {
     if (applicationId && pageId) {
       this.props.initEditor(applicationId, pageId);
     }
-    if (cloudHosting && intercomAppID && window.Intercom) {
-      window.Intercom("boot", {
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        app_id: intercomAppID,
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        custom_launcher_selector: "#intercom-trigger",
-        name: user?.username,
-        email: user?.email,
-      });
-    }
   }
   componentDidUpdate(previously: Props) {
-    if (cloudHosting && intercomAppID && window.Intercom) {
-      window.Intercom("update");
-    }
     if (
       previously.isPublishing &&
       !(this.props.isPublishing || this.props.errorPublishing)
