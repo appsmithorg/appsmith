@@ -7,7 +7,7 @@ import {
   number,
 } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 import RadioComponent from "components/ads/Radio";
 import { action } from "@storybook/addon-actions";
 
