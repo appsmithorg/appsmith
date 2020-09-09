@@ -831,8 +831,8 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "024", id = "clean-action-policies", author = "")
-    public void updateErroenousActionIdInPage(MongoTemplate mongoTemplate) {
+    @ChangeSet(order = "024", id = "update-erroneous-action-ids", author = "")
+    public void updateErroneousActionIdsInPage(MongoTemplate mongoTemplate) {
         final org.springframework.data.mongodb.core.query.Query configQuery = query(where("name").is("template-organization"));
 
         final Config config = mongoTemplate.findOne(
