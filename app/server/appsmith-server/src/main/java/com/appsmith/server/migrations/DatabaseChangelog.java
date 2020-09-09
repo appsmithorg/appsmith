@@ -895,7 +895,7 @@ public class DatabaseChangelog {
                                 Action.class
                         );
                         if (action != null) {
-                           // update the erroneous action id (template action id) to the cloned action id
+                            // Update the erroneous action id (template action id) to the cloned action id
                             actionDTO.setId(action.getId());
                         }
                     }
