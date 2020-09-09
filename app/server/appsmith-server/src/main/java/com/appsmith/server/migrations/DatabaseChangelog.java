@@ -866,11 +866,16 @@ public class DatabaseChangelog {
 
         // Get pages that are not in applications in the template org, and have template org's action IDs in their
         // layoutOnload lists.
+        final Criteria incorrectActionIdCriteria = new Criteria().orOperator(
+                where("layouts.layoutOnLoadActions").elemMatch(new Criteria().elemMatch(where("_id").in(actionIds))),
+                where("layouts.publishedLayoutOnLoadActions").elemMatch(new Criteria().elemMatch(where("_id").in(actionIds)))
+        );
         final List<Page> pagesToFix = mongoTemplate.find(
                 query(where(FieldName.APPLICATION_ID).not().in(applicationIds))
-                        .addCriteria(where("layouts.layoutOnLoadActions").elemMatch(new Criteria().elemMatch(where("_id").in(actionIds)))),
+                        .addCriteria(incorrectActionIdCriteria),
                 Page.class
         );
+
 
         for (Page page : pagesToFix) {
             for (Layout layout : page.getLayouts()) {
@@ -885,8 +890,8 @@ public class DatabaseChangelog {
                     for (DslActionDTO actionDTO : actionSet) {
                         final String actionName = actionDTO.getName();
                         final Action action = mongoTemplate.findOne(
-                                query(where("pageId").is(page.getId()))
-                                        .addCriteria(where("name").is(actionName)),
+                                query(where(FieldName.PAGE_ID).is(page.getId()))
+                                        .addCriteria(where(FieldName.NAME).is(actionName)),
                                 Action.class
                         );
                         if (action != null) {
