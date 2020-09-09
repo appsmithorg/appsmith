@@ -1,12 +1,15 @@
 export const ANONYMOUS_USERNAME = "anonymousUser";
 
+type Gender = "MALE" | "FEMALE";
+
 export type User = {
-  id: string;
   email: string;
   currentOrganizationId: string;
   organizationIds: string[];
   applications: UserApplication[];
   username: string;
+  name: string;
+  gender: Gender;
 };
 
 export interface UserApplication {
