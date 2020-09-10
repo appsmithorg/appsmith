@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
@@ -32,7 +33,7 @@ public class DatasourceStructureSolution {
     private final DatasourceContextService datasourceContextService;
     private final EncryptionService encryptionService;
 
-    public Mono<com.appsmith.external.models.DatasourceStructure> getStructure(String datasourceId) {
+    public Mono<DatasourceStructure> getStructure(String datasourceId) {
         return datasourceService.getById(datasourceId)
                 .map(this::decryptPasswordInDatasource)
                 .zipWhen(datasource -> pluginExecutorHelper

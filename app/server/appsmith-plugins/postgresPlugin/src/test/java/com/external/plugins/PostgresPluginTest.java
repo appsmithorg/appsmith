@@ -273,8 +273,10 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
                                     new DatasourceStructure.Template("SELECT", "SELECT * FROM public.possessions;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.possessions;"),
-                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.possessions WHERE id = 123;"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.possessions (title, user_id)\n" +
+                                            "  VALUES ('', 1);"),
+                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.possessions\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             possessionsTable.getTemplates().toArray()
                     );
@@ -309,8 +311,10 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
                                     new DatasourceStructure.Template("SELECT", "SELECT * FROM public.users;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.users;"),
-                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.users WHERE id = 123;"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.users (username, password, email, spouse_dob, dob, time1, time_tz, created_on, created_on_tz, interval1)\n" +
+                                            "  VALUES ('', '', '', '2019-12-31', '2019-12-31', '18:32:45', '04:05:06 PST', TIMESTAMP '2018-11-30 20:45:15', TIMESTAMP WITH TIME ZONE '2018-11-30 20:45:15 CET', 1);"),
+                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.users\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             usersTable.getTemplates().toArray()
                     );

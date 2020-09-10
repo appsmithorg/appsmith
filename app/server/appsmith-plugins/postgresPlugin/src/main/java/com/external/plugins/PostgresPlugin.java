@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
@@ -66,8 +67,9 @@ public class PostgresPlugin extends BasePlugin {
     @Extension
     public static class PostgresPluginExecutor implements PluginExecutor {
 
-        private static final String TABLES_QUERY = "select a.attname                                                      as name,\n" +
-                "       t1.typname                                                     as a_type,\n" +
+        private static final String TABLES_QUERY =
+                "select a.attname                                                      as name,\n" +
+                "       t1.typname                                                     as column_type,\n" +
                 "       case when a.atthasdef then pg_get_expr(d.adbin, d.adrelid) end as default_expr,\n" +
                 "       c.relkind                                                      as kind,\n" +
                 "       c.relname                                                      as table_name,\n" +
@@ -84,7 +86,8 @@ public class PostgresPlugin extends BasePlugin {
                 "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
                 "order by c.relname, a.attnum;";
 
-        public static final String KEYS_QUERY = "select c.conname                                         as constraint_name,\n" +
+        public static final String KEYS_QUERY =
+                "select c.conname                                         as constraint_name,\n" +
                 "       c.contype                                         as constraint_type,\n" +
                 "       sch.nspname                                       as self_schema,\n" +
                 "       tbl.relname                                       as self_table,\n" +
@@ -377,10 +380,10 @@ public class PostgresPlugin extends BasePlugin {
                             ));
                         }
                         final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-                        final String columnName = columnsResultSet.getString("name");
-                        final String columnType = columnsResultSet.getString("a_type");
                         table.getColumns().add(new DatasourceStructure.Column(
-                                columnName, columnType, columnsResultSet.getString("default_expr")
+                                columnsResultSet.getString("name"),
+                                columnsResultSet.getString("column_type"),
+                                columnsResultSet.getString("default_expr")
                         ));
                     }
                 }
@@ -424,10 +427,49 @@ public class PostgresPlugin extends BasePlugin {
 
                 // Get/compute templates for each table and put those in.
                 for (DatasourceStructure.Table table : tablesByName.values()) {
+                    final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
+                            .stream()
+                            .filter(column -> column.getDefaultValue() == null)
+                            .collect(Collectors.toList());
+
+                    final String columnNames = columnsWithoutDefault
+                            .stream()
+                            .map(DatasourceStructure.Column::getName)
+                            .collect(Collectors.joining(", "));
+
+                    final String columnValues = columnsWithoutDefault
+                            .stream()
+                            .map(DatasourceStructure.Column::getType)
+                            .map(type -> {
+                                if (type == null) {
+                                    return "null";
+                                } else if ("text".equals(type) || "varchar".equals(type)) {
+                                    return "''";
+                                } else if (type.startsWith("int")) {
+                                    return "1";
+                                } else if ("date".equals(type)) {
+                                    return "'2019-12-31'";
+                                } else if ("time".equals(type)) {
+                                    return "'18:32:45'";
+                                } else if ("timetz".equals(type)) {
+                                    return "'04:05:06 PST'";
+                                } else if ("timestamp".equals(type)) {
+                                    return "TIMESTAMP '2018-11-30 20:45:15'";
+                                } else if ("timestamptz".equals(type)) {
+                                    return "TIMESTAMP WITH TIME ZONE '2018-11-30 20:45:15 CET'";
+                                } else {
+                                    return "''";
+                                }
+                            })
+                            .collect(Collectors.joining(", "));
+
                     table.getTemplates().addAll(List.of(
                             new DatasourceStructure.Template("SELECT", "SELECT * FROM " + table.getName() + ";"),
-                            new DatasourceStructure.Template("INSERT", "INSERT INTO " + table.getName() + ";"),
-                            new DatasourceStructure.Template("DELETE", "DELETE FROM " + table.getName() + " WHERE id = 123;")
+                            new DatasourceStructure.Template("INSERT", "INSERT INTO " + table.getName()
+                                    + " (" + columnNames + ")\n"
+                                    + "  VALUES (" + columnValues + ");"),
+                            new DatasourceStructure.Template("DELETE", "DELETE FROM " + table.getName()
+                                    + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
                     ));
                 }
 
