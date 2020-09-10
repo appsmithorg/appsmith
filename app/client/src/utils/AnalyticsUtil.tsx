@@ -64,6 +64,8 @@ export type EventName =
   | "PROPERTY_PANE_OPEN"
   | "PROPERTY_PANE_CLOSE"
   | "PROPERTY_PANE_OPEN_CLICK"
+  | "OPEN_HELP"
+  | "INVITE_USER"
   | "PROPERTY_PANE_CLOSE_CLICK";
 
 function getApplicationId(location: Location) {
