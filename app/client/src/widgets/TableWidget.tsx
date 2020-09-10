@@ -93,7 +93,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo: 1,
       pageSize: undefined,
       selectedRowIndex: -1,
-      selectedRowIndexes: "",
+      selectedRowIndices: [],
       searchText: undefined,
       selectedRow: {},
       selectedRows: [],
@@ -351,32 +351,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           this.getSelectedRow(filteredTableData),
         );
       } else {
-        const selectedRowIndexes = this.getSelectedRowIndexes(
-          this.props.selectedRowIndexes,
-        );
         super.updateWidgetMetaProperty(
           "selectedRows",
           filteredTableData.filter((item: object, i: number) => {
-            return selectedRowIndexes.includes(i);
+            return this.props.selectedRowIndices.includes(i);
           }),
         );
       }
     }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       if (this.props.multiRowSelection) {
-        const selectedRowIndexes = this.props.selectedRowIndex
+        const selectedRowIndices = this.props.selectedRowIndex
           ? [this.props.selectedRowIndex]
           : [];
         super.updateWidgetMetaProperty(
-          "selectedRowIndexes",
-          selectedRowIndexes.join(","),
+          "selectedRowIndices",
+          selectedRowIndices,
         );
         super.updateWidgetMetaProperty("selectedRowIndex", -1);
         const filteredTableData = this.filterTableData();
         super.updateWidgetMetaProperty(
           "selectedRows",
           filteredTableData.filter((item: object, i: number) => {
-            return selectedRowIndexes.includes(i);
+            return selectedRowIndices.includes(i);
           }),
         );
         super.updateWidgetMetaProperty(
@@ -385,7 +382,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       } else {
         const filteredTableData = this.filterTableData();
-        super.updateWidgetMetaProperty("selectedRowIndexes", "");
+        super.updateWidgetMetaProperty("selectedRowIndices", []);
         super.updateWidgetMetaProperty("selectedRows", []);
         super.updateWidgetMetaProperty(
           "selectedRow",
@@ -406,7 +403,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       tableData,
       hiddenColumns,
       filteredTableData,
-      selectedRowIndexes,
+      selectedRowIndices,
     } = this.props;
     const tableColumns = this.getTableColumns(tableData);
 
@@ -469,7 +466,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               : this.props.selectedRowIndex
           }
           multiRowSelection={this.props.multiRowSelection}
-          selectedRowIndexes={this.getSelectedRowIndexes(selectedRowIndexes)}
+          selectedRowIndices={selectedRowIndices}
           serverSidePaginationEnabled={serverSidePaginationEnabled}
           onRowClick={this.handleRowClick}
           pageNo={pageNo}
@@ -561,25 +558,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleRowClick = (rowData: object, index: number) => {
-    const { onRowSelected } = this.props;
+    const { onRowSelected, selectedRowIndices } = this.props;
     if (this.props.multiRowSelection) {
-      const selectedRowIndexes = this.getSelectedRowIndexes(
-        this.props.selectedRowIndexes,
-      );
-      if (selectedRowIndexes.includes(index)) {
-        const rowIndex = selectedRowIndexes.indexOf(index);
-        selectedRowIndexes.splice(rowIndex, 1);
+      if (selectedRowIndices.includes(index)) {
+        const rowIndex = selectedRowIndices.indexOf(index);
+        selectedRowIndices.splice(rowIndex, 1);
       } else {
-        selectedRowIndexes.push(index);
+        selectedRowIndices.push(index);
       }
-      super.updateWidgetMetaProperty(
-        "selectedRowIndexes",
-        selectedRowIndexes.join(","),
-      );
+      super.updateWidgetMetaProperty("selectedRowIndices", selectedRowIndices);
       super.updateWidgetMetaProperty(
         "selectedRows",
         this.props.filteredTableData.filter((item: object, i: number) => {
-          return selectedRowIndexes.includes(i);
+          return selectedRowIndices.includes(i);
         }),
       );
     } else {
@@ -616,7 +607,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   resetSelectedRowIndex = () => {
     super.updateWidgetMetaProperty("selectedRowIndex", -1);
-    super.updateWidgetMetaProperty("selectedRowIndexes", "");
+    super.updateWidgetMetaProperty("selectedRowIndices", []);
   };
 
   handlePrevPageClick = () => {
@@ -679,7 +670,7 @@ export interface TableWidgetProps extends WidgetProps {
   onRowSelected?: string;
   onSearchTextChanged: string;
   selectedRowIndex?: number;
-  selectedRowIndexes: string;
+  selectedRowIndices: number[];
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;
   multiRowSelection?: boolean;

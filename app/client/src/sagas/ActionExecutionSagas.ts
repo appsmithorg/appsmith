@@ -284,8 +284,19 @@ export function* executeActionSaga(
 ) {
   const { actionId, onSuccess, onError, params } = apiAction;
   try {
-    yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const api: RestAction = yield select(getAction, actionId);
+
+    if (api.confirmBeforeExecute) {
+      const confirmed = yield call(confirmRunActionSaga);
+      if (!confirmed) {
+        if (event.callback) {
+          event.callback({ success: false });
+        }
+        return;
+      }
+    }
+
+    yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const actionParams: Property[] = yield call(
       getActionParams,
       api.jsonPathKeys,
@@ -454,6 +465,25 @@ function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   }
 }
 
+function* runActionInitSaga(
+  reduxAction: ReduxAction<{
+    id: string;
+    paginationField: PaginationField;
+  }>,
+) {
+  const action = yield select(getAction, reduxAction.payload.id);
+
+  if (action.confirmBeforeExecute) {
+    const confirmed = yield call(confirmRunActionSaga);
+    if (!confirmed) return;
+  }
+
+  yield put({
+    type: ReduxActionTypes.RUN_ACTION_REQUEST,
+    payload: reduxAction.payload,
+  });
+}
+
 function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -537,33 +567,15 @@ function* runActionSaga(
   }
 }
 
-function* confirmRunActionSaga(
-  reduxAction: ReduxAction<{
-    id: string;
-    paginationField: PaginationField;
-  }>,
-) {
-  const action = yield select(getAction, reduxAction.payload.id);
-  if (action.requestConfirmation) {
-    yield put(showRunActionConfirmModal(true));
+function* confirmRunActionSaga() {
+  yield put(showRunActionConfirmModal(true));
 
-    const { accept } = yield race({
-      cancel: take(ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL),
-      accept: take(ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL),
-    });
+  const { accept } = yield race({
+    cancel: take(ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL),
+    accept: take(ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL),
+  });
 
-    if (accept) {
-      yield put({
-        type: ReduxActionTypes.RUN_ACTION_REQUEST,
-        payload: reduxAction.payload,
-      });
-    }
-  } else {
-    yield put({
-      type: ReduxActionTypes.RUN_ACTION_REQUEST,
-      payload: reduxAction.payload,
-    });
-  }
+  return !!accept;
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
@@ -611,7 +623,7 @@ export function* watchActionExecutionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
-    takeLatest(ReduxActionTypes.RUN_ACTION_INIT, confirmRunActionSaga),
+    takeLatest(ReduxActionTypes.RUN_ACTION_INIT, runActionInitSaga),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,
