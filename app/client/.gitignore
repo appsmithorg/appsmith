@@ -35,3 +35,4 @@ results/
 /docker/*.pem
 /docker/nginx.conf
 
+storybook-static
