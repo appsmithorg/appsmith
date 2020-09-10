@@ -41,12 +41,12 @@ export const apiActionSettingsConfig = [
     sectionName: "",
     id: 1,
     children: [
-      // {
-      //   label: "Run api on Page load",
-      //   configProperty: "executeOnLoad",
-      //   controlType: "SWITCH",
-      //   info: "Will refresh data everytime page is reloaded",
-      // },
+      {
+        label: "Run api on Page load",
+        configProperty: "executeOnLoad",
+        controlType: "SWITCH",
+        info: "Will refresh data everytime page is reloaded",
+      },
       {
         label: "Request confirmation before running api",
         configProperty: "confirmBeforeExecute",
