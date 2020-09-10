@@ -1,8 +1,6 @@
 import React, { memo } from "react";
 import WidgetFactory from "utils/WidgetFactory";
-import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/NewBaseWidget";
 import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
 
@@ -13,7 +11,7 @@ interface CanvasProps {
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
   try {
-    const { widgetId, type } = props.dsl;
+    const { widgetId } = props.dsl;
     return (
       <React.Fragment>
         <PropertyPane />

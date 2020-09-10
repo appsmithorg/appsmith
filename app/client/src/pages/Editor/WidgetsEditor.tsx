@@ -5,7 +5,7 @@ import Canvas from "./Canvas";
 import {
   getIsFetchingPage,
   getCurrentPageId,
-  getCanvasWidgetDsl,
+  getMainContainer,
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
@@ -13,7 +13,6 @@ import EditorContextProvider from "components/editorComponents/EditorContextProv
 import { Spinner } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import * as log from "loglevel";
 import { getCanvasClassName } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import { useParams } from "react-router";
@@ -50,7 +49,7 @@ const WidgetsEditor = () => {
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
 
-  const widgets = useSelector(getCanvasWidgetDsl);
+  const mainContainer = useSelector(getMainContainer);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
@@ -97,10 +96,9 @@ const WidgetsEditor = () => {
   if (isFetchingPage) {
     node = pageLoading;
   }
-  if (!isFetchingPage && widgets) {
-    node = <Canvas dsl={widgets} />;
+  if (!isFetchingPage && mainContainer) {
+    node = <Canvas dsl={mainContainer} />;
   }
-  log.debug("Canvas rendered");
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>

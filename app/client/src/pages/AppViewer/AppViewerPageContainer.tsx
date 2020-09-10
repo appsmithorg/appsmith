@@ -5,7 +5,6 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/NewBaseWidget";
 import { AppViewerRouteParams, BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { theme } from "constants/DefaultTheme";
@@ -13,7 +12,7 @@ import { NonIdealState, Icon, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
 import {
-  getCanvasWidgetDsl,
+  getMainContainer,
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
@@ -110,7 +109,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
 
 const mapStateToProps = (state: AppState) => ({
   isFetchingPage: getIsFetchingPage(state),
-  widgets: getCanvasWidgetDsl(state),
+  widgets: getMainContainer(state),
   currentPageName: getCurrentPageName(state),
 });
 

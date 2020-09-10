@@ -1,10 +1,9 @@
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   UpdateCanvasPayload,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/NewBaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 
@@ -14,7 +13,7 @@ export type FlattenedWidgetProps = ContainerWidgetProps & {
   children?: string[];
 };
 
-const canvasWidgetsReducer = createImmerReducer(initialState, {
+const canvasWidgetsReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_CANVAS]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,

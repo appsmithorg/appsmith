@@ -2,24 +2,19 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetCardProps, WidgetProps } from "widgets/NewBaseWidget";
+import { WidgetCardProps } from "widgets/NewBaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { getEntities } from "./entitiesSelector";
 import {
   FlattenedWidgetProps,
   CanvasWidgetsReduxState,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-
 import { OccupiedSpace } from "constants/editorConstants";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "sagas/selectors";
-
-import * as log from "loglevel";
 import { WidgetType } from "constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
@@ -103,24 +98,10 @@ export const getWidgetCards = createSelector(
   },
 );
 
-export const getCanvasWidgetDsl = createSelector(
-  getEntities,
+export const getMainContainer = createSelector(
   getDataTree,
-  (entities: AppState["entities"], evaluatedDataTree): ContainerWidgetProps => {
-    // log.debug("Evaluating data tree to get canvas widgets");
-    // log.debug({ evaluatedDataTree });
-    const widgets = { ...entities.canvasWidgets };
-    Object.keys(widgets).forEach(widgetKey => {
-      const evaluatedWidget = _.find(evaluatedDataTree, {
-        widgetId: widgetKey,
-      });
-      if (evaluatedWidget) {
-        widgets[widgetKey] = evaluatedWidget as DataTreeWidget;
-      }
-    });
-    return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: widgets,
-    });
+  (evaluatedDataTree): ContainerWidgetProps | undefined => {
+    return _.find(evaluatedDataTree, { widgetId: "0" }) as DataTreeWidget;
   },
 );
 
