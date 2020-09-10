@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
-import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -27,10 +26,10 @@ export const AppPage = (props: AppPageProps) => {
       mode: "VIEW",
     });
   }, [props.pageId, props.pageName]);
+  const { widgetId, type } = props.dsl;
   return (
     <PageView width={props.dsl.rightColumn}>
-      {props.dsl.widgetId &&
-        WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
+      {widgetId && WidgetFactory.createWidget(widgetId, type)}
     </PageView>
   );
 };

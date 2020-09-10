@@ -13,12 +13,12 @@ interface CanvasProps {
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
   try {
+    const { widgetId, type } = props.dsl;
     return (
       <React.Fragment>
         <PropertyPane />
         <ArtBoard width={props.dsl.rightColumn}>
-          {props.dsl.widgetId &&
-            WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
+          {widgetId && WidgetFactory.createWidget(widgetId, type)}
         </ArtBoard>
       </React.Fragment>
     );

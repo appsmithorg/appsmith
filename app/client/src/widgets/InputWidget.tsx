@@ -1,5 +1,5 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import React, { Component } from "react";
+import { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
@@ -18,7 +18,7 @@ import {
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
 
-class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
+class InputWidget extends Component<InputWidgetProps, InputWidgetState> {
   debouncedHandleTextChanged = _.debounce(
     this.handleTextChanged.bind(this),
     200,
@@ -101,7 +101,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
   }
 
   componentDidUpdate(prevProps: InputWidgetProps) {
-    super.componentDidUpdate(prevProps);
     if (
       prevProps.text !== this.props.text &&
       this.props.defaultText === this.props.text
@@ -113,17 +112,17 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
 
   onValueChange = (value: string) => {
     this.setState({ text: value }, () => {
-      this.updateWidgetMetaProperty("text", value);
+      this.props.updateWidgetMetaProperty("text", value);
     });
     if (!this.props.isDirty) {
-      this.updateWidgetMetaProperty("isDirty", true);
+      this.props.updateWidgetMetaProperty("isDirty", true);
     }
     this.debouncedHandleTextChanged();
   };
 
   handleTextChanged() {
     if (this.props.onTextChanged) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onTextChanged,
         event: {
           type: EventType.ON_TEXT_CHANGE,
@@ -133,10 +132,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
   }
 
   handleFocusChange = (focusState: boolean) => {
-    this.updateWidgetMetaProperty("isFocused", focusState);
+    this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 
-  getPageView() {
+  render() {
     const value = this.state.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;

@@ -10,6 +10,7 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "./ValidationFactory";
 import React from "react";
+import NewBaseWidget from "../widgets/NewBaseWidget";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -60,24 +61,15 @@ class WidgetFactory {
   }
 
   static createWidget(
-    widgetData: WidgetDataProps,
-    renderMode: RenderMode,
+    widgetId: string,
+    widgetType: WidgetType,
   ): React.ReactNode {
-    const widgetProps: WidgetProps = {
-      key: widgetData.widgetId,
-      isVisible: true,
-      ...widgetData,
-      renderMode: renderMode,
-    };
-    const widgetBuilder = this.widgetMap.get(widgetData.type);
+    const widgetBuilder = this.widgetMap.get(widgetType);
     if (widgetBuilder) {
-      // TODO validate props here
-      const widget = widgetBuilder.buildWidget(widgetProps);
-      return widget;
+      return <NewBaseWidget widgetId={widgetId} builder={widgetBuilder} />;
     } else {
       const ex: WidgetCreationException = {
-        message:
-          "Widget Builder not registered for widget type" + widgetData.type,
+        message: "Widget Builder not registered for widget type" + widgetType,
       };
       console.error(ex);
       return null;
