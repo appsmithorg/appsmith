@@ -203,17 +203,19 @@ const textIconStyles = (props: { color: string; hover: string }) => {
 };
 
 const NewWorkspaceWrapper = styled.div`
-  ${textIconStyles({
-    color: "#9f9f9f",
-    hover: "#d4d4d4",
-  })}
+  ${props => {
+    return `${textIconStyles({
+      color: props.theme.colors.blackShades[7],
+      hover: props.theme.colors.blackShades[8],
+    })}`;
+  }}
 `;
 
 const ApplicationAddCardWrapper = styled(Card)`
   display: flex;
   flex-direction: column;
   // justify-content: center;
-  background: #232324;
+  background: ${props => props.theme.colors.blackShades[2]};
   align-items: center;
   width: ${props => props.theme.card.minWidth}px;
   height: ${props => props.theme.card.minHeight}px;
@@ -234,12 +236,14 @@ const ApplicationAddCardWrapper = styled(Card)`
   }
   cursor: pointer;
   &:hover {
-    background: #404040;
+    background: ${props => props.theme.colors.blackShades[4]};
   }
-  ${textIconStyles({
-    color: "#9f9f9f",
-    hover: "#d4d4d4",
-  })}
+  ${props => {
+    return `${textIconStyles({
+      color: props.theme.colors.blackShades[7],
+      hover: props.theme.colors.blackShades[8],
+    })}`;
+  }}
 `;
 
 function LeftPane() {
@@ -282,7 +286,9 @@ const CreateNewLabel = styled(Text)`
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
 cursor: ${props => (!props.disabled ? "pointer" : "inherit")};
 ${props => {
-  const color = props.disabled ? "#d4d4d4" : "#fff";
+  const color = props.disabled
+    ? props.theme.colors.blackShades[7]
+    : props.theme.colors.blackShades[9];
   return `${textIconStyles({
     color: color,
     hover: color,
