@@ -28,6 +28,7 @@ describe("Confirm run action", function() {
 
     cy.get(queryEditor.runQuery).click();
     cy.get(".bp3-dialog")
+      .find(".bp3-button")
       .contains("Confirm")
       .click();
     cy.wait("@postExecute").should(
