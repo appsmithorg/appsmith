@@ -17,7 +17,6 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
-  min-width: 260px;
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
 

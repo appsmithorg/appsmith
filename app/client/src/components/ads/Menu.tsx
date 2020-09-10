@@ -11,6 +11,7 @@ type MenuProps = CommonComponentProps & {
 };
 
 const MenuWrapper = styled.div`
+  width: 234px;
   background: ${props => props.theme.colors.blackShades[3]};
   box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.75);
   padding: ${props => props.theme.spaces[5]}px 0px;
