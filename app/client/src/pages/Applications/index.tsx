@@ -52,6 +52,7 @@ import { duplicateApplication } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -457,6 +458,7 @@ const ApplicationsSection = () => {
             </OrgSection>
           );
         })}
+      <HelpModal />
     </ApplicationContainer>
   );
 };

@@ -13,8 +13,10 @@ import { getAppsmithConfigs } from "configs";
 import { LayersContext } from "constants/Layers";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
 
-const { algolia } = getAppsmithConfigs();
+const { algolia, cloudHosting, intercomAppID } = getAppsmithConfigs();
 const HelpButton = styled.button<{
   highlight: boolean;
   layer: number;
@@ -54,10 +56,28 @@ const HelpIcon = HelpIcons.HELP_ICON;
 type Props = {
   isHelpModalOpen: boolean;
   dispatch: any;
+  user?: User;
 };
 
 class HelpModal extends React.Component<Props> {
   static contextType = LayersContext;
+
+  componentDidMount() {
+    const { user } = this.props;
+    if (cloudHosting && intercomAppID && window.Intercom) {
+      window.Intercom("boot", {
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        app_id: intercomAppID,
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        user_id: user?.username,
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        custom_launcher_selector: "#intercom-trigger",
+        name: user?.name,
+        email: user?.email,
+      });
+    }
+  }
+
   render() {
     const { dispatch, isHelpModalOpen } = this.props;
     const layers = this.context;
@@ -104,6 +124,7 @@ class HelpModal extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState) => ({
   isHelpModalOpen: getHelpModalOpen(state),
+  user: getCurrentUser(state),
 });
 
 export default connect(mapStateToProps)(HelpModal);

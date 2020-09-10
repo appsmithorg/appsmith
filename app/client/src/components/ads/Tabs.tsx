@@ -18,10 +18,6 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   height: 100%;
   .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[3]}px;
-    svg {
-      width: ${props => props.theme.spaces[9]}px;
-      height: ${props => props.theme.spaces[9]}px;
-    }
   }
   .react-tabs {
     height: 100%;
@@ -128,7 +124,7 @@ export const TabComponent = (props: TabbedViewComponentType) => {
         <TabList>
           {props.tabs.map(tab => (
             <Tab key={tab.key}>
-              {tab.icon ? <Icon name={tab.icon} size={IconSize.LARGE} /> : null}
+              {tab.icon ? <Icon name={tab.icon} size={IconSize.XXXL} /> : null}
               <TabTitle>{tab.title}</TabTitle>
             </Tab>
           ))}

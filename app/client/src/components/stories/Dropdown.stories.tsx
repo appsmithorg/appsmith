@@ -4,7 +4,7 @@ import { withDesign } from "storybook-addon-designs";
 import Dropdown from "components/ads/Dropdown";
 import { action } from "@storybook/addon-actions";
 import { IconCollection } from "components/ads/Icon";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Dropdown",

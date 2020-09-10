@@ -223,7 +223,9 @@ export const EditableText = (props: EditableTextProps) => {
   };
 
   const iconName =
-    !isEditing && savingState.name === SavingState.NOT_STARTED
+    !isEditing &&
+    savingState.name === SavingState.NOT_STARTED &&
+    !props.hideEditIcon
       ? "edit"
       : !isEditing && savingState.name === SavingState.SUCCESS
       ? "success"

@@ -13,7 +13,6 @@ import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionRepository;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PageRepository;
@@ -50,7 +49,6 @@ public class ExamplesOrganizationCloner {
     private final PageRepository pageRepository;
     private final ActionService actionService;
     private final DatasourceRepository datasourceRepository;
-    private final ApplicationRepository applicationRepository;
     private final ActionRepository actionRepository;
     private final ConfigService configService;
     private final SessionUserService sessionUserService;
@@ -98,6 +96,10 @@ public class ExamplesOrganizationCloner {
                 .flatMap(templateOrganizationId -> cloneOrganizationForUser(templateOrganizationId, user));
     }
 
+    public Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user) {
+        return cloneOrganizationForUser(templateOrganizationId, user, null);
+    }
+
     /**
      * Given an organization ID and a user, clone the organization and make the given user the owner of the cloned
      * organization. This recursively clones all objects inside the organization. This method also assumes that the
@@ -107,7 +109,7 @@ public class ExamplesOrganizationCloner {
      * @param user                   The user who will own the new cloned organization.
      * @return Publishes the newly created organization.
      */
-    public Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user) {
+    public Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user, Flux<Application> applicationsFlux) {
         log.info("Cloning organization id {}", templateOrganizationId);
         return organizationRepository
                 .findById(templateOrganizationId)
@@ -137,11 +139,17 @@ public class ExamplesOrganizationCloner {
                     return Mono
                             .when(
                                     userService.update(user.getId(), userUpdate),
-                                    cloneApplications(templateOrganizationId, newOrganization.getId())
+                                    applicationsFlux == null
+                                            ? cloneApplications(templateOrganizationId, newOrganization.getId())
+                                            : cloneApplications(templateOrganizationId, newOrganization.getId(), applicationsFlux)
                             )
                             .thenReturn(newOrganization);
                 })
                 .doOnError(error -> log.error("Error cloning examples organization.", error));
+    }
+
+    private Mono<Void> cloneApplications(String fromOrganizationId, String toOrganizationId) {
+        return cloneApplications(fromOrganizationId, toOrganizationId, configService.getTemplateApplications());
     }
 
     /**
@@ -152,12 +160,11 @@ public class ExamplesOrganizationCloner {
      * @param toOrganizationId   ID of the organization that is the target to copy objects to.
      * @return Empty Mono.
      */
-    private Mono<Void> cloneApplications(String fromOrganizationId, String toOrganizationId) {
+    private Mono<Void> cloneApplications(String fromOrganizationId, String toOrganizationId, Flux<Application> applicationsFlux) {
         final Mono<Map<String, Datasource>> cloneDatasourcesMono = cloneDatasources(fromOrganizationId, toOrganizationId).cache();
         final List<Page> clonedPages = new ArrayList<>();
 
-        return applicationRepository
-                .findByOrganizationIdAndIsPublicTrue(fromOrganizationId)
+        return applicationsFlux
                 .flatMap(application -> {
                     application.setOrganizationId(toOrganizationId);
 
@@ -168,10 +175,11 @@ public class ExamplesOrganizationCloner {
                             .orElse("");
 
                     return doCloneApplication(application)
-                            .flatMap(page -> Mono.zip(
-                                        Mono.just(page),
-                                        Mono.just(defaultPageId.equals(page.getId()))
-                                )
+                            .flatMap(page ->
+                                    Mono.zip(
+                                            Mono.just(page),
+                                            Mono.just(defaultPageId.equals(page.getId()))
+                                    )
                             );
                 })
                 .flatMap(tuple -> {
