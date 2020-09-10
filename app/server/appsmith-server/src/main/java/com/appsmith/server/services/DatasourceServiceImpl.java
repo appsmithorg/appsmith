@@ -375,20 +375,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     final Datasource datasource = tuple.getT1();
                     final PluginExecutor pluginExecutor = tuple.getT2();
 
-                    Mono<DatasourceStructure> structureMono = Mono.just(datasource)
-                            .flatMap(datasourceContextService::getDatasourceContext)
-                            // Now that we have the context (connection details), execute the action.
-                            .flatMap(resourceContext -> pluginExecutor
+                    return datasourceContextService.retryOnce(
+                            datasource,
+                            resourceContext -> pluginExecutor
                                     .getStructure(resourceContext.getConnection(), datasource.getDatasourceConfiguration())
-                            );
-
-                    return structureMono
-                            .onErrorResume(StaleConnectionException.class, error -> {
-                                log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                                return datasourceContextService
-                                        .deleteDatasourceContext(datasource.getId())
-                                        .then(structureMono);
-                            });
+                    );
                 })
                 .timeout(Duration.ofSeconds(10))
                 .onErrorMap(
