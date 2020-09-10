@@ -15,17 +15,17 @@ export const queryActionSettingsConfig = [
         controlType: "SWITCH",
         info: "Ask confirmation from the user everytime before refreshing data",
       },
-      {
-        label: "Cache response",
-        configProperty: "shouldCacheResponse",
-        controlType: "SWITCH",
-      },
-      {
-        label: "Cache timeout (in milliseconds)",
-        configProperty: "cacheTimeout",
-        controlType: "INPUT_TEXT",
-        dataType: "NUMBER",
-      },
+      // {
+      //   label: "Cache response",
+      //   configProperty: "shouldCacheResponse",
+      //   controlType: "SWITCH",
+      // },
+      // {
+      //   label: "Cache timeout (in milliseconds)",
+      //   configProperty: "cacheTimeout",
+      //   controlType: "INPUT_TEXT",
+      //   dataType: "NUMBER",
+      // },
       {
         label: "Query Timeout (in milliseconds)",
         configProperty: "actionConfiguration.timeoutInMillisecond",
@@ -53,17 +53,17 @@ export const apiActionSettingsConfig = [
         controlType: "SWITCH",
         info: "Ask confirmation from the user everytime before refreshing data",
       },
-      {
-        label: "Cache response",
-        configProperty: "shouldCacheResponse",
-        controlType: "SWITCH",
-      },
-      {
-        label: "Cache timeout (in milliseconds)",
-        configProperty: "cacheTimeout",
-        controlType: "INPUT_TEXT",
-        dataType: "NUMBER",
-      },
+      // {
+      //   label: "Cache response",
+      //   configProperty: "shouldCacheResponse",
+      //   controlType: "SWITCH",
+      // },
+      // {
+      //   label: "Cache timeout (in milliseconds)",
+      //   configProperty: "cacheTimeout",
+      //   controlType: "INPUT_TEXT",
+      //   dataType: "NUMBER",
+      // },
       {
         label: "Api Timeout (in milliseconds)",
         configProperty: "actionConfiguration.timeoutInMillisecond",
