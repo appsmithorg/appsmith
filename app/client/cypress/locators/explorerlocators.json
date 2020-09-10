@@ -16,5 +16,8 @@
     "property": ".language-appsmith-binding",
     "editNameField": ".editing input",
     "editEntityField": ".bp3-editable-text-input",
-    "entity":".t--entity-name"
+    "entity":".t--entity-name",
+    "addWidget":".widgets .t--entity-add-btn",
+    "dropHere":".appsmith_widget_0",
+    "closeWidgets":".t--close-widgets-sidebar"
 }

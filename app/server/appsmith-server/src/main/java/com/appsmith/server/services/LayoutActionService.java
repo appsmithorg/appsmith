@@ -16,4 +16,6 @@ public interface LayoutActionService {
     public Mono<Layout> refactorActionName(RefactorNameDTO refactorNameDTO);
 
     public Mono<Action> updateAction(String id, Action action);
+
+    Mono<Action> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
 }

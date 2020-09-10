@@ -49,6 +49,7 @@ interface TableProps {
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;
+  selectedRowIndices: number[];
   disableDrag: () => void;
   enableDrag: () => void;
   searchTableData: (searchKey: any) => void;
@@ -110,6 +111,7 @@ export const Table = (props: TableProps) => {
   }
   const subPage = page.slice(startIndex, endIndex);
   const selectedRowIndex = props.selectedRowIndex;
+  const selectedRowIndices = props.selectedRowIndices;
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   /* Subtracting 9px to handling widget padding */
   return (
@@ -201,11 +203,20 @@ export const Table = (props: TableProps) => {
                   {...row.getRowProps()}
                   className={
                     "tr" +
-                    `${row.index === selectedRowIndex ? " selected-row" : ""}`
+                    `${
+                      row.index === selectedRowIndex ||
+                      selectedRowIndices.includes(row.index)
+                        ? " selected-row"
+                        : ""
+                    }`
                   }
                   onClick={() => {
                     row.toggleRowSelected();
-                    props.selectTableRow(row, row.index === selectedRowIndex);
+                    props.selectTableRow(
+                      row,
+                      row.index === selectedRowIndex ||
+                        selectedRowIndices.includes(row.index),
+                    );
                   }}
                   key={rowIndex}
                 >

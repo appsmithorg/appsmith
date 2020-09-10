@@ -1,4 +1,5 @@
 import { Theme } from "constants/DefaultTheme";
+import tinycolor from "tinycolor2";
 import styled from "styled-components";
 
 export interface CommonComponentProps {
@@ -14,6 +15,9 @@ export type ThemeProp = {
 export enum Classes {
   ICON = "cs-icon",
   TEXT = "cs-text",
+  BP3_POPOVER_ARROW_BORDER = "bp3-popover-arrow-border",
+  BP3_POPOVER_ARROW_FILL = "bp3-popover-arrow-fill",
+  SPINNER = "cs-spinner",
 }
 
 export const hexToRgb = (
@@ -42,6 +46,17 @@ export const hexToRgba = (color: string, alpha: number) => {
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
 };
 
+export const lighten = (color: string, amount: number) => {
+  return tinycolor(color)
+    .lighten(amount)
+    .toString();
+};
+
+export const darken = (color: string, amount: number) => {
+  return tinycolor(color)
+    .darken(amount)
+    .toString();
+};
 export const StoryWrapper = styled.div`
   background: #1a191c;
   height: 700px;
