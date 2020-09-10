@@ -48,7 +48,7 @@ public interface PluginExecutor extends ExtensionPoint {
 
     Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration);
 
-    default Mono<DatasourceStructure> getStructure(DatasourceConfiguration datasourceConfiguration) {
+    default Mono<DatasourceStructure> getStructure(Object connection, DatasourceConfiguration datasourceConfiguration) {
         return Mono.empty();
     }
 
