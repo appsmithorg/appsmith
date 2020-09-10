@@ -35,6 +35,14 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import Menu from "components/ads/Menu";
 import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
 import AppIcon, { AppIconName } from "components/ads/AppIcon";
+import EditableText, {
+  EditInteractionKind,
+  SavingStateHandler,
+  SavingState,
+} from "components/ads/EditableText";
+import ColorSelector from "components/ads/ColorSelector";
+import MenuDivider from "components/ads/MenuDivider";
+import IconSelector from "components/ads/IconSelector";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -216,6 +224,14 @@ const StyledAppIcon = styled(AppIcon)`
   margin: 0 auto;
 `;
 
+const calls = (value: string, callback: any) => {
+  setTimeout(() => {
+    return callback(false, SavingState.SUCCESS);
+  }, 2000);
+
+  return callback(true);
+};
+
 export const ApplicationCard = (props: ApplicationCardProps) => {
   const [showOverlay, setShowOverlay] = useState(false);
 
@@ -259,12 +275,45 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     });
   }
 
+  const [selectedColor, setSelectedColor] = useState();
+
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
         position={Position.BOTTOM_LEFT}
         target={<Icon name="context-menu" size={IconSize.XXXL}></Icon>}
       >
+        <EditableText
+          defaultValue={props.application.name}
+          editInteractionKind={EditInteractionKind.SINGLE}
+          onTextChanged={(onChange: string) => {
+            console.log(onChange);
+          }}
+          valueTransform={(value: any) => value.toUpperCase()}
+          placeholder={"Edit text input"}
+          hideEditIcon={false}
+          isInvalid={() => {
+            return false;
+          }}
+          isEditingDefault={false}
+          fill={true}
+          onSubmit={(value: string, callback: SavingStateHandler) => {
+            return calls(value, callback);
+          }}
+        />
+        <ColorSelector
+          fill={true}
+          onSelect={(color: string) => {
+            setSelectedColor(color);
+          }}
+        />
+        <MenuDivider />
+        <IconSelector
+          fill={true}
+          selectedIcon={"bag"}
+          selectedColor={selectedColor}
+        />
+        <MenuDivider />
         {moreActionItems.map((item: MenuItemProps) => {
           return <MenuItem key={item.text} {...item}></MenuItem>;
         })}

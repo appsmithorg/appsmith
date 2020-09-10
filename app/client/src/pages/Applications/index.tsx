@@ -431,7 +431,10 @@ const ApplicationsSection = () => {
                     <PaddingWrapper>
                       <ApplicationAddCardWrapper>
                         <Icon name={"plus"} size={IconSize.LARGE}></Icon>
-                        <CreateNewLabel type={TextType.H4}>
+                        <CreateNewLabel
+                          type={TextType.H4}
+                          cypressSelector={"t--create-new-app"}
+                        >
                           Create New
                         </CreateNewLabel>
                       </ApplicationAddCardWrapper>
