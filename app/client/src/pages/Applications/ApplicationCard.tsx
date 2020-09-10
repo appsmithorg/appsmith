@@ -60,7 +60,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     props.showOverlay &&
     `
       {
-        background-color: #404040;
+        background-color: ${props.theme.colors.blackShades[4]};
         justify-content: center;
         align-items: center;
 
