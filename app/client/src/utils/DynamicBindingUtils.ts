@@ -18,9 +18,9 @@ import {
 import * as log from "loglevel";
 import equal from "fast-deep-equal/es6";
 import WidgetFactory from "utils/WidgetFactory";
-import { AppToaster } from "components/editorComponents/ToastComponent";
-import { ToastType } from "react-toastify";
 import { Action } from "entities/Action";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -385,9 +385,9 @@ export const createDependencyTree = (
     return { sortedDependencies, dependencyMap, dependencyTree };
   } catch (e) {
     console.error(e);
-    AppToaster.show({
-      message: e.message,
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: e.message,
+      variant: Variant.danger,
     });
     return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
   }

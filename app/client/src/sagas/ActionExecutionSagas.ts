@@ -34,7 +34,6 @@ import {
   ActionDescription,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
@@ -70,13 +69,14 @@ import {
 import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
-import { ToastType } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { updateAppStore } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
+import { Toaster } from "components/ads/Toast";
+import { Variant, ToastVariant } from "components/ads/common";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -143,9 +143,9 @@ function* downloadSaga(
   try {
     const { data, name, type } = action;
     if (!name) {
-      AppToaster.show({
-        message: "Download failed. File name was not provided",
-        type: "error",
+      Toaster.show({
+        text: "Download failed. File name was not provided",
+        variant: Variant.danger,
       });
       return;
     }
@@ -158,9 +158,9 @@ function* downloadSaga(
     }
     if (event.callback) event.callback({ success: true });
   } catch (err) {
-    AppToaster.show({
-      message: `Download failed. ${err}`,
-      type: "error",
+    Toaster.show({
+      text: `Download failed. ${err}`,
+      variant: Variant.danger,
     });
     if (event.callback) event.callback({ success: false });
   }
@@ -339,10 +339,9 @@ export function* executeActionSaga(
           event.callback({ success: false });
         }
       }
-      AppToaster.show({
-        message:
-          api.name + " failed to execute. Please check it's configuration",
-        type: "error",
+      Toaster.show({
+        text: api.name + " failed to execute. Please check it's configuration",
+        variant: Variant.danger,
       });
     } else {
       if (onSuccess) {
@@ -370,9 +369,9 @@ export function* executeActionSaga(
         error,
       }),
     );
-    AppToaster.show({
-      message: "Action execution failed",
-      type: "error",
+    Toaster.show({
+      text: "Action execution failed",
+      variant: Variant.danger,
     });
     if (onError) {
       yield put(
@@ -406,9 +405,9 @@ function* executeActionTriggers(
         yield call(navigateActionSaga, trigger.payload, event);
         break;
       case "SHOW_ALERT":
-        AppToaster.show({
-          message: trigger.payload.message,
-          type: trigger.payload.style,
+        Toaster.show({
+          text: trigger.payload.message,
+          variant: ToastVariant(trigger.payload.style),
         });
         if (event.callback) event.callback({ success: true });
         break;
@@ -535,14 +534,14 @@ function* runActionSaga(
         payload: { [actionId]: payload },
       });
       if (payload.isExecutionSuccess) {
-        AppToaster.show({
-          message: "Action ran successfully",
-          type: ToastType.SUCCESS,
+        Toaster.show({
+          text: "Action ran successfully",
+          variant: Variant.success,
         });
       } else {
-        AppToaster.show({
-          message: "Action returned an error response",
-          type: ToastType.WARNING,
+        Toaster.show({
+          text: "Action returned an error response",
+          variant: Variant.warning,
         });
       }
     } else {

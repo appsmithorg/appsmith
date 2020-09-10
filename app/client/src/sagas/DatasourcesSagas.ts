@@ -46,12 +46,13 @@ import history from "utils/history";
 import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { getFormData } from "selectors/formSelectors";
 import { changeApi } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { AppState } from "reducers";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -127,9 +128,9 @@ export function* deleteDatasourceSaga(
         history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
       }
 
-      AppToaster.show({
-        message: `${response.data.name} datasource deleted`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} datasource deleted`,
+        variant: Variant.success,
       });
 
       yield put({
@@ -144,9 +145,9 @@ export function* deleteDatasourceSaga(
       });
     }
   } catch (error) {
-    AppToaster.show({
-      message: error.message,
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: error.message,
+      variant: Variant.danger,
     });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
@@ -165,9 +166,9 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${response.data.name} Datasource updated`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Datasource updated`,
+        variant: Variant.success,
       });
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
@@ -244,14 +245,14 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       const responseData = response.data;
 
       if (responseData.invalids && responseData.invalids.length) {
-        AppToaster.show({
-          message: responseData.invalids[0],
-          type: ToastType.ERROR,
+        Toaster.show({
+          text: responseData.invalids[0],
+          variant: Variant.danger,
         });
       } else {
-        AppToaster.show({
-          message: `${actionPayload.payload.name} is valid`,
-          type: ToastType.SUCCESS,
+        Toaster.show({
+          text: `${actionPayload.payload.name} is valid`,
+          variant: Variant.success,
         });
       }
       yield put({
@@ -357,9 +358,9 @@ function* createDatasourceFromFormSaga(
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
       );
-      AppToaster.show({
-        message: `${response.data.name} Datasource created`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Datasource created`,
+        variant: Variant.success,
       });
     }
   } catch (error) {

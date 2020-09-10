@@ -1,6 +1,11 @@
 import React from "react";
-import { CommonComponentProps, Classes, hexToRgba } from "./common";
-import { Variant } from "./Button";
+import {
+  CommonComponentProps,
+  Classes,
+  Variant,
+  lighten,
+  darken,
+} from "./common";
 import styled from "styled-components";
 import Icon, { IconSize } from "./Icon";
 import Text, { TextType } from "./Text";
@@ -14,14 +19,16 @@ type ToastProps = ToastOptions &
     text: string;
     variant?: Variant;
     background?: Background;
-    duration: number;
+    duration?: number;
     onUndo?: () => void;
+    undoAction?: () => void;
     onComplete?: Function;
   };
 
 const WrappedToastContainer = styled.div`
   .Toastify__toast-container {
     width: auto;
+    padding: 0px;
   }
   .Toastify__toast--default {
     background: transparent;
@@ -45,26 +52,26 @@ export const StyledToastContainer = (props: ToastOptions) => {
 const bgVariant = (color: string, background?: Background): string => {
   let bgColor = "";
   if (background === "light") {
-    bgColor = hexToRgba(color, 0.06);
+    bgColor = lighten(color, 42);
   } else if (background === "dark") {
-    bgColor = hexToRgba(color, 0.1);
+    bgColor = darken(color, 38);
   }
   return bgColor;
 };
 
 const ToastBody = styled.div<{
   variant?: Variant;
-  onUndo?: () => void;
+  undoAction?: () => void;
   background?: Background;
 }>`
-  background-color: ${props =>
+  background: ${props =>
     props.variant === Variant.danger
       ? bgVariant(props.theme.colors.toast.dangerColor, props.background)
       : props.variant === Variant.warning
       ? bgVariant(props.theme.colors.toast.warningColor, props.background)
       : props.background === "dark"
-      ? props.theme.colors.blackShades[8]
-      : props.theme.colors.blackShades[0]};
+      ? props.theme.colors.blackShades[0]
+      : props.theme.colors.blackShades[8]};
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[5]}px;
   display: flex;
@@ -92,12 +99,12 @@ const ToastBody = styled.div<{
         : props.variant === Variant.warning
         ? props.theme.colors.toast.warningColor
         : props.background === "dark"
-        ? props.theme.colors.blackShades[0]
-        : props.theme.colors.blackShades[7]};
+        ? props.theme.colors.blackShades[7]
+        : props.theme.colors.blackShades[0]};
   }
 
   ${props =>
-    props.onUndo
+    props.undoAction
       ? `
     .${Classes.TEXT}:last-child {
       cursor: pointer;
@@ -111,9 +118,9 @@ const ToastBody = styled.div<{
 const ToastComponent = (props: ToastProps) => {
   return (
     <ToastBody
-      variant={props.variant}
-      onUndo={props.onUndo}
-      background={props.background}
+      variant={props.variant || Variant.info}
+      undoAction={props.undoAction}
+      background={props.background || "light"}
     >
       {props.variant === Variant.success ? (
         <Icon name="success" size={IconSize.LARGE} />
@@ -124,8 +131,11 @@ const ToastComponent = (props: ToastProps) => {
         <Icon name="error" size={IconSize.LARGE} />
       ) : null}
       <Text type={TextType.P1}>{props.text}</Text>
-      {props.onUndo ? (
-        <Text type={TextType.H6} onClick={() => props.onUndo && props.onUndo()}>
+      {props.undoAction ? (
+        <Text
+          type={TextType.H6}
+          onClick={() => props.undoAction && props.undoAction()}
+        >
           UNDO
         </Text>
       ) : null}
@@ -137,15 +147,15 @@ export const Toaster = {
   show: (config: ToastProps) => {
     const toastId = toast(
       <ToastComponent
-        {...config}
         onUndo={() => {
           toast.dismiss(toastId);
-          config.onUndo && config.onUndo();
+          config.undoAction && config.undoAction();
         }}
+        {...config}
       />,
       {
         pauseOnHover: true,
-        autoClose: config.duration,
+        autoClose: config.duration || 5000,
         closeOnClick: false,
       },
     );

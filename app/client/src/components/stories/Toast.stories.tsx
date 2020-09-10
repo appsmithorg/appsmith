@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { withKnobs, text, number, select } from "@storybook/addon-knobs";
 import { Toaster, StyledToastContainer } from "components/ads/Toast";
-import Button, { Variant, Size, Category } from "components/ads/Button";
+import Button, { Size, Category } from "components/ads/Button";
 import { action } from "@storybook/addon-actions";
 import { Slide } from "react-toastify";
-import { StoryWrapper } from "components/ads/common";
+import { StoryWrapper, Variant } from "components/ads/common";
 
 export default {
   title: "Toast",
@@ -18,7 +18,7 @@ export const ToastStory = () => {
       text: text("message", "Archived successfully"),
       duration: number("duration", 5000),
       variant: select("variant", Object.values(Variant), Variant.info),
-      background: select("background", ["dark", "light"], "dark"),
+      background: select("background", ["dark", "light"], "light"),
       onUndo: action("on-undo"),
     });
   }, []);
@@ -43,7 +43,7 @@ export const ToastStory = () => {
             text: text("message", "App name saved successfully"),
             duration: number("duration", 5000),
             variant: select("variant", Object.values(Variant), Variant.success),
-            background: select("background", ["dark", "light"], "dark"),
+            background: select("background", ["dark", "light"], "light"),
             onUndo: action("on-undo"),
           });
         }}

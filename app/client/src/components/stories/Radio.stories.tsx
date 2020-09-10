@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  withKnobs,
-  select,
-  boolean,
-  text,
-  number,
-} from "@storybook/addon-knobs";
+import { withKnobs, select, boolean, number } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { StoryWrapper } from "components/ads/common";
 import RadioComponent from "components/ads/Radio";

@@ -1,5 +1,4 @@
-import { CommonComponentProps } from "./common";
-import { Variant } from "./Button";
+import { CommonComponentProps, Variant } from "./common";
 
 type CalloutProps = CommonComponentProps & {
   variant?: Variant; //default info

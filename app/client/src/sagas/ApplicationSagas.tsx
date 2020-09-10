@@ -31,11 +31,11 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { setDefaultApplicationPageSuccess } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import {
   DUPLICATING_APPLICATION,
   DELETING_APPLICATION,
 } from "constants/messages";
+import { Toaster } from "components/ads/Toast";
 
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
@@ -198,7 +198,9 @@ export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    AppToaster.show({ message: DELETING_APPLICATION });
+    Toaster.show({
+      text: DELETING_APPLICATION,
+    });
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.deleteApplication,
@@ -225,7 +227,9 @@ export function* duplicateApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    AppToaster.show({ message: DUPLICATING_APPLICATION });
+    Toaster.show({
+      text: DUPLICATING_APPLICATION,
+    });
     const request: DuplicateApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.duplicateApplication,
