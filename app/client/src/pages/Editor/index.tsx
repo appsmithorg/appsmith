@@ -115,7 +115,7 @@ class Editor extends Component<Props> {
           label="Delete Widget"
           group="Canvas"
           onKeyDown={(e: any) => {
-            this.props.deleteSelectedWidget();
+            if (!isMac()) this.props.deleteSelectedWidget();
           }}
           preventDefault
           stopPropagation

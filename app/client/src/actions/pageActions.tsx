@@ -186,12 +186,33 @@ export type WidgetResize = {
   bottomRow: number;
 };
 
+export type WidgetAddChildren = {
+  widgetId: string;
+  children: Array<{
+    type: WidgetType;
+    widgetId: string;
+    parentId: string;
+    parentRowSpace: number;
+    parentColumnSpace: number;
+    leftColumn: number;
+    rightColumn: number;
+    topRow: number;
+    bottomRow: number;
+    isLoading: boolean;
+  }>;
+};
+
 export const updateWidget = (
   operation: WidgetOperation,
   widgetId: string,
   payload: any,
 ): ReduxAction<
-  WidgetAddChild | WidgetMove | WidgetRemoveChild | WidgetResize | WidgetDelete
+  | WidgetAddChild
+  | WidgetMove
+  | WidgetRemoveChild
+  | WidgetResize
+  | WidgetDelete
+  | WidgetAddChildren
 > => {
   return {
     type: ReduxActionTypes["WIDGET_" + operation],

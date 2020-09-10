@@ -85,4 +85,4 @@ export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 
-export const WIDGET_DELETE_UNDO_TIMEOUT = 5000;
+export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;

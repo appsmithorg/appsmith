@@ -272,6 +272,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UNDO_DELETE_WIDGET: "UNDO_DELETE_WIDGET",
   DELETE_SELECTED_WIDGET: "DELETE_SELECTED_WIDGET",
   CUT_SELECTED_WIDGET: "CUT_SELECTED_WIDGET",
+  WIDGET_ADD_CHILDREN: "WIDGET_ADD_CHILDREN",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -368,6 +369,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   TOGGLE_ACTION_EXECUTE_ON_LOAD_ERROR: "TOGGLE_ACTION_EXECUTE_ON_LOAD_ERROR",
   COPY_SELECTED_WIDGET_ERROR: "COPY_SELECTED_WIDGET_ERROR",
   PASTE_COPIED_WIDGET_ERROR: "PASTE_COPIED_WIDGET_ERROR",
+  WIDGET_ADD_CHILDREN_ERROR: "WIDGET_ADD_CHILDREN_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {

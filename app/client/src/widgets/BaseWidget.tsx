@@ -373,6 +373,7 @@ export const WidgetOperations = {
   REMOVE_CHILD: "REMOVE_CHILD",
   UPDATE_PROPERTY: "UPDATE_PROPERTY",
   DELETE: "DELETE",
+  ADD_CHILDREN: "ADD_CHILDREN",
 };
 
 export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
