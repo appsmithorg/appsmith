@@ -43,6 +43,7 @@ import EditableText, {
 import ColorSelector from "components/ads/ColorSelector";
 import MenuDivider from "components/ads/MenuDivider";
 import IconSelector from "components/ads/IconSelector";
+import { appCardColors } from "constants/AppConstants";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -275,7 +276,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     });
   }
 
-  const [selectedColor, setSelectedColor] = useState();
+  const [selectedColor, setSelectedColor] = useState<string>(appCardColors[0]);
 
   const ContextMenu = (
     <ContextDropdownWrapper>
