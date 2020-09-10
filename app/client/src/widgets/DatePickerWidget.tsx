@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
@@ -14,7 +14,10 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 
-class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
+class DatePickerWidget extends React.Component<
+  DatePickerWidgetProps,
+  WidgetState
+> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -57,7 +60,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  render() {
     return (
       <DatePickerComponent
         label={`${this.props.label}`}
@@ -73,9 +76,9 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   }
 
   onDateSelected = (selectedDate: string) => {
-    this.updateWidgetMetaProperty("selectedDate", selectedDate);
+    this.props.updateWidgetMetaProperty("selectedDate", selectedDate);
     if (this.props.onDateSelected) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onDateSelected,
         event: {
           type: EventType.ON_DATE_SELECTED,

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDrag, DragPreviewImage } from "react-dnd";
 import blankImage from "assets/images/blank.png";
-import { WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetCardProps } from "widgets/NewBaseWidget";
 import styled from "styled-components";
 import { WidgetIcons } from "icons/WidgetIcons";
 import {

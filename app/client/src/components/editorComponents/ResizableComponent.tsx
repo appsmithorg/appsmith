@@ -6,7 +6,7 @@ import {
   WidgetOperations,
   WidgetRowCols,
   WidgetProps,
-} from "widgets/BaseWidget";
+} from "widgets/NewBaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { generateClassName } from "utils/generators";
 import { DropTargetContext } from "./DropTargetComponent";
@@ -40,7 +40,7 @@ import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 
-export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
+export type ResizableComponentProps = ContainerWidgetProps & {
   paddingOffset: number;
 };
 

@@ -1,5 +1,5 @@
 import { FetchPageRequest } from "api/PageApi";
-import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import { WidgetOperation, WidgetProps } from "widgets/NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   ReduxActionTypes,
@@ -41,7 +41,7 @@ export const fetchPageSuccess = () => {
 
 export type FetchPublishedPageSuccessPayload = {
   pageId: string;
-  dsl: ContainerWidgetProps<WidgetProps>;
+  dsl: ContainerWidgetProps;
   pageWidgetId: string;
 };
 

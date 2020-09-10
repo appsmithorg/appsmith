@@ -7,12 +7,13 @@ import {
   WidgetOperation,
   WidgetOperations,
   WidgetProps,
-} from "widgets/BaseWidget";
+} from "widgets/NewBaseWidget";
 import {
   GridDefaults,
   RenderMode,
   WidgetType,
   WidgetTypes,
+  DSL,
 } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
@@ -36,7 +37,7 @@ type Rect = {
 
 const defaultDSL = defaultTemplate;
 
-const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
+const updateContainers = (dsl: DSL) => {
   if (
     dsl.type === WidgetTypes.CONTAINER_WIDGET ||
     dsl.type === WidgetTypes.FORM_WIDGET
@@ -78,7 +79,7 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
 
 //transform chart data, from old chart widget to new chart widget
 //updatd chart widget has support for multiple series
-const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+const chartDataMigration = (currentDSL: DSL) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (
       children.type === WidgetTypes.CHART_WIDGET &&
@@ -100,10 +101,8 @@ const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
-const singleChartDataMigration = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
-  currentDSL.children = currentDSL.children?.map(child => {
+const singleChartDataMigration = (currentDSL: DSL) => {
+  currentDSL.children = currentDSL.children?.map((child: DSL) => {
     if (child.type === WidgetTypes.CHART_WIDGET) {
       // Check if chart widget has the deprecated singleChartData property
       if (child.hasOwnProperty("singleChartData")) {
@@ -131,7 +130,7 @@ const singleChartDataMigration = (
   return currentDSL;
 };
 
-const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+const mapDataMigration = (currentDSL: DSL) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (children.type === WidgetTypes.MAP_WIDGET) {
       if (children.markers) {
@@ -193,7 +192,7 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
-const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+const transformDSL = (currentDSL: DSL) => {
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
     // DropTargetComponent needs to know the minimum height the canvas can take
@@ -240,7 +239,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
-): ContainerWidgetProps<WidgetProps> => {
+): ContainerWidgetProps => {
   const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
   return transformDSL(currentDSL);
 };
@@ -448,7 +447,7 @@ export const getSnapColumns = (): number => {
 };
 
 export const generateWidgetProps = (
-  parent: ContainerWidgetProps<WidgetProps>,
+  parent: ContainerWidgetProps,
   type: WidgetType,
   leftColumn: number,
   topRow: number,
@@ -458,7 +457,7 @@ export const generateWidgetProps = (
   widgetConfig: { widgetId: string; renderMode: RenderMode } & Partial<
     WidgetProps
   >,
-): ContainerWidgetProps<WidgetProps> => {
+): ContainerWidgetProps => {
   if (parent) {
     const sizes = {
       leftColumn,
@@ -468,7 +467,7 @@ export const generateWidgetProps = (
     };
 
     const others = {};
-    const props: ContainerWidgetProps<WidgetProps> = {
+    const props: ContainerWidgetProps = {
       isVisible: WidgetTypes.MODAL_WIDGET === type ? undefined : true,
       ...widgetConfig,
       type,

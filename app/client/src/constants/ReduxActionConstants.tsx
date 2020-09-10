@@ -1,4 +1,4 @@
-import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetProps, WidgetCardProps } from "widgets/NewBaseWidget";
 import { PageAction } from "constants/ActionConstants";
 
 export const ReduxActionTypes: { [key: string]: string } = {

@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
 import styled from "styled-components";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragSourceMonitor } from "react-dnd";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -35,7 +35,7 @@ const WidgetBoundaries = styled.div`
   pointer-events: none;
 `;
 
-type DraggableComponentProps = ContainerWidgetProps<WidgetProps>;
+type DraggableComponentProps = ContainerWidgetProps;
 
 /* eslint-disable react/display-name */
 

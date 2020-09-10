@@ -11,7 +11,7 @@ import {
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetOperations } from "widgets/BaseWidget";
+import { WidgetOperations } from "widgets/NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import HelpControl from "./HelpControl";
 

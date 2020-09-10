@@ -10,7 +10,7 @@ import { AppState } from "reducers";
 import { compact, groupBy } from "lodash";
 import { Datasource } from "api/DatasourcesApi";
 import { debounce } from "lodash";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import log from "loglevel";
 import produce from "immer";
 

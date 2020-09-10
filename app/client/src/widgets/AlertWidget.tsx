@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { WidgetProps } from "./BaseWidget";
+import { WidgetProps } from "./NewBaseWidget";
 
 class AlertWidget extends Component {
-  getPageView() {
+  render() {
     return <div />;
   }
 }

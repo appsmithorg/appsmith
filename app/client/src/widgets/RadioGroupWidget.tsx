@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import RadioGroupComponent from "components/designSystems/blueprint/RadioGroupComponent";
 import { EventType } from "constants/ActionConstants";
@@ -11,7 +11,10 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 
-class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
+class RadioGroupWidget extends React.Component<
+  RadioGroupWidgetProps,
+  WidgetState
+> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -49,7 +52,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  render() {
     return (
       <RadioGroupComponent
         widgetId={this.props.widgetId}
@@ -65,9 +68,9 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   onRadioSelectionChange = (updatedValue: string) => {
-    super.updateWidgetMetaProperty("selectedOptionValue", updatedValue);
+    this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue);
     if (this.props.onSelectionChange) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onSelectionChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,

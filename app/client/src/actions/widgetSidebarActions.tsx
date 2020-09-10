@@ -2,7 +2,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetCardProps } from "widgets/NewBaseWidget";
 
 export const fetchWidgetCards = () => {
   return {

@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 
 import { connect } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import {
@@ -24,31 +24,17 @@ const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   },
 };
 
-class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
+class ModalWidget extends React.Component<ModalWidgetProps, WidgetState> {
   static defaultProps = {
     isOpen: true,
     canEscapeKeyClose: false,
-  };
-
-  renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
-    childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
-      : MODAL_SIZE[this.props.size].height;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.containerStyle = "none";
-    childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
-    childWidgetData.rightColumn = MODAL_SIZE[this.props.size].width;
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
   closeModal = (e: any) => {
     this.props.showPropertyPane(undefined);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
-    super.updateWidgetMetaProperty("isVisible", false);
+    this.props.updateWidgetMetaProperty("isVisible", false);
     e.stopPropagation();
     e.preventDefault();
   };
@@ -56,7 +42,7 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   getChildren(): ReactNode {
     if (this.props.children && this.props.children.length > 0) {
       const children = this.props.children.filter(Boolean);
-      return children.length > 0 && children.map(this.renderChildWidget);
+      return children.length > 0 && children.map(WidgetFactory.createWidget);
     }
   }
 
@@ -82,12 +68,12 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   getCanvasView() {
-    let children = this.getChildren();
-    children = this.showWidgetName(children, true);
+    const children = this.getChildren();
+    // children = this.showWidgetName(children, true);
     return this.makeModalComponent(children);
   }
 
-  getPageView() {
+  render() {
     const children = this.getChildren();
     return this.makeModalComponent(children);
   }
@@ -100,7 +86,7 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 export interface ModalWidgetProps extends WidgetProps {
   renderMode: RenderMode;
   isOpen?: boolean;
-  children?: WidgetProps[];
+  children?: string[];
   canOutsideClickClose?: boolean;
   width?: number;
   height?: number;

@@ -1,5 +1,5 @@
 import React, { CSSProperties } from "react";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetTypes, GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
@@ -8,11 +8,14 @@ import { getCanvasClassName } from "utils/generators";
 import * as Sentry from "@sentry/react";
 
 class CanvasWidget extends ContainerWidget {
+  constructor(props: any) {
+    super(props);
+  }
   getWidgetType = () => {
     return WidgetTypes.CANVAS_WIDGET;
   };
 
-  getCanvasProps(): ContainerWidgetProps<WidgetProps> {
+  getCanvasProps(): ContainerWidgetProps {
     return {
       ...this.props,
       parentRowSpace: 1,
@@ -20,6 +23,7 @@ class CanvasWidget extends ContainerWidget {
       topRow: 0,
       leftColumn: 0,
       containerStyle: "none",
+      isVisible: true,
     };
   }
 
@@ -35,7 +39,9 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  getPageView() {
+  render() {
+    return this.renderAsDropTarget();
+
     const snapRows = getCanvasSnapRows(
       this.props.bottomRow,
       this.props.canExtend,

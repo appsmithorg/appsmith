@@ -5,7 +5,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { AppViewerRouteParams, BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { theme } from "constants/DefaultTheme";
@@ -28,7 +28,7 @@ const Section = styled.section`
 `;
 type AppViewerPageContainerProps = {
   isFetchingPage: boolean;
-  widgets?: ContainerWidgetProps<WidgetProps>;
+  widgets?: ContainerWidgetProps;
   currentPageName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
 } & RouteComponentProps<AppViewerRouteParams>;

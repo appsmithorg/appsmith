@@ -4,11 +4,12 @@ import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer"
 import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import * as log from "loglevel";
+import { WidgetType } from "constants/WidgetConstants";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -79,7 +80,7 @@ export const getPropertyConfig = createSelector(
       !!configs.config &&
       widgets[pane.widgetId]
     ) {
-      return configs.config[widgets[pane.widgetId].type];
+      return configs.config[widgets[pane.widgetId].type as WidgetType];
     }
     return undefined;
   },

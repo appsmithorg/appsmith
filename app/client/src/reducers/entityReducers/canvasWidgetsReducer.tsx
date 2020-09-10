@@ -4,13 +4,13 @@ import {
   UpdateCanvasPayload,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 
 const initialState: CanvasWidgetsReduxState = {};
 
-export type FlattenedWidgetProps = ContainerWidgetProps<WidgetProps> & {
+export type FlattenedWidgetProps = ContainerWidgetProps & {
   children?: string[];
 };
 

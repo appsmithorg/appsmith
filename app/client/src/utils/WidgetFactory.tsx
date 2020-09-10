@@ -4,13 +4,14 @@ import {
   WidgetProps,
   WidgetDataProps,
   WidgetState,
-} from "widgets/BaseWidget";
+} from "widgets/NewBaseWidget";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
 } from "./ValidationFactory";
 import React from "react";
 import NewBaseWidget from "../widgets/NewBaseWidget";
+import { noop } from "lodash";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -43,37 +44,90 @@ class WidgetFactory {
   > = new Map();
   static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
 
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return BASE_WIDGET_VALIDATION;
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
+
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {};
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
+  static getWidgetBuilder(
+    type: WidgetType,
+  ): WidgetBuilder<WidgetProps, WidgetState> {
+    const builder = this.widgetMap.get(type);
+    if (!builder) {
+      const ex: WidgetCreationException = {
+        message: "Widget Builder not registered for widget type" + type,
+      };
+      console.error(ex);
+      return {
+        //TODO(abhinav): Figure out if we need a null return here.
+        /* eslint-disable react/display-name */
+
+        buildWidget: () => <></>,
+      };
+    }
+    return builder;
+  }
+
   static registerWidgetBuilder(
     widgetType: WidgetType,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
-    widgetPropertyValidation: WidgetPropertyValidationType,
-    derivedPropertiesMap: DerivedPropertiesMap,
-    triggerPropertiesMap: TriggerPropertiesMap,
-    defaultPropertiesMap: Record<string, string>,
-    metaPropertiesMap: Record<string, any>,
+    widgetPropertyValidation?: WidgetPropertyValidationType,
+    derivedPropertiesMap?: DerivedPropertiesMap,
+    triggerPropertiesMap?: TriggerPropertiesMap,
+    defaultPropertiesMap?: Record<string, string>,
+    metaPropertiesMap?: Record<string, any>,
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
-    this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
-    this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
-    this.triggerPropertiesMap.set(widgetType, triggerPropertiesMap);
-    this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
-    this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+    this.widgetPropValidationMap.set(
+      widgetType,
+      widgetPropertyValidation || this.getPropertyValidationMap(),
+    );
+    this.derivedPropertiesMap.set(
+      widgetType,
+      derivedPropertiesMap || this.getDerivedPropertiesMap(),
+    );
+    this.triggerPropertiesMap.set(
+      widgetType,
+      triggerPropertiesMap || this.getTriggerPropertyMap(),
+    );
+    this.defaultPropertiesMap.set(
+      widgetType,
+      defaultPropertiesMap || this.getDefaultPropertiesMap(),
+    );
+    this.metaPropertiesMap.set(
+      widgetType,
+      metaPropertiesMap || this.getMetaPropertiesMap(),
+    );
   }
 
-  static createWidget(
-    widgetId: string,
-    widgetType: WidgetType,
-  ): React.ReactNode {
-    const widgetBuilder = this.widgetMap.get(widgetType);
-    if (widgetBuilder) {
-      return <NewBaseWidget widgetId={widgetId} builder={widgetBuilder} />;
-    } else {
-      const ex: WidgetCreationException = {
-        message: "Widget Builder not registered for widget type" + widgetType,
-      };
-      console.error(ex);
-      return null;
-    }
+  static createWidget(widgetId: string): React.ReactNode {
+    return <NewBaseWidget widgetId={widgetId} />;
+
+    // // const widgetBuilder = this.widgetMap.get(widgetType);
+    // if (widgetBuilder) {
+    //   return <NewBaseWidget widgetId={widgetId} builder={widgetBuilder} />;
+    // } else {
+    //   const ex: WidgetCreationException = {
+    //     message: "Widget Builder not registered for widget type" + widgetType,
+    //   };
+    //   console.error(ex);
+    //   return null;
+    // }
   }
 
   static getWidgetTypes(): WidgetType[] {

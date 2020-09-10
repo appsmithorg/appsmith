@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
   ButtonType,
@@ -13,7 +13,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 
-class FormButtonWidget extends BaseWidget<
+class FormButtonWidget extends React.Component<
   FormButtonWidgetProps,
   FormButtonWidgetState
 > {
@@ -49,7 +49,7 @@ class FormButtonWidget extends BaseWidget<
       this.setState({
         isLoading: true,
       });
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -71,7 +71,7 @@ class FormButtonWidget extends BaseWidget<
     }
   };
 
-  getPageView() {
+  render() {
     const disabled =
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&

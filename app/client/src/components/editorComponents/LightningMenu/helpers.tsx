@@ -1,7 +1,7 @@
 import React from "react";
 import { RestAction } from "entities/Action";
 import { Directions } from "utils/helpers";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import CustomizedDropdown, {
   CustomizedDropdownOption,
 } from "pages/common/CustomizedDropdown";

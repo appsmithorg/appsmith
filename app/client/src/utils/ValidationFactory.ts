@@ -6,7 +6,7 @@ import {
   ValidationType,
   Validator,
 } from "constants/WidgetValidation";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 export const BASE_WIDGET_VALIDATION = {

@@ -1,4 +1,4 @@
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 // Always add a validator function in ./Validators for these types

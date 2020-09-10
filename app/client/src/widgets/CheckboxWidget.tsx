@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import CheckboxComponent from "components/designSystems/blueprint/CheckboxComponent";
 import { EventType } from "constants/ActionConstants";
@@ -14,7 +14,7 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 
-class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
+class CheckboxWidget extends React.Component<CheckboxWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -48,7 +48,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  render() {
     return (
       <CheckboxComponent
         isChecked={!!this.props.isChecked}
@@ -63,9 +63,9 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   onCheckChange = (isChecked: boolean) => {
-    this.updateWidgetMetaProperty("isChecked", isChecked);
+    this.props.updateWidgetMetaProperty("isChecked", isChecked);
     if (this.props.onCheckChange) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onCheckChange,
         event: {
           type: EventType.ON_CHECK_CHANGE,

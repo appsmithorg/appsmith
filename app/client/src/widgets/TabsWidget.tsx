@@ -1,17 +1,18 @@
 import React from "react";
 import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import WidgetFactory, { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { generateReactKey } from "utils/generators";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/ActionConstants";
-import { WidgetOperations } from "widgets/BaseWidget";
+import { WidgetOperations } from "widgets/NewBaseWidget";
 import * as Sentry from "@sentry/react";
+import { getWidgetDimensions } from "./helpers";
 
-class TabsWidget extends BaseWidget<
+class TabsWidget extends React.Component<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
@@ -23,9 +24,9 @@ class TabsWidget extends BaseWidget<
   }
 
   onTabChange = (tabId: string) => {
-    this.updateWidgetMetaProperty("selectedTabId", tabId);
+    this.props.updateWidgetMetaProperty("selectedTabId", tabId);
     if (this.props.onTabSelected) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onTabSelected,
         event: {
           type: EventType.ON_TAB_CHANGE,
@@ -52,7 +53,7 @@ class TabsWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  render() {
     return (
       <TabsComponent {...this.props} onTabChange={this.onTabChange}>
         {this.renderComponent()}
@@ -61,28 +62,27 @@ class TabsWidget extends BaseWidget<
   }
 
   renderComponent = () => {
-    const selectedTabId = this.props.selectedTabId;
-    const childWidgetData: TabContainerWidgetProps = this.props.children.filter(
-      item => {
-        return selectedTabId === item.tabId;
-      },
-    )[0];
-
-    if (!childWidgetData) {
-      return null;
-    }
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
-    childWidgetData.rightColumn = componentWidth;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
-      : componentHeight - 1;
-    childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.minHeight = componentHeight;
-
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return null;
+    // const selectedTabId = this.props.selectedTabId;
+    // const childWidgetData: TabContainerWidgetProps = this.props.children.filter(
+    //   item => {
+    //     return selectedTabId === item.tabId;
+    //   },
+    // )[0];
+    // if (!childWidgetData) {
+    //   return null;
+    // }
+    // childWidgetData.shouldScrollContents = false;
+    // childWidgetData.canExtend = this.props.shouldScrollContents;
+    // const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
+    // childWidgetData.rightColumn = componentWidth;
+    // childWidgetData.isVisible = this.props.isVisible;
+    // childWidgetData.bottomRow = this.props.shouldScrollContents
+    //   ? childWidgetData.bottomRow
+    //   : componentHeight - 1;
+    // childWidgetData.parentId = this.props.widgetId;
+    // childWidgetData.minHeight = componentHeight;
+    // return WidgetFactory.createWidget(childWidgetData.widgetId);
   };
 
   getWidgetType(): WidgetType {
@@ -124,7 +124,11 @@ class TabsWidget extends BaseWidget<
         children: [],
       },
     };
-    this.updateWidget(WidgetOperations.ADD_CHILD, this.props.widgetId, config);
+    this.props.updateWidget(
+      WidgetOperations.ADD_CHILD,
+      this.props.widgetId,
+      config,
+    );
   };
 
   removeTabContainer = () => {
@@ -146,19 +150,18 @@ class TabsWidget extends BaseWidget<
       removedTabId === this.props.selectedTabId
     ) {
       setTimeout(() => {
-        this.updateWidgetProperty(
+        this.props.updateWidgetProperty(
           "defaultTab",
           this.props.tabs.filter(tab => tab.id !== removedTabId)[0].label,
         );
       }, 0);
     }
-    this.updateWidget(WidgetOperations.DELETE, removedContainerWidgetId, {
+    this.props.updateWidget(WidgetOperations.DELETE, removedContainerWidgetId, {
       parentId: this.props.widgetId,
     });
   };
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    super.componentDidUpdate(prevProps);
     if (this.props.tabs) {
       if (
         this.props.tabs.length !== prevProps.tabs.length &&
@@ -180,7 +183,7 @@ class TabsWidget extends BaseWidget<
           label: this.props.defaultTab,
         });
         const selectedTabId = selectedTab ? selectedTab.id : undefined;
-        this.updateWidgetMetaProperty("selectedTabId", selectedTabId);
+        this.props.updateWidgetMetaProperty("selectedTabId", selectedTabId);
       }
     }
   }
@@ -191,7 +194,7 @@ class TabsWidget extends BaseWidget<
         label: this.props.defaultTab,
       });
       const selectedTabId = selectedTab ? selectedTab.id : undefined;
-      this.updateWidgetMetaProperty("selectedTabId", selectedTabId);
+      this.props.updateWidgetMetaProperty("selectedTabId", selectedTabId);
     }
   }
 }

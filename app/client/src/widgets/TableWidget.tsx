@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import {
@@ -24,6 +24,7 @@ import moment from "moment";
 import { isString, isNumber, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
+import { getWidgetDimensions } from "./helpers";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -79,7 +80,7 @@ export enum OperatorTypes {
   OR = "OR",
   AND = "AND",
 }
-class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
+class TableWidget extends React.Component<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -356,9 +357,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidMount() {
     const filteredTableData = this.filterTableData();
-    super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
     const { selectedRowIndex } = this.props;
-    super.updateWidgetMetaProperty(
+    this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+    this.props.updateWidgetMetaProperty(
       "selectedRow",
       this.getSelectedRow(filteredTableData, selectedRowIndex),
     );
@@ -377,14 +378,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       !this.props.filteredTableData
     ) {
       const filteredTableData = this.filterTableData();
-      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+      this.props.updateWidgetMetaProperty(
+        "filteredTableData",
+        filteredTableData,
+      );
       if (!this.props.multiRowSelection) {
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRow",
           this.getSelectedRow(filteredTableData),
         );
       } else {
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRows",
           filteredTableData.filter((item: object, i: number) => {
             return this.props.selectedRowIndices.includes(i);
@@ -393,36 +397,36 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
     if (tableDataUpdated) {
-      super.updateWidgetMetaProperty("selectedRowIndices", []);
-      super.updateWidgetMetaProperty("selectedRows", []);
-      super.updateWidgetMetaProperty("selectedRowIndex", -1);
+      this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+      this.props.updateWidgetMetaProperty("selectedRows", []);
+      this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
     }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       if (this.props.multiRowSelection) {
         const selectedRowIndices = this.props.selectedRowIndex
           ? [this.props.selectedRowIndex]
           : [];
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,
         );
-        super.updateWidgetMetaProperty("selectedRowIndex", -1);
+        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
         const filteredTableData = this.filterTableData();
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRows",
           filteredTableData.filter((item: object, i: number) => {
             return selectedRowIndices.includes(i);
           }),
         );
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRow",
           this.getSelectedRow(filteredTableData),
         );
       } else {
         const filteredTableData = this.filterTableData();
-        super.updateWidgetMetaProperty("selectedRowIndices", []);
-        super.updateWidgetMetaProperty("selectedRows", []);
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+        this.props.updateWidgetMetaProperty("selectedRows", []);
+        this.props.updateWidgetMetaProperty(
           "selectedRow",
           this.getSelectedRow(filteredTableData),
         );
@@ -436,7 +440,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       : [];
   };
 
-  getPageView() {
+  render() {
     const {
       tableData,
       hiddenColumns,
@@ -456,9 +460,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (pageNo === undefined) {
       pageNo = 1;
-      super.updateWidgetMetaProperty("pageNo", pageNo);
+      this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
     const tableSizes =
       TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
     let pageSize = Math.floor(
@@ -477,7 +481,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize += 1;
 
     if (pageSize !== this.props.pageSize) {
-      super.updateWidgetMetaProperty("pageSize", pageSize);
+      this.props.updateWidgetMetaProperty("pageSize", pageSize);
     }
     return (
       <Suspense fallback={<Skeleton />}>
@@ -511,41 +515,41 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           nextPageClick={this.handleNextPageClick}
           prevPageClick={this.handlePrevPageClick}
           updatePageNo={(pageNo: number) => {
-            super.updateWidgetMetaProperty("pageNo", pageNo);
+            this.props.updateWidgetMetaProperty("pageNo", pageNo);
           }}
           updateHiddenColumns={(hiddenColumns?: string[]) => {
-            super.updateWidgetProperty("hiddenColumns", hiddenColumns);
+            this.props.updateWidgetProperty("hiddenColumns", hiddenColumns);
           }}
           updateColumnType={(columnTypeMap: {
             [key: string]: { type: string; format: string };
           }) => {
-            super.updateWidgetProperty("columnTypeMap", columnTypeMap);
+            this.props.updateWidgetProperty("columnTypeMap", columnTypeMap);
           }}
           updateColumnName={(columnNameMap: { [key: string]: string }) => {
-            super.updateWidgetProperty("columnNameMap", columnNameMap);
+            this.props.updateWidgetProperty("columnNameMap", columnNameMap);
           }}
           handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
-            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+            this.props.updateWidgetProperty("columnSizeMap", columnSizeMap);
           }}
           handleReorderColumn={(columnOrder: string[]) => {
-            super.updateWidgetProperty("columnOrder", columnOrder);
+            this.props.updateWidgetProperty("columnOrder", columnOrder);
           }}
           columnSizeMap={this.props.columnSizeMap}
           disableDrag={(disable: boolean) => {
-            this.disableDrag(disable);
+            this.props.disableDrag(disable);
           }}
           searchTableData={this.handleSearchTable}
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
             this.resetSelectedRowIndex();
-            super.updateWidgetMetaProperty("filters", filters);
+            this.props.updateWidgetMetaProperty("filters", filters);
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
             if (this.props.renderMode === RenderModes.CANVAS) {
-              super.updateWidgetProperty("compactMode", compactMode);
+              this.props.updateWidgetProperty("compactMode", compactMode);
             } else {
-              super.updateWidgetMetaProperty("compactMode", compactMode);
+              this.props.updateWidgetMetaProperty("compactMode", compactMode);
             }
           }}
           sortTableColumn={this.handleColumnSorting}
@@ -557,9 +561,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleColumnSorting = (column: string, asc: boolean) => {
     this.resetSelectedRowIndex();
     if (column === "") {
-      super.updateWidgetMetaProperty("sortedColumn", undefined);
+      this.props.updateWidgetMetaProperty("sortedColumn", undefined);
     } else {
-      super.updateWidgetMetaProperty("sortedColumn", {
+      this.props.updateWidgetMetaProperty("sortedColumn", {
         column: column,
         asc: asc,
       });
@@ -569,10 +573,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
     this.resetSelectedRowIndex();
-    this.updateWidgetMetaProperty("pageNo", 1);
-    super.updateWidgetMetaProperty("searchText", searchKey);
+    this.props.updateWidgetMetaProperty("pageNo", 1);
+    this.props.updateWidgetMetaProperty("searchText", searchKey);
     if (onSearchTextChanged) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: onSearchTextChanged,
         event: {
           type: EventType.ON_SEARCH,
@@ -582,11 +586,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   updateHiddenColumns = (hiddenColumns?: string[]) => {
-    super.updateWidgetProperty("hiddenColumns", hiddenColumns);
+    this.props.updateWidgetProperty("hiddenColumns", hiddenColumns);
   };
 
   onCommandClick = (action: string, onComplete: () => void) => {
-    super.executeAction({
+    this.props.executeAction({
       dynamicString: action,
       event: {
         type: EventType.ON_CLICK,
@@ -604,22 +608,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       } else {
         selectedRowIndices.push(index);
       }
-      super.updateWidgetMetaProperty("selectedRowIndices", selectedRowIndices);
-      super.updateWidgetMetaProperty(
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+      this.props.updateWidgetMetaProperty(
         "selectedRows",
         this.props.filteredTableData.filter((item: object, i: number) => {
           return selectedRowIndices.includes(i);
         }),
       );
     } else {
-      super.updateWidgetMetaProperty("selectedRowIndex", index);
-      super.updateWidgetMetaProperty(
+      this.props.updateWidgetMetaProperty("selectedRowIndex", index);
+      this.props.updateWidgetMetaProperty(
         "selectedRow",
         this.props.filteredTableData[index],
       );
     }
     if (onRowSelected) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: onRowSelected,
         event: {
           type: EventType.ON_ROW_SELECTED,
@@ -631,10 +638,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleNextPageClick = () => {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo + 1;
-    super.updateWidgetMetaProperty("pageNo", pageNo);
+    this.props.updateWidgetMetaProperty("pageNo", pageNo);
     if (this.props.onPageChange) {
       this.resetSelectedRowIndex();
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onPageChange,
         event: {
           type: EventType.ON_NEXT_PAGE,
@@ -644,18 +651,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   resetSelectedRowIndex = () => {
-    super.updateWidgetMetaProperty("selectedRowIndex", -1);
-    super.updateWidgetMetaProperty("selectedRowIndices", []);
+    this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+    this.props.updateWidgetMetaProperty("selectedRowIndices", []);
   };
 
   handlePrevPageClick = () => {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo - 1;
     if (pageNo >= 1) {
-      super.updateWidgetMetaProperty("pageNo", pageNo);
+      this.props.updateWidgetMetaProperty("pageNo", pageNo);
       if (this.props.onPageChange) {
         this.resetSelectedRowIndex();
-        super.executeAction({
+        this.props.executeAction({
           dynamicString: this.props.onPageChange,
           event: {
             type: EventType.ON_PREV_PAGE,

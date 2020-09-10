@@ -23,7 +23,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
 import { getColorWithOpacity, theme } from "constants/DefaultTheme";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";

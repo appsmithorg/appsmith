@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, ReactNode, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";

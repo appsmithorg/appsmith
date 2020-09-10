@@ -9,7 +9,7 @@ import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { homePageIcon, pageIcon } from "../ExplorerIcons";
 import { getActionGroups } from "../Actions/helpers";

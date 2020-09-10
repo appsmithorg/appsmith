@@ -1,6 +1,6 @@
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call } from "redux-saga/effects";
 

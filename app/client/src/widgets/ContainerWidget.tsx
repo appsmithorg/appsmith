@@ -12,19 +12,19 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetProps, WidgetState } from "./NewBaseWidget";
 import * as Sentry from "@sentry/react";
+import { getWidgetDimensions } from "./helpers";
 
-class ContainerWidget extends BaseWidget<
-  ContainerWidgetProps<WidgetProps>,
+class ContainerWidget extends React.Component<
+  ContainerWidgetProps,
   WidgetState
 > {
-  constructor(props: ContainerWidgetProps<WidgetProps>) {
+  constructor(props: ContainerWidgetProps) {
     super(props);
-    this.renderChildWidget = this.renderChildWidget.bind(this);
   }
   getSnapSpaces = () => {
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = getWidgetDimensions(this.props);
     return {
       snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       snapColumnSpace: componentWidth
@@ -34,47 +34,46 @@ class ContainerWidget extends BaseWidget<
     };
   };
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
-      return null;
-    }
+  // renderChildWidget(childWidgetData: string): React.ReactNode {
+  //   // For now, isVisible prop defines whether to render a detached widget
 
-    const snapSpaces = this.getSnapSpaces();
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+  //   // const snapSpaces = this.getSnapSpaces();
+  //   // const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
 
-    if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
-      childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-      childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    } else {
-      // This is for the detached child like the default CANVAS_WIDGET child
+  //   // if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
+  //   //   childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
+  //   //   childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
+  //   // } else {
+  //   //   // This is for the detached child like the default CANVAS_WIDGET child
 
-      childWidgetData.rightColumn = componentWidth;
-      childWidgetData.bottomRow = this.props.shouldScrollContents
-        ? childWidgetData.bottomRow
-        : componentHeight;
-      childWidgetData.minHeight = componentHeight;
-      childWidgetData.isVisible = this.props.isVisible;
-      childWidgetData.shouldScrollContents = false;
-      childWidgetData.canExtend = this.props.shouldScrollContents;
-    }
+  //   //   childWidgetData.rightColumn = componentWidth;
+  //   //   childWidgetData.bottomRow = this.props.shouldScrollContents
+  //   //     ? childWidgetData.bottomRow
+  //   //     : componentHeight;
+  //   //   childWidgetData.minHeight = componentHeight;
+  //   //   childWidgetData.isVisible = this.props.isVisible;
+  //   //   childWidgetData.shouldScrollContents = false;
+  //   //   childWidgetData.canExtend = this.props.shouldScrollContents;
+  //   // }
 
-    childWidgetData.parentId = this.props.widgetId;
+  //   // childWidgetData.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
-  }
+  //   console.log(this.props, { childWidgetData });
+  //   return WidgetFactory.createWidget(childWidgetData);
+  // }
 
   renderChildren = () => {
-    return _.map(
-      // sort by row so stacking context is correct
-      // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
-      // Figure out a way in which the stacking context is consistent.
-      _.sortBy(_.compact(this.props.children), child => child.topRow),
-      this.renderChildWidget,
-    );
+    return this.props.children?.map(WidgetFactory.createWidget);
+    // return _.map(
+    //   // sort by row so stacking context is correct
+    //   // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
+    //   // Figure out a way in which the stacking context is consistent.
+    //   // _.sortBy(_.compact(this.props.children), child => child.topRow),
+    //   this.renderChildWidget,
+    // );
   };
 
-  renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+  renderAsContainerComponent(props: ContainerWidgetProps) {
     return (
       <ContainerComponent {...props}>
         {this.renderChildren()}
@@ -82,7 +81,7 @@ class ContainerWidget extends BaseWidget<
     );
   }
 
-  getPageView() {
+  render() {
     return this.renderAsContainerComponent(this.props);
   }
 
@@ -91,9 +90,8 @@ class ContainerWidget extends BaseWidget<
   }
 }
 
-export interface ContainerWidgetProps<T extends WidgetProps>
-  extends WidgetProps {
-  children?: T[];
+export interface ContainerWidgetProps extends WidgetProps {
+  children?: string[];
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
 }

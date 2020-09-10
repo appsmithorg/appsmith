@@ -8,7 +8,7 @@ import {
 } from "constants/WidgetValidation";
 import moment from "moment";
 import { WIDGET_TYPE_VALIDATION_ERROR } from "constants/messages";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 export const VALIDATORS: Record<ValidationType, Validator> = {

@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import MapComponent from "components/designSystems/appsmith/MapComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
@@ -27,7 +27,7 @@ const DisabledContainer = styled.div`
     color: #0a0b0e;
   }
 `;
-class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
+class MapWidget extends React.Component<MapWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       defaultMarkers: VALIDATION_TYPES.MARKERS,
@@ -62,13 +62,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   }
 
   updateCenter = (lat: number, long: number) => {
-    this.updateWidgetMetaProperty("center", { lat, long });
+    this.props.updateWidgetMetaProperty("center", { lat, long });
   };
 
   updateMarker = (lat: number, long: number, index: number) => {
     const markers: Array<MarkerProps> = [...this.props.markers];
-    this.disableDrag(false);
-    this.updateWidgetMetaProperty(
+    this.props.disableDrag(false);
+    this.props.updateWidgetMetaProperty(
       "markers",
       markers.map((marker, i) => {
         if (index === i) {
@@ -81,13 +81,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   };
 
   onCreateMarker = (lat: number, long: number) => {
-    this.disableDrag(true);
-    this.updateWidgetMetaProperty("selectedMarker", {
+    this.props.disableDrag(true);
+    this.props.updateWidgetMetaProperty("selectedMarker", {
       lat: lat,
       long: long,
     });
     if (this.props.onCreateMarker) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onCreateMarker,
         event: {
           type: EventType.ON_CREATE_MARKER,
@@ -97,14 +97,14 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   };
 
   onMarkerClick = (lat: number, long: number, title: string) => {
-    this.updateWidgetMetaProperty("selectedMarker", {
+    this.props.updateWidgetMetaProperty("selectedMarker", {
       lat: lat,
       long: long,
       title: title,
     });
-    this.disableDrag(true);
+    this.props.disableDrag(true);
     if (this.props.onMarkerClick) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onMarkerClick,
         event: {
           type: EventType.ON_MARKER_CLICK,
@@ -113,7 +113,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     }
   };
 
-  getPageView() {
+  render() {
     return (
       <>
         {!google.enabled && (
@@ -152,7 +152,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             selectMarker={this.onMarkerClick}
             markers={this.props.markers || []}
             disableDrag={() => {
-              this.disableDrag(false);
+              this.props.disableDrag(false);
             }}
           />
         )}

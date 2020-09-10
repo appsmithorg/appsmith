@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
@@ -14,8 +14,9 @@ import { VALIDATORS } from "utils/Validators";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
+import { getWidgetDimensions } from "./helpers";
 
-class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
+class DropdownWidget extends React.Component<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -99,7 +100,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  render() {
     const options = this.props.options || [];
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
@@ -115,7 +116,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           )
           .filter((i: number) => i > -1)
       : [];
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
     return (
       <DropDownComponent
         onOptionSelected={this.onOptionSelected}
@@ -137,7 +138,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   onOptionSelected = (selectedOption: DropdownOption) => {
     if (this.props.selectionType === "SINGLE_SELECT") {
-      this.updateWidgetMetaProperty(
+      this.props.updateWidgetMetaProperty(
         "selectedOptionValue",
         selectedOption.value,
       );
@@ -154,10 +155,13 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       } else {
         newSelectedValue.push(selectedOption.value);
       }
-      this.updateWidgetMetaProperty("selectedOptionValueArr", newSelectedValue);
+      this.props.updateWidgetMetaProperty(
+        "selectedOptionValueArr",
+        newSelectedValue,
+      );
     }
     if (this.props.onOptionChange) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onOptionChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,
@@ -171,9 +175,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       (v: string) =>
         _.findIndex(this.props.options, { value: v }) !== removedIndex,
     );
-    this.updateWidgetMetaProperty("selectedOptionValueArr", newSelectedValue);
+    this.props.updateWidgetMetaProperty(
+      "selectedOptionValueArr",
+      newSelectedValue,
+    );
     if (this.props.onOptionChange) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onOptionChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,

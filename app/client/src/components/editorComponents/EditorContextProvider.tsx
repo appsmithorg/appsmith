@@ -1,7 +1,7 @@
 import React, { Context, createContext, ReactNode } from "react";
 import { connect } from "react-redux";
 
-import { WidgetOperation } from "widgets/BaseWidget";
+import { WidgetOperation } from "widgets/NewBaseWidget";
 
 import { updateWidget } from "actions/pageActions";
 import { executeAction, disableDragAction } from "actions/widgetActions";

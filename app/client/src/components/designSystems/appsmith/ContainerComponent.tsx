@@ -32,7 +32,6 @@ const StyledContainerComponent = styled.div<
     props.containerStyle === "card"
       ? "0 1px 1px 0 rgba(60,75,100,.14),0 2px 1px -1px rgba(60,75,100,.12),0 1px 3px 0 rgba(60,75,100,.2)"
       : "none"};
-  ${props => (!props.isVisible ? invisible : "")};
   overflow: hidden;
   ${props => (props.shouldScrollContents ? scrollContents : "")}
 }`;

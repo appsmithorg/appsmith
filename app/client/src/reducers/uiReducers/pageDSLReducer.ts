@@ -5,10 +5,10 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 
 export type PageDSLsReduxState = {
-  [pageId: string]: ContainerWidgetProps<WidgetProps>;
+  [pageId: string]: ContainerWidgetProps;
 };
 
 const initialState: PageDSLsReduxState = {};
@@ -18,7 +18,7 @@ const pageDSLsReducer = createReducer(initialState, {
     state: PageDSLsReduxState,
     action: ReduxAction<{
       pageId: string;
-      dsl: ContainerWidgetProps<WidgetProps>;
+      dsl: ContainerWidgetProps;
     }>,
   ) => {
     return { ...state, [action.payload.pageId]: action.payload.dsl };

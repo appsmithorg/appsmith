@@ -1,5 +1,5 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import moment from "moment-timezone";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {

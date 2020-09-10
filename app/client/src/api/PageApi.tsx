@@ -1,9 +1,10 @@
 import Api from "./Api";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { AxiosPromise } from "axios";
 import { PageAction } from "constants/ActionConstants";
+import { DSL } from "constants/WidgetConstants";
 
 export interface FetchPageRequest {
   id: string;
@@ -15,14 +16,14 @@ export interface FetchPublishedPageRequest {
 }
 
 export interface SavePageRequest {
-  dsl: ContainerWidgetProps<WidgetProps>;
+  dsl: ContainerWidgetProps;
   layoutId: string;
   pageId: string;
 }
 
 export interface PageLayout {
   id: string;
-  dsl: Partial<ContainerWidgetProps<any>>;
+  dsl: DSL;
   layoutOnLoadActions: PageAction[][];
   layoutActions: PageAction[];
 }
@@ -39,7 +40,7 @@ export type FetchPageResponse = ApiResponse & {
 export type FetchPublishedPageResponse = ApiResponse & {
   data: {
     id: string;
-    dsl: Partial<ContainerWidgetProps<any>>;
+    dsl: Partial<ContainerWidgetProps>;
     pageId: string;
   };
 };
@@ -48,7 +49,7 @@ export interface SavePageResponse extends ApiResponse {
   data: {
     id: string;
     layoutOnLoadActions: PageAction[][];
-    dsl: Partial<ContainerWidgetProps<any>>;
+    dsl: Partial<ContainerWidgetProps>;
   };
 }
 

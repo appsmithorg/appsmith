@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import TextComponent from "components/designSystems/blueprint/TextComponent";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
@@ -18,7 +18,7 @@ const LINE_HEIGHTS: { [key in TextStyle]: number } = {
   SUB_TEXT: 1.28581 * 12,
 };
 
-class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
+class TextWidget extends React.Component<TextWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -34,7 +34,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return Math.floor(height / lineHeight);
   }
 
-  getPageView() {
+  render() {
     // const lines = this.getNumberOfLines();
     return (
       <TextComponent

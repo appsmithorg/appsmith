@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import FilePickerComponent from "components/designSystems/appsmith/FilePickerComponent";
 import Uppy from "@uppy/core";
@@ -22,7 +22,7 @@ import shallowequal from "shallowequal";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
 
-class FilePickerWidget extends BaseWidget<
+class FilePickerWidget extends React.Component<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
@@ -121,7 +121,7 @@ class FilePickerWidget extends BaseWidget<
             return file.id !== dslFile.id;
           })
         : [];
-      this.updateWidgetMetaProperty("files", updatedFiles);
+      this.props.updateWidgetMetaProperty("files", updatedFiles);
     });
     this.uppy.on("file-added", (file: any) => {
       const dslFiles = this.props.files || [];
@@ -135,7 +135,7 @@ class FilePickerWidget extends BaseWidget<
           blob: file.data,
         };
         dslFiles.push(newFile);
-        this.updateWidgetMetaProperty("files", dslFiles);
+        this.props.updateWidgetMetaProperty("files", dslFiles);
       };
     });
     this.uppy.on("upload", () => {
@@ -152,7 +152,7 @@ class FilePickerWidget extends BaseWidget<
 
   onFilesSelected() {
     if (this.props.onFilesSelected) {
-      this.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onFilesSelected,
         event: {
           type: EventType.ON_FILES_SELECTED,
@@ -164,7 +164,7 @@ class FilePickerWidget extends BaseWidget<
 
   handleFileUploaded = (result: ExecutionResult) => {
     if (result.success) {
-      this.updateWidgetMetaProperty(
+      this.props.updateWidgetMetaProperty(
         "uploadedFileUrls",
         this.props.uploadedFileUrlPaths,
       );
@@ -172,7 +172,6 @@ class FilePickerWidget extends BaseWidget<
   };
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
-    super.componentDidUpdate(prevProps);
     if (
       prevProps.files &&
       prevProps.files.length > 0 &&
@@ -189,7 +188,6 @@ class FilePickerWidget extends BaseWidget<
   }
 
   componentDidMount() {
-    super.componentDidMount();
     this.refreshUppy(this.props);
   }
 
@@ -197,7 +195,7 @@ class FilePickerWidget extends BaseWidget<
     this.uppy.close();
   }
 
-  getPageView() {
+  render() {
     return (
       <FilePickerComponent
         uppy={this.uppy}

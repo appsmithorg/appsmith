@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/NewBaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { getEntities } from "./entitiesSelector";
@@ -20,6 +20,7 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "sagas/selectors";
 
 import * as log from "loglevel";
+import { WidgetType } from "constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
@@ -92,7 +93,9 @@ export const getWidgetCards = createSelector(
     const groups: string[] = Object.keys(cards);
     groups.forEach((group: string) => {
       cards[group] = cards[group].map((widget: WidgetCardProps) => {
-        const { rows, columns } = widgetConfigs.config[widget.type];
+        const { rows, columns } = widgetConfigs.config[
+          widget.type as WidgetType
+        ];
         return { ...widget, rows, columns };
       });
     });
@@ -103,10 +106,7 @@ export const getWidgetCards = createSelector(
 export const getCanvasWidgetDsl = createSelector(
   getEntities,
   getDataTree,
-  (
-    entities: AppState["entities"],
-    evaluatedDataTree,
-  ): ContainerWidgetProps<WidgetProps> => {
+  (entities: AppState["entities"], evaluatedDataTree): ContainerWidgetProps => {
     // log.debug("Evaluating data tree to get canvas widgets");
     // log.debug({ evaluatedDataTree });
     const widgets = { ...entities.canvasWidgets };

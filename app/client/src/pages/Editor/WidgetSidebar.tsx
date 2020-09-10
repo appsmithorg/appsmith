@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import { WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetCardProps } from "widgets/NewBaseWidget";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { IPanelProps, Icon, Classes } from "@blueprintjs/core";

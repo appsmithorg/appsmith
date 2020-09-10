@@ -7,10 +7,11 @@ import {
 } from "components/propertyControls/StyledControls";
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { PropertyControlPropsType } from "components/propertyControls";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
+import { WidgetType } from "constants/WidgetConstants";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -54,6 +55,7 @@ const PropertyControl = (props: Props) => {
       `evaluatedValues.${propertyName}`,
     );
     const { isValid, validationMessage } = getPropertyValidation(propertyName);
+    const widgetType: WidgetType = widgetProperties.type;
     const config = {
       ...propertyConfig,
       isValid,
@@ -62,7 +64,7 @@ const PropertyControl = (props: Props) => {
       dataTreePath,
       evaluatedValue,
       widgetProperties: widgetProperties,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type][propertyName],
+      expected: FIELD_EXPECTED_VALUE[widgetType][propertyName],
     };
     if (
       widgetProperties.dynamicTriggers &&

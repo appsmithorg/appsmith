@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { BaseStyle } from "widgets/BaseWidget";
+import { BaseStyle } from "widgets/NewBaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";

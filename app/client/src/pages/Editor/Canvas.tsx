@@ -2,12 +2,12 @@ import React, { memo } from "react";
 import WidgetFactory from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
 
 interface CanvasProps {
-  dsl: ContainerWidgetProps<WidgetProps>;
+  dsl: ContainerWidgetProps;
 }
 
 // TODO(abhinav): get the render mode from context
@@ -18,7 +18,7 @@ const Canvas = memo((props: CanvasProps) => {
       <React.Fragment>
         <PropertyPane />
         <ArtBoard width={props.dsl.rightColumn}>
-          {widgetId && WidgetFactory.createWidget(widgetId, type)}
+          {widgetId && WidgetFactory.createWidget(widgetId)}
         </ArtBoard>
       </React.Fragment>
     );

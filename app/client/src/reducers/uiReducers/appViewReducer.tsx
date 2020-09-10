@@ -1,5 +1,5 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import {
   ReduxAction,
@@ -45,7 +45,7 @@ const appViewReducer = createReducer(initialState, {
 
 export interface AppViewReduxState {
   initialized: boolean;
-  dsl?: ContainerWidgetProps<WidgetProps>;
+  dsl?: ContainerWidgetProps;
   isFetchingPage: boolean;
   currentLayoutId?: string;
   pages: PageListPayload;

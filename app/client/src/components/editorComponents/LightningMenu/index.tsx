@@ -5,7 +5,7 @@ import CustomizedDropdown, {
 
 import { Directions } from "utils/helpers";
 import { RestAction } from "entities/Action";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { getLightningMenuOptions } from "./helpers";
 import { LightningMenuTrigger } from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";

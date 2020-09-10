@@ -7,10 +7,12 @@ import {
   CSSUnits,
   PositionTypes,
   RenderModes,
+  WidgetType,
+  PositionType,
+  CSSUnit,
 } from "../constants/WidgetConstants";
 import { ExecuteActionPayload } from "../constants/ActionConstants";
 import { disableDragAction, executeAction } from "../actions/widgetActions";
-import { BaseStyle, WidgetOperation } from "./BaseWidget";
 import { updateWidget } from "../actions/pageActions";
 import {
   resetChildrenMetaProperty,
@@ -22,12 +24,11 @@ import ResizableComponent from "../components/editorComponents/ResizableComponen
 import WidgetNameComponent from "../components/editorComponents/WidgetNameComponent";
 import DraggableComponent from "../components/editorComponents/DraggableComponent";
 import _ from "lodash";
+import { getWidgetDimensions } from "./helpers";
+import WidgetFactory from "utils/WidgetFactory";
 
 type ComponentProps = {
   widgetId: string;
-  builder: {
-    buildWidget: (props: any) => React.ReactNode;
-  };
 };
 
 type ReduxProps = {
@@ -39,13 +40,21 @@ type ReduxProps = {
 type Props = ComponentProps & ReduxProps;
 
 class BaseWidget extends Component<Props, any> {
+  constructor(props: Props) {
+    super(props);
+  }
   render() {
+    if (!this.props.widgetProps) return null;
+    const builder = WidgetFactory.getWidgetBuilder(this.props.widgetProps.type);
     const props = {
       ...this.props.widgetProps,
       ...this.props.widgetActionProps,
       ...this.props.metaProps,
     };
     const style = this.getPositionStyle();
+    const widget = (
+      <ErrorBoundary isValid>{builder.buildWidget(props)}</ErrorBoundary>
+    );
     return (
       <React.Fragment>
         <PositionedContainer
@@ -53,23 +62,25 @@ class BaseWidget extends Component<Props, any> {
           widgetType={this.props.widgetProps.type}
           style={style}
         >
-          <DraggableComponent {...this.props.widgetProps}>
-            <WidgetNameComponent
-              widgetName={this.props.widgetProps.widgetName}
-              widgetId={this.props.widgetProps.widgetId}
-              parentId={this.props.widgetProps.parentId}
-              type={this.props.widgetProps.type}
-              showControls={false}
-            />
-            <ResizableComponent
-              {...this.props.widgetProps}
-              paddingOffset={PositionedContainer.padding}
-            >
-              <ErrorBoundary isValid>
-                {this.props.builder.buildWidget(props)}
-              </ErrorBoundary>
-            </ResizableComponent>
-          </DraggableComponent>
+          {!this.props.widgetProps.detachFromLayout && (
+            <DraggableComponent {...this.props.widgetProps}>
+              <WidgetNameComponent
+                widgetName={this.props.widgetProps.widgetName}
+                widgetId={this.props.widgetProps.widgetId}
+                parentId={this.props.widgetProps.parentId}
+                type={this.props.widgetProps.type}
+                showControls={this.props.widgetProps.detachFromLayout === true}
+              />
+
+              <ResizableComponent
+                {...this.props.widgetProps}
+                paddingOffset={PositionedContainer.padding}
+              >
+                {widget}
+              </ResizableComponent>
+            </DraggableComponent>
+          )}
+          {this.props.widgetProps.detachFromLayout && widget}
         </PositionedContainer>
       </React.Fragment>
     );
@@ -92,32 +103,8 @@ class BaseWidget extends Component<Props, any> {
     };
   }
   getComponentDimensions = () => {
-    return this.calculateWidgetBounds(
-      this.props.widgetProps.rightColumn,
-      this.props.widgetProps.leftColumn,
-      this.props.widgetProps.topRow,
-      this.props.widgetProps.bottomRow,
-      this.props.widgetProps.parentColumnSpace,
-      this.props.widgetProps.parentRowSpace,
-    );
+    return getWidgetDimensions(this.props.widgetProps);
   };
-
-  calculateWidgetBounds(
-    rightColumn: number,
-    leftColumn: number,
-    topRow: number,
-    bottomRow: number,
-    parentColumnSpace: number,
-    parentRowSpace: number,
-  ): {
-    componentWidth: number;
-    componentHeight: number;
-  } {
-    return {
-      componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
-      componentHeight: (bottomRow - topRow) * parentRowSpace,
-    };
-  }
 }
 
 const getWidgetProps = (state: AppState, widgetId: string) => {
@@ -173,5 +160,91 @@ const mapDispatchToProps = (dispatch: any) => {
     },
   };
 };
+
+export interface BaseStyle {
+  componentHeight: number;
+  componentWidth: number;
+  positionType: PositionType;
+  xPosition: number;
+  yPosition: number;
+  xPositionUnit: CSSUnit;
+  yPositionUnit: CSSUnit;
+  heightUnit?: CSSUnit;
+  widthUnit?: CSSUnit;
+}
+
+export type WidgetState = {};
+
+export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
+  buildWidget(widgetProps: T): JSX.Element;
+}
+
+export interface WidgetBaseProps {
+  widgetId: string;
+  type: WidgetType;
+  widgetName: string;
+  parentId: string;
+}
+
+export type WidgetRowCols = {
+  leftColumn: number;
+  rightColumn: number;
+  topRow: number;
+  bottomRow: number;
+  minHeight?: number; // Required to reduce the size of CanvasWidgets.
+};
+
+export interface WidgetPositionProps extends WidgetRowCols {
+  parentColumnSpace: number;
+  parentRowSpace: number;
+  // The detachFromLayout flag tells use about the following properties when enabled
+  // 1) Widget does not drag/resize
+  // 2) Widget CAN (but not neccessarily) be a dropTarget
+  // Examples: MainContainer is detached from layout,
+  // MODAL_WIDGET is also detached from layout.
+  detachFromLayout?: boolean;
+}
+
+export interface WidgetDisplayProps {
+  //TODO(abhinav): Some of these props are mandatory
+  isVisible?: boolean;
+  isLoading: boolean;
+  isDisabled?: boolean;
+  backgroundColor?: string;
+}
+
+export interface WidgetDataProps
+  extends WidgetBaseProps,
+    WidgetPositionProps,
+    WidgetDisplayProps {}
+
+export interface WidgetProps extends WidgetDataProps {
+  key?: string;
+  dynamicBindings?: Record<string, true>;
+  dynamicTriggers?: Record<string, true>;
+  dynamicProperties?: Record<string, true>;
+  invalidProps?: Record<string, boolean>;
+  validationMessages?: Record<string, string>;
+  evaluatedValues?: Record<string, any>;
+  isDefaultClickDisabled?: boolean;
+  [key: string]: any;
+}
+
+export interface WidgetCardProps {
+  type: WidgetType;
+  key?: string;
+  widgetCardName: string;
+}
+
+export const WidgetOperations = {
+  MOVE: "MOVE",
+  RESIZE: "RESIZE",
+  ADD_CHILD: "ADD_CHILD",
+  REMOVE_CHILD: "REMOVE_CHILD",
+  UPDATE_PROPERTY: "UPDATE_PROPERTY",
+  DELETE: "DELETE",
+};
+
+export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseWidget);

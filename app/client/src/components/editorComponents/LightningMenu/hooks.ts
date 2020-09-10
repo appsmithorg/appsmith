@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { RestAction } from "entities/Action";
 
 export const useWidgets = () => {

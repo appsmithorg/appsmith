@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import styled from "styled-components";
@@ -13,7 +13,7 @@ const IconWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
 `;
-class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
+class IconWidget extends React.Component<IconWidgetProps, WidgetState> {
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
       onClick: true,
@@ -25,7 +25,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
 
   onClick = () => {
     if (this.props.onClick) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -35,7 +35,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
     }
   };
 
-  getPageView() {
+  render() {
     return (
       <IconWrapper>
         <IconComponent

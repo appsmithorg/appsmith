@@ -1,6 +1,6 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { ButtonWidgetProps } from "widgets/ButtonWidget";
 import { TextWidgetProps } from "widgets/TextWidget";
@@ -52,8 +52,7 @@ export interface WidgetConfigReducerState {
     INPUT_WIDGET: Partial<InputWidgetProps> & WidgetConfigProps;
     RICH_TEXT_EDITOR_WIDGET: Partial<RichTextEditorWidgetProps> &
       WidgetConfigProps;
-    CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
-      WidgetConfigProps;
+    CONTAINER_WIDGET: Partial<ContainerWidgetProps> & WidgetConfigProps;
     DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
     TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
     DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
@@ -68,8 +67,7 @@ export interface WidgetConfigReducerState {
     FORM_WIDGET: Partial<FormWidgetProps> & WidgetConfigProps;
     FORM_BUTTON_WIDGET: Partial<FormButtonWidgetProps> & WidgetConfigProps;
     MAP_WIDGET: Partial<MapWidgetProps> & WidgetConfigProps;
-    CANVAS_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
-      WidgetConfigProps;
+    CANVAS_WIDGET: Partial<ContainerWidgetProps> & WidgetConfigProps;
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;

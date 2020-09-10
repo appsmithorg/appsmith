@@ -1,5 +1,5 @@
 import * as React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ImageComponent from "components/designSystems/appsmith/ImageComponent";
 import {
@@ -9,7 +9,7 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 
-class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
+class ImageWidget extends React.Component<ImageWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -18,7 +18,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       defaultImage: VALIDATION_TYPES.TEXT,
     };
   }
-  getPageView() {
+  render() {
     return (
       <ImageComponent
         widgetId={this.props.widgetId}

@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
   ButtonType,
@@ -13,7 +13,10 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 
-class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
+class ButtonWidget extends React.Component<
+  ButtonWidgetProps,
+  ButtonWidgetState
+> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
 
   constructor(props: ButtonWidgetProps) {
@@ -44,7 +47,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       this.setState({
         isLoading: true,
       });
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -60,7 +63,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     });
   };
 
-  getPageView() {
+  render() {
     return (
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}

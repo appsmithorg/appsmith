@@ -5,7 +5,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import moment from "moment";
 
@@ -173,7 +173,7 @@ const editorReducer = createReducer(initialState, {
 
 export interface EditorReduxState {
   initialized: boolean;
-  dsl?: ContainerWidgetProps<WidgetProps>;
+  dsl?: ContainerWidgetProps;
   pageWidgetId?: string;
   currentLayoutId?: string;
   currentPageName?: string;

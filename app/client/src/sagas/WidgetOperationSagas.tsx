@@ -31,7 +31,7 @@ import {
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import _ from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
@@ -45,7 +45,7 @@ import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 
 function getChildWidgetProps(
-  parent: ContainerWidgetProps<WidgetProps>,
+  parent: ContainerWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
@@ -87,7 +87,7 @@ type GeneratedWidgetPayload = {
   widgets: { [widgetId: string]: FlattenedWidgetProps };
 };
 function* generateChildWidgets(
-  parent: ContainerWidgetProps<WidgetProps>,
+  parent: ContainerWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ): any {

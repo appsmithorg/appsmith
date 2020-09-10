@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import styled from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/NewBaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
   widgetOperationParams,

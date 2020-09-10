@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetProps, WidgetState } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
