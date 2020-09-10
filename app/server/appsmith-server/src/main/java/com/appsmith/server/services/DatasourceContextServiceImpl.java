@@ -126,7 +126,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
 
     @Override
     public <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext, Mono<T>> task) {
-        Mono<T> taskRunnerMono = Mono.just(datasource)
+        final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasource)
                 .flatMap(this::getDatasourceContext)
                 // Now that we have the context (connection details), call the task.
                 .flatMap(task);

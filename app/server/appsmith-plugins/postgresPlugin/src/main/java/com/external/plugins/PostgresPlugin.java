@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
@@ -364,6 +363,7 @@ public class PostgresPlugin extends BasePlugin {
 
             try (Statement statement = conn.createStatement()) {
 
+                // Get tables and fill up their columns.
                 try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
                     while (columnsResultSet.next()) {
                         final char kind = columnsResultSet.getString("kind").charAt(0);
@@ -373,9 +373,7 @@ public class PostgresPlugin extends BasePlugin {
                         if (!tablesByName.containsKey(fullTableName)) {
                             tablesByName.put(fullTableName, new DatasourceStructure.Table(
                                     kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
-                                    fullTableName,
-                                    new ArrayList<>(),
-                                    new ArrayList<>()
+                                    fullTableName
                             ));
                         }
                         final DatasourceStructure.Table table = tablesByName.get(fullTableName);
@@ -387,6 +385,7 @@ public class PostgresPlugin extends BasePlugin {
                     }
                 }
 
+                // Get tables' constraints and fill those up.
                 try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY)) {
                     while (constraintsResultSet.next()) {
                         final String constraintName = constraintsResultSet.getString("constraint_name");
@@ -401,10 +400,9 @@ public class PostgresPlugin extends BasePlugin {
                         final DatasourceStructure.Table table = tablesByName.get(fullTableName);
 
                         if (constraintType == 'p') {
-                            table.getKeys().add(new DatasourceStructure.PrimaryKey(
-                                    constraintName,
-                                    List.of((String[]) constraintsResultSet.getArray("self_columns").getArray())
-                            ));
+                            final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(constraintName);
+                            table.getKeys().add(key);
+                            key.getColumnNames().addAll(List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()));
 
                         } else if (constraintType == 'f') {
                             final String foreignSchema = constraintsResultSet.getString("foreign_schema");
@@ -412,16 +410,25 @@ public class PostgresPlugin extends BasePlugin {
                                     + constraintsResultSet.getString("foreign_table")
                                     + ".";
 
-                            table.getKeys().add(new DatasourceStructure.ForeignKey(
-                                    constraintName,
-                                    List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
-                                    Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
-                                            .map(name -> prefix + name)
-                                            .collect(Collectors.toList())
-                            ));
+                            final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(constraintName);
+                            key.getFromColumns().addAll(List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()));
+                            Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
+                                    .map(name -> prefix + name)
+                                    .forEach(key.getToColumns()::add);
+
+                            table.getKeys().add(key);
 
                         }
                     }
+                }
+
+                // Get/compute templates for each table and put those in.
+                for (DatasourceStructure.Table table : tablesByName.values()) {
+                    table.getTemplates().addAll(List.of(
+                            new DatasourceStructure.Template("SELECT", "SELECT * FROM " + table.getName() + ";"),
+                            new DatasourceStructure.Template("INSERT", "INSERT INTO " + table.getName() + ";"),
+                            new DatasourceStructure.Template("DELETE", "DELETE FROM " + table.getName() + " WHERE id = 123;")
+                    ));
                 }
 
             } catch (SQLException throwable) {
@@ -429,7 +436,7 @@ public class PostgresPlugin extends BasePlugin {
 
             }
 
-            structure.setTables(new ArrayList<>(tablesByName.values()));
+            structure.getTables().addAll(tablesByName.values());
             return Mono.just(structure);
         }
     }
