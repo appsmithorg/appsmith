@@ -151,7 +151,7 @@ public class ExamplesOrganizationClonerTests {
         final Mono<OrganizationData> resultMono = organizationService.create(newOrganization)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
-                        examplesOrganizationCloner.cloneOrganizationForUser(tuple.getT1().getId(), tuple.getT2()))
+                        examplesOrganizationCloner.cloneOrganizationForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty()))
                 .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
@@ -183,16 +183,23 @@ public class ExamplesOrganizationClonerTests {
                     Application app1 = new Application();
                     app1.setName("1 - public app");
                     app1.setOrganizationId(organization.getId());
-                    app1.setIsPublic(true);
 
                     Application app2 = new Application();
                     app2.setOrganizationId(organization.getId());
                     app2.setName("2 - private app");
 
-                    return Mono.when(
-                            applicationPageService.createApplication(app1),
-                            applicationPageService.createApplication(app2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
+                    return Mono
+                            .zip(
+                                    applicationPageService.createApplication(app1),
+                                    applicationPageService.createApplication(app2)
+                            )
+                            .flatMap(tuple1 ->
+                                    examplesOrganizationCloner.cloneOrganizationForUser(
+                                            organization.getId(),
+                                            tuple.getT2(),
+                                            Flux.fromArray(new Application[]{tuple1.getT1()})
+                                    )
+                            );
                 })
                 .flatMap(this::loadOrganizationData);
 
@@ -229,22 +236,29 @@ public class ExamplesOrganizationClonerTests {
                     Application app1 = new Application();
                     app1.setName("1 - public app more");
                     app1.setOrganizationId(organization.getId());
-                    app1.setIsPublic(true);
 
                     Application app2 = new Application();
                     app2.setOrganizationId(organization.getId());
                     app2.setName("2 - another public app more");
                     app2.setIsPublic(true);
 
-                    return Mono.zip(
-                            applicationPageService.createApplication(app1),
-                            applicationPageService.createApplication(app2).flatMap(application -> {
-                                final Page newPage = new Page();
-                                newPage.setName("The New Page");
-                                newPage.setApplicationId(application.getId());
-                                return applicationPageService.createPage(newPage);
-                            })
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
+                    return Mono
+                            .zip(
+                                    applicationPageService.createApplication(app1),
+                                    applicationPageService.createApplication(app2).flatMap(application -> {
+                                        final Page newPage = new Page();
+                                        newPage.setName("The New Page");
+                                        newPage.setApplicationId(application.getId());
+                                        return applicationPageService.createPage(newPage).thenReturn(application);
+                                    })
+                            )
+                            .flatMap(tuple1 ->
+                                    examplesOrganizationCloner.cloneOrganizationForUser(
+                                            organization.getId(),
+                                            tuple.getT2(),
+                                            Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()})
+                                    )
+                            );
                 })
                 .flatMap(this::loadOrganizationData);
 
@@ -299,7 +313,7 @@ public class ExamplesOrganizationClonerTests {
                     return Mono.when(
                             applicationPageService.createApplication(app1),
                             applicationPageService.createApplication(app2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
+                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2(), Flux.empty()));
                 })
                 .flatMap(this::loadOrganizationData);
 
@@ -350,7 +364,7 @@ public class ExamplesOrganizationClonerTests {
                     return Mono.when(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
+                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2(), Flux.empty()));
                 })
                 .flatMap(this::loadOrganizationData);
 
@@ -421,12 +435,20 @@ public class ExamplesOrganizationClonerTests {
                     ds2.setName("datasource 2");
                     ds2.setOrganizationId(organization.getId());
 
-                    return Mono.when(
-                            applicationPageService.createApplication(app1),
-                            applicationPageService.createApplication(app2),
-                            datasourceService.create(ds1),
-                            datasourceService.create(ds2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
+                    return Mono
+                            .zip(
+                                    applicationPageService.createApplication(app1),
+                                    applicationPageService.createApplication(app2),
+                                    datasourceService.create(ds1),
+                                    datasourceService.create(ds2)
+                            )
+                            .flatMap(tuple1 ->
+                                    examplesOrganizationCloner.cloneOrganizationForUser(
+                                            organization.getId(),
+                                            tuple.getT2(),
+                                            Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()})
+                                    )
+                            );
                 })
                 .flatMap(this::loadOrganizationData);
 
@@ -569,9 +591,15 @@ public class ExamplesOrganizationClonerTests {
                                         actionCollectionService.createAction(action2),
                                         actionCollectionService.createAction(action3),
                                         actionCollectionService.createAction(action4)
-                                );
+                                ).thenReturn(List.of(tuple1.getT1(), tuple1.getT2()));
                             })
-                            .then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2()));
+                            .flatMap(applications ->
+                                    examplesOrganizationCloner.cloneOrganizationForUser(
+                                            organization.getId(),
+                                            tuple.getT2(),
+                                            Flux.fromIterable(applications)
+                                    )
+                            );
                 })
                 .doOnError(error -> log.error("Error preparing data for test", error))
                 .flatMap(this::loadOrganizationData);

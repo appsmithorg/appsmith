@@ -145,68 +145,6 @@
           "controlType": "FILE_PICKER"
         }
       ]
-    },
-    {
-      "sectionName": "SSH Tunnel (optional)",
-      "children": [
-        {
-          "label": "Enable SSH Tunneling",
-          "configProperty": "sshTunneling",
-          "controlType": "SWITCH"
-        },
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "SSH Address",
-              "configProperty": "datasourceConfiguration.sshProxy.host",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "0.0.0.0"
-            },
-            {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.sshProxy.port",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "8080"
-            }
-          ]
-        },
-        {
-          "label": "Username",
-          "configProperty": "datasourceConfiguration.sshProxy.username",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "SSH Proxy Username"
-        },
-        {
-          "label": "Authentication Type",
-          "configProperty": "datasourceConfiguration.authenticationType",
-          "controlType": "DROP_DOWN",
-          "options": [
-            {
-              "label": "Password",
-              "value": "PASSWORD"
-            },
-            {
-              "label": "Identity File",
-              "value": "IDENTITY_FILE"
-            }
-          ]
-        },
-        {
-          "label": "Password",
-          "configProperty": "datasourceConfiguration.ssh.tunnelPassword",
-          "dataType": "PASSWORD",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "SSH Tunnel password"
-        },
-        {
-          "label": "Passphrase",
-          "configProperty": "datasourceConfiguration.ssh.tunnelPassphrase",
-          "dataType": "PASSWORD",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "SSH Tunnel passphrase"
-        }
-      ]
     }
   ]
 }

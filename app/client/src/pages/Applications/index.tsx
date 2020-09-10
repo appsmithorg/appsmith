@@ -39,6 +39,7 @@ import {
 import { Directions } from "utils/helpers";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { duplicateApplication } from "actions/applicationActions";
+import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -337,6 +338,7 @@ class Applications extends Component<
               </OrgSection>
             );
           })}
+        <HelpModal page={"Applications"} />
       </PageWrapper>
     );
   }

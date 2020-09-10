@@ -60,7 +60,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -586,14 +585,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Mono<Action> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
-        return repository.findById(id, MANAGE_ACTIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
-                .flatMap(action -> {
-                    action.setUserSetOnLoad(true);
-                    action.setExecuteOnLoad(isExecuteOnLoad);
-                    return repository.save(action);
-                });
+    public Mono<Action> findById(String id, AclPermission aclPermission) {
+        return repository.findById(id, aclPermission);
     }
 
     @Override

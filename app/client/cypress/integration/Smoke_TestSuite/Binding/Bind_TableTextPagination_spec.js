@@ -30,7 +30,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     });
     /**Validate Table data on current page(page1) */
     cy.ValidateTableData("1");
-    cy.get(commonlocators.rightArrowBtn).click({ force: true });
+    cy.get(commonlocators.tableNextPage).click({ force: true });
     cy.validateToastMessage("done");
     /**Validate Table data on next page(page2) */
     cy.ValidateTableData("11");
@@ -39,7 +39,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function() {
     cy.PublishtheApp();
     cy.ValidatePublishTableData("1");
-    cy.get(commonlocators.rightArrowBtn).click({ force: true });
+    cy.get(commonlocators.tableNextPage).click({ force: true });
     cy.validateToastMessage("done");
     cy.ValidatePublishTableData("11");
     cy.get(publishPage.backToEditor).click({ force: true });

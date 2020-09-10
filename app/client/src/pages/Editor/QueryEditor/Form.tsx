@@ -227,6 +227,7 @@ const TabContainerView = styled.div`
 const SettingsWrapper = styled.div`
   padding-left: 15px;
   padding-top: 8px;
+  padding-bottom: 8px;
 `;
 
 type QueryFormProps = {
