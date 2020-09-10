@@ -28,7 +28,8 @@ describe("Confirm run action", function() {
 
     cy.get(queryEditor.runQuery).click();
     cy.get(".bp3-dialog")
-      .contains("Confirm and run")
+      .find(".bp3-button")
+      .contains("Confirm")
       .click();
     cy.wait("@postExecute").should(
       "have.nested.property",

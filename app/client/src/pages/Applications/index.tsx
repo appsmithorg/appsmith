@@ -338,7 +338,7 @@ class Applications extends Component<
               </OrgSection>
             );
           })}
-        <HelpModal />
+        <HelpModal page={"Applications"} />
       </PageWrapper>
     );
   }
