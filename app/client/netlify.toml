@@ -15,7 +15,6 @@
     REACT_APP_SENTRY_DSN = "https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547"
     REACT_APP_SENTRY_ENVIRONMENT = "Production"
     SENTRY_AUTH_TOKEN = "dfdf7fa46c5b483a944b4571554d6466da3c64a6ed8b46e3b8a4285183a6bcc3"
-    SENTRY_URL = "https://sentry.io"
     SENTRY_DSN = "https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547"
     SENTRY_ORG = "appsmith"
     SENTRY_PROJECT = "appsmith"
