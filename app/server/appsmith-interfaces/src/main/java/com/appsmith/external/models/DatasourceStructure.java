@@ -43,6 +43,7 @@ public class DatasourceStructure {
     @Data
     @AllArgsConstructor
     public static class PrimaryKey implements Key {
+        String name;
         List<String> columnNames;
         public String getType() {
             return "primary";
@@ -52,8 +53,9 @@ public class DatasourceStructure {
     @Data
     @AllArgsConstructor
     public static class ForeignKey implements Key {
-        String fromColumn;
-        String toColumn;
+        String name;
+        List<String> fromColumns;
+        List<String> toColumns;
         public String getType() {
             return "foreign";
         }

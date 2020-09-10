@@ -33,13 +33,14 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
@@ -308,42 +309,14 @@ public class PostgresPlugin extends BasePlugin {
                     .flatMap(connection -> {
                         final DatasourceStructure structure = new DatasourceStructure();
                         final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
-                        final Map<String, String> columnsRegister = new HashMap<>();
 
                         // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
 
                         try (connection) {
                             final Statement statement = connection.createStatement();
 
-                            /*
-                            final ResultSet tablesResultSet = statement.executeQuery(
-                                    "select * from pg_catalog.pg_tables where schemaname not in ('information_schema', 'pg_catalog')"
-                            );
-                            while (tablesResultSet.next()) {
-                                final String tableName = tablesResultSet.getString("tablename");
-                                tablesByName.put(tableName, new DatasourceStructure.Table(
-                                        DatasourceStructure.TableType.TABLE,
-                                        tablesResultSet.getString("schemaname") + "." + tableName,
-                                        new ArrayList<>()
-                                ));
-                            }
-
-                            final ResultSet viewsResultSet = statement.executeQuery(
-                                    "select * from pg_catalog.pg_views where schemaname not in ('information_schema', 'pg_catalog')"
-                            );
-                            while (viewsResultSet.next()) {
-                                final String viewName = viewsResultSet.getString("viewname");
-                                tablesByName.put(viewName, new DatasourceStructure.Table(
-                                        DatasourceStructure.TableType.VIEW,
-                                        viewsResultSet.getString("schemaname") + "." + viewName,
-                                        new ArrayList<>()
-                                ));
-                            }
-                            // */
-
                             final ResultSet columnsResultSet = statement.executeQuery(
                                     "select a.attname                                                      as name,\n" +
-                                            "       a.attnum                                                       as column_num,\n" +
                                             "       t1.typname                                                     as a_type,\n" +
                                             "       case when a.atthasdef then pg_get_expr(d.adbin, d.adrelid) end as default_expr,\n" +
                                             "       c.relkind                                                      as kind,\n" +
@@ -364,9 +337,9 @@ public class PostgresPlugin extends BasePlugin {
 
                             while (columnsResultSet.next()) {
                                 final char kind = columnsResultSet.getString("kind").charAt(0);
-                                final String tableName = columnsResultSet.getString("table_name");
                                 final String schemaName = columnsResultSet.getString("schema_name");
-                                final String fullTableName = ("public".equals(schemaName) ? "" : (schemaName + ".")) + tableName;
+                                final String tableName = columnsResultSet.getString("table_name");
+                                final String fullTableName = schemaName + "." + tableName;
                                 if (!tablesByName.containsKey(fullTableName)) {
                                     tablesByName.put(fullTableName, new DatasourceStructure.Table(
                                             kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
@@ -376,84 +349,71 @@ public class PostgresPlugin extends BasePlugin {
                                     ));
                                 }
                                 final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-                                final String columnNum = columnsResultSet.getString("column_num");
                                 final String columnName = columnsResultSet.getString("name");
                                 final String columnType = columnsResultSet.getString("a_type");
                                 table.getColumns().add(new DatasourceStructure.Column(
                                         columnName, columnType, columnsResultSet.getString("default_expr")
                                 ));
-                                columnsRegister.put(
-                                        schemaName + "." + tableName + "." + columnNum,
-                                        columnName
-                                );
                             }
 
-                            /*
-                            final ResultSet columnsResultSet1 = statement.executeQuery(
-                                    "select a.attname                                                      as name,\n" +
-                                            "       t1.typname                                                     as a_type,\n" +
-                                            "       c.relname                                                      as key_name,\n" +
-                                            "       i.indisunique as is_unique_index,\n" +
-                                            "       i.indkey as column_numbers,\n" +
-                                            "       n.nspname                                                      as schema_name\n" +
-                                            "from pg_catalog.pg_attribute a\n" +
-                                            "         left join pg_catalog.pg_type t1 on t1.oid = a.atttypid\n" +
-                                            "         inner join pg_catalog.pg_class c on a.attrelid = c.oid\n" +
-                                            "         left join pg_catalog.pg_namespace n on c.relnamespace = n.oid\n" +
-                                            "         left join pg_catalog.pg_attrdef d on d.adrelid = c.oid\n" +
-                                            "         left join pg_catalog.pg_index i on i.indexrelid = c.oid\n" +
-                                            "where a.attnum > 0\n" +
-                                            "  and not a.attisdropped\n" +
-                                            "  and n.nspname not in ('information_schema', 'pg_catalog')\n" +
-                                            "  and c.relkind in ('i')\n" +
-                                            "  and pg_catalog.pg_table_is_visible(a.attrelid);"
+                            final ResultSet constraintsResultSet = statement.executeQuery(
+                                    "select c.conname                                         as constraint_name,\n" +
+                                            "       c.contype                                         as constraint_type,\n" +
+                                            "       sch.nspname                                       as self_schema,\n" +
+                                            "       tbl.relname                                       as self_table,\n" +
+                                            "       array_agg(col.attname order by u.attposition)     as self_columns,\n" +
+                                            "       f_sch.nspname                                     as foreign_schema,\n" +
+                                            "       f_tbl.relname                                     as foreign_table,\n" +
+                                            "       array_agg(f_col.attname order by f_u.attposition) as foreign_columns,\n" +
+                                            "       pg_get_constraintdef(c.oid)                       as definition\n" +
+                                            "from pg_constraint c\n" +
+                                            "         left join lateral unnest(c.conkey) with ordinality as u(attnum, attposition) on true\n" +
+                                            "         left join lateral unnest(c.confkey) with ordinality as f_u(attnum, attposition)\n" +
+                                            "                   on f_u.attposition = u.attposition\n" +
+                                            "         join pg_class tbl on tbl.oid = c.conrelid\n" +
+                                            "         join pg_namespace sch on sch.oid = tbl.relnamespace\n" +
+                                            "         left join pg_attribute col on (col.attrelid = tbl.oid and col.attnum = u.attnum)\n" +
+                                            "         left join pg_class f_tbl on f_tbl.oid = c.confrelid\n" +
+                                            "         left join pg_namespace f_sch on f_sch.oid = f_tbl.relnamespace\n" +
+                                            "         left join pg_attribute f_col on (f_col.attrelid = f_tbl.oid and f_col.attnum = f_u.attnum)\n" +
+                                            "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n" +
+                                            "order by self_schema, self_table;"
                             );
 
-                            while (columnsResultSet1.next()) {
-                                final String keyName = columnsResultSet1.getString("key_name");
-                                final String schemaName = columnsResultSet1.getString("schema_name");
-                                for (final int cnum : (int[]) columnsResultSet.getArray("column_numbers").getArray()) {
-                                    final String key = schemaName + "." + keyName + "." + cnum;
-                                    final String columnName = columnsRegister.get(key);
-                                }
-                            }
-                            // */
-
-                            /*
-                            final DatabaseMetaData metaData = connection.getMetaData();
-
-                            final ResultSet resultSet = metaData.getTables(null, null, "%", new String[]{"TABLE", "VIEW", "ALIAS"});
-                            while (resultSet.next()) {
-                                final String tableName = resultSet.getString("TABLE_NAME");
-                                tablesByName.put(tableName, new DatasourceStructure.Table(
-                                        DatasourceStructure.TableType.valueOf(resultSet.getString("TABLE_TYPE")),
-                                        tableName,
-                                        new ArrayList<>()
-                                ));
-                            }
-
-                            final ResultSet resultSet1 = metaData.getColumns(null, null, "%", "%");
-                            while (resultSet1.next()) {
-                                final String tableName = resultSet1.getString("TABLE_NAME");
-
-                                final DatasourceStructure.Table table = tablesByName.get(resultSet1.getString("TABLE_SCHEM") + "." + tableName);
-                                if (table == null) {
+                            while (constraintsResultSet.next()) {
+                                final String constraintName = constraintsResultSet.getString("constraint_name");
+                                final char constraintType = constraintsResultSet.getString("constraint_type").charAt(0);
+                                final String selfSchema = constraintsResultSet.getString("self_schema");
+                                final String tableName = constraintsResultSet.getString("self_table");
+                                final String fullTableName = selfSchema + "." + tableName;
+                                if (!tablesByName.containsKey(fullTableName)) {
                                     continue;
                                 }
 
-                                table.getColumns().add(new DatasourceStructure.Column(
-                                        resultSet1.getString("COLUMN_NAME"),
-                                        resultSet1.getString("TYPE_NAME"),
-                                        resultSet1.getString("COLUMN_DEF")
-                                ));
-                            }
+                                final DatasourceStructure.Table table = tablesByName.get(fullTableName);
 
-                            final ResultSet indexesResultSet = statement.executeQuery("select * from pg_indexes");
-                            while (indexesResultSet.next()) {
-                                final String indexName = indexesResultSet.getString("indexname");
-                                System.out.println("Index " + indexesResultSet.getString("tablename") + " " + indexesResultSet.getString("indexname") + ": " + indexesResultSet.getString("indexdef"));
+                                if (constraintType == 'p') {
+                                    table.getKeys().add(new DatasourceStructure.PrimaryKey(
+                                            constraintName,
+                                            List.of((String[]) constraintsResultSet.getArray("self_columns").getArray())
+                                    ));
+
+                                } else if (constraintType == 'f') {
+                                    final String foreignSchema = constraintsResultSet.getString("foreign_schema");
+                                    final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
+                                            + constraintsResultSet.getString("foreign_table")
+                                            + ".";
+
+                                    table.getKeys().add(new DatasourceStructure.ForeignKey(
+                                            constraintName,
+                                            List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
+                                            Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
+                                                    .map(name -> prefix + name)
+                                                    .collect(Collectors.toList())
+                                    ));
+
+                                }
                             }
-                            // */
 
                         } catch (SQLException throwable) {
                             return Mono.error(Exceptions.propagate(throwable));
