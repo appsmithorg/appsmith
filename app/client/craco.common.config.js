@@ -16,7 +16,7 @@ module.exports = {
     {
       plugin: "prismjs",
       options: {
-        languages: ["javascript"],
+        languages: ["javascript", "sql"],
         plugins: [],
         theme: "twilight",
         css: false,

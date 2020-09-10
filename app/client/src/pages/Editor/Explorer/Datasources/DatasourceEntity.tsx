@@ -1,13 +1,15 @@
-import React, { useCallback } from "react";
+import React, { useCallback, ReactNode } from "react";
 import { Datasource } from "api/DatasourcesApi";
 import DataSourceContextMenu from "./DataSourceContextMenu";
 import { queryIcon } from "../ExplorerIcons";
+import DatasourceStructure from "./DatasourceStructure";
 import { useParams } from "react-router";
 import { ExplorerURLParams, getDatasourceIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { saveDatasourceName } from "actions/datasourceActions";
+import EntityPlaceholder from "../Entity/Placeholder";
 
 type ExplorerDatasourceEntityProps = {
   datasource: Datasource;
@@ -34,6 +36,26 @@ export const ExplorerDatasourceEntity = (
 
   const updateDatasourceName = (id: string, name: string) =>
     saveDatasourceName({ id, name });
+  const datasourceStructure = props.datasource?.structure;
+
+  let childNode: ReactNode =
+    datasourceStructure &&
+    datasourceStructure.map((structure: any) => (
+      <DatasourceStructure
+        key={structure.name}
+        dbStructure={structure}
+        step={props.step + 1}
+        datasourceId={props.datasource.id}
+      />
+    ));
+
+  if (!childNode) {
+    childNode = (
+      <EntityPlaceholder step={props.step + 1}>
+        No information available
+      </EntityPlaceholder>
+    );
+  }
 
   return (
     <Entity
@@ -43,7 +65,7 @@ export const ExplorerDatasourceEntity = (
       icon={queryIcon}
       name={props.datasource.name}
       active={active}
-      step={props.step + 1}
+      step={props.step}
       searchKeyword={props.searchKeyword}
       action={switchDatasource}
       updateEntityName={updateDatasourceName}
@@ -53,7 +75,9 @@ export const ExplorerDatasourceEntity = (
           className={EntityClassNames.CONTEXT_MENU}
         />
       }
-    />
+    >
+      {childNode}
+    </Entity>
   );
 };
 

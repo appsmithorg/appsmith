@@ -5,6 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";
+import DatasourceStructure from "mockResponses/DatasourceStructureResponse";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -42,6 +43,29 @@ const datasourceReducer = createReducer(initialState, {
     return { ...state, isDeleting: true };
   },
   [ReduxActionTypes.FETCH_DATASOURCES_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource[]>,
+  ) => {
+    const sqlSources = ["5c9f512f96c1a50004819786", "5f16c4be93f44d4622f487e2"];
+    const list = action.payload.map(datasource => {
+      if (sqlSources.indexOf(datasource.pluginId) >= 0) {
+        return {
+          ...datasource,
+          structure: DatasourceStructure,
+        };
+      }
+
+      return datasource;
+    });
+
+    return {
+      ...state,
+      loading: false,
+      // list: action.payload,
+      list,
+    };
+  },
+  [ReduxActionTypes.PREFILL_DATASOURCE]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource[]>,
   ) => {

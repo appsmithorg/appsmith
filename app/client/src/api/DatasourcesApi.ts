@@ -23,6 +23,8 @@ export interface Datasource {
   };
   invalids?: string[];
   isValid?: boolean;
+  structure?: [];
+  templates?: {};
 }
 
 export interface CreateDatasourceConfig {
