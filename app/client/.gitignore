@@ -35,4 +35,5 @@ results/
 /docker/*.pem
 /docker/nginx.conf
 
-storybook-static
+storybook-static/*
+build-storybook.log
