@@ -123,12 +123,7 @@ export const evaluateDynamicBoundValue = (
   path: string,
   callbackData?: any,
 ): JSExecutorResult => {
-  const unescapedInput = unescapeJS(path);
-  return JSExecutionManagerSingleton.evaluateSync(
-    unescapedInput,
-    data,
-    callbackData,
-  );
+  return JSExecutionManagerSingleton.evaluateSync(path, data, callbackData);
 };
 
 // For creating a final value where bindings could be in a template format
@@ -265,6 +260,8 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   // Create Dependencies DAG
   const createDepsStart = performance.now();
   const dataTreeString = JSON.stringify(dataTree);
+  // Stringify before doing a fast equals because the data tree has functions and fast equal will always treat those as changed values
+  // Better solve will be to prune functions
   if (!equal(dataTreeString, cachedDataTreeString)) {
     cachedDataTreeString = dataTreeString;
     dependencyTreeCache = createDependencyTree(dataTree);
@@ -333,10 +330,20 @@ export const createDependencyTree = (
           ];
         });
         if (entity.dynamicBindings) {
-          Object.keys(entity.dynamicBindings).forEach(prop => {
-            const { jsSnippets } = getDynamicBindings(_.get(entity, prop));
-            const existingDeps = dependencyMap[`${entityKey}.${prop}`] || [];
-            dependencyMap[`${entityKey}.${prop}`] = existingDeps.concat(
+          Object.keys(entity.dynamicBindings).forEach(propertyName => {
+            // using unescape to remove new lines from bindings which interfere with our regex extraction
+            let unevalPropValue = _.get(entity, propertyName);
+            if (
+              _.isString(unevalPropValue) &&
+              isDynamicValue(unevalPropValue)
+            ) {
+              unevalPropValue = unescapeJS(unevalPropValue);
+            }
+            _.set(entity, propertyName, unevalPropValue);
+            const { jsSnippets } = getDynamicBindings(unevalPropValue);
+            const existingDeps =
+              dependencyMap[`${entityKey}.${propertyName}`] || [];
+            dependencyMap[`${entityKey}.${propertyName}`] = existingDeps.concat(
               jsSnippets.filter(jsSnippet => !!jsSnippet),
             );
           });
@@ -350,7 +357,16 @@ export const createDependencyTree = (
       if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
         if (entity.dynamicBindingPathList.length) {
           entity.dynamicBindingPathList.forEach(prop => {
-            const { jsSnippets } = getDynamicBindings(_.get(entity, prop.key));
+            // using unescape to remove new lines from bindings which interfere with our regex extraction
+            let unevalPropValue = _.get(entity, prop.key);
+            if (
+              _.isString(unevalPropValue) &&
+              isDynamicValue(unevalPropValue)
+            ) {
+              unevalPropValue = unescapeJS(unevalPropValue);
+            }
+            _.set(entity, prop.key, unevalPropValue);
+            const { jsSnippets } = getDynamicBindings(unevalPropValue);
             const existingDeps =
               dependencyMap[`${entityKey}.${prop.key}`] || [];
             dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(

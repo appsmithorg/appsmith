@@ -9,7 +9,6 @@ is_command_present() {
 is_mac() {
     [[ $OSTYPE == darwin* ]]
 }
-
 # This function checks if the relevant ports required by Appsmith are available or not
 # The script should error out in case they aren't available
 check_ports_occupied() {
@@ -304,6 +303,18 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
+    echo "Please share your email to receive support with the installation"
+    read -rp 'Email: ' email
+    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
+    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "userId": "'"$email"'",
+      "event": "Installation Support",
+      "properties": {
+        "osEnum": '$desired_os'
+      }
+    }'
     echo -e "\nExiting for now. Bye! \U1F44B\n"
     exit 1
 }
@@ -317,9 +328,20 @@ desired_os=0
 echo -e "\U1F575  Detecting your OS"
 check_os
 
+curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
+--header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "anonymousId": "anonymousId",
+  "event": "Installation Started",
+  "properties": {
+    "osEnum": '$desired_os'
+  }
+}'
+
 if [[ $desired_os -eq 0 ]];then
     echo ""
-    echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
+    echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu machines."
     echo_contact_support " if you wish to extend this support."
     bye
 else
@@ -527,7 +549,29 @@ if [[ $status_code -ne 401 ]]; then
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo ""
+    echo "Please share your email to receive help with the installation"
+    read -rp 'Email: ' email
+    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
+    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "userId": "'"$email"'",
+      "event": "Installation Support",
+      "properties": {
+        "osEnum": '$desired_os'
+      }
+    }'
 else
+    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
+    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "anonymousId": "anonymousId",
+      "event": "Installation Success",
+      "properties": {
+        "osEnum": '$desired_os'
+      }
+    }'
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
@@ -539,8 +583,20 @@ else
     echo ""
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
-    echo "Need help troubleshooting?"
+    echo "Need help Getting Started?"
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
+    echo "Please share your email to receive support & updates about appsmith!"
+    read -rp 'Email: ' email
+    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
+    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+      "userId": "'"$email"'",
+      "event": "Identify Successful Installation",
+      "properties": {
+        "osEnum": '$desired_os'
+      }
+    }'
 fi
 
 echo -e "\nPeace out \U1F596\n"

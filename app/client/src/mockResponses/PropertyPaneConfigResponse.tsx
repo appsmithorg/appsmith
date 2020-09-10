@@ -114,6 +114,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "onDateSelected",
             label: "onDateSelected",
             controlType: "ACTION_SELECTOR",
+            isJSConvertible: true
           },
         ],
       },
@@ -154,6 +155,12 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "isVisible",
             isJSConvertible: true,
             label: "Visible",
+            controlType: "SWITCH",
+          },
+          {
+            id: "7.1.5",
+            propertyName: "multiRowSelection",
+            label: "Enable multi row selection",
             controlType: "SWITCH",
           },
         ],
