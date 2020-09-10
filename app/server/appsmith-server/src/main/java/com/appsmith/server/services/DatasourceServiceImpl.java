@@ -2,13 +2,9 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -38,7 +34,6 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,7 +55,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final SequenceService sequenceService;
     private final ActionRepository actionRepository;
     private final EncryptionService encryptionService;
-    private final DatasourceContextService datasourceContextService;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -76,8 +70,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
                                  ActionRepository actionRepository,
-                                 EncryptionService encryptionService,
-                                 DatasourceContextService datasourceContextService) {
+                                 EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -87,7 +80,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.sequenceService = sequenceService;
         this.actionRepository = actionRepository;
         this.encryptionService = encryptionService;
-        this.datasourceContextService = datasourceContextService;
     }
 
     @Override
@@ -361,51 +353,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 })
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
-    }
-
-    @Override
-    public Mono<DatasourceStructure> getStructure(String datasourceId) {
-        return getById(datasourceId)
-                .map(this::decryptPasswordInDatasource)
-                .zipWhen(datasource -> pluginExecutorHelper
-                        .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
-                )
-                .flatMap(tuple -> {
-                    final Datasource datasource = tuple.getT1();
-                    final PluginExecutor pluginExecutor = tuple.getT2();
-
-                    return datasourceContextService.retryOnce(
-                            datasource,
-                            resourceContext -> pluginExecutor
-                                    .getStructure(resourceContext.getConnection(), datasource.getDatasourceConfiguration())
-                    );
-                })
-                .timeout(Duration.ofSeconds(10))
-                .onErrorMap(
-                        StaleConnectionException.class,
-                        error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Secondary stale connection error."
-                        )
-                )
-                .onErrorMap(e -> {
-                    log.error("In the datasource structure error mode.", e);
-                    return new AppsmithPluginException(AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, e.getMessage());
-                })
-                .defaultIfEmpty(new DatasourceStructure());
-    }
-
-    private Datasource decryptPasswordInDatasource(Datasource datasource) {
-        // If datasource has encrypted password, decrypt and set it in the datasource.
-        if (datasource.getDatasourceConfiguration() != null) {
-            AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-            if (authentication != null && authentication.getPassword() != null) {
-                authentication.setPassword(encryptionService.decryptString(authentication.getPassword()));
-            }
-        }
-
-        return datasource;
     }
 
 }
