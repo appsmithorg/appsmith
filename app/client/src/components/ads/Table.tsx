@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
 import { ReactComponent as UpperArrow } from "../../assets/icons/ads/upper_arrow.svg";
 import { Classes as BlueprintClasses } from "@blueprintjs/core/lib/esm/common";
-import { Classes } from "./common";
+import { Classes, CommonComponentProps } from "./common";
 
 const Styles = styled.div<{ isLoading?: boolean }>`
   table {
@@ -117,11 +117,10 @@ interface TableColumnProps {
   Cell?: (props: { cell: { value: any } }) => JSX.Element;
 }
 
-interface TableProps {
+type TableProps = CommonComponentProps & {
   data: object[];
   columns: TableColumnProps[];
-  isLoading?: boolean;
-}
+};
 
 function Table(props: TableProps) {
   const { data, columns } = props;
@@ -135,7 +134,7 @@ function Table(props: TableProps) {
   } = useTable({ columns, data }, useSortBy);
 
   return (
-    <Styles isLoading={props.isLoading}>
+    <Styles isLoading={props.isLoading} data-cy={props.cypressSelector}>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup, index) => (
