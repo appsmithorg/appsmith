@@ -476,7 +476,7 @@ const ApplicationsSection = () => {
             </OrgSection>
           );
         })}
-      <HelpModal />
+      <HelpModal page={"Applications"} />
     </ApplicationContainer>
   );
 };

@@ -34,6 +34,7 @@ import {
 } from "../Applications/permissionHelpers";
 import { getAppsmithConfigs } from "configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgInviteTitle = styled.div`
   font-weight: bold;
@@ -228,6 +229,7 @@ const OrgInviteUsersForm = (props: any) => {
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values);
+          AnalyticsUtil.logEvent("INVITE_USER", values);
           return inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
         })}
       >

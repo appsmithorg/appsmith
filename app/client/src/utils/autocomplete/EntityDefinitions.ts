@@ -77,7 +77,7 @@ export const entityDefinitions = {
       "!doc": "The value selected in a single select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
-    selectedOptionValueArr: {
+    selectedOptionValues: {
       "!type": "[string]",
       "!doc": "The array of values selected in a multi select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
