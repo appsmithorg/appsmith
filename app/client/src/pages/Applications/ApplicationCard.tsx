@@ -312,42 +312,52 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         position={Position.BOTTOM_LEFT}
         target={<Icon name="context-menu" size={IconSize.XXXL}></Icon>}
       >
-        <EditableText
-          defaultValue={props.application.name}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          onTextChanged={(onChange: string) => {
-            console.log(onChange);
-          }}
-          valueTransform={(value: any) => value.toUpperCase()}
-          placeholder={"Edit text input"}
-          hideEditIcon={false}
-          isInvalid={(value: string) => {
-            return !value;
-          }}
-          isSaving={isSavingName}
-          isEditingDefault={false}
-          fill={true}
-          onBlur={(value: string) => {
-            props.update &&
-              props.update(props.application.id, {
-                name: value,
-              });
-          }}
-        />
-        <ColorSelector
-          defaultValue={colorCode}
-          colorPalette={themeDetails.theme.colors.appCardColors}
-          fill={true}
-          onSelect={updateColor}
-        />
-        <MenuDivider />
-        <IconSelector
-          fill={true}
-          selectedIcon={appIcon}
-          selectedColor={selectedColor}
-          onSelect={updateIcon}
-        />
-        <MenuDivider />
+        {hasEditPermission && (
+          <EditableText
+            defaultValue={props.application.name}
+            editInteractionKind={EditInteractionKind.SINGLE}
+            onTextChanged={(onChange: string) => {
+              console.log(onChange);
+            }}
+            valueTransform={(value: any) => value.toUpperCase()}
+            placeholder={"Edit text input"}
+            hideEditIcon={false}
+            isInvalid={(value: string) => {
+              return !value;
+            }}
+            isSaving={isSavingName}
+            isEditingDefault={false}
+            fill={true}
+            onBlur={(value: string) => {
+              props.update &&
+                props.update(props.application.id, {
+                  name: value,
+                });
+            }}
+          />
+        )}
+        {hasEditPermission && (
+          <>
+            <ColorSelector
+              defaultValue={colorCode}
+              colorPalette={themeDetails.theme.colors.appCardColors}
+              fill={true}
+              onSelect={updateColor}
+            />
+            <MenuDivider />
+          </>
+        )}
+        {hasEditPermission && (
+          <>
+            <IconSelector
+              fill={true}
+              selectedIcon={appIcon}
+              selectedColor={selectedColor}
+              onSelect={updateIcon}
+            />
+            <MenuDivider />
+          </>
+        )}
         {moreActionItems.map((item: MenuItemProps) => {
           return <MenuItem key={item.text} {...item}></MenuItem>;
         })}
