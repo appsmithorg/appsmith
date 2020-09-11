@@ -53,11 +53,6 @@ type NameWrapperProps = {
 const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   <div {...omit(props, ["hasReadPermission", "showOverlay"])} />
 ))`
-  svg {
-    path {
-      fill: #fff;
-    }
-  }
   .bp3-card {
     border-radius: 0;
     box-shadow: none;
@@ -230,6 +225,11 @@ const ContextDropdownWrapper = styled.div`
 
 const StyledAppIcon = styled(AppIcon)`
   margin: 0 auto;
+  svg {
+    path {
+      fill: #fff;
+    }
+  }
 `;
 
 const calls = (value: string, callback: any) => {
