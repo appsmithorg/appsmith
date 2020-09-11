@@ -307,11 +307,20 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     });
   }
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
-        position={Position.BOTTOM_LEFT}
+        position={Position.RIGHT_TOP}
         target={<Icon name="context-menu" size={IconSize.XXXL}></Icon>}
+        onOpened={() => {
+          setIsMenuOpen(true);
+        }}
+        onClosed={() => {
+          setIsMenuOpen(false);
+          setShowOverlay(false);
+        }}
       >
         {hasEditPermission && (
           <EditableText
@@ -383,7 +392,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     <NameWrapper
       showOverlay={showOverlay}
       onMouseEnter={() => setShowOverlay(true)}
-      onMouseLeave={() => setShowOverlay(false)}
+      onMouseLeave={() => {
+        // If the menu is not open, then setOverlay false
+        // Set overlay false on outside click.
+        !isMenuOpen && setShowOverlay(false);
+      }}
       hasReadPermission={hasReadPermission}
       className="t--application-card"
     >
