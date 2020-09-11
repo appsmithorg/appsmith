@@ -282,7 +282,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
           id: "date_input",
         },
         {
-          content: "Epoch",
+          content: "UNIX timestamp (s)",
           isSelected: props.inputFormat === "Epoch",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
@@ -294,7 +294,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
           },
         },
         {
-          content: "Milliseconds",
+          content: "UNIX timestamp (ms)",
           isSelected: props.inputFormat === "Milliseconds",
           closeOnClick: false,
           onClick: (columnIndex: number) => {
