@@ -333,9 +333,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
-    if (
+    const tableDataUpdated =
       JSON.stringify(this.props.tableData) !==
-        JSON.stringify(prevProps.tableData) ||
+      JSON.stringify(prevProps.tableData);
+    if (
+      tableDataUpdated ||
       JSON.stringify(this.props.filters) !==
         JSON.stringify(prevProps.filters) ||
       this.props.searchText !== prevProps.searchText ||
@@ -358,6 +360,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }),
         );
       }
+    }
+    if (tableDataUpdated) {
+      super.updateWidgetMetaProperty("selectedRowIndices", []);
+      super.updateWidgetMetaProperty("selectedRows", []);
+      super.updateWidgetMetaProperty("selectedRowIndex", -1);
     }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       if (this.props.multiRowSelection) {
