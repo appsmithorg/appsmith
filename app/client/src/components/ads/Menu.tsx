@@ -8,8 +8,8 @@ type MenuProps = CommonComponentProps & {
   children?: ReactNode[];
   target: JSX.Element;
   position?: Position;
-  onOpened?: (node: HTMLElement) => void;
-  onClosed?: (node: HTMLElement) => void;
+  onOpening?: (node: HTMLElement) => void;
+  onClosing?: (node: HTMLElement) => void;
 };
 
 const MenuWrapper = styled.div`
@@ -34,8 +34,8 @@ const Menu = (props: MenuProps) => {
     <Popover
       minimal
       position={props.position || Position.BOTTOM}
-      onOpened={props.onOpened}
-      onClosed={props.onClosed}
+      onOpening={props.onOpening}
+      onClosing={props.onClosing}
     >
       {props.target}
       <MenuWrapper>

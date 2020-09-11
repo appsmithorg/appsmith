@@ -314,10 +314,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       <Menu
         position={Position.RIGHT_TOP}
         target={<Icon name="context-menu" size={IconSize.XXXL}></Icon>}
-        onOpened={() => {
+        onOpening={() => {
           setIsMenuOpen(true);
         }}
-        onClosed={() => {
+        onClosing={() => {
           setIsMenuOpen(false);
           setShowOverlay(false);
         }}
