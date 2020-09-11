@@ -321,8 +321,8 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           valueTransform={(value: any) => value.toUpperCase()}
           placeholder={"Edit text input"}
           hideEditIcon={false}
-          isInvalid={() => {
-            return false;
+          isInvalid={(value: string) => {
+            return !value;
           }}
           isSaving={isSavingName}
           isEditingDefault={false}
