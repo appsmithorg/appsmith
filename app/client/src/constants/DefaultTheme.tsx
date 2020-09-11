@@ -572,6 +572,16 @@ export const theme: Theme = {
       darker: "#2B1A1D",
       darkest: "#462F32",
     },
+    callout: {
+      note: {
+        color: "#EE5A1A",
+        bgColor: "#241C1B",
+      },
+      warning: {
+        color: "#E0B30E",
+        bgColor: "#29251A",
+      },
+    },
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
