@@ -192,7 +192,6 @@ export function* updateApplicationSaga(
   action: ReduxAction<UpdateApplicationRequest>,
 ) {
   try {
-    AppToaster.show({ message: "Updating color" });
     const request: UpdateApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.updateApplication,

@@ -248,7 +248,8 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   );
   let initials = initialsAndColorCode[0];
   const colorCode = props.application?.color || initialsAndColorCode[1];
-  const appIcon = getApplicationIcon(props.application.id) as AppIconName;
+  const appIcon = (props.application?.icon ||
+    getApplicationIcon(props.application.id)) as AppIconName;
   const [selectedColor, setSelectedColor] = useState<string>(colorCode);
 
   const hasEditPermission = isPermitted(
@@ -259,11 +260,17 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.READ_APPLICATION,
   );
-  const updateApp = (color: string) => {
+  const updateColor = (color: string) => {
     setSelectedColor(color);
     props.update &&
       props.update(props.application.id, {
         color: color,
+      });
+  };
+  const updateIcon = (icon: AppIconName) => {
+    props.update &&
+      props.update(props.application.id, {
+        icon: icon,
       });
   };
   const duplicateApp = () => {
@@ -326,13 +333,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           defaultValue={colorCode}
           colorPalette={themeDetails.theme.colors.appCardColors}
           fill={true}
-          onSelect={updateApp}
+          onSelect={updateColor}
         />
         <MenuDivider />
         <IconSelector
           fill={true}
           selectedIcon={appIcon}
           selectedColor={selectedColor}
+          onSelect={updateIcon}
         />
         <MenuDivider />
         {moreActionItems.map((item: MenuItemProps) => {
