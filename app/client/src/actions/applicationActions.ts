@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -19,20 +20,14 @@ export const fetchApplications = () => {
   };
 };
 
-export type ApplicationUpdatePayload = {
-  icon?: string;
-  colour?: string;
-  name?: string;
-};
-
 export const updateApplication = (
-  appId: string,
-  data: ApplicationUpdatePayload,
+  id: string,
+  data: UpdateApplicationPayload,
 ) => {
   return {
     type: ReduxActionTypes.UPDATE_APPLICATION,
     payload: {
-      appId,
+      id,
       ...data,
     },
   };

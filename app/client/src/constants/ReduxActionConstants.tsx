@@ -432,6 +432,8 @@ export type PageListPayload = Array<Page>;
 export type ApplicationPayload = {
   id: string;
   name: string;
+  color?: string;
+  icon?: string;
   organizationId: string;
   pageCount: number;
   defaultPageId?: string;

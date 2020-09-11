@@ -13,10 +13,7 @@ import {
 } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 // import Button from "components/editorComponents/Button";
-import { theme, getColorWithOpacity } from "constants/DefaultTheme";
-import ContextDropdown, {
-  ContextDropdownOption,
-} from "components/editorComponents/ContextDropdown";
+import { getColorWithOpacity } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import {
   isPermitted,
@@ -46,6 +43,7 @@ import IconSelector from "components/ads/IconSelector";
 // import { appCardColors } from "constants/AppConstants";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { useSelector } from "react-redux";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -216,6 +214,7 @@ type ApplicationCardProps = {
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
+  update?: (id: string, data: UpdateApplicationPayload) => void;
 };
 
 const EditButton = styled(Button)`
@@ -242,6 +241,15 @@ const calls = (value: string, callback: any) => {
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
   const [showOverlay, setShowOverlay] = useState(false);
+  const themeDetails = useSelector(getThemeDetails);
+  const initialsAndColorCode = getInitialsAndColorCode(
+    props.application.name,
+    themeDetails.theme.colors.appCardColors,
+  );
+  let initials = initialsAndColorCode[0];
+  const colorCode = props.application?.color || initialsAndColorCode[1];
+  const appIcon = getApplicationIcon(props.application.id) as AppIconName;
+  const [selectedColor, setSelectedColor] = useState<string>(colorCode);
 
   const hasEditPermission = isPermitted(
     props.application?.userPermissions ?? [],
@@ -251,6 +259,13 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.READ_APPLICATION,
   );
+  const updateApp = (color: string) => {
+    setSelectedColor(color);
+    props.update &&
+      props.update(props.application.id, {
+        color: color,
+      });
+  };
   const duplicateApp = () => {
     props.duplicate && props.duplicate(props.application.id);
   };
@@ -282,16 +297,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       icon: "delete",
     });
   }
-  const themeDetails = useSelector(getThemeDetails);
 
-  const initialsAndColorCode = getInitialsAndColorCode(
-    props.application.name,
-    themeDetails.theme.colors.appCardColors,
-  );
-  let initials = initialsAndColorCode[0];
-  const colorCode = initialsAndColorCode[1];
-  const [selectedColor, setSelectedColor] = useState<string>(colorCode);
-  const appIcon = getApplicationIcon(props.application.id) as AppIconName;
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
@@ -320,9 +326,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           defaultValue={colorCode}
           colorPalette={themeDetails.theme.colors.appCardColors}
           fill={true}
-          onSelect={(color: string) => {
-            setSelectedColor(color);
-          }}
+          onSelect={updateApp}
         />
         <MenuDivider />
         <IconSelector

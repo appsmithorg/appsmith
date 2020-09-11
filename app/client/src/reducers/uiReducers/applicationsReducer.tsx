@@ -7,6 +7,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { Organization } from "constants/orgConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
+import { UpdateApplicationRequest } from "api/ApplicationApi";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -89,10 +90,12 @@ const applicationsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ applicationList: any }>,
-  ) => ({
-    ...state,
-    userOrgs: action.payload,
-  }),
+  ) => {
+    return {
+      ...state,
+      userOrgs: action.payload,
+    };
+  },
 
   [ReduxActionTypes.FETCH_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
@@ -159,6 +162,32 @@ const applicationsReducer = createReducer(initialState, {
     state: ApplicationsReduxState,
   ) => {
     return { ...state, duplicatingApplication: false };
+  },
+  [ReduxActionTypes.UPDATE_APPLICATION]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<UpdateApplicationRequest>,
+  ) => {
+    const _organizations = state.userOrgs.map(
+      (org: Organization, index: number) => {
+        const appIndex = org.applications.findIndex(
+          app => app.id === action.payload.id,
+        );
+        const { id, ...rest } = action.payload;
+        if (appIndex !== -1) {
+          org.applications[appIndex] = {
+            ...org.applications[appIndex],
+            ...rest,
+          };
+        }
+
+        return org;
+      },
+    );
+
+    return {
+      ...state,
+      userOrgs: _organizations,
+    };
   },
 });
 

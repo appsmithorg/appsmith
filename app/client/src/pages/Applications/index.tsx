@@ -7,7 +7,6 @@ import {
   Icon as BlueprintIcon,
   Dialog,
   Classes as BlueprintClasses,
-  Colors,
 } from "@blueprintjs/core";
 import {
   getApplicationList,
@@ -32,9 +31,6 @@ import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
-import CustomizedDropdown, {
-  CustomizedDropdownProps,
-} from "pages/common/CustomizedDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
@@ -42,17 +38,19 @@ import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import { Directions } from "utils/helpers";
 import Button, { Size } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
-import { HeaderIcons } from "icons/HeaderIcons";
-import { duplicateApplication } from "actions/applicationActions";
+import {
+  duplicateApplication,
+  updateApplication,
+} from "actions/applicationActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import HelpModal from "components/designSystems/appsmith/help/HelpModal";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -323,6 +321,12 @@ const ApplicationsSection = () => {
       });
     }
   };
+  const updateApplicationDispatch = (
+    id: string,
+    data: UpdateApplicationPayload,
+  ) => {
+    dispatch(updateApplication(id, data));
+  };
 
   const duplicateApplicationDispatch = (applicationId: string) => {
     dispatch(duplicateApplication(applicationId));
@@ -457,6 +461,7 @@ const ApplicationsSection = () => {
                         key={application.id}
                         application={application}
                         delete={deleteApplication}
+                        update={updateApplicationDispatch}
                         duplicate={duplicateApplicationDispatch}
                       />
                     )
