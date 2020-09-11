@@ -85,7 +85,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                         datasource1.getDatasourceConfiguration().setAuthentication(decryptSensitiveFields(authentication));
                     }
 
-                    PluginExecutor pluginExecutor = objects.getT2();
+                    PluginExecutor<Object> pluginExecutor = objects.getT2();
 
                     if (isStale) {
                         final Object connection = datasourceContextMap.get(datasourceId).getConnection();
@@ -137,7 +137,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                 )
                 .map(tuple -> {
                     final Datasource datasource = tuple.getT1();
-                    final PluginExecutor pluginExecutor = tuple.getT2();
+                    final PluginExecutor<Object> pluginExecutor = tuple.getT2();
                     log.info("Clearing datasource context for datasource ID {}.", datasource.getId());
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
                     return datasourceContextMap.remove(datasourceId);
