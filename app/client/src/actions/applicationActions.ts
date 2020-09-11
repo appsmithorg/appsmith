@@ -19,6 +19,25 @@ export const fetchApplications = () => {
   };
 };
 
+export type ApplicationUpdatePayload = {
+  icon?: string;
+  colour?: string;
+  name?: string;
+};
+
+export const updateApplication = (
+  appId: string,
+  data: ApplicationUpdatePayload,
+) => {
+  return {
+    type: ReduxActionTypes.FETCH_APPLICATION_LIST_INIT,
+    payload: {
+      appId,
+      ...data,
+    },
+  };
+};
+
 export const fetchApplication = (applicationId: string) => {
   return {
     type: ReduxActionTypes.FETCH_APPLICATION_INIT,

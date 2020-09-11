@@ -4,9 +4,10 @@ import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
 import { hexToRgba, Classes } from "./common";
-import { theme } from "constants/DefaultTheme";
 import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
+import { getThemeDetails } from "selectors/themeSelectors";
+import { useSelector } from "react-redux";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -57,6 +58,7 @@ const editModeBgcolor = (
   isInvalid: boolean,
   isEditing: boolean,
   savingState: { isSaving: boolean; name?: SavingState },
+  theme: any,
 ): string => {
   if (
     (isInvalid && isEditing) ||
@@ -154,8 +156,10 @@ export const EditableText = (props: EditableTextProps) => {
     if (props.forceDefault === true) setValue(props.defaultValue);
   }, [props.forceDefault, props.defaultValue]);
 
+  const themeDetails = useSelector(getThemeDetails);
   const bgColor = useMemo(
-    () => editModeBgcolor(!!isInvalid, isEditing, savingState),
+    () =>
+      editModeBgcolor(!!isInvalid, isEditing, savingState, themeDetails.theme),
     [isInvalid, isEditing, savingState],
   );
 

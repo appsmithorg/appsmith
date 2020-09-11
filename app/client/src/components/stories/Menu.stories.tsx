@@ -14,8 +14,8 @@ import EditableText, {
   EditInteractionKind,
   SavingStateHandler,
 } from "components/ads/EditableText";
-import { appCardColors } from "constants/AppConstants";
 import { IconCollection, IconName } from "components/ads/Icon";
+import { theme, light, dark } from "constants/DefaultTheme";
 
 export default {
   title: "Menu",
@@ -40,7 +40,9 @@ const errorFunction = (name: string) => {
 };
 
 export const MenuStory = () => {
-  const [selectedColor, setSelectedColor] = useState<string>(appCardColors[0]);
+  const [selectedColor, setSelectedColor] = useState<string>(
+    light.appCardColors[0],
+  );
 
   return (
     <div
@@ -91,7 +93,7 @@ export const MenuStory = () => {
         <ColorSelector
           onSelect={(value: string) => setSelectedColor(value)}
           fill={false}
-          colorPalette={appCardColors}
+          colorPalette={light.appCardColors}
         />
         <MenuDivider />
         <IconSelector

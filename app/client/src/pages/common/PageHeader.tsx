@@ -13,6 +13,7 @@ import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import history from "utils/history";
 import { Colors } from "constants/Colors";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 const StyledPageHeader = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -41,6 +42,10 @@ type PageHeaderProps = {
   user?: User;
 };
 
+const StyledSwitcher = styled(ThemeSwitcher)`
+  flex: 1;
+`;
+
 export const PageHeader = (props: PageHeaderProps) => {
   const { user } = props;
   const location = useLocation();
@@ -57,6 +62,7 @@ export const PageHeader = (props: PageHeaderProps) => {
           <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
         </Link>
       </HeaderSection>
+      <StyledSwitcher />
       {user && (
         <StyledDropDownContainer>
           {user.username === ANONYMOUS_USERNAME ? (

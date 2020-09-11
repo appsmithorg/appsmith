@@ -71,7 +71,7 @@ const IconWrapper = styled.a<AppIconProps & { styledProps: cssAttributes }>`
     width: ${props => props.styledProps.width}px;
     height: ${props => props.styledProps.height}px;
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.blackShades[7]};
     }
   }
 `;

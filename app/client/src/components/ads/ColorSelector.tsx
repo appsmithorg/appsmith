@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
-import { appCardColors } from "constants/AppConstants";
+// import { appCardColors } from "constants/AppConstants";
 
 type ColorSelectorProps = CommonComponentProps & {
   onSelect?: (hex: string) => void;
-  colorPalette?: string[];
+  colorPalette: string[];
   fill?: boolean;
 };
 
@@ -56,31 +56,28 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
 `;
 
 const ColorSelector = (props: ColorSelectorProps) => {
-  const [selected, setSelected] = useState<string>(appCardColors[0]);
-
+  const [selected, setSelected] = useState<string>(props.colorPalette[0]);
   return (
     <Palette fill={props.fill}>
-      {props.colorPalette &&
-        props.colorPalette.map((hex: string, index: number) => {
-          return (
-            <ColorBox
-              key={index}
-              selected={selected}
-              color={hex}
-              onClick={() => {
-                setSelected(hex);
-                props.onSelect && props.onSelect(hex);
-              }}
-            />
-          );
-        })}
+      {props.colorPalette.map((hex: string, index: number) => {
+        return (
+          <ColorBox
+            key={index}
+            selected={selected}
+            color={hex}
+            onClick={() => {
+              setSelected(hex);
+              props.onSelect && props.onSelect(hex);
+            }}
+          />
+        );
+      })}
     </Palette>
   );
 };
 
 ColorSelector.defaultProps = {
   fill: false,
-  colorPalette: appCardColors,
 };
 
 export default ColorSelector;

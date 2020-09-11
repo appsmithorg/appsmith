@@ -9,7 +9,6 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
-import { appCardColors } from "constants/AppConstants";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 
@@ -139,7 +138,10 @@ const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   return logLevel;
 };
 
-export const getInitialsAndColorCode = (fullName: any): string[] => {
+export const getInitialsAndColorCode = (
+  fullName: any,
+  colorPalette: string[],
+): string[] => {
   let inits = "";
   // if name contains space. eg: "Full Name"
   if (fullName.includes(" ")) {
@@ -155,16 +157,19 @@ export const getInitialsAndColorCode = (fullName: any): string[] => {
     initials = initials.join("").toUpperCase();
     inits = initials.slice(0, 2);
   }
-  const colorCode = getColorCode(inits);
+  const colorCode = getColorCode(inits, colorPalette);
   return [inits, colorCode];
 };
 
-export const getColorCode = (initials: string): string => {
+export const getColorCode = (
+  initials: string,
+  colorPalette: string[],
+): string => {
   let asciiSum = 0;
   for (let i = 0; i < initials.length; i++) {
     asciiSum += initials[i].charCodeAt(0);
   }
-  return appCardColors[asciiSum % appCardColors.length];
+  return colorPalette[asciiSum % colorPalette.length];
 };
 
 export const getApplicationIcon = (initials: string): AppIconName => {

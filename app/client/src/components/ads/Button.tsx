@@ -102,7 +102,7 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].main;
           borderColorPrimary = props.theme.colors[props.variant].main;
         }
-        txtColorPrimary = props.theme.colors.blackShades[9];
+        txtColorPrimary = "#fff";
         break;
       case Category.secondary:
         if (props.variant) {
@@ -124,7 +124,7 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].dark;
           borderColorPrimary = props.theme.colors[props.variant].dark;
         }
-        txtColorPrimary = props.theme.colors.blackShades[9];
+        txtColorPrimary = "#fff";
         break;
       case Category.secondary:
         if (props.variant) {
@@ -149,7 +149,7 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].dark;
           borderColorPrimary = props.theme.colors[props.variant].main;
         }
-        txtColorPrimary = props.theme.colors.blackShades[9];
+        txtColorPrimary = "#fff";
         break;
       case Category.secondary:
         if (props.variant) {

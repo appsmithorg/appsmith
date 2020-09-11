@@ -43,7 +43,9 @@ import EditableText, {
 import ColorSelector from "components/ads/ColorSelector";
 import MenuDivider from "components/ads/MenuDivider";
 import IconSelector from "components/ads/IconSelector";
-import { appCardColors } from "constants/AppConstants";
+// import { appCardColors } from "constants/AppConstants";
+import { getThemeDetails } from "selectors/themeSelectors";
+import { useSelector } from "react-redux";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -53,6 +55,11 @@ type NameWrapperProps = {
 const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   <div {...omit(props, ["hasReadPermission", "showOverlay"])} />
 ))`
+  svg {
+    path {
+      fill: #fff;
+    }
+  }
   .bp3-card {
     border-radius: 0;
   }
@@ -84,8 +91,8 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
             background: ${
               props.hasReadPermission
                 ? getColorWithOpacity(
-                    props.theme.card.hoverBG,
-                    props.theme.card.hoverBGOpacity,
+                    props.theme.colors.card.hoverBG,
+                    props.theme.colors.card.hoverBGOpacity,
                   )
                 : null
             }
@@ -275,8 +282,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       icon: "delete",
     });
   }
+  const themeDetails = useSelector(getThemeDetails);
 
-  const [selectedColor, setSelectedColor] = useState<string>(appCardColors[0]);
+  const [selectedColor, setSelectedColor] = useState<string>(
+    themeDetails.theme.colors.appCardColors[0],
+  );
 
   const ContextMenu = (
     <ContextDropdownWrapper>
@@ -303,6 +313,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           }}
         />
         <ColorSelector
+          colorPalette={themeDetails.theme.colors.appCardColors}
           fill={true}
           onSelect={(color: string) => {
             setSelectedColor(color);
@@ -321,13 +332,19 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       </Menu>
     </ContextDropdownWrapper>
   );
-  let initials = getInitialsAndColorCode(props.application.name)[0];
+  let initials = getInitialsAndColorCode(
+    props.application.name,
+    themeDetails.theme.colors.appCardColors,
+  )[0];
 
   if (initials.length < 2 && props.application.name.length > 1) {
     initials += props.application.name[1].toUpperCase() || "";
   }
 
-  const colorCode = getColorCode(props.application.id);
+  const colorCode = getColorCode(
+    props.application.id,
+    themeDetails.theme.colors.appCardColors,
+  );
 
   const viewApplicationURL = getApplicationViewerPageURL(
     props.application.id,

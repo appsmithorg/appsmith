@@ -13,7 +13,7 @@ const SubHeaderWrapper = styled.div`
   justify-content: space-between;
   position: fixed;
   padding-top: 30px;
-  background: ${props => props.theme.homePage.background};
+  background: ${props => props.theme.colors.homepageBackground};
   top: ${props => props.theme.homePage.header}px;
   left: 369px;
   z-index: 10;

@@ -296,8 +296,6 @@ export type Theme = {
     minHeight: number;
     titleHeight: number;
     divider: ThemeBorder;
-    hoverBG: Color;
-    hoverBGOpacity: number;
   };
   dropdown: {
     [Skin.LIGHT]: {
@@ -431,6 +429,139 @@ export const largeButton = css`
   letter-spacing: ${props => props.theme.typography.btnLarge.letterSpacing}px;
 `;
 
+export const dark = {
+  blackShades: [
+    "#090707",
+    "#1A191C",
+    "#232324",
+    "#2B2B2B",
+    "#404040",
+    "#6D6D6D",
+    "#9F9F9F",
+    "#D4D4D4",
+    "#E9E9E9",
+    "#FFFFFF",
+  ],
+  tertiary: {
+    main: "#D4D4D4",
+    light: "#FFFFFF",
+    dark: "#2B2B2B",
+    darker: "#202021",
+  },
+  info: {
+    main: "#CB4810",
+    light: "#F86A2B",
+    dark: "#8B2E05",
+    darker: "#A03C12",
+    darkest: "#2B2B2B",
+  },
+  success: {
+    main: "#218358",
+    light: "#30CF89",
+    dark: "#0F4B30",
+    darker: "#17211E",
+    darkest: "#293835",
+  },
+  warning: {
+    main: "#EABB0C",
+    light: "#FFD32E",
+    dark: "#886B00",
+    darker: "#2C271A",
+    darkest: "#2F2A1B",
+  },
+  danger: {
+    main: "#E22C2C",
+    light: "#FF4D4D",
+    dark: "#830C0C",
+    darker: "#2B1A1D",
+    darkest: "#462F32",
+  },
+  homepageBackground: "#1C1C1E",
+  card: {
+    hoverBG: Colors.BLACK,
+    hoverBGOpacity: 0.5,
+  },
+  appCardColors: [
+    "#4F70FD",
+    "#54A9FB",
+    "#5ED3DA",
+    "#F56AF4",
+    "#F36380",
+    "#FE9F44",
+    "#E9C951",
+    "#A8D76C",
+    "#6C4CF1",
+  ],
+};
+
+export const light = {
+  blackShades: [
+    "#F0F0F0",
+    "#FEFEFE",
+    // "#FBFBFB",
+    "#F6F6F6",
+    "#EFEFEF",
+    "#E7E7E7",
+    // "#A9A7A7",
+    "#939090",
+    "#716E6E",
+    "#4B4848",
+    "#4B4848",
+    "#302D2D",
+    // "#161414"
+  ],
+  tertiary: {
+    main: "#716E6E",
+    light: "#090707",
+    dark: "#F0F0F0",
+    darker: "#E8E8E8",
+  },
+  info: {
+    main: "#F86A2B",
+    light: "#FB773C",
+    dark: "#BF4109",
+    darker: "#FEEDE5",
+    darkest: "#F7EBE6",
+  },
+  success: {
+    main: "#03B365",
+    light: "#007340",
+    dark: "#00693B",
+    darker: "#DEFFF0",
+    darkest: "#CBF4E2",
+  },
+  warning: {
+    main: "#FECB11",
+    light: "#D1A606",
+    dark: "#D9AC07",
+    darker: "#FFFBEF",
+    darkest: "#FECB11",
+  },
+  danger: {
+    main: "#F22B2B",
+    light: "#C60707",
+    dark: "#B90707",
+    darker: "#FFF0F0",
+    darkest: "#FDE4E4",
+  },
+  homepageBackground: "#fafafa",
+  card: {
+    hoverBG: Colors.WHITE,
+    hoverBGOpacity: 0.7,
+  },
+  appCardColors: [
+    "#4266FD",
+    "#69B5FF",
+    "#5CE7EF",
+    "#61DF48",
+    "#FF6786",
+    "#FFAD5E",
+    "#FCD43E",
+    "#B0E968",
+    "#9177FF",
+  ],
+};
+
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
@@ -531,52 +662,6 @@ export const theme: Theme = {
   },
   drawerWidth: "80%",
   colors: {
-    blackShades: [
-      "#090707",
-      "#1A191C",
-      "#232324",
-      "#2B2B2B",
-      "#404040",
-      "#6D6D6D",
-      "#9F9F9F",
-      "#D4D4D4",
-      "#E9E9E9",
-      "#FFFFFF",
-    ],
-    tertiary: {
-      main: "#D4D4D4",
-      light: "#FFFFFF",
-      dark: "#2B2B2B",
-      darker: "#202021",
-    },
-    info: {
-      main: "#CB4810",
-      light: "#F86A2B",
-      dark: "#8B2E05",
-      darker: "#A03C12",
-      darkest: "#2B2B2B",
-    },
-    success: {
-      main: "#218358",
-      light: "#30CF89",
-      dark: "#0F4B30",
-      darker: "#17211E",
-      darkest: "#293835",
-    },
-    warning: {
-      main: "#EABB0C",
-      light: "#FFD32E",
-      dark: "#886B00",
-      darker: "#2C271A",
-      darkest: "#2F2A1B",
-    },
-    danger: {
-      main: "#E22C2C",
-      light: "#FF4D4D",
-      dark: "#830C0C",
-      darker: "#2B1A1D",
-      darkest: "#462F32",
-    },
     radio: {
       disabled: "#565656",
     },
@@ -655,7 +740,6 @@ export const theme: Theme = {
   sidebarWidth: "320px",
   homePage: {
     header: 52,
-    background: "#1C1C1E",
     leftPane: {
       width: 240,
       leftPadding: 16,
@@ -685,8 +769,6 @@ export const theme: Theme = {
       style: "solid",
       color: Colors.GEYSER_LIGHT,
     },
-    hoverBG: Colors.BLACK,
-    hoverBGOpacity: 0.5,
   },
   dropdown: {
     [Skin.LIGHT]: {
