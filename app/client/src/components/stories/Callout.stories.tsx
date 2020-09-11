@@ -1,7 +1,7 @@
 import React from "react";
 import { withKnobs, select, text, boolean } from "@storybook/addon-knobs";
 import Callout from "components/ads/Callout";
-import { StoryWrapper } from "./Tabs.stories";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Callout",
