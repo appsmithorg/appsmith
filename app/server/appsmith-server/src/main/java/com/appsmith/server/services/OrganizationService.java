@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
+import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -34,4 +35,6 @@ public interface OrganizationService extends CrudService<Organization, String> {
     Mono<Map<String, String>> getUserRolesForOrganization(String orgId);
 
     Mono<List<UserRole>> getOrganizationMembers(String orgId);
+
+    Mono<Organization> uploadLogo(String organizationId, Part filePart);
 }

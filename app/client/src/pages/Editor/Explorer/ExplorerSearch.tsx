@@ -63,15 +63,19 @@ const Underline = styled.div`
 `;
 /*eslint-disable react/display-name */
 export const ExplorerSearch = forwardRef(
-  (props: { clear: () => void }, ref: Ref<HTMLInputElement>) => {
+  (
+    props: { clear: () => void; placeholder?: string },
+    ref: Ref<HTMLInputElement>,
+  ) => {
     return (
       <ExplorerSearchWrapper>
         <Icon icon="search" iconSize={12} />
         <input
           id={ENTITY_EXPLORER_SEARCH_ID}
           type="text"
-          placeholder="Search entities..."
+          placeholder={props.placeholder || "Search entities..."}
           ref={ref}
+          autoComplete="off"
         />
         <Icon icon="cross" iconSize={12} onClick={props.clear} />
         <Underline className="underline" />

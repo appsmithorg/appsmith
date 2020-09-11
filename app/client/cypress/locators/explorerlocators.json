@@ -14,5 +14,10 @@
     "entityQuery": ".t--entity-name:contains('Queries')",
     "collapse": ".t--entity-collapse-toggle",
     "property": ".language-appsmith-binding",
-    "editNameField": ".editing input"
+    "editNameField": ".editing input",
+    "editEntityField": ".bp3-editable-text-input",
+    "entity":".t--entity-name",
+    "addWidget":".widgets .t--entity-add-btn",
+    "dropHere":".appsmith_widget_0",
+    "closeWidgets":".t--close-widgets-sidebar"
 }

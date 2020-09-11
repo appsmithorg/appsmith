@@ -4,7 +4,8 @@
     </a>
   <br>
   <p>
-    <h3>The quickest way to build dashboards, workflows, forms, or any kind of internal business tool.</h3>
+    <h3>A low code way to build internal tools.</h3>
+  <h3> The only open source alternative to MSFT Power Apps, Salesforce Lightning platform, Service Now platform, Quickbase, Retool, Forest Admin, and many more. </h3>
   </p>
   <p>
   </p>
@@ -40,7 +41,7 @@ Do all this without depending on multiple UI libraries, coding authentication lo
 ## Example Applications
 
 * [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
-* [Job Application Tracker](http://bit.ly/job-tracker-appsmith)
+* [Job Application Tracker](https://bit.ly/3hbYtTi)
 
 ## Getting Started
 You can try our online sandbox or deploy a Docker image on a server.
@@ -55,6 +56,7 @@ Appsmith is a quicker way of building internal tools by visualising them as modu
 
 ## Features
 
+* **5 minute setup**: Install Appsmith in 5 minutes on your servers.
 * **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui)
 * **Query data**: Query & update your database directly from the UI. Connect to **postgres, mongo, MySQL, REST & GraphQL APIs**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/displaying-api-data)
 * **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows. Use popular libraries like lodash & moment anywhere in the app

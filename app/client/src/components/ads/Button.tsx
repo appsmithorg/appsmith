@@ -45,6 +45,7 @@ type BtnColorType = {
 type BtnFontType = {
   buttonFont: any;
   padding: string;
+  height: number;
 };
 
 type ButtonProps = CommonComponentProps & {
@@ -209,36 +210,40 @@ const btnColorStyles = (
 
 const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
   let buttonFont,
-    padding = "";
+    padding = "",
+    height = 0;
   switch (props.size) {
     case Size.small:
       buttonFont = smallButton;
+      height = 20;
       padding =
         !props.text && props.icon
-          ? `${props.theme.spaces[1]}px ${props.theme.spaces[1]}px`
-          : `${props.theme.spaces[1]}px ${props.theme.spaces[6]}px ${props.theme
-              .spaces[1] - 1}px`;
+          ? `0px ${props.theme.spaces[1]}px`
+          : `0px ${props.theme.spaces[6]}px`;
       break;
     case Size.medium:
       buttonFont = mediumButton;
+      height = 30;
       padding =
         !props.text && props.icon
-          ? `${props.theme.spaces[2]}px ${props.theme.spaces[2]}px`
-          : `${props.theme.spaces[3] - 1}px ${props.theme.spaces[7]}px`;
+          ? `0px ${props.theme.spaces[2]}px`
+          : `0px ${props.theme.spaces[7]}px`;
       break;
     case Size.large:
       buttonFont = largeButton;
+      height = 38;
       padding =
         !props.text && props.icon
-          ? `${props.theme.spaces[3]}px`
-          : `${props.theme.spaces[5] - 1}px ${props.theme.spaces[12] - 4}px`;
+          ? `0px ${props.theme.spaces[3]}px`
+          : `0px ${props.theme.spaces[12] - 4}px`;
       break;
   }
-  return { buttonFont, padding };
+  return { buttonFont, padding, height };
 };
 
 const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   width: ${props => (props.fill ? "100%" : "auto")};
+  height: ${props => btnFontStyles(props).height}px;
   border: none;
   outline: none;
   text-transform: uppercase;

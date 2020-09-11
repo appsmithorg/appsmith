@@ -582,6 +582,9 @@ export const theme: Theme = {
         bgColor: "#29251A",
       },
     },
+    radio: {
+      disabled: "#565656",
+    },
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
@@ -655,7 +658,7 @@ export const theme: Theme = {
     },
   ],
   sidebarWidth: "320px",
-  headerHeight: "50px",
+  headerHeight: "48px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,

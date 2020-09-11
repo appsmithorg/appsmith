@@ -4,6 +4,7 @@ import FeatureFlag from "./featureFlags";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
+import { User } from "../constants/userConstants";
 
 export type EventName =
   | "LOGIN_CLICK"
@@ -63,15 +64,9 @@ export type EventName =
   | "PROPERTY_PANE_OPEN"
   | "PROPERTY_PANE_CLOSE"
   | "PROPERTY_PANE_OPEN_CLICK"
+  | "OPEN_HELP"
+  | "INVITE_USER"
   | "PROPERTY_PANE_CLOSE_CLICK";
-
-export type Gender = "MALE" | "FEMALE";
-export interface User {
-  userId: string;
-  name: string;
-  email: string;
-  gender: Gender;
-}
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -84,7 +79,7 @@ function getApplicationId(location: Location) {
 }
 
 class AnalyticsUtil {
-  static user: any = undefined;
+  static user?: User = undefined;
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
@@ -161,7 +156,7 @@ class AnalyticsUtil {
       finalEventData = {
         ...finalEventData,
         userData: {
-          userId: userData.id,
+          userId: userData.username,
           email: userData.email,
           currentOrgId: userData.currentOrganizationId,
           appId: appId,
@@ -189,19 +184,22 @@ class AnalyticsUtil {
     }
     Sentry.configureScope(function(scope) {
       scope.setUser({
-        id: userData.userId,
-        username: userData.email,
+        id: userId,
+        username: userData.username,
         email: userData.email,
       });
     });
     const { smartLook } = getAppsmithConfigs();
     if (smartLook.enabled) {
-      smartlookClient.identify(userData.email, { email: userData.email });
+      smartlookClient.identify(userId, { email: userData.email });
     }
   }
 
   static reset() {
     const windowDoc: any = window;
+    if (windowDoc.Intercom) {
+      windowDoc.Intercom("shutdown");
+    }
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
   }

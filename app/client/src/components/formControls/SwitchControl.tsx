@@ -33,7 +33,7 @@ export class SwitchField extends React.Component<Props> {
 
     return (
       <div>
-        <SwitchWrapped>
+        <SwitchWrapped data-cy={this.props.configProperty}>
           <StyledFormLabel>
             {label} {isRequired && "*"}
           </StyledFormLabel>

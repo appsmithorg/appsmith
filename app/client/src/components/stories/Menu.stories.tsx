@@ -14,7 +14,7 @@ import EditableText, {
   EditInteractionKind,
   SavingStateHandler,
 } from "components/ads/EditableText";
-import { IconCollection } from "components/ads/Icon";
+import { IconCollection, IconName } from "components/ads/Icon";
 
 export default {
   title: "Menu",
@@ -104,14 +104,23 @@ export const MenuStory = () => {
         <MenuDivider />
         <MenuItem
           text={text("First option", "Invite user")}
-          icon={select("First Icon", IconCollection, undefined)}
+          icon={select(
+            "First Icon",
+            ["Select icon" as IconName, ...IconCollection],
+            "Select icon" as IconName,
+          )}
           onSelect={action("clicked-first-option")}
           label={<span>W</span>}
+          disabled={boolean("First option disabled", false)}
         />
         {boolean("First menu item divider", false) ? <MenuDivider /> : null}
         <MenuItem
           text={text("Second option", "Are you sure")}
-          icon={select("Second Icon", IconCollection, undefined)}
+          icon={select(
+            "Second Icon",
+            ["Select icon" as IconName, ...IconCollection],
+            "Select icon" as IconName,
+          )}
           onSelect={action("clicked-second-option")}
           label={<span>W</span>}
         />

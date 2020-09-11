@@ -5,7 +5,6 @@ import { withRouter, RouteComponentProps } from "react-router-dom";
 import {
   BuilderRouteParams,
   getApplicationViewerPageURL,
-  BUILDER_PAGE_URL,
 } from "constants/routes";
 import { AppState } from "reducers";
 import MainContainer from "./MainContainer";
@@ -32,17 +31,13 @@ import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
 import {
   ENTITY_EXPLORER_SEARCH_ID,
-  ENTITY_EXPLORER_SEARCH_LOCATION_HASH,
+  WIDGETS_SEARCH_ID,
 } from "constants/Explorer";
-import history from "utils/history";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
-
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -66,19 +61,14 @@ class Editor extends Component<Props> {
           combo="meta + f"
           label="Search entities"
           onKeyDown={(e: any) => {
-            //TODO(abhinav): make this id into a constant.
-            const el = document.getElementById(ENTITY_EXPLORER_SEARCH_ID);
-            if (!el) {
-              history.push(
-                `${BUILDER_PAGE_URL(
-                  this.props.currentApplicationId,
-                  this.props.currentPageId,
-                )}${ENTITY_EXPLORER_SEARCH_LOCATION_HASH}`,
-              );
-            } else {
-              el?.focus();
-            }
-
+            const entitySearchInput = document.getElementById(
+              ENTITY_EXPLORER_SEARCH_ID,
+            );
+            const widgetSearchInput = document.getElementById(
+              WIDGETS_SEARCH_ID,
+            );
+            if (entitySearchInput) entitySearchInput.focus();
+            if (widgetSearchInput) widgetSearchInput.focus();
             e.preventDefault();
             e.stopPropagation();
           }}
@@ -92,7 +82,6 @@ class Editor extends Component<Props> {
   };
 
   componentDidMount() {
-    const { user } = this.props;
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
@@ -100,21 +89,8 @@ class Editor extends Component<Props> {
     if (applicationId && pageId) {
       this.props.initEditor(applicationId, pageId);
     }
-    if (cloudHosting && intercomAppID && window.Intercom) {
-      window.Intercom("boot", {
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        app_id: intercomAppID,
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        custom_launcher_selector: "#intercom-trigger",
-        name: user?.username,
-        email: user?.email,
-      });
-    }
   }
   componentDidUpdate(previously: Props) {
-    if (cloudHosting && intercomAppID && window.Intercom) {
-      window.Intercom("update");
-    }
     if (
       previously.isPublishing &&
       !(this.props.isPublishing || this.props.errorPublishing)

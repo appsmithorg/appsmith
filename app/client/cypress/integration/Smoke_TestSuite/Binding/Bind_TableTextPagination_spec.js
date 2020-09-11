@@ -16,22 +16,21 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Table-Text, Validate Server Side Pagination of Paginate with Table Page No", function() {
-    cy.get(pages.widgetsEditor).click();
-    cy.openPropertyPane("tablewidget");
+    cy.SearchEntityandOpen("Table1");
     /**Bind Api1 with Table widget */
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     /**Bind Table with Textwidget with selected row */
-    cy.get(pages.widgetsEditor).click();
-    cy.openPropertyPane("textwidget");
+    cy.SearchEntityandOpen("Text1");
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
+    cy.SearchEntityandOpen("Table1");
     cy.readTabledata("0", "0").then(tabData => {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });
     /**Validate Table data on current page(page1) */
     cy.ValidateTableData("1");
-    cy.get(commonlocators.rightArrowBtn).click({ force: true });
+    cy.get(commonlocators.tableNextPage).click({ force: true });
     cy.validateToastMessage("done");
     /**Validate Table data on next page(page2) */
     cy.ValidateTableData("11");
@@ -40,10 +39,9 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function() {
     cy.PublishtheApp();
     cy.ValidatePublishTableData("1");
-    cy.get(commonlocators.rightArrowBtn).click({ force: true });
+    cy.get(commonlocators.tableNextPage).click({ force: true });
     cy.validateToastMessage("done");
     cy.ValidatePublishTableData("11");
-
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
@@ -59,13 +57,12 @@ describe("Test Create Api and Bind to Table widget", function() {
       parseSpecialCharSequences: false,
     });
     cy.WaitAutoSave();
-    cy.get(pages.widgetsEditor).click();
-    cy.openPropertyPane("textwidget");
+    cy.SearchEntityandOpen("Text1");
+    //cy.openPropertyPane("textwidget");
     /** Bind the Table widget with Text widget*/
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     cy.get(commonlocators.editPropCrossButton).click();
-    cy.get(pages.widgetsEditor).click();
-    cy.openPropertyPane("tablewidget");
+    cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{Api2.data.users}}");
     cy.callApi("Api2");
   });
