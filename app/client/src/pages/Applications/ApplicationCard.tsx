@@ -60,6 +60,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   }
   .bp3-card {
     border-radius: 0;
+    box-shadow: none;
   }
   ${props =>
     props.showOverlay &&
