@@ -7,6 +7,7 @@ type ColorSelectorProps = CommonComponentProps & {
   onSelect?: (hex: string) => void;
   colorPalette: string[];
   fill?: boolean;
+  defaultValue?: string;
 };
 
 const Palette = styled.div<{ fill?: boolean }>`
@@ -56,7 +57,9 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
 `;
 
 const ColorSelector = (props: ColorSelectorProps) => {
-  const [selected, setSelected] = useState<string>(props.colorPalette[0]);
+  const [selected, setSelected] = useState<string>(
+    props.defaultValue || props.colorPalette[0],
+  );
   return (
     <Palette fill={props.fill}>
       {props.colorPalette.map((hex: string, index: number) => {

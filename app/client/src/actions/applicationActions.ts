@@ -30,7 +30,7 @@ export const updateApplication = (
   data: ApplicationUpdatePayload,
 ) => {
   return {
-    type: ReduxActionTypes.FETCH_APPLICATION_LIST_INIT,
+    type: ReduxActionTypes.UPDATE_APPLICATION,
     payload: {
       appId,
       ...data,

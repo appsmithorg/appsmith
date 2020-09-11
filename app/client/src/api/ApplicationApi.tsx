@@ -66,6 +66,8 @@ export interface GetAllApplicationResponse extends ApiResponse {
 export interface ApplicationObject {
   id: string;
   name: string;
+  icon?: string;
+  color?: string;
   organizationId: string;
   pages: ApplicationPagePayload[];
   userPermissions: string[];

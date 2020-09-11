@@ -284,10 +284,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   }
   const themeDetails = useSelector(getThemeDetails);
 
-  const [selectedColor, setSelectedColor] = useState<string>(
-    themeDetails.theme.colors.appCardColors[0],
+  const initialsAndColorCode = getInitialsAndColorCode(
+    props.application.name,
+    themeDetails.theme.colors.appCardColors,
   );
-
+  let initials = initialsAndColorCode[0];
+  const colorCode = initialsAndColorCode[1];
+  const [selectedColor, setSelectedColor] = useState<string>(colorCode);
+  const appIcon = getApplicationIcon(props.application.id) as AppIconName;
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
@@ -313,6 +317,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           }}
         />
         <ColorSelector
+          defaultValue={colorCode}
           colorPalette={themeDetails.theme.colors.appCardColors}
           fill={true}
           onSelect={(color: string) => {
@@ -322,7 +327,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         <MenuDivider />
         <IconSelector
           fill={true}
-          selectedIcon={"bag"}
+          selectedIcon={appIcon}
           selectedColor={selectedColor}
         />
         <MenuDivider />
@@ -332,19 +337,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       </Menu>
     </ContextDropdownWrapper>
   );
-  let initials = getInitialsAndColorCode(
-    props.application.name,
-    themeDetails.theme.colors.appCardColors,
-  )[0];
 
   if (initials.length < 2 && props.application.name.length > 1) {
     initials += props.application.name[1].toUpperCase() || "";
   }
-
-  const colorCode = getColorCode(
-    props.application.id,
-    themeDetails.theme.colors.appCardColors,
-  );
 
   const viewApplicationURL = getApplicationViewerPageURL(
     props.application.id,
@@ -368,10 +364,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         hasReadPermission={hasReadPermission}
         backgroundColor={colorCode}
       >
-        <StyledAppIcon
-          size={Size.large}
-          name={getApplicationIcon(props.application.id) as AppIconName}
-        />
+        <StyledAppIcon size={Size.large} name={appIcon} />
         {/* <Initials>{initials}</Initials> */}
         {showOverlay && (
           <div className="overlay">
