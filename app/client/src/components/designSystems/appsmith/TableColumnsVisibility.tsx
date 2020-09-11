@@ -108,7 +108,7 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
     >
       <TableActionIcon
         tooltip="Hidden Fields"
-        klassName="t--table-column-visibility-toggle-btn"
+        className="t--table-column-visibility-toggle-btn"
         selected={selected}
         selectMenu={(selected: boolean) => {
           selectMenu(selected);

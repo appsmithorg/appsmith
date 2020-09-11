@@ -167,7 +167,7 @@ const TableFilters = (props: TableFilterProps) => {
     >
       <TableActionIcon
         tooltip="Filters"
-        klassName="t--table-filter-toggle-btn"
+        className="t--table-filter-toggle-btn"
         selected={selected}
         icon={
           showAddFilter ? (

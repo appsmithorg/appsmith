@@ -89,7 +89,7 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
       selectMenu={() => {
         downloadTableData();
       }}
-      klassName="t--table-download-btn"
+      className="t--table-download-btn"
     >
       <DownloadIcon />
     </TableActionIcon>

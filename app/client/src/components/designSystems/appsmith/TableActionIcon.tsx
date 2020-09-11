@@ -8,7 +8,7 @@ interface TableActionIconProps {
   tooltip: string;
   selected: boolean;
   selectMenu: (selected: boolean) => void;
-  klassName: string;
+  className: string;
   children: React.ReactNode;
   icon?: React.ReactNode;
 }
@@ -31,7 +31,7 @@ const TableActionIcon = (props: TableActionIconProps) => {
           props.selectMenu(!props.selected);
           e.stopPropagation();
         }}
-        className={props.klassName}
+        className={props.className}
       >
         <IconWrapper
           width={20}

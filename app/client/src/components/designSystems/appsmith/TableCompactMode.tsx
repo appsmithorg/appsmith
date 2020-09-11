@@ -91,7 +91,7 @@ const TableCompactMode = (props: TableCompactModeProps) => {
         selectMenu={(selected: boolean) => {
           selectMenu(selected);
         }}
-        klassName="t--table-compact-mode-toggle-btn"
+        className="t--table-compact-mode-toggle-btn"
       >
         <CompactIcon />
       </TableActionIcon>
