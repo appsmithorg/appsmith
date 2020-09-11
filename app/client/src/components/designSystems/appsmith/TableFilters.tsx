@@ -4,7 +4,6 @@ import {
   PopoverInteractionKind,
   Position,
   Classes,
-  Tooltip,
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
@@ -13,6 +12,7 @@ import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.s
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import Button from "components/editorComponents/Button";
 import CascadeFields from "components/designSystems/appsmith/CascadeFields";
+import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
 import {
   ReactTableColumnProps,
   Condition,
@@ -165,36 +165,21 @@ const TableFilters = (props: TableFilterProps) => {
       }}
       isOpen={selected}
     >
-      <Tooltip
-        autoFocus={false}
-        hoverOpenDelay={500}
-        content="Filters"
-        position="top"
-        modifiers={{
-          preventOverflow: { enabled: false },
-          flip: { enabled: false },
+      <TableActionIcon
+        tooltip="Filters"
+        klassName="t--table-filter-toggle-btn"
+        selected={selected}
+        icon={
+          showAddFilter ? (
+            <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
+          ) : null
+        }
+        selectMenu={(selected: boolean) => {
+          selectMenu(selected);
         }}
       >
-        <TableIconWrapper
-          className="t--table-filter-toggle-btn"
-          selected={selected}
-          onClick={e => {
-            selectMenu(true);
-            e.stopPropagation();
-          }}
-        >
-          <IconWrapper
-            width={20}
-            height={20}
-            color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
-          >
-            <FilterIcon />
-          </IconWrapper>
-          {showAddFilter ? (
-            <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
-          ) : null}
-        </TableIconWrapper>
-      </Tooltip>
+        <FilterIcon />
+      </TableActionIcon>
       <TableFilterOuterWrapper>
         <TableFilerWrapper onClick={e => e.stopPropagation()}>
           {filters.map((filter: ReactTableFilter, index: number) => {

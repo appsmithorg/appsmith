@@ -1,10 +1,10 @@
 import React from "react";
 import { IconWrapper } from "constants/IconConstants";
-import { Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-table.svg";
 import { ReactTableColumnProps } from "widgets/TableWidget";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
 import { isString } from "lodash";
 
 interface TableDataDownloadProps {
@@ -83,31 +83,16 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
     );
   }
   return (
-    <Tooltip
-      autoFocus={false}
-      hoverOpenDelay={500}
-      content="Download"
-      position="top"
-      modifiers={{
-        preventOverflow: { enabled: false },
-        flip: { enabled: false },
+    <TableActionIcon
+      tooltip="Download"
+      selected={selected}
+      selectMenu={() => {
+        downloadTableData();
       }}
+      klassName="t--table-download-btn"
     >
-      <TableIconWrapper
-        onClick={() => {
-          downloadTableData();
-        }}
-        className="t--table-download-btn"
-      >
-        <IconWrapper
-          width={20}
-          height={20}
-          color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
-        >
-          <DownloadIcon />
-        </IconWrapper>
-      </TableIconWrapper>
-    </Tooltip>
+      <DownloadIcon />
+    </TableActionIcon>
   );
 };
 
