@@ -3,7 +3,6 @@ import { Route } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as Sentry from "@sentry/react";
 import { useLocation } from "react-router";
-import { theme } from "constants/DefaultTheme";
 import { useSelector } from "react-redux";
 import { getThemeDetails } from "selectors/themeSelectors";
 const SentryRoute = Sentry.withSentryRouting(Route);

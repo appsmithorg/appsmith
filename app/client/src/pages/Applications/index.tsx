@@ -248,12 +248,16 @@ function LeftPane() {
   const userOrgs = useSelector(getUserApplicationsOrgs);
   const NewWorkspaceTrigger = (
     <NewWorkspaceWrapper>
-      <MenuItem key={"new-workspace"} text={"New Workspace"} icon="plus" />
+      <MenuItem
+        key={"new-workspace"}
+        text={"Create Organization"}
+        icon="plus"
+      />
     </NewWorkspaceWrapper>
   );
   return (
     <LeftPaneWrapper>
-      <LeftPaneSection heading="WORKSPACES">
+      <LeftPaneSection heading="ORGANIZATIONS">
         <WorkpsacesNavigator>
           <FormDialogComponent
             trigger={NewWorkspaceTrigger}
