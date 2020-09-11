@@ -1,25 +1,17 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledInputGroup, StyledPropertyPaneButton } from "./StyledControls";
+import {
+  StyledInputGroup,
+  StyledPropertyPaneButton,
+  StyledDragIcon,
+  StyledEditIcon,
+  StyledDeleteIcon,
+} from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
 import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
-import { ColumnTypes } from "widgets/TableWidget";
-import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableUtilities";
-import _ from "lodash";
-
-const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  margin-right: 15px;
-  cursor: move;
-  svg {
-    path {
-      fill: ${props => props.theme.colors.paneSectionLabel};
-    }
-  }
-`;
+import { ColumnProperties } from "widgets/TableWidget";
+import { getDefaultColumnProperties } from "components/designSystems/appsmith/TableUtilities";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -35,6 +27,7 @@ const TabsWrapper = styled.div`
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
+  width: 100%;
   &&& {
     input {
       border: none;
@@ -51,7 +44,7 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
 
 const AddColumnButton = styled(StyledPropertyPaneButton)`
   width: 100%;
-  margin-top: 8px;
+  margin-top: 16px;
 `;
 
 type RenderComponentProps = {
@@ -60,10 +53,12 @@ type RenderComponentProps = {
     label: string;
   };
   updateOption: (index: number, value: string) => void;
+  deleteOption: (index: number) => void;
+  onEdit?: (index: number) => void;
 };
 
 function ColumnControlComponent(props: RenderComponentProps) {
-  const { updateOption, item, index } = props;
+  const { updateOption, item, onEdit, deleteOption, index } = props;
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
@@ -75,69 +70,27 @@ function ColumnControlComponent(props: RenderComponentProps) {
         }}
         defaultValue={item.label}
       />
+      <StyledDeleteIcon
+        height={20}
+        width={20}
+        onClick={() => {
+          deleteOption && deleteOption(index);
+        }}
+      />
+      <StyledEditIcon
+        height={20}
+        width={20}
+        onClick={() => {
+          onEdit && onEdit(index);
+        }}
+      />
     </ItemWrapper>
   );
 }
 
-export interface AppSmithTableColumnProps {
-  label: string;
-  index: number;
-  accessor: string;
-  draggable: boolean;
-  enableSort: boolean;
-  enableFilter: boolean;
-  visible: boolean;
-  format: string;
-  type: string;
-  isAscOrder: boolean;
-}
-
 class AdditionalColumnsControl extends BaseControl<ControlProps> {
-  getTableColumns = () => {
-    const columns: AppSmithTableColumnProps[] = [];
-    const {
-      columnNameMap,
-      columnTypeMap,
-      sortedColumn,
-      tableData,
-    } = this.props.widgetProperties;
-    const data = _.isString(tableData) ? JSON.parse(tableData) : tableData;
-    if (data.length) {
-      const columnKeys: string[] = getAllTableColumnKeys(data);
-      for (let index = 0; index < columnKeys.length; index++) {
-        const i = columnKeys[index];
-        const columnName: string =
-          columnNameMap && columnNameMap[i] ? columnNameMap[i] : i;
-        const columnType: { type: string; format?: string } =
-          columnTypeMap && columnTypeMap[i]
-            ? columnTypeMap[i]
-            : { type: ColumnTypes.TEXT };
-        const isHidden =
-          !!this.props.widgetProperties.hiddenColumns &&
-          this.props.widgetProperties.hiddenColumns.includes(i);
-        const columnData = {
-          label: columnName,
-          accessor: i,
-          index: index,
-          draggable: true,
-          visible: !isHidden,
-          isAscOrder:
-            sortedColumn && sortedColumn.column === i
-              ? sortedColumn.asc
-              : undefined,
-          type: columnType.type,
-          format: columnType.format || "",
-          enableSort: true,
-          enableFilter: true,
-        };
-        columns.push(columnData);
-      }
-      // columns = reorderColumns(columns, columnOrder || []);
-    }
-    return columns;
-  };
   render() {
-    const columns: AppSmithTableColumnProps[] = []; //this.getTableColumns();
+    const columns: ColumnProperties[] = this.props.propertyValue || [];
     return (
       <TabsWrapper>
         <DroppableComponent
@@ -146,45 +99,74 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
           updateOption={this.updateOption}
           updateItems={this.updateItems}
           deleteOption={this.deleteOption}
+          onEdit={this.onEdit}
         />
         <AddColumnButton
           text="Add a new column"
           icon="plus"
           color="#FFFFFF"
           minimal={true}
-          onClick={() => {
-            this.props.childrenProperties &&
-              this.props.openNextPanel(this.props.childrenProperties);
-          }}
+          onClick={this.addNewColumn}
         />
       </TabsWrapper>
     );
   }
 
+  onEdit = (index: number) => {
+    const columns = this.props.propertyValue || [];
+    const column: ColumnProperties = columns[index];
+    this.props.childrenProperties &&
+      this.props.openNextPanel({
+        parentPropertyName: this.props.parentPropertyName || "",
+        parentPropertyValue: this.props.parentPropertyValue,
+        propertySections: this.props.childrenProperties,
+        ...column,
+      });
+  };
+
+  addNewColumn = () => {
+    const derivedColumns: ColumnProperties[] = this.props.propertyValue || [];
+    const index = 1 + derivedColumns.length;
+    const newColumnName = getNextEntityName(
+      "DERIVED",
+      derivedColumns.map((column: ColumnProperties) => column.label),
+    );
+    const columnProps: ColumnProperties = getDefaultColumnProperties(
+      newColumnName,
+      index,
+    );
+    const column = {
+      ...columnProps,
+      isDerived: true,
+    };
+    this.props.childrenProperties &&
+      this.props.openNextPanel({
+        parentPropertyName: this.props.parentPropertyName || "",
+        parentPropertyValue: this.props.parentPropertyValue,
+        propertySections: this.props.childrenProperties,
+        ...column,
+      });
+    const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
+    updatedDerivedColumns.push(column);
+    this.updateProperty(this.props.propertyName, updatedDerivedColumns);
+  };
+
   updateItems = (items: object[]) => {
-    this.updateProperty(this.props.propertyName, JSON.stringify(items));
+    this.updateProperty(this.props.propertyName, items);
   };
 
   deleteOption = (index: number) => {
-    const columns = this.getTableColumns();
-    columns.splice(index, 1);
-    this.updateProperty(this.props.propertyName, JSON.stringify(columns));
+    const derivedColumns: ColumnProperties[] = this.props.propertyValue || [];
+    const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
+    updatedDerivedColumns.splice(index, 1);
+    this.updateProperty(this.props.propertyName, updatedDerivedColumns);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const columns = this.getTableColumns();
-    const updatedColumns = columns.map(
-      (column: AppSmithTableColumnProps, columnIndex: number) => {
-        if (columnIndex === index) {
-          column.label = updatedLabel;
-        }
-        return column;
-      },
-    );
-    this.updateProperty(
-      this.props.propertyName,
-      JSON.stringify(updatedColumns),
-    );
+    const derivedColumns: ColumnProperties[] = this.props.propertyValue || [];
+    const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
+    updatedDerivedColumns[index].label = updatedLabel;
+    this.updateProperty(this.props.propertyName, updatedDerivedColumns);
   };
 
   static getControlType() {

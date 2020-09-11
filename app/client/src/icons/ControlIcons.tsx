@@ -21,6 +21,8 @@ import { ReactComponent as SortIcon } from "assets/icons/control/sort-icon.svg";
 import { ReactComponent as EditWhiteIcon } from "assets/icons/control/edit-white.svg";
 import { ReactComponent as LaunchIcon } from "assets/icons/control/launch.svg";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
+import { ReactComponent as HideColumnIcon } from "assets/icons/control/hide-column.svg";
+import { ReactComponent as DeleteColumnIcon } from "assets/icons/control/delete-column.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -140,6 +142,16 @@ export const ControlIcons: {
   BACK_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <BackIcon />
+    </IconWrapper>
+  ),
+  HIDE_COLUMN: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <HideColumnIcon />
+    </IconWrapper>
+  ),
+  DELETE_COLUMN: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DeleteColumnIcon />
     </IconWrapper>
   ),
 };

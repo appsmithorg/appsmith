@@ -1,42 +1,14 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledInputGroup } from "./StyledControls";
+import {
+  StyledInputGroup,
+  StyledDragIcon,
+  StyledEditIcon,
+  StyledVisibleIcon,
+} from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
 import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
-import { ColumnTypes } from "widgets/TableWidget";
-import { Colors } from "constants/Colors";
-import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableUtilities";
-import _ from "lodash";
-
-const StyledEditIcon = styled(ControlIcons.EDIT_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: absolute;
-  margin-left: 15px;
-  cursor: pointer;
-  right: 25px;
-  & svg {
-    circle {
-      fill: none;
-    }
-    path {
-      fill: ${Colors.SLATE_GRAY};
-    }
-  }
-`;
-
-const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  margin-right: 15px;
-  cursor: move;
-  svg {
-    path {
-      fill: ${props => props.theme.colors.paneSectionLabel};
-    }
-  }
-`;
+import { ColumnProperties } from "widgets/TableWidget";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -74,10 +46,11 @@ type RenderComponentProps = {
   };
   updateOption: (index: number, value: string) => void;
   onEdit?: (index: number) => void;
+  deleteOption: (index: number) => void;
 };
 
 function ColumnControlComponent(props: RenderComponentProps) {
-  const { updateOption, onEdit, item, index } = props;
+  const { updateOption, onEdit, item, deleteOption, index } = props;
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
@@ -88,6 +61,13 @@ function ColumnControlComponent(props: RenderComponentProps) {
           updateOption(index, event.target.value);
         }}
         defaultValue={item.label}
+      />
+      <StyledVisibleIcon
+        height={20}
+        width={20}
+        onClick={() => {
+          deleteOption && deleteOption(index);
+        }}
       />
       <StyledEditIcon
         height={20}
@@ -100,67 +80,9 @@ function ColumnControlComponent(props: RenderComponentProps) {
   );
 }
 
-export interface AppSmithTableColumnProps {
-  label: string;
-  index: number;
-  accessor: string;
-  draggable: boolean;
-  enableSort: boolean;
-  enableFilter: boolean;
-  visible: boolean;
-  format: string;
-  type: string;
-  isAscOrder: boolean;
-}
-
 class PrimaryColumnsControl extends BaseControl<ControlProps> {
-  getTableColumns = () => {
-    const columns: AppSmithTableColumnProps[] = [];
-    const {
-      columnNameMap,
-      columnTypeMap,
-      sortedColumn,
-      tableData,
-    } = this.props.widgetProperties;
-    const data = _.isString(tableData) ? JSON.parse(tableData) : tableData;
-    if (data.length) {
-      const columnKeys: string[] = getAllTableColumnKeys(data);
-      for (let index = 0; index < columnKeys.length; index++) {
-        const i = columnKeys[index];
-        const columnName: string =
-          columnNameMap && columnNameMap[i] ? columnNameMap[i] : i;
-        const columnType: { type: string; format?: string } =
-          columnTypeMap && columnTypeMap[i]
-            ? columnTypeMap[i]
-            : { type: ColumnTypes.TEXT };
-        const isHidden =
-          !!this.props.widgetProperties.hiddenColumns &&
-          this.props.widgetProperties.hiddenColumns.includes(i);
-        const columnData = {
-          label: columnName,
-          accessor: i,
-          id: i,
-          index: index,
-          draggable: true,
-          visible: !isHidden,
-          isAscOrder:
-            sortedColumn && sortedColumn.column === i
-              ? sortedColumn.asc
-              : undefined,
-          type: columnType.type,
-          format: columnType.format || "",
-          enableSort: true,
-          enableFilter: true,
-        };
-        columns.push(columnData);
-      }
-      // columns = reorderColumns(columns, columnOrder || []);
-    }
-    return columns;
-  };
   render() {
-    const columns = this.getTableColumns();
-    console.log("columns", this.props.propertyValue);
+    const columns = this.props.propertyValue || [];
     return (
       <TabsWrapper>
         <DroppableComponent
@@ -176,36 +98,34 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   }
 
   onEdit = (index: number) => {
-    const columns = this.getTableColumns();
-    const column: AppSmithTableColumnProps = columns[index];
+    const columns = this.props.propertyValue || [];
+    const column: ColumnProperties = columns[index];
     this.props.childrenProperties &&
-      this.props.openNextPanel(this.props.childrenProperties, column.accessor);
+      this.props.openNextPanel({
+        parentPropertyName: this.props.parentPropertyName || "",
+        parentPropertyValue: this.props.parentPropertyValue,
+        propertySections: this.props.childrenProperties,
+        ...column,
+      });
   };
 
   updateItems = (items: object[]) => {
-    this.updateProperty(this.props.propertyName, JSON.stringify(items));
+    this.updateProperty(this.props.propertyName, items);
   };
 
   deleteOption = (index: number) => {
-    const columns = this.getTableColumns();
-    columns.splice(index, 1);
-    this.updateProperty(this.props.propertyName, JSON.stringify(columns));
+    const derivedColumns: ColumnProperties[] = this.props.propertyValue || [];
+    const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
+    updatedDerivedColumns[index].isVisible = !updatedDerivedColumns[index]
+      .isVisible;
+    this.updateProperty(this.props.propertyName, updatedDerivedColumns);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const columns = this.getTableColumns();
-    const updatedColumns = columns.map(
-      (column: AppSmithTableColumnProps, columnIndex: number) => {
-        if (columnIndex === index) {
-          column.label = updatedLabel;
-        }
-        return column;
-      },
-    );
-    this.updateProperty(
-      this.props.propertyName,
-      JSON.stringify(updatedColumns),
-    );
+    const derivedColumns: ColumnProperties[] = this.props.propertyValue || [];
+    const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
+    updatedDerivedColumns[index].label = updatedLabel;
+    this.updateProperty(this.props.propertyName, updatedDerivedColumns);
   };
 
   static getControlType() {

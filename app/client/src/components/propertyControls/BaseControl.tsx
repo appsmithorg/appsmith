@@ -7,7 +7,7 @@ import _ from "lodash";
 import { ControlType } from "constants/PropertyControlConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
-// import { ChildProperties } from "pages/Editor/PropertyPane/PropertiesEditor";
+import { ChildProperties } from "pages/Editor/PropertyPane/PropertiesEditor";
 
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -43,14 +43,13 @@ export interface ControlData {
   dataTreePath?: string;
   widgetProperties: WidgetProps;
   childrenProperties?: PropertySection[];
+  parentPropertyName?: string;
+  parentPropertyValue: any;
 }
 
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
-  openNextPanel: (
-    propertySections: PropertySection[],
-    propertyId?: string,
-  ) => void;
+  openNextPanel: (childProperties: ChildProperties) => void;
 }
 
 export default BaseControl;

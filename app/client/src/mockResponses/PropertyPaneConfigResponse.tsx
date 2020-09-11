@@ -165,7 +165,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           {
             id: "7.1.6",
             helpText: "Existing Columns",
-            propertyName: "columns",
+            propertyName: "primaryColumns",
             label: "Existing Columns",
             controlType: "PRIMARY_COLUMNS",
             childrenProperties: [
@@ -175,7 +175,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                 children: [
                   {
                     id: "7.1.6.1.0",
-                    propertyName: "columnType",
+                    propertyName: "type",
                     label: "Column Type",
                     controlType: "DROP_DOWN",
                     isJSConvertible: true,
@@ -238,7 +238,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                 children: [
                   {
                     id: "7.1.6.2.1",
-                    propertyName: "textAlign",
+                    propertyName: "horizontalAlignment",
                     label: "Text Align",
                     controlType: "DROP_DOWN",
                     isJSConvertible: true,
@@ -259,7 +259,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                   },
                   {
                     id: "7.1.6.2.2",
-                    propertyName: "textSize",
+                    propertyName: "textStyle",
                     label: "Text Size",
                     controlType: "DROP_DOWN",
                     isJSConvertible: true,
@@ -358,7 +358,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                 children: [
                   {
                     id: "7.1.7.1.0",
-                    propertyName: "columnType",
+                    propertyName: "type",
                     label: "Column Type",
                     controlType: "DROP_DOWN",
                     isJSConvertible: true,
@@ -421,7 +421,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                 children: [
                   {
                     id: "7.1.7.3.1",
-                    propertyName: "textAlign",
+                    propertyName: "horizontalAlignment",
                     helpText: "Sets the alignments of the text",
                     label: "Text Align",
                     controlType: "DROP_DOWN",

@@ -3,7 +3,6 @@ import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { removeSpecialChars } from "utils/helpers";
 
 const Wrapper = styled.div`
   display: flex;
@@ -13,27 +12,21 @@ const Wrapper = styled.div`
 
 export type PropertyTitleEditorProps = {
   title: string;
-  propertyId: string;
-  updatePropertyTitle: (propertyId: string, title: string) => void;
+  updatePropertyTitle: (title: string) => void;
 };
 
 /* eslint-disable react/display-name */
 const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
-  const { title, propertyId, updatePropertyTitle } = props;
+  const { title, updatePropertyTitle } = props;
   const [name, setName] = useState(props.title);
   const [updating, toggleUpdating] = useState(false);
   const updateTitle = useCallback(
     (value: string) => {
-      if (
-        value &&
-        value.trim().length > 0 &&
-        value.trim() !== title.trim() &&
-        propertyId
-      ) {
-        updatePropertyTitle(propertyId, value.trim());
+      if (value && value.trim().length > 0 && value.trim() !== title.trim()) {
+        updatePropertyTitle(value.trim());
       }
     },
-    [updatePropertyTitle, title, propertyId],
+    [updatePropertyTitle, title],
   );
   const exitEditMode = () => {
     toggleUpdating(true);
@@ -42,11 +35,10 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
     setName(props.title);
   }, [props.title]);
 
-  return props.propertyId ? (
+  return (
     <Wrapper>
       <EditableText
         type="text"
-        valueTransform={removeSpecialChars}
         defaultValue={name}
         onTextChanged={updateTitle}
         placeholder={props.title}
@@ -56,7 +48,7 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
         onBlur={exitEditMode}
       />
     </Wrapper>
-  ) : null;
+  );
 };
 
 export default PropertyTitleEditor;

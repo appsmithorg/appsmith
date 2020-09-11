@@ -12,7 +12,6 @@ import {
   IPanel,
   IPanelProps,
 } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
 import {
   getCurrentWidgetId,
   getPropertyConfig,
@@ -35,7 +34,6 @@ import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import PaneWrapper from "pages/common/PaneWrapper";
 import { BindingText } from "pages/Editor/APIEditor/Form";
-import { getNextEntityName } from "utils/AppsmithUtils";
 import { ControlIcons } from "icons/ControlIcons";
 
 const PropertySectionLabel = styled.div`
@@ -177,8 +175,7 @@ const PropertyPaneHeader = (
       )}
       {props.childProperties && props.updatePropertyTitle ? (
         <PropertyTitleEditor
-          title={props.childProperties.title}
-          propertyId={props.childProperties.propertyId}
+          title={props.childProperties.label}
           updatePropertyTitle={props.updatePropertyTitle}
         />
       ) : (
@@ -283,18 +280,39 @@ class PropertiesEditor extends React.Component<
     return true;
   }
   onPropertyChange(propertyName: string, propertyValue: any) {
-    this.props.updateWidgetProperty(
-      this.props.widgetId,
-      propertyName,
-      propertyValue,
-    );
-    if (this.props.widgetProperties) {
-      AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
-        widgetType: this.props.widgetProperties.type,
-        widgetName: this.props.widgetProperties.widgetName,
-        propertyName: propertyName,
-        updatedValue: propertyValue,
-      });
+    if (this.props.childProperties) {
+      const {
+        parentPropertyName,
+        parentPropertyValue,
+        id,
+      } = this.props.childProperties;
+      const updatedParentPropertyValue = parentPropertyValue.map(
+        (item: any) => {
+          if (item.id === id) {
+            item[propertyName] = propertyValue;
+          }
+          return item;
+        },
+      );
+      this.props.updateWidgetProperty(
+        this.props.widgetId,
+        parentPropertyName,
+        updatedParentPropertyValue,
+      );
+    } else {
+      this.props.updateWidgetProperty(
+        this.props.widgetId,
+        propertyName,
+        propertyValue,
+      );
+      if (this.props.widgetProperties) {
+        AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
+          widgetType: this.props.widgetProperties.type,
+          widgetName: this.props.widgetProperties.widgetName,
+          propertyName: propertyName,
+          updatedValue: propertyValue,
+        });
+      }
     }
   }
   toggleDynamicProperty = (propertyName: string, isDynamic: boolean) => {
@@ -322,31 +340,10 @@ class PropertiesEditor extends React.Component<
     e.preventDefault();
     e.stopPropagation();
   };
-  openNextPanel = (
-    propertySections?: PropertySection[],
-    propertyId?: string,
-  ) => {
+  openNextPanel = (childProperties: ChildProperties) => {
+    console.log("childProperties", childProperties);
+    const { propertySections } = childProperties;
     if (propertySections) {
-      const childPropertyId =
-        propertyId || getNextEntityName(`table_${this.props.widgetId}`, []);
-      const childPropertyTitle =
-        this.props.widgetProperties?.columnNameMap?.[childPropertyId] ||
-        childPropertyId;
-      const childProperties = {
-        columnType:
-          this.props.widgetProperties?.columnTypeMap?.[childPropertyId]?.type ||
-          "text",
-        computedValue: "",
-        enableFilter: false,
-        enableSort: false,
-        textAlign: "LEFT",
-        textSize: "HEADING",
-        fontStyle: "NORMAL",
-        verticalAlignment: "CENTER",
-        textColor: Colors.BLUE_BAYOUX,
-        propertyId: childPropertyId,
-        title: childPropertyTitle,
-      };
       const nextPanel: IPanel<PropertiesEditorProps &
         PropertiesEditorFunctions &
         PropertiesEditorPanelProps> = {
@@ -359,7 +356,11 @@ class PropertiesEditor extends React.Component<
           updateWidgetProperty: this.props.updateWidgetProperty,
           hidePropertyPane: this.props.hidePropertyPane,
           updatePropertyTitle: this.updatePropertyTitle,
-          childProperties: childProperties,
+          childProperties: {
+            parentPropertyName: childProperties.parentPropertyName,
+            parentPropertyValue: childProperties.parentPropertyValue,
+            ...childProperties,
+          },
         },
         title: "",
         component: PropertiesEditor,
@@ -368,11 +369,27 @@ class PropertiesEditor extends React.Component<
     }
   };
 
-  updatePropertyTitle = (propertyId: string, title: string) => {
-    const columnNameMap: { [key: string]: string } =
-      this.props.widgetProperties?.columnNameMap || {};
-    columnNameMap[propertyId] = title;
-    this.props.updateWidgetProperty("columnNameMap", columnNameMap);
+  updatePropertyTitle = (title: string) => {
+    if (this.props.childProperties) {
+      const {
+        parentPropertyName,
+        parentPropertyValue,
+        id,
+      } = this.props.childProperties;
+      const updatedParentPropertyValue = parentPropertyValue.map(
+        (item: any) => {
+          if (item.id === id) {
+            item.label = title;
+          }
+          return item;
+        },
+      );
+      this.props.updateWidgetProperty(
+        this.props.widgetId,
+        parentPropertyName,
+        updatedParentPropertyValue,
+      );
+    }
   };
 
   render() {
@@ -438,21 +455,19 @@ interface PropertySectionComponentProps {
   childProperties?: ChildProperties;
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
   toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
-  openNextPanel: (
-    propertySections: PropertySection[],
-    propertyId?: string,
-  ) => void;
+  openNextPanel: (childProperties: ChildProperties) => void;
 }
 
 export interface ChildProperties {
-  title: string;
-  propertyId: string;
+  parentPropertyName: string;
+  parentPropertyValue: any;
+  propertySections?: PropertySection[];
   [key: string]: any;
 }
 
 interface PropertiesEditorPanelProps {
   childProperties?: ChildProperties;
-  updatePropertyTitle?: (propertyId: string, propertyTitle: string) => void;
+  updatePropertyTitle?: (title: string) => void;
 }
 
 interface PropertiesEditorFunctions {

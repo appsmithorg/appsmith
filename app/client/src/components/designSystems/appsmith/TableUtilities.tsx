@@ -14,6 +14,8 @@ import {
   Condition,
   CellAlignmentTypes,
   TextTypes,
+  FontStyleTypes,
+  ColumnProperties,
 } from "widgets/TableWidget";
 import { isString, isNumber } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
@@ -848,19 +850,24 @@ export function compare(a: any, b: any, condition: Condition) {
   return result;
 }
 
-export function getDefaultColumnProperties(accessor: string, index: number) {
+export function getDefaultColumnProperties(
+  accessor: string,
+  index: number,
+): ColumnProperties {
   return {
-    rowIndex: index,
+    index: index,
     width: 150,
     id: accessor,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: CellAlignmentTypes.CENTER,
     type: ColumnTypes.TEXT,
     textColor: Colors.BLUE_BAYOUX,
-    textSize: TextTypes.BODY,
+    textStyle: TextTypes.BODY,
+    fontStyle: FontStyleTypes.NORMAL,
     enableFilter: true,
     enableSort: true,
     isVisible: true,
+    isDerived: false,
     label: accessor,
   };
 }

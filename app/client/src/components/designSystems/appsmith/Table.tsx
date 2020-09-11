@@ -34,7 +34,6 @@ interface TableProps {
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: object[];
   editMode: boolean;
-  columnNameMap?: { [key: string]: string };
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
@@ -163,11 +162,7 @@ export const Table = (props: TableProps) => {
                     <TableHeaderCell
                       key={columnIndex}
                       column={column}
-                      columnName={
-                        props.columnNameMap && props.columnNameMap[column.id]
-                          ? props.columnNameMap[column.id]
-                          : column.id
-                      }
+                      columnName={column.Header}
                       columnIndex={columnIndex}
                       isHidden={column.isHidden}
                       editMode={props.editMode}
