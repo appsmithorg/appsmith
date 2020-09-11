@@ -127,7 +127,11 @@ export default function Dropdown(props: DropdownProps) {
   }, []);
 
   return (
-    <DropdownContainer tabIndex={0} onBlur={() => setIsOpen(false)}>
+    <DropdownContainer
+      tabIndex={0}
+      onBlur={() => setIsOpen(false)}
+      data-cy={props.cypressSelector}
+    >
       <Selected
         isOpen={isOpen}
         disabled={props.disabled}

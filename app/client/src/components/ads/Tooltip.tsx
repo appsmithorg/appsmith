@@ -39,7 +39,7 @@ const TooltipWrapper = styled.div<{ variant?: Variant }>`
 
 const TooltipComponent = (props: TooltipProps) => {
   return (
-    <TooltipWrapper variant={props.variant}>
+    <TooltipWrapper variant={props.variant} data-cy={props.cypressSelector}>
       <Tooltip
         content={props.content}
         position={props.position}
