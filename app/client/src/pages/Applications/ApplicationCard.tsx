@@ -12,7 +12,6 @@ import {
   Position,
 } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-// import Button from "components/editorComponents/Button";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import {
@@ -44,6 +43,7 @@ import IconSelector from "components/ads/IconSelector";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { useSelector } from "react-redux";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
+import { getIsSavingAppName } from "selectors/applicationSelectors";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -246,6 +246,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application.name,
     themeDetails.theme.colors.appCardColors,
   );
+  const isSavingName = useSelector(getIsSavingAppName);
   let initials = initialsAndColorCode[0];
   const colorCode = props.application?.color || initialsAndColorCode[1];
   const appIcon = (props.application?.icon ||
@@ -323,10 +324,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           isInvalid={() => {
             return false;
           }}
+          isSaving={isSavingName}
           isEditingDefault={false}
           fill={true}
-          onSubmit={(value: string, callback: SavingStateHandler) => {
-            return calls(value, callback);
+          onBlur={(value: string) => {
+            props.update &&
+              props.update(props.application.id, {
+                name: value,
+              });
           }}
         />
         <ColorSelector

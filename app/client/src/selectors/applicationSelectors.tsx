@@ -39,6 +39,8 @@ export const getIsDeletingApplication = (state: AppState) =>
   state.ui.applications.deletingApplication;
 export const getIsDuplicatingApplication = (state: AppState) =>
   state.ui.applications.duplicatingApplication;
+export const getIsSavingAppName = (state: AppState) =>
+  state.ui.applications.isSavingAppName;
 export const getUserApplicationsOrgs = (state: AppState) => {
   return state.ui.applications.userOrgs;
 };

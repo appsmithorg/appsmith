@@ -38,10 +38,8 @@ type EditableTextProps = {
   editInteractionKind: EditInteractionKind;
   hideEditIcon?: boolean;
   fill?: boolean;
-  onSubmit: (
-    value: string,
-    callback: SavingStateHandler,
-  ) => { saving: SavingState };
+  isSaving: boolean;
+  onBlur: (value: string) => void;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -145,7 +143,11 @@ export const EditableText = (props: EditableTextProps) => {
   const [savingState, setSavingState] = useState<{
     isSaving: boolean;
     name?: SavingState;
-  }>({ isSaving: false, name: SavingState.NOT_STARTED });
+  }>({ isSaving: props.isSaving, name: SavingState.NOT_STARTED });
+
+  useEffect(() => {
+    setSavingState({ isSaving: props.isSaving, name: SavingState.NOT_STARTED });
+  }, [props.isSaving]);
 
   useEffect(() => {
     setValue(props.defaultValue);
@@ -184,7 +186,7 @@ export const EditableText = (props: EditableTextProps) => {
       setSavingState({ isSaving: false, name: SavingState.NOT_STARTED });
     } else if (changeStarted) {
       props.onTextChanged(_value);
-      props.onSubmit(_value, SavingStateHandler);
+      props.onBlur(_value);
     }
     setIsEditing(false);
     setChangeStarted(false);

@@ -43,6 +43,7 @@ export const MenuStory = () => {
   const [selectedColor, setSelectedColor] = useState<string>(
     light.appCardColors[0],
   );
+  const [isSaving, setIsSaving] = useState(false);
 
   return (
     <div
@@ -86,9 +87,13 @@ export const MenuStory = () => {
           isInvalid={(name: any) => errorFunction(name)}
           isEditingDefault={false}
           fill={false}
-          onSubmit={(value: string, callback: SavingStateHandler) =>
-            calls(value, callback)
-          }
+          isSaving
+          onBlur={() => {
+            setIsSaving(true);
+            setTimeout(() => {
+              setIsSaving(false);
+            }, 2000);
+          }}
         />
         <ColorSelector
           onSelect={(value: string) => setSelectedColor(value)}

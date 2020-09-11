@@ -11,6 +11,7 @@ import { UpdateApplicationRequest } from "api/ApplicationApi";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
+  isSavingAppName: false,
   isFetchingApplication: false,
   isChangingViewAccess: false,
   applicationList: [],
@@ -167,6 +168,7 @@ const applicationsReducer = createReducer(initialState, {
     state: ApplicationsReduxState,
     action: ReduxAction<UpdateApplicationRequest>,
   ) => {
+    let isSavingAppName = false;
     const _organizations = state.userOrgs.map(
       (org: Organization, index: number) => {
         const appIndex = org.applications.findIndex(
@@ -174,6 +176,7 @@ const applicationsReducer = createReducer(initialState, {
         );
         const { id, ...rest } = action.payload;
         if (appIndex !== -1) {
+          isSavingAppName = action.payload.name !== undefined;
           org.applications[appIndex] = {
             ...org.applications[appIndex],
             ...rest,
@@ -187,7 +190,18 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       userOrgs: _organizations,
+      isSavingAppName: isSavingAppName,
     };
+  },
+  [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return { ...state, isSavingAppName: false };
+  },
+  [ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return { ...state, isSavingAppName: false };
   },
 });
 
@@ -195,6 +209,7 @@ export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
   searchKeyword?: string;
   isFetchingApplications: boolean;
+  isSavingAppName: boolean;
   isFetchingApplication: boolean;
   isChangingViewAccess: boolean;
   creatingApplication: boolean;
