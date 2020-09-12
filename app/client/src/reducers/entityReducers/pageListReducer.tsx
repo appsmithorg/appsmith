@@ -1,4 +1,4 @@
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -10,7 +10,7 @@ const initialState: PageListReduxState = {
   pages: [],
 };
 
-const pageListReducer = createImmerReducer(initialState, {
+const pageListReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_PAGE_INIT]: (
     state: PageListReduxState,
     action: ReduxAction<{ id: string }>,

@@ -1,4 +1,4 @@
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
 
@@ -50,7 +50,7 @@ const initialState: AppDataState = {
   store: {},
 };
 
-const appReducer = createImmerReducer(initialState, {
+const appReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_APP_MODE]: (
     state: AppDataState,
     action: ReduxAction<APP_MODE>,

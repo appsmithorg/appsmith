@@ -1,4 +1,4 @@
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 
@@ -6,7 +6,7 @@ export type MetaState = Record<string, object>;
 
 const initialState: MetaState = {};
 
-export const metaReducer = createImmerReducer(initialState, {
+export const metaReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_META_PROP]: (
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,

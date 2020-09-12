@@ -1,4 +1,4 @@
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -25,7 +25,7 @@ export interface PartialActionData {
 
 const initialState: ActionDataState = [];
 
-const actionsReducer = createImmerReducer(initialState, {
+const actionsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_ACTIONS_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction[]>,
