@@ -1,4 +1,3 @@
-import { WidgetProps } from "widgets/NewBaseWidget";
 import { WidgetTypes } from "constants/WidgetConstants";
 import {
   ContainerWidgetProps,
@@ -74,8 +73,8 @@ import IconWidget, {
   IconWidgetProps,
   ProfiledIconWidget,
 } from "widgets/IconWidget";
+import { ProfiledCanvasWidget } from "widgets/CanvasWidget";
 
-import CanvasWidget, { ProfiledCanvasWidget } from "widgets/CanvasWidget";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder("CONTAINER_WIDGET", {

@@ -30,12 +30,12 @@ class FormWidget extends ContainerWidget {
   }
 
   updateFormData() {
-    if (this.props.children) {
-      const formData = this.getFormData(this.props.children[0]);
-      if (JSON.stringify(formData) !== JSON.stringify(this.props.data)) {
-        this.props.updateWidgetMetaProperty("data", formData);
-      }
-    }
+    // if (this.props.children) {
+    //   // const formData = this.getFormData(this.props.children[0]);
+    //   if (JSON.stringify(formData) !== JSON.stringify(this.props.data)) {
+    //     // this.props.updateWidgetMetaProperty("data", formData);
+    //   }
+    // }
   }
 
   getFormData(formWidget: any) {

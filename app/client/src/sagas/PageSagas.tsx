@@ -294,19 +294,18 @@ function getLayoutSavePayload(
 }
 
 export function* saveLayoutSaga() {
-  yield "nothing";
-  // try {
-  //   yield put({
-  //     type: ReduxActionTypes.SAVE_PAGE_INIT,
-  //   });
-  // } catch (error) {
-  //   yield put({
-  //     type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
-  //     payload: {
-  //       error,
-  //     },
-  //   });
-  // }
+  try {
+    yield put({
+      type: ReduxActionTypes.SAVE_PAGE_INIT,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }
 
 export function* createPageSaga(

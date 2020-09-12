@@ -33,28 +33,36 @@ type ComponentProps = {
 
 type ReduxProps = {
   widgetProps: any;
-  metaProps: Record<string, any> | undefined;
   widgetActionProps: any;
 };
 
 type Props = ComponentProps & ReduxProps;
 
-class BaseWidget extends Component<Props, any> {
+type State = {
+  meta: Record<string, any>;
+  metaUpdateQueue: Array<{ propertyName: string; propertyValue: any }>;
+};
+
+class BaseWidget extends Component<Props, State> {
+  builder: undefined | WidgetBuilder<WidgetProps, WidgetState>;
   constructor(props: Props) {
     super(props);
+    this.state = {
+      meta: WidgetFactory.getWidgetMetaPropertiesMap(props.widgetProps.type),
+      metaUpdateQueue: [],
+    };
+    this.builder = WidgetFactory.getWidgetBuilder(this.props.widgetProps.type);
   }
   render() {
     if (!this.props.widgetProps) return null;
-    const builder = WidgetFactory.getWidgetBuilder(this.props.widgetProps.type);
     const props = {
       ...this.props.widgetProps,
       ...this.props.widgetActionProps,
-      ...this.props.metaProps,
+      ...this.state.meta,
+      updateWidgetMetaProperty: this.updateWidgetMetaProperty,
     };
+    const widget = this.builder ? this.builder.buildWidget(props) : null;
     const style = this.getPositionStyle();
-    const widget = (
-      <ErrorBoundary isValid>{builder.buildWidget(props)}</ErrorBoundary>
-    );
     return (
       <React.Fragment>
         <PositionedContainer
@@ -76,7 +84,7 @@ class BaseWidget extends Component<Props, any> {
                 {...this.props.widgetProps}
                 paddingOffset={PositionedContainer.padding}
               >
-                {widget}
+                <ErrorBoundary isValid>{widget}</ErrorBoundary>
               </ResizableComponent>
             </DraggableComponent>
           )}
@@ -85,8 +93,56 @@ class BaseWidget extends Component<Props, any> {
       </React.Fragment>
     );
   }
-  private getPositionStyle(): BaseStyle {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+
+  // componentDidUpdate() {
+  //   Object.keys(this.state.meta).forEach(propertyName => {
+  //     if (
+  //       this.state.meta[propertyName] !== this.props.widgetProps[propertyName]
+  //     ) {
+  //       const propertyUpdate = {
+  //         propertyName,
+  //         propertyValue: this.props.widgetProps[propertyName],
+  //       };
+  //       debugger;
+  //       if (this.state.metaUpdateQueue.includes(propertyUpdate)) {
+  //         this.setState({
+  //           metaUpdateQueue: this.state.metaUpdateQueue.filter(
+  //             u => u === propertyUpdate,
+  //           ),
+  //         });
+  //       } else {
+  //         this.setState({
+  //           meta: {
+  //             ...this.state.meta,
+  //             [propertyName]: propertyUpdate.propertyValue,
+  //           },
+  //         });
+  //       }
+  //     }
+  //   });
+  // }
+
+  updateWidgetMetaProperty = (propertyName: string, propertyValue: any) => {
+    this.setState({
+      meta: {
+        ...this.state.meta,
+        [propertyName]: propertyValue,
+      },
+      // metaUpdateQueue: [{ propertyName, propertyValue }].concat(
+      //   this.state.metaUpdateQueue,
+      // ),
+    });
+    this.props.widgetActionProps.updateWidgetMetaProperty(
+      this.props.widgetId,
+      propertyName,
+      propertyValue,
+    );
+  };
+
+  getPositionStyle(): BaseStyle {
+    const { componentHeight, componentWidth } = getWidgetDimensions(
+      this.props.widgetProps,
+    );
     return {
       positionType: PositionTypes.ABSOLUTE,
       componentHeight,
@@ -102,9 +158,6 @@ class BaseWidget extends Component<Props, any> {
       yPositionUnit: CSSUnits.PIXEL,
     };
   }
-  getComponentDimensions = () => {
-    return getWidgetDimensions(this.props.widgetProps);
-  };
 }
 
 const getWidgetProps = (state: AppState, widgetId: string) => {
@@ -117,7 +170,6 @@ const getWidgetProps = (state: AppState, widgetId: string) => {
 };
 
 const mapStateToProps = (state: AppState, ownProps: ComponentProps) => ({
-  metaProps: state.entities.meta[ownProps.widgetId],
   widgetProps: getWidgetProps(state, ownProps.widgetId),
 });
 
