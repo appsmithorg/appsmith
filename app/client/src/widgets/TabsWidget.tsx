@@ -129,19 +129,6 @@ class TabsWidget extends BaseWidget<
       this.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
         parentId: this.props.widgetId,
       });
-      /* Selecting first tab as default tab when no tab is selected */
-      if (
-        this.props.tabs.length > 0 &&
-        this.props.tabs.findIndex(
-          tab => tab.label === this.props.defaultTab,
-        ) === -1
-      ) {
-        this.updateWidgetProperty(
-          "defaultTab",
-          this.props.tabs.filter(tab => tab.widgetId !== widgetIdToRemove)[0]
-            .label,
-        );
-      }
     });
   };
 

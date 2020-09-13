@@ -54,6 +54,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_DELETE_UNDO_TIMEOUT,
   RenderModes,
+  WidgetType,
 } from "constants/WidgetConstants";
 import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
@@ -68,6 +69,7 @@ import { AppToaster } from "components/editorComponents/ToastComponent";
 import { generateReactKey } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { cloneDeep } from "lodash";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -624,13 +626,16 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 }
 
-function* calculateNewWidgetPosition(widget: WidgetProps, parentId: string) {
+function calculateNewWidgetPosition(
+  widget: WidgetProps,
+  parentId: string,
+  canvasWidgets: FlattenedWidgetProps[],
+) {
   // Note: This is a very simple algorithm.
   // We take the bottom most widget in the canvas, then calculate the top,left,right,bottom
   // co-ordinates for the new widget, such that it can be placed at the bottom of the canvas.
-  const canvaswidgets = yield select(getWidgets);
   const nextAvailableRow =
-    Object.values(canvaswidgets).reduce(
+    Object.values(canvasWidgets).reduce(
       (prev: number, next: any) =>
         next.widgetId !== widget.parentId &&
         next.parentId === parentId &&
@@ -647,6 +652,13 @@ function* calculateNewWidgetPosition(widget: WidgetProps, parentId: string) {
   };
 }
 
+function getNextWidgetName(widgets: CanvasWidgetsReduxState, type: WidgetType) {
+  // Compute the new widget's name
+  const defaultConfig: any = WidgetConfigResponse.config[type];
+  const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
+  return getNextEntityName(defaultConfig.widgetName, widgetNames);
+}
+
 function* pasteWidgetSaga() {
   const copiedWidget: WidgetProps = yield getCopiedWidget();
   // Don't try to paste if there is no copied widget
@@ -658,25 +670,61 @@ function* pasteWidgetSaga() {
     widgetType: copiedWidget.type,
   });
 
-  // If selected widget is a container like,
-  // The new widget's parent will be canvas widget within the selected widget
-  // Else, the new widget's parent will be the main canvas
+  const widgets = yield select(getWidgets);
+
   const selectedWidget = yield select(getSelectedWidget);
   let newWidgetParentId = MAIN_CONTAINER_WIDGET_ID;
-  if (selectedWidget && selectedWidget.children) {
+  let parentWidget = widgets[MAIN_CONTAINER_WIDGET_ID];
+
+  // If the selected widget is not the main container
+  if (selectedWidget.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+    // Select the parent of the selected widget if parent is not
+    // the main container
+    if (
+      selectedWidget.parentId !== MAIN_CONTAINER_WIDGET_ID &&
+      widgets[selectedWidget.parentId].children &&
+      widgets[selectedWidget.parentId].children.length > 0
+    ) {
+      parentWidget = widgets[selectedWidget.parentId];
+      newWidgetParentId = selectedWidget.parentId;
+    }
+    // Select the selected widget if the widget is container like
+    if (selectedWidget.children) {
+      parentWidget = widgets[selectedWidget.widgetId];
+    }
+  }
+
+  // If the parent widget in which to paste the copied widget
+  // is not the main container and is not a canvas widget
+  if (
+    parentWidget.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
+    parentWidget.type !== WidgetTypes.CANVAS_WIDGET
+  ) {
     let childWidget;
-    if (selectedWidget.type !== WidgetTypes.TABS_WIDGET) {
-      childWidget = yield select(getWidget, selectedWidget.children[0]);
+    // If the widget in which to paste the new widget is NOT
+    // a tabs widget
+    if (parentWidget.type !== WidgetTypes.TABS_WIDGET) {
+      // The child will be a CANVAS_WIDGET, as we've established
+      // this parent widget to be a container like widget
+      // Which always has its first child as a canvas widget
+      childWidget = widgets[parentWidget.children[0]];
     } else {
+      // If the widget in which to paste the new widget is a tabs widget
+      // Find the currently selected tab canvas widget
       const { selectedTabId } = yield select(
         getWidgetMetaProps,
-        selectedWidget.widgetId,
+        parentWidget.widgetId,
       );
+      const tabs = _.isString(parentWidget.tabs)
+        ? JSON.parse(parentWidget.tabs)
+        : parentWidget.tabs;
       const childWidgetId =
-        selectedWidget.tabs.find((tab: any) => tab.id === selectedTabId)
-          ?.widgetId || selectedWidget.children[0];
-      childWidget = yield select(getWidget, childWidgetId);
+        tabs.find((tab: any) => tab.id === selectedTabId)?.widgetId ||
+        parentWidget.children[0];
+      childWidget = widgets[childWidgetId];
     }
+    // If the finally selected parent in which to paste the widget
+    // is a CANVAS_WIDGET, use its widgetId as the new widget's parent Id
     if (childWidget && childWidget.type === WidgetTypes.CANVAS_WIDGET) {
       newWidgetParentId = childWidget.widgetId;
     }
@@ -688,65 +736,93 @@ function* pasteWidgetSaga() {
     topRow,
     rightColumn,
     bottomRow,
-  } = yield calculateNewWidgetPosition(copiedWidget, newWidgetParentId);
-
-  const widgets = yield select(getWidgets);
-
-  // Compute the new widget's name
-  const defaultConfig: any = WidgetConfigResponse.config[copiedWidget.type];
-  const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
-  const newWidgetName = getNextEntityName(
-    defaultConfig.widgetName,
-    widgetNames,
+  } = yield calculateNewWidgetPosition(
+    copiedWidget,
+    newWidgetParentId,
+    widgets,
   );
 
-  // Generate the new widget object
-  copiedWidget.leftColumn = leftColumn;
-  copiedWidget.topRow = topRow;
-  copiedWidget.rightColumn = rightColumn;
-  copiedWidget.bottomRow = bottomRow;
-  copiedWidget.parentId = newWidgetParentId;
-  copiedWidget.widgetId = generateReactKey();
-  copiedWidget.widgetName = newWidgetName;
+  // Get a flat list of all the widgets to be updated
+  const widgetList = getAllWidgetsInTree(copiedWidget.widgetId, widgets);
+  const widgetIdMap: Record<string, string> = {};
+  const newWidgetList: FlattenedWidgetProps[] = [];
+  let newWidgetId: string = copiedWidget.widgetId;
+  // Generate new widgetIds for the flat list of all the widgets to be updated
+  widgetList.forEach(widget => {
+    // Create a copy of the widget properties
+    const newWidget = cloneDeep(widget);
+    newWidget.widgetId = generateReactKey();
+    // Add the new widget id so that it maps the previous widget id
+    widgetIdMap[widget.widgetId] = newWidget.widgetId;
+    // Add the new widget to the list
+    newWidgetList.push(newWidget);
+  });
 
-  // Add the new widget to the canvas widgets
-  if (copiedWidget && copiedWidget.widgetId) {
-    widgets[copiedWidget.widgetId] = copiedWidget;
-  }
-  if (copiedWidget && copiedWidget.parentId && widgets[copiedWidget.parentId]) {
-    // If the new widget goes beyond the bottomRow of the parent
-    // Make the parent scroll contents
-    // Note: MainContainer always scrolls contents.
-    if (
-      widgets[copiedWidget.parentId].bottomRow *
-        widgets[copiedWidget.parentId].parentRowSpace <=
-      copiedWidget.bottomRow * copiedWidget.parentRowSpace
-    ) {
-      if (copiedWidget.parentId !== MAIN_CONTAINER_WIDGET_ID) {
-        widgets[
-          widgets[copiedWidget.parentId].parentId
-        ].shouldScrollContents = true;
+  // For each of the new widgets generated
+  newWidgetList.forEach(widget => {
+    // Update the children widgetIds if it has children
+    if (widget.children && widget.children.length > 0) {
+      widget.children.forEach((childWidgetId: string, index: number) => {
+        if (widget.children) {
+          widget.children[index] = widgetIdMap[childWidgetId];
+        }
+      });
+    }
+    // If it is the copied widget, update position properties
+    if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
+      newWidgetId = widget.widgetId;
+      widget.leftColumn = leftColumn;
+      widget.topRow = topRow;
+      widget.bottomRow = bottomRow;
+      widget.rightColumn = rightColumn;
+      widget.parentId = newWidgetParentId;
+      // Also, update the parent widget in the canvas widgets
+      // to include this new copied widget's id in the parent's children
+      if (
+        widgets[newWidgetParentId].children &&
+        Array.isArray(widgets[newWidgetParentId].children)
+      ) {
+        widgets[newWidgetParentId].children.push(widget.widgetId);
+      } else {
+        widgets[newWidgetParentId].children = [widget.widgetId];
       }
-    }
-    // Add the new widget's reference to the parent's children
-    if (
-      widgets[copiedWidget.parentId].children &&
-      Array.isArray(widgets[copiedWidget.parentId].children)
-    ) {
-      widgets[copiedWidget.parentId].children?.push(copiedWidget.widgetId);
+      // If the copied widget's boundaries exceed the parent's
+      // Make the parent scrollable
+      if (
+        widgets[newWidgetParentId].bottomRow *
+          widgets[widget.parentId].parentRowSpace <=
+        widget.bottomRow * widget.parentRowSpace
+      ) {
+        if (widget.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+          widgets[
+            widgets[newWidgetParentId].parentId
+          ].shouldScrollContents = true;
+        }
+      }
     } else {
-      widgets[copiedWidget.parentId].children = [copiedWidget.widgetId];
+      // For all other widgets in the list
+      // (These widgets will be descendants of the copied widget)
+      // This means, that their parents will also be newly copied widgets
+      // Update widget's parent widget ids with the new parent widget ids
+      const newParentId = newWidgetList.find(
+        newWidget => newWidget.widgetId === widgetIdMap[widget.parentId],
+      )?.widgetId;
+      if (newParentId) widget.parentId = newParentId;
     }
-  }
+    // Generate a new unique widget name
+    widget.widgetName = getNextWidgetName(widgets, widget.type);
+    // Add the new widget to the canvas widgets
+    widgets[widget.widgetId] = widget;
+  });
 
   // save the new DSL
   yield put(updateAndSaveLayout(widgets));
 
   // Flash the newly pasted widget once the DSL is re-rendered
-  setTimeout(() => flashElementById(copiedWidget.widgetId), 100);
+  setTimeout(() => flashElementById(newWidgetId), 100);
   yield put({
     type: ReduxActionTypes.SELECT_WIDGET,
-    payload: { widgetId: copiedWidget.widgetId },
+    payload: { widgetId: newWidgetId },
   });
 }
 

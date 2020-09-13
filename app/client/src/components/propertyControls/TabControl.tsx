@@ -134,7 +134,7 @@ class TabControl extends BaseControl<ControlProps> {
     let tabs: object[] = _.isString(this.props.propertyValue)
       ? JSON.parse(this.props.propertyValue).slice()
       : this.props.propertyValue.slice();
-
+    if (tabs.length === 1) return;
     delete tabs[index];
     tabs = tabs.filter(Boolean);
     this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
