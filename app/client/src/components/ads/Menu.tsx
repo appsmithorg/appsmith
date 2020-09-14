@@ -28,7 +28,7 @@ const MenuOption = styled.div`
 
 const Menu = (props: MenuProps) => {
   return (
-    <Popover minimal position={props.position}>
+    <Popover minimal position={props.position} data-cy={props.cypressSelector}>
       {props.target}
       <MenuWrapper>
         {props.children.map((el, index) => {
