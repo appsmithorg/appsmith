@@ -12,7 +12,6 @@ import IconSelector from "components/ads/IconSelector";
 import EditableText, {
   SavingState,
   EditInteractionKind,
-  SavingStateHandler,
 } from "components/ads/EditableText";
 import { IconCollection, IconName } from "components/ads/Icon";
 import { theme, light, dark } from "constants/DefaultTheme";
@@ -43,7 +42,9 @@ export const MenuStory = () => {
   const [selectedColor, setSelectedColor] = useState<string>(
     light.appCardColors[0],
   );
-  const [isSaving, setIsSaving] = useState(false);
+  const [savingState, SetSavingState] = useState<SavingState>(
+    SavingState.NOT_STARTED,
+  );
 
   return (
     <div
@@ -87,11 +88,11 @@ export const MenuStory = () => {
           isInvalid={(name: any) => errorFunction(name)}
           isEditingDefault={false}
           fill={false}
-          isSaving
+          savingState={savingState}
           onBlur={() => {
-            setIsSaving(true);
+            SetSavingState(SavingState.STARTED);
             setTimeout(() => {
-              setIsSaving(false);
+              SetSavingState(SavingState.SUCCESS);
             }, 2000);
           }}
         />
