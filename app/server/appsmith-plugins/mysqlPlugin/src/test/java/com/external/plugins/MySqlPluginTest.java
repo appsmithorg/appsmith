@@ -134,7 +134,7 @@ public class MySqlPluginTest {
     @Test
     public void testConnectMySQLContainer() {
 
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
                 .assertNext(connection -> {
@@ -146,7 +146,7 @@ public class MySqlPluginTest {
 
     @Test
     public void testExecute() {
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
@@ -197,7 +197,7 @@ public class MySqlPluginTest {
     @Test
     public void testDatasourceDestroy() {
 
-        Mono<Object> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Connection> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(connectionMono)
                 .assertNext(connection -> {
@@ -215,7 +215,7 @@ public class MySqlPluginTest {
     @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
@@ -242,7 +242,7 @@ public class MySqlPluginTest {
     @Test
     public void testExecuteDataTypes() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");

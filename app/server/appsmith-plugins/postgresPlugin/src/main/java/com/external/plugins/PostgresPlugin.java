@@ -65,7 +65,7 @@ public class PostgresPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class PostgresPluginExecutor implements PluginExecutor {
+    public static class PostgresPluginExecutor implements PluginExecutor<Connection> {
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +
@@ -110,14 +110,12 @@ public class PostgresPlugin extends BasePlugin {
                 "order by self_schema, self_table;";
 
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection,
+        public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            Connection conn = (Connection) connection;
-
             try {
-                if (conn == null || conn.isClosed() || !conn.isValid(VALIDITY_CHECK_TIMEOUT)) {
+                if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
                     log.info("Encountered stale connection in Postgres plugin. Reporting back.");
                     throw new StaleConnectionException();
                 }
@@ -138,7 +136,7 @@ public class PostgresPlugin extends BasePlugin {
             Statement statement = null;
             ResultSet resultSet = null;
             try {
-                statement = conn.createStatement();
+                statement = connection.createStatement();
                 boolean isResultSet = statement.execute(query);
 
                 if (isResultSet) {
@@ -225,7 +223,7 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
@@ -282,11 +280,10 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(Object connection) {
-            Connection conn = (Connection) connection;
+        public void datasourceDestroy(Connection connection) {
             try {
-                if (conn != null) {
-                    conn.close();
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
                 log.error("Error closing Postgres Connection.", e);
@@ -333,7 +330,7 @@ public class PostgresPlugin extends BasePlugin {
                     .map(connection -> {
                         try {
                             if (connection != null) {
-                                ((Connection) connection).close();
+                                connection.close();
                             }
                         } catch (SQLException e) {
                             log.warn("Error closing Postgres connection that was made for testing.", e);
