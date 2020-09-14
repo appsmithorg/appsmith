@@ -138,7 +138,7 @@ export const EditableText = (props: EditableTextProps) => {
   );
 
   useEffect(() => {
-    setSavingState(SavingState.NOT_STARTED);
+    setSavingState(props.savingState);
   }, [props.savingState]);
 
   useEffect(() => {
@@ -202,8 +202,7 @@ export const EditableText = (props: EditableTextProps) => {
       ? "edit"
       : !isEditing && savingState === SavingState.SUCCESS
       ? "success"
-      : (isEditing && savingState === SavingState.ERROR) ||
-        (isEditing && !!isInvalid)
+      : savingState === SavingState.ERROR || (isEditing && !!isInvalid)
       ? "error"
       : undefined;
 
