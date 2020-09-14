@@ -4,8 +4,15 @@ import {
 } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import RealmExecutor from "jsExecution/RealmExecutor";
+jest.mock("jsExecution/RealmExecutor");
 
 describe("dataTreeTypeDefCreator", () => {
+  beforeAll(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    RealmExecutor.mockClear();
+  });
   it("creates the right def for a widget", () => {
     const dataTree: DataTree = {
       Input1: {
