@@ -5,7 +5,6 @@ import {
   PopoverInteractionKind,
   Position,
   Icon,
-  Tooltip,
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
@@ -14,6 +13,7 @@ import { ReactComponent as VisibleIcon } from "assets/icons/control/columns-visi
 import Button from "components/editorComponents/Button";
 import { ReactTableColumnProps } from "widgets/TableWidget";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
 
 const DropDownWrapper = styled.div`
   display: flex;
@@ -104,29 +104,18 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
       onClose={() => {
         selectMenu(false);
       }}
+      isOpen={selected}
     >
-      <TableIconWrapper
-        selected={selected}
-        onClick={e => {
-          selectMenu(true);
-        }}
+      <TableActionIcon
+        tooltip="Hidden Fields"
         className="t--table-column-visibility-toggle-btn"
+        selected={selected}
+        selectMenu={(selected: boolean) => {
+          selectMenu(selected);
+        }}
       >
-        <Tooltip
-          autoFocus={false}
-          hoverOpenDelay={1000}
-          content="Hidden Fields"
-          position="top"
-        >
-          <IconWrapper
-            width={20}
-            height={20}
-            color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
-          >
-            <VisibilityIcon />
-          </IconWrapper>
-        </Tooltip>
-      </TableIconWrapper>
+        <VisibilityIcon />
+      </TableActionIcon>
       <DropDownWrapper>
         {columns.map((option: ReactTableColumnProps, index: number) => (
           <OptionWrapper

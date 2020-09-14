@@ -23,10 +23,12 @@ export interface ColumnMenuOptionProps {
 }
 
 export interface ColumnMenuSubOptionProps {
-  content: string;
-  isSelected: boolean;
-  closeOnClick: boolean;
-  onClick: (columnIndex: number) => void;
+  content: string | JSX.Element;
+  isSelected?: boolean;
+  closeOnClick?: boolean;
+  onClick?: (columnIndex: number) => void;
+  id?: string;
+  category?: boolean;
 }
 
 interface ReactTableComponentProps {
@@ -62,6 +64,7 @@ interface ReactTableComponentProps {
     [key: string]: {
       type: string;
       format: string;
+      inputFormat?: string;
     };
   };
   columnSizeMap?: { [key: string]: number };
@@ -164,6 +167,10 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       props.columnTypeMap && props.columnTypeMap[columnId]
         ? props.columnTypeMap[columnId].format
         : "";
+    const inputFormat =
+      props.columnTypeMap && props.columnTypeMap[columnId]
+        ? props.columnTypeMap[columnId].inputFormat
+        : "";
     const isColumnHidden = !!(
       props.hiddenColumns && props.hiddenColumns.includes(columnId)
     );
@@ -172,6 +179,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       isColumnHidden,
       columnType,
       format,
+      inputFormat,
       hideColumn: hideColumn,
       updateColumnType: updateColumnType,
       handleUpdateCurrencySymbol: handleUpdateCurrencySymbol,
@@ -228,13 +236,20 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     props.updateColumnType(columnTypeMap);
   };
 
-  const handleDateFormatUpdate = (columnIndex: number, dateFormat: string) => {
+  const handleDateFormatUpdate = (
+    columnIndex: number,
+    dateFormat: string,
+    dateInputFormat?: string,
+  ) => {
     const column = props.columns[columnIndex];
     const columnTypeMap = props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
       type: "date",
       format: dateFormat,
     };
+    if (dateInputFormat) {
+      columnTypeMap[column.accessor].inputFormat = dateInputFormat;
+    }
     props.updateColumnType(columnTypeMap);
   };
 

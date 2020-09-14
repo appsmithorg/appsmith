@@ -289,6 +289,9 @@ export function* executeActionSaga(
     if (api.confirmBeforeExecute) {
       const confirmed = yield call(confirmRunActionSaga);
       if (!confirmed) {
+        if (event.callback) {
+          event.callback({ success: false });
+        }
         return;
       }
     }

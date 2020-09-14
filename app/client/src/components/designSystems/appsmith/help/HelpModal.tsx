@@ -15,6 +15,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const { algolia, cloudHosting, intercomAppID } = getAppsmithConfigs();
 const HelpButton = styled.button<{
@@ -57,6 +58,7 @@ type Props = {
   isHelpModalOpen: boolean;
   dispatch: any;
   user?: User;
+  page: string;
 };
 
 class HelpModal extends React.Component<Props> {
@@ -111,6 +113,7 @@ class HelpModal extends React.Component<Props> {
             highlight={!isHelpModalOpen}
             layer={layers.help}
             onClick={() => {
+              AnalyticsUtil.logEvent("OPEN_HELP", { page: this.props.page });
               dispatch(setHelpModalVisibility(!isHelpModalOpen));
             }}
           >
