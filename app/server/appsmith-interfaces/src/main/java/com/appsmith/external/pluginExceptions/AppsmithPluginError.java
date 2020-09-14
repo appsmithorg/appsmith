@@ -7,11 +7,13 @@ import java.text.MessageFormat;
 @Getter
 public enum AppsmithPluginError {
 
-    PLUGIN_ERROR(500, 5000, "PluginExecution failed with error {0}");
+    PLUGIN_ERROR(500, 5000, "PluginExecution failed with error {0}"),
+    PLUGIN_STRUCTURE_ERROR(500, 5001, "Plugin failed to get structure with error {0}"),
+    ;
 
-    private Integer httpErrorCode;
-    private Integer appErrorCode;
-    private String message;
+    private final Integer httpErrorCode;
+    private final Integer appErrorCode;
+    private final String message;
 
     AppsmithPluginError(Integer httpErrorCode, Integer appErrorCode, String message, Object... args) {
         this.httpErrorCode = httpErrorCode;
