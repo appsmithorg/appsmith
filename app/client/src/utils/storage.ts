@@ -29,7 +29,7 @@ export const hasAuthExpired = async () => {
   return false;
 };
 
-export const saveCopiedWidget = async (widgetJSON: string) => {
+export const saveCopiedWidgets = async (widgetJSON: string) => {
   try {
     await store.setItem(STORAGE_KEYS.COPIED_WIDGET, widgetJSON);
     return true;
@@ -39,7 +39,7 @@ export const saveCopiedWidget = async (widgetJSON: string) => {
   }
 };
 
-export const getCopiedWidget = async () => {
+export const getCopiedWidgets = async () => {
   try {
     const widget: string = await store.getItem(STORAGE_KEYS.COPIED_WIDGET);
     if (widget && widget.length > 0) {
