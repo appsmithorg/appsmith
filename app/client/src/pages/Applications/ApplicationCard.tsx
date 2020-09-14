@@ -33,7 +33,6 @@ import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
 import AppIcon, { AppIconName } from "components/ads/AppIcon";
 import EditableText, {
   EditInteractionKind,
-  SavingStateHandler,
   SavingState,
 } from "components/ads/EditableText";
 import ColorSelector from "components/ads/ColorSelector";
@@ -232,14 +231,6 @@ const StyledAppIcon = styled(AppIcon)`
   }
 `;
 
-const calls = (value: string, callback: any) => {
-  setTimeout(() => {
-    return callback(false, SavingState.SUCCESS);
-  }, 2000);
-
-  return callback(true);
-};
-
 export const ApplicationCard = (props: ApplicationCardProps) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const themeDetails = useSelector(getThemeDetails);
@@ -335,7 +326,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             isInvalid={(value: string) => {
               return !value;
             }}
-            isSaving={isSavingName}
+            savingState={
+              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+            }
             isEditingDefault={false}
             fill={true}
             onBlur={(value: string) => {
