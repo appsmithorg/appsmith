@@ -448,15 +448,15 @@ public class PostgresPlugin extends BasePlugin {
                                 } else if (type.startsWith("int")) {
                                     return "1";
                                 } else if ("date".equals(type)) {
-                                    return "'2019-12-31'";
+                                    return "'2019-07-01'";
                                 } else if ("time".equals(type)) {
                                     return "'18:32:45'";
                                 } else if ("timetz".equals(type)) {
                                     return "'04:05:06 PST'";
                                 } else if ("timestamp".equals(type)) {
-                                    return "TIMESTAMP '2018-11-30 20:45:15'";
+                                    return "TIMESTAMP '2019-07-01 10:00:00'";
                                 } else if ("timestamptz".equals(type)) {
-                                    return "TIMESTAMP WITH TIME ZONE '2018-11-30 20:45:15 CET'";
+                                    return "TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'";
                                 } else {
                                     return "''";
                                 }

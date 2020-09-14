@@ -27,6 +27,8 @@ import java.time.Duration;
 @Slf4j
 public class DatasourceStructureSolution {
 
+    public static final int GET_STRUCTURE_TIMEOUT_SECONDS = 10;
+
     private final DatasourceService datasourceService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PluginService pluginService;
@@ -50,7 +52,7 @@ public class DatasourceStructureSolution {
                                     .getStructure(resourceContext.getConnection(), datasource.getDatasourceConfiguration())
                     );
                 })
-                .timeout(Duration.ofSeconds(10))
+                .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
                 .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(
