@@ -44,7 +44,7 @@ public class DatasourceStructureSolution {
                 )
                 .flatMap(tuple -> {
                     final Datasource datasource = tuple.getT1();
-                    final PluginExecutor pluginExecutor = tuple.getT2();
+                    final PluginExecutor<Object> pluginExecutor = tuple.getT2();
 
                     return datasourceContextService.retryOnce(
                             datasource,
@@ -64,7 +64,7 @@ public class DatasourceStructureSolution {
                     log.error("In the datasource structure error mode.", e);
                     return new AppsmithPluginException(AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, e.getMessage());
                 })
-                .defaultIfEmpty(new com.appsmith.external.models.DatasourceStructure());
+                .defaultIfEmpty(new DatasourceStructure());
     }
 
     private Datasource decryptPasswordInDatasource(Datasource datasource) {
