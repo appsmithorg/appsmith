@@ -11,21 +11,23 @@ export const metaReducer = createReducer(initialState, {
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
   ) => {
+    const next = { ...state };
     let widgetMetaProps: Record<string, any> = state[action.payload.widgetId];
     if (widgetMetaProps === undefined) {
       widgetMetaProps = {};
-      state[action.payload.widgetId] = widgetMetaProps;
+      next[action.payload.widgetId] = widgetMetaProps;
     }
     (widgetMetaProps as Record<string, any>)[action.payload.propertyName] =
       action.payload.propertyValue;
-    return;
+    return next;
   },
   [ReduxActionTypes.WIDGET_DELETE]: (
     state: MetaState,
     action: ReduxAction<{ widgetId: string }>,
   ) => {
-    delete state[action.payload.widgetId];
-    return;
+    const next = { ...state };
+    delete next[action.payload.widgetId];
+    return next;
   },
   [ReduxActionTypes.RESET_WIDGET_META]: (
     state: MetaState,
@@ -33,14 +35,17 @@ export const metaReducer = createReducer(initialState, {
   ) => {
     const widgetId = action.payload.widgetId;
     if (widgetId in state) {
+      const resetData: Record<string, any> = {
+        ...state[widgetId],
+      };
       Object.keys(state[widgetId]).forEach((key: string) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
-        state[widgetId][key] = undefined;
+        resetData[key] = undefined;
       });
-      return;
+      return { ...state, [widgetId]: { ...resetData } };
     }
-    return;
+    return state;
   },
   [ReduxActionTypes.FETCH_PAGE_SUCCESS]: (
     state: MetaState,
