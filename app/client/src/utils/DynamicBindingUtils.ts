@@ -7,7 +7,6 @@ import ValidationFactory from "./ValidationFactory";
 import JSExecutionManagerSingleton, {
   JSExecutorResult,
 } from "jsExecution/JSExecutionManagerSingleton";
-import unescapeJS from "unescape-js";
 import toposort from "toposort";
 import {
   DataTree,
@@ -21,6 +20,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { Action } from "entities/Action";
+import unescapeJS from "unescape-js";
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -107,8 +107,8 @@ export const getDynamicBindings = (
   // Get the "binding" path values
   const paths = stringSegments.map(segment => {
     const length = segment.length;
-    const matches = isDynamicValue(segment);
-    if (matches) {
+    const isDynamicPath = isDynamicValue(segment);
+    if (isDynamicPath) {
       return segment.substring(2, length - 2);
     }
     return "";
@@ -123,30 +123,43 @@ export const evaluateDynamicBoundValue = (
   path: string,
   callbackData?: any,
 ): JSExecutorResult => {
-  return JSExecutionManagerSingleton.evaluateSync(path, data, callbackData);
+  const unescapeBinding = unescapeJS(path);
+  return JSExecutionManagerSingleton.evaluateSync(
+    unescapeBinding,
+    data,
+    callbackData,
+  );
 };
 
 // For creating a final value where bindings could be in a template format
 export const createDynamicValueString = (
   binding: string,
-  subBindings: string[],
-  subValues: string[],
+  stringSegments: string[],
+  evaluatedValues: string[],
 ): string => {
   // Replace the string with the data tree values
-  let finalValue = binding;
-  subBindings.forEach((b, i) => {
-    let value = subValues[i];
-    if (Array.isArray(value) || _.isObject(value)) {
-      value = JSON.stringify(value);
-    }
-    try {
-      if (JSON.parse(value)) {
-        value = value.replace(/\\([\s\S])|(")/g, "\\$1$2");
+  let finalValue = "";
+  stringSegments.forEach((stringSegment, index) => {
+    let evaluatedValue = evaluatedValues[index];
+    if (evaluatedValue !== undefined) {
+      if (
+        Array.isArray(evaluatedValue) ||
+        _.isObject(evaluatedValue) ||
+        _.isString(evaluatedValue)
+      ) {
+        evaluatedValue = JSON.stringify(evaluatedValue);
       }
-    } catch (e) {
-      // do nothing
+      try {
+        if (JSON.parse(evaluatedValue)) {
+          evaluatedValue = evaluatedValue.replace(/\\([\s\S])|(")/g, "\\$1$2");
+        }
+      } catch (e) {
+        // do nothing
+      }
+      finalValue += evaluatedValue;
+    } else {
+      finalValue += stringSegment;
     }
-    finalValue = finalValue.replace(b, value);
   });
   return finalValue;
 };
@@ -162,25 +175,25 @@ export const getDynamicValue = (
   if (stringSegments.length) {
     // Get the Data Tree value of those "binding "paths
     const values = jsSnippets.map((jsSnippet, index) => {
-      if (jsSnippet) {
+      if (jsSnippet && jsSnippet.length > 0) {
         const result = evaluateDynamicBoundValue(data, jsSnippet, callBackData);
         if (includeTriggers) {
           return result;
         } else {
-          return { result: result.result };
+          return result.result;
         }
       } else {
-        return { result: stringSegments[index], triggers: [] };
+        return undefined;
       }
     });
 
     // if it is just one binding, no need to create template string
-    if (stringSegments.length === 1) return values[0];
+    if (stringSegments.length === 1) return { result: values[0] };
     // else return a string template with bindings
     const templateString = createDynamicValueString(
       dynamicBinding,
       stringSegments,
-      values.map(v => v.result),
+      values,
     );
     return {
       result: templateString,
@@ -332,14 +345,7 @@ export const createDependencyTree = (
         if (entity.dynamicBindings) {
           Object.keys(entity.dynamicBindings).forEach(propertyName => {
             // using unescape to remove new lines from bindings which interfere with our regex extraction
-            let unevalPropValue = _.get(entity, propertyName);
-            if (
-              _.isString(unevalPropValue) &&
-              isDynamicValue(unevalPropValue)
-            ) {
-              unevalPropValue = unescapeJS(unevalPropValue);
-            }
-            _.set(entity, propertyName, unevalPropValue);
+            const unevalPropValue = _.get(entity, propertyName);
             const { jsSnippets } = getDynamicBindings(unevalPropValue);
             const existingDeps =
               dependencyMap[`${entityKey}.${propertyName}`] || [];
@@ -358,14 +364,7 @@ export const createDependencyTree = (
         if (entity.dynamicBindingPathList.length) {
           entity.dynamicBindingPathList.forEach(prop => {
             // using unescape to remove new lines from bindings which interfere with our regex extraction
-            let unevalPropValue = _.get(entity, prop.key);
-            if (
-              _.isString(unevalPropValue) &&
-              isDynamicValue(unevalPropValue)
-            ) {
-              unevalPropValue = unescapeJS(unevalPropValue);
-            }
-            _.set(entity, prop.key, unevalPropValue);
+            const unevalPropValue = _.get(entity, prop.key);
             const { jsSnippets } = getDynamicBindings(unevalPropValue);
             const existingDeps =
               dependencyMap[`${entityKey}.${prop.key}`] || [];

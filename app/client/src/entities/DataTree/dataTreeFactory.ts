@@ -10,6 +10,8 @@ import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ActionConfig, PluginType, Property } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import _ from "lodash";
 
 export type ActionDescription<T> = {
   type: string;
@@ -82,27 +84,34 @@ export class DataTreeFactory {
   ): DataTree {
     const dataTree: DataTree = {};
     const actionPaths = [];
-    actions.forEach(a => {
-      const config = a.config;
-      let dynamicBindingPathList: Property[] = [];
+    actions.forEach(action => {
+      const config = action.config;
+      let dynamicBindingProps: Property[] = [];
       // update paths
       if (
         config.dynamicBindingPathList &&
         config.dynamicBindingPathList.length
       ) {
-        dynamicBindingPathList = config.dynamicBindingPathList.map(d => ({
-          ...d,
-          key: `config.${d.key}`,
-        }));
+        dynamicBindingProps = config.dynamicBindingPathList.map(property => {
+          let unevalPropValue = _.get(action, property.key);
+          if (_.isString(unevalPropValue) && isDynamicValue(unevalPropValue)) {
+            unevalPropValue = unevalPropValue.replace(/(\\n)/gm, "");
+            _.set(action, property.key, unevalPropValue);
+          }
+          return {
+            ...property,
+            key: `config.${property.key}`,
+          };
+        });
       }
       dataTree[config.name] = {
-        ...a,
+        ...action,
         actionId: config.id,
         name: config.name,
         pluginType: config.pluginType,
         config: config.actionConfiguration,
-        dynamicBindingPathList,
-        data: a.data ? a.data.body : {},
+        dynamicBindingPathList: dynamicBindingProps,
+        data: action.data ? action.data.body : {},
         run: withFunctions
           ? function(
               this: DataTreeAction,
@@ -129,7 +138,7 @@ export class DataTreeFactory {
       dataTree.actionPaths && dataTree.actionPaths.push();
     });
     Object.keys(widgets).forEach(w => {
-      const widget = widgets[w];
+      const widget = { ...widgets[w] };
       const widgetMetaProps = widgetsMeta[w];
       const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
         widget.type,
@@ -145,6 +154,13 @@ export class DataTreeFactory {
           `${widget.widgetName}.`,
         );
         dynamicBindings[propertyName] = true;
+      });
+      Object.keys(dynamicBindings).forEach(propertyName => {
+        let unevalPropValue = _.get(widget, propertyName);
+        if (_.isString(unevalPropValue) && isDynamicValue(unevalPropValue)) {
+          unevalPropValue = unevalPropValue.replace(/(\\n)/gm, "");
+          _.set(widget, propertyName, unevalPropValue);
+        }
       });
       dataTree[widget.widgetName] = {
         ...widget,
