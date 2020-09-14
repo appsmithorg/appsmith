@@ -14,12 +14,8 @@ export enum EditInteractionKind {
   DOUBLE = "DOUBLE",
 }
 
-export type SavingStateHandler = (
-  isSaving: boolean,
-  state?: SavingState,
-) => void;
-
 export enum SavingState {
+  STARTED = "STARTED",
   NOT_STARTED = "NOT_STARTED",
   SUCCESS = "SUCCESS",
   ERROR = "ERROR",
@@ -38,7 +34,7 @@ type EditableTextProps = {
   editInteractionKind: EditInteractionKind;
   hideEditIcon?: boolean;
   fill?: boolean;
-  isSaving: boolean;
+  savingState: SavingState;
   onBlur: (value: string) => void;
 };
 
@@ -55,13 +51,10 @@ const EditableTextWrapper = styled.div<{
 const editModeBgcolor = (
   isInvalid: boolean,
   isEditing: boolean,
-  savingState: { isSaving: boolean; name?: SavingState },
+  savingState: SavingState,
   theme: any,
 ): string => {
-  if (
-    (isInvalid && isEditing) ||
-    (!savingState.isSaving && savingState.name === SavingState.ERROR)
-  ) {
+  if ((isInvalid && isEditing) || savingState === SavingState.ERROR) {
     return hexToRgba(theme.colors.danger.main, 0.08);
   } else if (!isInvalid && isEditing) {
     return theme.colors.blackShades[2];
@@ -94,7 +87,7 @@ const TextContainer = styled.div<{
     font-weight: ${props => props.theme.typography.p1.fontWeight}px;
   }
 
-  & .bp3-editable-text-content {
+  &&& .bp3-editable-text-content {
     cursor: pointer;
     color: ${props => props.theme.colors.blackShades[9]};
     overflow: hidden;
@@ -102,18 +95,18 @@ const TextContainer = styled.div<{
     ${props => (props.isEditing ? "display: none" : "display: block")};
   }
 
-  & .bp3-editable-text-input {
+  &&& .bp3-editable-text-input {
     border: none;
     outline: none;
     height: ${props => props.theme.spaces[13] + 3}px;
-    padding: ${props => props.theme.spaces[0]}px;
     color: ${props => props.theme.colors.blackShades[9]};
     min-width: 100%;
     border-radius: ${props => props.theme.spaces[0]}px;
   }
 
-  & .bp3-editable-text {
+  &&& .bp3-editable-text {
     overflow: hidden;
+    height: ${props => props.theme.spaces[13] + 3}px;
     padding: ${props => props.theme.spaces[4]}px
       ${props => props.theme.spaces[5]}px;
     width: calc(100% - 40px);
@@ -140,14 +133,13 @@ export const EditableText = (props: EditableTextProps) => {
   const [lastValidValue, setLastValidValue] = useState(props.defaultValue);
   const [isInvalid, setIsInvalid] = useState<string | boolean>(false);
   const [changeStarted, setChangeStarted] = useState<boolean>(false);
-  const [savingState, setSavingState] = useState<{
-    isSaving: boolean;
-    name?: SavingState;
-  }>({ isSaving: props.isSaving, name: SavingState.NOT_STARTED });
+  const [savingState, setSavingState] = useState<SavingState>(
+    SavingState.NOT_STARTED,
+  );
 
   useEffect(() => {
-    setSavingState({ isSaving: props.isSaving, name: SavingState.NOT_STARTED });
-  }, [props.isSaving]);
+    setSavingState(SavingState.NOT_STARTED);
+  }, [props.savingState]);
 
   useEffect(() => {
     setValue(props.defaultValue);
@@ -178,12 +170,10 @@ export const EditableText = (props: EditableTextProps) => {
   );
 
   const onConfirm = (_value: string) => {
-    if (
-      (!savingState.isSaving && savingState.name === SavingState.ERROR) ||
-      isInvalid
-    ) {
+    if (savingState === SavingState.ERROR || isInvalid) {
       setValue(lastValidValue);
-      setSavingState({ isSaving: false, name: SavingState.NOT_STARTED });
+      props.onBlur(lastValidValue);
+      setSavingState(SavingState.NOT_STARTED);
     } else if (changeStarted) {
       props.onTextChanged(_value);
       props.onBlur(_value);
@@ -194,59 +184,32 @@ export const EditableText = (props: EditableTextProps) => {
 
   const onInputchange = useCallback(
     (_value: string) => {
-      let finalVal: string = _value;
-      if (props.valueTransform) {
-        finalVal = props.valueTransform(_value);
-      }
-      setValue(finalVal);
-
+      const finalVal: string = _value;
       const errorMessage = props.isInvalid && props.isInvalid(finalVal);
       const error = errorMessage ? errorMessage : false;
       if (!error) {
         setLastValidValue(finalVal);
       }
+      setValue(finalVal);
       setIsInvalid(error);
       setChangeStarted(true);
     },
     [props],
   );
 
-  const SavingStateHandler = (isSaving: boolean, state?: SavingState) => {
-    setIsEditing(false);
-    if (isSaving) {
-      setSavingState({ isSaving: true });
-    } else {
-      switch (state) {
-        case SavingState.SUCCESS:
-          setSavingState({ isSaving: false, name: SavingState.SUCCESS });
-          break;
-        default:
-          setValue(props.defaultValue);
-          setSavingState({ isSaving: false, name: SavingState.NOT_STARTED });
-          break;
-      }
-    }
-  };
-
   const iconName =
-    !isEditing &&
-    savingState.name === SavingState.NOT_STARTED &&
-    !props.hideEditIcon
+    !isEditing && savingState === SavingState.NOT_STARTED && !props.hideEditIcon
       ? "edit"
-      : !isEditing && savingState.name === SavingState.SUCCESS
+      : !isEditing && savingState === SavingState.SUCCESS
       ? "success"
-      : (isEditing && savingState.name === SavingState.ERROR) ||
+      : (isEditing && savingState === SavingState.ERROR) ||
         (isEditing && !!isInvalid)
       ? "error"
       : undefined;
 
   const nonEditMode = () => {
-    if (
-      !isEditing &&
-      !savingState.isSaving &&
-      savingState.name === SavingState.SUCCESS
-    ) {
-      setSavingState({ isSaving: false, name: SavingState.NOT_STARTED });
+    if (!isEditing && savingState === SavingState.SUCCESS) {
+      setSavingState(SavingState.NOT_STARTED);
     }
   };
 
@@ -283,7 +246,7 @@ export const EditableText = (props: EditableTextProps) => {
         />
 
         <IconWrapper className="icon-wrapper">
-          {savingState.isSaving ? (
+          {savingState === SavingState.STARTED ? (
             <Spinner size={IconSize.XL} />
           ) : (
             <Icon name={iconName} size={IconSize.XL} />

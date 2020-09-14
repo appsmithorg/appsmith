@@ -3,7 +3,6 @@ import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import EditableText, {
   EditInteractionKind,
-  SavingStateHandler,
   SavingState,
 } from "components/ads/EditableText";
 import { action } from "@storybook/addon-actions";
@@ -15,20 +14,6 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-const calls = (value: string, callback: any) => {
-  console.log("value", value);
-
-  // setTimeout(() => {
-  //   return callback(SavingState.ERROR);
-  // }, 2000);
-
-  setTimeout(() => {
-    return callback(false, SavingState.SUCCESS);
-  }, 2000);
-
-  return callback(true);
-};
-
 const errorFunction = (name: string) => {
   if (name === "") {
     return "Name cannot be empty";
@@ -38,7 +23,9 @@ const errorFunction = (name: string) => {
 };
 
 export const EditableTextStory = () => {
-  const [isSaving, setIsSaving] = useState(false);
+  const [savingState, SetSavingState] = useState<SavingState>(
+    SavingState.NOT_STARTED,
+  );
 
   return (
     <StoryWrapper>
@@ -56,11 +43,11 @@ export const EditableTextStory = () => {
         isInvalid={name => errorFunction(name)}
         isEditingDefault={boolean("isEditingDefault", false)}
         fill={boolean("fill", false)}
-        isSaving
+        savingState={savingState}
         onBlur={() => {
-          setIsSaving(true);
+          SetSavingState(SavingState.STARTED);
           setTimeout(() => {
-            setIsSaving(false);
+            SetSavingState(SavingState.SUCCESS);
           }, 2000);
         }}
       ></EditableText>
