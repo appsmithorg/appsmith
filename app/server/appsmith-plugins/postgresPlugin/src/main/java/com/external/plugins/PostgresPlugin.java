@@ -464,7 +464,7 @@ public class PostgresPlugin extends BasePlugin {
                             .collect(Collectors.joining(", "));
 
                     table.getTemplates().addAll(List.of(
-                            new DatasourceStructure.Template("SELECT", "SELECT * FROM " + table.getName() + ";"),
+                            new DatasourceStructure.Template("SELECT", "SELECT * FROM " + table.getName() + " LIMIT 10;"),
                             new DatasourceStructure.Template("INSERT", "INSERT INTO " + table.getName()
                                     + " (" + columnNames + ")\n"
                                     + "  VALUES (" + columnValues + ");"),
