@@ -324,7 +324,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             placeholder={"Edit text input"}
             hideEditIcon={false}
             isInvalid={(value: string) => {
-              return !value;
+              if (!value) {
+                return "Name cannot be empty";
+              } else {
+                return false;
+              }
             }}
             savingState={
               isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
