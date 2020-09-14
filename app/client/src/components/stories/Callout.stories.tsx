@@ -14,6 +14,7 @@ export const CalloutStory = () => (
     <Callout
       text={text("text", "Lorem ipsum dolar sit adicipling dolare")}
       variant={select("variant", ["note", "warning"], "note")}
+      background={select("background", ["light", "dark"], "dark")}
       fill={boolean("fill", false)}
     />
   </StoryWrapper>
