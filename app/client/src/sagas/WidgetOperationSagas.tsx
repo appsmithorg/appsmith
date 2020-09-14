@@ -39,10 +39,27 @@ import {
   executeWidgetBlueprintOperations,
 } from "sagas/WidgetBlueprintSagas";
 import { resetWidgetMetaProperty } from "actions/metaActions";
-import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
+import {
+  CONTAINER_GRID_PADDING,
+  GridDefaults,
+  WIDGET_PADDING,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { getWidgetDimensions } from "../widgets/helpers";
+
+const getSnapSpaces = (parent: ContainerWidgetProps) => {
+  const { componentWidth } = getWidgetDimensions(parent);
+  return {
+    snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    snapColumnSpace: componentWidth
+      ? (componentWidth - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
+        GridDefaults.DEFAULT_GRID_COLUMNS
+      : 0,
+  };
+};
 
 function getChildWidgetProps(
   parent: ContainerWidgetProps,
@@ -50,22 +67,26 @@ function getChildWidgetProps(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   const { leftColumn, topRow, newWidgetId, props, type } = params;
-  let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
-  let minHeight = undefined;
+  const { rows, columns } = params;
+  let { widgetName } = params;
+  const minHeight = undefined;
   const defaultConfig: any = WidgetConfigResponse.config[type];
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
     widgetName = getNextEntityName(defaultConfig.widgetName, widgetNames);
   }
-  if (type === WidgetTypes.CANVAS_WIDGET) {
-    columns =
-      (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
-    parentColumnSpace = 1;
-    rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
-    parentRowSpace = 1;
-    minHeight = rows;
-    if (props) props.children = [];
-  }
+  const parentSnapSpaces = getSnapSpaces(parent);
+  const parentRowSpace = parentSnapSpaces.snapRowSpace;
+  const parentColumnSpace = parentSnapSpaces.snapColumnSpace;
+  // if (type === WidgetTypes.CANVAS_WIDGET) {
+  //   columns =
+  //     (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
+  //   parentColumnSpace = 1;
+  //   rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
+  //   parentRowSpace = 1;
+  //   minHeight = rows;
+  //   if (props) props.children = [];
+  // }
 
   const widgetProps = { ...defaultConfig, ...props, columns, rows, minHeight };
   const widget = generateWidgetProps(
@@ -150,6 +171,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       parent.children.push(childWidgetPayload.widgetId);
     }
     widgets[parent.widgetId] = parent;
+    debugger;
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     console.log(error);

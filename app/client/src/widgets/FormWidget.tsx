@@ -9,46 +9,46 @@ import * as Sentry from "@sentry/react";
 import WidgetFactory from "utils/WidgetFactory";
 
 class FormWidget extends ContainerWidget {
-  checkInvalidChildren = (children: WidgetProps[]): boolean => {
-    return _.some(children, child => {
-      if ("children" in child) return this.checkInvalidChildren(child.children);
-      if ("isValid" in child) return !child.isValid;
-      return false;
-    });
-  };
+  // checkInvalidChildren = (children: WidgetProps[]): boolean => {
+  //   return _.some(children, child => {
+  //     if ("children" in child) return this.checkInvalidChildren(child.children);
+  //     if ("isValid" in child) return !child.isValid;
+  //     return false;
+  //   });
+  // };
 
-  handleResetInputs = () => {
-    this.props.resetChildrenMetaProperty(this.props.widgetId);
-  };
+  // handleResetInputs = () => {
+  //   // this.props.resetChildrenMetaProperty(this.props.widgetId);
+  // };
 
-  componentDidMount() {
-    this.updateFormData();
-  }
+  // componentDidMount() {
+  //   this.updateFormData();
+  // }
+  //
+  // componentDidUpdate(prevProps: ContainerWidgetProps) {
+  //   this.updateFormData();
+  // }
 
-  componentDidUpdate(prevProps: ContainerWidgetProps) {
-    this.updateFormData();
-  }
+  // updateFormData() {
+  //   // if (this.props.children) {
+  //   //   // const formData = this.getFormData(this.props.children[0]);
+  //   //   if (JSON.stringify(formData) !== JSON.stringify(this.props.data)) {
+  //   //     // this.props.updateWidgetMetaProperty("data", formData);
+  //   //   }
+  //   // }
+  // }
 
-  updateFormData() {
-    // if (this.props.children) {
-    //   // const formData = this.getFormData(this.props.children[0]);
-    //   if (JSON.stringify(formData) !== JSON.stringify(this.props.data)) {
-    //     // this.props.updateWidgetMetaProperty("data", formData);
-    //   }
-    // }
-  }
-
-  getFormData(formWidget: any) {
-    const formData: any = {};
-    // TODO use the new ContainerWidgetProps
-    // if (formWidget.children)
-    //   formWidget.children.forEach((widgetData:) => {
-    //     if (widgetData.value) {
-    //       formData[widgetData.widgetName] = widgetData.value;
-    //     }
-    //   });
-    return formData;
-  }
+  // getFormData(formWidget: any) {
+  //   const formData: any = {};
+  //   // TODO use the new ContainerWidgetProps
+  //   // if (formWidget.children)
+  //   //   formWidget.children.forEach((widgetData:) => {
+  //   //     if (widgetData.value) {
+  //   //       formData[widgetData.widgetName] = widgetData.value;
+  //   //     }
+  //   //   });
+  //   return formData;
+  // }
 
   // renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
   //   // if (childWidgetData.children) {
