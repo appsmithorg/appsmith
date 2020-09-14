@@ -42,16 +42,10 @@ const EditableTextWrapper = styled.div<{
   fill?: boolean;
 }>`
   width: ${props => (!props.fill ? "234px" : "100%")};
-  position: relative;
   .${Classes.TEXT} {
     margin-left: ${props => props.theme.spaces[5]}px;
     color: ${props => props.theme.colors.danger.main};
   }
-  .${Classes.TEXT} {
-    position: absolute;
-    top: 41px;
-  }
-  margin-bottom: ${props => props.theme.spaces[7]}px;
 `;
 
 const editModeBgcolor = (
@@ -70,11 +64,16 @@ const editModeBgcolor = (
 };
 
 const TextContainer = styled.div<{
+  isInvalid: boolean;
   isEditing: boolean;
   bgColor: string;
 }>`
   display: flex;
   align-items: center;
+  ${props =>
+    props.isEditing && props.isInvalid
+      ? `margin-bottom: ${props.theme.spaces[2]}px`
+      : null};
   .bp3-editable-text.bp3-editable-text-editing::before,
   .bp3-editable-text.bp3-disabled::before {
     display: none;
@@ -186,10 +185,8 @@ export const EditableText = (props: EditableTextProps) => {
   const onInputchange = useCallback(
     (_value: string) => {
       const finalVal: string = _value;
-      console.log("finalValue", finalVal);
       const errorMessage = props.isInvalid && props.isInvalid(finalVal);
       const error = errorMessage ? errorMessage : false;
-      console.log("Error", error);
       if (!error) {
         setLastValidValue(finalVal);
       }
@@ -231,7 +228,11 @@ export const EditableText = (props: EditableTextProps) => {
           : noop
       }
     >
-      <TextContainer isEditing={isEditing} bgColor={bgColor}>
+      <TextContainer
+        isInvalid={!!isInvalid}
+        isEditing={isEditing}
+        bgColor={bgColor}
+      >
         <BlueprintEditableText
           disabled={!isEditing}
           isEditing={isEditing}
