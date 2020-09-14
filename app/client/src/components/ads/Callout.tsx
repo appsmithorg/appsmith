@@ -12,13 +12,19 @@ type CalloutProps = CommonComponentProps & {
 };
 
 const CalloutContainer = styled.div<{ variant: Variant; fill?: boolean }>`
-  padding: 0px ${props => props.theme.spaces[5]}px;
+  padding: ${props => props.theme.spaces[6]}px
+    ${props => props.theme.spaces[11] + 1}px ${props => props.theme.spaces[5]}px;
   background: ${props => props.theme.colors.callout[props.variant].bgColor};
   height: 42px;
+
+  ${props =>
+    props.fill
+      ? `
   display: flex;
   align-items: center;
-
-  ${props => (props.fill ? "justify-content: center" : null)};
+  justify-content: center;
+  `
+      : null};
 
   .${Classes.TEXT} {
     color: ${props => props.theme.colors.callout[props.variant].color};
