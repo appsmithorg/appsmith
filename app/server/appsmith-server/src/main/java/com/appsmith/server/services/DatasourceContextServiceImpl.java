@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 
@@ -119,6 +121,21 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                                     // and we just return the context object as is.
                                     datasourceContext
                             );
+                });
+    }
+
+    @Override
+    public <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext, Mono<T>> task) {
+        final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasource)
+                .flatMap(this::getDatasourceContext)
+                // Now that we have the context (connection details), call the task.
+                .flatMap(task);
+
+        return taskRunnerMono
+                .onErrorResume(StaleConnectionException.class, error -> {
+                    log.info("Looks like the connection is stale. Retrying with a fresh context.");
+                    return deleteDatasourceContext(datasource.getId())
+                            .then(taskRunnerMono);
                 });
     }
 

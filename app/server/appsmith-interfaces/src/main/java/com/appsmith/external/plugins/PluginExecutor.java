@@ -3,6 +3,7 @@ package com.appsmith.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
@@ -46,4 +47,9 @@ public interface PluginExecutor extends ExtensionPoint {
     Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration);
 
     Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration);
+
+    default Mono<DatasourceStructure> getStructure(Object connection, DatasourceConfiguration datasourceConfiguration) {
+        return Mono.empty();
+    }
+
 }

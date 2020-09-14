@@ -10,6 +10,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoClient;
@@ -85,7 +86,8 @@ public class MongoPlugin extends BasePlugin {
 
             MongoClient mongoClient = (MongoClient) connection;
             if (mongoClient == null) {
-                return Mono.error(new AppsmithPluginException("Mongo Client is null."));
+                log.info("Encountered null connection in MongoDB plugin. Reporting back.");
+                throw new StaleConnectionException();
             }
 
             ActionExecutionResult result = new ActionExecutionResult();
