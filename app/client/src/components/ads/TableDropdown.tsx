@@ -81,6 +81,7 @@ const TableDropdown = (props: DropdownProps) => {
 
   return (
     <Popover
+      data-cy={props.cypressSelector}
       usePortal={false}
       position={props.position || Position.BOTTOM_LEFT}
       isOpen={isDropdownOpen}
