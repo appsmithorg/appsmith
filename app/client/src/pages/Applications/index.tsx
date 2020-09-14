@@ -443,7 +443,7 @@ const ApplicationsSection = () => {
                   permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
                   trigger={
                     <PaddingWrapper>
-                      <ApplicationAddCardWrapper>
+                      <ApplicationAddCardWrapper className="createnew">
                         <Icon name={"plus"} size={IconSize.LARGE}></Icon>
                         <CreateNewLabel
                           type={TextType.H4}
