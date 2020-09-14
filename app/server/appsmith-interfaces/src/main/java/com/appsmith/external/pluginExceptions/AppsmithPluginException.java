@@ -7,12 +7,8 @@ import lombok.Setter;
 @Setter
 public class AppsmithPluginException extends Exception {
 
-    private AppsmithPluginError error;
-    private Object[] args;
-
-    public AppsmithPluginException(String msg) {
-        super(msg);
-    }
+    private final AppsmithPluginError error;
+    private final Object[] args;
 
     public AppsmithPluginException(AppsmithPluginError error, Object... args) {
         super(error.getMessage(args));
@@ -24,8 +20,9 @@ public class AppsmithPluginException extends Exception {
         return this.error.getHttpErrorCode();
     }
 
-    public String getMessage(Object... args) {
-        return this.error.getMessage(this.args);
+    @Override
+    public String getMessage() {
+        return this.error.getMessage(args);
     }
 
     public Integer getAppErrorCode() {
