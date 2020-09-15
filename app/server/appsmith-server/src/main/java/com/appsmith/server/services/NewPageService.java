@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import reactor.core.publisher.Flux;
@@ -18,15 +19,15 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId, AclPermission aclPermission, Boolean view);
 
-//    Mono<Page> findByName(String name, AclPermission permission);
-//
-//    Mono<Void> deleteAll();
-//
+    Mono<Page> findByNameAndViewMode(String name, AclPermission permission, Boolean view);
+
+    Mono<Void> deleteAll();
+
 //    Mono<ApplicationPagesDTO> findNamesByApplicationId(String applicationId);
-//
-//    Layout createDefaultLayout();
-//
+
+    Layout createDefaultLayout();
+
 //    Mono<ApplicationPagesDTO> findNamesByApplicationName(String applicationName);
-//
+
 //    Mono<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission permission);
 }
