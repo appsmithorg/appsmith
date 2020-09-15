@@ -36,6 +36,7 @@ const Menu = (props: MenuProps) => {
       position={props.position || Position.BOTTOM}
       onOpening={props.onOpening}
       onClosing={props.onClosing}
+      className={props.className}
       data-cy={props.cypressSelector}
     >
       {props.target}

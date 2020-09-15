@@ -428,6 +428,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                     text="Edit"
                     size={Size.medium}
                     icon={"edit"}
+                    className="t--application-edit-link"
                     fill
                     href={editApplicationURL}
                   />
@@ -436,6 +437,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                   text="LAUNCH"
                   size={Size.medium}
                   category={Category.tertiary}
+                  className="t--application-view-link"
                   icon={"rocket"}
                   href={viewApplicationURL}
                   fill

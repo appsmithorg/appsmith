@@ -53,6 +53,7 @@ type ButtonProps = CommonComponentProps & {
   text?: string;
   category?: Category;
   variant?: Variant;
+  className?: string;
   icon?: IconName;
   size?: Size;
   fill?: boolean;
@@ -338,6 +339,7 @@ function Button(props: ButtonProps) {
   return (
     <StyledButton
       href={props.href}
+      className={props.className}
       data-cy={props.cypressSelector}
       {...props}
       onClick={(e: React.MouseEvent<HTMLElement>) =>

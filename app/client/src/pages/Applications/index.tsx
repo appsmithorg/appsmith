@@ -347,7 +347,7 @@ const ApplicationsSection = () => {
     const { orgName, orgId, disabled } = props;
 
     const OrgName = (
-      <OrgNameWrapper disabled={disabled}>
+      <OrgNameWrapper disabled={disabled} className="t--org-name">
         <StyledAnchor id={orgName}></StyledAnchor>
         <Text type={TextType.H1}>
           {orgName}
@@ -358,7 +358,11 @@ const ApplicationsSection = () => {
     return disabled ? (
       OrgName
     ) : (
-      <Menu target={OrgName} position={Position.BOTTOM_RIGHT}>
+      <Menu
+        target={OrgName}
+        position={Position.BOTTOM_RIGHT}
+        className="t--org-name"
+      >
         <MenuItem text={orgName} disabled />
         <MenuItem
           icon="general"
@@ -388,7 +392,7 @@ const ApplicationsSection = () => {
   };
 
   return (
-    <ApplicationContainer>
+    <ApplicationContainer className="t--applications-container">
       {userOrgs &&
         userOrgs.map((organizationObject: any, index: number) => {
           const { organization, applications } = organizationObject;
@@ -443,10 +447,15 @@ const ApplicationsSection = () => {
                   permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
                   trigger={
                     <PaddingWrapper>
-                      <ApplicationAddCardWrapper className="createnew">
-                        <Icon name={"plus"} size={IconSize.LARGE}></Icon>
+                      <ApplicationAddCardWrapper>
+                        <Icon
+                          className="t--create-app-popup"
+                          name={"plus"}
+                          size={IconSize.LARGE}
+                        ></Icon>
                         <CreateNewLabel
                           type={TextType.H4}
+                          className="createnew"
                           // cypressSelector={"t--create-new-app"}
                         >
                           Create New

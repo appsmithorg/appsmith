@@ -29,6 +29,7 @@ export type TextProps = CommonComponentProps & {
   underline?: boolean;
   italic?: boolean;
   case?: Case;
+  className?: string;
   weight?: FontWeight;
   highlight?: boolean;
 };
@@ -53,7 +54,7 @@ const typeSelector = (props: TextProps & ThemeProp): string => {
 };
 
 const Text = styled.span.attrs((props: TextProps) => ({
-  className: Classes.TEXT,
+  className: props.className ? props.className + Classes.TEXT : Classes.TEXT,
   "data-cy": props.cypressSelector,
 }))<TextProps>`
   text-decoration: ${props => (props.underline ? "underline" : "unset")};

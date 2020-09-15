@@ -9,7 +9,7 @@ import Fuse from "fuse.js";
 import { UserApplication } from "constants/userConstants";
 
 const fuzzySearchOptions = {
-  keys: ["applications.name"],
+  keys: ["applications.name", "organization.name"],
   shouldSort: true,
   threshold: 0.5,
   location: 0,

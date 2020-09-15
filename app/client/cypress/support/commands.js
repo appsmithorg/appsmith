@@ -47,7 +47,9 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name").click({ force: true });
+  cy.get(".t--org-name .bp3-popover-target")
+    .first()
+    .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
   cy.wait("@getRoles").should(
@@ -89,7 +91,9 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name").click({ force: true });
+  cy.get(".t--org-name .bp3-popover-target")
+    .first()
+    .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
   cy.wait("@getRoles").should(
@@ -113,7 +117,9 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name").click({ force: true });
+  cy.get(".t--org-name .bp3-popover-target")
+    .first()
+    .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -979,7 +985,7 @@ Cypress.Commands.add("Deletepage", Pagename => {
 Cypress.Commands.add("generateUUID", () => {
   const uuid = require("uuid");
   const id = uuid.v4();
-  return id;
+  return id.split("-")[0];
 });
 
 Cypress.Commands.add("addDsl", dsl => {
