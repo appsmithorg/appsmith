@@ -41,7 +41,7 @@ import * as Sentry from "@sentry/react";
 import {
   copyWidget,
   pasteWidget,
-  deleteWidget,
+  deleteSelectedWidget,
   cutWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
@@ -269,7 +269,7 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(initEditor(applicationId, pageId)),
     copySelectedWidget: () => dispatch(copyWidget(true)),
     pasteCopiedWidget: () => dispatch(pasteWidget()),
-    deleteSelectedWidget: () => dispatch(deleteWidget()),
+    deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
   };
 };

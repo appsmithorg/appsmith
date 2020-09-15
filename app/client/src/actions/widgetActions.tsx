@@ -103,9 +103,16 @@ export const pasteWidget = () => {
   };
 };
 
-export const deleteWidget = () => {
+export const deleteSelectedWidget = (
+  isShortcut: boolean,
+  disallowUndo = false,
+) => {
   return {
-    type: ReduxActionTypes.DELETE_SELECTED_WIDGET,
+    type: ReduxActionTypes.WIDGET_DELETE,
+    payload: {
+      isShortcut,
+      disallowUndo,
+    },
   };
 };
 

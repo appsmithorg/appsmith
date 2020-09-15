@@ -18,7 +18,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { theme } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import { deleteWidget, copyWidget } from "actions/widgetActions";
+import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const Wrapper = styled.div`
@@ -91,7 +91,10 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     setName(props.title);
   }, [props.title]);
 
-  const handleDelete = useCallback(() => dispatch(deleteWidget()), [dispatch]);
+  const handleDelete = useCallback(
+    () => dispatch(deleteSelectedWidget(false)),
+    [dispatch],
+  );
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
   const exitEditMode = useCallback(() => {

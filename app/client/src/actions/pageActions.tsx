@@ -173,9 +173,10 @@ export type WidgetRemoveChild = {
 };
 
 export type WidgetDelete = {
-  widgetId: string;
-  parentId: string;
+  widgetId?: string;
+  parentId?: string;
   disallowUndo?: boolean;
+  isShortcut?: boolean;
 };
 
 export type WidgetResize = {
@@ -207,12 +208,7 @@ export const updateWidget = (
   widgetId: string,
   payload: any,
 ): ReduxAction<
-  | WidgetAddChild
-  | WidgetMove
-  | WidgetRemoveChild
-  | WidgetResize
-  | WidgetDelete
-  | WidgetAddChildren
+  WidgetAddChild | WidgetMove | WidgetResize | WidgetDelete | WidgetAddChildren
 > => {
   return {
     type: ReduxActionTypes["WIDGET_" + operation],

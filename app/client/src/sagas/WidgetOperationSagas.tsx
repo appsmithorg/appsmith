@@ -253,54 +253,73 @@ const getAllWidgetsInTree = (
 
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
-    const { widgetId, parentId, disallowUndo } = deleteAction.payload;
-    const widgets = yield select(getWidgets);
-    const widget = yield select(getWidget, widgetId);
-    const parent: FlattenedWidgetProps = yield select(getWidget, parentId);
-
-    // Remove entry from parent's children
-
-    if (parent.children) {
-      const indexOfChild = parent.children.indexOf(widgetId);
-      if (indexOfChild > -1) delete parent.children[indexOfChild];
-      parent.children = parent.children.filter(Boolean);
+    let { widgetId, parentId } = deleteAction.payload;
+    const { disallowUndo, isShortcut } = deleteAction.payload;
+    if (!widgetId) {
+      const selectedWidget = yield select(getSelectedWidget);
+      if (!selectedWidget) return;
+      widgetId = selectedWidget.widgetId;
+      parentId = selectedWidget.parentId;
+      if (isShortcut) {
+        AnalyticsUtil.logEvent("WIDGET_DELETE_VIA_SHORTCUT", {
+          widgetName: selectedWidget.widgetName,
+          widgetType: selectedWidget.type,
+        });
+      }
     }
 
-    widgets[parentId] = parent;
+    if (widgetId && parentId) {
+      const widgets = yield select(getWidgets);
+      const widget = yield select(getWidget, widgetId);
+      const parent: FlattenedWidgetProps = yield select(getWidget, parentId);
 
-    const otherWidgetsToDelete = getAllWidgetsInTree(widgetId, widgets);
-    const saveStatus = yield saveDeletedWidgets(otherWidgetsToDelete, widgetId);
-    let widgetName = widget.widgetName;
-    // SPECIAL HANDLING FOR TABS IN A TABS WIDGET
-    if (parent.type === WidgetTypes.TABS_WIDGET && widget.tabName) {
-      widgetName = widget.tabName;
-    }
-    if (saveStatus && !disallowUndo) {
-      AppToaster.show({
-        message: `${widgetName} deleted`,
-        autoClose: WIDGET_DELETE_UNDO_TIMEOUT - 2000,
-        type: "success",
-        hideProgressBar: false,
-        action: {
-          text: "UNDO",
-          dispatchableAction: {
-            type: ReduxActionTypes.UNDO_DELETE_WIDGET,
-            payload: {
-              widgetId,
+      // Remove entry from parent's children
+
+      if (parent.children) {
+        const indexOfChild = parent.children.indexOf(widgetId);
+        if (indexOfChild > -1) delete parent.children[indexOfChild];
+        parent.children = parent.children.filter(Boolean);
+      }
+
+      widgets[parentId] = parent;
+
+      const otherWidgetsToDelete = getAllWidgetsInTree(widgetId, widgets);
+      const saveStatus = yield saveDeletedWidgets(
+        otherWidgetsToDelete,
+        widgetId,
+      );
+      let widgetName = widget.widgetName;
+      // SPECIAL HANDLING FOR TABS IN A TABS WIDGET
+      if (parent.type === WidgetTypes.TABS_WIDGET && widget.tabName) {
+        widgetName = widget.tabName;
+      }
+      if (saveStatus && !disallowUndo) {
+        AppToaster.show({
+          message: `${widgetName} deleted`,
+          autoClose: WIDGET_DELETE_UNDO_TIMEOUT - 2000,
+          type: "success",
+          hideProgressBar: false,
+          action: {
+            text: "UNDO",
+            dispatchableAction: {
+              type: ReduxActionTypes.UNDO_DELETE_WIDGET,
+              payload: {
+                widgetId,
+              },
             },
           },
-        },
+        });
+        setTimeout(() => {
+          if (widgetId) flushDeletedWidgets(widgetId);
+        }, WIDGET_DELETE_UNDO_TIMEOUT);
+      }
+
+      otherWidgetsToDelete.forEach(widget => {
+        delete widgets[widget.widgetId];
       });
-      setTimeout(() => {
-        flushDeletedWidgets(widgetId);
-      }, WIDGET_DELETE_UNDO_TIMEOUT);
+
+      yield put(updateAndSaveLayout(widgets));
     }
-
-    otherWidgetsToDelete.forEach(widget => {
-      delete widgets[widget.widgetId];
-    });
-
-    yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -310,25 +329,6 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       },
     });
   }
-}
-
-function* deleteSelectedWidgetSaga(
-  action?: ReduxAction<{ disallowUndo?: boolean }>,
-) {
-  const selectedWidget = yield select(getSelectedWidget);
-  if (!selectedWidget) return;
-  AnalyticsUtil.logEvent("WIDGET_DELETE_VIA_SHORTCUT", {
-    widgetName: selectedWidget.widgetName,
-    widgetType: selectedWidget.type,
-  });
-  yield put({
-    type: ReduxActionTypes.WIDGET_DELETE,
-    payload: {
-      widgetId: selectedWidget.widgetId,
-      parentId: selectedWidget.parentId,
-      disallowUndo: !!action?.payload?.disallowUndo,
-    },
-  });
 }
 
 export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
@@ -609,6 +609,7 @@ function* updateCanvasSize(
 
 function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   const selectedWidget = yield select(getSelectedWidget);
+  console.log({ selectedWidget });
   if (!selectedWidget) return;
   const widgets = yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(selectedWidget.widgetId, widgets);
@@ -688,7 +689,10 @@ function* pasteWidgetSaga() {
     let parentWidget = widgets[MAIN_CONTAINER_WIDGET_ID];
 
     // If the selected widget is not the main container
-    if (selectedWidget.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+    if (
+      selectedWidget &&
+      selectedWidget.widgetId !== MAIN_CONTAINER_WIDGET_ID
+    ) {
       // Select the parent of the selected widget if parent is not
       // the main container
       if (
@@ -875,10 +879,6 @@ export default function* widgetOperationSagas() {
     takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
-    takeEvery(
-      ReduxActionTypes.DELETE_SELECTED_WIDGET,
-      deleteSelectedWidgetSaga,
-    ),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
   ]);
