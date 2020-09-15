@@ -38,32 +38,29 @@ public class DatasourceStructureSolution {
     private final CustomDatasourceRepository datasourceRepository;
 
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache) {
-        final Mono<Datasource> datasourceMono = datasourceService.getById(datasourceId).cache();
+        return datasourceService.getById(datasourceId)
+            .flatMap(datasource -> getStructure(datasource, ignoreCache));
+    }
 
+    public Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache) {
         // This mono, when computed, will yield the cached structure if applicable, or resolve to an empty mono.
-        final Mono<DatasourceStructure> cachedStructureMono = datasourceMono
-                .flatMap(datasource ->
                     // If the structure is `null` inside the datasource, this will resolve to empty as well.
-                    ignoreCache ? Mono.empty() : Mono.justOrEmpty(datasource.getStructure())
-                );
+        final Mono<DatasourceStructure> cachedStructureMono =
+                    ignoreCache ? Mono.empty() : Mono.justOrEmpty(datasource.getStructure());
+
+        decryptPasswordInDatasource(datasource);
 
         // This mono, when computed, will load the structure of the datasource by calling the plugin method.
-        final Mono<DatasourceStructure> loadStructureMono = datasourceMono
-                .map(this::decryptPasswordInDatasource)
-                .zipWhen(datasource -> pluginExecutorHelper
-                        .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
+        final Mono<DatasourceStructure> loadStructureMono = pluginExecutorHelper
+                .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
+                .flatMap(pluginExecutor -> datasourceContextService
+                        .retryOnce(
+                                datasource,
+                                resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
+                                        .getStructure(resourceContext.getConnection(), datasource.getDatasourceConfiguration())
+                        )
                 )
-                .flatMap(tuple -> {
-                    final Datasource datasource = tuple.getT1();
-                    final PluginExecutor<Object> pluginExecutor = tuple.getT2();
-
-                    return datasourceContextService.retryOnce(
-                            datasource,
-                            resourceContext -> pluginExecutor
-                                    .getStructure(resourceContext.getConnection(), datasource.getDatasourceConfiguration())
-                    );
-                })
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
                 .onErrorMap(
                         StaleConnectionException.class,
@@ -76,7 +73,10 @@ public class DatasourceStructureSolution {
                     log.error("In the datasource structure error mode.", e);
                     return new AppsmithPluginException(AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, e.getMessage());
                 })
-                .flatMap(structure -> datasourceRepository.saveStructure(datasourceId, structure).thenReturn(structure));
+                .flatMap(structure -> datasource.getId() == null
+                        ? Mono.empty()
+                        : datasourceRepository.saveStructure(datasource.getId(), structure).thenReturn(structure)
+                );
 
         return cachedStructureMono
                 .switchIfEmpty(loadStructureMono)

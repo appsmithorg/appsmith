@@ -1,17 +1,16 @@
 package com.appsmith.external.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 public class DatasourceStructure {
 
-    final List<Table> tables = new ArrayList<>();
+    List<Table> tables;
 
     public enum TableType {
         TABLE,
@@ -21,21 +20,21 @@ public class DatasourceStructure {
     }
 
     @Data
-    @RequiredArgsConstructor
+    @AllArgsConstructor
     public static class Table {
-        final TableType type;
-        final String name;
-        final List<Column> columns = new ArrayList<>();
-        final List<Key> keys = new ArrayList<>();
-        final List<Template> templates = new ArrayList<>();
+        TableType type;
+        String name;
+        List<Column> columns;
+        List<Key> keys;
+        List<Template> templates;
     }
 
     @Data
-    @RequiredArgsConstructor
+    @AllArgsConstructor
     public static class Column {
-        final String name;
-        final String type;
-        final String defaultValue;
+        String name;
+        String type;
+        String defaultValue;
     }
 
     public interface Key {
@@ -43,31 +42,31 @@ public class DatasourceStructure {
     }
 
     @Data
-    @RequiredArgsConstructor
+    @AllArgsConstructor
     public static class PrimaryKey implements Key {
-        final String name;
-        final List<String> columnNames = new ArrayList<>();
+        String name;
+        List<String> columnNames;
         public String getType() {
             return "primary";
         }
     }
 
     @Data
-    @RequiredArgsConstructor
+    @AllArgsConstructor
     public static class ForeignKey implements Key {
-        final String name;
-        final List<String> fromColumns = new ArrayList<>();
-        final List<String> toColumns = new ArrayList<>();
+        String name;
+        List<String> fromColumns;
+        List<String> toColumns;
         public String getType() {
             return "foreign";
         }
     }
 
     @Data
-    @RequiredArgsConstructor
+    @AllArgsConstructor
     public static class Template {
-        final String title;
-        final String body;
+        String title;
+        String body;
     }
 
 }
