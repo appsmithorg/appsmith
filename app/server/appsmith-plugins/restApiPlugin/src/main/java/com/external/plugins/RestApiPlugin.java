@@ -63,10 +63,10 @@ public class RestApiPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RestApiPluginExecutor implements PluginExecutor {
+    public static class RestApiPluginExecutor implements PluginExecutor<Void> {
 
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection,
+        public Mono<ActionExecutionResult> execute(Void ignored,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
@@ -307,12 +307,12 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.empty();
         }
 
         @Override
-        public void datasourceDestroy(Object connection) {
+        public void datasourceDestroy(Void connection) {
             // REST API plugin doesn't have a datasource.
         }
 

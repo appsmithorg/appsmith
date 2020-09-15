@@ -126,6 +126,7 @@ export default function Toggle(props: ToggleProps) {
 
   return (
     <StyledToggle
+      data-cy={props.cypressSelector}
       isLoading={props.isLoading}
       disabled={props.disabled}
       value={value}

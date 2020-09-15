@@ -58,6 +58,7 @@ function MenuItem(props: MenuItemProps) {
       href={props.href}
       onClick={props.onSelect}
       disabled={props.disabled}
+      data-cy={props.cypressSelector}
     >
       <IconContainer>
         {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}

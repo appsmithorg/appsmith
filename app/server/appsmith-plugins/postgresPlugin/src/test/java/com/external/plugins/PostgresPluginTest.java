@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -93,6 +94,13 @@ public class PostgresPluginTest {
                         "    created_on_tz TIMESTAMP WITH TIME ZONE NOT NULL,\n" +
                         "    interval1 INTERVAL HOUR NOT NULL\n" +
                         ")");
+
+                statement.execute("CREATE TABLE possessions (\n" +
+                        "    id serial PRIMARY KEY,\n" +
+                        "    title VARCHAR (50) NOT NULL,\n" +
+                        "    user_id int NOT NULL,\n" +
+                        "    constraint user_fk foreign key (user_id) references users(id)" +
+                        ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -142,7 +150,7 @@ public class PostgresPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
                 .assertNext(connection -> {
@@ -155,7 +163,7 @@ public class PostgresPluginTest {
     @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
@@ -182,7 +190,7 @@ public class PostgresPluginTest {
     @Test
     public void testExecute() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
@@ -224,6 +232,91 @@ public class PostgresPluginTest {
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    assertEquals(2, structure.getTables().size());
+
+                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(0);
+                    assertEquals("public.possessions", possessionsTable.getName());
+                    assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[]{
+                                    new DatasourceStructure.Column("id", "int4", "nextval('possessions_id_seq'::regclass)"),
+                                    new DatasourceStructure.Column("title", "varchar", null),
+                                    new DatasourceStructure.Column("user_id", "int4", null),
+                            },
+                            possessionsTable.getColumns().toArray()
+                    );
+
+                    final DatasourceStructure.PrimaryKey possessionsPrimaryKey = new DatasourceStructure.PrimaryKey("possessions_pkey");
+                    possessionsPrimaryKey.getColumnNames().add("id");
+                    final DatasourceStructure.ForeignKey possessionsUserForeignKey = new DatasourceStructure.ForeignKey("user_fk");
+                    possessionsUserForeignKey.getFromColumns().add("user_id");
+                    possessionsUserForeignKey.getToColumns().add("users.id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[]{possessionsPrimaryKey, possessionsUserForeignKey},
+                            possessionsTable.getKeys().toArray()
+                    );
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[]{
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.possessions LIMIT 10;"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.possessions (title, user_id)\n" +
+                                            "  VALUES ('', 1);"),
+                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.possessions\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                            },
+                            possessionsTable.getTemplates().toArray()
+                    );
+
+                    final DatasourceStructure.Table usersTable = structure.getTables().get(1);
+                    assertEquals("public.users", usersTable.getName());
+                    assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[]{
+                                    new DatasourceStructure.Column("id", "int4", "nextval('users_id_seq'::regclass)"),
+                                    new DatasourceStructure.Column("username", "varchar", null),
+                                    new DatasourceStructure.Column("password", "varchar", null),
+                                    new DatasourceStructure.Column("email", "varchar", null),
+                                    new DatasourceStructure.Column("spouse_dob", "date", null),
+                                    new DatasourceStructure.Column("dob", "date", null),
+                                    new DatasourceStructure.Column("time1", "time", null),
+                                    new DatasourceStructure.Column("time_tz", "timetz", null),
+                                    new DatasourceStructure.Column("created_on", "timestamp", null),
+                                    new DatasourceStructure.Column("created_on_tz", "timestamptz", null),
+                                    new DatasourceStructure.Column("interval1", "interval", null),
+                            },
+                            usersTable.getColumns().toArray()
+                    );
+
+                    final DatasourceStructure.PrimaryKey usersPrimaryKey = new DatasourceStructure.PrimaryKey("users_pkey");
+                    usersPrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[]{usersPrimaryKey},
+                            usersTable.getKeys().toArray()
+                    );
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[]{
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.users LIMIT 10;"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.users (username, password, email, spouse_dob, dob, time1, time_tz, created_on, created_on_tz, interval1)\n" +
+                                            "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET', 1);"),
+                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.users\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                            },
+                            usersTable.getTemplates().toArray()
                     );
                 })
                 .verifyComplete();

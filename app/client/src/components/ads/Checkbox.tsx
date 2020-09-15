@@ -82,7 +82,7 @@ const Checkbox = (props: CheckboxProps) => {
   };
 
   return (
-    <StyledCheckbox disabled={props.disabled}>
+    <StyledCheckbox data-cy={props.cypressSelector} disabled={props.disabled}>
       {props.label}
       <input
         type="checkbox"

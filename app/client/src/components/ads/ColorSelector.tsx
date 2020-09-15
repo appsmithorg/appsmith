@@ -61,7 +61,7 @@ const ColorSelector = (props: ColorSelectorProps) => {
     props.defaultValue || props.colorPalette[0],
   );
   return (
-    <Palette fill={props.fill}>
+    <Palette fill={props.fill} data-cy={props.cypressSelector}>
       {props.colorPalette.map((hex: string, index: number) => {
         return (
           <ColorBox
