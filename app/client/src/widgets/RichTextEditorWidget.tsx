@@ -10,10 +10,13 @@ import {
 } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
+import { retryPromise } from "utils/AppsmithUtils";
 
-const RichtextEditorComponent = lazy(() =>
-  import(
-    /* webpackChunkName: "rte",webpackPrefetch: 2 */ "components/designSystems/appsmith/RichTextEditorComponent"
+const RichTextEditorComponent = lazy(() =>
+  retryPromise(() =>
+    import(
+      /* webpackChunkName: "rte",webpackPrefetch: 2 */ "components/designSystems/appsmith/RichTextEditorComponent"
+    ),
   ),
 );
 
@@ -71,7 +74,7 @@ class RichTextEditorWidget extends BaseWidget<
   getPageView() {
     return (
       <Suspense fallback={<Skeleton />}>
-        <RichtextEditorComponent
+        <RichTextEditorComponent
           onValueChange={this.onValueChange}
           defaultValue={this.props.text || ""}
           widgetId={this.props.widgetId}

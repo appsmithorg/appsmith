@@ -257,7 +257,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           />
         </DeploySection>
       </HeaderSection>
-      <HelpModal />
+      <HelpModal page={"Editor"} />
     </HeaderWrapper>
   );
 };

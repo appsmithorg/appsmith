@@ -26,6 +26,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       isRequired: VALIDATION_TYPES.BOOLEAN,
       // onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
       selectedOptionValueArr: VALIDATION_TYPES.ARRAY,
+      selectedOptionValues: VALIDATION_TYPES.ARRAY,
       defaultOptionValue: (
         value: string | string[],
         props: WidgetProps,
@@ -73,6 +74,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectedIndex: `{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}`,
       selectedIndexArr: `{{ this.selectedOptionValueArr.map(o => _.findIndex(this.options, { value: o })) }}`,
       value: `{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}`,
+      selectedOptionValues: `{{ this.selectedOptionValueArr }}`,
     };
   }
 
@@ -93,6 +95,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     return {
       selectedOptionValue: undefined,
       selectedOptionValueArr: undefined,
+      selectedOptionValues: undefined,
     };
   }
 

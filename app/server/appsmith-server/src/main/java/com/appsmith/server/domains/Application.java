@@ -43,7 +43,7 @@ public class Application extends BaseDomain {
     @JsonIgnore
     String clonedFromApplicationId;
 
-    String colour;
+    String color;
 
     String icon;
 

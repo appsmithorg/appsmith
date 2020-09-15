@@ -4,7 +4,7 @@
     </a>
   <br>
   <p>
-    <h3>The quickest way to build dashboards, workflows, forms, or any kind of internal business tool.</h3>
+    <h3>A low code way to build internal tools.</h3>
   <h3> The only open source alternative to MSFT Power Apps, Salesforce Lightning platform, Service Now platform, Quickbase, Retool, Forest Admin, and many more. </h3>
   </p>
   <p>
@@ -41,7 +41,7 @@ Do all this without depending on multiple UI libraries, coding authentication lo
 ## Example Applications
 
 * [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
-* [Job Application Tracker](http://bit.ly/job-tracker-appsmith)
+* [Job Application Tracker](https://bit.ly/3hbYtTi)
 
 ## Getting Started
 You can try our online sandbox or deploy a Docker image on a server.

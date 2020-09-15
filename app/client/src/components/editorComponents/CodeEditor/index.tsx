@@ -35,9 +35,10 @@ import {
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import { retryPromise } from "utils/AppsmithUtils";
 
 const LightningMenu = lazy(() =>
-  import("components/editorComponents/LightningMenu"),
+  retryPromise(() => import("components/editorComponents/LightningMenu")),
 );
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [

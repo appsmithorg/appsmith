@@ -34,6 +34,15 @@ Cypress.Commands.add("createOrg", orgName => {
   );
 });
 
+Cypress.Commands.add(
+  "dragTo",
+  { prevSubject: "element" },
+  (subject, targetEl) => {
+    cy.wrap(subject).trigger("dragstart");
+    cy.get(targetEl).trigger("drop");
+  },
+);
+
 Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
@@ -1387,6 +1396,16 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
   );
 });
 
+Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
+  const selector = `.t--widget-card-draggable-${widgetType}`;
+  cy.get(selector)
+    .trigger("mousedown", { button: 0 }, { force: true })
+    .trigger("mousemove", 300, -300, { force: true });
+  cy.get(explorer.dropHere)
+    .click()
+    .trigger("mouseup", { force: true });
+});
+
 Cypress.Commands.add("openPropertyPane", widgetType => {
   const selector = `.t--draggable-${widgetType}`;
   cy.get(selector)
@@ -1440,7 +1459,7 @@ Cypress.Commands.add("isSelectRow", index => {
 
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-  const selector = `.t--draggable-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
@@ -1611,10 +1630,10 @@ Cypress.Commands.add("NavigateToPaginationTab", () => {
 });
 
 Cypress.Commands.add("ValidateTableData", value => {
-  cy.isSelectRow(0);
+  // cy.isSelectRow(0);
   cy.readTabledata("0", "0").then(tabData => {
     const tableData = tabData;
-    expect(tableData).to.equal(value);
+    expect(tableData).to.equal(value.toString());
   });
 });
 
