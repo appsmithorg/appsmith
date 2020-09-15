@@ -79,7 +79,6 @@ const IconWrapper = styled.a<AppIconProps & { styledProps: cssAttributes }>`
 
 export type AppIconProps = CommonComponentProps & {
   size?: Size;
-  color: string;
   name: AppIconName;
 };
 
