@@ -23,9 +23,12 @@ import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isString, isNumber, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
+import { retryPromise } from "utils/AppsmithUtils";
 
 const ReactTableComponent = lazy(() =>
-  import("components/designSystems/appsmith/ReactTableComponent"),
+  retryPromise(() =>
+    import("components/designSystems/appsmith/ReactTableComponent"),
+  ),
 );
 
 export type TableSizes = {

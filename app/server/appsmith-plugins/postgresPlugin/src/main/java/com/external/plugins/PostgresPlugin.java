@@ -189,7 +189,10 @@ public class PostgresPlugin extends BasePlugin {
                     }
 
                 } else {
-                    rowsList.add(Map.of("affectedRows", statement.getUpdateCount()));
+                    rowsList.add(Map.of(
+                            "affectedRows",
+                            ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0))
+                    );
 
                 }
 
@@ -240,12 +243,13 @@ public class PostgresPlugin extends BasePlugin {
                     && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
 
             Properties properties = new Properties();
-            properties.putAll(Map.of(
-                    USER, authentication.getUsername(),
-                    PASSWORD, authentication.getPassword(),
-                    // TODO: Set SSL connection parameters.
-                    SSL, isSslEnabled
-            ));
+            properties.put(SSL, isSslEnabled);
+            if (authentication.getUsername() != null) {
+                properties.put(USER, authentication.getUsername());
+            }
+            if (authentication.getPassword() != null) {
+                properties.put(PASSWORD, authentication.getPassword());
+            }
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 url = datasourceConfiguration.getUrl();

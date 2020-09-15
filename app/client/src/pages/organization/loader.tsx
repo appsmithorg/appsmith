@@ -1,5 +1,6 @@
 import React from "react";
 import PageLoadingBar from "pages/common/PageLoadingBar";
+import { retryPromise } from "utils/AppsmithUtils";
 
 class OrganizationLoader extends React.PureComponent<any, { Page: any }> {
   constructor(props: any) {
@@ -11,7 +12,9 @@ class OrganizationLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
-    import(/* webpackChunkName: "organization" */ "./index").then(module => {
+    retryPromise(() =>
+      import(/* webpackChunkName: "organization" */ "./index"),
+    ).then(module => {
       this.setState({ Page: module.default });
     });
   }
