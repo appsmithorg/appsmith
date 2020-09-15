@@ -10,6 +10,7 @@ import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ActionConfig, PluginType, Property } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
+import _ from "lodash";
 
 export type ActionDescription<T> = {
   type: string;
@@ -129,7 +130,7 @@ export class DataTreeFactory {
       dataTree.actionPaths && dataTree.actionPaths.push();
     });
     Object.keys(widgets).forEach(w => {
-      const widget = widgets[w];
+      const widget = { ...widgets[w] };
       const widgetMetaProps = widgetsMeta[w];
       const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
         widget.type,
@@ -139,6 +140,12 @@ export class DataTreeFactory {
       );
       const derivedProps: any = {};
       const dynamicBindings = widget.dynamicBindings || {};
+      Object.keys(dynamicBindings).forEach(propertyName => {
+        if (_.isObject(widget[propertyName])) {
+          // Stringify this because composite controls may have bindings in the sub controls
+          widget[propertyName] = JSON.stringify(widget[propertyName]);
+        }
+      });
       Object.keys(derivedPropertyMap).forEach(propertyName => {
         derivedProps[propertyName] = derivedPropertyMap[propertyName].replace(
           /this./g,
