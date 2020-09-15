@@ -117,6 +117,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onRowSelected: true,
       onPageChange: true,
       onSearchTextChanged: true,
+      columnActions: true,
     };
   }
 
