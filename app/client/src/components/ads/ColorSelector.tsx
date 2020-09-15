@@ -70,7 +70,7 @@ const ColorSelector = (props: ColorSelectorProps) => {
   const [selected, setSelected] = useState<string>(appColorPalette[0]);
 
   return (
-    <Palette fill={props.fill}>
+    <Palette fill={props.fill} data-cy={props.cypressSelector}>
       {props.colorPalette &&
         props.colorPalette.map((hex: string, index: number) => {
           return (

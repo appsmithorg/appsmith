@@ -125,7 +125,10 @@ public class MySqlPlugin extends BasePlugin {
                     }
 
                 } else {
-                    rowsList.add(Map.of("affectedRows", statement.getUpdateCount()));
+                    rowsList.add(Map.of(
+                            "affectedRows",
+                            ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0))
+                    );
 
                 }
 
@@ -172,11 +175,13 @@ public class MySqlPlugin extends BasePlugin {
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
             Properties properties = new Properties();
-            properties.putAll(Map.of(
-                    USER, authentication.getUsername(),
-                    PASSWORD, authentication.getPassword()
-                    // TODO: Set SSL connection parameters.
-            ));
+            // TODO: Set SSL connection parameters as well.
+            if (authentication.getUsername() != null) {
+                properties.put(USER, authentication.getUsername());
+            }
+            if (authentication.getPassword() != null) {
+                properties.put(PASSWORD, authentication.getPassword());
+            }
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 url = datasourceConfiguration.getUrl();

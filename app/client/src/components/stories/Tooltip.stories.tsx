@@ -5,7 +5,6 @@ import { Position } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
 import { StoryWrapper } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
-import Button from "components/ads/Button";
 
 export default {
   title: "Tooltip",
