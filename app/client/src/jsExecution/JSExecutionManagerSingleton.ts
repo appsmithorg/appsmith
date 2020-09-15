@@ -2,7 +2,7 @@ import RealmExecutor from "./RealmExecutor";
 import moment from "moment-timezone";
 import { ActionDescription } from "entities/DataTree/dataTreeFactory";
 import { btoa, atob, version as BASE64LIBVERSION } from "js-base64";
-
+import { VERSION as lodashVersion } from "lodash";
 export type JSExecutorGlobal = Record<string, object>;
 export type JSExecutorResult = {
   result: any;
@@ -34,8 +34,8 @@ export const extraLibraries: ExtraLibrary[] = [
   {
     accessor: "_",
     lib: window._,
-    version: window._.VERSION,
-    docsURL: `https://lodash.com/docs/${window._.VERSION}`,
+    version: lodashVersion,
+    docsURL: `https://lodash.com/docs/${lodashVersion}`,
     displayName: "lodash",
   },
   {
