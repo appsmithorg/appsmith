@@ -431,9 +431,10 @@ export const largeButton = css`
 
 export const dark = {
   blackShades: [
-    "#090707",
+    // "#090707",
     "#1A191C",
     "#232324",
+    "#262626",
     "#2B2B2B",
     "#404040",
     "#6D6D6D",
@@ -496,17 +497,18 @@ export const dark = {
 
 export const light = {
   blackShades: [
+    "#FAFAFA",
+    "#F7F7F7",
     "#F0F0F0",
-    "#FEFEFE",
-    // "#FBFBFB",
-    "#F6F6F6",
-    "#EFEFEF",
-    "#E7E7E7",
-    // "#A9A7A7",
+    "#E8E8E8",
+    "#C5C5C5",
+    // "#EFEFEF",
+    // "#E7E7E7",
+    "#A9A7A7",
     "#939090",
     "#716E6E",
     "#4B4848",
-    "#4B4848",
+    // "#4B4848",
     "#302D2D",
     // "#161414"
   ],
