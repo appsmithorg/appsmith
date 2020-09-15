@@ -37,6 +37,12 @@ public class Application extends BaseDomain {
      */
     List<ApplicationPage> pages;
 
+    @JsonIgnore
+    List<ApplicationPage> publishedPages;
+
+    @JsonIgnore
+    Boolean viewMode = false;
+
     @Transient
     boolean appIsExample = false;
 
@@ -46,5 +52,9 @@ public class Application extends BaseDomain {
     String color;
 
     String icon;
+
+    public List<ApplicationPage> getPages() {
+        return viewMode ? publishedPages : pages;
+    }
 
 }

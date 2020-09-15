@@ -216,6 +216,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
+        application.setPublishedPages(new ArrayList<>());
+
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
