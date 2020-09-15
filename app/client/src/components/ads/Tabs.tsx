@@ -3,7 +3,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
-import { Classes } from "./common";
+import { Classes, CommonComponentProps } from "./common";
 
 export type TabProp = {
   key: string;
@@ -105,7 +105,7 @@ const TabTitle = styled.span`
   letter-spacing: ${props => props.theme.typography.h4.letterSpacing}px;
 `;
 
-type TabbedViewComponentType = {
+type TabbedViewComponentType = CommonComponentProps & {
   tabs: Array<TabProp>;
   selectedIndex?: number;
   onSelect?: Function;
@@ -114,7 +114,10 @@ type TabbedViewComponentType = {
 
 export const TabComponent = (props: TabbedViewComponentType) => {
   return (
-    <TabsWrapper shouldOverflow={props.overflow}>
+    <TabsWrapper
+      shouldOverflow={props.overflow}
+      data-cy={props.cypressSelector}
+    >
       <Tabs
         selectedIndex={props.selectedIndex}
         onSelect={(index: number) => {

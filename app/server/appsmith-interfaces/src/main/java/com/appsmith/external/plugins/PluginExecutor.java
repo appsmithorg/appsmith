@@ -3,6 +3,7 @@ package com.appsmith.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
@@ -10,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-public interface PluginExecutor extends ExtensionPoint {
+public interface PluginExecutor<C> extends ExtensionPoint {
 
     /**
      * This function is used to execute the action.
@@ -21,7 +22,7 @@ public interface PluginExecutor extends ExtensionPoint {
      * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
      * @return ActionExecutionResult : This object is returned to the user which contains the result values from the execution.
      */
-    Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration);
+    Mono<ActionExecutionResult> execute(C connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration);
 
     /**
      * This function is responsible for creating the connection to the data source and returning the connection variable
@@ -30,14 +31,14 @@ public interface PluginExecutor extends ExtensionPoint {
      * @param datasourceConfiguration
      * @return Connection object
      */
-    Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
+    Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
 
     /**
      * This function is used to bring down/destroy the connection to the data source.
      *
      * @param connection
      */
-    void datasourceDestroy(Object connection);
+    void datasourceDestroy(C connection);
 
     default boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
         return CollectionUtils.isEmpty(validateDatasource(datasourceConfiguration));
@@ -46,4 +47,9 @@ public interface PluginExecutor extends ExtensionPoint {
     Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration);
 
     Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration);
+
+    default Mono<DatasourceStructure> getStructure(Object connection, DatasourceConfiguration datasourceConfiguration) {
+        return Mono.empty();
+    }
+
 }
