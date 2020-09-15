@@ -346,11 +346,9 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(Object connection, DatasourceConfiguration datasourceConfiguration) {
-            final Connection conn = (Connection) connection;
-
+        public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
             try {
-                if (conn == null || conn.isClosed() || !conn.isValid(VALIDITY_CHECK_TIMEOUT)) {
+                if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
                     log.info("Encountered stale connection in Postgres plugin. Reporting back.");
                     throw new StaleConnectionException();
                 }
@@ -365,7 +363,7 @@ public class PostgresPlugin extends BasePlugin {
 
             // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
 
-            try (Statement statement = conn.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
 
                 // Get tables and fill up their columns.
                 try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
