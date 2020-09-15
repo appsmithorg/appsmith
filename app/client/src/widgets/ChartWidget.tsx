@@ -5,10 +5,13 @@ import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
+import { retryPromise } from "utils/AppsmithUtils";
 
 const ChartComponent = lazy(() =>
-  import(
-    /* webpackPrefetch: true, webpackChunkName: "charts" */ "components/designSystems/appsmith/ChartComponent"
+  retryPromise(() =>
+    import(
+      /* webpackPrefetch: true, webpackChunkName: "charts" */ "components/designSystems/appsmith/ChartComponent"
+    ),
   ),
 );
 

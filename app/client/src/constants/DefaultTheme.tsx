@@ -592,6 +592,28 @@ export const theme: Theme = {
         infoBg: "#090707",
       },
     },
+    callout: {
+      note: {
+        dark: {
+          color: "#EE5A1A",
+          bgColor: "#241C1B",
+        },
+        light: {
+          color: "#D44100",
+          bgColor: "#F8F3F0",
+        },
+      },
+      warning: {
+        light: {
+          color: "#DCAD00",
+          bgColor: "#FAF6E6",
+        },
+        dark: {
+          color: "#E0B30E",
+          bgColor: "#29251A",
+        },
+      },
+    },
     radio: {
       disabled: "#565656",
     },

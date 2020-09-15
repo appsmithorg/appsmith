@@ -48,7 +48,7 @@ const IconSelector = (props: IconSelectorProps) => {
   }, [props.selectedIcon]);
 
   return (
-    <IconPalette fill={props.fill}>
+    <IconPalette fill={props.fill} data-cy={props.cypressSelector}>
       {props.iconPalette &&
         props.iconPalette.map((iconName: AppIconName, index: number) => {
           return (

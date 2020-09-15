@@ -3,7 +3,7 @@ import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
-import { hexToRgba, Classes } from "./common";
+import { hexToRgba, Classes, CommonComponentProps } from "./common";
 import { theme } from "constants/DefaultTheme";
 import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
@@ -24,7 +24,7 @@ export enum SavingState {
   ERROR = "ERROR",
 }
 
-type EditableTextProps = {
+type EditableTextProps = CommonComponentProps & {
   defaultValue: string;
   onTextChanged: (value: string) => void;
   placeholder: string;
@@ -246,6 +246,7 @@ export const EditableText = (props: EditableTextProps) => {
 
   return (
     <EditableTextWrapper
+      data-cy={props.cypressSelector}
       fill={props.fill}
       onMouseEnter={nonEditMode}
       onDoubleClick={
