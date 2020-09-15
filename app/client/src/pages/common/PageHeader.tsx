@@ -62,7 +62,7 @@ export const PageHeader = (props: PageHeaderProps) => {
           <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
         </Link>
       </HeaderSection>
-      <StyledSwitcher />
+      {/* <StyledSwitcher /> */}
       {user && (
         <StyledDropDownContainer>
           {user.username === ANONYMOUS_USERNAME ? (
