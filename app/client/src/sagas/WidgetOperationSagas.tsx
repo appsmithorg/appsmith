@@ -255,23 +255,27 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { widgetId, parentId } = deleteAction.payload;
     const { disallowUndo, isShortcut } = deleteAction.payload;
+
     if (!widgetId) {
       const selectedWidget = yield select(getSelectedWidget);
       if (!selectedWidget) return;
       widgetId = selectedWidget.widgetId;
       parentId = selectedWidget.parentId;
-      if (isShortcut) {
-        AnalyticsUtil.logEvent("WIDGET_DELETE_VIA_SHORTCUT", {
-          widgetName: selectedWidget.widgetName,
-          widgetType: selectedWidget.type,
-        });
-      }
     }
 
     if (widgetId && parentId) {
       const widgets = yield select(getWidgets);
       const widget = yield select(getWidget, widgetId);
       const parent: FlattenedWidgetProps = yield select(getWidget, parentId);
+
+      const analyticsEvent = isShortcut
+        ? "WIDGET_DELETE_VIA_SHORTCUT"
+        : "WIDGET_DELETE";
+
+      AnalyticsUtil.logEvent(analyticsEvent, {
+        widgetName: widget.widgetName,
+        widgetType: widget.type,
+      });
 
       // Remove entry from parent's children
 
