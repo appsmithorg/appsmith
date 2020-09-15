@@ -114,7 +114,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "onDateSelected",
             label: "onDateSelected",
             controlType: "ACTION_SELECTOR",
-            isJSConvertible: true
+            isJSConvertible: true,
           },
         ],
       },

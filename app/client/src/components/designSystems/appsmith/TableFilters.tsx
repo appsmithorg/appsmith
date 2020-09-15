@@ -12,6 +12,7 @@ import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.s
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import Button from "components/editorComponents/Button";
 import CascadeFields from "components/designSystems/appsmith/CascadeFields";
+import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
 import {
   ReactTableColumnProps,
   Condition,
@@ -164,25 +165,21 @@ const TableFilters = (props: TableFilterProps) => {
       }}
       isOpen={selected}
     >
-      <TableIconWrapper
+      <TableActionIcon
+        tooltip="Filters"
         className="t--table-filter-toggle-btn"
         selected={selected}
-        onClick={e => {
-          selectMenu(true);
-          e.stopPropagation();
+        icon={
+          showAddFilter ? (
+            <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
+          ) : null
+        }
+        selectMenu={(selected: boolean) => {
+          selectMenu(selected);
         }}
       >
-        <IconWrapper
-          width={20}
-          height={20}
-          color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
-        >
-          <FilterIcon />
-        </IconWrapper>
-        {showAddFilter ? (
-          <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
-        ) : null}
-      </TableIconWrapper>
+        <FilterIcon />
+      </TableActionIcon>
       <TableFilterOuterWrapper>
         <TableFilerWrapper onClick={e => e.stopPropagation()}>
           {filters.map((filter: ReactTableFilter, index: number) => {
