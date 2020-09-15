@@ -4,18 +4,23 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -24,6 +29,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -31,8 +37,21 @@ import java.util.Set;
 @Slf4j
 public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, String> implements NewPageService {
 
-    public NewPageServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, NewPageRepository repository, AnalyticsService analyticsService) {
+    private final ApplicationService applicationService;
+    private final ActionRepository actionRepository;
+
+    @Autowired
+    public NewPageServiceImpl(Scheduler scheduler,
+                              Validator validator,
+                              MongoConverter mongoConverter,
+                              ReactiveMongoTemplate reactiveMongoTemplate,
+                              NewPageRepository repository,
+                              AnalyticsService analyticsService,
+                              ApplicationService applicationService,
+                              ActionRepository actionRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        this.applicationService = applicationService;
+        this.actionRepository = actionRepository;
     }
 
     private Page getPageByViewMode(NewPage newPage, Boolean viewMode) {
@@ -123,8 +142,8 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
      * @return
      */
     @Override
-    public Mono<Page> delete(String id) {
-        Mono<NewPage> pageMono = repository.findById(id, AclPermission.MANAGE_PAGES)
+    public Mono<Page> deleteUnpublishedPage(String id) {
+        Mono<Page> pageMono = repository.findById(id, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
@@ -133,7 +152,19 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                                 application.getPages().removeIf(p -> p.getId().equals(page.getId()));
                                 return applicationService.save(application);
                             });
-                    Mono<Page> archivedPageMono = repository.archive(page);
+                    PageDTO unpublishedPage = page.getUnpublishedPage();
+                    unpublishedPage.setDeletedAt(Instant.now());
+                    Mono<Page> archivedPageMono = repository.save(page)
+                            .map(newPage -> getPageByViewMode(newPage, false));
+
+                    /**
+                     * TODO : Only delete unpublished action and not the entire action.
+                     */
+                    Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId(), AclPermission.MANAGE_ACTIONS)
+                                                         .flatMap(action -> {
+                                      log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
+                                      return actionRepository.archive(action);
+                                 }).collectList();
 
                     return Mono.zip(archivedPageMono, archivedActionsMono, applicationMono)
                             .map(tuple -> {
@@ -147,5 +178,70 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
         return pageMono
                 .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    @Override
+    public Mono<ApplicationPagesDTO> findNamesByApplicationIdAndViewMode(String applicationId, Boolean view) {
+        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application id", applicationId)))
+                .cache();
+
+        Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
+                .flatMapMany(application -> findNamesByApplication(application, view))
+                .collectList();
+
+        return Mono.zip(applicationMono, pagesListMono)
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
+                    ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
+                    applicationPagesDTO.setOrganizationId(application.getOrganizationId());
+                    applicationPagesDTO.setPages(nameIdDTOList);
+                    return applicationPagesDTO;
+                });
+    }
+
+    @Override
+    public Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view) {
+        Mono<Application> applicationMono = applicationService.findByName(applicationName, AclPermission.READ_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
+                .cache();
+
+        Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
+                .flatMapMany(application -> findNamesByApplication(application, view))
+                .collectList();
+
+        return Mono.zip(applicationMono, pagesListMono)
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
+                    ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
+                    applicationPagesDTO.setOrganizationId(application.getOrganizationId());
+                    applicationPagesDTO.setPages(nameIdDTOList);
+                    return applicationPagesDTO;
+                });
+    }
+
+    private Flux<PageNameIdDTO> findNamesByApplication(Application application, Boolean viewMode) {
+        List<ApplicationPage> pages = application.getPages();
+        return findByApplicationId(application.getId(), AclPermission.READ_PAGES, viewMode)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application name", application.getName())))
+                .map(page -> {
+                    PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
+                    pageNameIdDTO.setId(page.getId());
+                    pageNameIdDTO.setName(page.getName());
+                    for (ApplicationPage applicationPage : pages) {
+                        if (applicationPage.getId().equals(page.getId())) {
+                            pageNameIdDTO.setIsDefault(applicationPage.getIsDefault());
+                        }
+                    }
+                    return pageNameIdDTO;
+                });
+    }
+
+    @Override
+    public Mono<Page> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission permission, Boolean view) {
+        return repository.findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
+                .map(page -> getPageByViewMode(page, view));
     }
 }
