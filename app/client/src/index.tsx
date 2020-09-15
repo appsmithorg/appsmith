@@ -13,7 +13,8 @@ import * as Sentry from "@sentry/react";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-
+import { setThemeMode } from "actions/themeActions";
+import { ThemeMode } from "reducers/uiReducers/themeReducer";
 appInitializer();
 
 const App = () => {
@@ -30,7 +31,13 @@ const App = () => {
 
 class ThemedApp extends React.Component<{
   currentTheme: any;
+  setTheme: Function;
 }> {
+  componentDidMount() {
+    if (localStorage.getItem("THEME") === "DARK") {
+      this.props.setTheme(ThemeMode.DARK);
+    }
+  }
   render() {
     if (
       window.location.pathname === "/applications" ||
@@ -57,7 +64,15 @@ class ThemedApp extends React.Component<{
 const mapStateToProps = (state: AppState) => ({
   currentTheme: getThemeDetails(state).theme,
 });
+const mapDispatchToProps = (dispatch: any) => ({
+  setTheme: (mode: ThemeMode) => {
+    dispatch(setThemeMode(mode));
+  },
+});
 
-const ThemedAppWithProps = connect(mapStateToProps)(ThemedApp);
+const ThemedAppWithProps = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ThemedApp);
 
 ReactDOM.render(<App />, document.getElementById("root"));
