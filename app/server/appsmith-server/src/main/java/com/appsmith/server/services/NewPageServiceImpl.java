@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.NewPageRepository;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -46,5 +47,22 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Flux<Page> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return repository.findByApplicationId(applicationId, permission)
                 .map(page -> getPageByViewMode(page, view));
+    }
+
+    @Override
+    public Mono<Page> createDefault(Page object) {
+        NewPage newPage = new NewPage();
+        newPage.setApplicationId(object.getApplicationId());
+        PageDTO unpublishedPageDto = new PageDTO();
+        unpublishedPageDto.setLayouts(object.getLayouts());
+        unpublishedPageDto.setName(object.getName());
+        newPage.setUnpublishedPage(unpublishedPageDto);
+        return super.create(newPage)
+                .map(page -> getPageByViewMode(page, false));
+    }
+
+    @Override
+    public Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
+        return repository.findByIdAndLayoutsId(pageId, layoutId, aclPermission);
     }
 }
