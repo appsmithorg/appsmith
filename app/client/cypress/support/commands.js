@@ -212,7 +212,7 @@ Cypress.Commands.add("DeleteApp", appName => {
     .should("have.length", 1)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton)
+  cy.get(homePage.deleteApp)
     .should("be.visible")
     .click({ force: true });
 });
@@ -257,7 +257,7 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton)
+  cy.get(homePage.deleteApp)
     .contains("Delete")
     .click({ force: true });
 });

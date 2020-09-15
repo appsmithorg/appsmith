@@ -254,6 +254,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       onSelect: shareApp,
       text: "Share",
       icon: "share",
+      cypressSelector: "t--share",
     });
   }
   if (props.duplicate) {
@@ -261,6 +262,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       onSelect: duplicateApp,
       text: "Duplicate",
       icon: "duplicate",
+      cypressSelector: "t--duplicate",
     });
   }
   if (props.delete && hasEditPermission) {
@@ -268,6 +270,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       onSelect: deleteApp,
       text: "Delete",
       icon: "delete",
+      cypressSelector: "t--delete",
     });
   }
 
@@ -278,6 +281,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       <Menu
         position={Position.RIGHT_TOP}
         target={<Icon name="context-menu" size={IconSize.XXXL}></Icon>}
+        className="more"
         onOpening={() => {
           setIsMenuOpen(true);
         }}
