@@ -2,9 +2,6 @@ import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as Sentry from "@sentry/react";
-import { useLocation } from "react-router";
-import { useSelector } from "react-redux";
-import { getThemeDetails } from "selectors/themeSelectors";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppRoute = ({
@@ -18,17 +15,6 @@ const AppRoute = ({
   name: string;
   location?: any;
 }) => {
-  const location = useLocation();
-  const currentTheme = useSelector(getThemeDetails);
-  if (
-    location.pathname === "/applications" ||
-    location.pathname.indexOf("/settings/") !== -1
-  ) {
-    document.body.style.backgroundColor =
-      currentTheme.theme.colors.homepageBackground;
-  } else {
-    document.body.style.backgroundColor = "#efefef";
-  }
   useEffect(() => {
     if (!rest.logDisable) {
       AnalyticsUtil.logEvent("NAVIGATE_EDITOR", {
