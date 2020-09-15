@@ -205,7 +205,7 @@ const StyledAppIcon = styled(AppIcon)`
 `;
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
-  const [showOverlay, setShowOverlay] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(false);
   const themeDetails = useSelector(getThemeDetails);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
@@ -287,7 +287,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         }}
         onClosing={() => {
           setIsMenuOpen(false);
-          setShowOverlay(true);
+          setShowOverlay(false);
         }}
       >
         {hasEditPermission && (
@@ -369,7 +369,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       onMouseLeave={() => {
         // If the menu is not open, then setOverlay false
         // Set overlay false on outside click.
-        !isMenuOpen && setShowOverlay(true);
+        !isMenuOpen && setShowOverlay(false);
       }}
       hasReadPermission={hasReadPermission}
       className="t--application-card"
