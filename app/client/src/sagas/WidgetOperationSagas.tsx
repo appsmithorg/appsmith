@@ -298,9 +298,14 @@ function* updateDynamicTriggers(
 function* updateDynamicBindings(
   widget: WidgetProps,
   propertyName: string,
-  propertyValue: string,
+  propertyValue: any,
 ) {
-  const isDynamic = isDynamicValue(propertyValue);
+  let stringProp = propertyValue;
+  if (_.isObject(propertyValue)) {
+    // Stringify this because composite controls may have bindings in the sub controls
+    stringProp = JSON.stringify(propertyValue);
+  }
+  const isDynamic = isDynamicValue(stringProp);
   let dynamicBindings: Record<string, boolean> = widget.dynamicBindings || {};
   if (!isDynamic && propertyName in dynamicBindings) {
     dynamicBindings = _.omit(dynamicBindings, propertyName);
