@@ -13,7 +13,7 @@ import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import history from "utils/history";
 import { Colors } from "constants/Colors";
-import ThemeSwitcher from "./ThemeSwitcher";
+// import ThemeSwitcher from "./ThemeSwitcher";
 
 const StyledPageHeader = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -42,9 +42,9 @@ type PageHeaderProps = {
   user?: User;
 };
 
-const StyledSwitcher = styled(ThemeSwitcher)`
-  flex: 1;
-`;
+// const StyledSwitcher = styled(ThemeSwitcher)`
+//   flex: 1;
+// `;
 
 export const PageHeader = (props: PageHeaderProps) => {
   const { user } = props;
