@@ -11,6 +11,8 @@ import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
 import { appCardColors } from "constants/AppConstants";
 import produce from "immer";
+import history from "./history";
+import { SERVER_ERROR_URL } from "../constants/routes";
 
 export const createReducer = (
   initialState: any,
@@ -209,3 +211,26 @@ export function convertObjectToQueryParams(object: any): string {
     return "";
   }
 }
+
+export const retryPromise = (
+  fn: Function,
+  retriesLeft = 5,
+  interval = 1000,
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    fn()
+      .then(resolve)
+      .catch((error: any) => {
+        setTimeout(() => {
+          if (retriesLeft === 1) {
+            reject(error);
+            history.replace(SERVER_ERROR_URL);
+            return;
+          }
+
+          // Passing on "reject" is the important part
+          retryPromise(fn, retriesLeft - 1, interval).then(resolve, reject);
+        }, interval);
+      });
+  });
+};
