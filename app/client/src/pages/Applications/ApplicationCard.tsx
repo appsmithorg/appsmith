@@ -13,21 +13,18 @@ import {
 } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import { getColorWithOpacity } from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import {
   getInitialsAndColorCode,
-  getColorCode,
   getApplicationIcon,
 } from "utils/AppsmithUtils";
-import { ControlIcons } from "icons/ControlIcons";
 import { omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import Menu from "components/ads/Menu";
 import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
 import AppIcon, { AppIconName } from "components/ads/AppIcon";
@@ -97,21 +94,6 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   margin: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[4]}px;
   overflow: hidden;
-`;
-
-const Name = styled.div`
-  padding-left: ${props => props.theme.spaces[4]}px;
-  padding-right: ${props => props.theme.spaces[4]}px;
-  padding-bottom: ${props => props.theme.spaces[4]}px;
-  height: 45px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  font-size: 16px;
-  font-weight: 500;
-  color: ${Colors.OXFORD_BLUE};
-  line-height: 21px;
-  letter-spacing: 0.1px;
 `;
 
 const Wrapper = styled(
@@ -191,19 +173,10 @@ const Control = styled.div<{ fixed?: boolean }>`
   }
 `;
 
-const Initials = styled.span`
-  font-size: 40px;
-  font-weight: bold;
-  color: #ffffff;
-  margin: auto;
-`;
-
 const AppNameWrapper = styled.div`
   padding: 12px;
   padding-top: 0;
 `;
-const APPLICATION_CONTROL_FONTSIZE_INDEX = 5;
-
 type ApplicationCardProps = {
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;

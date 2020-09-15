@@ -2,12 +2,7 @@ import React, { Component, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
-import {
-  Card,
-  Icon as BlueprintIcon,
-  Dialog,
-  Classes as BlueprintClasses,
-} from "@blueprintjs/core";
+import { Card, Dialog, Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
   getApplicationList,
   getIsFetchingApplications,
@@ -60,9 +55,6 @@ const OrgDropDown = styled.div`
   justify-content: space-between;
 `;
 
-const CreateNew = styled.div`
-  background: #232324;
-`;
 const ApplicationCardsWrapper = styled.div`
   display: flex;
   flex-flow: row wrap;
@@ -72,21 +64,6 @@ const ApplicationCardsWrapper = styled.div`
 `;
 
 const OrgSection = styled.div``;
-
-const OrgName = styled.div`
-  display: flex;
-  font-size: ${props => props.theme.fontSizes[4]}px;
-  font-weight: ${props => props.theme.fontWeights[3]};
-  padding-top: ${props => props.theme.spaces[4]}px;
-  padding-left: ${props => props.theme.spaces[6]}px;
-  & > span {
-    margin-right: 10px;
-  }
-`;
-
-const DropDownTrigger = styled.div`
-  cursor: pointer;
-`;
 
 const PaddingWrapper = styled.div`
   width: ${props => props.theme.card.minWidth + props.theme.spaces[5] * 2}px;
@@ -108,12 +85,6 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   }
 `;
 
-const PaneContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  padding-left: 16px;
-  padding-right: 113px;
-`;
 const LeftPaneWrapper = styled.div`
   // height: 50vh;
   overflow: scroll;
@@ -307,14 +278,6 @@ const ApplicationsSection = () => {
   const dispatch = useDispatch();
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const currentUser = useSelector(getCurrentUser);
-  // const searchApplications = (keyword: string) => {
-  //   dispatch({
-  //     type: ReduxActionTypes.SEARCH_APPLICATIONS,
-  //     payload: {
-  //       keyword,
-  //     },
-  //   });
-  // }
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({

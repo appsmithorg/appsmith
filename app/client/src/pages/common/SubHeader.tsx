@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { ControlGroup, InputGroup, IIconProps } from "@blueprintjs/core";
-// import Button from "components/editorComponents/Button";
+import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import _, { noop } from "lodash";
 import SearchInput, { SearchVariant } from "components/ads/SearchInput";
@@ -17,11 +16,6 @@ const SubHeaderWrapper = styled.div`
   top: ${props => props.theme.homePage.header}px;
   left: 369px;
   z-index: 10;
-`;
-const StyledAddButton = styled(Button)<IIconProps>`
-  &&& {
-    outline: none;
-  }
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
@@ -58,24 +52,8 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
     props.search &&
     props.search.queryFn &&
     _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
-  const searchQuery = (e: any) => {
-    query && query(e.target.value);
-  };
-
   const createTrigger = props.add && (
-    <Button
-      text={props.add.title}
-      size={Size.medium}
-      // icon={"plus"}
-    />
-    // <StyledAddButton
-    //   text={props.add.title}
-    //   icon="plus"
-    //   title={props.add.title}
-    //   onClick={props.add.onClick}
-    //   filled
-    //   intent="primary"
-    // />
+    <Button text={props.add.title} size={Size.medium} />
   );
 
   return (

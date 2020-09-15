@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
-import { useLocation } from "react-router";
 
 const Wrapper = styled.section`
   margin-top: ${props => props.theme.homePage.header}px;

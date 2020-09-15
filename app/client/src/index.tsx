@@ -3,7 +3,7 @@ import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider, useSelector } from "react-redux";
 import "./index.css";
-import { ThemeProvider, theme, light, dark } from "constants/DefaultTheme";
+import { ThemeProvider } from "constants/DefaultTheme";
 import { appInitializer } from "utils/AppsmithUtils";
 import { Slide, ToastContainer } from "react-toastify";
 import store from "./store";
