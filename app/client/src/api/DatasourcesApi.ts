@@ -9,6 +9,23 @@ interface DatasourceAuthentication {
   password?: string;
 }
 
+export interface QueryTemplate {
+  title: string;
+  body: string;
+}
+
+export interface DatasourceTable {
+  type: string;
+  name: string;
+  columns: [];
+  keys: [];
+  templates: QueryTemplate[];
+}
+
+export interface DatasourceStructure {
+  tables: DatasourceTable[];
+}
+
 export interface Datasource {
   id: string;
   name: string;
@@ -23,8 +40,7 @@ export interface Datasource {
   };
   invalids?: string[];
   isValid?: boolean;
-  structure?: [];
-  templates?: {};
+  structure?: DatasourceStructure;
 }
 
 export interface CreateDatasourceConfig {
@@ -67,6 +83,10 @@ class DatasourcesApi extends API {
 
   static deleteDatasource(id: string): Promise<{}> {
     return API.delete(DatasourcesApi.url + `/${id}`);
+  }
+
+  static fetchDatasourceStructure(id: string): Promise<{}> {
+    return API.get(DatasourcesApi.url + `/${id}` + "/structure");
   }
 }
 

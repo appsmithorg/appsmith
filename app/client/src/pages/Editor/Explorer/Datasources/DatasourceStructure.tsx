@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.svg";
 import { Popover, Position } from "@blueprintjs/core";
-import Entity from "../Entity";
+import Entity, { EntityClassNames } from "../Entity";
 import { queryIcon } from "../ExplorerIcons";
 import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import styled from "styled-components";
-import QueryPreview from "./QueryPreview";
+import QueryTemplates from "./QueryTemplates";
 import DatabaseColumns from "./DatabaseColumns";
+import { DatasourceTable } from "api/DatasourcesApi";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
@@ -20,7 +21,7 @@ const Wrapper = styled(EntityTogglesWrapper)`
 `;
 
 type DatasourceStructureProps = {
-  dbStructure: any;
+  dbStructure: DatasourceTable;
   step: number;
   datasourceId: string;
 };
@@ -33,6 +34,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
     color: "#FF7235",
   };
   let templateMenu = null;
+  const [active, setActive] = useState(false);
 
   const lightningMenu = (
     <Wrapper>
@@ -44,11 +46,25 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
 
   if (dbStructure.templates)
     templateMenu = (
-      <Popover minimal position={Position.RIGHT_TOP} boundary={"viewport"}>
+      <Popover
+        canEscapeKeyClose={true}
+        onOpened={() => setActive(true)}
+        onClosed={() => {
+          setActive(false);
+        }}
+        className={`${EntityClassNames.CONTEXT_MENU}`}
+        minimal
+        position={Position.RIGHT_TOP}
+        boundary={"viewport"}
+      >
         {lightningMenu}
-        <QueryPreview datasourceId={props.datasourceId} />
+        <QueryTemplates
+          datasourceId={props.datasourceId}
+          templates={dbStructure.templates}
+        />
       </Popover>
     );
+  const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);
 
   return (
     <Entity
@@ -56,12 +72,13 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
       name={dbStructure.name}
       icon={queryIcon}
       step={props.step}
+      active={active}
       contextMenu={templateMenu}
     >
-      {dbStructure.columns.map((column: any) => {
+      {columnsAndKeys.map((column: any, index: number) => {
         return (
           <DatabaseColumns
-            key={column.name}
+            key={`${column.name}${index}`}
             step={props.step + 1}
             column={column}
           />
