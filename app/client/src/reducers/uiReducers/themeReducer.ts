@@ -12,7 +12,7 @@ const initialState: ThemeState = {
     ...theme,
     colors: {
       ...theme.colors,
-      ...light,
+      ...dark,
     },
   },
 };

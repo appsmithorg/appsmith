@@ -34,8 +34,8 @@ class ThemedApp extends React.Component<{
   setTheme: Function;
 }> {
   componentDidMount() {
-    if (localStorage.getItem("THEME") === "DARK") {
-      this.props.setTheme(ThemeMode.DARK);
+    if (localStorage.getItem("THEME") === "LIGHT") {
+      this.props.setTheme(ThemeMode.LIGHT);
     }
   }
   render() {
