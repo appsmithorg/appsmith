@@ -91,6 +91,7 @@ check_os() {
     if is_mac; then
         package_manager="brew"
         desired_os=1
+        os="Mac"
         return
     fi
 
@@ -99,18 +100,22 @@ check_os() {
     case "$os_name" in
         Ubuntu*)
             desired_os=1
+            os="Ubuntu"
             package_manager="apt-get"
             ;;
         Red\ Hat*)
             desired_os=1
+            os="Red Hat"
             package_manager="yum"
             ;;
         CentOS*)
             desired_os=1
+            os="CentOS"
             package_manager="yum"
             ;;
         *)
             desired_os=0
+            os="Not Found"
     esac
 }
 
@@ -311,7 +316,7 @@ bye() {  # Prints a friendly good bye message and exits the script.
       "userId": "'"$email"'",
       "event": "Installation Support",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'"
        }
     }'
     echo -e "\nExiting for now. Bye! \U1F44B\n"
@@ -324,6 +329,7 @@ echo ""
 
 # Checking OS and assigning package manager
 desired_os=0
+os=""
 echo -e "\U1F575  Detecting your OS"
 check_os
 
@@ -332,7 +338,7 @@ curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi
 --data-raw '{
   "event": "Installation Started",
   "data": {
-      "os": '$desired_os'
+      "os": "'"$os"'"
    }
 }'
 
@@ -468,7 +474,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     --data-raw '{
       "event": "Installation Custom Domain",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'"
        }
     }'
     echo ""
@@ -562,7 +568,7 @@ if [[ $status_code -ne 401 ]]; then
       "userId": "'"$email"'",
       "event": "Installation Support",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'"
        }
     }'
 else
@@ -571,7 +577,7 @@ else
     --data-raw '{
       "event": "Installation Success",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'"
        }
     }'
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
@@ -595,7 +601,7 @@ else
       "userId": "'"$email"'",
       "event": "Identify Successful Installation",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'"
        }
     }'
 fi
