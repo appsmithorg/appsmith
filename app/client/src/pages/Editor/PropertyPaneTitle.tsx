@@ -125,6 +125,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         hoverOpenDelay={200}
       >
         <CopyIcon
+          className="t--copy-widget"
           width={14}
           height={14}
           color={theme.colors.paneSectionLabel}
@@ -137,6 +138,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         hoverOpenDelay={200}
       >
         <DeleteIcon
+          className="t--delete-widget"
           width={16}
           height={16}
           color={theme.colors.paneSectionLabel}
