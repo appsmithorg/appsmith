@@ -12,6 +12,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import * as Sentry from "@sentry/react";
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
@@ -166,15 +167,38 @@ class ChartDataControl extends BaseControl<ControlProps> {
     return validations;
   };
 
-  render() {
-    const chartData: Array<{
-      seriesName: string;
-      data: Array<{ x: string; y: string }> | string;
-    }> =
-      this.props.propertyValue && _.isString(this.props.propertyValue)
-        ? JSON.parse(this.props.propertyValue)
-        : this.props.propertyValue;
+  componentDidMount() {
+    this.migrateChartData(this.props.propertyValue);
+  }
 
+  migrateChartData(chartData: Array<{ seriesName: string; data: string }>) {
+    // Added a migration script for older chart data that was strings
+    // deprecate after enough charts have moved to the new format
+    if (_.isString(chartData)) {
+      try {
+        const parsedData: Array<{
+          seriesName: string;
+          data: string;
+        }> = JSON.parse(chartData);
+        this.updateProperty(this.props.propertyName, parsedData);
+        return parsedData;
+      } catch (error) {
+        Sentry.captureException({
+          message: "Chart Migration Failed",
+          oldData: this.props.propertyValue,
+        });
+      }
+    } else {
+      return this.props.propertyValue;
+    }
+  }
+
+  render() {
+    const chartData: Array<{ seriesName: string; data: string }> = _.isString(
+      this.props.propertyValue,
+    )
+      ? []
+      : this.props.propertyValue;
     const dataLength = chartData.length;
     const { validationMessage, isValid } = this.props;
     const validations: Array<{
@@ -214,12 +238,12 @@ class ChartDataControl extends BaseControl<ControlProps> {
   }
 
   deleteOption = (index: number) => {
-    const chartData: object[] =
-      this.props.propertyValue && _.isString(this.props.propertyValue)
-        ? JSON.parse(this.props.propertyValue)
-        : this.props.propertyValue;
+    const chartData: Array<{
+      seriesName: string;
+      data: string;
+    }> = this.props.propertyValue;
     chartData.splice(index, 1);
-    this.updateProperty(this.props.propertyName, JSON.stringify(chartData));
+    this.updateProperty(this.props.propertyName, chartData);
   };
 
   updateOption = (
@@ -229,41 +253,28 @@ class ChartDataControl extends BaseControl<ControlProps> {
   ) => {
     const chartData: Array<{
       seriesName: string;
-      data: Array<{ x: string; y: string }> | any;
-    }> =
-      this.props.propertyValue && _.isString(this.props.propertyValue)
-        ? JSON.parse(this.props.propertyValue)
-        : this.props.propertyValue;
+      data: string;
+    }> = this.props.propertyValue;
     const updatedChartData = chartData.map((item, i) => {
       if (index === i) {
         if (propertyName === "seriesName") {
           item.seriesName = updatedValue;
         } else {
-          try {
-            item.data = JSON.parse(updatedValue);
-          } catch (err) {
-            item.data = updatedValue;
-          }
+          item.data = updatedValue;
         }
       }
       return item;
     });
-    this.updateProperty(
-      this.props.propertyName,
-      JSON.stringify(updatedChartData),
-    );
+    this.updateProperty(this.props.propertyName, updatedChartData);
   };
 
   addOption = () => {
     const chartData: Array<{
       seriesName: string;
-      data: Array<{ x: string; y: string }> | any;
-    }> =
-      this.props.propertyValue && _.isString(this.props.propertyValue)
-        ? JSON.parse(this.props.propertyValue)
-        : this.props.propertyValue;
-    chartData.push({ seriesName: "", data: [{ x: "", y: "" }] });
-    this.updateProperty(this.props.propertyName, JSON.stringify(chartData));
+      data: string;
+    }> = this.props.propertyValue;
+    chartData.push({ seriesName: "", data: '[{ x: "", y: "" }]' });
+    this.updateProperty(this.props.propertyName, chartData);
   };
 
   static getControlType() {
