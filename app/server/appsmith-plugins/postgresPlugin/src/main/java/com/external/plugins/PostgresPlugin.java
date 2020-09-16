@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -485,6 +486,9 @@ public class PostgresPlugin extends BasePlugin {
             }
 
             structure.setTables(new ArrayList<>(tablesByName.values()));
+            for (DatasourceStructure.Table table : structure.getTables()) {
+                table.getKeys().sort(Comparator.naturalOrder());
+            }
             return Mono.just(structure);
         }
     }
