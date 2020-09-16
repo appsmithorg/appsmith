@@ -139,11 +139,6 @@ function DataControlComponent(props: RenderComponentProps) {
 }
 
 class ChartDataControl extends BaseControl<ControlProps> {
-  chartData: Array<{
-    seriesName: string;
-    data: string;
-  }> = [];
-
   getValidations = (message: string, isValid: boolean, len: number) => {
     const validations: Array<{
       isValid: boolean;
@@ -173,7 +168,10 @@ class ChartDataControl extends BaseControl<ControlProps> {
   };
 
   componentDidMount() {
-    const chartData = this.props.propertyValue;
+    this.migrateChartData(this.props.propertyValue);
+  }
+
+  migrateChartData(chartData: Array<{ seriesName: string; data: string }>) {
     // Added a migration script for older chart data that was strings
     // deprecate after enough charts have moved to the new format
     if (_.isString(chartData)) {
@@ -182,8 +180,8 @@ class ChartDataControl extends BaseControl<ControlProps> {
           seriesName: string;
           data: string;
         }> = JSON.parse(chartData);
-        this.updateProperty("chartData", parsedData);
-        this.chartData = parsedData;
+        this.updateProperty(this.props.propertyName, parsedData);
+        return parsedData;
       } catch (error) {
         Sentry.captureException({
           message: "Chart Migration Failed",
@@ -191,17 +189,17 @@ class ChartDataControl extends BaseControl<ControlProps> {
         });
       }
     } else {
-      this.chartData = this.props.propertyValue;
+      return this.props.propertyValue;
     }
   }
 
-  componentDidUpdate() {
-    this.chartData = this.props.propertyValue;
-  }
-
   render() {
-    const chartData = this.chartData;
-    const dataLength = this.chartData.length;
+    const chartData: Array<{ seriesName: string; data: string }> = _.isString(
+      this.props.propertyValue,
+    )
+      ? []
+      : this.props.propertyValue;
+    const dataLength = chartData.length;
     const { validationMessage, isValid } = this.props;
     const validations: Array<{
       isValid: boolean;
@@ -213,7 +211,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
     );
     return (
       <React.Fragment>
-        {this.chartData.map((data, index) => {
+        {chartData.map((data, index) => {
           return (
             <DataControlComponent
               key={index}
