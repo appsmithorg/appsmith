@@ -38,6 +38,13 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
+import {
+  copyWidget,
+  pasteWidget,
+  deleteSelectedWidget,
+  cutWidget,
+} from "actions/widgetActions";
+import { isMac } from "utils/helpers";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -47,6 +54,10 @@ type EditorProps = {
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
   errorPublishing: boolean;
+  copySelectedWidget: () => void;
+  pasteCopiedWidget: () => void;
+  deleteSelectedWidget: () => void;
+  cutSelectedWidget: () => void;
   user?: User;
 };
 
@@ -72,6 +83,72 @@ class Editor extends Component<Props> {
             e.preventDefault();
             e.stopPropagation();
           }}
+        />
+        <Hotkey
+          global={true}
+          combo="meta + c"
+          label="Copy Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            this.props.copySelectedWidget();
+          }}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          global={true}
+          combo="meta + v"
+          label="Paste Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            this.props.pasteCopiedWidget();
+          }}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          global={true}
+          combo="del"
+          label="Delete Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            if (!isMac()) this.props.deleteSelectedWidget();
+          }}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          global={true}
+          combo="backspace"
+          label="Delete Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            if (isMac()) this.props.deleteSelectedWidget();
+          }}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          global={true}
+          combo="del"
+          label="Delete Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            this.props.deleteSelectedWidget();
+          }}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          global={true}
+          combo="meta + x"
+          label="Cut Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            this.props.cutSelectedWidget();
+          }}
+          preventDefault
+          stopPropagation
         />
       </Hotkeys>
     );
@@ -190,6 +267,10 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (applicationId: string, pageId: string) =>
       dispatch(initEditor(applicationId, pageId)),
+    copySelectedWidget: () => dispatch(copyWidget(true)),
+    pasteCopiedWidget: () => dispatch(pasteWidget()),
+    deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
+    cutSelectedWidget: () => dispatch(cutWidget()),
   };
 };
 

@@ -108,3 +108,9 @@ export const resolveAsSpaceChar = (value: string, limit?: number) => {
     .join(" ")
     .slice(0, limit || 30);
 };
+
+export const isMac = () => {
+  const platform =
+    typeof navigator !== "undefined" ? navigator.platform : undefined;
+  return !platform ? false : /Mac|iPod|iPhone|iPad/.test(platform);
+};
