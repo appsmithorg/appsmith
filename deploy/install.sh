@@ -91,6 +91,7 @@ check_os() {
     if is_mac; then
         package_manager="brew"
         desired_os=1
+        os="Mac"
         return
     fi
 
@@ -99,18 +100,22 @@ check_os() {
     case "$os_name" in
         Ubuntu*)
             desired_os=1
+            os="Ubuntu"
             package_manager="apt-get"
             ;;
         Red\ Hat*)
             desired_os=1
+            os="Red Hat"
             package_manager="yum"
             ;;
         CentOS*)
             desired_os=1
+            os="CentOS"
             package_manager="yum"
             ;;
         *)
             desired_os=0
+            os="Not Found"
     esac
 }
 
@@ -207,7 +212,7 @@ confirm() {
     fi
 
     local answer
-    read -n1 -rp "$prompt [$options] " answer
+    read -rp "$prompt [$options] " answer
     if [[ -z $answer ]]; then
         # No answer given, the user just hit the Enter key. Take the default value as the answer.
         answer="$default"
@@ -311,7 +316,8 @@ bye() {  # Prints a friendly good bye message and exits the script.
       "userId": "'"$email"'",
       "event": "Installation Support",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'",
+          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
        }
     }'
     echo -e "\nExiting for now. Bye! \U1F44B\n"
@@ -324,15 +330,18 @@ echo ""
 
 # Checking OS and assigning package manager
 desired_os=0
+os=""
 echo -e "\U1F575  Detecting your OS"
 check_os
+APPSMITH_INSTALLATION_ID=$(curl -s 'https://api6.ipify.org')
 
 curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
   "event": "Installation Started",
   "data": {
-      "os": '$desired_os'
+      "os": "'"$os"'",
+      "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
    }
 }'
 
@@ -468,7 +477,8 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     --data-raw '{
       "event": "Installation Custom Domain",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'",
+          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
        }
     }'
     echo ""
@@ -562,7 +572,8 @@ if [[ $status_code -ne 401 ]]; then
       "userId": "'"$email"'",
       "event": "Installation Support",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'",
+          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
        }
     }'
 else
@@ -571,7 +582,8 @@ else
     --data-raw '{
       "event": "Installation Success",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'",
+          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
        }
     }'
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
@@ -595,7 +607,8 @@ else
       "userId": "'"$email"'",
       "event": "Identify Successful Installation",
       "data": {
-          "os": '$desired_os'
+          "os": "'"$os"'",
+          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
        }
     }'
 fi
