@@ -334,7 +334,6 @@ os=""
 echo -e "\U1F575  Detecting your OS"
 check_os
 APPSMITH_INSTALLATION_ID=$(curl -s 'https://api6.ipify.org')
-echo $APPSMITH_INSTALLATION_ID
 
 curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
