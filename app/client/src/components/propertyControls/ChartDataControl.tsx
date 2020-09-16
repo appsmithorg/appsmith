@@ -139,11 +139,6 @@ function DataControlComponent(props: RenderComponentProps) {
 }
 
 class ChartDataControl extends BaseControl<ControlProps> {
-  chartData: Array<{
-    seriesName: string;
-    data: string;
-  }> = [];
-
   getValidations = (message: string, isValid: boolean, len: number) => {
     const validations: Array<{
       isValid: boolean;
@@ -173,7 +168,14 @@ class ChartDataControl extends BaseControl<ControlProps> {
   };
 
   componentDidMount() {
-    const chartData = this.props.propertyValue;
+    this.migrateChartData(this.props.propertyValue);
+  }
+
+  componentDidUpdate() {
+    this.migrateChartData(this.props.propertyValue);
+  }
+
+  migrateChartData(chartData: Array<{ seriesName: string; data: string }>) {
     // Added a migration script for older chart data that was strings
     // deprecate after enough charts have moved to the new format
     if (_.isString(chartData)) {
@@ -183,7 +185,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
           data: string;
         }> = JSON.parse(chartData);
         this.updateProperty(this.props.propertyName, parsedData);
-        this.chartData = parsedData;
+        return parsedData;
       } catch (error) {
         Sentry.captureException({
           message: "Chart Migration Failed",
@@ -191,12 +193,8 @@ class ChartDataControl extends BaseControl<ControlProps> {
         });
       }
     } else {
-      this.chartData = this.props.propertyValue;
+      return this.props.propertyValue;
     }
-  }
-
-  componentDidUpdate() {
-    this.chartData = this.props.propertyValue;
   }
 
   render() {
