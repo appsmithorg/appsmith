@@ -182,7 +182,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
           seriesName: string;
           data: string;
         }> = JSON.parse(chartData);
-        this.updateProperty("chartData", parsedData);
+        this.updateProperty(this.props.propertyName, parsedData);
         this.chartData = parsedData;
       } catch (error) {
         Sentry.captureException({
