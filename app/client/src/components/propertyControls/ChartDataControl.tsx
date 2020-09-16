@@ -175,10 +175,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
     this.migrateChartData(this.props.propertyValue);
   }
 
-  componentDidUpdate() {
-    this.migrateChartData(this.props.propertyValue);
-  }
-
   migrateChartData(chartData: Array<{ seriesName: string; data: string }>) {
     // Added a migration script for older chart data that was strings
     // deprecate after enough charts have moved to the new format
