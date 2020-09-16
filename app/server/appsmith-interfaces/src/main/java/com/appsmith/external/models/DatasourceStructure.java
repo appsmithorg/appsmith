@@ -37,8 +37,29 @@ public class DatasourceStructure {
         String defaultValue;
     }
 
-    public interface Key {
+    public interface Key extends Comparable<Key> {
         String getType();
+
+        @Override
+        default int compareTo(Key other) {
+            if (this instanceof PrimaryKey && other instanceof ForeignKey) {
+                return -1;
+            } else if (this instanceof ForeignKey && other instanceof PrimaryKey) {
+                return 1;
+            } else if (this instanceof PrimaryKey && other instanceof PrimaryKey) {
+                final PrimaryKey thisKey = (PrimaryKey) this;
+                final PrimaryKey otherKey = (PrimaryKey) other;
+                if (thisKey.getName() != null && otherKey.getName() != null) {
+                    return thisKey.getName().compareTo(otherKey.getName());
+                } else if (thisKey.getName() == null) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+
+            return 0;
+        }
     }
 
     @Data

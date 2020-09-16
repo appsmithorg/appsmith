@@ -30,6 +30,7 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -38,7 +39,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
@@ -316,8 +316,6 @@ public class MySqlPlugin extends BasePlugin {
                         "                    on col.table_schema = tab.table_schema\n" +
                         "                        and col.table_name = tab.table_name\n" +
                         "where tab.table_type = 'BASE TABLE'\n" +
-                        "  and tab.table_schema not in ('information_schema','mysql',\n" +
-                        "                               'performance_schema','sys')\n" +
                         "  and tab.table_schema = database()\n" +
                         "order by tab.table_name,\n" +
                         "         col.ordinal_position;"
@@ -346,7 +344,7 @@ public class MySqlPlugin extends BasePlugin {
                         "       i.TABLE_SCHEMA as self_schema,\n" +
                         "       i.table_name as self_table,\n" +
                         "       if(i.constraint_type = 'FOREIGN KEY', 'f', 'p') as constraint_type,\n" +
-                        "       k.column_name, -- k.ordinal_position, k.position_in_unique_constraint,\n" +
+                        "       k.column_name as self_column, -- k.ordinal_position, k.position_in_unique_constraint,\n" +
                         "       k.referenced_table_schema as foreign_schema,\n" +
                         "       k.referenced_table_name as foreign_table,\n" +
                         "       k.referenced_column_name as foreign_column\n" +
@@ -355,7 +353,7 @@ public class MySqlPlugin extends BasePlugin {
                         "             on i.constraint_name = k.constraint_name and i.table_name = k.table_name\n" +
                         "where i.table_schema = database()\n" +
                         "  and k.constraint_schema = database()\n" +
-                        "  and i.enforced = 'YES'\n" +
+                        // "  and i.enforced = 'YES'\n" +  // Looks like this is not available on all versions of MySQL.
                         "  and i.constraint_type in ('FOREIGN KEY', 'PRIMARY KEY')\n" +
                         "order by i.table_name, i.constraint_name, k.position_in_unique_constraint;";
 
@@ -368,12 +366,11 @@ public class MySqlPlugin extends BasePlugin {
                         final char constraintType = constraintsResultSet.getString("constraint_type").charAt(0);
                         final String selfSchema = constraintsResultSet.getString("self_schema");
                         final String tableName = constraintsResultSet.getString("self_table");
-                        final String fullTableName = selfSchema + "." + tableName;
-                        if (!tablesByName.containsKey(fullTableName)) {
+                        if (!tablesByName.containsKey(tableName)) {
                             continue;
                         }
 
-                        final DatasourceStructure.Table table = tablesByName.get(fullTableName);
+                        final DatasourceStructure.Table table = tablesByName.get(tableName);
                         final String keyFullName = tableName + "." + constraintsResultSet.getString("constraint_name");
 
                         if (constraintType == 'p') {
@@ -385,7 +382,7 @@ public class MySqlPlugin extends BasePlugin {
                                 keyRegistry.put(keyFullName, key);
                                 table.getKeys().add(key);
                             }
-                            ((DatasourceStructure.PrimaryKey) keyRegistry.get(keyFullName)).getColumnNames().add(constraintsResultSet.getString("column_name"));
+                            ((DatasourceStructure.PrimaryKey) keyRegistry.get(keyFullName)).getColumnNames().add(constraintsResultSet.getString("self_column"));
 
                         } else if (constraintType == 'f') {
                             final String foreignSchema = constraintsResultSet.getString("foreign_schema");
@@ -396,16 +393,16 @@ public class MySqlPlugin extends BasePlugin {
                             if (!keyRegistry.containsKey(keyFullName)) {
                                 final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
                                         constraintName,
-                                        List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
-                                        Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
-                                                .map(name -> prefix + name)
-                                                .collect(Collectors.toList())
+                                        new ArrayList<>(),
+                                        new ArrayList<>()
                                 );
                                 keyRegistry.put(keyFullName, key);
                                 table.getKeys().add(key);
                             }
-                            ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getFromColumns().add(constraintsResultSet.getString("column_name"));
-                            ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getToColumns().add(constraintsResultSet.getString("foreign_column"));
+                            ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getFromColumns()
+                                    .add(constraintsResultSet.getString("self_column"));
+                            ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getToColumns()
+                                    .add(prefix + constraintsResultSet.getString("foreign_column"));
 
                         }
                     }
@@ -462,6 +459,9 @@ public class MySqlPlugin extends BasePlugin {
             }
 
             structure.setTables(new ArrayList<>(tablesByName.values()));
+            for (DatasourceStructure.Table table : structure.getTables()) {
+                table.getKeys().sort(Comparator.naturalOrder());
+            }
             return Mono.just(structure);
         }
     }
