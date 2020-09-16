@@ -1,5 +1,6 @@
 import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/ActionConstants";
+import { Org } from "./orgConstants";
 
 export const ReduxActionTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR: "INITIALIZE_EDITOR",
@@ -20,7 +21,10 @@ export const ReduxActionTypes: { [key: string]: string } = {
   REDO_CANVAS_ACTION: "REDO_CANVAS_ACTION",
   LOAD_WIDGET_CONFIG: "LOAD_WIDGET_CONFIG",
   LOAD_PROPERTY_CONFIG: "LOAD_PROPERTY_CONFIG",
+  UPDATE_APPLICATION: "UPDATE_APPLICATION",
+  UPDATE_APPLICATION_SUCCESS: "UPDATE_APPLICATION_SUCCESS",
   PUBLISH: "PUBLISH",
+  SET_THEME: "SET_THEME",
   FETCH_WIDGET_CARDS: "FETCH_WIDGET_CARDS",
   FETCH_WIDGET_CARDS_SUCCESS: "FETCH_WIDGET_CARDS_SUCCESS",
   ADD_PAGE_WIDGET: "ADD_PAGE_WIDGET",
@@ -280,6 +284,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR_ERROR: "INITIALIZE_EDITOR_ERROR",
   API_ERROR: "API_ERROR",
   WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
+  UPDATE_APPLICATION_ERROR: "UPDATE_APPLICATION_ERROR",
   WIDGET_MOVE_ERROR: "WIDGET_MOVE_ERROR",
   WIDGET_RESIZE_ERROR: "WIDGET_RESIZE_ERROR",
   WIDGET_REMOVE_CHILD_ERROR: "WIDGET_REMOVE_CHILD_ERROR",
@@ -438,6 +443,8 @@ export type PageListPayload = Array<Page>;
 export type ApplicationPayload = {
   id: string;
   name: string;
+  color?: string;
+  icon?: string;
   organizationId: string;
   pageCount: number;
   defaultPageId?: string;
@@ -447,7 +454,7 @@ export type ApplicationPayload = {
 };
 
 export type OrganizationDetails = {
-  organization: {};
+  organization: Org;
   applications: [];
 };
 

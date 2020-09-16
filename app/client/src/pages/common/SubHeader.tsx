@@ -1,21 +1,21 @@
 import React, { ReactNode } from "react";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { ControlGroup, InputGroup, IIconProps } from "@blueprintjs/core";
-import Button from "components/editorComponents/Button";
+import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
-import _ from "lodash";
+import _, { noop } from "lodash";
+import SearchInput, { SearchVariant } from "components/ads/SearchInput";
+import Button, { Size } from "components/ads/Button";
 
 const SubHeaderWrapper = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: ${props => props.theme.spaces[5]}px
-    ${props => props.theme.spaces[5]}px;
-`;
-const StyledAddButton = styled(Button)<IIconProps>`
-  &&& {
-    outline: none;
-  }
+  position: fixed;
+  padding-top: 30px;
+  background: ${props => props.theme.colors.homepageBackground};
+  top: ${props => props.theme.homePage.header}px;
+  left: 369px;
+  z-index: 10;
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
@@ -52,19 +52,8 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
     props.search &&
     props.search.queryFn &&
     _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
-  const searchQuery = (e: any) => {
-    query && query(e.target.value);
-  };
-
   const createTrigger = props.add && (
-    <StyledAddButton
-      text={props.add.title}
-      icon="plus"
-      title={props.add.title}
-      onClick={props.add.onClick}
-      filled
-      intent="primary"
-    />
+    <Button text={props.add.title} size={Size.medium} />
   );
 
   return (
@@ -72,11 +61,11 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
       <SearchContainer>
         {props.search && (
           <ControlGroup>
-            <InputGroup
+            <SearchInput
+              cypressSelector={"t--application-search-input"}
               placeholder={props.search.placeholder}
-              leftIcon="search"
-              onChange={searchQuery}
-              className="t--application-search-input"
+              variant={SearchVariant.SEAMLESS}
+              onChange={query || noop}
             />
           </ControlGroup>
         )}
