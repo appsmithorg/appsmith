@@ -51,3 +51,7 @@ div.bp3-popover-arrow {
 .Toastify__toast-body {
   margin: 0 !important;
 }
+
+.Toastify__progress-bar--default {
+  background: #29CCA3 !important;
+}

@@ -19,6 +19,8 @@ import { OccupiedSpace } from "constants/editorConstants";
 import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { isString } from "lodash";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -191,6 +193,34 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
+const tabsWidgetTabsPropertyMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children
+    ?.filter(Boolean)
+    .map((child: WidgetProps) => {
+      if (child.type === WidgetTypes.TABS_WIDGET) {
+        const tabs = isString(child.tabs) ? JSON.parse(child.tabs) : child.tabs;
+
+        const newTabs = tabs.map((tab: any) => {
+          const childForTab = child.children
+            ?.filter(Boolean)
+            .find((tabChild: WidgetProps) => tabChild.tabId === tab.id);
+          if (childForTab) {
+            tab.widgetId = childForTab.widgetId;
+          }
+          return tab;
+        });
+        child.tabs = JSON.stringify(newTabs);
+      }
+      if (child.children && child.children.length) {
+        child = tabsWidgetTabsPropertyMigration(child);
+      }
+      return child;
+    });
+  return currentDSL;
+};
+
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
@@ -233,6 +263,9 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 4) {
     currentDSL = singleChartDataMigration(currentDSL);
     currentDSL.version = 5;
+  }
+  if (currentDSL.version === 5) {
+    currentDSL = tabsWidgetTabsPropertyMigration(currentDSL);
   }
 
   return currentDSL;
@@ -448,7 +481,7 @@ export const getSnapColumns = (): number => {
 };
 
 export const generateWidgetProps = (
-  parent: ContainerWidgetProps<WidgetProps>,
+  parent: FlattenedWidgetProps,
   type: WidgetType,
   leftColumn: number,
   topRow: number,
