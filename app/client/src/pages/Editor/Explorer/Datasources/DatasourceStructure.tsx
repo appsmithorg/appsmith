@@ -37,7 +37,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
   const [active, setActive] = useState(false);
 
   const lightningMenu = (
-    <Wrapper>
+    <Wrapper className="t--template-menu-trigger">
       <IconWrapper {...iconProps}>
         <LightningIcon />
       </IconWrapper>
@@ -52,7 +52,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
         onClosed={() => {
           setActive(false);
         }}
-        className={`${EntityClassNames.CONTEXT_MENU}`}
+        className={`${EntityClassNames.CONTEXT_MENU} t--template-menu`}
         minimal
         position={Position.RIGHT_TOP}
         boundary={"viewport"}
@@ -69,6 +69,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
   return (
     <Entity
       entityId={"DatasourceStructure"}
+      className={"datasourceStructure"}
       name={dbStructure.name}
       icon={queryIcon}
       step={props.step}

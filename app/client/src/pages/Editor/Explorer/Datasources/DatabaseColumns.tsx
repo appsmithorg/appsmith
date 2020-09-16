@@ -80,7 +80,7 @@ export const DatabaseColumns = (props: any) => {
   const columnType = column.type;
 
   const content = (
-    <Wrapper step={props.step + 1}>
+    <Wrapper step={props.step + 1} className="t--datasource-column">
       {queryIcon}
       <Content>
         <Value>{columnName}</Value>
