@@ -29,7 +29,7 @@ describe("Entity explorer datasource structure", function() {
     cy.get(explorer.datasourceColumn)
       .first()
       .click();
-    cy.get(`${explorer.datasourceColumn}-expanded`).should("be.visible");
+    cy.get(".bp3-popover-content").should("be.visible");
 
     cy.get(explorer.templateMenuIcon)
       .first()
