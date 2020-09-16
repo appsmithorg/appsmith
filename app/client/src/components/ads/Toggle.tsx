@@ -130,6 +130,7 @@ export default function Toggle(props: ToggleProps) {
       isLoading={props.isLoading}
       disabled={props.disabled}
       value={value}
+      className={props.className}
     >
       <input
         type="checkbox"

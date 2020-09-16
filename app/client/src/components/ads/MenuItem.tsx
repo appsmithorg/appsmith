@@ -4,17 +4,19 @@ import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Text, { TextType, FontWeight } from "./Text";
 
-type MenuItemProps = CommonComponentProps & {
+export type MenuItemProps = CommonComponentProps & {
   icon?: IconName;
   text: string;
   label?: ReactNode;
+  href?: string;
   onSelect?: () => void;
 };
 
-const ItemRow = styled.div<{ disabled?: boolean }>`
+const ItemRow = styled.a<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  text-decoration: none;
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
 
@@ -22,6 +24,7 @@ const ItemRow = styled.div<{ disabled?: boolean }>`
     !props.disabled
       ? ` 
     &:hover {
+      text-decoration: none;
       cursor: pointer;
       background-color: ${props.theme.colors.blackShades[4]};
       .${Classes.TEXT} {
@@ -40,7 +43,7 @@ const ItemRow = styled.div<{ disabled?: boolean }>`
     `}
 `;
 
-const IconContainer = styled.div`
+const IconContainer = styled.span`
   display: flex;
   align-items: center;
 
@@ -52,6 +55,7 @@ const IconContainer = styled.div`
 function MenuItem(props: MenuItemProps) {
   return (
     <ItemRow
+      href={props.href}
       onClick={props.onSelect}
       disabled={props.disabled}
       data-cy={props.cypressSelector}

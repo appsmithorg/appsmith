@@ -53,9 +53,11 @@ type ButtonProps = CommonComponentProps & {
   text?: string;
   category?: Category;
   variant?: Variant;
+  className?: string;
   icon?: IconName;
   size?: Size;
   fill?: boolean;
+  href?: string;
 };
 
 const stateStyles = (
@@ -101,7 +103,7 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].main;
           borderColorPrimary = props.theme.colors[props.variant].main;
         }
-        txtColorPrimary = props.theme.colors.blackShades[9];
+        txtColorPrimary = "#fff";
         break;
       case Category.secondary:
         if (props.variant) {
@@ -123,7 +125,7 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].dark;
           borderColorPrimary = props.theme.colors[props.variant].dark;
         }
-        txtColorPrimary = props.theme.colors.blackShades[9];
+        txtColorPrimary = "#fff";
         break;
       case Category.secondary:
         if (props.variant) {
@@ -148,7 +150,7 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].dark;
           borderColorPrimary = props.theme.colors[props.variant].main;
         }
-        txtColorPrimary = props.theme.colors.blackShades[9];
+        txtColorPrimary = "#fff";
         break;
       case Category.secondary:
         if (props.variant) {
@@ -241,10 +243,11 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
   return { buttonFont, padding, height };
 };
 
-const StyledButton = styled("button")<ThemeProp & ButtonProps>`
+const StyledButton = styled("a")<ThemeProp & ButtonProps>`
   width: ${props => (props.fill ? "100%" : "auto")};
   height: ${props => btnFontStyles(props).height}px;
   border: none;
+  text-decoration: none;
   outline: none;
   text-transform: uppercase;
   background-color: ${props => btnColorStyles(props, "main").bgColor};
@@ -261,6 +264,7 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     }
   }
   &:hover {
+    text-decoration: none;
     background-color: ${props => btnColorStyles(props, "hover").bgColor};
     color: ${props => btnColorStyles(props, "hover").txtColor};
     border: ${props => btnColorStyles(props, "hover").border};
@@ -334,6 +338,8 @@ function Button(props: ButtonProps) {
 
   return (
     <StyledButton
+      href={props.href}
+      className={props.className}
       data-cy={props.cypressSelector}
       {...props}
       onClick={(e: React.MouseEvent<HTMLElement>) =>

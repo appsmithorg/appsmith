@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as Sentry from "@sentry/react";
-
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppRoute = ({
