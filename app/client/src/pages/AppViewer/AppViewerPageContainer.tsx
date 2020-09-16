@@ -16,6 +16,7 @@ import {
   getCanvasWidgetDsl,
   getCurrentPageName,
 } from "selectors/editorSelectors";
+import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 
 const Section = styled.section`
   background: ${props => props.theme.colors.bodyBG};
@@ -100,6 +101,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
             pageId={this.props.match.params.pageId}
             pageName={this.props.currentPageName}
           />
+          <ConfirmRunModal />
         </Section>
       );
     }
