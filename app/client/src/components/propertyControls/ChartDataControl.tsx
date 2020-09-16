@@ -200,8 +200,9 @@ class ChartDataControl extends BaseControl<ControlProps> {
   }
 
   render() {
-    const chartData = this.chartData;
-    const dataLength = this.chartData.length;
+    const chartData: Array<{ seriesName: string; data: string }> = this.props
+      .propertyValue;
+    const dataLength = chartData.length;
     const { validationMessage, isValid } = this.props;
     const validations: Array<{
       isValid: boolean;
@@ -213,7 +214,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
     );
     return (
       <React.Fragment>
-        {this.chartData.map((data, index) => {
+        {chartData.map((data, index) => {
           return (
             <DataControlComponent
               key={index}
