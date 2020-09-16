@@ -139,10 +139,6 @@ function DataControlComponent(props: RenderComponentProps) {
 }
 
 class ChartDataControl extends BaseControl<ControlProps> {
-  constructor(props: ControlProps) {
-    super(props);
-  }
-
   getValidations = (message: string, isValid: boolean, len: number) => {
     const validations: Array<{
       isValid: boolean;
