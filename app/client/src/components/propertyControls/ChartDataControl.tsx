@@ -141,7 +141,6 @@ function DataControlComponent(props: RenderComponentProps) {
 class ChartDataControl extends BaseControl<ControlProps> {
   constructor(props: ControlProps) {
     super(props);
-    this.migrateChartData(props.propertyValue);
   }
 
   getValidations = (message: string, isValid: boolean, len: number) => {
@@ -203,8 +202,11 @@ class ChartDataControl extends BaseControl<ControlProps> {
   }
 
   render() {
-    const chartData: Array<{ seriesName: string; data: string }> = this.props
-      .propertyValue;
+    const chartData: Array<{ seriesName: string; data: string }> = _.isString(
+      this.props.propertyValue,
+    )
+      ? []
+      : this.props.propertyValue;
     const dataLength = chartData.length;
     const { validationMessage, isValid } = this.props;
     const validations: Array<{
