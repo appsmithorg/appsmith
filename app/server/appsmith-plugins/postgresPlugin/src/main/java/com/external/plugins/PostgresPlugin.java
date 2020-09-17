@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -346,11 +347,9 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(Object connection, DatasourceConfiguration datasourceConfiguration) {
-            final Connection conn = (Connection) connection;
-
+        public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
             try {
-                if (conn == null || conn.isClosed() || !conn.isValid(VALIDITY_CHECK_TIMEOUT)) {
+                if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
                     log.info("Encountered stale connection in Postgres plugin. Reporting back.");
                     throw new StaleConnectionException();
                 }
@@ -365,7 +364,7 @@ public class PostgresPlugin extends BasePlugin {
 
             // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
 
-            try (Statement statement = conn.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
 
                 // Get tables and fill up their columns.
                 try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
@@ -377,7 +376,10 @@ public class PostgresPlugin extends BasePlugin {
                         if (!tablesByName.containsKey(fullTableName)) {
                             tablesByName.put(fullTableName, new DatasourceStructure.Table(
                                     kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
-                                    fullTableName
+                                    fullTableName,
+                                    new ArrayList<>(),
+                                    new ArrayList<>(),
+                                    new ArrayList<>()
                             ));
                         }
                         final DatasourceStructure.Table table = tablesByName.get(fullTableName);
@@ -404,9 +406,11 @@ public class PostgresPlugin extends BasePlugin {
                         final DatasourceStructure.Table table = tablesByName.get(fullTableName);
 
                         if (constraintType == 'p') {
-                            final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(constraintName);
+                            final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
+                                    constraintName,
+                                    List.of((String[]) constraintsResultSet.getArray("self_columns").getArray())
+                            );
                             table.getKeys().add(key);
-                            key.getColumnNames().addAll(List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()));
 
                         } else if (constraintType == 'f') {
                             final String foreignSchema = constraintsResultSet.getString("foreign_schema");
@@ -414,11 +418,13 @@ public class PostgresPlugin extends BasePlugin {
                                     + constraintsResultSet.getString("foreign_table")
                                     + ".";
 
-                            final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(constraintName);
-                            key.getFromColumns().addAll(List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()));
-                            Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
-                                    .map(name -> prefix + name)
-                                    .forEach(key.getToColumns()::add);
+                            final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
+                                    constraintName,
+                                    List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
+                                    Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
+                                            .map(name -> prefix + name)
+                                            .collect(Collectors.toList())
+                            );
 
                             table.getKeys().add(key);
 
@@ -479,7 +485,10 @@ public class PostgresPlugin extends BasePlugin {
 
             }
 
-            structure.getTables().addAll(tablesByName.values());
+            structure.setTables(new ArrayList<>(tablesByName.values()));
+            for (DatasourceStructure.Table table : structure.getTables()) {
+                table.getKeys().sort(Comparator.naturalOrder());
+            }
             return Mono.just(structure);
         }
     }
