@@ -54,6 +54,39 @@ public class MySqlPlugin extends BasePlugin {
     private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
 
+    private static final String COLUMNS_QUERY = "select tab.table_name as table_name,\n" +
+            "       col.ordinal_position as column_id,\n" +
+            "       col.column_name as column_name,\n" +
+            "       col.data_type as column_type,\n" +
+            "       col.is_nullable = 'YES' as is_nullable,\n" +
+            "       col.column_key,\n" +
+            "       col.extra\n" +
+            "from information_schema.tables as tab\n" +
+            "         inner join information_schema.columns as col\n" +
+            "                    on col.table_schema = tab.table_schema\n" +
+            "                        and col.table_name = tab.table_name\n" +
+            "where tab.table_type = 'BASE TABLE'\n" +
+            "  and tab.table_schema = database()\n" +
+            "order by tab.table_name,\n" +
+            "         col.ordinal_position;";
+
+    private static final String KEYS_QUERY = "select i.constraint_name,\n" +
+            "       i.TABLE_SCHEMA as self_schema,\n" +
+            "       i.table_name as self_table,\n" +
+            "       if(i.constraint_type = 'FOREIGN KEY', 'f', 'p') as constraint_type,\n" +
+            "       k.column_name as self_column, -- k.ordinal_position, k.position_in_unique_constraint,\n" +
+            "       k.referenced_table_schema as foreign_schema,\n" +
+            "       k.referenced_table_name as foreign_table,\n" +
+            "       k.referenced_column_name as foreign_column\n" +
+            "from information_schema.table_constraints i\n" +
+            "         left join information_schema.key_column_usage k\n" +
+            "             on i.constraint_name = k.constraint_name and i.table_name = k.table_name\n" +
+            "where i.table_schema = database()\n" +
+            "  and k.constraint_schema = database()\n" +
+            // "  and i.enforced = 'YES'\n" +  // Looks like this is not available on all versions of MySQL.
+            "  and i.constraint_type in ('FOREIGN KEY', 'PRIMARY KEY')\n" +
+            "order by i.table_name, i.constraint_name, k.position_in_unique_constraint;";
+
     public MySqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -303,23 +336,7 @@ public class MySqlPlugin extends BasePlugin {
             try (Statement statement = connection.createStatement()) {
 
                 // Get tables and fill up their columns.
-                try (ResultSet columnsResultSet = statement.executeQuery(
-                        "select tab.table_name as table_name,\n" +
-                        "       col.ordinal_position as column_id,\n" +
-                        "       col.column_name as column_name,\n" +
-                        "       col.data_type as column_type,\n" +
-                        "       col.is_nullable = 'YES' as is_nullable,\n" +
-                        "       col.column_key,\n" +
-                        "       col.extra\n" +
-                        "from information_schema.tables as tab\n" +
-                        "         inner join information_schema.columns as col\n" +
-                        "                    on col.table_schema = tab.table_schema\n" +
-                        "                        and col.table_name = tab.table_name\n" +
-                        "where tab.table_type = 'BASE TABLE'\n" +
-                        "  and tab.table_schema = database()\n" +
-                        "order by tab.table_name,\n" +
-                        "         col.ordinal_position;"
-                )) {
+                try (ResultSet columnsResultSet = statement.executeQuery(COLUMNS_QUERY)) {
                     while (columnsResultSet.next()) {
                         final String tableName = columnsResultSet.getString("table_name");
                         if (!tablesByName.containsKey(tableName)) {
@@ -339,23 +356,6 @@ public class MySqlPlugin extends BasePlugin {
                         ));
                     }
                 }
-
-                String KEYS_QUERY = "select i.constraint_name,\n" +
-                        "       i.TABLE_SCHEMA as self_schema,\n" +
-                        "       i.table_name as self_table,\n" +
-                        "       if(i.constraint_type = 'FOREIGN KEY', 'f', 'p') as constraint_type,\n" +
-                        "       k.column_name as self_column, -- k.ordinal_position, k.position_in_unique_constraint,\n" +
-                        "       k.referenced_table_schema as foreign_schema,\n" +
-                        "       k.referenced_table_name as foreign_table,\n" +
-                        "       k.referenced_column_name as foreign_column\n" +
-                        "from information_schema.table_constraints i\n" +
-                        "         left join information_schema.key_column_usage k\n" +
-                        "             on i.constraint_name = k.constraint_name and i.table_name = k.table_name\n" +
-                        "where i.table_schema = database()\n" +
-                        "  and k.constraint_schema = database()\n" +
-                        // "  and i.enforced = 'YES'\n" +  // Looks like this is not available on all versions of MySQL.
-                        "  and i.constraint_type in ('FOREIGN KEY', 'PRIMARY KEY')\n" +
-                        "order by i.table_name, i.constraint_name, k.position_in_unique_constraint;";
 
                 // Get tables' constraints and fill those up.
                 try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY)) {

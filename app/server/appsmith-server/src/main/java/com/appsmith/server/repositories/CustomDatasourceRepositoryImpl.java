@@ -40,8 +40,8 @@ public class CustomDatasourceRepositoryImpl extends BaseAppsmithRepositoryImpl<D
     @Override
     public Mono<UpdateResult> saveStructure(String datasourceId, DatasourceStructure structure) {
         return mongoOperations.updateFirst(
-                query(where("_id").is(datasourceId)),
-                Update.update("structure", structure),
+                query(where(fieldName(QDatasource.datasource.id)).is(datasourceId)),
+                Update.update(fieldName(QDatasource.datasource.structure), structure),
                 Datasource.class
         );
     }
