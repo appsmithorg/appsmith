@@ -21,9 +21,7 @@ public class ScheduledTasks {
     @Scheduled(fixedRate = 6 * 60 * 60 * 1000)
     public void pingSchedule() {
         getInstallationId()
-                // .doOnSuccess(content -> log.debug("installation id {}", content))
                 .flatMap(this::doPing)
-                // .doOnSuccess(content -> log.debug("ping response {}", content))
                 .doOnError(error -> log.debug("Error pinging home", error))
                 .subscribeOn(Schedulers.single())
                 .subscribe();
