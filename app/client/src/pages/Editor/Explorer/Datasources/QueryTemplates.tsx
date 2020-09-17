@@ -66,7 +66,13 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
         ),
       );
     },
-    [dispatch],
+    [
+      dispatch,
+      actions,
+      currentPageId,
+      params.applicationId,
+      props.datasourceId,
+    ],
   );
 
   return (

@@ -51,7 +51,7 @@ export const ExplorerDatasourceEntity = (
   const getDatasourceStructure = useCallback(() => {
     if (!datasourceStructure)
       dispatch(fetchDatasourceStructure(props.datasource.id));
-  }, [datasourceStructure, props.datasource.id]);
+  }, [datasourceStructure, props.datasource.id, dispatch]);
 
   return (
     <Entity

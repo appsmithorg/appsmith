@@ -86,7 +86,7 @@ class DatasourcesApi extends API {
   }
 
   static fetchDatasourceStructure(id: string): Promise<{}> {
-    return API.get(DatasourcesApi.url + `/${id}` + "/structure");
+    return API.get(DatasourcesApi.url + `/${id}/structure`);
   }
 }
 
