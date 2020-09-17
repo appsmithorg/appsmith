@@ -47,6 +47,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final PageService pageService;
     private final ObjectMapper objectMapper;
     private final AnalyticsService analyticsService;
+    private final NewPageService newPageService;
     /*
      * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
      * e.g. for the given JS function using action with name "fetchUsers"
@@ -66,11 +67,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public LayoutActionServiceImpl(ActionService actionService,
                                    PageService pageService,
                                    ObjectMapper objectMapper,
-                                   AnalyticsService analyticsService) {
+                                   AnalyticsService analyticsService,
+                                   NewPageService newPageService) {
         this.actionService = actionService;
         this.pageService = pageService;
         this.objectMapper = objectMapper;
         this.analyticsService = analyticsService;
+        this.newPageService = newPageService;
     }
 
     @Override
@@ -225,8 +228,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         return actionService
                 .update(action.getId(), action)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, actionMoveDTO.getAction().getId())))
-                .flatMap(savedAction -> pageService
-                        .findById(oldPageId, MANAGE_PAGES)
+                .flatMap(savedAction ->
+                        // fetch the unpublished source page
+                        newPageService
+                        .findPageById(oldPageId, MANAGE_PAGES, false)
                         .flatMap(page -> {
                             if (page.getLayouts() == null) {
                                 return Mono.empty();
@@ -236,7 +241,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                     .flatMap(layout -> updateLayout(oldPageId, layout.getId(), layout))
                                     .collect(toSet());
                         })
-                        .then(pageService.findById(actionMoveDTO.getDestinationPageId(), MANAGE_PAGES))
+                        // fetch the unpublished destination page
+                        .then(newPageService.findPageById(actionMoveDTO.getDestinationPageId(), MANAGE_PAGES, false))
                         .flatMap(page -> {
                             if (page.getLayouts() == null) {
                                 return Mono.empty();
@@ -305,8 +311,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             params.add(FieldName.PAGE_ID, pageId);
         }
 
-        Mono<Page> updatePageMono = pageService
-                .findById(pageId, MANAGE_PAGES)
+        Mono<Page> updatePageMono = newPageService
+                // fetch the unpublished page
+                .findPageById(pageId, MANAGE_PAGES, false)
                 .flatMap(page -> {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
@@ -328,6 +335,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             }
                             page.setLayouts(layouts);
                             // Since the page has most probably changed, save the page and return.
+                            /**
+                             * TODO : Change this to newPageService save page function
+                             */
                             return pageService.save(page);
                         }
                     }
@@ -448,8 +458,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
          * TODO : Execute this check directly on the DB server. We can query array of arrays by:
          * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
          */
-        Mono<Set<String>> widgetNamesMono = pageService
-                .findById(pageId, MANAGE_PAGES)
+        Mono<Set<String>> widgetNamesMono = newPageService
+                // fetch the unpublished page
+                .findPageById(pageId, MANAGE_PAGES, false)
                 .flatMap(page -> {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
@@ -536,7 +547,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     private Mono<Action> updatePageLayoutsGivenAction(Action action) {
         return Mono.justOrEmpty(action.getPageId())
-                .flatMap(pageId -> pageService.findById(pageId, MANAGE_PAGES))
+                // fetch the unpublished page
+                .flatMap(pageId -> newPageService.findPageById(pageId, MANAGE_PAGES, false))
                 .flatMapMany(page -> {
                     if (page.getLayouts() == null) {
                         return Mono.empty();

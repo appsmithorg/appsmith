@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
@@ -22,21 +21,14 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 @Service
 public class LayoutServiceImpl implements LayoutService {
 
-    private final ApplicationPageService applicationPageService;
     private final PageService pageService;
-    /*
-     * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
-     * e.g. for the given JS function using action with name "fetchUsers"
-     * {{JSON.stringify(fetchUsers)}}
-     * This pattern should return ["JSON.stringify", "fetchUsers"]
-     */
-    private final Pattern pattern = Pattern.compile("[a-zA-Z0-9._]+");
+    private final NewPageService newPageService;
 
     @Autowired
-    public LayoutServiceImpl(ApplicationPageService applicationPageService,
-                             PageService pageService) {
-        this.applicationPageService = applicationPageService;
+    public LayoutServiceImpl(PageService pageService,
+                             NewPageService newPageService) {
         this.pageService = pageService;
+        this.newPageService = newPageService;
     }
 
     @Override
@@ -45,8 +37,9 @@ public class LayoutServiceImpl implements LayoutService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
-        Mono<Page> pageMono = pageService
-                .findById(pageId, AclPermission.MANAGE_PAGES)
+        // fetch the unpublished page
+        Mono<Page> pageMono = newPageService
+                .findPageById(pageId, AclPermission.MANAGE_PAGES, false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)));
 
         return pageMono
@@ -62,6 +55,9 @@ public class LayoutServiceImpl implements LayoutService {
                     page.setLayouts(layoutList);
                     return page;
                 })
+                /**
+                 * TODO : Change this to new page service's save function
+                 */
                 .flatMap(pageService::save)
                 .then(Mono.just(layout));
     }

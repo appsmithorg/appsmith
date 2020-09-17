@@ -19,6 +19,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
@@ -61,7 +62,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
@@ -79,6 +79,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final SessionUserService sessionUserService;
     private final MarketplaceService marketplaceService;
     private final PolicyGenerator policyGenerator;
+    private final NewPageService newPageService;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -95,7 +96,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              PluginExecutorHelper pluginExecutorHelper,
                              SessionUserService sessionUserService,
                              MarketplaceService marketplaceService,
-                             PolicyGenerator policyGenerator) {
+                             PolicyGenerator policyGenerator,
+                             NewPageService newPageService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -107,6 +109,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.sessionUserService = sessionUserService;
         this.marketplaceService = marketplaceService;
         this.policyGenerator = policyGenerator;
+        this.newPageService = newPageService;
     }
 
     private Boolean validateActionName(String name) {
@@ -130,17 +133,17 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .getCurrentUser()
                 .cache();
 
-        return pageService
+        return newPageService
                 .findById(action.getPageId(), READ_PAGES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", action.getPageId())))
                 .zipWith(userMono)
                 .flatMap(tuple -> {
-                    Page page = tuple.getT1();
+                    NewPage page = tuple.getT1();
                     User user = tuple.getT2();
 
                     // Inherit the action policies from the page.
-                    generateAndSetActionPolicies(page, user, action);
+                    generateAndSetActionPolicies(page, action);
 
                     // If the datasource is embedded, check for organizationId and set it in action
                     if (action.getDatasource() != null &&
@@ -714,12 +717,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 });
     }
 
-    private void generateAndSetActionPolicies(Page page, User user, Action action) {
-        Set<Policy> policySet = page.getPolicies().stream()
-                .filter(policy -> policy.getPermission().equals(MANAGE_PAGES.getValue())
-                        || policy.getPermission().equals(READ_PAGES.getValue()))
-                .collect(Collectors.toSet());
-        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Page.class, Action.class);
+    private void generateAndSetActionPolicies(NewPage page, Action action) {
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
         action.setPolicies(documentPolicies);
     }
 }

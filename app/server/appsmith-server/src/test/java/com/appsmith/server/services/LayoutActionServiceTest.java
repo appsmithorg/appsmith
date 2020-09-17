@@ -72,6 +72,9 @@ public class LayoutActionServiceTest {
     @Autowired
     LayoutService layoutService;
 
+    @Autowired
+    NewPageService newPageService;
+
     Application testApp = null;
 
     Page testPage = null;
@@ -145,7 +148,8 @@ public class LayoutActionServiceTest {
                     updates.setUserPermissions(null);
                     return layoutActionService.updateAction(savedAction.getId(), updates);
                 })
-                .flatMap(savedAction -> pageService.findById(testPage.getId(), READ_PAGES));
+                // fetch the unpublished page
+                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false));
 
         StepVerifier
                 .create(resultMono)

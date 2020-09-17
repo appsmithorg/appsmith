@@ -71,8 +71,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     }
 
     @Override
-    public Mono<Page> findById(String pageId, AclPermission aclPermission, Boolean view) {
-        return repository.findById(pageId, aclPermission)
+    public Mono<NewPage> findById(String pageId, AclPermission aclPermission) {
+        return repository.findById(pageId, aclPermission);
+    }
+
+    @Override
+    public Mono<Page> findPageById(String pageId, AclPermission aclPermission, Boolean view) {
+        return this.findById(pageId, aclPermission)
                 .map(page -> getPageByViewMode(page, view));
     }
 

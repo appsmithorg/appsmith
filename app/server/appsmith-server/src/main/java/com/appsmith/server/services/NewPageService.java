@@ -10,7 +10,9 @@ import reactor.core.publisher.Mono;
 
 public interface NewPageService extends CrudService<NewPage, String> {
 
-    public Mono<Page> findById(String pageId, AclPermission aclPermission, Boolean view);
+    Mono<NewPage> findById(String pageId, AclPermission aclPermission);
+
+    Mono<Page> findPageById(String pageId, AclPermission aclPermission, Boolean view);
 
     Flux<Page> findByApplicationId(String applicationId, AclPermission permission, Boolean view);
 

@@ -50,6 +50,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     private final ApplicationRepository applicationRepository;
     private final ActionService actionService;
+    private final NewPageService newPageService;
 
     public ApplicationPageServiceImpl(ApplicationService applicationService,
                                       PageService pageService,
@@ -59,7 +60,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                       AnalyticsService analyticsService,
                                       PolicyGenerator policyGenerator,
                                       ApplicationRepository applicationRepository,
-                                      ActionService actionService) {
+                                      ActionService actionService,
+                                      NewPageService newPageService) {
         this.applicationService = applicationService;
         this.pageService = pageService;
         this.sessionUserService = sessionUserService;
@@ -69,6 +71,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         this.policyGenerator = policyGenerator;
         this.applicationRepository = applicationRepository;
         this.actionService = actionService;
+        this.newPageService = newPageService;
     }
 
     public Mono<Page> createPage(Page page) {
@@ -134,7 +137,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Page> getPage(String pageId, boolean viewMode) {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
-        return pageService.findById(pageId, permission)
+        return newPageService.findPageById(pageId, permission, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
@@ -183,7 +186,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     @Override
     public Mono<Application> makePageDefault(String applicationId, String pageId) {
-        return pageService.findById(pageId, AclPermission.MANAGE_PAGES)
+        // Since this can only happen during edit, the page in question is unpublished page. Set the view mode accordingly
+        Boolean viewMode = false;
+        return newPageService.findPageById(pageId, AclPermission.MANAGE_PAGES, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 // Check if the page actually belongs to the application.
                 .flatMap(page -> {
@@ -322,7 +327,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Page> clonePage(String pageId) {
 
-        return pageService.findById(pageId, MANAGE_PAGES)
+        return newPageService.findById(pageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
                 .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId()));
     }
@@ -330,7 +335,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private Mono<Page> clonePageGivenApplicationId(String pageId, String applicationId) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
-        Mono<Page> sourcePageMono = pageService.findById(pageId, MANAGE_PAGES)
+        Mono<Page> sourcePageMono = newPageService.findPageById(pageId, MANAGE_PAGES, false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
                 .flatMap(page -> Flux.fromIterable(page.getLayouts())
                         .map(layout -> layout.getDsl())
