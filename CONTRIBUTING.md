@@ -5,10 +5,11 @@ Appsmith is a project by developers for developers and there are a lot of ways y
 Feel free to propose changes to this document in a pull request.
 
 ### Table of contents
-- [Code of conduct](CODE_OF_CONDUCT.md)
-- [How can I contribute?](#how-can-i-contribute)
-- [How to set up local development?](#how-to-set-up-local-development)
-- [How to run tests?](#how-to-run-tests)
+- Code of conduct
+- How can I contribute?
+- Git Workflow
+- Setting up local development
+- Running tests
 
 ## How can I contribute?
 There are many ways in which we/one can to contribute to Appsmith. All contributions are highly appreciated.
@@ -20,6 +21,10 @@ There are many ways in which we/one can to contribute to Appsmith. All contribut
     - Introduce New Widgets
     - Introduce New Database Integrations
     - Introduce New SAAS Integrations
+    
+## Code of conduct
+
+Read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing
 
 ## Git Workflow
 
@@ -34,7 +39,7 @@ Pull requests are the best way to propose changes to the codebase and get them r
 5. Create an issue referencing the pull request. This ensures that we can track the bug being fixed or feature being added easily.
 
 
-## 👨‍💻 How to set up local development
+## 👨‍💻 Setting up local development
 
 ### Client
 Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows.
@@ -109,7 +114,7 @@ echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
     cp envs/dev.env.example envs/dev.env
     ```
 
-## 🧪 How to run tests
+## 🧪 Running tests
 
 ##### Client
 1. In order to run the Cypress integration tests, run:
