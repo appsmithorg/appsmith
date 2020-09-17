@@ -47,7 +47,7 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name .bp3-popover-target")
+  cy.get(".t--org-name a")
     .first()
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
@@ -91,7 +91,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name .bp3-popover-target")
+  cy.get(".t--org-name a")
     .first()
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
@@ -117,7 +117,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name .bp3-popover-target")
+  cy.get(".t--org-name a")
     .first()
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
@@ -299,7 +299,9 @@ Cypress.Commands.add("NavigateToWidgets", pageName => {
 Cypress.Commands.add("SearchApp", appname => {
   cy.get(homePage.searchInput).type(appname);
   cy.wait(2000);
-  cy.get(homePage.applicationCard).trigger("mouseover");
+  cy.get(homePage.applicationCard)
+    .first()
+    .trigger("mouseover", { force: true });
   cy.get(homePage.appEditIcon)
     .first()
     .click({ force: true });
