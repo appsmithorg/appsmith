@@ -63,9 +63,21 @@ export interface GetAllApplicationResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
 }
 
+export type UpdateApplicationPayload = {
+  icon?: string;
+  color?: string;
+  name?: string;
+};
+
+export type UpdateApplicationRequest = UpdateApplicationPayload & {
+  id: string;
+};
+
 export interface ApplicationObject {
   id: string;
   name: string;
+  icon?: string;
+  color?: string;
   organizationId: string;
   pages: ApplicationPagePayload[];
   userPermissions: string[];
@@ -141,6 +153,13 @@ class ApplicationApi extends Api {
         ApplicationApi.changeAppViewAccessPath(request.applicationId),
       { publicAccess: request.publicAccess },
     );
+  }
+
+  static updateApplication(
+    request: UpdateApplicationRequest,
+  ): AxiosPromise<ApiResponse> {
+    const { id, ...rest } = request;
+    return Api.put(ApplicationApi.baseURL + id, rest);
   }
 
   static deleteApplication(

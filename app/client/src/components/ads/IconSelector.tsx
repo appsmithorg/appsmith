@@ -21,7 +21,14 @@ const IconPalette = styled.div<{ fill?: boolean }>`
   width: ${props => (props.fill ? "100%" : "234px")};
 `;
 
-const IconBox = styled.div`
+const IconBox = styled.div<{ selectedColor?: string }>`
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${props =>
+    props.selectedColor || props.theme.colors.blackShades[2]};
   margin: 0 ${props => props.theme.spaces[2]}px
     ${props => props.theme.spaces[2]}px 0;
   position: relative;
@@ -48,22 +55,19 @@ const IconSelector = (props: IconSelectorProps) => {
   }, [props.selectedIcon]);
 
   return (
-    <IconPalette fill={props.fill}>
+    <IconPalette fill={props.fill} data-cy={props.cypressSelector}>
       {props.iconPalette &&
         props.iconPalette.map((iconName: AppIconName, index: number) => {
           return (
             <IconBox
               key={index}
+              selectedColor={selected === iconName ? props.selectedColor : ""}
               onClick={() => {
                 setSelected(iconName);
                 props.onSelect && props.onSelect(iconName);
               }}
             >
-              <AppIcon
-                name={iconName}
-                size={Size.small}
-                color={selected === iconName ? props.selectedColor : "#232324"}
-              />
+              <AppIcon name={iconName} size={Size.small} />
             </IconBox>
           );
         })}

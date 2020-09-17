@@ -7,9 +7,11 @@ import {
 } from "constants/ReduxActionConstants";
 import { Organization } from "constants/orgConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
+import { UpdateApplicationRequest } from "api/ApplicationApi";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
+  isSavingAppName: false,
   isFetchingApplication: false,
   isChangingViewAccess: false,
   applicationList: [],
@@ -89,10 +91,12 @@ const applicationsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ applicationList: any }>,
-  ) => ({
-    ...state,
-    userOrgs: action.payload,
-  }),
+  ) => {
+    return {
+      ...state,
+      userOrgs: action.payload,
+    };
+  },
 
   [ReduxActionTypes.FETCH_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
@@ -160,12 +164,52 @@ const applicationsReducer = createReducer(initialState, {
   ) => {
     return { ...state, duplicatingApplication: false };
   },
+  [ReduxActionTypes.UPDATE_APPLICATION]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<UpdateApplicationRequest>,
+  ) => {
+    let isSavingAppName = false;
+    const _organizations = state.userOrgs.map(
+      (org: Organization, index: number) => {
+        const appIndex = org.applications.findIndex(
+          app => app.id === action.payload.id,
+        );
+        const { id, ...rest } = action.payload;
+        if (appIndex !== -1) {
+          isSavingAppName = action.payload.name !== undefined;
+          org.applications[appIndex] = {
+            ...org.applications[appIndex],
+            ...rest,
+          };
+        }
+
+        return org;
+      },
+    );
+
+    return {
+      ...state,
+      userOrgs: _organizations,
+      isSavingAppName: isSavingAppName,
+    };
+  },
+  [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return { ...state, isSavingAppName: false };
+  },
+  [ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return { ...state, isSavingAppName: false };
+  },
 });
 
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
   searchKeyword?: string;
   isFetchingApplications: boolean;
+  isSavingAppName: boolean;
   isFetchingApplication: boolean;
   isChangingViewAccess: boolean;
   creatingApplication: boolean;

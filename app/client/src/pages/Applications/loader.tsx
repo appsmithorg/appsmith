@@ -1,5 +1,6 @@
 import React from "react";
 import PageLoadingBar from "pages/common/PageLoadingBar";
+import { retryPromise } from "utils/AppsmithUtils";
 
 class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   constructor(props: any) {
@@ -11,7 +12,9 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
-    import(/* webpackChunkName: "applications" */ "./index").then(module => {
+    retryPromise(() =>
+      import(/* webpackChunkName: "applications" */ "./index"),
+    ).then(module => {
       this.setState({ Page: module.default });
     });
   }

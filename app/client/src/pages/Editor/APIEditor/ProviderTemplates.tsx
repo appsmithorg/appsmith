@@ -32,6 +32,7 @@ import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppCardColorPallete } from "selectors/themeSelectors";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
@@ -192,6 +193,7 @@ type ProviderTemplatesProps = {
   setLastUsedEditorPage: (path: string) => void;
   setLastSelectedPage: (selectedPageId: string) => void;
   addApiToPage: (templateData: AddApiToPageRequest) => void;
+  appCardColors: string[];
 } & RouteComponentProps<ProviderViewerRouteParams>;
 
 class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
@@ -346,6 +348,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                     style={{
                       backgroundColor: getInitialsAndColorCode(
                         providerDetails.name,
+                        this.props.appCardColors,
                       )[1],
                       padding: 5,
                       margin: "auto",
@@ -359,7 +362,12 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                     }}
                   >
                     <span>
-                      {getInitialsAndColorCode(providerDetails.name)[0]}
+                      {
+                        getInitialsAndColorCode(
+                          providerDetails.name,
+                          this.props.appCardColors,
+                        )[0]
+                      }
                     </span>
                   </div>
                 )}
@@ -505,6 +513,7 @@ const mapStateToProps = (state: AppState) => ({
   isFetchingProviderTemplates: getProvidersTemplatesLoadingState(state),
   actions: state.entities.actions,
   providerDetails: state.ui.providers.providerDetailsByProviderId,
+  appCardColors: getAppCardColorPallete(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

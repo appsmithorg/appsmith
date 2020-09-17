@@ -114,3 +114,9 @@ export const getPluginIdOfPackageName = (
   if (plugin) return plugin.id;
   return undefined;
 };
+
+export const getSelectedWidget = (state: AppState) => {
+  const selectedWidgetId = state.ui.widgetDragResize.selectedWidget;
+  if (!selectedWidgetId) return;
+  return state.entities.canvasWidgets[selectedWidgetId];
+};

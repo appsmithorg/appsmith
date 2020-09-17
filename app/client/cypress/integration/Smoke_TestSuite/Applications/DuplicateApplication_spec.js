@@ -15,13 +15,13 @@ describe("Duplicate application", function() {
     cy.get(homePage.searchInput).type(appname);
     cy.wait(2000);
 
-    cy.get(homePage.applicationCard).trigger("mouseover");
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
     cy.get(homePage.appMoreIcon)
       .first()
       .click({ force: true });
-    cy.get(homePage.deleteButton)
-      .contains("Duplicate")
-      .click({ force: true });
+    cy.get(homePage.duplicateApp).click({ force: true });
 
     cy.wait("@getPage").should(
       "have.nested.property",

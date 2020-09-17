@@ -27,7 +27,7 @@ const SettingWrapper = styled.div`
 `;
 
 export const SettingsHeading = styled(Text)`
-  color: white;
+  color: ${props => props.theme.colors.blackShades[9]};
   display: inline-block;
   margin-top: 25px;
   margin-bottom: 32px;

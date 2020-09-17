@@ -179,8 +179,7 @@ export const OptionWrapper = styled.div<{ selected: boolean }>`
     width: 100%;
   }
   &.non-selectable {
-    color: ${Colors.GRAY};
-    pointer-events: none;
+    background: ${Colors.WHITE_SMOKE};
   }
 `;
 
@@ -361,4 +360,12 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
     font-size: 12px !important;
     color: ${props => (props.selected ? Colors.WHITE : Colors.BLUE_BAYOUX)};
   }
+`;
+
+export const MenuCategoryWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  color: ${Colors.RIVER_BED};
 `;

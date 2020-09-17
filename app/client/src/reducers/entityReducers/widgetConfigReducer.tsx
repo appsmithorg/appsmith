@@ -29,12 +29,13 @@ import { IconWidgetProps } from "widgets/IconWidget";
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
 export type WidgetBlueprint = {
-  view: Array<{
+  view?: Array<{
     type: string;
     size?: { rows: number; cols: number };
     position: { top?: number; left?: number };
     props: Record<string, any>;
   }>;
+  operations?: any;
 };
 
 export interface WidgetConfigProps {

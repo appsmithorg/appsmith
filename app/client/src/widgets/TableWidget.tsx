@@ -21,10 +21,14 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
+import { isString, isNumber, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
+import { retryPromise } from "utils/AppsmithUtils";
 
 const ReactTableComponent = lazy(() =>
-  import("components/designSystems/appsmith/ReactTableComponent"),
+  retryPromise(() =>
+    import("components/designSystems/appsmith/ReactTableComponent"),
+  ),
 );
 
 export type TableSizes = {
@@ -113,6 +117,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onRowSelected: true,
       onPageChange: true,
       onSearchTextChanged: true,
+      columnActions: true,
     };
   }
 
@@ -132,7 +137,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const i = columnKeys[index];
         const columnName: string =
           columnNameMap && columnNameMap[i] ? columnNameMap[i] : i;
-        const columnType: { type: string; format?: string } =
+        const columnType: {
+          type: string;
+          format?: string;
+          inputFormat?: string;
+        } =
           columnTypeMap && columnTypeMap[i]
             ? columnTypeMap[i]
             : { type: ColumnTypes.TEXT };
@@ -155,6 +164,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isHidden: isHidden,
             type: columnType.type,
             format: columnType.format,
+            inputFormat: columnType.inputFormat,
           },
           Cell: (props: any) => {
             return renderCell(props.cell.value, columnType.type, isHidden);
@@ -205,7 +215,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       for (let colIndex = 0; colIndex < columns.length; colIndex++) {
         const column = columns[colIndex];
         const { accessor } = column;
-        const value = data[accessor];
+        let value = data[accessor];
         if (column.metaProperties) {
           const type = column.metaProperties.type;
           const format = column.metaProperties.format;
@@ -219,14 +229,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               break;
             case ColumnTypes.DATE:
               let isValidDate = true;
-              if (isNaN(value)) {
-                const dateTime = Date.parse(value);
-                if (isNaN(dateTime)) {
+              let outputFormat = column.metaProperties.format;
+              let inputFormat;
+              try {
+                const type = column.metaProperties.inputFormat;
+                if (type !== "EPOCH" && type !== "Milliseconds") {
+                  inputFormat = type;
+                  moment(value, inputFormat);
+                } else if (!isNumber(value)) {
                   isValidDate = false;
                 }
+              } catch (e) {
+                isValidDate = false;
               }
               if (isValidDate) {
-                tableRow[accessor] = moment(value).format(format);
+                if (outputFormat === "SAME_AS_INPUT") {
+                  outputFormat = inputFormat;
+                }
+                if (column.metaProperties.inputFormat === "Milliseconds") {
+                  value = 1000 * Number(value);
+                }
+                tableRow[accessor] = moment(value, inputFormat).format(
+                  outputFormat,
+                );
               } else if (value) {
                 tableRow[accessor] = "Invalid Value";
               } else {
@@ -250,7 +275,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               }
               break;
             default:
-              tableRow[accessor] = value;
+              const data =
+                isString(value) || isNumber(value)
+                  ? value
+                  : isUndefined(value)
+                  ? ""
+                  : JSON.stringify(value);
+              tableRow[accessor] = data;
               break;
           }
         }
@@ -333,9 +364,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
-    if (
+    const tableDataUpdated =
       JSON.stringify(this.props.tableData) !==
-        JSON.stringify(prevProps.tableData) ||
+      JSON.stringify(prevProps.tableData);
+    if (
+      tableDataUpdated ||
       JSON.stringify(this.props.filters) !==
         JSON.stringify(prevProps.filters) ||
       this.props.searchText !== prevProps.searchText ||
@@ -358,6 +391,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }),
         );
       }
+    }
+    if (tableDataUpdated) {
+      super.updateWidgetMetaProperty("selectedRowIndices", []);
+      super.updateWidgetMetaProperty("selectedRows", []);
+      super.updateWidgetMetaProperty("selectedRowIndex", -1);
     }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       if (this.props.multiRowSelection) {
@@ -645,6 +683,7 @@ export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
   type: string;
+  inputFormat?: string;
 }
 export interface ReactTableColumnProps {
   Header: string;
@@ -677,7 +716,9 @@ export interface TableWidgetProps extends WidgetProps {
   hiddenColumns?: string[];
   columnOrder?: string[];
   columnNameMap?: { [key: string]: string };
-  columnTypeMap?: { [key: string]: { type: string; format: string } };
+  columnTypeMap?: {
+    [key: string]: { type: string; format: string; inputFormat?: string };
+  };
   columnSizeMap?: { [key: string]: number };
   filters?: ReactTableFilter[];
   compactMode?: CompactMode;

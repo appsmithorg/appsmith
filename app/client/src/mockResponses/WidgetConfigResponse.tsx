@@ -1,6 +1,7 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
+import { generateReactKey } from "utils/generators";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
@@ -177,35 +178,33 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       shouldScrollContents: false,
       widgetName: "Tabs",
       tabs: [
-        { label: "Tab 1", id: "tab1" },
-        { label: "Tab 2", id: "tab2" },
+        { label: "Tab 1", id: "tab1", widgetId: "" },
+        { label: "Tab 2", id: "tab2", widgetId: "" },
       ],
       shouldShowTabs: true,
       defaultTab: "Tab 1",
       blueprint: {
-        view: [
+        operations: [
           {
-            type: "CANVAS_WIDGET",
-            position: { top: 0, left: 0 },
-            size: { rows: 6, cols: 16 },
-            props: {
-              containerStyle: "none",
-              canExtend: false,
-              detachFromLayout: true,
-              children: [],
-              tabId: "tab1",
-            },
-          },
-          {
-            type: "CANVAS_WIDGET",
-            position: { top: 0, left: 0 },
-            size: { rows: 6, cols: 16 },
-            props: {
-              containerStyle: "none",
-              canExtend: false,
-              detachFromLayout: true,
-              children: [],
-              tabId: "tab2",
+            type: "MODIFY_PROPS",
+            fn: (
+              widget: WidgetProps & { children?: WidgetProps[] },
+              parent?: WidgetProps & { children?: WidgetProps[] },
+            ) => {
+              const tabs = widget.tabs;
+
+              const newTabs = tabs.map((tab: any) => {
+                tab.widgetId = generateReactKey();
+                return tab;
+              });
+              const updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "tabs",
+                  propertyValue: newTabs,
+                },
+              ];
+              return updatePropertyMap;
             },
           },
         ],
