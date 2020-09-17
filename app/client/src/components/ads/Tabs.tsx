@@ -24,7 +24,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   }
   .react-tabs__tab-panel {
     height: calc(100% - 32px);
-    overflow: scroll;
+    overflow: auto;
   }
   .react-tabs__tab-list {
     display: flex;

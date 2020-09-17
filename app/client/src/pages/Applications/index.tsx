@@ -87,7 +87,7 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
 
 const LeftPaneWrapper = styled.div`
   // height: 50vh;
-  overflow: scroll;
+  overflow: auto;
   width: 256px;
   display: flex;
   padding-left: 16px;
@@ -97,7 +97,7 @@ const LeftPaneWrapper = styled.div`
 `;
 const ApplicationContainer = styled.div`
   height: calc(100vh - ${props => props.theme.homePage.search.height - 40}px);
-  overflow: scroll;
+  overflow: auto;
   padding-right: ${props => props.theme.homePage.leftPane.rightMargin}px;
   margin-top: ${props => props.theme.homePage.search.height}px;
   margin-left: ${props =>
@@ -146,7 +146,7 @@ const StyledAnchor = styled.a`
 `;
 
 const WorkpsacesNavigator = styled.div`
-  overflow: scroll;
+  overflow: auto;
   height: calc(100vh - ${props => props.theme.homePage.header + 36 + 25}px);
 `;
 
