@@ -14,12 +14,12 @@ Feel free to propose changes to this document in a pull request.
 There are many ways in which we/one can to contribute to Appsmith. All contributions are highly appreciated.
 
 - Beta testing
-- Raise Issues
-- Feature Requests
-- Documentation
+- Raise Issues / Feature Requests
+- Improve the Documentation
 - Code contribution
-    - Widgets
-    - Datasources
+    - Introduce New Widgets
+    - Introduce New Database Integrations
+    - Introduce New SAAS Integrations
 
 ## Git Workflow
 
