@@ -1,8 +1,12 @@
 import React from "react";
 import { Popover, Position } from "@blueprintjs/core";
-import { queryIcon } from "../ExplorerIcons";
+import {
+  DATASOURCE_FIELD_ICONS_MAP,
+  datasourceColumnIcon,
+} from "../ExplorerIcons";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { DatasourceColumns, DatasourceKeys } from "api/DatasourcesApi";
 
 const Wrapper = styled.div<{ step: number }>`
   padding-left: ${props =>
@@ -74,17 +78,23 @@ const PopupValue = styled.div`
   }
 `;
 
-export const DatabaseColumns = (props: any) => {
-  const column = props.column;
-  const columnName = column.name;
-  const columnType = column.type;
+type DatabaseFieldProps = {
+  field: DatasourceColumns | DatasourceKeys;
+  step: number;
+};
+
+export const DatabaseColumns = (props: DatabaseFieldProps) => {
+  const field = props.field;
+  const fieldName = field.name;
+  const fieldType = field.type;
+  const icon = DATASOURCE_FIELD_ICONS_MAP[fieldType] || datasourceColumnIcon;
 
   const content = (
     <Wrapper step={props.step + 1} className="t--datasource-column">
-      {queryIcon}
+      {icon}
       <Content>
-        <Value>{columnName}</Value>
-        <Value>{columnType}</Value>
+        <Value>{fieldName}</Value>
+        <Value>{fieldType}</Value>
       </Content>
     </Wrapper>
   );
@@ -93,10 +103,10 @@ export const DatabaseColumns = (props: any) => {
     <Popover minimal position={Position.RIGHT_TOP} boundary={"viewport"}>
       {content}
       <Container>
-        {queryIcon}
+        {icon}
         <PopoverContent>
-          <PopupValue>{columnName}</PopupValue>
-          <PopupValue>{columnType}</PopupValue>
+          <PopupValue>{fieldName}</PopupValue>
+          <PopupValue>{fieldType}</PopupValue>
         </PopoverContent>
       </Container>
     </Popover>

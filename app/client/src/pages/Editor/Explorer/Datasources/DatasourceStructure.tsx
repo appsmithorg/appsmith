@@ -7,7 +7,7 @@ import { datasourceTableIcon } from "../ExplorerIcons";
 import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import styled from "styled-components";
 import QueryTemplates from "./QueryTemplates";
-import DatabaseColumns from "./DatabaseColumns";
+import DatasourceField from "./DatasourceField";
 import { DatasourceTable } from "api/DatasourcesApi";
 
 const Wrapper = styled(EntityTogglesWrapper)`
@@ -76,12 +76,12 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
       active={active}
       contextMenu={templateMenu}
     >
-      {columnsAndKeys.map((column: any, index: number) => {
+      {columnsAndKeys.map((field, index) => {
         return (
-          <DatabaseColumns
-            key={`${column.name}${index}`}
+          <DatasourceField
+            key={`${field.name}${index}`}
             step={props.step + 1}
-            column={column}
+            field={field}
           />
         );
       })}

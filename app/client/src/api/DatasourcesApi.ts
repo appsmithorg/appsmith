@@ -14,11 +14,21 @@ export interface QueryTemplate {
   body: string;
 }
 
+export interface DatasourceColumns {
+  name: string;
+  type: string;
+}
+
+export interface DatasourceKeys {
+  name: string;
+  type: string;
+}
+
 export interface DatasourceTable {
   type: string;
   name: string;
-  columns: [];
-  keys: [];
+  columns: DatasourceColumns[];
+  keys: DatasourceKeys[];
   templates: QueryTemplate[];
 }
 
