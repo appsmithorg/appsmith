@@ -46,7 +46,8 @@ const FIELD_VALUES: Record<
     // onSelectionChange: "Function Call",
   },
   TABS_WIDGET: {
-    tabs: "Array<{ label: string, id: string }>",
+    tabs:
+      "Array<{ label: string, id: string(unique), widgetId: string(unique) }>",
     selectedTab: "string",
     isVisible: "boolean",
   },

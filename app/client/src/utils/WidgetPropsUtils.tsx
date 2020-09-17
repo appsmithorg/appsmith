@@ -21,6 +21,7 @@ import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { isString } from "lodash";
+import log from "loglevel";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -200,18 +201,23 @@ const tabsWidgetTabsPropertyMigration = (
     ?.filter(Boolean)
     .map((child: WidgetProps) => {
       if (child.type === WidgetTypes.TABS_WIDGET) {
-        const tabs = isString(child.tabs) ? JSON.parse(child.tabs) : child.tabs;
-
-        const newTabs = tabs.map((tab: any) => {
-          const childForTab = child.children
-            ?.filter(Boolean)
-            .find((tabChild: WidgetProps) => tabChild.tabId === tab.id);
-          if (childForTab) {
-            tab.widgetId = childForTab.widgetId;
-          }
-          return tab;
-        });
-        child.tabs = JSON.stringify(newTabs);
+        try {
+          const tabs = isString(child.tabs)
+            ? JSON.parse(child.tabs)
+            : child.tabs;
+          const newTabs = tabs.map((tab: any) => {
+            const childForTab = child.children
+              ?.filter(Boolean)
+              .find((tabChild: WidgetProps) => tabChild.tabId === tab.id);
+            if (childForTab) {
+              tab.widgetId = childForTab.widgetId;
+            }
+            return tab;
+          });
+          child.tabs = JSON.stringify(newTabs);
+        } catch (migrationError) {
+          log.debug({ migrationError });
+        }
       }
       if (child.children && child.children.length) {
         child = tabsWidgetTabsPropertyMigration(child);
@@ -266,6 +272,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
   if (currentDSL.version === 5) {
     currentDSL = tabsWidgetTabsPropertyMigration(currentDSL);
+    currentDSL.version = 6;
   }
 
   return currentDSL;
