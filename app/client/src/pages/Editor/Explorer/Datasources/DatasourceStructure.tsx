@@ -3,7 +3,7 @@ import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.svg";
 import { Popover, Position } from "@blueprintjs/core";
 import Entity, { EntityClassNames } from "../Entity";
-import { queryIcon } from "../ExplorerIcons";
+import { datasourceTableIcon } from "../ExplorerIcons";
 import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import styled from "styled-components";
 import QueryTemplates from "./QueryTemplates";
@@ -71,7 +71,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
       entityId={"DatasourceStructure"}
       className={"datasourceStructure"}
       name={dbStructure.name}
-      icon={queryIcon}
+      icon={datasourceTableIcon}
       step={props.step}
       active={active}
       contextMenu={templateMenu}

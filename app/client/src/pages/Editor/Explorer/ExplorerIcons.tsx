@@ -60,6 +60,15 @@ export const datasourceIcon = (
   />
 );
 
+const DataSourceTableIcon = MenuIcons.DATASOURCES_TABLE_ICON;
+export const datasourceTableIcon = (
+  <DataSourceTableIcon
+    width={ENTITY_ICON_SIZE}
+    height={ENTITY_ICON_SIZE}
+    keepColors
+  />
+);
+
 export const getWidgetIcon = (type: WidgetType) => {
   const WidgetIcon = WidgetIcons[type];
   if (WidgetIcon)
