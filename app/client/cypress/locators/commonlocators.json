@@ -65,5 +65,9 @@
   "saveStatusSuccess": ".t--save-status-success",
   "saveStatusError": ".t--save-status-error",
   "tableNextPage": ".t--table-widget-next-page",
-  "tablePrevPage": ".t--table-widget-prev-page"
+  "tablePrevPage": ".t--table-widget-prev-page",
+  "copyWidget": ".t--copy-widget",
+  "deleteWidget": ".t--delete-widget",
+  "toastAction": ".t--toast-action",
+  "toastBody":".Toastify__toast-body"
 }
