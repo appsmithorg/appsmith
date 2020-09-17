@@ -859,9 +859,10 @@ function* cutWidgetSaga() {
     },
   });
   yield put({
-    type: ReduxActionTypes.DELETE_SELECTED_WIDGET,
+    type: ReduxActionTypes.WIDGET_DELETE,
     payload: {
       disallowUndo: true,
+      isShortcut: true,
     },
   });
 }
