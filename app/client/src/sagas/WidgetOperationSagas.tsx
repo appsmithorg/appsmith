@@ -706,6 +706,7 @@ function* pasteWidgetSaga() {
       // the main container
       if (
         selectedWidget.parentId !== MAIN_CONTAINER_WIDGET_ID &&
+        widgets[selectedWidget.parentId] &&
         widgets[selectedWidget.parentId].children &&
         widgets[selectedWidget.parentId].children.length > 0
       ) {
