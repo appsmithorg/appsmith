@@ -83,7 +83,7 @@ public class PingScheduledTask {
                         "userId", instanceId,
                         "context", Map.of("ip", ipAddress),
                         "properties", Map.of("ip", ipAddress),
-                        "event", "Test Event Name"
+                        "event", "Instance Active"
                 )))
                 .retrieve()
                 .bodyToMono(String.class);
