@@ -68,7 +68,7 @@ public class DatasourceStructure {
         String name;
         List<String> columnNames;
         public String getType() {
-            return "primary";
+            return "primary key";
         }
     }
 
@@ -79,7 +79,7 @@ public class DatasourceStructure {
         List<String> fromColumns;
         List<String> toColumns;
         public String getType() {
-            return "foreign";
+            return "foreign key";
         }
     }
 
