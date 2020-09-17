@@ -162,30 +162,30 @@ class TabsWidget extends React.Component<
   };
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    if (this.props.tabs) {
-      if (
-        this.props.tabs.length !== prevProps.tabs.length &&
-        this.props.children.length !== this.props.tabs.length
-      ) {
-        //adding container widget for the new tab
-        if (this.props.tabs.length > this.props.children.length) {
-          this.addTabContainer();
-        }
-        //removing container widget for the removed tab
-        else {
-          this.removeTabContainer();
-        }
-      }
-    }
-    if (this.props.defaultTab) {
-      if (this.props.defaultTab !== prevProps.defaultTab) {
-        const selectedTab = _.find(this.props.tabs, {
-          label: this.props.defaultTab,
-        });
-        const selectedTabId = selectedTab ? selectedTab.id : undefined;
-        this.props.updateWidgetMetaProperty("selectedTabId", selectedTabId);
-      }
-    }
+    // if (this.props.tabs) {
+    //   if (
+    //     this.props.tabs.length !== prevProps.tabs.length &&
+    //     this.props.children.length !== this.props.tabs.length
+    //   ) {
+    //     //adding container widget for the new tab
+    //     if (this.props.tabs.length > this.props.children.length) {
+    //       this.addTabContainer();
+    //     }
+    //     //removing container widget for the removed tab
+    //     else {
+    //       this.removeTabContainer();
+    //     }
+    //   }
+    // }
+    // if (this.props.defaultTab) {
+    //   if (this.props.defaultTab !== prevProps.defaultTab) {
+    //     const selectedTab = _.find(this.props.tabs, {
+    //       label: this.props.defaultTab,
+    //     });
+    //     const selectedTabId = selectedTab ? selectedTab.id : undefined;
+    //     this.props.updateWidgetMetaProperty("selectedTabId", selectedTabId);
+    //   }
+    // }
   }
 
   componentDidMount() {

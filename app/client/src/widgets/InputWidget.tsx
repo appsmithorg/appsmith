@@ -94,15 +94,15 @@ class InputWidget extends Component<InputWidgetProps> {
     };
   }
 
-  componentDidUpdate(prevProps: InputWidgetProps) {
-    if (
-      prevProps.text !== this.props.text &&
-      this.props.defaultText === this.props.text
-    ) {
-      const text = this.props.text;
-      this.props.updateWidgetMetaProperty("text", text);
-    }
-  }
+  // componentDidUpdate(prevProps: InputWidgetProps) {
+  //   if (
+  //     prevProps.text !== this.props.text &&
+  //     this.props.defaultText === this.props.text
+  //   ) {
+  //     const text = this.props.text;
+  //     this.props.updateWidgetMetaProperty("text", text);
+  //   }
+  // }
 
   onValueChange = (value: string) => {
     this.props.updateWidgetMetaProperty("text", value);
@@ -128,6 +128,7 @@ class InputWidget extends Component<InputWidgetProps> {
   };
 
   render() {
+    console.log({ name: this.props.widgetName, text: this.props.text });
     const value = this.props.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;

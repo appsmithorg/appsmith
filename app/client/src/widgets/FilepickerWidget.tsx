@@ -172,19 +172,19 @@ class FilePickerWidget extends React.Component<
   };
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
-    if (
-      prevProps.files &&
-      prevProps.files.length > 0 &&
-      this.props.files === undefined
-    ) {
-      this.uppy.reset();
-    } else if (
-      !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
-      prevProps.maxNumFiles !== this.props.maxNumFiles ||
-      prevProps.maxFileSize !== this.props.maxFileSize
-    ) {
-      this.refreshUppy(this.props);
-    }
+    // if (
+    //   prevProps.files &&
+    //   prevProps.files.length > 0 &&
+    //   this.props.files === undefined
+    // ) {
+    //   this.uppy.reset();
+    // } else if (
+    //   !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
+    //   prevProps.maxNumFiles !== this.props.maxNumFiles ||
+    //   prevProps.maxFileSize !== this.props.maxFileSize
+    // ) {
+    //   this.refreshUppy(this.props);
+    // }
   }
 
   componentDidMount() {

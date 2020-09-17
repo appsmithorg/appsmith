@@ -100,7 +100,7 @@ export const getWidgetCards = createSelector(
 
 export const getMainContainer = createSelector(
   getDataTree,
-  (evaluatedDataTree): ContainerWidgetProps | undefined => {
+  (evaluatedDataTree): DataTreeWidget | undefined => {
     return _.find(evaluatedDataTree, { widgetId: "0" }) as DataTreeWidget;
   },
 );

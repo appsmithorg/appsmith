@@ -23,16 +23,6 @@ class ContainerWidget extends React.Component<
   constructor(props: ContainerWidgetProps) {
     super(props);
   }
-  getSnapSpaces = () => {
-    const { componentWidth } = getWidgetDimensions(this.props);
-    return {
-      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      snapColumnSpace: componentWidth
-        ? (componentWidth - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
-          GridDefaults.DEFAULT_GRID_COLUMNS
-        : 0,
-    };
-  };
 
   // renderChildWidget(childWidgetData: string): React.ReactNode {
   //   // For now, isVisible prop defines whether to render a detached widget

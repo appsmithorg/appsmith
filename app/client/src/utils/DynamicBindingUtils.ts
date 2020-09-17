@@ -194,73 +194,89 @@ export const getDynamicValue = (
   return { result: undefined, triggers: [] };
 };
 
-export const getValidatedTree = (tree: any) => {
-  return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey];
-    if (entity && entity.type) {
-      const parsedEntity = { ...entity };
-      Object.keys(entity).forEach((property: string) => {
-        const hasEvaluatedValue = _.has(
-          parsedEntity,
-          `evaluatedValues.${property}`,
-        );
-        const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
-        const isSpecialField = [
-          "dynamicBindings",
-          "dynamicTriggers",
-          "dynamicProperties",
-          "evaluatedValues",
-          "invalidProps",
-          "validationMessages",
-        ].includes(property);
-        const isDynamicField =
-          _.has(parsedEntity, `dynamicBindings.${property}`) ||
-          _.has(parsedEntity, `dynamicTriggers.${property}`);
+export const getValidatedTree = (tree: any): Promise<DataTree> => {
+  return new Promise(resolve => {
+    resolve(
+      Object.keys(tree).reduce((tree, entityKey: string) => {
+        const entity = tree[entityKey];
+        if (entity && entity.type) {
+          const parsedEntity = { ...entity };
+          Object.keys(entity).forEach((property: string) => {
+            const hasEvaluatedValue = _.has(
+              parsedEntity,
+              `evaluatedValues.${property}`,
+            );
+            const hasValidation = _.has(
+              parsedEntity,
+              `invalidProps.${property}`,
+            );
+            const isSpecialField = [
+              "dynamicBindings",
+              "dynamicTriggers",
+              "dynamicProperties",
+              "evaluatedValues",
+              "invalidProps",
+              "validationMessages",
+            ].includes(property);
+            const isDynamicField =
+              _.has(parsedEntity, `dynamicBindings.${property}`) ||
+              _.has(parsedEntity, `dynamicTriggers.${property}`);
 
-        if (
-          !isSpecialField &&
-          !isDynamicField &&
-          (!hasValidation || !hasEvaluatedValue)
-        ) {
-          const value = entity[property];
-          // Pass it through parse
-          const {
-            parsed,
-            isValid,
-            message,
-            transformed,
-          } = ValidationFactory.validateWidgetProperty(
-            entity.type,
-            property,
-            value,
-            entity,
-            tree,
-          );
-          parsedEntity[property] = parsed;
-          if (!hasEvaluatedValue) {
-            const evaluatedValue = _.isUndefined(transformed)
-              ? value
-              : transformed;
-            _.set(parsedEntity, `evaluatedValues.${property}`, evaluatedValue);
-          }
+            if (
+              !isSpecialField &&
+              !isDynamicField &&
+              (!hasValidation || !hasEvaluatedValue)
+            ) {
+              const value = entity[property];
+              // Pass it through parse
+              const {
+                parsed,
+                isValid,
+                message,
+                transformed,
+              } = ValidationFactory.validateWidgetProperty(
+                entity.type,
+                property,
+                value,
+                entity,
+                tree,
+              );
+              parsedEntity[property] = parsed;
+              if (!hasEvaluatedValue) {
+                const evaluatedValue = _.isUndefined(transformed)
+                  ? value
+                  : transformed;
+                _.set(
+                  parsedEntity,
+                  `evaluatedValues.${property}`,
+                  evaluatedValue,
+                );
+              }
 
-          const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
-          if (!hasValidation && !isValid) {
-            _.set(parsedEntity, `invalidProps.${property}`, true);
-            _.set(parsedEntity, `validationMessages.${property}`, message);
-          }
+              const hasValidation = _.has(
+                parsedEntity,
+                `invalidProps.${property}`,
+              );
+              if (!hasValidation && !isValid) {
+                _.set(parsedEntity, `invalidProps.${property}`, true);
+                _.set(parsedEntity, `validationMessages.${property}`, message);
+              }
+            }
+          });
+          return { ...tree, [entityKey]: parsedEntity };
         }
-      });
-      return { ...tree, [entityKey]: parsedEntity };
-    }
-    return tree;
-  }, tree);
+        return tree;
+      }, tree),
+    );
+  });
 };
 
 let dependencyTreeCache: any = {};
 let cachedDataTreeString = "";
 
-export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
+export async function getEvaluatedDataTree(
+  dataTree: DataTree,
+): Promise<DataTree> {
   const totalStart = performance.now();
   // Create Dependencies DAG
   const createDepsStart = performance.now();
@@ -269,7 +285,7 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   // Better solve will be to prune functions
   if (!equal(dataTreeString, cachedDataTreeString)) {
     cachedDataTreeString = dataTreeString;
-    dependencyTreeCache = createDependencyTree(dataTree);
+    dependencyTreeCache = await createDependencyTree(dataTree);
   }
   const createDepsEnd = performance.now();
   const {
@@ -280,7 +296,7 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
 
   // Evaluate Tree
   const evaluatedTreeStart = performance.now();
-  const evaluatedTree = dependencySortedEvaluateDataTree(
+  const evaluatedTree = await dependencySortedEvaluateDataTree(
     dataTree,
     dependencyMap,
     sortedDependencies,
@@ -293,7 +309,7 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   const loadingTreeEnd = performance.now();
 
   // Validate Widgets
-  const validated = getValidatedTree(treeWithLoading);
+  const validated = await getValidatedTree(treeWithLoading);
 
   // End counting total time
   const endStart = performance.now();
@@ -314,90 +330,98 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
 type DynamicDependencyMap = Record<string, Array<string>>;
 export const createDependencyTree = (
   dataTree: DataTree,
-): {
+): Promise<{
   sortedDependencies: Array<string>;
   dependencyTree: Array<[string, string]>;
   dependencyMap: DynamicDependencyMap;
-} => {
-  const dependencyMap: DynamicDependencyMap = {};
-  const allKeys = getAllPaths(dataTree);
-  Object.keys(dataTree).forEach(entityKey => {
-    const entity = dataTree[entityKey];
-    if (entity && "ENTITY_TYPE" in entity) {
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
-        // Set default property dependency
-        const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
-          entity.type,
-        );
-        Object.keys(defaultProperties).forEach(property => {
-          dependencyMap[`${entityKey}.${property}`] = [
-            `${entityKey}.${defaultProperties[property]}`,
-          ];
-        });
-        if (entity.dynamicBindings) {
-          Object.keys(entity.dynamicBindings).forEach(propertyName => {
-            // using unescape to remove new lines from bindings which interfere with our regex extraction
-            const unevalPropValue = _.get(entity, propertyName);
-            const { jsSnippets } = getDynamicBindings(unevalPropValue);
-            const existingDeps =
-              dependencyMap[`${entityKey}.${propertyName}`] || [];
-            dependencyMap[`${entityKey}.${propertyName}`] = existingDeps.concat(
-              jsSnippets.filter(jsSnippet => !!jsSnippet),
-            );
+}> => {
+  return new Promise(resolve => {
+    const dependencyMap: DynamicDependencyMap = {};
+    const allKeys = getAllPaths(dataTree);
+    Object.keys(dataTree).forEach(entityKey => {
+      const entity = dataTree[entityKey];
+      if (entity && "ENTITY_TYPE" in entity) {
+        if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+          // Set default property dependency
+          const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
+            entity.type,
+          );
+          Object.keys(defaultProperties).forEach(property => {
+            dependencyMap[`${entityKey}.${property}`] = [
+              `${entityKey}.${defaultProperties[property]}`,
+            ];
           });
+          if (entity.dynamicBindings) {
+            Object.keys(entity.dynamicBindings).forEach(propertyName => {
+              // using unescape to remove new lines from bindings which interfere with our regex extraction
+              const unevalPropValue = _.get(entity, propertyName);
+              const { jsSnippets } = getDynamicBindings(unevalPropValue);
+              const existingDeps =
+                dependencyMap[`${entityKey}.${propertyName}`] || [];
+              dependencyMap[
+                `${entityKey}.${propertyName}`
+              ] = existingDeps.concat(
+                jsSnippets.filter(jsSnippet => !!jsSnippet),
+              );
+            });
+          }
+          if (entity.dynamicTriggers) {
+            Object.keys(entity.dynamicTriggers).forEach(prop => {
+              dependencyMap[`${entityKey}.${prop}`] = [];
+            });
+          }
         }
-        if (entity.dynamicTriggers) {
-          Object.keys(entity.dynamicTriggers).forEach(prop => {
-            dependencyMap[`${entityKey}.${prop}`] = [];
-          });
+        if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+          if (entity.dynamicBindingPathList.length) {
+            entity.dynamicBindingPathList.forEach(prop => {
+              // using unescape to remove new lines from bindings which interfere with our regex extraction
+              const unevalPropValue = _.get(entity, prop.key);
+              const { jsSnippets } = getDynamicBindings(unevalPropValue);
+              const existingDeps =
+                dependencyMap[`${entityKey}.${prop.key}`] || [];
+              dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(
+                jsSnippets.filter(jsSnippet => !!jsSnippet),
+              );
+            });
+          }
         }
       }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        if (entity.dynamicBindingPathList.length) {
-          entity.dynamicBindingPathList.forEach(prop => {
-            // using unescape to remove new lines from bindings which interfere with our regex extraction
-            const unevalPropValue = _.get(entity, prop.key);
-            const { jsSnippets } = getDynamicBindings(unevalPropValue);
-            const existingDeps =
-              dependencyMap[`${entityKey}.${prop.key}`] || [];
-            dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(
-              jsSnippets.filter(jsSnippet => !!jsSnippet),
-            );
-          });
-        }
-      }
-    }
-  });
-  Object.keys(dependencyMap).forEach(key => {
-    dependencyMap[key] = _.flatten(
-      dependencyMap[key].map(path => calculateSubDependencies(path, allKeys)),
-    );
-  });
-  const dependencyTree: Array<[string, string]> = [];
-  Object.keys(dependencyMap).forEach((key: string) => {
-    if (dependencyMap[key].length) {
-      dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
-    } else {
-      // Set no dependency
-      dependencyTree.push([key, ""]);
-    }
-  });
-
-  try {
-    // sort dependencies and remove empty dependencies
-    const sortedDependencies = toposort(dependencyTree)
-      .reverse()
-      .filter(d => !!d);
-
-    return { sortedDependencies, dependencyMap, dependencyTree };
-  } catch (e) {
-    console.error(e);
-    AppToaster.show({
-      message: e.message,
-      type: ToastType.ERROR,
     });
-    return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
-  }
+    Object.keys(dependencyMap).forEach(key => {
+      dependencyMap[key] = _.flatten(
+        dependencyMap[key].map(path => calculateSubDependencies(path, allKeys)),
+      );
+    });
+    const dependencyTree: Array<[string, string]> = [];
+    Object.keys(dependencyMap).forEach((key: string) => {
+      if (dependencyMap[key].length) {
+        dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
+      } else {
+        // Set no dependency
+        dependencyTree.push([key, ""]);
+      }
+    });
+
+    try {
+      // sort dependencies and remove empty dependencies
+      const sortedDependencies = toposort(dependencyTree)
+        .reverse()
+        .filter(d => !!d);
+
+      resolve({ sortedDependencies, dependencyMap, dependencyTree });
+    } catch (e) {
+      console.error(e);
+      AppToaster.show({
+        message: e.message,
+        type: ToastType.ERROR,
+      });
+      resolve({
+        sortedDependencies: [],
+        dependencyMap: {},
+        dependencyTree: [],
+      });
+    }
+  });
 };
 
 const calculateSubDependencies = (
@@ -649,83 +673,87 @@ export function dependencySortedEvaluateDataTree(
   dataTree: DataTree,
   dependencyMap: DynamicDependencyMap,
   sortedDependencies: Array<string>,
-): DataTree {
-  const tree = _.cloneDeep(dataTree);
-  try {
-    return sortedDependencies.reduce(
-      (currentTree: DataTree, propertyPath: string) => {
-        const entityName = propertyPath.split(".")[0];
-        const entity: DataTreeEntity = currentTree[entityName];
-        const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
-        let evalPropertyValue;
-        const propertyDependencies = dependencyMap[propertyPath];
-        const currentDependencyValues = getCurrentDependencyValues(
-          propertyDependencies,
-          currentTree,
-          propertyPath,
-        );
-        const cachedDependencyValues = dependencyCache.get(propertyPath);
-        const requiresEval = isDynamicValue(unEvalPropertyValue);
-        if (requiresEval) {
-          try {
-            evalPropertyValue = evaluateDynamicProperty(
-              propertyPath,
+): Promise<DataTree> {
+  return new Promise(resolve => {
+    const tree = _.cloneDeep(dataTree);
+    try {
+      resolve(
+        sortedDependencies.reduce(
+          (currentTree: DataTree, propertyPath: string) => {
+            const entityName = propertyPath.split(".")[0];
+            const entity: DataTreeEntity = currentTree[entityName];
+            const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
+            let evalPropertyValue;
+            const propertyDependencies = dependencyMap[propertyPath];
+            const currentDependencyValues = getCurrentDependencyValues(
+              propertyDependencies,
               currentTree,
-              unEvalPropertyValue,
-              currentDependencyValues,
-              cachedDependencyValues,
-            );
-          } catch (e) {
-            console.error(e);
-            evalPropertyValue = undefined;
-          }
-        } else {
-          evalPropertyValue = unEvalPropertyValue;
-          // If we have stored any previous dependency cache, clear it
-          // since it is no longer a binding
-          if (cachedDependencyValues && cachedDependencyValues.length) {
-            dependencyCache.set(propertyPath, []);
-          }
-        }
-        if (isWidget(entity)) {
-          const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
-          const propertyName = propertyPath.split(".")[1];
-          if (propertyName) {
-            let parsedValue = validateAndParseWidgetProperty(
               propertyPath,
-              widgetEntity,
-              currentTree,
-              evalPropertyValue,
-              unEvalPropertyValue,
-              currentDependencyValues,
-              cachedDependencyValues,
             );
-            const defaultPropertyMap = WidgetFactory.getWidgetDefaultPropertiesMap(
-              widgetEntity.type,
-            );
-            const hasDefaultProperty = propertyName in defaultPropertyMap;
-            if (hasDefaultProperty) {
-              const defaultProperty = defaultPropertyMap[propertyName];
-              parsedValue = overwriteDefaultDependentProps(
-                defaultProperty,
-                parsedValue,
-                propertyPath,
-                widgetEntity,
-              );
+            const cachedDependencyValues = dependencyCache.get(propertyPath);
+            const requiresEval = isDynamicValue(unEvalPropertyValue);
+            if (requiresEval) {
+              try {
+                evalPropertyValue = evaluateDynamicProperty(
+                  propertyPath,
+                  currentTree,
+                  unEvalPropertyValue,
+                  currentDependencyValues,
+                  cachedDependencyValues,
+                );
+              } catch (e) {
+                console.error(e);
+                evalPropertyValue = undefined;
+              }
+            } else {
+              evalPropertyValue = unEvalPropertyValue;
+              // If we have stored any previous dependency cache, clear it
+              // since it is no longer a binding
+              if (cachedDependencyValues && cachedDependencyValues.length) {
+                dependencyCache.set(propertyPath, []);
+              }
             }
-            return _.set(currentTree, propertyPath, parsedValue);
-          }
-          return _.set(currentTree, propertyPath, evalPropertyValue);
-        } else {
-          return _.set(currentTree, propertyPath, evalPropertyValue);
-        }
-      },
-      tree,
-    );
-  } catch (e) {
-    console.error(e);
-    return tree;
-  }
+            if (isWidget(entity)) {
+              const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
+              const propertyName = propertyPath.split(".")[1];
+              if (propertyName) {
+                let parsedValue = validateAndParseWidgetProperty(
+                  propertyPath,
+                  widgetEntity,
+                  currentTree,
+                  evalPropertyValue,
+                  unEvalPropertyValue,
+                  currentDependencyValues,
+                  cachedDependencyValues,
+                );
+                const defaultPropertyMap = WidgetFactory.getWidgetDefaultPropertiesMap(
+                  widgetEntity.type,
+                );
+                const hasDefaultProperty = propertyName in defaultPropertyMap;
+                if (hasDefaultProperty) {
+                  const defaultProperty = defaultPropertyMap[propertyName];
+                  parsedValue = overwriteDefaultDependentProps(
+                    defaultProperty,
+                    parsedValue,
+                    propertyPath,
+                    widgetEntity,
+                  );
+                }
+                return _.set(currentTree, propertyPath, parsedValue);
+              }
+              return _.set(currentTree, propertyPath, evalPropertyValue);
+            } else {
+              return _.set(currentTree, propertyPath, evalPropertyValue);
+            }
+          },
+          tree,
+        ),
+      );
+    } catch (e) {
+      console.error(e);
+      resolve(tree);
+    }
+  });
 }
 
 const overwriteDefaultDependentProps = (

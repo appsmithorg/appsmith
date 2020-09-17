@@ -92,18 +92,16 @@ const WidgetsEditor = () => {
       <Spinner />
     </Centered>
   );
-  let node: ReactNode;
-  if (isFetchingPage) {
-    node = pageLoading;
-  }
-  if (!isFetchingPage && mainContainer) {
-    node = <Canvas dsl={mainContainer} />;
-  }
+  console.log({ mainContainer });
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
         <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
-          {node}
+          {!isFetchingPage && mainContainer ? (
+            <Canvas dsl={mainContainer} />
+          ) : (
+            pageLoading
+          )}
         </CanvasContainer>
       </EditorWrapper>
     </EditorContextProvider>

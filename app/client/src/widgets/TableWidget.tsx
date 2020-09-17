@@ -365,73 +365,73 @@ class TableWidget extends React.Component<TableWidgetProps, WidgetState> {
     );
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
-    const tableDataUpdated =
-      JSON.stringify(this.props.tableData) !==
-      JSON.stringify(prevProps.tableData);
-    if (
-      tableDataUpdated ||
-      JSON.stringify(this.props.filters) !==
-        JSON.stringify(prevProps.filters) ||
-      this.props.searchText !== prevProps.searchText ||
-      JSON.stringify(this.props.sortedColumn) !==
-        JSON.stringify(prevProps.sortedColumn) ||
-      !this.props.filteredTableData
-    ) {
-      const filteredTableData = this.filterTableData();
-      this.props.updateWidgetMetaProperty(
-        "filteredTableData",
-        filteredTableData,
-      );
-      if (!this.props.multiRowSelection) {
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData),
-        );
-      } else {
-        this.props.updateWidgetMetaProperty(
-          "selectedRows",
-          filteredTableData.filter((item: object, i: number) => {
-            return this.props.selectedRowIndices.includes(i);
-          }),
-        );
-      }
-    }
-    if (tableDataUpdated) {
-      this.props.updateWidgetMetaProperty("selectedRowIndices", []);
-      this.props.updateWidgetMetaProperty("selectedRows", []);
-      this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-    }
-    if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
-      if (this.props.multiRowSelection) {
-        const selectedRowIndices = this.props.selectedRowIndex
-          ? [this.props.selectedRowIndex]
-          : [];
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndices",
-          selectedRowIndices,
-        );
-        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-        const filteredTableData = this.filterTableData();
-        this.props.updateWidgetMetaProperty(
-          "selectedRows",
-          filteredTableData.filter((item: object, i: number) => {
-            return selectedRowIndices.includes(i);
-          }),
-        );
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData),
-        );
-      } else {
-        const filteredTableData = this.filterTableData();
-        this.props.updateWidgetMetaProperty("selectedRowIndices", []);
-        this.props.updateWidgetMetaProperty("selectedRows", []);
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData),
-        );
-      }
-    }
+    // const tableDataUpdated =
+    //   JSON.stringify(this.props.tableData) !==
+    //   JSON.stringify(prevProps.tableData);
+    // if (
+    //   tableDataUpdated ||
+    //   JSON.stringify(this.props.filters) !==
+    //     JSON.stringify(prevProps.filters) ||
+    //   this.props.searchText !== prevProps.searchText ||
+    //   JSON.stringify(this.props.sortedColumn) !==
+    //     JSON.stringify(prevProps.sortedColumn) ||
+    //   !this.props.filteredTableData
+    // ) {
+    //   const filteredTableData = this.filterTableData();
+    //   this.props.updateWidgetMetaProperty(
+    //     "filteredTableData",
+    //     filteredTableData,
+    //   );
+    //   if (!this.props.multiRowSelection) {
+    //     this.props.updateWidgetMetaProperty(
+    //       "selectedRow",
+    //       this.getSelectedRow(filteredTableData),
+    //     );
+    //   } else {
+    //     this.props.updateWidgetMetaProperty(
+    //       "selectedRows",
+    //       filteredTableData.filter((item: object, i: number) => {
+    //         return this.props.selectedRowIndices.includes(i);
+    //       }),
+    //     );
+    //   }
+    // }
+    // if (tableDataUpdated) {
+    //   this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+    //   this.props.updateWidgetMetaProperty("selectedRows", []);
+    //   this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+    // }
+    // if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
+    //   if (this.props.multiRowSelection) {
+    //     const selectedRowIndices = this.props.selectedRowIndex
+    //       ? [this.props.selectedRowIndex]
+    //       : [];
+    //     this.props.updateWidgetMetaProperty(
+    //       "selectedRowIndices",
+    //       selectedRowIndices,
+    //     );
+    //     this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+    //     const filteredTableData = this.filterTableData();
+    //     this.props.updateWidgetMetaProperty(
+    //       "selectedRows",
+    //       filteredTableData.filter((item: object, i: number) => {
+    //         return selectedRowIndices.includes(i);
+    //       }),
+    //     );
+    //     this.props.updateWidgetMetaProperty(
+    //       "selectedRow",
+    //       this.getSelectedRow(filteredTableData),
+    //     );
+    //   } else {
+    //     const filteredTableData = this.filterTableData();
+    //     this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+    //     this.props.updateWidgetMetaProperty("selectedRows", []);
+    //     this.props.updateWidgetMetaProperty(
+    //       "selectedRow",
+    //       this.getSelectedRow(filteredTableData),
+    //     );
+    //   }
+    // }
   }
 
   getSelectedRowIndexes = (selectedRowIndexes: string) => {

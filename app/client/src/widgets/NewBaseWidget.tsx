@@ -26,6 +26,7 @@ import DraggableComponent from "../components/editorComponents/DraggableComponen
 import _ from "lodash";
 import { getWidgetDimensions } from "./helpers";
 import WidgetFactory from "utils/WidgetFactory";
+import { createSelector } from "reselect";
 
 type ComponentProps = {
   widgetId: string;
@@ -94,43 +95,12 @@ class BaseWidget extends Component<Props, State> {
     );
   }
 
-  // componentDidUpdate() {
-  //   Object.keys(this.state.meta).forEach(propertyName => {
-  //     if (
-  //       this.state.meta[propertyName] !== this.props.widgetProps[propertyName]
-  //     ) {
-  //       const propertyUpdate = {
-  //         propertyName,
-  //         propertyValue: this.props.widgetProps[propertyName],
-  //       };
-  //       debugger;
-  //       if (this.state.metaUpdateQueue.includes(propertyUpdate)) {
-  //         this.setState({
-  //           metaUpdateQueue: this.state.metaUpdateQueue.filter(
-  //             u => u === propertyUpdate,
-  //           ),
-  //         });
-  //       } else {
-  //         this.setState({
-  //           meta: {
-  //             ...this.state.meta,
-  //             [propertyName]: propertyUpdate.propertyValue,
-  //           },
-  //         });
-  //       }
-  //     }
-  //   });
-  // }
-
   updateWidgetMetaProperty = (propertyName: string, propertyValue: any) => {
     this.setState({
       meta: {
         ...this.state.meta,
         [propertyName]: propertyValue,
       },
-      // metaUpdateQueue: [{ propertyName, propertyValue }].concat(
-      //   this.state.metaUpdateQueue,
-      // ),
     });
     this.props.widgetActionProps.updateWidgetMetaProperty(
       this.props.widgetId,
@@ -160,17 +130,14 @@ class BaseWidget extends Component<Props, State> {
   }
 }
 
-const getWidgetProps = (state: AppState, widgetId: string) => {
-  return _.find(state.dataTree, e => {
-    if (_.isObject(e) && "widgetId" in e) {
-      return e.widgetId === widgetId;
-    }
-    return false;
-  });
-};
+const getWidgetProps = (widgetId: string) =>
+  createSelector(
+    (state: AppState) => state.dataTree,
+    dataTree => _.find(dataTree, { widgetId }),
+  );
 
 const mapStateToProps = (state: AppState, ownProps: ComponentProps) => ({
-  widgetProps: getWidgetProps(state, ownProps.widgetId),
+  widgetProps: getWidgetProps(ownProps.widgetId)(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

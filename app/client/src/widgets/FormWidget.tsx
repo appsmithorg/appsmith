@@ -3,12 +3,14 @@ import _ from "lodash";
 import { WidgetProps } from "./NewBaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { ContainerComponentProps } from "components/designSystems/appsmith/ContainerComponent";
+import ContainerComponent, {
+  ContainerComponentProps,
+} from "components/designSystems/appsmith/ContainerComponent";
 import shallowEqual from "shallowequal";
 import * as Sentry from "@sentry/react";
 import WidgetFactory from "utils/WidgetFactory";
 
-class FormWidget extends ContainerWidget {
+class FormWidget extends React.Component<ContainerWidgetProps, any> {
   // checkInvalidChildren = (children: WidgetProps[]): boolean => {
   //   return _.some(children, child => {
   //     if ("children" in child) return this.checkInvalidChildren(child.children);
@@ -61,6 +63,29 @@ class FormWidget extends ContainerWidget {
   //   // }
   //   return WidgetFactory.createWidget(childWidgetData);
   // }
+
+  renderChildren = () => {
+    return this.props.children?.map(WidgetFactory.createWidget);
+    // return _.map(
+    //   // sort by row so stacking context is correct
+    //   // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
+    //   // Figure out a way in which the stacking context is consistent.
+    //   // _.sortBy(_.compact(this.props.children), child => child.topRow),
+    //   this.renderChildWidget,
+    // );
+  };
+
+  renderAsContainerComponent = (props: ContainerWidgetProps) => {
+    return (
+      <ContainerComponent {...props}>
+        {this.renderChildren()}
+      </ContainerComponent>
+    );
+  };
+
+  render() {
+    return this.renderAsContainerComponent(this.props);
+  }
 
   getWidgetType(): WidgetType {
     return "FORM_WIDGET";
