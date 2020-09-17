@@ -12,13 +12,19 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
 
+/**
+ * This class represents a scheduled task that pings a data point indicating that this server installation is live.
+ */
 @Component
 @ConditionalOnProperty(prefix = "is", name = "self-hosted")
 @Slf4j
-public class ScheduledTasks {
+public class PingScheduledTask {
 
+    /**
+     * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
+     */
     // Number of milliseconds between the start of each scheduled calls to this method.
-    @Scheduled(fixedRate = 6 * 60 * 60 * 1000)
+    @Scheduled(fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
     public void pingSchedule() {
         getInstallationId()
                 .flatMap(this::doPing)
@@ -27,6 +33,10 @@ public class ScheduledTasks {
                 .subscribe();
     }
 
+    /**
+     * This method hits an API endpoint that returns the external IP address of this server instance.
+     * @return A publisher that yields the IP address.
+     */
     private Mono<String> getInstallationId() {
         return WebClient
                 .create("https://api6.ipify.org")
@@ -36,6 +46,12 @@ public class ScheduledTasks {
                 .bodyToMono(String.class);
     }
 
+    /**
+     * Given a unique ID (called a `userId` here), this method hits the Segment API to save a data point on this server
+     * instance being live.
+     * @param userId A unique identifier for this server instance (usually, the external IP address of the server).
+     * @return A publisher that yields the string response of recording the data point.
+     */
     private Mono<String> doPing(String userId) {
         // Note: Hard-coding Segment auth header and the event name intentionally. These are not intended to be
         // environment specific values, instead, they are common values for all self-hosted environments. As such, they
