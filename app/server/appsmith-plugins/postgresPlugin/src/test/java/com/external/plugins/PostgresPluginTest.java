@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -260,11 +261,13 @@ public class PostgresPluginTest {
                             possessionsTable.getColumns().toArray()
                     );
 
-                    final DatasourceStructure.PrimaryKey possessionsPrimaryKey = new DatasourceStructure.PrimaryKey("possessions_pkey");
+                    final DatasourceStructure.PrimaryKey possessionsPrimaryKey = new DatasourceStructure.PrimaryKey("possessions_pkey", new ArrayList<>());
                     possessionsPrimaryKey.getColumnNames().add("id");
-                    final DatasourceStructure.ForeignKey possessionsUserForeignKey = new DatasourceStructure.ForeignKey("user_fk");
-                    possessionsUserForeignKey.getFromColumns().add("user_id");
-                    possessionsUserForeignKey.getToColumns().add("users.id");
+                    final DatasourceStructure.ForeignKey possessionsUserForeignKey = new DatasourceStructure.ForeignKey(
+                            "user_fk",
+                            List.of("user_id"),
+                            List.of("users.id")
+                    );
                     assertArrayEquals(
                             new DatasourceStructure.Key[]{possessionsPrimaryKey, possessionsUserForeignKey},
                             possessionsTable.getKeys().toArray()
@@ -301,7 +304,7 @@ public class PostgresPluginTest {
                             usersTable.getColumns().toArray()
                     );
 
-                    final DatasourceStructure.PrimaryKey usersPrimaryKey = new DatasourceStructure.PrimaryKey("users_pkey");
+                    final DatasourceStructure.PrimaryKey usersPrimaryKey = new DatasourceStructure.PrimaryKey("users_pkey", new ArrayList<>());
                     usersPrimaryKey.getColumnNames().add("id");
                     assertArrayEquals(
                             new DatasourceStructure.Key[]{usersPrimaryKey},
