@@ -131,7 +131,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     page.setLayouts(layoutList);
                     return page;
                 })
-                .flatMap(pageService::save)
+                .flatMap(newPageService::saveUnpublishedPage)
                 .flatMap(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     for (Layout storedLayout : layoutList) {
@@ -335,10 +335,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             }
                             page.setLayouts(layouts);
                             // Since the page has most probably changed, save the page and return.
-                            /**
-                             * TODO : Change this to newPageService save page function
-                             */
-                            return pageService.save(page);
+                            return newPageService.saveUnpublishedPage(page);
                         }
                     }
                     // If we have reached here, the layout was not found and the page should be returned as is.

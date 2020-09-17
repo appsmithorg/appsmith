@@ -16,7 +16,7 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Flux<Page> findByApplicationId(String applicationId, AclPermission permission, Boolean view);
 
-//    Mono<Page> save(Page page);
+    Mono<Page> saveUnpublishedPage(Page page);
 
     Mono<Page> createDefault(Page object);
 

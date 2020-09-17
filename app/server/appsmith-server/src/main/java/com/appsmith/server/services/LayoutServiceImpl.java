@@ -55,10 +55,7 @@ public class LayoutServiceImpl implements LayoutService {
                     page.setLayouts(layoutList);
                     return page;
                 })
-                /**
-                 * TODO : Change this to new page service's save function
-                 */
-                .flatMap(pageService::save)
+                .flatMap(newPageService::saveUnpublishedPage)
                 .then(Mono.just(layout));
     }
 

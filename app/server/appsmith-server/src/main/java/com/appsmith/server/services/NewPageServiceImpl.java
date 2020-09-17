@@ -70,6 +70,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         return page;
     }
 
+    private PageDTO getPageDTOFromPage(Page page) {
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setName(page.getName());
+        pageDTO.setLayouts(page.getLayouts());
+        return pageDTO;
+    }
+
     @Override
     public Mono<NewPage> findById(String pageId, AclPermission aclPermission) {
         return repository.findById(pageId, aclPermission);
@@ -85,6 +92,18 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Flux<Page> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return repository.findByApplicationId(applicationId, permission)
                 .map(page -> getPageByViewMode(page, view));
+    }
+
+    @Override
+    public Mono<Page> saveUnpublishedPage(Page page) {
+        PageDTO unpublishedPage = getPageDTOFromPage(page);
+
+        return findById(page.getId(), AclPermission.MANAGE_PAGES)
+                .flatMap(newPage -> {
+                    newPage.setUnpublishedPage(unpublishedPage);
+                    return repository.save(newPage);
+                })
+                .map(savedPage -> getPageByViewMode(savedPage, false));
     }
 
     @Override
