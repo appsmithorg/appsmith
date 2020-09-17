@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.net.URI;
 import java.util.Map;
 
 /**
@@ -19,6 +20,8 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = "is", name = "self-hosted")
 @Slf4j
 public class PingScheduledTask {
+
+    public static final URI GET_IP_URI = URI.create("https://api6.ipify.org");
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -39,9 +42,9 @@ public class PingScheduledTask {
      */
     private Mono<String> getInstallationId() {
         return WebClient
-                .create("https://api6.ipify.org")
+                .create()
                 .get()
-                .uri("")
+                .uri(GET_IP_URI)
                 .retrieve()
                 .bodyToMono(String.class);
     }
