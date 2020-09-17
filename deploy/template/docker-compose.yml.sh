@@ -51,6 +51,7 @@ services:
       - redis
     labels:
       com.centurylinklabs.watchtower.enable: "true"
+      com.centurylinklabs.watchtower.lifecycle.pre-check: "echo pre-check hook"
     networks:
       - appsmith
 
@@ -80,7 +81,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     # Update check interval in seconds.
-    command: --interval 300 --label-enable
+    command: --interval $((24 * 60)) --label-enable --enable-lifecycle-hooks
     networks:
       - appsmith
 
