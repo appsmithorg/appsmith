@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -40,9 +41,11 @@ public class DatasourceController extends BaseController<DatasourceService, Data
     }
 
     @GetMapping("/{datasourceId}/structure")
-    public Mono<ResponseDTO<DatasourceStructure>> getStructure(@PathVariable String datasourceId) {
+    public Mono<ResponseDTO<DatasourceStructure>> getStructure(@PathVariable String datasourceId,
+                                                               @RequestParam(required = false) String ignoreCache) {
         log.debug("Going to get structure for datasource with id: '{}'.", datasourceId);
-        return datasourceStructureSolution.getStructure(datasourceId)
+        return datasourceStructureSolution.getStructure(datasourceId, "true".equalsIgnoreCase(ignoreCache))
                 .map(structure -> new ResponseDTO<>(HttpStatus.OK.value(), structure, null));
     }
+
 }
