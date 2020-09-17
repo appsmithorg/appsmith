@@ -87,7 +87,7 @@ export const DatabaseColumns = (props: DatabaseFieldProps) => {
   const field = props.field;
   const fieldName = field.name;
   const fieldType = field.type;
-  const icon = DATASOURCE_FIELD_ICONS_MAP[fieldType] || datasourceColumnIcon;
+  const icon = datasourceColumnIcon;
 
   const content = (
     <Wrapper step={props.step + 1} className="t--datasource-column">
