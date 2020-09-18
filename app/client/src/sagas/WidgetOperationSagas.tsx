@@ -70,6 +70,7 @@ import { generateReactKey } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { cloneDeep } from "lodash";
+import log from "loglevel";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -358,15 +359,19 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
         if (widget.tabId && widget.type === WidgetTypes.CANVAS_WIDGET) {
           const parent = widgets[widget.parentId];
           if (parent.tabs) {
-            const tabs = _.isString(parent.tabs)
-              ? JSON.parse(parent.tabs)
-              : parent.tabs;
-            tabs.push({
-              id: widget.tabId,
-              widgetId: widget.widgetId,
-              label: widget.tabName || widget.widgetName,
-            });
-            widgets[widget.parentId].tabs = JSON.stringify(tabs);
+            try {
+              const tabs = _.isString(parent.tabs)
+                ? JSON.parse(parent.tabs)
+                : parent.tabs;
+              tabs.push({
+                id: widget.tabId,
+                widgetId: widget.widgetId,
+                label: widget.tabName || widget.widgetName,
+              });
+              widgets[widget.parentId].tabs = JSON.stringify(tabs);
+            } catch (error) {
+              log.debug("Error deleting tabs widget: ", { error });
+            }
           } else {
             parent.tabs = JSON.stringify([
               {
@@ -706,6 +711,7 @@ function* pasteWidgetSaga() {
       // the main container
       if (
         selectedWidget.parentId !== MAIN_CONTAINER_WIDGET_ID &&
+        widgets[selectedWidget.parentId] &&
         widgets[selectedWidget.parentId].children &&
         widgets[selectedWidget.parentId].children.length > 0
       ) {
