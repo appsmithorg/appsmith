@@ -15,12 +15,12 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.get(commonlocators.entityExplorersearch)
       .clear()
-      .type("text");
-    cy.dragAndDropToCanvas("textwidget");
+      .type("form");
+    cy.dragAndDropToCanvas("formwidget");
     cy.widgetText(
-      this.data.TextName,
-      widgetsPage.textWidget,
-      widgetsPage.textWidget + " " + commonlocators.widgetNameTag,
+      "FormTest",
+      formWidgetsPage.formWidget,
+      formWidgetsPage.formInner,
     );
     cy.get("body").click();
     cy.get("body").type("{meta}c");
@@ -45,11 +45,11 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       .contains("UNDO")
       .click({ force: true });
     cy.get(explorer.closeWidgets).click();
-    cy.GlobalSearchEntity("Text1");
+    cy.GlobalSearchEntity("Form1");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
-      expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
-      expect($lis.eq(1)).to.contain("{{Text1.text}}");
+      expect($lis.eq(0)).to.contain("{{Form1.isVisible}}");
+      expect($lis.eq(1)).to.contain("{{Form1.data}}");
     });
   });
 });
