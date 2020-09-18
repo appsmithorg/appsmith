@@ -916,4 +916,12 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "025", id = "generate-unique-id-for-instance", author = "")
+    public void generateUniqueIdForInstance(MongoTemplate mongoTemplate) {
+        mongoTemplate.insert(new Config(
+                new JSONObject(Map.of("value", new ObjectId().toHexString())),
+                "instance-id"
+        ));
+    }
+
 }
