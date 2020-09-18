@@ -3,6 +3,9 @@ import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
 import styled from "styled-components";
 import Sidebar from "components/editorComponents/Sidebar";
+import { Switch } from "react-router";
+import AppRoute from "../common/AppRoute";
+import { BUILDER_URL } from "constants/routes";
 
 const Container = styled.div`
   display: flex;
@@ -19,8 +22,15 @@ const MainContainer = () => {
     <Container>
       <Sidebar />
       <EditorContainer>
-        <EditorsRouter />
-        <WidgetsEditor />
+        <Switch>
+          <AppRoute
+            exact
+            path={BUILDER_URL}
+            component={WidgetsEditor}
+            name={"WidgetsEditor"}
+          />
+          <AppRoute component={EditorsRouter} name={"OtherEditors"} />
+        </Switch>
       </EditorContainer>
     </Container>
   );
