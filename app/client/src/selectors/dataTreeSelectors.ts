@@ -10,6 +10,7 @@ import { getPageList } from "./appViewSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { AppState } from "../reducers";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -37,20 +38,18 @@ export const getUnevaluatedDataTree = createSelector(
   },
 );
 
-export const evaluateDataTree = createSelector(
-  getUnevaluatedDataTree,
-  (dataTree: DataTree): DataTree => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.DATA_TREE_EVALUATION,
-    );
-    const evalDataTree = getEvaluatedDataTree(dataTree);
-    PerformanceTracker.stopTracking();
-    return evalDataTree;
-  },
-);
+export const evaluateDataTree = (withFunctions?: boolean) =>
+  createSelector(
+    getUnevaluatedDataTree,
+    (dataTree: DataTree): DataTree => {
+      return getEvaluatedDataTree(dataTree);
+    },
+  );
 
-export const evaluateDataTreeWithFunctions = evaluateDataTree;
-export const evaluateDataTreeWithoutFunctions = evaluateDataTree;
+export const evaluateDataTreeWithFunctions = (state: AppState) =>
+  state.evaluations.tree;
+export const evaluateDataTreeWithoutFunctions = (state: AppState) =>
+  state.evaluations.tree;
 
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
