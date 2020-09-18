@@ -113,8 +113,8 @@ const InputWrapper = styled.div`
 `;
 
 const ErrorWrapper = styled.div`
-  position absolute;
-  bottom: -17px; 
+  position: absolute;
+  bottom: -17px;
 `;
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {

@@ -5,15 +5,13 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo_white.png";
-import CustomizedDropdown from "./CustomizedDropdown";
-import DropdownProps from "./CustomizedDropdown/HeaderDropdownData";
 import { AppState } from "reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import history from "utils/history";
 import { Colors } from "constants/Colors";
-// import ThemeSwitcher from "./ThemeSwitcher";
+import ProfileDropdown from "./ProfileDropdown";
 
 const StyledPageHeader = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -42,10 +40,6 @@ type PageHeaderProps = {
   user?: User;
 };
 
-// const StyledSwitcher = styled(ThemeSwitcher)`
-//   flex: 1;
-// `;
-
 export const PageHeader = (props: PageHeaderProps) => {
   const { user } = props;
   const location = useLocation();
@@ -62,7 +56,6 @@ export const PageHeader = (props: PageHeaderProps) => {
           <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
         </Link>
       </HeaderSection>
-      {/* <StyledSwitcher /> */}
       {user && (
         <StyledDropDownContainer>
           {user.username === ANONYMOUS_USERNAME ? (
@@ -74,7 +67,7 @@ export const PageHeader = (props: PageHeaderProps) => {
               onClick={() => history.push(loginUrl)}
             />
           ) : (
-            <CustomizedDropdown {...DropdownProps(user, user.username)} />
+            <ProfileDropdown userName={user.username} />
           )}
         </StyledDropDownContainer>
       )}

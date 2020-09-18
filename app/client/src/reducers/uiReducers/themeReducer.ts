@@ -7,7 +7,7 @@ export enum ThemeMode {
   DARK = "DARK",
 }
 const initialState: ThemeState = {
-  mode: ThemeMode.LIGHT,
+  mode: ThemeMode.DARK,
   theme: {
     ...theme,
     colors: {

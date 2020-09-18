@@ -68,7 +68,7 @@ function MenuItem(props: MenuItemProps) {
           </Text>
         ) : null}
       </IconContainer>
-      {props.label ? <Text type={TextType.P1}>{props.label}</Text> : null}
+      {props.label ? props.label : null}
     </ItemRow>
   );
 }

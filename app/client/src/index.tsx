@@ -40,6 +40,7 @@ class ThemedApp extends React.Component<{
   }
   render() {
     if (
+      window.location.pathname === "/" ||
       window.location.pathname === "/applications" ||
       window.location.pathname.indexOf("/settings/") !== -1
     ) {
