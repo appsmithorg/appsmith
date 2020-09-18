@@ -34,7 +34,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get("body").type("{backspace}", { force: true });
+    cy.get("body").type("{del}", { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
