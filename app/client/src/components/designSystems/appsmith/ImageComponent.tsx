@@ -6,6 +6,8 @@ export interface StyledImageProps {
   defaultImageUrl: string;
   imageUrl?: string;
   backgroundColor?: string;
+  showHoverPointer?: boolean;
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
 export const StyledImage = styled.div<
@@ -16,6 +18,8 @@ export const StyledImage = styled.div<
   position: relative;
   display: flex;
   flex-direction: "row";
+  cursor: ${props =>
+    props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${props => props.backgroundColor};
   background-image: url("${props =>
     props.imageError ? props.defaultImageUrl : props.imageUrl}");
@@ -53,6 +57,7 @@ class ImageComponent extends React.Component<
           src={this.props.imageUrl}
           onError={this.onImageError}
           onLoad={this.onImageLoad}
+          onClick={this.props.onClick}
         ></img>
       </StyledImage>
     );
@@ -75,6 +80,8 @@ export interface ImageComponentProps extends ComponentProps {
   imageUrl: string;
   defaultImageUrl: string;
   isLoading: boolean;
+  showHoverPointer?: boolean;
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
 export default ImageComponent;
