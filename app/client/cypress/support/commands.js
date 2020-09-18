@@ -48,9 +48,8 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
     .scrollIntoView()
     .should("be.visible");
   cy.get(".t--org-name span")
-    .first()
     .contains(orgName)
-    .trigger("mouseover")
+    .first()
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
@@ -94,9 +93,8 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
     .scrollIntoView()
     .should("be.visible");
   cy.get(".t--org-name span")
-    .first()
     .contains(orgName)
-    .trigger("mouseover")
+    .first()
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
@@ -122,9 +120,8 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
     .scrollIntoView()
     .should("be.visible");
   cy.get(".t--org-name span")
-    .first()
     .contains(orgName)
-    .trigger("mouseover")
+    .first()
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getRoles").should(
