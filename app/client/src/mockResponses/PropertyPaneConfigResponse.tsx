@@ -119,6 +119,22 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
         ],
       },
     ],
+    VIDEO_WIDGET: [
+      {
+        id: "17.1",
+        sectionName: "General",
+        children: [
+          {
+            id: "17.1.1",
+            propertyName: "url",
+            label: "Url",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter url",
+            inputType: "TEXT",
+          },
+        ],
+      },
+    ],
     TABLE_WIDGET: [
       {
         id: "7.1",
@@ -1175,48 +1191,48 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "INPUT_TEXT",
             placeholderText: "Enter text",
           },
-          {
-            id: "2.1.3",
-            propertyName: "textAlign",
-            helpText: "Sets the alignments of the text",
-            label: "Text Align",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Left",
-                value: "LEFT",
-              },
-              {
-                label: "Center",
-                value: "CENTER",
-              },
-              {
-                label: "Right",
-                value: "RIGHT",
-              },
-            ],
-          },
-          {
-            id: "2.1.2",
-            propertyName: "textStyle",
-            helpText: "Sets the font and style of the text",
-            label: "Text Style",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Heading",
-                value: "HEADING",
-              },
-              {
-                label: "Label",
-                value: "LABEL",
-              },
-              {
-                label: "Body",
-                value: "BODY",
-              },
-            ],
-          },
+          // {
+          //   id: "2.1.3",
+          //   propertyName: "textAlign",
+          //   helpText: "Sets the alignments of the text",
+          //   label: "Text Align",
+          //   controlType: "DROP_DOWN",
+          //   options: [
+          //     {
+          //       label: "Left",
+          //       value: "LEFT",
+          //     },
+          //     {
+          //       label: "Center",
+          //       value: "CENTER",
+          //     },
+          //     {
+          //       label: "Right",
+          //       value: "RIGHT",
+          //     },
+          //   ],
+          // },
+          // {
+          //   id: "2.1.2",
+          //   propertyName: "textStyle",
+          //   helpText: "Sets the font and style of the text",
+          //   label: "Text Style",
+          //   controlType: "DROP_DOWN",
+          //   options: [
+          //     {
+          //       label: "Heading",
+          //       value: "HEADING",
+          //     },
+          //     {
+          //       label: "Label",
+          //       value: "LABEL",
+          //     },
+          //     {
+          //       label: "Body",
+          //       value: "BODY",
+          //     },
+          //   ],
+          // },
           {
             id: "2.1.3",
             propertyName: "shouldScroll",

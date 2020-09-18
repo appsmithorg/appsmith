@@ -60,6 +60,11 @@ export const WidgetIcons: {
       <TableIcon />
     </IconWrapper>
   ),
+  VIDEO_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <TableIcon />
+    </IconWrapper>
+  ),
   DROP_DOWN_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <DropDownIcon />

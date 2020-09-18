@@ -19,6 +19,7 @@ export enum WidgetTypes {
   CANVAS_WIDGET = "CANVAS_WIDGET",
   ICON_WIDGET = "ICON_WIDGET",
   FILE_PICKER_WIDGET = "FILE_PICKER_WIDGET",
+  VIDEO_WIDGET = "VIDEO_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;

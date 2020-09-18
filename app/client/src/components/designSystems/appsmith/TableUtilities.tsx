@@ -15,7 +15,7 @@ import {
   Condition,
 } from "widgets/TableWidget";
 import { isString } from "lodash";
-import VideoComponent from "components/designSystems/appsmith/VideoComponent";
+import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import TableColumnMenuPopup from "./TableColumnMenu";
@@ -505,7 +505,7 @@ export const renderCell = (
       } else if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper isHidden={isHidden} className="video-cell">
-            <VideoComponent url={value} />
+            <PopoverVideo url={value} />
           </CellWrapper>
         );
       } else {
