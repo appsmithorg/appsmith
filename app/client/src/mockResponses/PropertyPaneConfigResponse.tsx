@@ -234,6 +234,21 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           },
         ],
       },
+      {
+        id: "3.2",
+        sectionName: "Actions",
+        children: [
+          {
+            id: "3.2.1",
+            helpText:
+              "Triggers an action when a user changes the selected option",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
     ],
     RADIO_GROUP_WIDGET: [
       {
