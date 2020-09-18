@@ -50,6 +50,7 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(".t--org-name span")
     .first()
     .contains(orgName)
+    .trigger("mouseover")
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
@@ -95,6 +96,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(".t--org-name span")
     .first()
     .contains(orgName)
+    .trigger("mouseover")
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
@@ -122,6 +124,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.get(".t--org-name span")
     .first()
     .contains(orgName)
+    .trigger("mouseover")
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getRoles").should(
