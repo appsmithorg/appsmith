@@ -40,15 +40,21 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.DeleteWidgetFromSideBar();
     cy.wait(500);
     cy.get(apiwidget.propertyList).should("not.be.visible");
-    /*    
-        cy.get('.t--delete-widget')
-            .click({ force: true });
-        */
-
+    /*
+    To be enabled once widget delete click works
+    cy.get('.t--delete-widget')
+      .trigger("mouseover")
+      .click({ force: true });
+      */
     cy.get(commonlocators.toastAction).should("be.visible");
     cy.get(commonlocators.toastAction)
       .contains("UNDO")
       .click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     cy.wait(500);
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
