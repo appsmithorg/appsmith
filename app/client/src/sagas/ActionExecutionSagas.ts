@@ -22,10 +22,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import {
-  evaluateDataTreeWithFunctions,
-  evaluateDataTreeWithoutFunctions,
-} from "selectors/dataTreeSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getDynamicBindings,
   getDynamicValue,
@@ -205,7 +202,7 @@ const isErrorResponse = (response: ActionApiResponse) => {
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
   log.debug("Evaluating data tree to get action binding value");
-  const tree = yield select(evaluateDataTreeWithoutFunctions);
+  const tree = yield select(getDataTree);
   const dynamicResult = getDynamicValue(`{{${path}}}`, tree);
   return dynamicResult.result;
 }
@@ -485,7 +482,7 @@ function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug("Evaluating data tree to get action trigger");
   log.debug({ dynamicString });
-  const tree = yield select(evaluateDataTreeWithFunctions);
+  const tree = yield select(getDataTree);
   log.debug({ tree });
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
   log.debug({ triggers });

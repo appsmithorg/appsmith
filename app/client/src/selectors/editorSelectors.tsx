@@ -13,7 +13,7 @@ import {
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
-import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
@@ -105,7 +105,7 @@ export const getWidgetCards = createSelector(
 
 export const getCanvasWidgetDsl = createSelector(
   getEntities,
-  evaluateDataTreeWithoutFunctions,
+  getDataTree,
   (
     entities: AppState["entities"],
     evaluatedDataTree,
