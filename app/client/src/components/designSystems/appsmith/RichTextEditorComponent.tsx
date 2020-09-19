@@ -39,7 +39,9 @@ export const RichtextEditorComponent = (
       editorInstance !== null &&
       props.defaultValue !== editorContent.current
     ) {
-      editorInstance.setContent(props.defaultValue, { format: "html" });
+      setTimeout(() => {
+        editorInstance.setContent(props.defaultValue, { format: "html" });
+      }, 200);
     }
   }, [props.defaultValue]);
   useEffect(() => {
