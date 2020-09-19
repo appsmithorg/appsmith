@@ -9,7 +9,7 @@ import {
   DataTree,
 } from "entities/DataTree/dataTreeFactory";
 import { useSelector } from "react-redux";
-import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -31,7 +31,7 @@ export const EntityProperties = (props: {
     );
   });
   let entity: any;
-  const dataTree: DataTree = useSelector(evaluateDataTreeWithoutFunctions);
+  const dataTree: DataTree = useSelector(getDataTree);
   if (props.isCurrentPage && dataTree[props.entityName]) {
     entity = dataTree[props.entityName];
   } else if (props.entity) {
