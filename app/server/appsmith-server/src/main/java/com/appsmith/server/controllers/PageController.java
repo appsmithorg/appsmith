@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,15 @@ import javax.validation.Valid;
 @Slf4j
 public class PageController extends BaseController<PageService, Page, String> {
     private final ApplicationPageService applicationPageService;
+    private final NewPageService newPageService;
 
     @Autowired
-    public PageController(PageService service, ApplicationPageService applicationPageService) {
+    public PageController(PageService service,
+                          ApplicationPageService applicationPageService,
+                          NewPageService newPageService) {
         super(service);
         this.applicationPageService = applicationPageService;
+        this.newPageService = newPageService;
     }
 
     @PostMapping
@@ -81,7 +86,7 @@ public class PageController extends BaseController<PageService, Page, String> {
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Page>> delete(@PathVariable String id) {
         log.debug("Going to delete page with id: {}", id);
-        return service.delete(id)
+        return newPageService.deleteUnpublishedPage(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 

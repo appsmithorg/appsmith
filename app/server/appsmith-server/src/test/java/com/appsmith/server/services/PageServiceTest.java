@@ -49,6 +49,9 @@ public class PageServiceTest {
     @Autowired
     ApplicationService applicationService;
 
+    @Autowired
+    NewPageService newPageService;
+
     Application application = null;
 
     String applicationId = null;
@@ -212,7 +215,7 @@ public class PageServiceTest {
 
     @After
     public void purgeAllPages() {
-        pageService.deleteAll();
+        newPageService.deleteAll();
     }
 
 }

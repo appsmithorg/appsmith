@@ -74,6 +74,9 @@ public class LayoutServiceTest {
     @Autowired
     PluginRepository pluginRepository;
 
+    @Autowired
+    NewPageService newPageService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -102,7 +105,7 @@ public class LayoutServiceTest {
     }
 
     private void purgeAllPages() {
-        pageService.deleteAll();
+        newPageService.deleteAll();
     }
 
     @Test
@@ -167,8 +170,8 @@ public class LayoutServiceTest {
     }
 
     private Mono<Page> createPage(Application app, Page page) {
-        Mono<Page> pageMono = pageService
-                .findByName(page.getName(), AclPermission.READ_PAGES)
+        Mono<Page> pageMono = newPageService
+                .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
                 .switchIfEmpty(applicationPageService.createApplication(app, orgId)
                         .map(application -> {
                             page.setApplicationId(application.getId());
@@ -255,8 +258,8 @@ public class LayoutServiceTest {
     public void getActionsExecuteOnLoad() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Layout> testMono = pageService
-                .findByName("validPageName", AclPermission.READ_PAGES)
+        Mono<Layout> testMono = newPageService
+                .findByNameAndViewMode("validPageName", AclPermission.READ_PAGES, false)
                 .flatMap(page1 -> {
                     List<Mono<Action>> monos = new ArrayList<>();
 
@@ -361,6 +364,6 @@ public class LayoutServiceTest {
 
     @After
     public void purgePages() {
-        pageService.deleteAll();
+        newPageService.deleteAll();
     }
 }

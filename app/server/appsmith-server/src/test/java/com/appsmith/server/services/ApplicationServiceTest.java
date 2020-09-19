@@ -92,6 +92,9 @@ public class ApplicationServiceTest {
     @Autowired
     ApplicationFetcher applicationFetcher;
 
+    @Autowired
+    NewPageService newPageService;
+
     String orgId;
 
     @Before
@@ -149,7 +152,8 @@ public class ApplicationServiceTest {
         testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
         Flux<Page> pagesFlux = applicationPageService
                 .createApplication(testApplication, orgId)
-                .flatMapMany(application -> pageService.findByApplicationId(application.getId(), READ_PAGES));
+                // Fetch the unpublished pages by applicationId
+                .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
                 .users(Set.of("api_user"))

@@ -557,8 +557,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        return pageService
-                .findNamesByApplicationId(applicationId)
+        // fetch the published pages by application
+        return newPageService
+                .findNamesByApplicationIdAndViewMode(applicationId, true)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, "pages for application", applicationId))
                 )

@@ -90,7 +90,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Flux<Page> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
-        return repository.findByApplicationId(applicationId, permission)
+        return findNewPagesByApplicationId(applicationId, permission)
                 .map(page -> getPageByViewMode(page, view));
     }
 
@@ -267,5 +267,36 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<Page> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission permission, Boolean view) {
         return repository.findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
                 .map(page -> getPageByViewMode(page, view));
+    }
+
+    @Override
+    public Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission) {
+        return repository.findByApplicationId(applicationId, permission);
+    }
+
+    @Override
+    public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
+        return findNewPagesByApplicationId(applicationId, permission)
+                .flatMap(repository::archive)
+                .collectList();
+    }
+
+    @Override
+    public Mono<List<String>> findAllPageIdsInApplication(String applicationId, AclPermission aclPermission, Boolean view) {
+        return findNewPagesByApplicationId(applicationId, aclPermission)
+                .flatMap(newPage -> {
+                    if (Boolean.TRUE.equals(view)) {
+                        if (newPage.getPublishedPage().getDeletedAt() != null) {
+                            return Mono.just(newPage.getId());
+                        }
+                    } else {
+                        if (newPage.getUnpublishedPage().getDeletedAt() != null) {
+                            return Mono.just(newPage.getId());
+                        }
+                    }
+                    // Looks like the page has been deleted in the `view` mode. Don't return the id for this page.
+                    return Mono.empty();
+                })
+                .collectList();
     }
 }

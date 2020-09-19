@@ -8,6 +8,8 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<NewPage> findById(String pageId, AclPermission aclPermission);
@@ -15,6 +17,8 @@ public interface NewPageService extends CrudService<NewPage, String> {
     Mono<Page> findPageById(String pageId, AclPermission aclPermission, Boolean view);
 
     Flux<Page> findByApplicationId(String applicationId, AclPermission permission, Boolean view);
+
+    Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission);
 
     Mono<Page> saveUnpublishedPage(Page page);
 
@@ -35,4 +39,8 @@ public interface NewPageService extends CrudService<NewPage, String> {
     Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view);
 
     Mono<Page> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission permission, Boolean view);
+
+    Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission);
+
+    Mono<List<String>> findAllPageIdsInApplication(String applicationId, AclPermission permission, Boolean view);
 }

@@ -61,7 +61,7 @@ public class LayoutServiceImpl implements LayoutService {
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
-        return pageService.findByIdAndLayoutsId(pageId, layoutId, READ_PAGES)
+        return newPageService.findByIdAndLayoutsId(pageId, layoutId, READ_PAGES, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();

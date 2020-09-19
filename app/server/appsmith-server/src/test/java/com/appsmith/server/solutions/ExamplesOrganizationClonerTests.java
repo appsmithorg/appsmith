@@ -24,6 +24,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PageService;
 import com.appsmith.server.services.SessionUserService;
@@ -109,6 +110,9 @@ public class ExamplesOrganizationClonerTests {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private NewPageService newPageService;
 
     private Plugin installedPlugin;
 
@@ -581,7 +585,7 @@ public class ExamplesOrganizationClonerTests {
                                                     return applicationPageService.addPageToApplication(app, page, false)
                                                             .then(actionCollectionService.createAction(newPageAction))
                                                             .flatMap(savedAction -> layoutActionService.updateAction(savedAction.getId(), savedAction))
-                                                            .then(pageService.findById(page.getId(), READ_PAGES));
+                                                            .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
                                                 })
                                                 .map(tuple2 -> {
                                                     log.info("Created action and added page to app {}", tuple2);
@@ -652,7 +656,8 @@ public class ExamplesOrganizationClonerTests {
     private Flux<Action> getActionsInOrganization(Organization organization) {
         return applicationService
                 .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
-                .flatMap(application -> pageService.findByApplicationId(application.getId(), READ_PAGES))
+                // fetch the unpublished pages
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> actionService.get(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }

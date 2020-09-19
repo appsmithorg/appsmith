@@ -88,7 +88,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             layoutList = new ArrayList<>();
         }
         if (layoutList.isEmpty()) {
-            layoutList.add(pageService.createDefaultLayout());
+            layoutList.add(newPageService.createDefaultLayout());
             page.setLayouts(layoutList);
         }
 
@@ -105,7 +105,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
 
         return pageMono
-                .flatMap(pageService::createDefault)
+                .flatMap(newPageService::createDefault)
                 //After the page has been saved, update the application (save the page id inside the application)
                 .zipWith(applicationMono)
                 .flatMap(tuple -> {
@@ -237,13 +237,13 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     page.setName(FieldName.DEFAULT_PAGE_NAME);
                     page.setApplicationId(savedApplication.getId());
                     List<Layout> layoutList = new ArrayList<>();
-                    layoutList.add(pageService.createDefaultLayout());
+                    layoutList.add(newPageService.createDefaultLayout());
                     page.setLayouts(layoutList);
 
                     //Set the page policies
                     generateAndSetPagePolicies(savedApplication, user, page);
 
-                    return pageService
+                    return newPageService
                             .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
                             .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS));
@@ -313,9 +313,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
-                    return pageService.findByApplicationId(id, READ_PAGES)
-                            .flatMap(page -> pageService.delete(page.getId()))
-                            .collectList()
+                    return newPageService.archivePagesByApplicationId(id, MANAGE_PAGES)
                             .thenReturn(application);
                 })
                 .flatMap(applicationService::archive);
@@ -380,7 +378,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 page.setId(null);
                                 page.setName(newPageName);
                                 page.setApplicationId(applicationId);
-                                return pageService.createDefault(page);
+                                return newPageService.createDefault(page);
                             });
                 })
                 .flatMap(page -> {
