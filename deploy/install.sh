@@ -91,6 +91,7 @@ check_os() {
     if is_mac; then
         package_manager="brew"
         desired_os=1
+        os="Mac"
         return
     fi
 
@@ -99,18 +100,22 @@ check_os() {
     case "$os_name" in
         Ubuntu*)
             desired_os=1
+            os="Ubuntu"
             package_manager="apt-get"
             ;;
         Red\ Hat*)
             desired_os=1
+            os="Red Hat"
             package_manager="yum"
             ;;
         CentOS*)
             desired_os=1
+            os="CentOS"
             package_manager="yum"
             ;;
         *)
             desired_os=0
+            os="Not Found"
     esac
 }
 
@@ -207,7 +212,7 @@ confirm() {
     fi
 
     local answer
-    read -n1 -rp "$prompt [$options] " answer
+    read -rp "$prompt [$options] " answer
     if [[ -z $answer ]]; then
         # No answer given, the user just hit the Enter key. Take the default value as the answer.
         answer="$default"
@@ -305,15 +310,15 @@ echo_contact_support() {
 bye() {  # Prints a friendly good bye message and exits the script.
     echo "Please share your email to receive support with the installation"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
-    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
-    --header 'Content-Type: application/json' \
+    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
     --data-raw '{
-      "userId": "'"$email"'",
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Support",
-      "properties": {
-        "osEnum": '$desired_os'
-      }
+      "data": {
+          "os": "'"$os"'",
+          "email": "'"$email"'"
+       }
     }'
     echo -e "\nExiting for now. Bye! \U1F44B\n"
     exit 1
@@ -325,18 +330,19 @@ echo ""
 
 # Checking OS and assigning package manager
 desired_os=0
+os=""
 echo -e "\U1F575  Detecting your OS"
 check_os
+APPSMITH_INSTALLATION_ID=$(curl -s 'https://api6.ipify.org')
 
-curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
---header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
---header 'Content-Type: application/json' \
+curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+--header 'Content-Type: text/plain' \
 --data-raw '{
-  "anonymousId": "anonymousId",
+  "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Installation Started",
-  "properties": {
-    "osEnum": '$desired_os'
-  }
+  "data": {
+      "os": "'"$os"'"
+   }
 }'
 
 if [[ $desired_os -eq 0 ]];then
@@ -466,6 +472,15 @@ fi
 echo ""
 
 if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
+    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+      "event": "Installation Custom Domain",
+      "data": {
+          "os": "'"$os"'"
+       }
+    }'
     echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
@@ -551,26 +566,25 @@ if [[ $status_code -ne 401 ]]; then
     echo ""
     echo "Please share your email to receive help with the installation"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
-    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
-    --header 'Content-Type: application/json' \
+    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
     --data-raw '{
-      "userId": "'"$email"'",
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Support",
-      "properties": {
-        "osEnum": '$desired_os'
-      }
+      "data": {
+          "os": "'"$os"'",
+          "email": "'"$email"'"
+       }
     }'
 else
-    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
-    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
-    --header 'Content-Type: application/json' \
+    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
     --data-raw '{
-      "anonymousId": "anonymousId",
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Success",
-      "properties": {
-        "osEnum": '$desired_os'
-      }
+      "data": {
+          "os": "'"$os"'"
+       }
     }'
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
     echo "Your installation is complete!"
@@ -587,15 +601,15 @@ else
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
     echo "Please share your email to receive support & updates about appsmith!"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://api.segment.io/v1/track' \
-    --header 'Authorization: Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06' \
-    --header 'Content-Type: application/json' \
+    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
     --data-raw '{
-      "userId": "'"$email"'",
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Identify Successful Installation",
-      "properties": {
-        "osEnum": '$desired_os'
-      }
+      "data": {
+          "os": "'"$os"'",
+          "email": "'"$email"'"
+       }
     }'
 fi
 
