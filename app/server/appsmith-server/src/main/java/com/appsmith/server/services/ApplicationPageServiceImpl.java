@@ -166,8 +166,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return applicationService
                 .findByName(applicationName, appPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application name", applicationName)))
-                .flatMap(application -> pageService.findByNameAndApplicationId(pageName, application.getId(), pagePermission))
+                .flatMap(application -> newPageService.findByNameAndApplicationIdAndViewMode(pageName, application.getId(), pagePermission, viewMode))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by page name", pageName)))
+                /**
+                 * TODO : Remove the following code fragment because now the page returned is either published or unpublished instead
+                 * of this being a layout level construct.
+                 */
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     // Set the view mode for all the layouts in the page. This ensures that we send the correct DSL
