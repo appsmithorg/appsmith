@@ -24,7 +24,7 @@ function* evaluationChangeListenerSaga() {
       yield call(evaluateTreeSaga);
     }
   }
-  // TODO need an action to stop listening and evaluate (exit editor)
+  // TODO(hetu) need an action to stop listening and evaluate (exit editor)
 }
 
 export default function* evaluationSagaListeners() {
