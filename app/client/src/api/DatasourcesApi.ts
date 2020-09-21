@@ -33,7 +33,7 @@ export interface DatasourceTable {
 }
 
 export interface DatasourceStructure {
-  tables: DatasourceTable[];
+  tables?: DatasourceTable[];
 }
 
 export interface Datasource {

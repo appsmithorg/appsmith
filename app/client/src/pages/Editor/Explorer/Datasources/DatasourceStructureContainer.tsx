@@ -9,7 +9,7 @@ import DatasourceStructure from "./DatasourceStructure";
 
 type Props = {
   datasourceId: string;
-  datasourceStructure: DatasourceStructureType;
+  datasourceStructure?: DatasourceStructureType;
   step: number;
 };
 
@@ -18,7 +18,11 @@ export const DatasourceStructureContainer = memo((props: Props) => {
   let view: ReactNode = <div />;
 
   if (!isLoading) {
-    if (props.datasourceStructure && props.datasourceStructure.tables.length) {
+    if (
+      props.datasourceStructure &&
+      props.datasourceStructure.tables &&
+      props.datasourceStructure.tables.length
+    ) {
       view = props.datasourceStructure.tables.map(
         (structure: DatasourceTable) => {
           return (
