@@ -7,15 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @Document
 public class NewPage extends BaseDomain {
 
-    @NotNull
     String applicationId;
 
     PageDTO unpublishedPage;

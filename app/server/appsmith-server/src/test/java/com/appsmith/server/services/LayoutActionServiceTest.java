@@ -49,9 +49,6 @@ public class LayoutActionServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PageService pageService;
-
-    @Autowired
     UserService userService;
 
     @Autowired
@@ -97,7 +94,7 @@ public class LayoutActionServiceTest {
 
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = pageService.getById(pageId).block();
+            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
             Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
@@ -105,7 +102,7 @@ public class LayoutActionServiceTest {
             layout.setPublishedDsl(dsl);
             layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
 
-            testPage = pageService.getById(pageId).block();
+            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();

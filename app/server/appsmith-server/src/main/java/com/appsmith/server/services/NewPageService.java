@@ -43,4 +43,6 @@ public interface NewPageService extends CrudService<NewPage, String> {
     Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission);
 
     Mono<List<String>> findAllPageIdsInApplication(String applicationId, AclPermission permission, Boolean view);
+
+    Mono<Page> updatePage(String id, Page page);
 }

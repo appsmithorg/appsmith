@@ -53,6 +53,7 @@ import java.util.UUID;
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -67,7 +68,7 @@ public class ActionServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PageService pageService;
+    NewPageService newPageService;
 
     @Autowired
     UserService userService;
@@ -123,7 +124,7 @@ public class ActionServiceTest {
             layout.setPublishedDsl(dsl);
             layoutService.createLayout(pageId, layout).block();
 
-            testPage = pageService.getById(pageId).block();
+            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();

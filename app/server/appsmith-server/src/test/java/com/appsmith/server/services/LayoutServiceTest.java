@@ -230,7 +230,7 @@ public class LayoutServiceTest {
         testPage.setName("LayoutServiceTest updateLayoutValidPageId");
 
         Application app = new Application();
-        app.setName("newApplication-updateLayoutValidPageId-Test");
+        app.setName("newApplication-updateLayoutValidPageId-TestApplication");
 
         Mono<Page> pageMono = createPage(app, testPage).cache();
 
@@ -258,8 +258,15 @@ public class LayoutServiceTest {
     public void getActionsExecuteOnLoad() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Layout> testMono = newPageService
-                .findByNameAndViewMode("validPageName", AclPermission.READ_PAGES, false)
+        Page testPage = new Page();
+        testPage.setName("ActionsExecuteOnLoad Test Page");
+
+        Application app = new Application();
+        app.setName("newApplication-updateLayoutValidPageId-Test");
+
+        Mono<Page> pageMono = createPage(app, testPage).cache();
+
+        Mono<Layout> testMono = pageMono
                 .flatMap(page1 -> {
                     List<Mono<Action>> monos = new ArrayList<>();
 

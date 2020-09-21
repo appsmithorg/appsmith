@@ -61,11 +61,15 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         page.setId(newPage.getId());
         page.setPolicies(newPage.getPolicies());
         if (Boolean.TRUE.equals(viewMode)) {
-            page.setLayouts(newPage.getPublishedPage().getLayouts());
-            page.setName(newPage.getPublishedPage().getName());
+            if (newPage.getPublishedPage() != null) {
+                page.setLayouts(newPage.getPublishedPage().getLayouts());
+                page.setName(newPage.getPublishedPage().getName());
+            }
         } else {
-            page.setLayouts(newPage.getUnpublishedPage().getLayouts());
-            page.setName(newPage.getUnpublishedPage().getName());
+            if (newPage.getUnpublishedPage() != null) {
+                page.setLayouts(newPage.getUnpublishedPage().getLayouts());
+                page.setName(newPage.getUnpublishedPage().getName());
+            }
         }
 
         return page;
@@ -300,5 +304,14 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     return Mono.empty();
                 })
                 .collectList();
+    }
+
+    @Override
+    public Mono<Page> updatePage(String id, Page page) {
+        PageDTO pageDTOFromPage = getPageDTOFromPage(page);
+        NewPage newPage = new NewPage();
+        newPage.setUnpublishedPage(pageDTOFromPage);
+        return this.update(id, newPage)
+                .map(savedPage -> getPageByViewMode(savedPage, false));
     }
 }

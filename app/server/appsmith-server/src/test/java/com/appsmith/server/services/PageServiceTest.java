@@ -35,9 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class PageServiceTest {
     @Autowired
-    PageService pageService;
-
-    @Autowired
     ApplicationPageService applicationPageService;
 
     @Autowired
@@ -157,7 +154,7 @@ public class PageServiceTest {
                     Page newPage = new Page();
                     newPage.setId(page.getId());
                     newPage.setName("New Page Name");
-                    return pageService.update(page.getId(), newPage);
+                    return newPageService.updatePage(page.getId(), newPage);
                 });
 
         StepVerifier
