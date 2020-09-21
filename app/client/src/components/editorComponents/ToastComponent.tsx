@@ -68,6 +68,7 @@ const ToastComponent = (props: Props) => {
       <ToastMessage>{props.message}</ToastMessage>
       {props.action && (
         <ToastAction
+          className="t--toast-action"
           onClick={() => {
             dispatch(props.action?.dispatchableAction);
             props.closeToast && props.closeToast();
