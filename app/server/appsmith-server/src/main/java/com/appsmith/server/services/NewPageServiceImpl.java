@@ -59,6 +59,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         page.setApplicationId(newPage.getApplicationId());
         page.setUserPermissions(newPage.getUserPermissions());
         page.setId(newPage.getId());
+        page.setPolicies(newPage.getPolicies());
         if (Boolean.TRUE.equals(viewMode)) {
             page.setLayouts(newPage.getPublishedPage().getLayouts());
             page.setName(newPage.getPublishedPage().getName());
@@ -114,6 +115,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         unpublishedPageDto.setLayouts(object.getLayouts());
         unpublishedPageDto.setName(object.getName());
         newPage.setUnpublishedPage(unpublishedPageDto);
+        newPage.setPolicies(object.getPolicies());
         return super.create(newPage)
                 .map(page -> getPageByViewMode(page, false));
     }

@@ -7,12 +7,12 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.PageRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,20 +31,20 @@ public class PolicyUtils {
 
     private final PolicyGenerator policyGenerator;
     private final ApplicationRepository applicationRepository;
-    private final PageRepository pageRepository;
     private final ActionRepository actionRepository;
     private final DatasourceRepository datasourceRepository;
+    private final NewPageRepository newPageRepository;
 
     public PolicyUtils(PolicyGenerator policyGenerator,
                        ApplicationRepository applicationRepository,
-                       PageRepository pageRepository,
                        ActionRepository actionRepository,
-                       DatasourceRepository datasourceRepository) {
+                       DatasourceRepository datasourceRepository,
+                       NewPageRepository newPageRepository) {
         this.policyGenerator = policyGenerator;
         this.applicationRepository = applicationRepository;
-        this.pageRepository = pageRepository;
         this.actionRepository = actionRepository;
         this.datasourceRepository = datasourceRepository;
+        this.newPageRepository = newPageRepository;
     }
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
@@ -174,9 +174,9 @@ public class PolicyUtils {
                 .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
     }
 
-    public Flux<Page> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
+    public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
 
-        return pageRepository
+        return newPageRepository
                 .findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.empty())
                 .map(page -> {
@@ -187,7 +187,8 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedPages -> pageRepository.saveAll(updatedPages));
+                .flatMapMany(updatedPages -> newPageRepository
+                        .saveAll(updatedPages));
     }
 
     public Flux<Action> updateWithPagePermissionsToAllItsActions(String pageId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {

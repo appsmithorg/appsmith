@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -16,6 +17,7 @@ import java.util.List;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
+@Slf4j
 public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewPage>
         implements CustomNewPageRepository {
 
@@ -33,12 +35,14 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
     public Mono<NewPage> findByIdAndLayoutsIdAndViewMode(String id, String layoutId, AclPermission aclPermission, Boolean viewMode) {
         Criteria idCriterion = getIdCriteria(id);
         String layoutsIdKey;
+        String layoutsKey;
 
         if (Boolean.TRUE.equals(viewMode)) {
-            layoutsIdKey = fieldName(QNewPage.newPage.publishedPage.layouts) + "." + fieldName(QLayout.layout.id);
+            layoutsKey = fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.publishedPage.layouts);
         } else {
-            layoutsIdKey = fieldName(QNewPage.newPage.unpublishedPage.layouts) + "." + fieldName(QLayout.layout.id);
+            layoutsKey = fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.layouts);
         }
+        layoutsIdKey = layoutsKey + "." + fieldName(QLayout.layout.id);
 
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
 

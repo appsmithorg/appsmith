@@ -18,7 +18,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -73,9 +72,6 @@ public class ApplicationServiceTest {
 
     @Autowired
     OrganizationService organizationService;
-
-    @Autowired
-    PageRepository pageRepository;
 
     @Autowired
     DatasourceService datasourceService;
@@ -403,7 +399,7 @@ public class ApplicationServiceTest {
         Mono<Page> pageMono = publicAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
-                    return pageRepository.findById(pageId);
+                    return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
         StepVerifier
@@ -458,7 +454,7 @@ public class ApplicationServiceTest {
         Mono<Page> pageMono = privateAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
-                    return pageRepository.findById(pageId);
+                    return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
         StepVerifier
@@ -576,7 +572,7 @@ public class ApplicationServiceTest {
 
         Mono<List<Page>> pageListMono = applicationMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> pageRepository.findById(applicationPage.getId()))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())

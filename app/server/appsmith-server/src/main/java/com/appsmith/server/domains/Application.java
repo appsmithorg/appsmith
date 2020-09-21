@@ -41,6 +41,7 @@ public class Application extends BaseDomain {
     List<ApplicationPage> publishedPages;
 
     @JsonIgnore
+    @Transient
     Boolean viewMode = false;
 
     @Transient

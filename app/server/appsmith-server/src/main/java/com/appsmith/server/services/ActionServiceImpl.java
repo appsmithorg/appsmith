@@ -618,8 +618,10 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             String finalName = name;
-            return pageService
-                    .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
+            // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
+            // function call is made which takes care of returning only the essential fields of an action
+            return newPageService
+                    .findNamesByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false)
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
                     )

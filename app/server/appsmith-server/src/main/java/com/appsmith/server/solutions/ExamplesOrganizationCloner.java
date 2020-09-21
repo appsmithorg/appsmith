@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.services.ActionService;
@@ -55,6 +56,7 @@ public class ExamplesOrganizationCloner {
     private final UserService userService;
     private final ApplicationPageService applicationPageService;
     private final DatasourceContextService datasourceContextService;
+    private final NewPageRepository newPageRepository;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -299,8 +301,21 @@ public class ExamplesOrganizationCloner {
         return applicationPageService
                 .cloneExampleApplication(application)
                 .flatMapMany(
-                        savedApplication -> pageRepository
+                        savedApplication -> newPageRepository
                                 .findByApplicationId(templateApplicationId)
+                                // Transform new page to old page before proceeding
+                                .map(newPage -> {
+                                    Page page = new Page();
+                                    page.setApplicationId(newPage.getApplicationId());
+                                    page.setUserPermissions(newPage.getUserPermissions());
+                                    page.setId(newPage.getId());
+
+                                    // Copy the unpublished fields of the page
+                                    page.setLayouts(newPage.getUnpublishedPage().getLayouts());
+                                    page.setName(newPage.getUnpublishedPage().getName());
+
+                                    return page;
+                                })
                                 .map(page -> {
                                     log.info("Preparing page for cloning {} {}.", page.getName(), page.getId());
                                     page.setApplicationId(savedApplication.getId());

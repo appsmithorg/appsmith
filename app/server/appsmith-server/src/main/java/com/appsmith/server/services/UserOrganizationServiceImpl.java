@@ -7,6 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
@@ -164,7 +165,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         // Update the underlying application/page/action
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true);
         Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true);
-        Flux<Page> updatedPagesFlux = updatedApplicationsFlux
+        Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<Action> updatedActionsFlux = updatedPagesFlux
                 .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, true));
@@ -227,7 +228,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         // Update the underlying application/page/action
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, false);
         Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, false);
-        Flux<Page> updatedPagesFlux = updatedApplicationsFlux
+        Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, false));
         Flux<Action> updatedActionsFlux = updatedPagesFlux
                 .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, false));
@@ -345,7 +346,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         // Update the underlying application/page/action
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true);
         Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true);
-        Flux<Page> updatedPagesFlux = updatedApplicationsFlux
+        Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<Action> updatedActionsFlux = updatedPagesFlux
                 .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, true));

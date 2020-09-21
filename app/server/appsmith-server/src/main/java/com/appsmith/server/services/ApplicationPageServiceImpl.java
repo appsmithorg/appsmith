@@ -100,7 +100,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .map(tuple -> {
                     Application application = tuple.getT1();
                     User user = tuple.getT2();
-                    generateAndSetPagePolicies(application, user, page);
+                    generateAndSetPagePolicies(application, page);
                     return page;
                 });
 
@@ -139,6 +139,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return newPageService.findPageById(pageId, permission, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
+                /**
+                 * TODO : Remove the following code snippet because view mode is now handled at page level instead of layout level.
+                 */
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     // Set the view mode for all the layouts in the page. This ensures that we send the correct DSL
@@ -201,7 +204,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     }
                     return Mono.error(new AppsmithException(AppsmithError.PAGE_DOESNT_BELONG_TO_APPLICATION, page.getName(), applicationId));
                 })
-                .then(applicationService.findById(applicationId))
+                .then(applicationService.findById(applicationId, MANAGE_APPLICATIONS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
                 .flatMap(application ->
                         applicationRepository
@@ -245,11 +248,13 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     page.setLayouts(layoutList);
 
                     //Set the page policies
-                    generateAndSetPagePolicies(savedApplication, user, page);
+                    generateAndSetPagePolicies(savedApplication, page);
 
                     return newPageService
                             .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
+                            // fetch the application again because the application.pages has changed post the addition of
+                            // the newly created page to the application.
                             .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS));
                 });
     }
@@ -285,6 +290,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         application.setId(null);
         application.setPolicies(new HashSet<>());
         application.setPages(new ArrayList<>());
+        application.setPublishedPages(new ArrayList<>());
         application.setIsPublic(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
@@ -294,12 +300,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(applicationService::createDefault);
     }
 
-    private void generateAndSetPagePolicies(Application application, User user, Page page) {
-        Set<Policy> policySet = application.getPolicies().stream()
-                .filter(policy -> policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())
-                        || policy.getPermission().equals(READ_APPLICATIONS.getValue()))
-                .collect(Collectors.toSet());
-        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Application.class, Page.class);
+    private void generateAndSetPagePolicies(Application application, Page page) {
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
         page.setPolicies(documentPolicies);
     }
 
@@ -338,7 +340,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
         Mono<Page> sourcePageMono = newPageService.findPageById(pageId, MANAGE_PAGES, false)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(page -> Flux.fromIterable(page.getLayouts())
                         .map(layout -> layout.getDsl())
                         .map(dsl -> {
@@ -361,8 +363,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return sourcePageMono
                 .flatMap(page -> {
-                    Mono<ApplicationPagesDTO> pageNamesMono = pageService
-                            .findNamesByApplicationId(page.getApplicationId());
+                    Mono<ApplicationPagesDTO> pageNamesMono = newPageService
+                            .findNamesByApplicationIdAndViewMode(page.getApplicationId(), false);
                     return pageNamesMono
                             // Set a unique name for the cloned page and then create the page.
                             .flatMap(pageNames -> {
@@ -476,7 +478,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                    // Set the cloned pages into the cloned application and save.
                                    .flatMap(clonedPages -> {
                                        savedApplication.setPages(clonedPages);
-                                       return applicationRepository.save(savedApplication);
+                                       return applicationService.save(savedApplication);
                                    })
                            );
                 });
