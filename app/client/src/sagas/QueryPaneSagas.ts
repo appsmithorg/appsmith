@@ -85,7 +85,12 @@ function* formValueChangeSaga(
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
-  const { id, pluginType, pluginId } = actionPayload.payload;
+  const {
+    id,
+    pluginType,
+    pluginId,
+    actionConfiguration,
+  } = actionPayload.payload;
   const action = yield select(getAction, id);
   const data = { ...action };
   if (pluginType === "DB") {
@@ -102,11 +107,12 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
-        showTemplate: "true",
+        showTemplate: actionConfiguration.body ? "false" : "true",
       }),
     );
   }
 }
+
 function* handleNameChangeSaga(
   action: ReduxAction<{ id: string; name: string }>,
 ) {
