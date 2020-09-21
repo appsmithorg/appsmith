@@ -442,6 +442,7 @@ public class PostgresPlugin extends BasePlugin {
                     final String columnNames = columnsWithoutDefault
                             .stream()
                             .map(DatasourceStructure.Column::getName)
+                            .map(name -> "\"" + name + "\"")
                             .collect(Collectors.joining(", "));
 
                     final String columnValues = columnsWithoutDefault
@@ -470,12 +471,13 @@ public class PostgresPlugin extends BasePlugin {
                             })
                             .collect(Collectors.joining(", "));
 
+                    final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                     table.getTemplates().addAll(List.of(
-                            new DatasourceStructure.Template("SELECT", "SELECT * FROM " + table.getName() + " LIMIT 10;"),
-                            new DatasourceStructure.Template("INSERT", "INSERT INTO " + table.getName()
+                            new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
+                            new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
                                     + " (" + columnNames + ")\n"
                                     + "  VALUES (" + columnValues + ");"),
-                            new DatasourceStructure.Template("DELETE", "DELETE FROM " + table.getName()
+                            new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
                                     + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
                     ));
                 }
