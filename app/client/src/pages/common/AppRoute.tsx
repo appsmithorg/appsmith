@@ -12,7 +12,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 class AppRouteWithoutProps extends React.Component<{
   currentTheme: any;
   path?: string;
-  component: any;
+  component: React.ReactType;
   exact?: boolean;
   logDisable?: boolean;
   name: string;
@@ -37,7 +37,7 @@ class AppRouteWithoutProps extends React.Component<{
       document.body.style.backgroundColor =
         currentTheme.colors.homepageBackground;
     } else {
-      document.body.style.backgroundColor = "#efefef";
+      document.body.style.backgroundColor = currentTheme.colors.appBackground;
     }
     return (
       <SentryRoute
