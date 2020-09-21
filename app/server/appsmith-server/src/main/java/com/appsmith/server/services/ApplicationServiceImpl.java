@@ -7,7 +7,6 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
@@ -16,7 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.PageRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -35,6 +34,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
@@ -45,7 +45,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     //Using PageRepository instead of PageService is because a cyclic dependency is introduced if PageService is used here.
     //TODO : Solve for this across LayoutService, PageService and ApplicationService.
-    private final PageRepository pageRepository;
+    private final NewPageRepository newPageRepository;
     private final PolicyUtils policyUtils;
     private final DatasourceService datasourceService;
     private final ConfigService configService;
@@ -57,15 +57,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ReactiveMongoTemplate reactiveMongoTemplate,
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
-                                  PageRepository pageRepository,
                                   PolicyUtils policyUtils,
                                   DatasourceService datasourceService,
-                                  ConfigService configService) {
+                                  ConfigService configService,
+                                  NewPageRepository newPageRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.pageRepository = pageRepository;
         this.policyUtils = policyUtils;
         this.datasourceService = datasourceService;
         this.configService = configService;
+        this.newPageRepository = newPageRepository;
     }
 
     @Override
@@ -155,33 +155,37 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
      */
     @Override
     public Mono<Boolean> publish(String applicationId) {
-        Mono<Application> applicationMono = findById(applicationId)
+        Mono<Application> applicationMono = findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)));
+
+        /**
+         * TODO : Archive the pages that have been deleted in the unpublished mode
+         */
 
         return applicationMono
                 //Return all the pages in the Application
-                .map(application -> {
+                .flatMap(application -> {
                     List<ApplicationPage> pages = application.getPages();
                     if (pages == null) {
                         pages = new ArrayList<>();
                     }
-                    return pages;
+                    application.setPublishedPages(pages);
+                    return repository.save(application)
+                            .thenReturn(pages);
                 })
                 .flatMapMany(Flux::fromIterable)
                 //In each page, copy each layout's dsl to publishedDsl field
-                .flatMap(applicationPage -> pageRepository
+                .flatMap(applicationPage -> newPageRepository
                         .findById(applicationPage.getId())
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", applicationPage.getId())))
                         .map(page -> {
-                            List<Layout> layoutList = page.getLayouts();
-                            for (Layout layout : layoutList) {
-                                layout.setPublishedDsl(layout.getDsl());
-                                layout.setPublishedLayoutActions(layout.getLayoutActions());
-                                layout.setPublishedLayoutOnLoadActions(layout.getLayoutOnLoadActions());
-                            }
+                            page.setPublishedPage(page.getUnpublishedPage());
                             return page;
                         })
-                        .flatMap(pageRepository::save))
+                        .flatMap(newPageRepository::save))
+                /**
+                 * TODO : Publish the actions as well at this point
+                 */
                 .collectList()
                 .map(pages -> true);
     }
