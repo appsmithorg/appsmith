@@ -169,5 +169,6 @@
   ],
   "Chartval":["Test1", "Test2", "Test3"],
   "paginationUrl":"https://mock-api.appsmith.com/",
-  "paginationParam":"users?page={{Table1.pageNo}}&size={{Table1.pageSize }}"
+  "paginationParam":"users?page={{Table1.pageNo}}&size={{Table1.pageSize }}",
+  "defaultMoustacheData": "{{Input1.text"
 }
