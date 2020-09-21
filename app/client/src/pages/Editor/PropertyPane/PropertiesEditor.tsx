@@ -17,6 +17,7 @@ import {
   getPropertyConfig,
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
+  getWidgetChildPropertiesForPropertyPane,
 } from "selectors/propertyPaneSelectors";
 import {
   updateWidgetPropertyRequest,
@@ -247,6 +248,7 @@ class PropertiesEditor extends React.Component<
   componentDidUpdate(
     prevProps: PropertiesEditorProps & PropertiesEditorFunctions,
   ) {
+    console.log("props", prevProps, this.props);
     if (
       this.props.widgetId !== prevProps.widgetId &&
       this.props.widgetId !== undefined
@@ -280,20 +282,27 @@ class PropertiesEditor extends React.Component<
     return true;
   }
   onPropertyChange(propertyName: string, propertyValue: any) {
+    console.log(propertyName, propertyValue, this.props.childProperties);
     if (this.props.childProperties) {
       const {
         parentPropertyName,
         parentPropertyValue,
         id,
       } = this.props.childProperties;
-      const updatedParentPropertyValue = parentPropertyValue.map(
+      let updatedParentPropertyValue = [...parentPropertyValue];
+      updatedParentPropertyValue = updatedParentPropertyValue.map(
         (item: any) => {
           if (item.id === id) {
-            item[propertyName] = propertyValue;
+            // item[propertyName] = propertyValue;
+            return {
+              ...item,
+              [propertyName]: propertyValue,
+            };
           }
           return item;
         },
       );
+      console.log("updatedParentPropertyValue", updatedParentPropertyValue);
       this.props.updateWidgetProperty(
         this.props.widgetId,
         parentPropertyName,
@@ -356,15 +365,21 @@ class PropertiesEditor extends React.Component<
           updateWidgetProperty: this.props.updateWidgetProperty,
           hidePropertyPane: this.props.hidePropertyPane,
           updatePropertyTitle: this.updatePropertyTitle,
+          openChildPaneProperties: this.props.openChildPaneProperties,
           childProperties: {
             parentPropertyName: childProperties.parentPropertyName,
             parentPropertyValue: childProperties.parentPropertyValue,
-            ...childProperties,
+            id: childProperties.id,
+            label: childProperties.label,
           },
         },
-        title: "",
-        component: PropertiesEditor,
+        component: ConnectedPropertiesEditor,
       };
+      this.props.openChildPaneProperties(
+        this.props.widgetId || "",
+        childProperties.parentPropertyName,
+        childProperties.id,
+      );
       this.props.openPanel(nextPanel);
     }
   };
@@ -392,6 +407,13 @@ class PropertiesEditor extends React.Component<
     }
   };
 
+  closePanel = () => {
+    if (this.props.childProperties) {
+      this.props.openChildPaneProperties(this.props.widgetId || "", "", "");
+    }
+    this.props.closePanel();
+  };
+
   render() {
     const { widgetProperties, propertySections, widgetId } = this.props;
     if (!widgetProperties) return <PropertyPaneWrapper />;
@@ -406,7 +428,7 @@ class PropertiesEditor extends React.Component<
           hidePropertyPane={this.props.hidePropertyPane}
           widgetId={widgetId}
           openPanel={this.props.openPanel}
-          closePanel={this.props.closePanel}
+          closePanel={this.closePanel}
           childProperties={this.props.childProperties}
           onPropertyChange={this.onPropertyChange}
           updatePropertyTitle={this.updatePropertyTitle}
@@ -419,7 +441,10 @@ class PropertiesEditor extends React.Component<
                   propertySection={propertySection}
                   id={widgetId + propertySection.id}
                   key={widgetId + propertySection.id}
-                  widgetProperties={widgetProperties}
+                  widgetProperties={_.merge(
+                    widgetProperties,
+                    this.props.nextPaneWidgetProperties,
+                  )}
                   onPropertyChange={this.onPropertyChange}
                   toggleDynamicProperty={this.toggleDynamicProperty}
                   openNextPanel={this.openNextPanel}
@@ -438,6 +463,7 @@ interface PropertiesEditorProps {
   widgetId?: string;
   widgetProperties?: WidgetProps;
   isVisible: boolean;
+  nextPaneWidgetProperties?: ChildProperties;
 }
 
 interface PropertyPaneHeaderProps extends IPanelProps {
@@ -478,6 +504,11 @@ interface PropertiesEditorFunctions {
   ) => void;
   updateWidgetProperty: Function;
   hidePropertyPane: () => void;
+  openChildPaneProperties: (
+    widgetId: string,
+    propertyControlId: string,
+    widgetChildProperty: string,
+  ) => void;
 }
 
 const mapStateToProps = (state: AppState): PropertiesEditorProps => {
@@ -486,6 +517,7 @@ const mapStateToProps = (state: AppState): PropertiesEditorProps => {
     widgetId: getCurrentWidgetId(state),
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
+    nextPaneWidgetProperties: getWidgetChildPropertiesForPropertyPane(state),
   };
 };
 
@@ -513,7 +545,25 @@ const mapDispatchToProps = (dispatch: any): PropertiesEditorFunctions => {
       propertyName: string,
       isDynamic: boolean,
     ) => dispatch(setWidgetDynamicProperty(widgetId, propertyName, isDynamic)),
+    openChildPaneProperties: (
+      widgetId: string,
+      propertyControlId: string,
+      widgetChildProperty: string,
+    ) =>
+      dispatch({
+        type: ReduxActionTypes.OPEN_SUB_PANE,
+        payload: {
+          widgetId,
+          propertyControlId,
+          widgetChildProperty,
+        },
+      }),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PropertiesEditor);
+const ConnectedPropertiesEditor = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PropertiesEditor);
+
+export default ConnectedPropertiesEditor;

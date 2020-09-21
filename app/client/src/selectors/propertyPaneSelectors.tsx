@@ -1,5 +1,6 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
+import { PropertyControlPropsType } from "components/propertyControls";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -43,6 +44,7 @@ export const getWidgetPropsForPropertyPane = createSelector(
     evaluatedTree: DataTree,
   ): WidgetProps | undefined => {
     log.debug("Evaluating data tree to get property pane validations");
+    console.log("Evaluating data tree to get property pane validations");
     if (!widget) return undefined;
     const evaluatedWidget = _.find(evaluatedTree, {
       widgetId: widget.widgetId,
@@ -79,6 +81,22 @@ export const getPropertyConfig = createSelector(
       !!configs.config &&
       widgets[pane.widgetId]
     ) {
+      // return configs.config[widgets[pane.widgetId].type];
+      if (pane.propertyControlId) {
+        const widgetPropetyConfigs =
+          configs.config[widgets[pane.widgetId].type];
+        for (let i = 0; i < widgetPropetyConfigs.length; i++) {
+          const widgetPropertySection: PropertySection =
+            widgetPropetyConfigs[i];
+          for (let j = 0; j < widgetPropertySection.children.length; j++) {
+            const propertyConfigs: Partial<PropertyControlPropsType> =
+              widgetPropertySection.children[j];
+            if (propertyConfigs.propertyName === pane.propertyControlId) {
+              return propertyConfigs.childrenProperties;
+            }
+          }
+        }
+      }
       return configs.config[widgets[pane.widgetId].type];
     }
     return undefined;
@@ -90,4 +108,48 @@ export const getIsPropertyPaneVisible = createSelector(
   getPropertyConfig,
   (pane: PropertyPaneReduxState, content?: PropertySection[]) =>
     !!(pane.isVisible && pane.widgetId && content),
+);
+
+export const getWidgetChildPropertiesForPropertyPane = createSelector(
+  getPropertyPaneState,
+  getCurrentWidgetProperties,
+  evaluateDataTreeWithoutFunctions,
+  (
+    pane: PropertyPaneReduxState,
+    widget: WidgetProps | undefined,
+    evaluatedTree: DataTree,
+  ): any | undefined => {
+    log.debug("Evaluating data tree to get child property pane validations");
+    console.log("Evaluating data tree to get child property pane validations");
+    if (!widget) return undefined;
+    const evaluatedWidget = _.find(evaluatedTree, {
+      widgetId: widget.widgetId,
+    }) as DataTreeWidget;
+    const widgetProperties = { ...widget };
+    let childProperties = undefined;
+    if (evaluatedWidget) {
+      if (evaluatedWidget.evaluatedValues) {
+        widgetProperties.evaluatedValues = {
+          ...evaluatedWidget.evaluatedValues,
+        };
+      }
+      if (evaluatedWidget.invalidProps) {
+        const { invalidProps, validationMessages } = evaluatedWidget;
+        widgetProperties.invalidProps = invalidProps;
+        widgetProperties.validationMessages = validationMessages;
+      }
+    }
+    console.log("pane", pane, widgetProperties);
+    if (pane.propertyControlId) {
+      const childItems = widgetProperties[pane.propertyControlId];
+      if (childItems && childItems.length) {
+        for (let i = 0; i < childItems.length; i++) {
+          if (childItems[i] && childItems[i].id === pane.widgetChildProperty) {
+            childProperties = childItems[i];
+          }
+        }
+      }
+    }
+    return childProperties;
+  },
 );

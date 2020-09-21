@@ -56,7 +56,6 @@ const PropertyControl = (props: Props) => {
       `evaluatedValues.${propertyName}`,
     );
     const { isValid, validationMessage } = getPropertyValidation(propertyName);
-    console.log(widgetProperties.type, propertyName);
     const config = {
       ...propertyConfig,
       isValid,
@@ -69,7 +68,7 @@ const PropertyControl = (props: Props) => {
       parentPropertyValue: propertyValue,
       expected: FIELD_EXPECTED_VALUE[widgetProperties.type]?.[propertyName],
     };
-    console.log({ config });
+    // console.log({ config });
     if (
       widgetProperties.dynamicTriggers &&
       widgetProperties.dynamicTriggers[propertyName]

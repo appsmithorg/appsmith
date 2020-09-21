@@ -46,6 +46,12 @@ export enum CellAlignmentTypes {
   CENTER = "CENTER",
 }
 
+export enum VerticalAlignmentTypes {
+  TOP = "TOP",
+  BOTTOM = "BOTTOM",
+  CENTER = "CENTER",
+}
+
 export enum TextTypes {
   HEADING = "HEADING",
   LABEL = "LABEL",
@@ -663,6 +669,7 @@ export type CompactMode = keyof typeof CompactModeTypes;
 export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
 export type CellAlignment = keyof typeof CellAlignmentTypes;
+export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
 export type FontStyle = keyof typeof FontStyleTypes;
 export type TextType = keyof typeof TextTypes;
 
@@ -698,7 +705,7 @@ export interface ColumnProperties {
   index: number;
   width: number;
   horizontalAlignment?: CellAlignment;
-  verticalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
   textStyle?: TextType;
   fontStyle?: FontStyle;
   textColor?: string;

@@ -22,9 +22,8 @@ const StyledPanelStack = styled(PanelStack)`
     border: none;
     background: transparent;
   }
-  &&& .bp3-heading {
-    margin: 0;
-    width: 100%;
+  &&& .bp3-panel-stack-header {
+    display: none;
   }
 `;
 

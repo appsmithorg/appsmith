@@ -358,7 +358,7 @@ export const StyledDeleteIcon = styled(
   padding: 0;
   position: absolute;
   margin-right: 15px;
-  cursor: move;
+  cursor: pointer;
   right: 25px;
   svg {
     path {
@@ -367,13 +367,17 @@ export const StyledDeleteIcon = styled(
   }
 `;
 
+export const FlexWrapper = styled.div`
+  display: flex;
+`;
+
 export const StyledVisibleIcon = styled(
   ControlIcons.HIDE_COLUMN as AnyStyledComponent,
 )`
   padding: 0;
   position: absolute;
   margin-right: 15px;
-  cursor: move;
+  cursor: pointer;
   right: 25px;
   svg {
     path {

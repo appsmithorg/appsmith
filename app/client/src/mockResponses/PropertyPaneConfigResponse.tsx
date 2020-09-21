@@ -240,22 +240,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                     id: "7.1.6.2.1",
                     propertyName: "horizontalAlignment",
                     label: "Text Align",
-                    controlType: "DROP_DOWN",
+                    controlType: "TEXT_ALIGNMENT",
                     isJSConvertible: true,
-                    options: [
-                      {
-                        label: "Left",
-                        value: "LEFT",
-                      },
-                      {
-                        label: "Center",
-                        value: "CENTER",
-                      },
-                      {
-                        label: "Right",
-                        value: "RIGHT",
-                      },
-                    ],
                   },
                   {
                     id: "7.1.6.2.2",
@@ -282,49 +268,21 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                     id: "7.1.6.2.3",
                     propertyName: "fontStyle",
                     label: "Font Style",
-                    controlType: "DROP_DOWN",
+                    controlType: "FONT_STYLE",
                     isJSConvertible: true,
-                    options: [
-                      {
-                        label: "Normal",
-                        value: "NORMAL",
-                      },
-                      {
-                        label: "Bold",
-                        value: "BOLD",
-                      },
-                      {
-                        label: "Italic",
-                        value: "ITALIC",
-                      },
-                    ],
                   },
                   {
                     id: "7.1.6.2.4",
                     propertyName: "verticalAlignment",
                     label: "Vertical Alignment",
-                    controlType: "DROP_DOWN",
+                    controlType: "VERTICAL_ALIGNMENT",
                     isJSConvertible: true,
-                    options: [
-                      {
-                        label: "Top",
-                        value: "TOP",
-                      },
-                      {
-                        label: "Center",
-                        value: "CENTER",
-                      },
-                      {
-                        label: "Bottom",
-                        value: "BOTTOM",
-                      },
-                    ],
                   },
                   {
                     id: "7.1.6.2.5",
                     propertyName: "textColor",
                     label: "Text Color",
-                    controlType: "INPUT_TEXT",
+                    controlType: "COLOR_PICKER",
                     isJSConvertible: true,
                   },
                 ],
@@ -424,22 +382,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                     propertyName: "horizontalAlignment",
                     helpText: "Sets the alignments of the text",
                     label: "Text Align",
-                    controlType: "DROP_DOWN",
+                    controlType: "TEXT_ALIGNMENT",
                     isJSConvertible: true,
-                    options: [
-                      {
-                        label: "Left",
-                        value: "LEFT",
-                      },
-                      {
-                        label: "Center",
-                        value: "CENTER",
-                      },
-                      {
-                        label: "Right",
-                        value: "RIGHT",
-                      },
-                    ],
                   },
                   {
                     id: "7.1.7.3.2",
@@ -467,49 +411,21 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                     id: "7.1.7.3.3",
                     propertyName: "fontStyle",
                     label: "Font Style",
-                    controlType: "DROP_DOWN",
+                    controlType: "FONT_STYLE",
                     isJSConvertible: true,
-                    options: [
-                      {
-                        label: "Bold",
-                        value: "BOLD",
-                      },
-                      {
-                        label: "Italic",
-                        value: "ITALIC",
-                      },
-                      {
-                        label: "Normal",
-                        value: "NORMAL",
-                      },
-                    ],
                   },
                   {
                     id: "7.1.7.3.4",
                     propertyName: "verticalAlignment",
                     label: "Vertical Alignment",
-                    controlType: "DROP_DOWN",
+                    controlType: "VERTICAL_ALIGNMENT",
                     isJSConvertible: true,
-                    options: [
-                      {
-                        label: "Top",
-                        value: "TOP",
-                      },
-                      {
-                        label: "Center",
-                        value: "CENTER",
-                      },
-                      {
-                        label: "Bottom",
-                        value: "BOTTOM",
-                      },
-                    ],
                   },
                   {
                     id: "7.1.7.3.5",
                     propertyName: "textColor",
                     label: "Text Color",
-                    controlType: "INPUT_TEXT",
+                    controlType: "COLOR_PICKER",
                     isJSConvertible: true,
                   },
                 ],

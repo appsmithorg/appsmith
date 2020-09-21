@@ -28,6 +28,10 @@ import ActionSelectorControl from "components/propertyControls/ActionSelectorCon
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
 import AdditionalColumnsControl from "components/propertyControls/AdditionalColumnsControl";
+import FontStyleControl from "components/propertyControls/FontStyleControl";
+import TextAlignmentControl from "components/propertyControls/TextAlignmentControl";
+import VerticalAlignmentControl from "components/propertyControls/VerticalAlignmentControl";
+import ColorPickerControl from "components/propertyControls/ColorPickerControl";
 import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
@@ -47,6 +51,10 @@ export const PropertyControls = {
   LocationSearchControl,
   StepControl,
   TabControl,
+  ColorPickerControl,
+  FontStyleControl,
+  TextAlignmentControl,
+  VerticalAlignmentControl,
   PrimaryColumnsControl,
   AdditionalColumnsControl,
 };

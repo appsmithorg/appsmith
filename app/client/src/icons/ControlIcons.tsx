@@ -23,6 +23,14 @@ import { ReactComponent as LaunchIcon } from "assets/icons/control/launch.svg";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { ReactComponent as HideColumnIcon } from "assets/icons/control/hide-column.svg";
 import { ReactComponent as DeleteColumnIcon } from "assets/icons/control/delete-column.svg";
+import { ReactComponent as BoldFontIcon } from "assets/icons/control/bold.svg";
+import { ReactComponent as ItalicsFontIcon } from "assets/icons/control/italics.svg";
+import { ReactComponent as LeftAlignIcon } from "assets/icons/control/left-align.svg";
+import { ReactComponent as CenterAlignIcon } from "assets/icons/control/center-align.svg";
+import { ReactComponent as RightAlignIcon } from "assets/icons/control/right-align.svg";
+import { ReactComponent as VerticalAlignBottom } from "assets/icons/control/vertical_align_bottom.svg";
+import { ReactComponent as VerticalAlignCenter } from "assets/icons/control/vertical_align_center.svg";
+import { ReactComponent as VerticalAlignTop } from "assets/icons/control/vertical_align_top.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -152,6 +160,46 @@ export const ControlIcons: {
   DELETE_COLUMN: (props: IconProps) => (
     <IconWrapper {...props}>
       <DeleteColumnIcon />
+    </IconWrapper>
+  ),
+  BOLD_FONT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoldFontIcon />
+    </IconWrapper>
+  ),
+  ITALICS_FONT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <ItalicsFontIcon />
+    </IconWrapper>
+  ),
+  LEFT_ALIGN: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <LeftAlignIcon />
+    </IconWrapper>
+  ),
+  CENTER_ALIGN: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CenterAlignIcon />
+    </IconWrapper>
+  ),
+  RIGHT_ALIGN: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <RightAlignIcon />
+    </IconWrapper>
+  ),
+  VERTICAL_TOP: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <VerticalAlignTop />
+    </IconWrapper>
+  ),
+  VERTICAL_CENTER: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <VerticalAlignCenter />
+    </IconWrapper>
+  ),
+  VERTICAL_BOTTOM: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <VerticalAlignBottom />
     </IconWrapper>
   ),
 };
