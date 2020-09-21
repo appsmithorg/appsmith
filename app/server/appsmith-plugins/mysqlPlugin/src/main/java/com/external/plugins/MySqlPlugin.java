@@ -415,40 +415,47 @@ public class MySqlPlugin extends BasePlugin {
                             .filter(column -> column.getDefaultValue() == null)
                             .collect(Collectors.toList());
 
-                    final String columnNames = columnsWithoutDefault
-                            .stream()
-                            .map(DatasourceStructure.Column::getName)
-                            .collect(Collectors.joining(", "));
+                    final List<String> columnNames = new ArrayList<>();
+                    final List<String> columnValues = new ArrayList<>();
+                    final StringBuilder setFragments = new StringBuilder();
 
-                    final String columnValues = columnsWithoutDefault
-                            .stream()
-                            .map(DatasourceStructure.Column::getType)
-                            .map(type -> {
-                                if (type == null) {
-                                    return "null";
-                                } else if ("text".equals(type) || "varchar".equals(type)) {
-                                    return "''";
-                                } else if (type.startsWith("int")) {
-                                    return "1";
-                                } else if (type.startsWith("double")) {
-                                    return "1.0";
-                                } else if (DATE_COLUMN_TYPE_NAME.equals(type)) {
-                                    return "'2019-07-01'";
-                                } else if (DATETIME_COLUMN_TYPE_NAME.equals(type)
-                                        || TIMESTAMP_COLUMN_TYPE_NAME.equals(type)) {
-                                    return "'2019-07-01 10:00:00'";
-                                } else {
-                                    return "''";
-                                }
-                            })
-                            .collect(Collectors.joining(", "));
+                    for (DatasourceStructure.Column column : columnsWithoutDefault) {
+                        final String name = column.getName();
+                        final String type = column.getType();
+                        String value;
 
+                        if (type == null) {
+                            value = "null";
+                        } else if ("text".equals(type) || "varchar".equals(type)) {
+                            value = "''";
+                        } else if (type.startsWith("int")) {
+                            value = "1";
+                        } else if (type.startsWith("double")) {
+                            value = "1.0";
+                        } else if (DATE_COLUMN_TYPE_NAME.equals(type)) {
+                            value = "'2019-07-01'";
+                        } else if (DATETIME_COLUMN_TYPE_NAME.equals(type)
+                                || TIMESTAMP_COLUMN_TYPE_NAME.equals(type)) {
+                            value = "'2019-07-01 10:00:00'";
+                        } else {
+                            value = "''";
+                        }
+
+                        columnNames.add(name);
+                        columnValues.add(value);
+                        setFragments.append("\n    ").append(name).append(" = ").append(value);
+                    }
+
+                    final String tableName = table.getName();
                     table.getTemplates().addAll(List.of(
-                            new DatasourceStructure.Template("SELECT", "SELECT * FROM " + table.getName() + " LIMIT 10;"),
-                            new DatasourceStructure.Template("INSERT", "INSERT INTO " + table.getName()
-                                    + " (" + columnNames + ")\n"
-                                    + "  VALUES (" + columnValues + ");"),
-                            new DatasourceStructure.Template("DELETE", "DELETE FROM " + table.getName()
+                            new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;"),
+                            new DatasourceStructure.Template("INSERT", "INSERT INTO " + tableName
+                                    + " (" + String.join(", ", columnNames) + ")\n"
+                                    + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                            new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
+                                    + setFragments.toString() + "\n"
+                                    + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                            new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
                                     + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
                     ));
                 }
