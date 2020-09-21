@@ -249,11 +249,58 @@ public class MongoPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.possessions LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.possessions (title, user_id)\n" +
-                                            "  VALUES ('', 1);"),
-                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.possessions\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                    new DatasourceStructure.Template("Find", "{\n" +
+                                            "  \"find\": \"users\",\n" +
+                                            "  \"filter\": {\n" +
+                                            "    \"gender\": \"F\"\n" +
+                                            "  },\n" +
+                                            "  \"sort\": {\n" +
+                                            "    \"_id\": 1\n" +
+                                            "  },\n" +
+                                            "  \"limit\": 10\n" +
+                                            "}\n"),
+                                    new DatasourceStructure.Template("Find by ID", "{\n" +
+                                            "  \"find\": \"users\",\n" +
+                                            "  \"filter\": {\n" +
+                                            "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
+                                            "  }\n" +
+                                            "}\n"),
+                                    new DatasourceStructure.Template("Insert", "{\n" +
+                                            "  \"insert\": \"users\",\n" +
+                                            "  \"documents\": [\n" +
+                                            "    {\n" +
+                                            "      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
+                                            "      \"age\": 1,\n" +
+                                            "      \"dob\": new Date(\"2019-07-01\"),\n" +
+                                            "      \"gender\": \"new value\",\n" +
+                                            "      \"luckyNumber\": NumberLong(\"1\"),\n" +
+                                            "      \"name\": \"new value\",\n" +
+                                            "      \"netWorth\": NumberDecimal(\"1\"),\n" +
+                                            "    }\n" +
+                                            "  ]\n" +
+                                            "}\n"),
+                                    new DatasourceStructure.Template("Update", "{\n" +
+                                            "  \"update\": \"users\",\n" +
+                                            "  \"updates\": [\n" +
+                                            "    {\n" +
+                                            "      \"q\": {\n" +
+                                            "        \"_id\": ObjectId(\"id_of_document_to_update\")\n" +
+                                            "      },\n" +
+                                            "      \"u\": { \"$set\": { \"gender\": \"new value\" } }\n" +
+                                            "    }\n" +
+                                            "  ]\n" +
+                                            "}\n"),
+                                    new DatasourceStructure.Template("Delete", "{\n" +
+                                            "  \"delete\": \"users\",\n" +
+                                            "  \"deletes\": [\n" +
+                                            "    {\n" +
+                                            "      \"q\": {\n" +
+                                            "        \"_id\": \"id_of_document_to_delete\"\n" +
+                                            "      },\n" +
+                                            "      \"limit\": 1\n" +
+                                            "    }\n" +
+                                            "  ]\n" +
+                                            "}\n"),
                             },
                             possessionsTable.getTemplates().toArray()
                     );

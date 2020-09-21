@@ -415,7 +415,7 @@ public class MongoPlugin extends BasePlugin {
                     } else if (value instanceof String) {
                         type = "String";
                         sampleInsertValues.put(name, "\"new value\"");
-                        if (filterFieldName == null) {
+                        if (filterFieldName == null || filterFieldName.compareTo(name) > 0) {
                             filterFieldName = name;
                             filterFieldValue = (String) value;
                         }
@@ -455,7 +455,7 @@ public class MongoPlugin extends BasePlugin {
                                         "    \"_id\": 1\n" +
                                         "  },\n" +
                                         "  \"limit\": 10\n" +
-                                        "}"
+                                        "}\n"
                         )
                 );
 
@@ -467,7 +467,7 @@ public class MongoPlugin extends BasePlugin {
                                         "  \"filter\": {\n" +
                                         "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                                         "  }\n" +
-                                        "}"
+                                        "}\n"
                         )
                 );
 
@@ -483,6 +483,7 @@ public class MongoPlugin extends BasePlugin {
                                         "    {\n" +
                                         sampleInsertValues.entrySet().stream()
                                                 .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
+                                                .sorted()
                                                 .collect(Collectors.joining("")) +
                                         "    }\n" +
                                         "  ]\n" +
