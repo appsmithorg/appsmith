@@ -4,6 +4,8 @@ import { extraLibraries } from "jsExecution/JSExecutionManagerSingleton";
 import { Collapse, Icon, IconName, Tooltip } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
+import { BindingText } from "pages/Editor/APIEditor/Form";
+
 export type JSDependenciesProps = {};
 
 const Wrapper = styled.div`
@@ -58,15 +60,25 @@ export const JSDependencies = (props: JSDependenciesProps) => {
   const icon: IconName = isOpen ? IconNames.CARET_DOWN : IconNames.CARET_RIGHT;
   const toggleDependencies = () => setIsOpen(!isOpen);
   const showDocs = (e: any) => {
+    window.open("https://docs.appsmith.com", "appsmith-docs");
     e.stopPropagation();
     e.preventDefault();
   };
+
+  const TooltipContent = (
+    <div>
+      <span>Access these JS libraries to transform data within </span>
+      <BindingText>{`{{ }}`}</BindingText>
+      <span>. Try </span>
+      <BindingText>{`{{ _.add(1,1) }}`}</BindingText>
+    </div>
+  );
   return (
     <Wrapper>
       <Title onClick={toggleDependencies}>
         <Icon icon={icon} />
         <span>Dependencies</span>
-        <Tooltip content="What's this?">
+        <Tooltip content={TooltipContent} position="top" boundary="viewport">
           <Help
             icon="help"
             iconSize={12}
