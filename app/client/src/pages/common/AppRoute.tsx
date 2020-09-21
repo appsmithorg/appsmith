@@ -2,8 +2,6 @@ import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
-import { getThemeDetails } from "selectors/themeSelectors";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppRoute = ({
@@ -25,17 +23,6 @@ const AppRoute = ({
       });
     }
   }, [rest.name, rest.logDisable, rest.location.pathname]);
-
-  const currentTheme = useSelector(getThemeDetails).theme;
-  if (
-    window.location.pathname === "/applications" ||
-    window.location.pathname.indexOf("/settings/") !== -1
-  ) {
-    document.body.style.backgroundColor =
-      currentTheme.colors.homepageBackground;
-  } else {
-    document.body.style.backgroundColor = "#efefef";
-  }
   return (
     <SentryRoute
       {...rest}
