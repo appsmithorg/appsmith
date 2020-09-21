@@ -606,7 +606,7 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void publishApplicationTest() {
+    public void basicPublishApplicationTest() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
@@ -643,4 +643,15 @@ public class ApplicationServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * TODO : Add test for checking that published page doesnt get deleted when page is deleted in edit mode
+     */
+
+    /**
+     * TODO : Add test case for checking that published page isDefault doesn't change when this change happens in edit mode
+     */
+
+    /**
+     * TODO : Add test case for checking that published page's name doesn't change when this change happens in edit mode
+     */
 }
