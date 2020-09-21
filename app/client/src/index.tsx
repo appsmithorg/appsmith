@@ -39,6 +39,14 @@ class ThemedApp extends React.Component<{
     }
   }
   render() {
+    if (
+      window.location.pathname === "/applications" ||
+      window.location.pathname.indexOf("/settings/") !== -1
+    ) {
+      document.body.style.backgroundColor = this.props.currentTheme.colors.homepageBackground;
+    } else {
+      document.body.style.backgroundColor = "#efefef";
+    }
     return (
       <ThemeProvider theme={this.props.currentTheme}>
         <ToastContainer
