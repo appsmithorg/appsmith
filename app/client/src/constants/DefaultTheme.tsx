@@ -689,6 +689,7 @@ export const theme: Theme = {
     radio: {
       disabled: "#565656",
     },
+    appBackground: "#EFEFEF",
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,

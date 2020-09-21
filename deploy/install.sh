@@ -308,6 +308,7 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
+    set +o errexit
     echo "Please share your email to receive support with the installation"
     read -rp 'Email: ' email
     curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
@@ -334,6 +335,9 @@ os=""
 echo -e "\U1F575  Detecting your OS"
 check_os
 APPSMITH_INSTALLATION_ID=$(curl -s 'https://api6.ipify.org')
+
+# Run bye if failure happens
+trap bye EXIT
 
 curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
