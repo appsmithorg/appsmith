@@ -2,7 +2,7 @@ import { all, call, select, put, takeLatest, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import jsonFn from "json-fn";
 
 function* evaluateTreeSaga() {
   const unEvalTree = yield select(getUnevaluatedDataTree(true));
@@ -15,13 +15,14 @@ function* evaluateTreeSaga() {
 
 function* evaluationChangeListenerSaga() {
   yield call(evaluateTreeSaga);
-  let oldUnEvalTree: DataTree = {};
+  let oldUnEvalTree = "";
   while (true) {
     yield take("*");
     const unEvalTree = yield select(getUnevaluatedDataTree(false));
-    if (unEvalTree !== oldUnEvalTree) {
-      oldUnEvalTree = unEvalTree;
+    const unEvalString = jsonFn.stringify(unEvalTree);
+    if (unEvalString !== oldUnEvalTree) {
       yield call(evaluateTreeSaga);
+      oldUnEvalTree = unEvalString;
     }
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit editor)
