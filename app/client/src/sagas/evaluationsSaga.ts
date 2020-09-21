@@ -13,9 +13,9 @@ function* evaluateTreeSaga() {
   });
 }
 
-let oldUnEvalTree: DataTree = {};
 function* evaluationChangeListenerSaga() {
   yield call(evaluateTreeSaga);
+  let oldUnEvalTree: DataTree = {};
   while (true) {
     yield take("*");
     const unEvalTree = yield select(getUnevaluatedDataTree(false));
