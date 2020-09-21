@@ -2,51 +2,68 @@ import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
+import { useSelector, connect } from "react-redux";
 import { getThemeDetails } from "selectors/themeSelectors";
+import { AppState } from "reducers";
+import { ThemeMode } from "reducers/uiReducers/themeReducer";
+import { setThemeMode } from "actions/themeActions";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppRoute = ({
-  component: Component,
-  ...rest
-}: {
+class AppRouteWithoutProps extends React.Component<{
+  currentTheme: any;
   path?: string;
-  component: React.ReactType;
+  component: any;
   exact?: boolean;
   logDisable?: boolean;
   name: string;
   location?: any;
-}) => {
-  useEffect(() => {
-    if (!rest.logDisable) {
+  setTheme: Function;
+}> {
+  componentDidUpdate() {
+    if (!this.props.logDisable) {
       AnalyticsUtil.logEvent("NAVIGATE_EDITOR", {
-        page: rest.name,
-        path: rest.location.pathname,
+        page: this.props.name,
+        path: this.props.location.pathname,
       });
     }
-  }, [rest.name, rest.logDisable, rest.location.pathname]);
-
-  const currentTheme = useSelector(getThemeDetails).theme;
-  if (
-    window.location.pathname === "/applications" ||
-    window.location.pathname.indexOf("/settings/") !== -1
-  ) {
-    document.body.style.backgroundColor =
-      currentTheme.colors.homepageBackground;
-  } else {
-    document.body.style.backgroundColor = "#efefef";
   }
-  return (
-    <SentryRoute
-      {...rest}
-      render={props => {
-        return <Component {...props}></Component>;
-      }}
-    />
-  );
-};
+  render() {
+    const { component: Component, currentTheme, ...rest } = this.props;
 
-AppRoute.whyDidYouRender = {
+    if (
+      window.location.pathname === "/applications" ||
+      window.location.pathname.indexOf("/settings/") !== -1
+    ) {
+      document.body.style.backgroundColor =
+        currentTheme.colors.homepageBackground;
+    } else {
+      document.body.style.backgroundColor = "#efefef";
+    }
+    return (
+      <SentryRoute
+        {...rest}
+        render={props => {
+          return <Component {...props} />;
+        }}
+      />
+    );
+  }
+}
+const mapStateToProps = (state: AppState) => ({
+  currentTheme: getThemeDetails(state).theme,
+});
+const mapDispatchToProps = (dispatch: any) => ({
+  setTheme: (mode: ThemeMode) => {
+    dispatch(setThemeMode(mode));
+  },
+});
+
+const AppRoute = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AppRouteWithoutProps);
+
+(AppRoute as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };
 
