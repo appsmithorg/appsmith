@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
@@ -210,7 +211,6 @@ public class MySqlPlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading MySQL JDBC Driver class."));
             }
 
-            String url;
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
 
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
@@ -224,11 +224,12 @@ public class MySqlPlugin extends BasePlugin {
                 properties.put(PASSWORD, authentication.getPassword());
             }
 
+            StringBuilder urlBuilder = new StringBuilder();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                url = datasourceConfiguration.getUrl();
+                urlBuilder.append(datasourceConfiguration.getUrl());
 
             } else {
-                StringBuilder urlBuilder = new StringBuilder("jdbc:mysql://");
+                urlBuilder.append("jdbc:mysql://");
 
                 final List<String> hosts = new ArrayList<>();
                 for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
@@ -241,17 +242,20 @@ public class MySqlPlugin extends BasePlugin {
                     urlBuilder.append(authentication.getDatabaseName());
                 }
 
-                url = urlBuilder.toString();
-
             }
 
-            final Map<String, String> extraProperties = datasourceConfiguration.getConnection().getExtraProperties();
-            if (extraProperties != null && extraProperties.containsKey("serverTimezone")) {
-                url += "?serverTimezone=" + extraProperties.get("serverTimezone");
+            final List<Property> dsProperties = datasourceConfiguration.getProperties();
+            if (dsProperties != null) {
+                for (Property property : dsProperties) {
+                    if ("serverTimezone".equals(property.getKey())) {
+                        urlBuilder.append("?serverTimezone=").append(property.getValue());
+                        break;
+                    }
+                }
             }
 
             try {
-                Connection connection = DriverManager.getConnection(url, properties);
+                Connection connection = DriverManager.getConnection(urlBuilder.toString(), properties);
                 connection.setReadOnly(
                         configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                 return Mono.just(connection);
