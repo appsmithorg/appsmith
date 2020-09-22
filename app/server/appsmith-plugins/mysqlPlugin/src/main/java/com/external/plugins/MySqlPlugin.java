@@ -247,7 +247,7 @@ public class MySqlPlugin extends BasePlugin {
             final List<Property> dsProperties = datasourceConfiguration.getProperties();
             if (dsProperties != null) {
                 for (Property property : dsProperties) {
-                    if ("serverTimezone".equals(property.getKey())) {
+                    if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
                         urlBuilder.append("?serverTimezone=").append(property.getValue());
                         break;
                     }

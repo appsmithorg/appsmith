@@ -156,7 +156,7 @@
       "children": [
         {
           "label": "Server Timezone Override",
-          "configProperty": "datasourceConfiguration.properties.serverTimezone",
+          "configProperty": "datasourceConfiguration.properties[0].serverTimezone",
           "controlType": "INPUT_TEXT",
           "placeholderText": "UTC or any valid timezone"
         }
