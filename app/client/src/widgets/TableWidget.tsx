@@ -159,6 +159,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       for (let index = 0; index < allColumns.length; index++) {
         const columnProperties = allColumns[index];
         const isHidden = !columnProperties.isVisible;
+        const cellProperties: CellLayoutProperties = {
+          horizontalAlignment: columnProperties.horizontalAlignment,
+          verticalAlignment: columnProperties.verticalAlignment,
+          textStyle: columnProperties.textStyle,
+          fontStyle: columnProperties.fontStyle,
+          textColor: columnProperties.textColor,
+        };
         const columnData = {
           Header: columnProperties.label,
           accessor: columnProperties.id,
@@ -173,12 +180,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isHidden: isHidden,
             type: columnProperties.type,
             format: columnProperties?.format?.output || "",
+            cellProperties: cellProperties,
           },
           Cell: (props: any) => {
             return renderCell(
               props.cell.value,
               columnProperties.type,
               isHidden,
+              cellProperties,
             );
           },
         };
@@ -679,10 +688,19 @@ export interface ReactTableFilter {
   condition: Condition;
   value: any;
 }
+
+export interface CellLayoutProperties {
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
+  textStyle?: TextType;
+  fontStyle?: FontStyle;
+  textColor?: string;
+}
 export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
   type: string;
+  cellProperties: CellLayoutProperties;
 }
 export interface ReactTableColumnProps {
   Header: string;

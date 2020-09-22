@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { TableSizes } from "widgets/TableWidget";
+import { TableSizes, CellLayoutProperties } from "widgets/TableWidget";
 import { Colors, Color } from "constants/Colors";
 import { scrollbarLight } from "constants/DefaultTheme";
 
@@ -248,7 +248,22 @@ export const ActionWrapper = styled.div`
   }
 `;
 
-export const CellWrapper = styled.div<{ isHidden?: boolean }>`
+const JUSTIFY_CONTENT = {
+  LEFT: "flex-start",
+  CENTER: "center",
+  RIGHT: "flex-end",
+};
+
+const ALIGN_ITEMS = {
+  TOP: "flex-start",
+  CENTER: "center",
+  BOTTOM: "flex-end",
+};
+
+export const CellWrapper = styled.div<{
+  isHidden?: boolean;
+  cellProperties?: CellLayoutProperties;
+}>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -258,6 +273,17 @@ export const CellWrapper = styled.div<{ isHidden?: boolean }>`
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: ${props => (props.isHidden ? "0.6" : "1")};
+  font-weight: ${props =>
+    props?.cellProperties?.fontStyle === "BOLD" ? 500 : "normal"};
+  color: ${props => props?.cellProperties?.textColor};
+  font-style: ${props =>
+    props?.cellProperties?.fontStyle === "ITALIC" ? "italic" : ""};
+  justify-content: ${props =>
+    props?.cellProperties?.horizontalAlignment &&
+    JUSTIFY_CONTENT[props?.cellProperties?.horizontalAlignment]};
+  align-items: ${props =>
+    props?.cellProperties?.verticalAlignment &&
+    ALIGN_ITEMS[props?.cellProperties?.verticalAlignment]};
   .image-cell {
     width: 40px;
     height: 32px;

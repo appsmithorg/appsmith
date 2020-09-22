@@ -17,6 +17,7 @@ import {
   TextTypes,
   FontStyleTypes,
   ColumnProperties,
+  CellLayoutProperties,
 } from "widgets/TableWidget";
 import { isString, isNumber } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
@@ -351,6 +352,7 @@ export const renderCell = (
   value: any,
   columnType: string,
   isHidden: boolean,
+  cellProperties: CellLayoutProperties,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -412,7 +414,11 @@ export const renderCell = (
           ? value.toString()
           : JSON.stringify(value);
       return (
-        <AutoToolTipComponent title={data} isHidden={isHidden}>
+        <AutoToolTipComponent
+          title={data}
+          isHidden={isHidden}
+          cellProperties={cellProperties}
+        >
           {data}
         </AutoToolTipComponent>
       );

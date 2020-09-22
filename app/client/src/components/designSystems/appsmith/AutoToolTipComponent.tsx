@@ -1,11 +1,13 @@
 import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import { CellLayoutProperties } from "widgets/TableWidget";
 
 const AutoToolTipComponent = (props: {
   isHidden?: boolean;
   children: React.ReactNode;
   title: string;
+  cellProperties?: CellLayoutProperties;
 }) => {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
@@ -18,7 +20,11 @@ const AutoToolTipComponent = (props: {
     }
   }, [ref]);
   return (
-    <CellWrapper ref={ref} isHidden={props.isHidden}>
+    <CellWrapper
+      ref={ref}
+      isHidden={props.isHidden}
+      cellProperties={props.cellProperties}
+    >
       {useToolTip && props.children ? (
         <Tooltip
           autoFocus={false}
