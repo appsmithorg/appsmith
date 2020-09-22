@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CommonComponentProps, hexToRgba, Classes } from "./common";
+import { CommonComponentProps, Classes } from "./common";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import Text, { TextType } from "./Text";
 import styled from "styled-components";
@@ -36,10 +36,10 @@ const OptionsWrapper = styled.div`
   width: 200px;
   display: flex;
   flex-direction: column;
-  background-color: ${props => props.theme.colors.blackShades[3]};
+  background-color: ${props => props.theme.colors.tableDropdown.bg};
   box-shadow: ${props => props.theme.spaces[0]}px
     ${props => props.theme.spaces[5]}px ${props => props.theme.spaces[13] - 2}px
-    ${props => hexToRgba(props.theme.colors.blackShades[0], 0.75)};
+    ${props => props.theme.colors.tableDropdown.shadow};
 `;
 
 const DropdownOption = styled.div<{
@@ -51,7 +51,7 @@ const DropdownOption = styled.div<{
   cursor: pointer;
   ${props =>
     props.isSelected
-      ? `background-color: ${props.theme.colors.blackShades[4]}`
+      ? `background-color: ${props.theme.colors.tableDropdown.selectedBg}`
       : null};
 
   .${Classes.TEXT}:last-child {
@@ -60,7 +60,7 @@ const DropdownOption = styled.div<{
 
   &:hover {
     .${Classes.TEXT} {
-      color: ${props => props.theme.colors.blackShades[9]};
+      color: ${props => props.theme.colors.tableDropdown.selectedText};
     }
   }
 `;

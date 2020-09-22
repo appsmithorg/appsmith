@@ -174,8 +174,8 @@ const textIconStyles = (props: { color: string; hover: string }) => {
 const NewWorkspaceWrapper = styled.div`
   ${props => {
     return `${textIconStyles({
-      color: props.theme.colors.blackShades[7],
-      hover: props.theme.colors.blackShades[8],
+      color: props.theme.colors.applications.color,
+      hover: props.theme.colors.applications.hover.color,
     })}`;
   }}
 `;
@@ -184,7 +184,7 @@ const ApplicationAddCardWrapper = styled(Card)`
   display: flex;
   flex-direction: column;
   // justify-content: center;
-  background: ${props => props.theme.colors.blackShades[2]};
+  background: ${props => props.theme.colors.applications.bg};
   align-items: center;
   width: ${props => props.theme.card.minWidth}px;
   height: ${props => props.theme.card.minHeight}px;
@@ -205,12 +205,12 @@ const ApplicationAddCardWrapper = styled(Card)`
   }
   cursor: pointer;
   &:hover {
-    background: ${props => props.theme.colors.blackShades[4]};
+    background: ${props => props.theme.colors.applications.hover.bg};
   }
   ${props => {
     return `${textIconStyles({
-      color: props.theme.colors.blackShades[7],
-      hover: props.theme.colors.blackShades[8],
+      color: props.theme.colors.applications.color,
+      hover: props.theme.colors.applications.hover.color,
     })}`;
   }}
 `;
@@ -260,8 +260,8 @@ const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
 cursor: ${props => (!props.disabled ? "pointer" : "inherit")};
 ${props => {
   const color = props.disabled
-    ? props.theme.colors.blackShades[7]
-    : props.theme.colors.blackShades[9];
+    ? props.theme.colors.applications.orgColor
+    : props.theme.colors.applications.hover.orgColor[9];
   return `${textIconStyles({
     color: color,
     hover: color,

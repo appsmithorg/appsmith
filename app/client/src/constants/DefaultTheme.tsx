@@ -429,20 +429,24 @@ export const largeButton = css`
   letter-spacing: ${props => props.theme.typography.btnLarge.letterSpacing}px;
 `;
 
+const darkShades = [
+  "#1A191C",
+  "#232324",
+  "#262626",
+  "#2B2B2B",
+  "#404040",
+  "#6D6D6D",
+  "#9F9F9F",
+  "#D4D4D4",
+  "#E9E9E9",
+  "#FFFFFF",
+];
+
 export const dark = {
-  blackShades: [
-    // "#090707",
-    "#1A191C",
-    "#232324",
-    "#262626",
-    "#2B2B2B",
-    "#404040",
-    "#6D6D6D",
-    "#9F9F9F",
-    "#D4D4D4",
-    "#E9E9E9",
-    "#FFFFFF",
-  ],
+  blackShades: darkShades,
+  button: {
+    disabledText: darkShades[6],
+  },
   tertiary: {
     main: "#D4D4D4",
     light: "#FFFFFF",
@@ -481,6 +485,7 @@ export const dark = {
   card: {
     hoverBG: Colors.BLACK,
     hoverBGOpacity: 0.5,
+    hoverBorder: darkShades[4],
   },
   appCardColors: [
     "#4F70FD",
@@ -493,34 +498,174 @@ export const dark = {
     "#A8D76C",
     "#6C4CF1",
   ],
+  text: {
+    normal: darkShades[6],
+    heading: darkShades[7],
+    hightlight: darkShades[9],
+  },
+  icon: {
+    normal: darkShades[6],
+    hover: darkShades[8],
+    active: darkShades[9],
+  },
+  appIcon: {
+    normal: darkShades[9],
+    background: darkShades[1],
+  },
+  menu: {
+    background: darkShades[3],
+    shadow: "rgba(0, 0, 0, 0.75)",
+  },
+  menuItem: {
+    normalText: darkShades[7],
+    normalIcon: darkShades[6],
+    hoverIcon: darkShades[8],
+    hoverText: darkShades[9],
+    hoverBg: darkShades[4],
+  },
+  colorSelector: {
+    shadow: "#353535",
+    checkmark: darkShades[9],
+  },
+  checkbox: {
+    disabled: darkShades[3],
+    unchecked: darkShades[4],
+    disabledCheck: "#565656",
+    normalCheck: darkShades[9],
+    labelColor: darkShades[7],
+  },
+  dropdown: {
+    header: {
+      text: darkShades[7],
+      disabled: darkShades[6],
+      bg: darkShades[2],
+      disabledBg: darkShades[0],
+    },
+    menuBg: darkShades[3],
+    menuShadow: "rgba(0, 0, 0, 0.6)",
+    selected: {
+      text: darkShades[9],
+      bg: darkShades[4],
+      icon: darkShades[8],
+    },
+    icon: darkShades[6],
+  },
+  toggle: {
+    bg: darkShades[4],
+    hover: {
+      on: "#F56426",
+      off: "#5E5E5E",
+    },
+    disable: {
+      on: "#3D2219",
+      off: darkShades[3],
+    },
+    disabledSlider: {
+      on: darkShades[9],
+      off: "#565656",
+    },
+    spinner: darkShades[6],
+  },
+  textInput: {
+    disable: {
+      bg: darkShades[2],
+      text: darkShades[6],
+      border: darkShades[2],
+    },
+    normal: {
+      bg: darkShades[0],
+      text: darkShades[9],
+      border: darkShades[0],
+    },
+    placeholder: darkShades[5],
+  },
+  menuBorder: darkShades[4],
+  editableText: {
+    color: darkShades[9],
+    bg: darkShades[1],
+    dangerBg: "rgba(226, 44, 44, 0.08)",
+  },
+  radio: {
+    disable: "#565656",
+    border: darkShades[4],
+  },
+  searchInput: {
+    placeholder: darkShades[5],
+    text: darkShades[9],
+    border: darkShades[4],
+    bg: darkShades[2],
+    icon: {
+      focused: darkShades[7],
+      normal: darkShades[5],
+    },
+  },
+  spinner: darkShades[6],
+  tableDropdown: {
+    bg: darkShades[3],
+    selectedBg: darkShades[4],
+    selectedText: darkShades[9],
+    shadow: "rgba(0, 0, 0, 0.75)",
+  },
+  tabs: {
+    normal: darkShades[6],
+    hover: darkShades[9],
+    border: darkShades[3],
+  },
+  settingHeading: darkShades[9],
+  table: {
+    headerBg: darkShades[2],
+    headerText: darkShades[5],
+    rowData: darkShades[6],
+    rowTitle: darkShades[7],
+    border: darkShades[3],
+    hover: {
+      headerColor: darkShades[7],
+      rowBg: darkShades[4],
+      rowTitle: darkShades[9],
+      rowData: darkShades[7],
+    },
+  },
+  applications: {
+    bg: darkShades[1],
+    color: darkShades[7],
+    orgColor: darkShades[7],
+    hover: {
+      bg: darkShades[4],
+      color: darkShades[8],
+      orgColor: darkShades[9],
+    },
+  },
 };
 
+const lightShades = [
+  "#FAFAFA",
+  "#F7F7F7",
+  "#F0F0F0",
+  "#E8E8E8",
+  "#C5C5C5",
+  "#A9A7A7",
+  "#939090",
+  "#716E6E",
+  "#4B4848",
+  "#302D2D",
+  "#090707",
+  "#FFFFFF",
+];
+
 export const light = {
-  blackShades: [
-    "#FAFAFA",
-    "#F7F7F7",
-    "#F0F0F0",
-    "#E8E8E8",
-    "#C5C5C5",
-    // "#EFEFEF",
-    // "#E7E7E7",
-    "#A9A7A7",
-    "#939090",
-    "#716E6E",
-    "#4B4848",
-    // "#4B4848",
-    "#302D2D",
-    // "#161414"
-  ],
+  blackShades: lightShades,
+  button: {
+    disabledText: lightShades[6],
+  },
   tertiary: {
     main: "#716E6E",
     light: "#090707",
-    dark: "#F0F0F0",
+    dark: "#F7F7F7",
     darker: "#E8E8E8",
   },
   info: {
     main: "#F86A2B",
-    light: "#FB773C",
+    light: "#DC5B21",
     dark: "#BF4109",
     darker: "#FEEDE5",
     darkest: "#F7EBE6",
@@ -550,6 +695,7 @@ export const light = {
   card: {
     hoverBG: Colors.WHITE,
     hoverBGOpacity: 0.7,
+    hoverBorder: lightShades[2],
   },
   appCardColors: [
     "#4266FD",
@@ -562,6 +708,143 @@ export const light = {
     "#B0E968",
     "#9177FF",
   ],
+  text: {
+    normal: lightShades[8],
+    heading: lightShades[9],
+    hightlight: lightShades[11],
+  },
+  icon: {
+    normal: lightShades[4],
+    hover: lightShades[8],
+    active: lightShades[9],
+  },
+  appIcon: {
+    normal: lightShades[7],
+    background: lightShades[1],
+  },
+  menu: {
+    background: lightShades[11],
+    shadow: "rgba(0, 0, 0, 0.32)",
+  },
+  menuItem: {
+    normalText: lightShades[8],
+    normalIcon: lightShades[6],
+    hoverIcon: lightShades[8],
+    hoverText: lightShades[9],
+    hoverBg: lightShades[2],
+  },
+  colorSelector: {
+    shadow: lightShades[3],
+    checkmark: lightShades[11],
+  },
+  checkbox: {
+    disabled: lightShades[3],
+    unchecked: lightShades[4],
+    disabledCheck: lightShades[6],
+    normalCheck: lightShades[11],
+    labelColor: lightShades[9],
+  },
+  dropdown: {
+    header: {
+      text: lightShades[9],
+      disabledText: darkShades[6],
+      bg: lightShades[2],
+      disabledBg: lightShades[1],
+    },
+    menuBg: lightShades[11],
+    menuShadow: "rgba(0, 0, 0, 0.32)",
+    selected: {
+      text: lightShades[9],
+      bg: lightShades[2],
+      icon: lightShades[8],
+    },
+    icon: lightShades[7],
+  },
+  toggle: {
+    bg: lightShades[4],
+    hover: {
+      on: "#E4500E",
+      off: lightShades[5],
+    },
+    disable: {
+      on: "#FDE0D2",
+      off: lightShades[3],
+    },
+    disabledSlider: {
+      off: lightShades[11],
+      on: lightShades[11],
+    },
+    spinner: lightShades[6],
+  },
+  textInput: {
+    disable: {
+      bg: lightShades[1],
+      text: darkShades[6],
+      border: lightShades[1],
+    },
+    normal: {
+      bg: lightShades[2],
+      text: lightShades[9],
+      border: lightShades[2],
+    },
+    placeholder: lightShades[6],
+  },
+  menuBorder: lightShades[3],
+  editableText: {
+    color: lightShades[10],
+    bg: "rgba(247, 247, 247, 0.8)",
+    dangerBg: "rgba(242, 43, 43, 0.06)",
+  },
+  radio: {
+    disable: lightShades[4],
+    border: lightShades[3],
+  },
+  searchInput: {
+    placeholder: lightShades[6],
+    text: lightShades[10],
+    border: lightShades[3],
+    bg: lightShades[1],
+    icon: {
+      focused: lightShades[7],
+      normal: lightShades[5],
+    },
+  },
+  spinner: lightShades[6],
+  tableDropdown: {
+    bg: lightShades[11],
+    selectedBg: lightShades[2],
+    selectedText: lightShades[9],
+    shadow: "rgba(0, 0, 0, 0.32)",
+  },
+  tabs: {
+    normal: lightShades[6],
+    hover: lightShades[10],
+    border: lightShades[3],
+  },
+  settingHeading: lightShades[9],
+  table: {
+    headerBg: lightShades[1],
+    headerText: lightShades[6],
+    rowData: lightShades[7],
+    rowTitle: lightShades[9],
+    border: lightShades[3],
+    hover: {
+      headerColor: lightShades[9],
+      rowBg: lightShades[2],
+      rowTitle: lightShades[10],
+      rowData: lightShades[9],
+    },
+  },
+  applications: {
+    bg: lightShades[1],
+    color: lightShades[7],
+    orgColor: lightShades[7],
+    hover: {
+      bg: lightShades[2],
+      color: lightShades[8],
+      orgColor: lightShades[9],
+    },
+  },
 };
 
 export const theme: Theme = {
@@ -664,6 +947,10 @@ export const theme: Theme = {
   },
   drawerWidth: "80%",
   colors: {
+    tooltip: {
+      lightBg: lightShades[0],
+      darkBg: darkShades[10],
+    },
     callout: {
       note: {
         dark: {
@@ -685,9 +972,6 @@ export const theme: Theme = {
           bgColor: "#29251A",
         },
       },
-    },
-    radio: {
-      disabled: "#565656",
     },
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,

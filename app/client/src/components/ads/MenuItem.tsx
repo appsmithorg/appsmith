@@ -19,6 +19,16 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
   text-decoration: none;
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
+  .${Classes.TEXT} {
+    color: ${props => props.theme.colors.menuItem.normalText};
+  }
+  .${Classes.ICON} {
+    svg {
+      path {
+        fill: ${props => props.theme.colors.menuItem.normalIcon};
+      }
+    }
+  }
 
   ${props =>
     !props.disabled
@@ -26,13 +36,13 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
     &:hover {
       text-decoration: none;
       cursor: pointer;
-      background-color: ${props.theme.colors.blackShades[4]};
+      background-color: ${props.theme.colors.menuItem.hoverBg};
       .${Classes.TEXT} {
-        color: ${props.theme.colors.blackShades[9]};
+        color: ${props.theme.colors.menuItem.hoverText};
       }
       .${Classes.ICON} {
         path {
-          fill: ${props.theme.colors.blackShades[9]};
+          fill: ${props.theme.colors.menuItem.hoverIcon};
         }
       }
     }`

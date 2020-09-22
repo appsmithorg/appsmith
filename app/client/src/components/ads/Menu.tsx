@@ -14,19 +14,13 @@ type MenuProps = CommonComponentProps & {
 
 const MenuWrapper = styled.div`
   width: 234px;
-  background: ${props => props.theme.colors.blackShades[3]};
-  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.75);
+  background: ${props => props.theme.colors.menu.background};
+  box-shadow: 0px 12px 28px ${props => props.theme.colors.menu.shadow};
   padding: ${props => props.theme.spaces[5]}px 0px;
 `;
 
 const MenuOption = styled.div`
-  color: ${props => props.theme.colors.blackShades[6]};
   font-family: ${props => props.theme.fonts[3]};
-  .${Classes.ICON} {
-    path {
-      fill: ${props => props.theme.colors.blackShades[6]};
-    }
-  }
 `;
 
 const Menu = (props: MenuProps) => {
