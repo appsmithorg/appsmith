@@ -27,10 +27,10 @@ describe("Create new org and share with a user", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
-    cy.contains(orgid);
-    cy.xpath(homePage.ShareBtn).should("not.be.visible");
+    cy.get(homePage.appsContainer).contains(orgid);
+    cy.xpath(homePage.ShareBtn).should("not.exist");
     cy.get(homePage.applicationCard).trigger("mouseover");
-    cy.get(homePage.appEditIcon).should("not.be.visible");
+    cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appid);
     cy.LogOut();
   });
@@ -58,8 +58,10 @@ describe("Create new org and share with a user", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
-    cy.contains(orgid);
-    cy.xpath(homePage.ShareBtn).should("be.visible");
+    cy.get(homePage.appsContainer).contains(orgid);
+    cy.xpath(homePage.ShareBtn)
+      .first()
+      .should("be.visible");
     cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon)
       .first()
@@ -91,19 +93,13 @@ describe("Create new org and share with a user", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
-    cy.contains(orgid);
+    cy.get(homePage.appsContainer).contains(orgid);
     cy.inviteUserForOrg(
       orgid,
       Cypress.env("TESTUSERNAME2"),
       homePage.viewerRole,
     );
-    cy.navigateToOrgSettings(orgid);
-    cy.get(homePage.emailList).then(function($list) {
-      expect($list).to.have.length(3);
-      expect($list.eq(0)).to.contain(Cypress.env("USERNAME"));
-      expect($list.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
-      expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
-    });
+    cy.LogOut();
   });
 
   it("login as Org owner and delete App ", function() {

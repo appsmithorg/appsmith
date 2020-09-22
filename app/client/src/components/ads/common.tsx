@@ -5,6 +5,7 @@ import styled from "styled-components";
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
   cypressSelector?: string;
+  className?: string;
   disabled?: boolean; //default false
 }
 
@@ -14,6 +15,7 @@ export type ThemeProp = {
 
 export enum Classes {
   ICON = "cs-icon",
+  APP_ICON = "cs-app-icon",
   TEXT = "cs-text",
   BP3_POPOVER_ARROW_BORDER = "bp3-popover-arrow-border",
   BP3_POPOVER_ARROW_FILL = "bp3-popover-arrow-fill",
@@ -58,7 +60,7 @@ export const darken = (color: string, amount: number) => {
     .toString();
 };
 export const StoryWrapper = styled.div`
-  background: #1a191c;
+  background: #ffffff;
   height: 700px;
   padding: 50px 100px;
 `;

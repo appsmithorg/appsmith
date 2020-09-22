@@ -2,12 +2,13 @@ import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
 import { CommonComponentProps, hexToRgba, Classes } from "./common";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
-import { theme } from "constants/DefaultTheme";
 import {
   FORM_VALIDATION_INVALID_EMAIL,
   ERROR_MESSAGE_NAME_EMPTY,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
+import { useSelector } from "react-redux";
+import { getThemeDetails } from "selectors/themeSelectors";
 
 export type Validator = (
   value: string,
@@ -46,7 +47,11 @@ type boxReturnType = {
   borderColor: string;
 };
 
-const boxStyles = (props: TextInputProps, isValid: boolean): boxReturnType => {
+const boxStyles = (
+  props: TextInputProps,
+  isValid: boolean,
+  theme: any,
+): boxReturnType => {
   let bgColor = theme.colors.blackShades[0];
   let color = theme.colors.blackShades[9];
   let borderColor = theme.colors.blackShades[0];
@@ -108,8 +113,8 @@ const InputWrapper = styled.div`
 `;
 
 const ErrorWrapper = styled.div`
-  position absolute;
-  bottom: -17px; 
+  position: absolute;
+  bottom: -17px;
 `;
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
@@ -126,10 +131,12 @@ const TextInput = forwardRef(
       message: string;
     }>(initialValidation());
 
-    const inputStyle = useMemo(() => boxStyles(props, validation.isValid), [
-      props,
-      validation.isValid,
-    ]);
+    const theme = useSelector(getThemeDetails).theme;
+
+    const inputStyle = useMemo(
+      () => boxStyles(props, validation.isValid, theme),
+      [props, validation.isValid, theme],
+    );
 
     const memoizedChangeHandler = useCallback(
       el => {

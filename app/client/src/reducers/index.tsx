@@ -21,6 +21,7 @@ import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
 import { OrgReduxState } from "reducers/uiReducers/orgReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
+import { ThemeState } from "reducers/uiReducers/themeReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
 import { ImportedCollectionsReduxState } from "reducers/uiReducers/importedCollectionsReducer";
 import { ProvidersReduxState } from "reducers/uiReducers/providerReducer";
@@ -66,6 +67,7 @@ export interface AppState {
     pageDSLs: PageDSLsReduxState;
     confirmRunAction: ConfirmRunActionReduxState;
     datasourceName: DatasourceNameReduxState;
+    theme: ThemeState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
