@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { CommonComponentProps, Classes } from "./common";
+import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { Popover } from "@blueprintjs/core/lib/esm/components/popover/popover";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
