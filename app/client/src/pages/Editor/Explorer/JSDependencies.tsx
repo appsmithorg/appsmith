@@ -60,7 +60,10 @@ export const JSDependencies = (props: JSDependenciesProps) => {
   const icon: IconName = isOpen ? IconNames.CARET_DOWN : IconNames.CARET_RIGHT;
   const toggleDependencies = () => setIsOpen(!isOpen);
   const showDocs = (e: any) => {
-    window.open("https://docs.appsmith.com", "appsmith-docs");
+    window.open(
+      "https://docs.appsmith.com/core-concepts/connecting-ui-and-logic/working-with-js-libraries",
+      "appsmith-docs:working-with-js-libraries",
+    );
     e.stopPropagation();
     e.preventDefault();
   };
