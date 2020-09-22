@@ -17,6 +17,8 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "./helpers";
+import JSDependencies from "./JSDependencies";
+
 const Wrapper = styled.div`
   height: 100%;
   overflow-y: scroll;
@@ -61,7 +63,6 @@ const EntityExplorer = (props: IPanelProps) => {
     history.push(BUILDER_PAGE_URL(applicationId, pageId));
     openPanel({ component: WidgetSidebar });
   }, [openPanel, applicationId, pageId]);
-
   return (
     <Wrapper ref={explorerRef}>
       <Search ref={searchInputRef} clear={clearSearch} />
@@ -86,6 +87,8 @@ const EntityExplorer = (props: IPanelProps) => {
         step={0}
         datasources={datasources}
       />
+      <StyledDivider />
+      <JSDependencies />
     </Wrapper>
   );
 };
