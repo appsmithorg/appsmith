@@ -87,3 +87,37 @@ export const forceOpenPropertyPane = (id: string) => {
     },
   };
 };
+
+export const copyWidget = (isShortcut: boolean) => {
+  return {
+    type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
+    payload: {
+      isShortcut: !!isShortcut,
+    },
+  };
+};
+
+export const pasteWidget = () => {
+  return {
+    type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+  };
+};
+
+export const deleteSelectedWidget = (
+  isShortcut: boolean,
+  disallowUndo = false,
+) => {
+  return {
+    type: ReduxActionTypes.WIDGET_DELETE,
+    payload: {
+      isShortcut,
+      disallowUndo,
+    },
+  };
+};
+
+export const cutWidget = () => {
+  return {
+    type: ReduxActionTypes.CUT_SELECTED_WIDGET,
+  };
+};

@@ -1,8 +1,20 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
+import { Icon, Tooltip, Position } from "@blueprintjs/core";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
+import { WidgetType } from "constants/WidgetConstants";
+import { BindingText } from "pages/Editor/APIEditor/Form";
+import { theme } from "constants/DefaultTheme";
+import { CloseButton } from "components/designSystems/blueprint/CloseButton";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+
+const StyledToolTip = styled(Tooltip)`
+  position: absolute;
+  top: 0;
+  right: 35px;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -12,7 +24,10 @@ const Wrapper = styled.div`
 
 export type PropertyTitleEditorProps = {
   title: string;
+  widgetId?: string;
   updatePropertyTitle: (title: string) => void;
+  widgetType?: WidgetType;
+  onClose: () => void;
 };
 
 /* eslint-disable react/display-name */
@@ -46,6 +61,42 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
         editInteractionKind={EditInteractionKind.SINGLE}
         isEditingDefault={false}
         onBlur={exitEditMode}
+      />
+      <StyledToolTip
+        content={
+          <div>
+            <span>You can connect data from your API by adding </span>
+            <BindingText>{`{{apiName.data}}`}</BindingText>
+            <span> to a widget property</span>
+          </div>
+        }
+        position={Position.TOP}
+        hoverOpenDelay={200}
+      >
+        <Icon
+          style={{
+            // position: "absolute",
+            // right: 35,
+            padding: 7,
+          }}
+          color={theme.colors.paneSectionLabel}
+          icon="help"
+        />
+      </StyledToolTip>
+
+      <CloseButton
+        onClick={(e: any) => {
+          AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+            widgetType: props.widgetType || "",
+            widgetId: props.widgetId,
+          });
+          props.onClose();
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        size={theme.spaces[5]}
+        color={theme.colors.paneSectionLabel}
+        className={"t--property-pane-close-btn"}
       />
     </Wrapper>
   );

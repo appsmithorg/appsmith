@@ -482,6 +482,32 @@ function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
   });
 }
 
+function* fetchDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
+  try {
+    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
+      action.payload.id,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS,
+        payload: {
+          data: response.data,
+          datasourceId: action.payload.id,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
+      payload: {
+        error,
+        show: false,
+      },
+    });
+  }
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -504,6 +530,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
       updateDatasourceSuccessSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
+      fetchDatasourceStrucuture,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

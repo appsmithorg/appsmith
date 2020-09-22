@@ -16,6 +16,7 @@ public class ActionViewDTO {
     String name;
     String pageId;
     Integer timeoutInMillisecond;
+    Boolean confirmBeforeExecute;
     Set<String> jsonPathKeys;
 
     // Overriding the getter to ensure that for actions missing action configuration, the timeout is

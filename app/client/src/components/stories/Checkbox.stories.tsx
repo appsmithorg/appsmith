@@ -1,9 +1,9 @@
 import React from "react";
 import { withKnobs, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { StoryWrapper } from "components/ads/common";
 import { action } from "@storybook/addon-actions";
 import Checkbox from "components/ads/Checkbox";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Checkbox",

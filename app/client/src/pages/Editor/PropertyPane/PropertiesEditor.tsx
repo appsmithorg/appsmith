@@ -4,14 +4,7 @@ import _ from "lodash";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
-import {
-  Divider,
-  Icon,
-  Tooltip,
-  Position,
-  IPanel,
-  IPanelProps,
-} from "@blueprintjs/core";
+import { Divider, IPanel, IPanelProps } from "@blueprintjs/core";
 import {
   getCurrentWidgetId,
   getPropertyConfig,
@@ -26,15 +19,13 @@ import {
 import { RenderModes } from "constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ControlProps } from "components/propertyControls/BaseControl";
-import { CloseButton } from "components/designSystems/blueprint/CloseButton";
-import { getColorWithOpacity, theme } from "constants/DefaultTheme";
+import { scrollbarDark } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyTitleEditor from "pages/Editor/PropertyPane/PropertyTitleEditor";
 import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import PaneWrapper from "pages/common/PaneWrapper";
-import { BindingText } from "pages/Editor/APIEditor/Form";
 import { ControlIcons } from "icons/ControlIcons";
 
 const PropertySectionLabel = styled.div`
@@ -49,7 +40,7 @@ const PropertySectionLabel = styled.div`
 
 const PropertyPaneWrapper = styled(PaneWrapper)`
   position: relative;
-  width: 100%;
+  width: calc(100% - 6px);
   max-height: ${props => props.theme.propertyPane.height}px;
   width: ${props => props.theme.propertyPane.width}px;
   box-shadow: 0px 0px 10px ${props => props.theme.colors.paneCard};
@@ -58,32 +49,9 @@ const PropertyPaneWrapper = styled(PaneWrapper)`
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 ${props => props.theme.spaces[5]}px 0 0;
+  padding: 0 ${props => props.theme.spaces[2]}px 0 0;
   text-transform: none;
-
-  scrollbar-color: ${props => props.theme.colors.paneCard}
-    ${props => props.theme.colors.paneBG};
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneCard};
-    outline: 1px solid ${props => props.theme.paneText};
-    border-radius: ${props => props.theme.radii[1]}px;
-  }
-`;
-
-const StyledToolTip = styled(Tooltip)`
-  position: absolute;
-  top: 0;
-  right: 35px;
+  ${scrollbarDark};
 `;
 
 const PaneTitleWrapper = styled.div`
@@ -178,53 +146,19 @@ const PropertyPaneHeader = (
         <PropertyTitleEditor
           title={props.childProperties.label}
           updatePropertyTitle={props.updatePropertyTitle}
+          widgetType={props.widgetProperties?.type}
+          onClose={props.hidePropertyPane}
+          widgetId={props.widgetId}
         />
       ) : (
         <PropertyPaneTitle
           key={props.widgetId}
           title={props.widgetProperties.widgetName}
           widgetId={props.widgetId}
+          widgetType={props.widgetProperties?.type}
+          onClose={props.hidePropertyPane}
         />
       )}
-      <StyledToolTip
-        content={
-          <div>
-            <span>You can connect data from your API by adding </span>
-            <BindingText>{`{{apiName.data}}`}</BindingText>
-            <span> to a widget property</span>
-          </div>
-        }
-        position={Position.TOP}
-        hoverOpenDelay={200}
-      >
-        <Icon
-          style={{
-            // position: "absolute",
-            // right: 35,
-            padding: 7,
-          }}
-          color={theme.colors.paneSectionLabel}
-          icon="help"
-        />
-      </StyledToolTip>
-
-      <CloseButton
-        onClick={(e: any) => {
-          props.closePanel();
-          AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-            widgetType: props.widgetProperties
-              ? props.widgetProperties.type
-              : "",
-            widgetId: props.widgetId,
-          });
-          props.hidePropertyPane();
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        size={theme.spaces[5]}
-        color={theme.colors.paneSectionLabel}
-        className={"t--property-pane-close-btn"}
-      />
     </PaneTitleWrapper>
   );
 };

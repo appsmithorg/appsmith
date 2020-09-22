@@ -17,6 +17,11 @@ export interface ActionData {
   data?: ActionResponse;
 }
 export type ActionDataState = ActionData[];
+export interface PartialActionData {
+  isLoading: boolean;
+  config: Partial<RestAction | RapidApiAction>;
+  data?: ActionResponse;
+}
 
 const initialState: ActionDataState = [];
 
@@ -24,11 +29,18 @@ const actionsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_ACTIONS_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction[]>,
-  ): ActionDataState =>
-    action.payload.map(a => ({
-      isLoading: false,
-      config: a,
-    })),
+  ): ActionDataState => {
+    return action.payload.map(action => {
+      const foundAction = state.find(currentAction => {
+        return currentAction.config.id === action.id;
+      });
+      return {
+        isLoading: false,
+        config: action,
+        data: foundAction?.data,
+      };
+    });
+  },
   [ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction[]>,
@@ -133,14 +145,29 @@ const actionsReducer = createReducer(initialState, {
   [ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string; response: ActionResponse }>,
-  ): ActionDataState => {
-    return state.map(a => {
-      if (a.config.id === action.payload.id) {
-        return { ...a, isLoading: false, data: action.payload.response };
-      }
-
-      return a;
+  ): PartialActionData[] => {
+    const foundAction = state.find(stateAction => {
+      return stateAction.config.id === action.payload.id;
     });
+    if (foundAction) {
+      return state.map(stateAction => {
+        if (stateAction.config.id === action.payload.id) {
+          return {
+            ...stateAction,
+            isLoading: false,
+            data: action.payload.response,
+          };
+        }
+        return stateAction;
+      });
+    } else {
+      const partialAction: PartialActionData = {
+        isLoading: false,
+        config: { id: action.payload.id },
+        data: action.payload.response,
+      };
+      return [...state, partialAction];
+    }
   },
   [ReduxActionErrorTypes.EXECUTE_ACTION_ERROR]: (
     state: ActionDataState,

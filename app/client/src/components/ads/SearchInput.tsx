@@ -115,6 +115,7 @@ const SearchInput = forwardRef(
 
     return (
       <InputWrapper
+        data-cy={props.cypressSelector}
         value={searchValue}
         isFocused={isFocused}
         variant={props.variant}

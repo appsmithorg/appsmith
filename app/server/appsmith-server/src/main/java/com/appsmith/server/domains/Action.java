@@ -56,6 +56,7 @@ public class Action extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> jsonPathKeys;
 
+    @JsonIgnore
     String cacheResponse;
 
     String templateId; //If action is created via a template, store the id here.

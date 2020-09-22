@@ -127,6 +127,7 @@ export default function RadioComponent(props: RadioProps) {
 
   return (
     <RadioGroup
+      data-cy={props.cypressSelector}
       rows={props.rows}
       onChange={(e: any) => onChangeHandler(e.target.value)}
     >

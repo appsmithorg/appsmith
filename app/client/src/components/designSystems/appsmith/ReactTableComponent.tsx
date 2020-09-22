@@ -24,10 +24,12 @@ export interface ColumnMenuOptionProps {
 }
 
 export interface ColumnMenuSubOptionProps {
-  content: string;
-  isSelected: boolean;
-  closeOnClick: boolean;
-  onClick: (columnIndex: number) => void;
+  content: string | JSX.Element;
+  isSelected?: boolean;
+  closeOnClick?: boolean;
+  onClick?: (columnIndex: number) => void;
+  id?: string;
+  category?: boolean;
 }
 
 interface ReactTableComponentProps {
@@ -144,11 +146,13 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     const columnType = column.metaProperties?.type || "";
     const format = column.metaProperties?.format || "";
     const isColumnHidden = !!column.isHidden;
+    const inputFormat = column.metaProperties?.inputFormat || "";
     const columnMenuOptions: ColumnMenuOptionProps[] = getMenuOptions({
       columnAccessor: columnId,
       isColumnHidden,
       columnType,
       format,
+      inputFormat,
       hideColumn: hideColumn,
       updateColumnType: updateColumnType,
       handleUpdateCurrencySymbol: handleUpdateCurrencySymbol,
@@ -202,11 +206,16 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     });
   };
 
-  const handleDateFormatUpdate = (columnIndex: number, dateFormat: string) => {
+  const handleDateFormatUpdate = (
+    columnIndex: number,
+    dateFormat: string,
+    dateInputFormat?: string,
+  ) => {
     updateColumnProperties(columnIndex, {
       type: "date",
       format: {
         output: dateFormat,
+        input: dateInputFormat,
       },
     });
   };

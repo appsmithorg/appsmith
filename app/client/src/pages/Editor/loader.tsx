@@ -1,5 +1,6 @@
 import React from "react";
 import PageLoadingBar from "pages/common/PageLoadingBar";
+import { retryPromise } from "utils/AppsmithUtils";
 
 class EditorLoader extends React.PureComponent<any, { Page: any }> {
   constructor(props: any) {
@@ -11,9 +12,11 @@ class EditorLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
-    import(/* webpackChunkName: "editor" */ "./index").then(module => {
-      this.setState({ Page: module.default });
-    });
+    retryPromise(() => import(/* webpackChunkName: "editor" */ "./index")).then(
+      module => {
+        this.setState({ Page: module.default });
+      },
+    );
   }
   render() {
     const { Page } = this.state;

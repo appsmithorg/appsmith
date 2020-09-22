@@ -56,6 +56,10 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
 
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: setUpdatingEntity,
+  [ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR]: setEntityUpdateError,
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS]: setEntityUpdateSuccess,
+
   [ReduxActionTypes.UPDATE_PAGE_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.UPDATE_PAGE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: setEntityUpdateSuccess,

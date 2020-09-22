@@ -114,6 +114,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "onDateSelected",
             label: "onDateSelected",
             controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
           },
         ],
       },
@@ -210,12 +211,12 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                       },
                     ],
                   },
-                  {
-                    id: "7.1.6.1.2",
-                    propertyName: "computedValue",
-                    label: "Computed Value",
-                    controlType: "INPUT_TEXT",
-                  },
+                  // {
+                  //   id: "7.1.6.1.2",
+                  //   propertyName: "computedValue",
+                  //   label: "Computed Value",
+                  //   controlType: "INPUT_TEXT",
+                  // },
                   {
                     id: "7.1.6.1.3",
                     propertyName: "enableFilter",
@@ -351,12 +352,12 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                       },
                     ],
                   },
-                  {
-                    id: "7.1.7.1.1",
-                    propertyName: "computedValue",
-                    label: "Computed Value",
-                    controlType: "INPUT_TEXT",
-                  },
+                  // {
+                  //   id: "7.1.7.1.1",
+                  //   propertyName: "computedValue",
+                  //   label: "Computed Value",
+                  //   controlType: "INPUT_TEXT",
+                  // },
                   {
                     id: "7.1.7.1.2",
                     propertyName: "enableFilter",
@@ -505,6 +506,21 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        id: "3.2",
+        sectionName: "Actions",
+        children: [
+          {
+            id: "3.2.1",
+            helpText:
+              "Triggers an action when a user changes the selected option",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
         ],

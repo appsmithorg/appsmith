@@ -31,6 +31,7 @@ import { ReactComponent as RightAlignIcon } from "assets/icons/control/right-ali
 import { ReactComponent as VerticalAlignBottom } from "assets/icons/control/vertical_align_bottom.svg";
 import { ReactComponent as VerticalAlignCenter } from "assets/icons/control/vertical_align_center.svg";
 import { ReactComponent as VerticalAlignTop } from "assets/icons/control/vertical_align_top.svg";
+import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -200,6 +201,11 @@ export const ControlIcons: {
   VERTICAL_BOTTOM: (props: IconProps) => (
     <IconWrapper {...props}>
       <VerticalAlignBottom />
+    </IconWrapper>
+  ),
+  COPY_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CopyIcon />
     </IconWrapper>
   ),
 };

@@ -1,6 +1,5 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { FlexWrapper } from "./StyledControls";
 import styled from "styled-components";
 import {
   Popover,
@@ -9,24 +8,8 @@ import {
   Position,
   Classes,
 } from "@blueprintjs/core";
-import { ControlIcons } from "icons/ControlIcons";
 import { ReactComponent as CheckedIcon } from "assets/icons/control/checkmark.svg";
-import { Colors } from "constants/Colors";
 import { debounce } from "lodash";
-
-const ItemWrapper = styled.div<{ selected: boolean }>`
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: ${props => (props.selected ? "#29CCA3" : "#21282C")};
-  border-radius: 4px;
-  cursor: pointer;
-  &:first-of-type {
-    margin-right: 4px;
-  }
-`;
 
 const ColorIcon = styled.div<{ color: string }>`
   width: 24px;
@@ -54,6 +37,8 @@ const ColorsWrapper = styled.div`
   background: #ffffff;
   width: 232px;
   height: auto;
+  box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
+  border-radius: 4px;
 `;
 
 const ColorTab = styled.div<{ color: string }>`
@@ -92,6 +77,7 @@ const ColorBoard = (props: ColorBoardProps) => {
         <ColorTab
           key={index}
           color={color}
+          className={Classes.POPOVER_DISMISS}
           onClick={() => props.selectColor(color)}
         >
           {props.selectedColor === color && <CheckedIcon />}
@@ -107,7 +93,6 @@ interface ColorPickerProps {
 }
 
 const ColorPicker = (props: ColorPickerProps) => {
-  const [showPicker, togglePicker] = React.useState(false);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 1000),
     [],
@@ -116,7 +101,6 @@ const ColorPicker = (props: ColorPickerProps) => {
     const value = event.target.value;
     debouncedOnChange(value);
   };
-  console.log("showPicker", showPicker);
   return (
     <Popover
       minimal
@@ -124,21 +108,23 @@ const ColorPicker = (props: ColorPickerProps) => {
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
       position={Position.BOTTOM}
-      onClose={() => {
-        // togglePicker(false);
+      modifiers={{
+        offset: {
+          offset: "0, 24px",
+        },
       }}
-      isOpen={showPicker}
     >
       <StyledInputGroup
         leftIcon={<ColorIcon color={props.color} />}
         onChange={handleChangeColor}
         placeholder="enter color name or hex"
         value={props.color}
-        onFocus={() => togglePicker(true)}
       />
       <ColorBoard
         selectedColor={props.color}
-        selectColor={color => props.changeColor(color)}
+        selectColor={color => {
+          props.changeColor(color);
+        }}
       />
     </Popover>
   );
