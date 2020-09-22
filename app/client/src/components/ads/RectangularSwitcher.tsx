@@ -1,0 +1,129 @@
+import { CommonComponentProps, Classes } from "./common";
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import Text, { TextType } from "./Text";
+
+type SwitchProps = CommonComponentProps & {
+  onSwitch: (value: boolean) => void;
+  value: boolean;
+};
+
+const StyledSwitch = styled.label<{
+  isLoading?: boolean;
+  value: boolean;
+  firstRender: boolean;
+}>`
+  position: relative;
+  display: block;
+  width: 78px;
+  height: 26px;
+  cursor: pointer;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    border: 1px solid ${props => props.theme.colors.blackShades[5]};
+    background-color: ${props => props.theme.colors.info.main};
+    width: 78px;
+    height: 26px;
+  }
+
+  ${props =>
+    `.slider:before {
+      position: absolute;
+      content: "";
+			width: 36px;
+			height: 20px;
+			top: 2px;
+	    background-color: ${props.theme.colors.blackShades[0]};
+      left: ${props.value && !props.firstRender ? "38px" : "2px"};
+    	transition: ${props.firstRender ? "0.4s" : "none"};
+		}
+	`}
+
+  input:checked + .slider:before {
+    transform: ${props => (props.firstRender ? "translateX(36px)" : "none")};
+  }
+
+  input:checked + .slider:before {
+    background-color: ${props => props.theme.colors.blackShades[0]};
+  }
+
+  input:hover + .slider {
+    border: 1px solid ${props => props.theme.colors.blackShades[7]};
+  }
+`;
+
+const Light = styled.div<{ value: boolean }>`
+  .${Classes.TEXT} {
+    color: ${props => (props.value ? "#FFFFFF" : "#939090")};
+    font-size: 10px;
+    line-height: 12px;
+    letter-spacing: -0.171429px;
+  }
+  position: absolute;
+  top: 3px;
+  left: 10px;
+`;
+
+const Dark = styled.div<{ value: boolean }>`
+  .${Classes.TEXT} {
+    font-size: 10px;
+    line-height: 12px;
+    letter-spacing: -0.171429px;
+    color: ${props => (!props.value ? "#FFFFFF" : "#939090")};
+  }
+  position: absolute;
+  top: 3px;
+  left: 46px;
+`;
+
+export default function Switch(props: SwitchProps) {
+  const [value, setValue] = useState(false);
+  const [firstRender, setFirstRender] = useState(false);
+
+  useEffect(() => {
+    setValue(props.value);
+  }, [props.value]);
+
+  const onChangeHandler = (value: boolean) => {
+    setValue(value);
+    props.onSwitch && props.onSwitch(value);
+  };
+
+  return (
+    <StyledSwitch
+      data-cy={props.cypressSelector}
+      isLoading={props.isLoading}
+      value={value}
+      className={props.className}
+      firstRender={firstRender}
+    >
+      <input
+        type="checkbox"
+        checked={value}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          if (!firstRender) {
+            setFirstRender(true);
+          }
+          onChangeHandler(e.target.checked);
+        }}
+      />
+      <span className="slider"></span>
+      <Light value={value}>
+        <Text type={TextType.H6}>Light</Text>
+      </Light>
+      <Dark value={value}>
+        <Text type={TextType.H6}>Dark</Text>
+      </Dark>
+    </StyledSwitch>
+  );
+}

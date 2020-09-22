@@ -16,7 +16,6 @@ const MenuWrapper = styled.div`
   width: 234px;
   background: ${props => props.theme.colors.menu.background};
   box-shadow: 0px 12px 28px ${props => props.theme.colors.menu.shadow};
-  padding: ${props => props.theme.spaces[5]}px 0px;
 `;
 
 const MenuOption = styled.div`

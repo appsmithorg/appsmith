@@ -154,7 +154,7 @@ export const EditableText = (props: EditableTextProps) => {
   const bgColor = useMemo(
     () =>
       editModeBgcolor(!!isInvalid, isEditing, savingState, themeDetails.theme),
-    [isInvalid, isEditing, savingState],
+    [isInvalid, isEditing, savingState, themeDetails],
   );
 
   const editMode = useCallback(
