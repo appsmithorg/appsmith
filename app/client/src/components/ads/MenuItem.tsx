@@ -17,15 +17,15 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[6]}px;
+  padding: 0px ${props => props.theme.spaces[6]}px;
+  height: 38px;
 
   ${props =>
     !props.disabled
       ? ` 
     &:hover {
-      text-decoration: none;
       cursor: pointer;
+      text-decoration: none;
       background-color: ${props.theme.colors.blackShades[4]};
       .${Classes.TEXT} {
         color: ${props.theme.colors.blackShades[9]};
@@ -38,7 +38,8 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
     }`
       : `
     &:hover {
-      cursor: not-allowed;
+      text-decoration: none;
+      cursor: default;
     }
     `}
 `;
@@ -68,7 +69,7 @@ function MenuItem(props: MenuItemProps) {
           </Text>
         ) : null}
       </IconContainer>
-      {props.label ? <Text type={TextType.P1}>{props.label}</Text> : null}
+      {props.label ? props.label : null}
     </ItemRow>
   );
 }
