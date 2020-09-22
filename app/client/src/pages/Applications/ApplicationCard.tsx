@@ -257,7 +257,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       cypressSelector: "t--share",
     });
   }
-  if (props.duplicate) {
+  if (props.duplicate && hasEditPermission) {
     moreActionItems.push({
       onSelect: duplicateApp,
       text: "Duplicate",
