@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -346,11 +347,9 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(Object connection, DatasourceConfiguration datasourceConfiguration) {
-            final Connection conn = (Connection) connection;
-
+        public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
             try {
-                if (conn == null || conn.isClosed() || !conn.isValid(VALIDITY_CHECK_TIMEOUT)) {
+                if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
                     log.info("Encountered stale connection in Postgres plugin. Reporting back.");
                     throw new StaleConnectionException();
                 }
@@ -365,7 +364,7 @@ public class PostgresPlugin extends BasePlugin {
 
             // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
 
-            try (Statement statement = conn.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
 
                 // Get tables and fill up their columns.
                 try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
@@ -377,7 +376,10 @@ public class PostgresPlugin extends BasePlugin {
                         if (!tablesByName.containsKey(fullTableName)) {
                             tablesByName.put(fullTableName, new DatasourceStructure.Table(
                                     kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
-                                    fullTableName
+                                    fullTableName,
+                                    new ArrayList<>(),
+                                    new ArrayList<>(),
+                                    new ArrayList<>()
                             ));
                         }
                         final DatasourceStructure.Table table = tablesByName.get(fullTableName);
@@ -404,9 +406,11 @@ public class PostgresPlugin extends BasePlugin {
                         final DatasourceStructure.Table table = tablesByName.get(fullTableName);
 
                         if (constraintType == 'p') {
-                            final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(constraintName);
+                            final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
+                                    constraintName,
+                                    List.of((String[]) constraintsResultSet.getArray("self_columns").getArray())
+                            );
                             table.getKeys().add(key);
-                            key.getColumnNames().addAll(List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()));
 
                         } else if (constraintType == 'f') {
                             final String foreignSchema = constraintsResultSet.getString("foreign_schema");
@@ -414,11 +418,13 @@ public class PostgresPlugin extends BasePlugin {
                                     + constraintsResultSet.getString("foreign_table")
                                     + ".";
 
-                            final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(constraintName);
-                            key.getFromColumns().addAll(List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()));
-                            Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
-                                    .map(name -> prefix + name)
-                                    .forEach(key.getToColumns()::add);
+                            final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
+                                    constraintName,
+                                    List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
+                                    Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
+                                            .map(name -> prefix + name)
+                                            .collect(Collectors.toList())
+                            );
 
                             table.getKeys().add(key);
 
@@ -433,43 +439,50 @@ public class PostgresPlugin extends BasePlugin {
                             .filter(column -> column.getDefaultValue() == null)
                             .collect(Collectors.toList());
 
-                    final String columnNames = columnsWithoutDefault
-                            .stream()
-                            .map(DatasourceStructure.Column::getName)
-                            .collect(Collectors.joining(", "));
+                    final List<String> columnNames = new ArrayList<>();
+                    final List<String> columnValues = new ArrayList<>();
+                    final StringBuilder setFragments = new StringBuilder();
 
-                    final String columnValues = columnsWithoutDefault
-                            .stream()
-                            .map(DatasourceStructure.Column::getType)
-                            .map(type -> {
-                                if (type == null) {
-                                    return "null";
-                                } else if ("text".equals(type) || "varchar".equals(type)) {
-                                    return "''";
-                                } else if (type.startsWith("int")) {
-                                    return "1";
-                                } else if ("date".equals(type)) {
-                                    return "'2019-07-01'";
-                                } else if ("time".equals(type)) {
-                                    return "'18:32:45'";
-                                } else if ("timetz".equals(type)) {
-                                    return "'04:05:06 PST'";
-                                } else if ("timestamp".equals(type)) {
-                                    return "TIMESTAMP '2019-07-01 10:00:00'";
-                                } else if ("timestamptz".equals(type)) {
-                                    return "TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'";
-                                } else {
-                                    return "''";
-                                }
-                            })
-                            .collect(Collectors.joining(", "));
+                    for (DatasourceStructure.Column column : columnsWithoutDefault) {
+                        final String name = column.getName();
+                        final String type = column.getType();
+                        String value;
 
+                        if (type == null) {
+                            value = "null";
+                        } else if ("text".equals(type) || "varchar".equals(type)) {
+                            value = "''";
+                        } else if (type.startsWith("int")) {
+                            value = "1";
+                        } else if ("date".equals(type)) {
+                            value = "'2019-07-01'";
+                        } else if ("time".equals(type)) {
+                            value = "'18:32:45'";
+                        } else if ("timetz".equals(type)) {
+                            value = "'04:05:06 PST'";
+                        } else if ("timestamp".equals(type)) {
+                            value = "TIMESTAMP '2019-07-01 10:00:00'";
+                        } else if ("timestamptz".equals(type)) {
+                            value = "TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'";
+                        } else {
+                            value = "''";
+                        }
+
+                        columnNames.add("\"" + name + "\"");
+                        columnValues.add(value);
+                        setFragments.append("\n    \"").append(name).append("\" = ").append(value);
+                    }
+
+                    final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                     table.getTemplates().addAll(List.of(
-                            new DatasourceStructure.Template("SELECT", "SELECT * FROM " + table.getName() + " LIMIT 10;"),
-                            new DatasourceStructure.Template("INSERT", "INSERT INTO " + table.getName()
-                                    + " (" + columnNames + ")\n"
-                                    + "  VALUES (" + columnValues + ");"),
-                            new DatasourceStructure.Template("DELETE", "DELETE FROM " + table.getName()
+                            new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
+                            new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
+                                    + " (" + String.join(", ", columnNames) + ")\n"
+                                    + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                            new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
+                                    + setFragments.toString() + "\n"
+                                    + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                            new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
                                     + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
                     ));
                 }
@@ -479,7 +492,10 @@ public class PostgresPlugin extends BasePlugin {
 
             }
 
-            structure.getTables().addAll(tablesByName.values());
+            structure.setTables(new ArrayList<>(tablesByName.values()));
+            for (DatasourceStructure.Table table : structure.getTables()) {
+                table.getKeys().sort(Comparator.naturalOrder());
+            }
             return Mono.just(structure);
         }
     }

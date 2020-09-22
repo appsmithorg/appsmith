@@ -20,6 +20,7 @@ import apiNameReducer from "./apiNameReducer";
 import explorerReducer from "./explorerReducer";
 import pageDSLsReducer from "./pageDSLReducer";
 import confirmRunActionReducer from "./confirmRunActionReducer";
+import themeReducer from "./themeReducer";
 import datasourceNameReducer from "./datasourceNameReducer";
 
 const uiReducer = combineReducers({
@@ -44,6 +45,7 @@ const uiReducer = combineReducers({
   apiName: apiNameReducer,
   explorer: explorerReducer,
   pageDSLs: pageDSLsReducer,
+  theme: themeReducer,
   confirmRunAction: confirmRunActionReducer,
 });
 export default uiReducer;
