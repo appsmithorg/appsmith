@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @ToString
@@ -28,5 +30,7 @@ public class Connection {
     SSLDetails ssl;
 
     String defaultDatabaseName;
+
+    Map<String, String> extraProperties;
 
 }

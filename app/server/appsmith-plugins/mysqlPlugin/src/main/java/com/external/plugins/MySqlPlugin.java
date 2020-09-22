@@ -229,18 +229,25 @@ public class MySqlPlugin extends BasePlugin {
 
             } else {
                 StringBuilder urlBuilder = new StringBuilder("jdbc:mysql://");
-                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    urlBuilder
-                            .append(endpoint.getHost())
-                            .append(':')
-                            .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L))
-                            .append('/');
 
-                    if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-                        urlBuilder.append(authentication.getDatabaseName());
-                    }
+                final List<String> hosts = new ArrayList<>();
+                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
                 }
+
+                urlBuilder.append(String.join(",", hosts)).append("/");
+
+                if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                    urlBuilder.append(authentication.getDatabaseName());
+                }
+
                 url = urlBuilder.toString();
+
+            }
+
+            final Map<String, String> extraProperties = datasourceConfiguration.getConnection().getExtraProperties();
+            if (extraProperties != null && extraProperties.containsKey("serverTimezone")) {
+                url += "?serverTimezone=" + extraProperties.get("serverTimezone");
             }
 
             try {
