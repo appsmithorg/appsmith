@@ -1544,6 +1544,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
+  cy.route("GET", "/api/v1/datasources/*/structure").as(
+    "getDatasourceStructure",
+  );
 
   cy.route("GET", "/api/v1/organizations").as("organizations");
   cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");

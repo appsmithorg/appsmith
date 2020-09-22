@@ -308,16 +308,17 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
+    set +o errexit
     echo "Please share your email to receive support with the installation"
     read -rp 'Email: ' email
     curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
-      "userId": "'"$email"'",
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Support",
       "data": {
           "os": "'"$os"'",
-          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
+          "email": "'"$email"'"
        }
     }'
     echo -e "\nExiting for now. Bye! \U1F44B\n"
@@ -335,13 +336,16 @@ echo -e "\U1F575  Detecting your OS"
 check_os
 APPSMITH_INSTALLATION_ID=$(curl -s 'https://api6.ipify.org')
 
+# Run bye if failure happens
+trap bye EXIT
+
 curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
+  "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Installation Started",
   "data": {
-      "os": "'"$os"'",
-      "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
+      "os": "'"$os"'"
    }
 }'
 
@@ -475,10 +479,10 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Custom Domain",
       "data": {
-          "os": "'"$os"'",
-          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
+          "os": "'"$os"'"
        }
     }'
     echo ""
@@ -569,21 +573,21 @@ if [[ $status_code -ne 401 ]]; then
     curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
-      "userId": "'"$email"'",
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Support",
       "data": {
           "os": "'"$os"'",
-          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
+          "email": "'"$email"'"
        }
     }'
 else
     curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Success",
       "data": {
-          "os": "'"$os"'",
-          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
+          "os": "'"$os"'"
        }
     }'
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
@@ -604,11 +608,11 @@ else
     curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
-      "userId": "'"$email"'",
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Identify Successful Installation",
       "data": {
           "os": "'"$os"'",
-          "instanceId": "'"$APPSMITH_INSTALLATION_ID"'"
+          "email": "'"$email"'"
        }
     }'
 fi
