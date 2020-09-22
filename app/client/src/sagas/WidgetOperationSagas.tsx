@@ -71,6 +71,7 @@ import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
+import produce, { current } from "immer";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -158,26 +159,32 @@ function* generateChildWidgets(
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
+    const start = performance.now();
     AppToaster.clear();
     const { widgetId } = addChildAction.payload;
 
     // Get the current parent widget whose child will be the new widget.
-    const parent: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    // const parent = Object.assign({}, stateParent);
     // Get all the widgets from the canvasWidgetsReducer
-    const widgets = yield select(getWidgets);
+    const stateWidgets = yield select(getWidgets);
+    const widgets = Object.assign({}, stateWidgets);
     // Generate the full WidgetProps of the widget to be added.
     const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
-      parent,
+      stateParent,
       addChildAction.payload,
       widgets,
     );
 
     // Update widgets to put back in the canvasWidgetsReducer
     // TODO(abhinav): This won't work if dont already have an empty children: []
-
-    if (parent.children) parent.children.push(childWidgetPayload.widgetId);
+    const parent = {
+      ...stateParent,
+      children: [...stateParent.children, childWidgetPayload.widgetId],
+    };
 
     widgets[parent.widgetId] = parent;
+    log.debug("add child computations took", performance.now() - start, "ms");
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({
@@ -396,7 +403,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
 export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
   try {
     AppToaster.clear();
-
+    const start = performance.now();
     const {
       widgetId,
       leftColumn,
@@ -404,20 +411,25 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
       parentId,
       newParentId,
     } = moveAction.payload;
-    let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    let widget = Object.assign({}, stateWidget);
     // Get all widgets from DSL/Redux Store
-    const widgets = yield select(getWidgets) as any;
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const widgets = Object.assign({}, stateWidgets);
     // Get parent from DSL/Redux Store
-    const parent: FlattenedWidgetProps = yield select(getWidget, parentId);
+    const stateParent: FlattenedWidgetProps = yield select(getWidget, parentId);
+    const parent = { ...stateParent, children: [...stateParent.children] };
     // Update position of widget
-    widget = updateWidgetPosition(widget, leftColumn, topRow);
+    const updatedPosition = updateWidgetPosition(widget, leftColumn, topRow);
+    widget = { ...widget, ...updatedPosition };
+
     // Replace widget with update widget props
     widgets[widgetId] = widget;
     // If the parent has changed i.e parentWidgetId is not parent.widgetId
     if (parent.widgetId !== newParentId && widgetId !== newParentId) {
       // Remove from the previous parent
 
-      if (parent.children) {
+      if (parent.children && Array.isArray(parent.children)) {
         const indexOfChild = parent.children.indexOf(widgetId);
         if (indexOfChild > -1) delete parent.children[indexOfChild];
         parent.children = parent.children.filter(Boolean);
@@ -426,16 +438,17 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
       // Add to new parent
 
       widgets[parent.widgetId] = parent;
-      if (
-        widgets[newParentId].children &&
-        Array.isArray(widgets[newParentId].children)
-      ) {
-        widgets[newParentId].children?.push(widgetId);
-      } else {
-        widgets[newParentId].children = [widgetId];
-      }
+      const newParent = {
+        ...widgets[newParentId],
+        children: widgets[newParentId].children
+          ? [...widgets[newParentId].children, widgetId]
+          : [widgetId],
+      };
       widgets[widgetId].parentId = newParentId;
+      widgets[newParentId] = newParent;
     }
+    log.debug("move computations took", performance.now() - start, "ms");
+
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({
@@ -451,7 +464,7 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
     AppToaster.clear();
-
+    const start = performance.now();
     const {
       widgetId,
       leftColumn,
@@ -460,11 +473,14 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       bottomRow,
     } = resizeAction.payload;
 
-    let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
-    const widgets = yield select(getWidgets);
+    const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    let widget = { ...stateWidget };
+    const stateWidgets = yield select(getWidgets);
+    const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
+    log.debug("resize computations took", performance.now() - start, "ms");
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({

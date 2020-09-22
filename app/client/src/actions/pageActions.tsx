@@ -8,7 +8,10 @@ import {
   SavePageSuccessPayload,
   FetchPageListPayload,
 } from "constants/ReduxActionConstants";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
@@ -85,7 +88,7 @@ export const deletePageSuccess = () => {
   };
 };
 
-export const updateAndSaveLayout = (widgets: FlattenedWidgetProps) => {
+export const updateAndSaveLayout = (widgets: CanvasWidgetsReduxState) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
     payload: { widgets },
