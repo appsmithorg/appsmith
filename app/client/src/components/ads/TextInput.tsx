@@ -135,7 +135,7 @@ const TextInput = forwardRef(
 
     const inputStyle = useMemo(
       () => boxStyles(props, validation.isValid, theme),
-      [props, validation.isValid],
+      [props, validation.isValid, theme],
     );
 
     const memoizedChangeHandler = useCallback(

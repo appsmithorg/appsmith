@@ -3,7 +3,7 @@ import { takeLatest } from "redux-saga/effects";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
 
 export function* setThemeSaga(actionPayload: ReduxAction<ThemeMode>) {
-  localStorage.setItem("THEME", actionPayload.payload);
+  yield localStorage.setItem("THEME", actionPayload.payload);
 }
 
 export default function* themeSagas() {
