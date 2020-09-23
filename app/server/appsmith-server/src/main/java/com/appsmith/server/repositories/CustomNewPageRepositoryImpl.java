@@ -52,29 +52,28 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
 
     @Override
     public Mono<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
-        Criteria nameCriterion;
-
-        if (Boolean.TRUE.equals(viewMode)) {
-            nameCriterion = where(fieldName(QNewPage.newPage.publishedPage.name)).is(name);
-        } else {
-            nameCriterion = where(fieldName(QNewPage.newPage.unpublishedPage.name)).is(name);
-        }
+        Criteria nameCriterion = getNameCriterion(name, viewMode);
 
         return queryOne(List.of(nameCriterion), aclPermission);
     }
 
     @Override
     public Mono<NewPage> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission aclPermission, Boolean viewMode) {
-        Criteria nameCriterion;
-
-        if (Boolean.TRUE.equals(viewMode)) {
-            nameCriterion = where(fieldName(QNewPage.newPage.publishedPage.name)).is(name);
-        } else {
-            nameCriterion = where(fieldName(QNewPage.newPage.unpublishedPage.name)).is(name);
-        }
+        Criteria nameCriterion = getNameCriterion(name, viewMode);
 
         Criteria applicationIdCriterion = where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
 
         return queryOne(List.of(nameCriterion, applicationIdCriterion), aclPermission);
+    }
+
+    private Criteria getNameCriterion(String name, Boolean viewMode) {
+        String nameKey;
+
+        if (Boolean.TRUE.equals(viewMode)) {
+            nameKey = fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.publishedPage.name);
+        } else {
+            nameKey = fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.name);
+        }
+        return where(nameKey).is(name);
     }
 }

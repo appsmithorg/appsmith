@@ -6,7 +6,9 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
@@ -38,6 +40,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -643,15 +646,101 @@ public class ApplicationServiceTest {
                 .verifyComplete();
     }
 
-    /**
-     * TODO : Add test for checking that published page doesnt get deleted when page is deleted in edit mode
-     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteUnpublishedPageFromApplication() {
+        Application testApplication = new Application();
+        String appName = "ApplicationServiceTest Publish Application Delete Page";
+        testApplication.setName(appName);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application -> {
+                    Page page = new Page();
+                    page.setName("New Page");
+                    page.setApplicationId(application.getId());
+                    Layout defaultLayout = newPageService.createDefaultLayout();
+                    List<Layout> layouts = new ArrayList<>();
+                    layouts.add(defaultLayout);
+                    page.setLayouts(layouts);
+                    return applicationPageService.createPage(page);
+                })
+                .flatMap(page -> applicationService.publish(page.getApplicationId()))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
+                .cache();
 
-    /**
-     * TODO : Add test case for checking that published page isDefault doesn't change when this change happens in edit mode
-     */
+        Page newPage = applicationMono
+                .flatMap(application -> newPageService
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
+                        .flatMap(page -> newPageService.deleteUnpublishedPage(page.getId()))).block();
 
-    /**
-     * TODO : Add test case for checking that published page's name doesn't change when this change happens in edit mode
-     */
+        ApplicationPage applicationPage = new ApplicationPage();
+        applicationPage.setId(newPage.getId());
+        applicationPage.setIsDefault(false);
+
+        StepVerifier
+                .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
+                .assertNext(editedApplication -> {
+
+                    List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
+                    assertThat(publishedPages).size().isEqualTo(2);
+                    assertThat(publishedPages).containsAnyOf(applicationPage);
+
+                    List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
+                    assertThat(editedApplicationPages.size()).isEqualTo(1);
+                    assertThat(editedApplicationPages).doesNotContain(applicationPage);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void changeDefaultPageForAPublishedApplication() {
+        Application testApplication = new Application();
+        String appName = "ApplicationServiceTest Publish Application Change Default Page";
+        testApplication.setName(appName);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application -> {
+                    Page page = new Page();
+                    page.setName("New Page");
+                    page.setApplicationId(application.getId());
+                    Layout defaultLayout = newPageService.createDefaultLayout();
+                    List<Layout> layouts = new ArrayList<>();
+                    layouts.add(defaultLayout);
+                    page.setLayouts(layouts);
+                    return applicationPageService.createPage(page);
+                })
+                .flatMap(page -> applicationService.publish(page.getApplicationId()))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
+                .cache();
+
+        Page newPage = applicationMono
+                .flatMap(application -> newPageService
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "unpublishedEditedPage")))).block();
+
+        Mono<Application> updatedDefaultPageApplicationMono = applicationMono
+                .flatMap(application -> applicationPageService.makePageDefault(application.getId(), newPage.getId()));
+
+        ApplicationPage unpublishedEditedPage = new ApplicationPage();
+        unpublishedEditedPage.setId(newPage.getId());
+        unpublishedEditedPage.setIsDefault(true);
+
+        ApplicationPage publishedEditedPage = new ApplicationPage();
+        publishedEditedPage.setId(newPage.getId());
+        publishedEditedPage.setIsDefault(false);
+
+        StepVerifier
+                .create(updatedDefaultPageApplicationMono)
+                .assertNext(editedApplication -> {
+
+                    List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
+                    assertThat(publishedPages).size().isEqualTo(2);
+                    assertThat(publishedPages).containsAnyOf(publishedEditedPage);
+
+                    List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
+                    assertThat(editedApplicationPages.size()).isEqualTo(2);
+                    assertThat(editedApplicationPages).containsAnyOf(unpublishedEditedPage);
+                })
+                .verifyComplete();
+    }
 }
