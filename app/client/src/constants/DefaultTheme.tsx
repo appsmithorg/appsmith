@@ -440,10 +440,206 @@ const darkShades = [
   "#D4D4D4",
   "#E9E9E9",
   "#FFFFFF",
-];
+] as const;
 
-export const dark = {
-  blackShades: darkShades,
+const lightShades = [
+  "#FAFAFA",
+  "#F7F7F7",
+  "#F0F0F0",
+  "#E8E8E8",
+  "#C5C5C5",
+  "#A9A7A7",
+  "#939090",
+  "#716E6E",
+  "#4B4848",
+  "#302D2D",
+  "#090707",
+  "#FFFFFF",
+] as const;
+
+type ColorPalette = typeof darkShades[number] | typeof lightShades[number];
+
+type buttonVariant = {
+  main: string;
+  light: string;
+  dark: string;
+  darker: string;
+  darkest: string;
+};
+
+type ColorType = {
+  button: {
+    disabledText: ColorPalette;
+  };
+  tertiary: buttonVariant;
+  info: buttonVariant;
+  success: buttonVariant;
+  warning: buttonVariant;
+  danger: buttonVariant;
+  homepageBackground: string;
+  card: {
+    hoverBG: Color;
+    hoverBGOpacity: number;
+    hoverBorder: ColorPalette;
+    targetBg: string;
+    iconColor: ColorPalette;
+  };
+  appCardColors: string[];
+  text: {
+    normal: ColorPalette;
+    heading: ColorPalette;
+    hightlight: ColorPalette;
+  };
+  icon: {
+    normal: ColorPalette;
+    hover: ColorPalette;
+    active: ColorPalette;
+  };
+  appIcon: {
+    normal: ColorPalette;
+    background: ColorPalette;
+  };
+  menu: {
+    background: ColorPalette;
+    shadow: string;
+  };
+  menuItem: {
+    normalText: ColorPalette;
+    normalIcon: ColorPalette;
+    hoverIcon: ColorPalette;
+    hoverText: ColorPalette;
+    hoverBg: ColorPalette;
+  };
+  colorSelector: {
+    shadow: string;
+    checkmark: ColorPalette;
+  };
+  checkbox: {
+    disabled: ColorPalette;
+    unchecked: ColorPalette;
+    disabledCheck: string;
+    normalCheck: ColorPalette;
+    labelColor: ColorPalette;
+  };
+  dropdown: {
+    header: {
+      text: ColorPalette;
+      disabled: ColorPalette;
+      bg: ColorPalette;
+      disabledBg: ColorPalette;
+    };
+    menuBg: ColorPalette;
+    menuShadow: string;
+    selected: {
+      text: ColorPalette;
+      bg: ColorPalette;
+      icon: ColorPalette;
+    };
+    icon: ColorPalette;
+  };
+  toggle: {
+    bg: ColorPalette;
+    hover: {
+      on: string;
+      off: string;
+    };
+    disable: {
+      on: string;
+      off: ColorPalette;
+    };
+    disabledSlider: {
+      on: ColorPalette;
+      off: string;
+    };
+    spinner: ColorPalette;
+  };
+  textInput: {
+    disable: {
+      bg: ColorPalette;
+      text: ColorPalette;
+      border: ColorPalette;
+    };
+    normal: {
+      bg: ColorPalette;
+      text: ColorPalette;
+      border: ColorPalette;
+    };
+    placeholder: ColorPalette;
+  };
+  menuBorder: ColorPalette;
+  editableText: {
+    color: ColorPalette;
+    bg: string;
+    dangerBg: string;
+  };
+  radio: {
+    disable: string;
+    border: ColorPalette;
+  };
+  searchInput: {
+    placeholder: ColorPalette;
+    text: ColorPalette;
+    border: ColorPalette;
+    bg: ColorPalette;
+    icon: {
+      focused: ColorPalette;
+      normal: ColorPalette;
+    };
+  };
+  spinner: ColorPalette;
+  tableDropdown: {
+    bg: ColorPalette;
+    selectedBg: ColorPalette;
+    selectedText: ColorPalette;
+    shadow: string;
+  };
+  tabs: {
+    normal: ColorPalette;
+    hover: ColorPalette;
+    border: ColorPalette;
+  };
+  settingHeading: ColorPalette;
+  table: {
+    headerBg: ColorPalette;
+    headerText: ColorPalette;
+    rowData: ColorPalette;
+    rowTitle: ColorPalette;
+    border: ColorPalette;
+    hover: {
+      headerColor: ColorPalette;
+      rowBg: ColorPalette;
+      rowTitle: ColorPalette;
+      rowData: ColorPalette;
+    };
+  };
+  applications: {
+    bg: ColorPalette;
+    textColor: ColorPalette;
+    orgColor: ColorPalette;
+    iconColor: ColorPalette;
+    hover: {
+      bg: ColorPalette;
+      textColor: ColorPalette;
+      orgColor: ColorPalette;
+    };
+  };
+  switch: {
+    border: ColorPalette;
+    bg: ColorPalette;
+    hover: {
+      border: ColorPalette;
+      bg: ColorPalette;
+    };
+    lightText: ColorPalette;
+    darkText: ColorPalette;
+  };
+  queryTemplate: {
+    bg: ColorPalette;
+    color: ColorPalette;
+  };
+};
+
+export const dark: ColorType = {
   button: {
     disabledText: darkShades[6],
   },
@@ -452,6 +648,7 @@ export const dark = {
     light: "#FFFFFF",
     dark: "#2B2B2B",
     darker: "#202021",
+    darkest: "#1A191C",
   },
   info: {
     main: "#CB4810",
@@ -654,23 +851,7 @@ export const dark = {
   },
 };
 
-const lightShades = [
-  "#FAFAFA",
-  "#F7F7F7",
-  "#F0F0F0",
-  "#E8E8E8",
-  "#C5C5C5",
-  "#A9A7A7",
-  "#939090",
-  "#716E6E",
-  "#4B4848",
-  "#302D2D",
-  "#090707",
-  "#FFFFFF",
-];
-
-export const light = {
-  blackShades: lightShades,
+export const light: ColorType = {
   button: {
     disabledText: lightShades[6],
   },
@@ -679,6 +860,7 @@ export const light = {
     light: "#090707",
     dark: "#F7F7F7",
     darker: "#E8E8E8",
+    darkest: "#939090",
   },
   info: {
     main: "#F86A2B",
@@ -766,7 +948,7 @@ export const light = {
   dropdown: {
     header: {
       text: lightShades[9],
-      disabledText: darkShades[6],
+      disabled: darkShades[6],
       bg: lightShades[2],
       disabledBg: lightShades[1],
     },
@@ -983,7 +1165,7 @@ export const theme: Theme = {
   colors: {
     tooltip: {
       lightBg: lightShades[0],
-      darkBg: darkShades[10],
+      darkBg: lightShades[10],
     },
     callout: {
       note: {
