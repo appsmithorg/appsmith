@@ -30,6 +30,7 @@ const Menu = (props: MenuProps) => {
       onOpening={props.onOpening}
       onClosing={props.onClosing}
       className={props.className}
+      portalClassName={props.className}
       data-cy={props.cypressSelector}
     >
       {props.target}

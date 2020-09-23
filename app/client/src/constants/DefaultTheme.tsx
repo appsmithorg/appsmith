@@ -486,6 +486,8 @@ export const dark = {
     hoverBG: Colors.BLACK,
     hoverBGOpacity: 0.5,
     hoverBorder: darkShades[4],
+    targetBg: "rgba(0, 0, 0, 0.1)",
+    iconColor: darkShades[9],
   },
   appCardColors: [
     "#4F70FD",
@@ -627,13 +629,28 @@ export const dark = {
   },
   applications: {
     bg: darkShades[1],
-    color: darkShades[7],
+    textColor: darkShades[7],
     orgColor: darkShades[7],
+    iconColor: darkShades[7],
     hover: {
       bg: darkShades[4],
-      color: darkShades[8],
+      textColor: darkShades[8],
       orgColor: darkShades[9],
     },
+  },
+  switch: {
+    border: darkShades[5],
+    bg: darkShades[0],
+    hover: {
+      border: darkShades[7],
+      bg: darkShades[0],
+    },
+    lightText: darkShades[9],
+    darkText: darkShades[6],
+  },
+  queryTemplate: {
+    bg: darkShades[3],
+    color: darkShades[7],
   },
 };
 
@@ -696,6 +713,8 @@ export const light = {
     hoverBG: Colors.WHITE,
     hoverBGOpacity: 0.7,
     hoverBorder: lightShades[2],
+    targetBg: "rgba(0, 0, 0, 0.1)",
+    iconColor: lightShades[11],
   },
   appCardColors: [
     "#4266FD",
@@ -730,7 +749,7 @@ export const light = {
     normalText: lightShades[8],
     normalIcon: lightShades[6],
     hoverIcon: lightShades[8],
-    hoverText: lightShades[9],
+    hoverText: lightShades[10],
     hoverBg: lightShades[2],
   },
   colorSelector: {
@@ -836,14 +855,29 @@ export const light = {
     },
   },
   applications: {
-    bg: lightShades[1],
-    color: lightShades[7],
+    bg: lightShades[2],
+    textColor: lightShades[7],
     orgColor: lightShades[7],
+    iconColor: lightShades[7],
     hover: {
-      bg: lightShades[2],
-      color: lightShades[8],
+      bg: lightShades[3],
+      textColor: lightShades[8],
       orgColor: lightShades[9],
     },
+  },
+  switch: {
+    border: lightShades[5],
+    bg: lightShades[11],
+    hover: {
+      border: lightShades[7],
+      bg: lightShades[11],
+    },
+    lightText: lightShades[11],
+    darkText: lightShades[6],
+  },
+  queryTemplate: {
+    bg: lightShades[3],
+    color: lightShades[7],
   },
 };
 

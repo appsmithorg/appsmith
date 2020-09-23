@@ -202,6 +202,18 @@ const ContextDropdownWrapper = styled.div`
   position: absolute;
   top: -6px;
   right: -3px;
+
+  .${Classes.POPOVER_TARGET} {
+    span {
+      background: ${props => props.theme.colors.card.targetBg};
+
+      svg {
+        path {
+          fill: ${props => props.theme.colors.card.iconColor};
+        }
+      }
+    }
+  }
 `;
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
@@ -308,7 +320,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
               }
             }}
             savingState={
-              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              isSavingName ? SavingState.STARTED : SavingState.SUCCESS
             }
             isEditingDefault={false}
             fill={true}

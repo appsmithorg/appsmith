@@ -174,8 +174,8 @@ const textIconStyles = (props: { color: string; hover: string }) => {
 const NewWorkspaceWrapper = styled.div`
   ${props => {
     return `${textIconStyles({
-      color: props.theme.colors.applications.color,
-      hover: props.theme.colors.applications.hover.color,
+      color: props.theme.colors.applications.textColor,
+      hover: props.theme.colors.applications.hover.textColor,
     })}`;
   }}
 `;
@@ -209,8 +209,8 @@ const ApplicationAddCardWrapper = styled(Card)`
   }
   ${props => {
     return `${textIconStyles({
-      color: props.theme.colors.applications.color,
-      hover: props.theme.colors.applications.hover.color,
+      color: props.theme.colors.applications.textColor,
+      hover: props.theme.colors.applications.hover.textColor,
     })}`;
   }}
 `;
@@ -271,6 +271,7 @@ ${props => {
 .${Classes.ICON} {
   display: ${props => (!props.disabled ? "inline" : "none")};;
   margin-left: 8px;
+  color: ${props => props.theme.colors.applications.iconColor};
 }
 `;
 
