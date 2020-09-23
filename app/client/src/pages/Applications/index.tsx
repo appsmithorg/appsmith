@@ -406,41 +406,48 @@ const ApplicationsSection = () => {
                 )}
               </OrgDropDown>
               <ApplicationCardsWrapper key={organization.id}>
-                <FormDialogComponent
-                  permissions={organization.userPermissions}
-                  permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
-                  trigger={
-                    <PaddingWrapper>
-                      <ApplicationAddCardWrapper>
-                        <Icon
-                          className="t--create-app-popup"
-                          name={"plus"}
-                          size={IconSize.LARGE}
-                        ></Icon>
-                        <CreateNewLabel
-                          type={TextType.H4}
-                          className="createnew"
-                          // cypressSelector={"t--create-new-app"}
-                        >
-                          Create New
-                        </CreateNewLabel>
-                      </ApplicationAddCardWrapper>
-                    </PaddingWrapper>
-                  }
-                  Form={CreateApplicationForm}
-                  orgId={organization.id}
-                  title={"Create Application"}
-                />
+                {isPermitted(
+                  organization.userPermissions,
+                  PERMISSION_TYPE.CREATE_APPLICATION,
+                ) && (
+                  <PaddingWrapper>
+                    <FormDialogComponent
+                      permissions={organization.userPermissions}
+                      permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
+                      trigger={
+                        <ApplicationAddCardWrapper>
+                          <Icon
+                            className="t--create-app-popup"
+                            name={"plus"}
+                            size={IconSize.LARGE}
+                          ></Icon>
+                          <CreateNewLabel
+                            type={TextType.H4}
+                            className="createnew"
+                            // cypressSelector={"t--create-new-app"}
+                          >
+                            Create New
+                          </CreateNewLabel>
+                        </ApplicationAddCardWrapper>
+                      }
+                      Form={CreateApplicationForm}
+                      orgId={organization.id}
+                      title={"Create Application"}
+                    />
+                  </PaddingWrapper>
+                )}
                 {applications.map((application: any) => {
                   return (
                     application.pages?.length > 0 && (
-                      <ApplicationCard
-                        key={application.id}
-                        application={application}
-                        delete={deleteApplication}
-                        update={updateApplicationDispatch}
-                        duplicate={duplicateApplicationDispatch}
-                      />
+                      <PaddingWrapper>
+                        <ApplicationCard
+                          key={application.id}
+                          application={application}
+                          delete={deleteApplication}
+                          update={updateApplicationDispatch}
+                          duplicate={duplicateApplicationDispatch}
+                        />
+                      </PaddingWrapper>
                     )
                   );
                 })}

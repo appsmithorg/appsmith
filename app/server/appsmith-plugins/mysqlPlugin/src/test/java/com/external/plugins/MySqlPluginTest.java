@@ -6,10 +6,12 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.log4j.Log4j;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -43,6 +45,14 @@ public class MySqlPluginTest {
             .withUsername("mysql")
             .withPassword("password")
             .withDatabaseName("test_db");
+
+    @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
+    @ClassRule
+    public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer()
+            .withUsername("mysql")
+            .withPassword("password")
+            .withDatabaseName("test_db")
+            .withEnv("TZ", "PDT");
 
     String address;
     Integer port;
@@ -152,10 +162,33 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(connection -> {
-                    java.sql.Connection conn = (Connection) connection;
-                    assertNotNull(conn);
-                })
+                .assertNext(Assert::assertNotNull)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testConnectMySQLContainerWithInvalidTimezone() {
+        AuthenticationDTO authDTO = new AuthenticationDTO();
+        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
+        authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
+        authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(mySQLContainerWithInvalidTimezone.getContainerIpAddress());
+        endpoint.setPort(mySQLContainerWithInvalidTimezone.getFirstMappedPort().longValue());
+
+        final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(authDTO);
+        dsConfig.setEndpoints(List.of(endpoint));
+        dsConfig.setProperties(List.of(
+                new Property("serverTimezone", "UTC")
+        ));
+
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(Assert::assertNotNull)
                 .verifyComplete();
     }
 
@@ -216,10 +249,9 @@ public class MySqlPluginTest {
 
         StepVerifier.create(connectionMono)
                 .assertNext(connection -> {
-                    java.sql.Connection conn = (Connection) connection;
-                    pluginExecutor.datasourceDestroy(conn);
+                    pluginExecutor.datasourceDestroy(connection);
                     try {
-                        assertEquals(conn.isClosed(), true);
+                        assertTrue(connection.isClosed());
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
