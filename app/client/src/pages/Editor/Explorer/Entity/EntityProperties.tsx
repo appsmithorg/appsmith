@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import EntityProperty, { EntityPropertyProps } from "./EntityProperty";
 import { isFunction } from "lodash";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
@@ -25,6 +25,9 @@ export const EntityProperties = (props: {
   PerformanceTracker.startTracking(
     PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
   );
+  useEffect(() => {
+    PerformanceTracker.stopTracking();
+  });
   let entity: any;
   const dataTree: DataTree = useSelector(evaluateDataTreeWithoutFunctions);
   if (props.isCurrentPage && dataTree[props.entityName]) {
@@ -34,7 +37,6 @@ export const EntityProperties = (props: {
   } else {
     return null;
   }
-
   let config: any;
   let entityProperties: Array<EntityPropertyProps> = [];
   switch (props.entityType) {
@@ -85,7 +87,6 @@ export const EntityProperties = (props: {
         });
       break;
   }
-  PerformanceTracker.stopTracking();
   return (
     <>
       {entityProperties.map(entityProperty => (

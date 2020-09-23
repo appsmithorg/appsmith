@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/react";
 import { Span, SpanStatus } from "@sentry/tracing";
 import _ from "lodash";
+import * as log from "loglevel";
 
 export enum PerformanceTransactionName {
   DEPLOY_APPLICATION = "DEPLOY_APPLICATION",
@@ -28,7 +29,6 @@ export enum PerformanceTransactionName {
   ENTITY_EXPLORER_ENTITY = "ENTITY_EXPLORER_ENTITY",
   CLOSE_API = "CLOSE_API",
   OPEN_API = "OPEN_API",
-  SET_STATE = "SET_STATE",
   CANVAS_MOUNT = "CANVAS_MOUNT",
   GENERATE_API_PROPS = "GENERATE_API_PROPS",
   CHANGE_API_SAGA = "CHANGE_API_SAGA",
@@ -72,7 +72,7 @@ class PerformanceTracker {
     }
     if (PerformanceTracker.perfLogQueue.length === 0) {
       if (!skipLog) {
-        console.log(
+        log.debug(
           PerformanceTracker.generateSpaces(
             PerformanceTracker.perfLogQueue.length + 1,
           ) +
@@ -91,7 +91,7 @@ class PerformanceTracker {
       });
     } else {
       if (!skipLog) {
-        console.log(
+        log.debug(
           PerformanceTracker.generateSpaces(
             PerformanceTracker.perfLogQueue.length + 1,
           ) +
@@ -173,7 +173,7 @@ class PerformanceTracker {
   ) {
     const duration = ((endTime || 0) - startTime) * 1000;
     const spaces = PerformanceTracker.generateSpaces(level);
-    console.log(spaces + eventName + " Finish Tracking in " + duration + "ms");
+    log.debug(spaces + eventName + " Finish Tracking in " + duration + "ms");
   }
 }
 
