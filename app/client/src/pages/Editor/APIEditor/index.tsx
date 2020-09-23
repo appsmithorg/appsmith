@@ -29,6 +29,10 @@ import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import * as Sentry from "@sentry/react";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -67,6 +71,7 @@ type Props = ReduxActionProps &
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount() {
+    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_API);
     this.props.changeAPIPage(this.props.match.params.apiId);
   }
   handleDeleteClick = () => {
@@ -157,7 +162,6 @@ class ApiEditor extends React.Component<Props> {
         match={this.props.match}
       />
     );
-
     return (
       <div
         style={{
@@ -214,7 +218,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
   const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
-  return {
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.GENERATE_API_PROPS,
+  );
+  const apiEditorState = {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
@@ -229,6 +236,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
   };
+  PerformanceTracker.stopTracking();
+  return apiEditorState;
 };
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
@@ -240,4 +249,6 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   changeAPIPage: (actionId: string) => dispatch(changeApi(actionId)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ApiEditor);
+export default Sentry.withProfiler(
+  connect(mapStateToProps, mapDispatchToProps)(ApiEditor),
+);

@@ -10,6 +10,10 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { useSelector } from "react-redux";
 import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import * as Sentry from "@sentry/react";
 
 export const EntityProperties = (props: {
   entityType: ENTITY_TYPE;
@@ -18,6 +22,9 @@ export const EntityProperties = (props: {
   step: number;
   entity?: any;
 }) => {
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
+  );
   let entity: any;
   const dataTree: DataTree = useSelector(evaluateDataTreeWithoutFunctions);
   if (props.isCurrentPage && dataTree[props.entityName]) {
@@ -78,6 +85,7 @@ export const EntityProperties = (props: {
         });
       break;
   }
+  PerformanceTracker.stopTracking();
   return (
     <>
       {entityProperties.map(entityProperty => (
@@ -87,4 +95,4 @@ export const EntityProperties = (props: {
   );
 };
 
-export default EntityProperties;
+export default Sentry.withProfiler(EntityProperties);
