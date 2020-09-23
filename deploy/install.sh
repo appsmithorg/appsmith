@@ -103,6 +103,11 @@ check_os() {
             os="Ubuntu"
             package_manager="apt-get"
             ;;
+        Debian*)
+            desired_os=1
+            os="Debian"
+            package_manager="apt-get"
+            ;;
         Red\ Hat*)
             desired_os=1
             os="Red Hat"
