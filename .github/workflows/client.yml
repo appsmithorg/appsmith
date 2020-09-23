@@ -54,7 +54,7 @@ jobs:
         REACT_APP_ENVIRONMENT="DEVELOPMENT"  
         if [ ${GITHUB_REF} == '/refs/heads/master' ]; then
             REACT_APP_ENVIRONMENT="PRODUCTION"
-        elif [ ${GITHUB_REF} == '/refs/heads/master' ]; then
+        elif [ ${GITHUB_REF} == '/refs/heads/release' ]; then
             REACT_APP_ENVIRONMENT="STAGING"
         fi
         echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
@@ -137,6 +137,7 @@ jobs:
         --env APPSMITH_REDIS_URL=redis://localhost:6379 \
         --env APPSMITH_ENCRYPTION_PASSWORD=password \
         --env APPSMITH_ENCRYPTION_SALT=salt \
+        --env APPSMITH_IS_SELF_HOSTED=false \
         appsmith/appsmith-server:release
 
     - name: Installing Yarn serve

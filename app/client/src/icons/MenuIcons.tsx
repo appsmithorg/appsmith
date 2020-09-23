@@ -11,6 +11,10 @@ import { ReactComponent as HomepageIcon } from "assets/icons/menu/homepage.svg";
 import { ReactComponent as ExplorerIcon } from "assets/icons/menu/explorer.svg";
 import { ReactComponent as ApisColoredIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
+import { ReactComponent as DatasourceTableIcon } from "assets/icons/menu/datasource-table.svg";
+import { ReactComponent as PrimaryKeyIcon } from "assets/icons/menu/primary-key.svg";
+import { ReactComponent as ForeignKeyIcon } from "assets/icons/menu/foreign-key.svg";
+import { ReactComponent as DatasourceColumnIcon } from "assets/icons/menu/datasource-column.svg";
 import { ReactComponent as WidgetsColoredIcon } from "assets/icons/menu/widgets-colored.svg";
 import { Icon } from "@blueprintjs/core";
 /* eslint-disable react/display-name */
@@ -81,6 +85,26 @@ export const MenuIcons: {
   DATASOURCES_COLORED_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <DataSourcesColoredIcon />
+    </IconWrapper>
+  ),
+  DATASOURCES_TABLE_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DatasourceTableIcon />
+    </IconWrapper>
+  ),
+  PRIMARY_KEY_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <PrimaryKeyIcon />
+    </IconWrapper>
+  ),
+  FOREIGN_KEY_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <ForeignKeyIcon />
+    </IconWrapper>
+  ),
+  DATASOURCE_COLUMN_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DatasourceColumnIcon />
     </IconWrapper>
   ),
 };

@@ -4,13 +4,15 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource, DatasourceStructure } from "api/DatasourcesApi";
 
 export interface DatasourceDataState {
   list: Datasource[];
   loading: boolean;
   isTesting: boolean;
   isDeleting: boolean;
+  fetchingDatasourceStructure: boolean;
+  structure: Record<string, DatasourceStructure>;
 }
 
 const initialState: DatasourceDataState = {
@@ -18,6 +20,8 @@ const initialState: DatasourceDataState = {
   loading: false,
   isTesting: false,
   isDeleting: false,
+  fetchingDatasourceStructure: false,
+  structure: {},
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -41,7 +45,43 @@ const datasourceReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, isDeleting: true };
   },
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, fetchingDatasourceStructure: true };
+  },
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ data: any; datasourceId: string }>,
+  ) => {
+    return {
+      ...state,
+      fetchingDatasourceStructure: false,
+      structure: {
+        ...state.structure,
+        [action.payload.datasourceId]: action.payload.data,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      fetchingDatasourceStructure: false,
+    };
+  },
   [ReduxActionTypes.FETCH_DATASOURCES_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource[]>,
+  ) => {
+    return {
+      ...state,
+      loading: false,
+      list: action.payload,
+    };
+  },
+  [ReduxActionTypes.PREFILL_DATASOURCE]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource[]>,
   ) => {

@@ -99,13 +99,7 @@ describe("Create new org and share with a user", function() {
       Cypress.env("TESTUSERNAME2"),
       homePage.viewerRole,
     );
-    cy.navigateToOrgSettings(orgid);
-    cy.get(homePage.emailList).then(function($list) {
-      expect($list).to.have.length(3);
-      expect($list.eq(0)).to.contain(Cypress.env("USERNAME"));
-      expect($list.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
-      expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
-    });
+    cy.LogOut();
   });
 
   it("login as Org owner and delete App ", function() {

@@ -113,8 +113,8 @@ const InputWrapper = styled.div`
 `;
 
 const ErrorWrapper = styled.div`
-  position absolute;
-  bottom: -17px; 
+  position: absolute;
+  bottom: -17px;
 `;
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
@@ -135,7 +135,7 @@ const TextInput = forwardRef(
 
     const inputStyle = useMemo(
       () => boxStyles(props, validation.isValid, theme),
-      [props, validation.isValid],
+      [props, validation.isValid, theme],
     );
 
     const memoizedChangeHandler = useCallback(

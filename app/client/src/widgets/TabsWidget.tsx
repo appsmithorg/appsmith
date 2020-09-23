@@ -143,26 +143,29 @@ class TabsWidget extends BaseWidget<
         .map(child => child.widgetId);
       // If the tabs and children are different,
       // add and/or remove tab container widgets
-      if (_.xor(childWidgetIds, tabWidgetIds).length > 0) {
-        const widgetIdsToRemove: string[] = _.without(
-          childWidgetIds,
-          ...tabWidgetIds,
-        );
-        const widgetIdsToCreate: string[] = _.without(
-          tabWidgetIds,
-          ...childWidgetIds,
-        );
-        this.addTabContainer(widgetIdsToCreate);
-        this.removeTabContainer(widgetIdsToRemove);
-      }
 
-      // If all tabs were removed.
-      if (tabWidgetIds.length === 0) {
-        const newTabContainerWidgetId = generateReactKey();
-        const tabs = [
-          { id: "tab1", widgetId: newTabContainerWidgetId, label: "Tab 1" },
-        ];
-        this.updateWidgetProperty("tabs", JSON.stringify(tabs));
+      if (!this.props.invalidProps?.tabs) {
+        if (_.xor(childWidgetIds, tabWidgetIds).length > 0) {
+          const widgetIdsToRemove: string[] = _.without(
+            childWidgetIds,
+            ...tabWidgetIds,
+          );
+          const widgetIdsToCreate: string[] = _.without(
+            tabWidgetIds,
+            ...childWidgetIds,
+          );
+          this.addTabContainer(widgetIdsToCreate);
+          this.removeTabContainer(widgetIdsToRemove);
+        }
+
+        // If all tabs were removed.
+        if (tabWidgetIds.length === 0) {
+          const newTabContainerWidgetId = generateReactKey();
+          const tabs = [
+            { id: "tab1", widgetId: newTabContainerWidgetId, label: "Tab 1" },
+          ];
+          this.updateWidgetProperty("tabs", JSON.stringify(tabs));
+        }
       }
     }
     if (this.props.defaultTab) {

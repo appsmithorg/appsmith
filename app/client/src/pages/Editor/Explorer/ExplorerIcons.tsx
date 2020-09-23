@@ -10,6 +10,7 @@ import {
   HTTP_METHODS,
   HTTP_METHOD_COLOR_MAP,
 } from "constants/ApiEditorConstants";
+import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 
 const ENTITY_ICON_SIZE = 14;
@@ -59,6 +60,47 @@ export const datasourceIcon = (
     color={Colors.ALTO}
   />
 );
+
+const DataSourceTableIcon = MenuIcons.DATASOURCES_TABLE_ICON;
+export const datasourceTableIcon = (
+  <DataSourceTableIcon
+    width={ENTITY_ICON_SIZE}
+    height={ENTITY_ICON_SIZE}
+    keepColors
+  />
+);
+
+const PrimaryKeyIcon = MenuIcons.PRIMARY_KEY_ICON;
+export const primaryKeyIcon = (
+  <PrimaryKeyIcon
+    width={ENTITY_ICON_SIZE}
+    height={ENTITY_ICON_SIZE}
+    keepColors
+  />
+);
+
+export const ForeignKeyIcon = MenuIcons.FOREIGN_KEY_ICON;
+export const foreignKeyIcon = (
+  <ForeignKeyIcon
+    width={ENTITY_ICON_SIZE}
+    height={ENTITY_ICON_SIZE}
+    keepColors
+  />
+);
+
+const DatasourceColumnIcon = MenuIcons.DATASOURCE_COLUMN_ICON;
+export const datasourceColumnIcon = (
+  <DatasourceColumnIcon
+    width={ENTITY_ICON_SIZE}
+    height={ENTITY_ICON_SIZE}
+    keepColors
+  />
+);
+
+export const DATASOURCE_FIELD_ICONS_MAP: Record<string, JSX.Element> = {
+  [PRIMARY_KEY]: primaryKeyIcon,
+  [FOREIGN_KEY]: foreignKeyIcon,
+};
 
 export const getWidgetIcon = (type: WidgetType) => {
   const WidgetIcon = WidgetIcons[type];
