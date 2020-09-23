@@ -30,7 +30,7 @@ const StyledSwitch = styled.label<{
     cursor: pointer;
     top: 0;
     left: 0;
-    border: 1px solid ${props => props.theme.colors.blackShades[5]};
+    border: 1px solid ${props => props.theme.colors.switch.border};
     background-color: ${props => props.theme.colors.info.main};
     width: 78px;
     height: 26px;
@@ -43,7 +43,7 @@ const StyledSwitch = styled.label<{
 			width: 36px;
 			height: 20px;
 			top: 2px;
-	    background-color: ${props.theme.colors.blackShades[0]};
+	    background-color: ${props.theme.colors.switch.bg};
       left: ${props.value && !props.firstRender ? "38px" : "2px"};
     	transition: ${props.firstRender ? "0.4s" : "none"};
 		}
@@ -54,17 +54,20 @@ const StyledSwitch = styled.label<{
   }
 
   input:checked + .slider:before {
-    background-color: ${props => props.theme.colors.blackShades[0]};
+    background-color: ${props => props.theme.colors.switch.hover.bg};
   }
 
   input:hover + .slider {
-    border: 1px solid ${props => props.theme.colors.blackShades[7]};
+    border: 1px solid ${props => props.theme.colors.switch.hover.border};
   }
 `;
 
 const Light = styled.div<{ value: boolean }>`
   .${Classes.TEXT} {
-    color: ${props => (props.value ? "#FFFFFF" : "#939090")};
+    color: ${props =>
+      props.value
+        ? props.theme.colors.switch.lightText
+        : props.theme.colors.switch.darkText};
     font-size: 10px;
     line-height: 12px;
     letter-spacing: -0.171429px;
@@ -75,11 +78,11 @@ const Light = styled.div<{ value: boolean }>`
 `;
 
 const Dark = styled.div<{ value: boolean }>`
-  .${Classes.TEXT} {
+  &&&& .${Classes.TEXT} {
     font-size: 10px;
     line-height: 12px;
     letter-spacing: -0.171429px;
-    color: ${props => (!props.value ? "#FFFFFF" : "#939090")};
+    color: ${props => props.theme.colors.switch.lightText};
   }
   position: absolute;
   top: 3px;
