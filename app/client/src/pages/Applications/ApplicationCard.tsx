@@ -320,7 +320,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
               }
             }}
             savingState={
-              isSavingName ? SavingState.STARTED : SavingState.SUCCESS
+              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
             }
             isEditingDefault={false}
             fill={true}
