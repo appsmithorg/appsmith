@@ -29,7 +29,8 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
   position: relative;
 
   &:hover {
-    box-shadow: 0px 0px 0px ${props => props.theme.spaces[1] - 1}px #353535;
+    box-shadow: 0px 0px 0px ${props => props.theme.spaces[1] - 1}px
+      ${props => props.theme.colors.colorSelector.shadow};
   }
 
   &:last-child {
@@ -45,8 +46,8 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
     top: ${props.theme.spaces[1] - 1}px
     width: ${props.theme.spaces[2] - 1}px
     height: ${props.theme.spaces[4] - 1}px
-    border: 1.5px solid ${props.theme.colors.blackShades[9]};
-    border-width: 0 1.5px 1.5px 0;
+    border: 2px solid ${props.theme.colors.colorSelector.checkmark};
+    border-width: 0 2px 2px 0;
     transform: rotate(45deg); 
   }`
       : `

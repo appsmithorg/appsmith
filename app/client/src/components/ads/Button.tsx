@@ -81,19 +81,19 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].darkest;
           borderColorPrimary = props.theme.colors[props.variant].darkest;
         }
-        txtColorPrimary = props.theme.colors.blackShades[6];
+        txtColorPrimary = props.theme.colors.button.disabledText;
         break;
       case Category.secondary:
         if (props.variant) {
           bgColorSecondary = props.theme.colors[props.variant].darkest;
           borderColorSecondary = props.theme.colors[props.variant].darker;
         }
-        txtColorSecondary = props.theme.colors.blackShades[6];
+        txtColorSecondary = props.theme.colors.button.disabledText;
         break;
       case Category.tertiary:
         bgColorTertiary = props.theme.colors.tertiary.darker;
         borderColorTertiary = props.theme.colors.tertiary.dark;
-        txtColorTertiary = props.theme.colors.blackShades[6];
+        txtColorTertiary = props.theme.colors.button.disabledText;
         break;
     }
   } else if (state === "main") {
