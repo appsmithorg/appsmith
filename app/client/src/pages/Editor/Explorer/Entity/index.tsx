@@ -98,11 +98,13 @@ export const Entity = forwardRef(
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
 
+    /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
       if (!props.searchKeyword && !props.isDefaultExpanded) {
         open(false);
       }
-    }, [props.searchKeyword, props.isDefaultExpanded]);
+    }, [props.searchKeyword]);
+    /* eslint-enable react-hooks/exhaustive-deps */
 
     const toggleChildren = () => {
       // Make sure this entity is enabled before toggling the collpse of children.
