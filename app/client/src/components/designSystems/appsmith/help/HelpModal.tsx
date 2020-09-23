@@ -73,7 +73,6 @@ class HelpModal extends React.Component<Props> {
         // eslint-disable-next-line @typescript-eslint/camelcase
         user_id: user?.username,
         // eslint-disable-next-line @typescript-eslint/camelcase
-        custom_launcher_selector: "#intercom-trigger",
         name: user?.name,
         email: user?.email,
       });
