@@ -72,7 +72,7 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_SUCCESS]: (
     state: DatasourceDataState,
-    action: ReduxAction<{ data: any; datasourceId: string }>,
+    action: ReduxAction<{ data: DatasourceStructure; datasourceId: string }>,
   ) => {
     return {
       ...state,
