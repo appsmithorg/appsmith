@@ -216,6 +216,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.findByOrganizationId(organizationId);
     }
 
+    @Override
+    public Mono<Application> getApplicationInViewMode(String applicationId) {
+        return repository.findById(applicationId, READ_APPLICATIONS)
+                .map(application -> {
+                    application.setViewMode(true);
+                    return application;
+                });
+    }
+
     private Mono<Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
         AclPermission applicationPermission = READ_APPLICATIONS;
         AclPermission datasourcePermission = EXECUTE_DATASOURCES;

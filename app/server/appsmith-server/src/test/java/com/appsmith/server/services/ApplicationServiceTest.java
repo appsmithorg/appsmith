@@ -743,4 +743,48 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getApplicationInViewMode() {
+        Application testApplication = new Application();
+        String appName = "ApplicationServiceTest Get Application In View Mode";
+        testApplication.setName(appName);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application -> {
+                    Page page = new Page();
+                    page.setName("New Page");
+                    page.setApplicationId(application.getId());
+                    Layout defaultLayout = newPageService.createDefaultLayout();
+                    List<Layout> layouts = new ArrayList<>();
+                    layouts.add(defaultLayout);
+                    page.setLayouts(layouts);
+                    return applicationPageService.createPage(page);
+                })
+                .flatMap(page -> applicationService.publish(page.getApplicationId()))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
+                .cache();
+
+        Page newPage = applicationMono
+                .flatMap(application -> newPageService
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
+                        .flatMap(page -> newPageService.deleteUnpublishedPage(page.getId()))).block();
+
+        Mono<Application> viewModeApplicationMono = applicationMono
+                .flatMap(application -> applicationService.getApplicationInViewMode(application.getId()));
+
+        ApplicationPage applicationPage = new ApplicationPage();
+        applicationPage.setId(newPage.getId());
+        applicationPage.setIsDefault(false);
+
+        StepVerifier
+                .create(viewModeApplicationMono)
+                .assertNext(viewApplication -> {
+                    List<ApplicationPage> editedApplicationPages = viewApplication.getPages();
+                    assertThat(editedApplicationPages.size()).isEqualTo(2);
+                    assertThat(editedApplicationPages).containsAnyOf(applicationPage);
+                })
+                .verifyComplete();
+    }
 }
