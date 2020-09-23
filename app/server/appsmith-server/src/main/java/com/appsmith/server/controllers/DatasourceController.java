@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,9 +43,9 @@ public class DatasourceController extends BaseController<DatasourceService, Data
 
     @GetMapping("/{datasourceId}/structure")
     public Mono<ResponseDTO<DatasourceStructure>> getStructure(@PathVariable String datasourceId,
-                                                               @RequestParam(required = false) String ignoreCache) {
+                                                               @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache) {
         log.debug("Going to get structure for datasource with id: '{}'.", datasourceId);
-        return datasourceStructureSolution.getStructure(datasourceId, "true".equalsIgnoreCase(ignoreCache))
+        return datasourceStructureSolution.getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache))
                 .map(structure -> new ResponseDTO<>(HttpStatus.OK.value(), structure, null));
     }
 
