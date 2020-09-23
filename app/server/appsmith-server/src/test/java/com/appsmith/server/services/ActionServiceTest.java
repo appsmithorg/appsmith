@@ -582,4 +582,35 @@ public class ActionServiceTest {
         Mono<ActionExecutionResult> actionExecutionResultMono = actionService.executeAction(executeActionDTO);
         return actionExecutionResultMono;
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getActionInViewMode() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Action action = new Action();
+        action.setName("view-mode-action-test");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setPath("{{mustache}}");
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<Action> createActionMono = actionService.create(action);
+        Mono<List<ActionViewDTO>> actionViewModeListMono = createActionMono
+                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
+
+        StepVerifier.create(actionViewModeListMono)
+                .assertNext(actions -> {
+                    assertThat(actions.size()).isGreaterThan(0);
+                    ActionViewDTO actionViewDTO = actions.get(0);
+                    assertThat(actionViewDTO.getId()).isNotNull();
+                    assertThat(actionViewDTO.getTimeoutInMillisecond()).isNotNull();
+                    assertThat(actionViewDTO.getPageId()).isNotNull();
+                    assertThat(actionViewDTO.getConfirmBeforeExecute()).isNotNull();
+                    assertThat(actionViewDTO.getJsonPathKeys().size()).isEqualTo(1);
+                })
+                .verifyComplete();
+    }
 }

@@ -58,6 +58,7 @@ jobs:
         APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
         APPSMITH_ENCRYPTION_PASSWORD: "password"
         APPSMITH_ENCRYPTION_SALT: "salt"
+        APPSMITH_IS_SELF_HOSTED: false
       run: mvn -B package
 
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the

@@ -30,7 +30,7 @@ const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${props => props.theme.lineHeights[2]}px;
 `;
 
-const EntityItem = styled.div<{
+export const EntityItem = styled.div<{
   active: boolean;
   step: number;
   spaced: boolean;
@@ -89,6 +89,7 @@ export type EntityProps = {
   updateEntityName?: (id: string, name: string) => any;
   runActionOnExpand?: boolean;
   onNameEdit?: (input: string, limit?: number) => string;
+  onToggle?: () => void;
 };
 
 export const Entity = forwardRef(
@@ -114,6 +115,10 @@ export const Entity = forwardRef(
       !props.disabled && open(!isOpen);
       if (props.runActionOnExpand && !isOpen) {
         props.action && props.action();
+      }
+
+      if (props.onToggle && !isOpen) {
+        props.onToggle();
       }
     };
 

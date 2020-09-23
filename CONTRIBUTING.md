@@ -5,21 +5,26 @@ Appsmith is a project by developers for developers and there are a lot of ways y
 Feel free to propose changes to this document in a pull request.
 
 ### Table of contents
-- [Code of conduct](CODE_OF_CONDUCT.md)
-- [How can I contribute?](#how-can-i-contribute)
-- [How to set up local development?](#how-to-set-up-local-development)
-- [How to run tests?](#how-to-run-tests)
+- Code of conduct
+- How can I contribute?
+- Git Workflow
+- Setting up local development
+- Running tests
 
 ## How can I contribute?
 There are many ways in which we/one can to contribute to Appsmith. All contributions are highly appreciated.
 
 - Beta testing
-- Raise Issues
-- Feature Requests
-- Documentation
+- Raise Issues / Feature Requests
+- Improve the Documentation
 - Code contribution
-    - Widgets
-    - Datasources
+    - Introduce New Widgets
+    - Introduce New Database Integrations
+    - Introduce New SAAS Integrations
+    
+## Code of conduct
+
+Read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing
 
 ## Git Workflow
 
@@ -34,7 +39,7 @@ Pull requests are the best way to propose changes to the codebase and get them r
 5. Create an issue referencing the pull request. This ensures that we can track the bug being fixed or feature being added easily.
 
 
-## 👨‍💻 How to set up local development
+## 👨‍💻 Setting up local development
 
 ### Client
 Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows.
@@ -102,14 +107,43 @@ echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
 - We use MongoDB for our database.
 
 1. After cloning the repository, change your directory to `app/server`
-2. Run `mvn clean compile`. This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. 
+
+2. Run the command  
+```bash
+  mvn clean compile
+```  
+  
+This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. Without this step, your IDE may complain about missing classes and will be unable to compile the code.
+
 3. Create a copy of the `envs/dev.env.example` 
 
     ```shell script
-    cp envs/dev.env.example envs/dev.env
+    cp envs/dev.env.example .env
     ```
 
-## 🧪 How to run tests
+This command creates a `.env` file in the `app/server` folder. All run scripts pick up environment configuration from this file.
+
+4. Modify the property values in the file `.env` to point to your local running instance of MongoDB and Redis.
+
+5. In order to create the final JAR for the Appsmith server, run the command:
+```
+./build.sh
+```
+
+This command will create a `dist` folder which contains the final packaged jar along with multiple jars for the binaries for plugins as well.
+
+6. Start the Java server by running
+
+```
+./scripts/start-dev-server.sh
+```
+By default, the server will start on port 8080.
+
+7. When the server starts, it automatically runs migrations on MongoDB and will populate it with some initial required data.
+
+8. You can check the status of the server by hitting the endpoint: [http://localhost:8080](http://localhost:8080) on your browser. By default you should see an blank page.
+
+## 🧪 Running tests
 
 ##### Client
 1. In order to run the Cypress integration tests, run:

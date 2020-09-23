@@ -61,7 +61,7 @@ class SwitchControl extends BaseControl<SwitchControlProps> {
   }
 
   getControlType(): ControlType {
-    return "FILE_PICKER";
+    return "SWITCH";
   }
 }
 

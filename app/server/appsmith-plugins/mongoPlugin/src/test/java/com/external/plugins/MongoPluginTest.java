@@ -87,7 +87,7 @@ public class MongoPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         System.out.println(dsConfig);
 
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         StepVerifier.create(dsConnectionMono)
                 .assertNext(obj -> {
                     MongoClient client = (MongoClient) obj;
@@ -100,7 +100,7 @@ public class MongoPluginTest {
     @Test
     public void testExecuteReadQuery() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("{\n" +
@@ -126,7 +126,7 @@ public class MongoPluginTest {
     @Test
     public void testExecuteWriteQuery() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("{\n" +
@@ -155,7 +155,7 @@ public class MongoPluginTest {
     @Test
     public void testFindAndModify() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("{\n" +
@@ -186,7 +186,7 @@ public class MongoPluginTest {
     @Test
     public void testCleanUp() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("{\n" +

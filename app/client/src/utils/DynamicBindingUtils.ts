@@ -123,7 +123,12 @@ export const evaluateDynamicBoundValue = (
   path: string,
   callbackData?: any,
 ): JSExecutorResult => {
-  return JSExecutionManagerSingleton.evaluateSync(path, data, callbackData);
+  const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
+  return JSExecutionManagerSingleton.evaluateSync(
+    unescapedJS,
+    data,
+    callbackData,
+  );
 };
 
 // For creating a final value where bindings could be in a template format
@@ -332,14 +337,7 @@ export const createDependencyTree = (
         if (entity.dynamicBindings) {
           Object.keys(entity.dynamicBindings).forEach(propertyName => {
             // using unescape to remove new lines from bindings which interfere with our regex extraction
-            let unevalPropValue = _.get(entity, propertyName);
-            if (
-              _.isString(unevalPropValue) &&
-              isDynamicValue(unevalPropValue)
-            ) {
-              unevalPropValue = unescapeJS(unevalPropValue);
-            }
-            _.set(entity, propertyName, unevalPropValue);
+            const unevalPropValue = _.get(entity, propertyName);
             const { jsSnippets } = getDynamicBindings(unevalPropValue);
             const existingDeps =
               dependencyMap[`${entityKey}.${propertyName}`] || [];
@@ -358,14 +356,7 @@ export const createDependencyTree = (
         if (entity.dynamicBindingPathList.length) {
           entity.dynamicBindingPathList.forEach(prop => {
             // using unescape to remove new lines from bindings which interfere with our regex extraction
-            let unevalPropValue = _.get(entity, prop.key);
-            if (
-              _.isString(unevalPropValue) &&
-              isDynamicValue(unevalPropValue)
-            ) {
-              unevalPropValue = unescapeJS(unevalPropValue);
-            }
-            _.set(entity, prop.key, unevalPropValue);
+            const unevalPropValue = _.get(entity, prop.key);
             const { jsSnippets } = getDynamicBindings(unevalPropValue);
             const existingDeps =
               dependencyMap[`${entityKey}.${prop.key}`] || [];

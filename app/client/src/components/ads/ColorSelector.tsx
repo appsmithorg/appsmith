@@ -1,23 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
-
-export const appColorPalette = [
-  "#4F70FD",
-  "#54A9FB",
-  "#5ED3DA",
-  "#F56AF4",
-  "#F36380",
-  "#FE9F44",
-  "#E9C951",
-  "#A8D76C",
-  "#6C4CF1",
-];
+// import { appCardColors } from "constants/AppConstants";
 
 type ColorSelectorProps = CommonComponentProps & {
   onSelect?: (hex: string) => void;
-  colorPalette?: string[];
+  colorPalette: string[];
   fill?: boolean;
+  defaultValue?: string;
 };
 
 const Palette = styled.div<{ fill?: boolean }>`
@@ -67,31 +57,30 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
 `;
 
 const ColorSelector = (props: ColorSelectorProps) => {
-  const [selected, setSelected] = useState<string>(appColorPalette[0]);
-
+  const [selected, setSelected] = useState<string>(
+    props.defaultValue || props.colorPalette[0],
+  );
   return (
-    <Palette fill={props.fill}>
-      {props.colorPalette &&
-        props.colorPalette.map((hex: string, index: number) => {
-          return (
-            <ColorBox
-              key={index}
-              selected={selected}
-              color={hex}
-              onClick={() => {
-                setSelected(hex);
-                props.onSelect && props.onSelect(hex);
-              }}
-            />
-          );
-        })}
+    <Palette fill={props.fill} data-cy={props.cypressSelector}>
+      {props.colorPalette.map((hex: string, index: number) => {
+        return (
+          <ColorBox
+            key={index}
+            selected={selected}
+            color={hex}
+            onClick={() => {
+              setSelected(hex);
+              props.onSelect && props.onSelect(hex);
+            }}
+          />
+        );
+      })}
     </Palette>
   );
 };
 
 ColorSelector.defaultProps = {
   fill: false,
-  colorPalette: appColorPalette,
 };
 
 export default ColorSelector;

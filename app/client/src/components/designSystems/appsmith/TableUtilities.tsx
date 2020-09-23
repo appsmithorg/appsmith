@@ -25,13 +25,6 @@ import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import moment from "moment";
 
-const StyledRemoveIcon = styled(
-  ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
-)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-`;
 interface MenuOptionProps {
   columnAccessor?: string;
   isColumnHidden: boolean;

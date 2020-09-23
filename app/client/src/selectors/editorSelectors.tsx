@@ -118,9 +118,10 @@ export const getCanvasWidgetDsl = createSelector(
         widgets[widgetKey] = evaluatedWidget as DataTreeWidget;
       }
     });
-    return CanvasWidgetsNormalizer.denormalize("0", {
+    const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets: widgets,
     });
+    return denormalizedWidgets;
   },
 );
 

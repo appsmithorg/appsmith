@@ -14,7 +14,9 @@ import { fetchOrg } from "actions/orgActions";
 import { GeneralSettings } from "./General";
 
 const LinkToApplications = styled(Link)`
+  margin-top: 30px;
   margin-bottom: 35px;
+  display: inline-block;
   width: auto;
   &:hover {
     text-decoration: none;
@@ -23,7 +25,10 @@ const LinkToApplications = styled(Link)`
     cursor: pointer;
   }
 `;
-
+const SettingsWrapper = styled.div`
+  width: ${props => props.theme.pageContentWidth}px;
+  margin: 0 auto;
+`;
 export default function Settings() {
   const { orgId } = useParams();
   const currentOrg = useSelector(getCurrentOrg);
@@ -68,7 +73,7 @@ export default function Settings() {
   const isMembersPage = location.pathname.indexOf("members") !== -1;
 
   return (
-    <>
+    <SettingsWrapper>
       <LinkToApplications to={"/applications"}>
         <IconComponent iconName="chevron-left" color="#9F9F9F"></IconComponent>
         <Text type={TextType.H1}>{currentOrg.name}</Text>
@@ -92,6 +97,6 @@ export default function Settings() {
           history.push(newUrl);
         }}
       ></TabComponent>
-    </>
+    </SettingsWrapper>
   );
 }

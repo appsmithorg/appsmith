@@ -10,6 +10,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoClient;
@@ -66,26 +67,26 @@ public class MongoPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class MongoPluginExecutor implements PluginExecutor {
+    public static class MongoPluginExecutor implements PluginExecutor<MongoClient> {
 
         /**
          * For reference on creating the json queries for Mongo please head to
          * https://docs.huihoo.com/mongodb/3.4/reference/command/index.html
          *
-         * @param connection              : This is the connection that is established to the data source. This connection is according
+         * @param mongoClient             : This is the connection that is established to the data source. This connection is according
          *                                to the parameters in Datasource Configuration
          * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
          * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
          * @return Result data from executing the action's query.
          */
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection,
+        public Mono<ActionExecutionResult> execute(MongoClient mongoClient,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            MongoClient mongoClient = (MongoClient) connection;
             if (mongoClient == null) {
-                return Mono.error(new AppsmithPluginException("Mongo Client is null."));
+                log.info("Encountered null connection in MongoDB plugin. Reporting back.");
+                throw new StaleConnectionException();
             }
 
             ActionExecutionResult result = new ActionExecutionResult();
@@ -165,7 +166,7 @@ public class MongoPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<MongoClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             // TODO: ReadOnly seems to be not supported at the driver level. The recommendation is to connect with a
             //   user that doesn't have write permissions on the database.
             //   Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
@@ -246,8 +247,7 @@ public class MongoPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(Object connection) {
-            MongoClient mongoClient = (MongoClient) connection;
+        public void datasourceDestroy(MongoClient mongoClient) {
             if (mongoClient != null) {
                 mongoClient.close();
             }
@@ -304,8 +304,7 @@ public class MongoPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             final Connection.Type connectionType = datasourceConfiguration.getConnection().getType();
             return datasourceCreate(datasourceConfiguration)
-                    .map(mongoClientObj -> {
-                        final MongoClient mongoClient = (MongoClient) mongoClientObj;
+                    .map(mongoClient -> {
                         ClientSession clientSession = null;
 
                         try {

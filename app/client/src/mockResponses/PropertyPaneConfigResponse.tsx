@@ -114,7 +114,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "onDateSelected",
             label: "onDateSelected",
             controlType: "ACTION_SELECTOR",
-            isJSConvertible: true
+            isJSConvertible: true,
           },
         ],
       },
@@ -230,6 +230,21 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        id: "3.2",
+        sectionName: "Actions",
+        children: [
+          {
+            id: "3.2.1",
+            helpText:
+              "Triggers an action when a user changes the selected option",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
         ],
