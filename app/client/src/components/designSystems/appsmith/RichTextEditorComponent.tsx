@@ -49,43 +49,50 @@ export const RichtextEditorComponent = (
       editorContent.current = content;
       props.onValueChange(content);
     }, 200);
-    (window as any).tinyMCE.init({
-      height: "100%",
-      selector: `textarea#rte-${props.widgetId}`,
-      menubar: false,
-      branding: false,
-      resize: false,
-      setup: (editor: any) => {
-        editor.mode.set(props.isDisabled === true ? "readonly" : "design");
-        // Without timeout default value is not set on browser refresh.
-        setTimeout(() => {
-          editor.setContent(props.defaultValue, { format: "html" });
-        }, 300);
-        editor
-          .on("Change", () => {
-            onChange(editor.getContent());
-          })
-          .on("Undo", () => {
-            onChange(editor.getContent());
-          })
-          .on("Redo", () => {
-            onChange(editor.getContent());
-          })
-          .on("KeyUp", () => {
-            onChange(editor.getContent());
-          });
-        setEditorInstance(editor);
-      },
-      plugins: [
-        "advlist autolink lists link image charmap print preview anchor",
-        "searchreplace visualblocks code fullscreen",
-        "insertdatetime media table paste code help",
-      ],
-      toolbar:
-        "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
-    });
+    const tinyMCE = (window as any).tinyMCE;
+    const existingEditor = tinyMCE.editors[`rte-${props.widgetId}`];
+    if (!existingEditor) {
+      tinyMCE.init({
+        height: "100%",
+        selector: `textarea#rte-${props.widgetId}`,
+        menubar: false,
+        branding: false,
+        resize: false,
+        setup: (editor: any) => {
+          editor.mode.set(props.isDisabled === true ? "readonly" : "design");
+          // Without timeout default value is not set on browser refresh.
+          setTimeout(() => {
+            editor.setContent(props.defaultValue, { format: "html" });
+          }, 300);
+          editor
+            .on("Change", () => {
+              onChange(editor.getContent());
+            })
+            .on("Undo", () => {
+              onChange(editor.getContent());
+            })
+            .on("Redo", () => {
+              onChange(editor.getContent());
+            })
+            .on("KeyUp", () => {
+              onChange(editor.getContent());
+            });
+          setEditorInstance(editor);
+        },
+        plugins: [
+          "advlist autolink lists link image charmap print preview anchor",
+          "searchreplace visualblocks code fullscreen",
+          "insertdatetime media table paste code help",
+        ],
+        toolbar:
+          "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
+      });
+    } else {
+      tinyMCE.add(existingEditor);
+    }
 
     return () => {
+      tinyMCE.remove(existingEditor);
       editorInstance !== null && editorInstance.destroy();
     };
   }, []);
