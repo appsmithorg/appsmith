@@ -164,6 +164,32 @@ export function* fetchApplicationSaga(
   }
 }
 
+export function* fetchApplicationForViewModeSaga(
+  action: ReduxAction<{
+    applicationId: string;
+  }>,
+) {
+  try {
+    const applicationId: string = action.payload.applicationId;
+    const response: FetchApplicationsResponse = yield call(
+      ApplicationApi.fetchApplicationForViewMode,
+      applicationId,
+    );
+
+    yield put({
+      type: ReduxActionTypes.FETCH_APPLICATION_VIEW_SUCCESS,
+      payload: response.data,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_APPLICATION_VIEW_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* setDefaultApplicationPageSaga(
   action: ReduxAction<SetDefaultPageRequest>,
 ) {
@@ -385,6 +411,7 @@ export default function* applicationSagas() {
       getAllApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchApplicationSaga),
+    takeLatest(ReduxActionTypes.FETCH_APPLICATION_VIEW_INIT, fetchApplicationForViewModeSaga),
     takeLatest(ReduxActionTypes.CREATE_APPLICATION_INIT, createApplicationSaga),
     takeLatest(
       ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,

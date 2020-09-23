@@ -28,6 +28,15 @@ export const fetchApplication = (applicationId: string) => {
   };
 };
 
+export const fetchApplicationForViewMode = (applicationId: string) => {
+  return {
+    type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+    payload: {
+      applicationId,
+    },
+  };
+};
+
 export const publishApplication = (applicationId: string) => {
   return {
     type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,

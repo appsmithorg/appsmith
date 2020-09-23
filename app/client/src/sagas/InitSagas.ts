@@ -17,7 +17,7 @@ import {
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
-import { fetchApplication } from "actions/applicationActions";
+import { fetchApplication, fetchApplicationForViewMode} from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { AppState } from "reducers";
@@ -152,7 +152,7 @@ export function* initializeAppViewerSaga(
   yield all([
     put(fetchActionsForView(applicationId)),
     put(fetchPageList(applicationId)),
-    put(fetchApplication(applicationId)),
+    put(fetchApplicationForViewMode(applicationId)),
   ]);
 
   yield all([
