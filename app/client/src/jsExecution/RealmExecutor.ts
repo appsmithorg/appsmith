@@ -30,7 +30,7 @@ export default class RealmExecutor implements JSExecutor {
     // which has reference to the triggers via binding
     this.createSafeObject = this.rootRealm.evaluate(
       `
-      (function createActionTriggerData(data) {
+      (function createSafeObject(data) {
         const safeObject = JSONFn.parse(JSONFn.stringify(unsafeObject));
         if(safeObject.actionPaths) {
           safeObject.triggers = [];
