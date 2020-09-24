@@ -9,7 +9,7 @@ declare let Realm: any;
 
 export default class RealmExecutor implements JSExecutor {
   rootRealm: any;
-  createSafeObject: any;
+  createActionTriggerData: any;
   extrinsics: any[] = [];
   createSafeFunction: (unsafeFn: Function) => Function;
 
@@ -24,29 +24,28 @@ export default class RealmExecutor implements JSExecutor {
         }
       })
     `);
-    // After parsing the data we add a triggers list on the global scope to
+    // We add a triggers list on the global scope to
     // push to it during any script execution
     // We replace all action descriptor functions with our pusher function
     // which has reference to the triggers via binding
-    this.createSafeObject = this.rootRealm.evaluate(
+    this.createActionTriggerData = this.rootRealm.evaluate(
       `
-      (function createSafeObject(unsafeObject) {
-        const safeObject = JSONFn.parse(JSONFn.stringify(unsafeObject));
-        if(safeObject.actionPaths) {
-          safeObject.triggers = [];
+      (function createActionTriggerData(data) {
+        if(data.actionPaths) {
+          data.triggers = [];
           const pusher = function (action, ...payload) {
             const actionPayload = action(...payload);
             this.triggers.push(actionPayload);
           }
-          safeObject.actionPaths.forEach(path => {
-            const action = _.get(safeObject, path);
-            const entity = _.get(safeObject, path.split(".")[0])
+          data.actionPaths.forEach(path => {
+            const action = _.get(data, path);
+            const entity = _.get(data, path.split(".")[0])
             if(action) {
-               _.set(safeObject, path, pusher.bind(safeObject, action.bind(entity)))
+               _.set(data, path, pusher.bind(data, action.bind(entity)))
             }
           })
         }
-        return safeObject
+        return data
       })
     `,
     );
@@ -72,8 +71,7 @@ export default class RealmExecutor implements JSExecutor {
     data: JSExecutorGlobal,
     callbackData?: any,
   ): JSExecutorResult {
-    const safeCallbackData = this.createSafeObject(callbackData || {});
-    const safeData = this.createSafeObject(data);
+    const dataWithTriggers = this.createActionTriggerData(data);
     try {
       // We create a closed function and evaluate that
       // This is to send any triggers received during evaluations
@@ -96,8 +94,8 @@ export default class RealmExecutor implements JSExecutor {
       `;
       const script = callbackData ? scriptWithCallback : scriptToEvaluate;
       const data = callbackData
-        ? { ...safeData, CALLBACK_DATA: safeCallbackData }
-        : safeData;
+        ? { ...dataWithTriggers, CALLBACK_DATA: callbackData }
+        : dataWithTriggers;
 
       const { result, triggers } = this.rootRealm.evaluate(script, data);
       return {
