@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
-import { useRouteMatch, useLocation, useParams, Link } from "react-router-dom";
-import AppRoute from "pages/common/AppRoute";
+import {
+  useRouteMatch,
+  useLocation,
+  useParams,
+  Link,
+  Route,
+} from "react-router-dom";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import { TabComponent, TabProp } from "components/ads/Tabs";
@@ -12,6 +17,8 @@ import MemberSettings from "./Members";
 import IconComponent from "components/designSystems/appsmith/IconComponent";
 import { fetchOrg } from "actions/orgActions";
 import { GeneralSettings } from "./General";
+import * as Sentry from "@sentry/react";
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const LinkToApplications = styled(Link)`
   margin-top: 30px;
@@ -41,17 +48,15 @@ export default function Settings() {
 
   const SettingsRenderer = (
     <div>
-      <AppRoute
+      <SentryRoute
         path={`${path}/general`}
         component={GeneralSettings}
         location={location}
-        name={"Settings"}
       />
-      <AppRoute
+      <SentryRoute
         path={`${path}/members`}
         component={MemberSettings}
         location={location}
-        name={"Settings"}
       />
     </div>
   );

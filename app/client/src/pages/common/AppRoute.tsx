@@ -1,5 +1,5 @@
 import React from "react";
-import { Route } from "react-router-dom";
+import { Route, RouteComponentProps } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as Sentry from "@sentry/react";
 import { connect } from "react-redux";
@@ -7,29 +7,29 @@ import { getThemeDetails } from "selectors/themeSelectors";
 import { AppState } from "reducers";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { setThemeMode } from "actions/themeActions";
+import equal from "fast-deep-equal/es6";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-class AppRouteWithoutProps extends React.Component<{
+interface AppRouteProps {
   currentTheme: any;
   path?: string;
-  component: React.ReactType;
+  component:
+    | React.ComponentType<RouteComponentProps<any>>
+    | React.ComponentType<any>;
   exact?: boolean;
   logDisable?: boolean;
   name: string;
   location?: any;
   setTheme: Function;
-}> {
-  componentDidUpdate() {
-    if (!this.props.logDisable) {
-      AnalyticsUtil.logEvent("NAVIGATE_EDITOR", {
-        page: this.props.name,
-        path: this.props.location.pathname,
-      });
-    }
+}
+
+class AppRouteWithoutProps extends React.Component<AppRouteProps> {
+  shouldComponentUpdate(prevProps: AppRouteProps, nextProps: AppRouteProps) {
+    return !equal(prevProps?.location, nextProps?.location);
   }
+
   render() {
     const { component: Component, currentTheme, ...rest } = this.props;
-
     if (
       window.location.pathname === "/applications" ||
       window.location.pathname.indexOf("/settings/") !== -1
@@ -39,14 +39,7 @@ class AppRouteWithoutProps extends React.Component<{
     } else {
       document.body.style.backgroundColor = currentTheme.colors.appBackground;
     }
-    return (
-      <SentryRoute
-        {...rest}
-        render={props => {
-          return <Component {...props} />;
-        }}
-      />
-    );
+    return <SentryRoute {...rest} component={this.props.component} />;
   }
 }
 const mapStateToProps = (state: AppState) => ({
