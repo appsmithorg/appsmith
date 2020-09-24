@@ -29,6 +29,8 @@ export enum PerformanceTransactionName {
   ENTITY_EXPLORER_ENTITY = "ENTITY_EXPLORER_ENTITY",
   CLOSE_API = "CLOSE_API",
   OPEN_API = "OPEN_API",
+  EDITOR_MOUNT = "EDITOR_MOUNT",
+  SIDE_BAR_MOUNT = "SIDE_BAR_MOUNT",
   CANVAS_MOUNT = "CANVAS_MOUNT",
   GENERATE_API_PROPS = "GENERATE_API_PROPS",
   CHANGE_API_SAGA = "CHANGE_API_SAGA",
@@ -118,27 +120,32 @@ class PerformanceTracker {
     eventName?: PerformanceTransactionName,
   ) => {
     if (eventName) {
-      let index = -1;
-      _.forEach(PerformanceTracker.perfLogQueue, (perfLog, i) => {
-        if (perfLog.eventName === eventName) {
-          index = i;
-        }
-        if (index !== -1 && i >= index) {
-          const currentSpan = perfLog.sentrySpan;
-          currentSpan.finish();
-          if (!perfLog?.skipLog) {
-            PerformanceTracker.printDuration(
-              perfLog.eventName,
-              PerformanceTracker.perfLogQueue.length + 1,
-              currentSpan.startTimestamp,
-              currentSpan.endTimestamp,
-            );
+      const index = _.findLastIndex(
+        PerformanceTracker.perfLogQueue,
+        (perfLog, i) => {
+          return perfLog.eventName === eventName;
+        },
+      );
+      if (index !== -1) {
+        for (let i = PerformanceTracker.perfLogQueue.length - 1; i >= 0; i--) {
+          const perfLog = PerformanceTracker.perfLogQueue[i];
+          if (i >= index) {
+            const currentSpan = perfLog.sentrySpan;
+            currentSpan.finish();
+            if (!perfLog?.skipLog) {
+              PerformanceTracker.printDuration(
+                perfLog.eventName,
+                i + 1,
+                currentSpan.startTimestamp,
+                currentSpan.endTimestamp,
+              );
+            }
           }
         }
-      });
-      PerformanceTracker.perfLogQueue = PerformanceTracker.perfLogQueue.splice(
-        index,
-      );
+        PerformanceTracker.perfLogQueue = PerformanceTracker.perfLogQueue.splice(
+          index,
+        );
+      }
     } else {
       const perfLog = PerformanceTracker.perfLogQueue.pop();
       if (perfLog) {
