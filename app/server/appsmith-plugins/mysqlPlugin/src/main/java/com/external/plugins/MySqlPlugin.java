@@ -244,11 +244,13 @@ public class MySqlPlugin extends BasePlugin {
 
             }
 
+            urlBuilder.append("?zeroDateTimeBehavior=convertToNull");
+
             final List<Property> dsProperties = datasourceConfiguration.getProperties();
             if (dsProperties != null) {
                 for (Property property : dsProperties) {
                     if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
-                        urlBuilder.append("?serverTimezone=").append(property.getValue());
+                        urlBuilder.append("&serverTimezone=").append(property.getValue());
                         break;
                     }
                 }
