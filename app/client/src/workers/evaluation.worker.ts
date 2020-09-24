@@ -1,3 +1,4 @@
+const ctx: Worker = self as any;
 import {
   ActionDescription,
   DataTree,
@@ -14,20 +15,16 @@ import unescapeJS from "unescape-js";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
-import { ValidationType, Validator } from "../constants/WidgetValidation";
+import { VALIDATORS } from "../utils/Validators";
+import JSONFn from "json-fn";
 
 let WIDGET_TYPE_CONFIG_MAP: WidgetTypeConfigMap = {};
-let VALIDATORS: Map<ValidationType, Validator> = new Map();
 
-addEventListener("message", e => {
-  const { dataTree, widgetTypeConfigMap, validators } = JSON.parse(e.data);
-  console.log({ validators });
+ctx.addEventListener("message", e => {
+  const { dataTree, widgetTypeConfigMap } = JSONFn.parse(e.data);
   WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
-  VALIDATORS = validators;
   const response = getEvaluatedDataTree(dataTree);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
-  postMessage(JSON.stringify(response));
+  ctx.postMessage(JSON.stringify(response));
 });
 
 let dependencyTreeCache: any = {};
@@ -775,7 +772,7 @@ const validateWidgetProperty = (
   if (typeof validationTypeOrValidator === "function") {
     validator = validationTypeOrValidator;
   } else {
-    validator = VALIDATORS.get(validationTypeOrValidator);
+    validator = VALIDATORS[validationTypeOrValidator];
   }
   if (validator) {
     return validator(value, props, dataTree);
