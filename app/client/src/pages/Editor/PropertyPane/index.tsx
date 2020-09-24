@@ -27,6 +27,9 @@ import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import PaneWrapper from "pages/common/PaneWrapper";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const PropertySectionLabel = styled.div`
   color: ${props => props.theme.colors.paneSectionLabel};
@@ -224,12 +227,17 @@ class PropertyPane extends Component<
 }
 
 const mapStateToProps = (state: AppState): PropertyPaneProps => {
-  return {
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.GENERATE_PROPERTY_PANE_PROPS,
+  );
+  const props = {
     propertySections: getPropertyConfig(state),
     widgetId: getCurrentWidgetId(state),
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
   };
+  PerformanceTracker.stopTracking();
+  return props;
 };
 
 const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import ExplorerSidebar from "pages/Editor/Explorer";
 import { PanelStack, Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
+import * as Sentry from "@sentry/react";
 
 const SidebarWrapper = styled.div`
   background-color: ${Colors.MINE_SHAFT};
@@ -32,4 +33,4 @@ export const Sidebar = memo(() => {
 
 Sidebar.displayName = "Sidebar";
 
-export default Sidebar;
+export default Sentry.withProfiler(Sidebar);
