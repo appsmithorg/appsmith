@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { debounce } from "lodash";
+import { Editor } from "@tinymce/tinymce-react";
 import styled from "styled-components";
 const StyledRTEditor = styled.div`
   && {
@@ -22,83 +23,38 @@ export interface RichtextEditorComponentProps {
 export const RichtextEditorComponent = (
   props: RichtextEditorComponentProps,
 ) => {
-  const [editorInstance, setEditorInstance] = useState(null as any);
-  /* Using editorContent as a variable to save editor content locally to verify against new content*/
-  const editorContent = useRef("");
-  /* eslint-disable react-hooks/exhaustive-deps */
+  const [value, setValue] = useState(props.defaultValue);
   useEffect(() => {
-    if (editorInstance !== null) {
-      editorInstance.mode.set(
-        props.isDisabled === true ? "readonly" : "design",
-      );
-    }
-  }, [props.isDisabled]);
-
-  useEffect(() => {
-    if (
-      editorInstance !== null &&
-      props.defaultValue !== editorContent.current
-    ) {
-      setTimeout(() => {
-        editorInstance.setContent(props.defaultValue, { format: "html" });
-      }, 200);
-    }
+    setValue(props.defaultValue);
   }, [props.defaultValue]);
-  useEffect(() => {
-    const onChange = debounce((content: string) => {
-      editorContent.current = content;
-      props.onValueChange(content);
-    }, 200);
-    const tinyMCE = (window as any).tinyMCE;
-    const existingEditor = tinyMCE.editors[`rte-${props.widgetId}`];
-    if (!existingEditor) {
-      tinyMCE.init({
-        height: "100%",
-        selector: `textarea#rte-${props.widgetId}`,
-        menubar: false,
-        branding: false,
-        resize: false,
-        setup: (editor: any) => {
-          editor.mode.set(props.isDisabled === true ? "readonly" : "design");
-          // Without timeout default value is not set on browser refresh.
-          setTimeout(() => {
-            editor.setContent(props.defaultValue, { format: "html" });
-          }, 300);
-          editor
-            .on("Change", () => {
-              onChange(editor.getContent());
-            })
-            .on("Undo", () => {
-              onChange(editor.getContent());
-            })
-            .on("Redo", () => {
-              onChange(editor.getContent());
-            })
-            .on("KeyUp", () => {
-              onChange(editor.getContent());
-            });
-          setEditorInstance(editor);
-        },
-        plugins: [
-          "advlist autolink lists link image charmap print preview anchor",
-          "searchreplace visualblocks code fullscreen",
-          "insertdatetime media table paste code help",
-        ],
-        toolbar:
-          "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
-      });
-    } else {
-      tinyMCE.add(existingEditor);
-    }
-
-    return () => {
-      tinyMCE.remove(existingEditor);
-      editorInstance !== null && editorInstance.destroy();
-    };
-  }, []);
+  const onChange = useCallback(debounce(props.onValueChange, 300), [
+    props.onValueChange,
+  ]);
+  const config = {
+    height: "100%",
+    menubar: false,
+    branding: false,
+    resize: false,
+    plugins: [
+      "advlist autolink lists link image charmap print preview anchor",
+      "searchreplace visualblocks code fullscreen",
+      "insertdatetime media table paste code help",
+    ],
+    toolbar:
+      "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
+  };
   return (
     <StyledRTEditor>
-      <textarea id={`rte-${props.widgetId}`}></textarea>
+      <Editor
+        value={value}
+        disabled={props.isDisabled}
+        tinymceScriptSrc="/static/tinymce/tinymce.min.js"
+        init={config}
+        onEditorChange={content => {
+          setValue(content);
+          onChange(content);
+        }}
+      />
     </StyledRTEditor>
   );
 };
