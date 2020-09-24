@@ -271,6 +271,9 @@ let cachedDataTreeString = "";
 
 export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   // Create Dependencies DAG
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
   const dataTreeString = JSON.stringify(dataTree);
   // Stringify before doing a fast equals because the data tree has functions and fast equal will always treat those as changed values
   // Better solve will be to prune functions
@@ -322,6 +325,7 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   const validated = getValidatedTree(treeWithLoading);
   PerformanceTracker.stopTracking();
   // dataTreeCache = validated;
+  PerformanceTracker.stopTracking();
   return validated;
 }
 
