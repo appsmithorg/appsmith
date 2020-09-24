@@ -95,7 +95,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
     VIDEO_WIDGET: {
       rows: 7,
-      columns: 8,
+      columns: 7,
       widgetName: "Video",
       url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
     },
