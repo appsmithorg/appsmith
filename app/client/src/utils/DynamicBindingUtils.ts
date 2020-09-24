@@ -626,14 +626,7 @@ function validateAndParseWidgetProperty(
     : _.isUndefined(transformed)
     ? evalPropertyValue
     : transformed;
-  if (_.isFunction(evaluatedValue)) {
-    evaluatedValue = "Function call";
-  } else if (
-    _.isObject(evaluatedValue) &&
-    _.some(evaluatedValue, _.isFunction)
-  ) {
-    evaluatedValue = JSON.parse(JSON.stringify(evaluatedValue));
-  }
+  evaluatedValue = removeFunctions(evaluatedValue);
   _.set(widget, `evaluatedValues.${propertyName}`, evaluatedValue);
   if (!isValid) {
     _.set(widget, `invalidProps.${propertyName}`, true);
@@ -761,6 +754,16 @@ const overwriteDefaultDependentProps = (
     return defaultPropertyCache.value;
   }
   return propertyValue;
+};
+
+// We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
+// Check issue https://github.com/appsmithorg/appsmith/issues/719
+const removeFunctions = (value: any) => {
+  if (_.isFunction(value)) {
+    return "Function call";
+  } else if (_.isObject(value) && _.some(value, _.isFunction)) {
+    return JSON.parse(JSON.stringify(value));
+  }
 };
 
 /*
