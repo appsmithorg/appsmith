@@ -5,7 +5,7 @@ import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 import jsonFn from "json-fn";
 
 function* evaluateTreeSaga() {
-  const unEvalTree = yield select(getUnevaluatedDataTree(true));
+  const unEvalTree = yield select(getUnevaluatedDataTree);
   const evalTree = getEvaluatedDataTree(unEvalTree);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
@@ -18,7 +18,7 @@ function* evaluationChangeListenerSaga() {
   let oldUnEvalTree = "";
   while (true) {
     yield take("*");
-    const unEvalTree = yield select(getUnevaluatedDataTree(false));
+    const unEvalTree = yield select(getUnevaluatedDataTree);
     const unEvalString = jsonFn.stringify(unEvalTree);
     if (unEvalString !== oldUnEvalTree) {
       yield call(evaluateTreeSaga);
