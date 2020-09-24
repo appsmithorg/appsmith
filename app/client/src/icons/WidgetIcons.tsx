@@ -6,6 +6,7 @@ import { ReactComponent as CollapseIcon } from "assets/icons/widget/collapse.svg
 import { ReactComponent as ContainerIcon } from "assets/icons/widget/container.svg";
 import { ReactComponent as DatePickerIcon } from "assets/icons/widget/datepicker.svg";
 import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
+import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
 import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
@@ -62,7 +63,7 @@ export const WidgetIcons: {
   ),
   VIDEO_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
-      <TableIcon />
+      <VideoIcon />
     </IconWrapper>
   ),
   DROP_DOWN_WIDGET: (props: IconProps) => (
