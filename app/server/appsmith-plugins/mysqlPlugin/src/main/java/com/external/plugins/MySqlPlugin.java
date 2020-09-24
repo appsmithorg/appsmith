@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
@@ -210,7 +211,6 @@ public class MySqlPlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading MySQL JDBC Driver class."));
             }
 
-            String url;
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
 
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
@@ -224,27 +224,38 @@ public class MySqlPlugin extends BasePlugin {
                 properties.put(PASSWORD, authentication.getPassword());
             }
 
+            StringBuilder urlBuilder = new StringBuilder();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                url = datasourceConfiguration.getUrl();
+                urlBuilder.append(datasourceConfiguration.getUrl());
 
             } else {
-                StringBuilder urlBuilder = new StringBuilder("jdbc:mysql://");
-                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    urlBuilder
-                            .append(endpoint.getHost())
-                            .append(':')
-                            .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L))
-                            .append('/');
+                urlBuilder.append("jdbc:mysql://");
 
-                    if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-                        urlBuilder.append(authentication.getDatabaseName());
+                final List<String> hosts = new ArrayList<>();
+                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
+                }
+
+                urlBuilder.append(String.join(",", hosts)).append("/");
+
+                if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                    urlBuilder.append(authentication.getDatabaseName());
+                }
+
+            }
+
+            final List<Property> dsProperties = datasourceConfiguration.getProperties();
+            if (dsProperties != null) {
+                for (Property property : dsProperties) {
+                    if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
+                        urlBuilder.append("?serverTimezone=").append(property.getValue());
+                        break;
                     }
                 }
-                url = urlBuilder.toString();
             }
 
             try {
-                Connection connection = DriverManager.getConnection(url, properties);
+                Connection connection = DriverManager.getConnection(urlBuilder.toString(), properties);
                 connection.setReadOnly(
                         configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                 return Mono.just(connection);

@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Route } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as Sentry from "@sentry/react";
-import { useSelector, connect } from "react-redux";
+import { connect } from "react-redux";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { AppState } from "reducers";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";

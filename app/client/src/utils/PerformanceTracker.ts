@@ -168,7 +168,7 @@ class PerformanceTracker {
   static generateSpaces(num: number) {
     let str = "";
     for (let i = 0; i < num; i++) {
-      str += "    ";
+      str += "\t";
     }
     return str;
   }

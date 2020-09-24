@@ -15,7 +15,6 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import * as log from "loglevel";
 import equal from "fast-deep-equal/es6";
 import WidgetFactory from "utils/WidgetFactory";
 import { AppToaster } from "components/editorComponents/ToastComponent";
@@ -290,7 +289,8 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   PerformanceTracker.startTracking(
     PerformanceTransactionName.SORTED_DEPENDENCY_EVALUATION,
     {
-      dependencies: sortedDependencies.length,
+      dependencies: sortedDependencies,
+      dependencyCount: sortedDependencies.length,
       dataTreeSize: cachedDataTreeString.length,
     },
   );
