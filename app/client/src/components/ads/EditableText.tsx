@@ -136,10 +136,17 @@ export const EditableText = (props: EditableTextProps) => {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
+  const valueRef = React.useRef(props.defaultValue);
 
   useEffect(() => {
     setSavingState(props.savingState);
   }, [props.savingState]);
+
+  useEffect(() => {
+    return () => {
+      props.onBlur(valueRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     setValue(props.defaultValue);
@@ -189,6 +196,7 @@ export const EditableText = (props: EditableTextProps) => {
       const error = errorMessage ? errorMessage : false;
       if (!error) {
         setLastValidValue(finalVal);
+        valueRef.current = finalVal;
       }
       setValue(finalVal);
       setIsInvalid(error);

@@ -53,6 +53,7 @@ const OrgDropDown = styled.div`
     ${props => props.theme.spaces[4]}px;
   font-size: ${props => props.theme.fontSizes[1]}px;
   justify-content: space-between;
+  align-items: center;
 `;
 
 const ApplicationCardsWrapper = styled.div`
@@ -183,7 +184,7 @@ const NewWorkspaceWrapper = styled.div`
 const ApplicationAddCardWrapper = styled(Card)`
   display: flex;
   flex-direction: column;
-  // justify-content: center;
+  justify-content: center;
   background: ${props => props.theme.colors.applications.bg};
   align-items: center;
   width: ${props => props.theme.card.minWidth}px;
@@ -192,8 +193,7 @@ const ApplicationAddCardWrapper = styled(Card)`
   box-shadow: none;
   border-radius: 0;
   padding: 0;
-  padding-top: 52px;
-  margin: ${props => props.theme.spaces[11]}px
+  margin: ${props => props.theme.spaces[11] - 2}px
     ${props => props.theme.spaces[5]}px;
   a {
     display: block;

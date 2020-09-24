@@ -45,10 +45,11 @@ import { Classes as CsClasses } from "components/ads/common";
 type NameWrapperProps = {
   hasReadPermission: boolean;
   showOverlay: boolean;
+  isMenuOpen: boolean;
 };
 
 const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
-  <div {...omit(props, ["hasReadPermission", "showOverlay"])} />
+  <div {...omit(props, ["hasReadPermission", "showOverlay", "isMenuOpen"])} />
 ))`
   .bp3-card {
     border-radius: 0;
@@ -80,7 +81,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
           & div.image-container {
             background: ${
-              props.hasReadPermission
+              props.hasReadPermission && !props.isMenuOpen
                 ? getColorWithOpacity(
                     props.theme.colors.card.hoverBG,
                     props.theme.colors.card.hoverBGOpacity,
@@ -384,6 +385,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         !isMenuOpen && setShowOverlay(false);
       }}
       hasReadPermission={hasReadPermission}
+      isMenuOpen={isMenuOpen}
       className="t--application-card"
     >
       <Wrapper
@@ -412,7 +414,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                   />
                 )} */}
 
-                {hasEditPermission && (
+                {hasEditPermission && !isMenuOpen && (
                   <EditButton
                     text="Edit"
                     size={Size.medium}
@@ -422,15 +424,17 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                     href={editApplicationURL}
                   />
                 )}
-                <Button
-                  text="LAUNCH"
-                  size={Size.medium}
-                  category={Category.tertiary}
-                  className="t--application-view-link"
-                  icon={"rocket"}
-                  href={viewApplicationURL}
-                  fill
-                />
+                {!isMenuOpen && (
+                  <Button
+                    text="LAUNCH"
+                    size={Size.medium}
+                    category={Category.tertiary}
+                    className="t--application-view-link"
+                    icon={"rocket"}
+                    href={viewApplicationURL}
+                    fill
+                  />
+                )}
               </Control>
             </ApplicationImage>
           </div>

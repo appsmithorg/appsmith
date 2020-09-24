@@ -511,13 +511,13 @@ type ColorType = {
     hoverBg: ColorPalette;
   };
   colorSelector: {
-    shadow: string;
+    shadow: ColorPalette;
     checkmark: ColorPalette;
   };
   checkbox: {
     disabled: ColorPalette;
     unchecked: ColorPalette;
-    disabledCheck: string;
+    disabledCheck: ColorPalette;
     normalCheck: ColorPalette;
     labelColor: ColorPalette;
   };
@@ -549,7 +549,7 @@ type ColorType = {
     };
     disabledSlider: {
       on: ColorPalette;
-      off: string;
+      off: ColorPalette;
     };
     spinner: ColorPalette;
   };
@@ -569,11 +569,11 @@ type ColorType = {
   menuBorder: ColorPalette;
   editableText: {
     color: ColorPalette;
-    bg: string;
+    bg: ColorPalette;
     dangerBg: string;
   };
   radio: {
-    disable: string;
+    disable: ColorPalette;
     border: ColorPalette;
   };
   searchInput: {
@@ -627,7 +627,6 @@ type ColorType = {
     border: ColorPalette;
     bg: ColorPalette;
     hover: {
-      border: ColorPalette;
       bg: ColorPalette;
     };
     lightText: ColorPalette;
@@ -723,13 +722,13 @@ export const dark: ColorType = {
     hoverBg: darkShades[4],
   },
   colorSelector: {
-    shadow: "#353535",
+    shadow: darkShades[4],
     checkmark: darkShades[9],
   },
   checkbox: {
     disabled: darkShades[3],
     unchecked: darkShades[4],
-    disabledCheck: "#565656",
+    disabledCheck: darkShades[5],
     normalCheck: darkShades[9],
     labelColor: darkShades[7],
   },
@@ -761,7 +760,7 @@ export const dark: ColorType = {
     },
     disabledSlider: {
       on: darkShades[9],
-      off: "#565656",
+      off: darkShades[5],
     },
     spinner: darkShades[6],
   },
@@ -785,7 +784,7 @@ export const dark: ColorType = {
     dangerBg: "rgba(226, 44, 44, 0.08)",
   },
   radio: {
-    disable: "#565656",
+    disable: darkShades[5],
     border: darkShades[4],
   },
   searchInput: {
@@ -839,7 +838,6 @@ export const dark: ColorType = {
     border: darkShades[5],
     bg: darkShades[0],
     hover: {
-      border: darkShades[7],
       bg: darkShades[0],
     },
     lightText: darkShades[9],
@@ -993,7 +991,7 @@ export const light: ColorType = {
   menuBorder: lightShades[3],
   editableText: {
     color: lightShades[10],
-    bg: "rgba(247, 247, 247, 0.8)",
+    bg: lightShades[2],
     dangerBg: "rgba(242, 43, 43, 0.06)",
   },
   radio: {
@@ -1051,7 +1049,6 @@ export const light: ColorType = {
     border: lightShades[5],
     bg: lightShades[11],
     hover: {
-      border: lightShades[7],
       bg: lightShades[11],
     },
     lightText: lightShades[11],
