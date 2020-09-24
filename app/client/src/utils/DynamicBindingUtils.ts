@@ -15,7 +15,6 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import * as log from "loglevel";
 import equal from "fast-deep-equal/es6";
 import WidgetFactory from "utils/WidgetFactory";
 import { AppToaster } from "components/editorComponents/ToastComponent";
@@ -290,7 +289,8 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   PerformanceTracker.startTracking(
     PerformanceTransactionName.SORTED_DEPENDENCY_EVALUATION,
     {
-      dependencies: sortedDependencies.length,
+      dependencies: sortedDependencies,
+      dependencyCount: sortedDependencies.length,
       dataTreeSize: cachedDataTreeString.length,
     },
   );
@@ -660,7 +660,6 @@ export function dependencySortedEvaluateDataTree(
   try {
     return sortedDependencies.reduce(
       (currentTree: DataTree, propertyPath: string) => {
-        // PerformanceTracker.startTracking(PerformanceTransactionName.EVALUATE_BINDING, { binding: propertyPath }, true)
         const entityName = propertyPath.split(".")[0];
         const entity: DataTreeEntity = currentTree[entityName];
         const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
@@ -720,13 +719,10 @@ export function dependencySortedEvaluateDataTree(
                 widgetEntity,
               );
             }
-            // PerformanceTracker.stopTracking();
             return _.set(currentTree, propertyPath, parsedValue);
           }
-          // PerformanceTracker.stopTracking();
           return _.set(currentTree, propertyPath, evalPropertyValue);
         } else {
-          // PerformanceTracker.stopTracking();
           return _.set(currentTree, propertyPath, evalPropertyValue);
         }
       },
