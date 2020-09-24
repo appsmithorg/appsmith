@@ -38,18 +38,27 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 
 const loadingIndicator = <PageLoadingBar />;
 
+function changeAppBackground(currentTheme: any) {
+  if (
+    window.location.pathname === "/applications" ||
+    window.location.pathname.indexOf("/settings/") !== -1
+  ) {
+    document.body.style.backgroundColor =
+      currentTheme.colors.homepageBackground;
+  } else {
+    document.body.style.backgroundColor = currentTheme.colors.appBackground;
+  }
+}
+
 class AppRouter extends React.Component<any, any> {
   render() {
     const { currentTheme } = this.props;
-    if (
-      window.location.pathname === "/applications" ||
-      window.location.pathname.indexOf("/settings/") !== -1
-    ) {
-      document.body.style.backgroundColor =
-        currentTheme.colors.homepageBackground;
-    } else {
-      document.body.style.backgroundColor = currentTheme.colors.appBackground;
-    }
+    // This is needed for the theme switch.
+    changeAppBackground(currentTheme);
+    // This is needed for the route switch.
+    history.listen(() => {
+      changeAppBackground(currentTheme);
+    });
 
     return (
       <Router history={history}>
