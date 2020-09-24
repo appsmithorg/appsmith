@@ -117,7 +117,7 @@
     "typescript": "^3.9.2",
     "unescape-js": "^1.1.4",
     "url-search-params-polyfill": "^8.0.0",
-    "workerize-loader": "^1.2.0"
+    "worker-loader": "^3.0.2"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",

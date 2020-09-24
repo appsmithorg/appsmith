@@ -36,6 +36,7 @@ import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
 import { EvaluatedTreeState } from "./evalutationReducers/treeReducer";
+import { EvaluationDependencyState } from "./evalutationReducers/dependencyReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -85,5 +86,6 @@ export interface AppState {
   };
   evaluations: {
     tree: EvaluatedTreeState;
+    dependencies: EvaluationDependencyState;
   };
 }

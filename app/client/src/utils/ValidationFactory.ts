@@ -55,6 +55,8 @@ class ValidationFactory {
       return { isValid: true, parsed: value };
     }
   }
+
+  static getAllValidators;
 }
 
 export default ValidationFactory;
