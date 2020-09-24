@@ -621,9 +621,19 @@ function validateAndParseWidgetProperty(
     widget,
     currentTree,
   );
-  const evaluatedValue = _.isUndefined(transformed)
+  let evaluatedValue = isValid
+    ? parsed
+    : _.isUndefined(transformed)
     ? evalPropertyValue
     : transformed;
+  if (_.isFunction(evaluatedValue)) {
+    evaluatedValue = "Function call";
+  } else if (
+    _.isObject(evaluatedValue) &&
+    _.some(evaluatedValue, _.isFunction)
+  ) {
+    evaluatedValue = JSON.parse(JSON.stringify(evaluatedValue));
+  }
   _.set(widget, `evaluatedValues.${propertyName}`, evaluatedValue);
   if (!isValid) {
     _.set(widget, `invalidProps.${propertyName}`, true);
