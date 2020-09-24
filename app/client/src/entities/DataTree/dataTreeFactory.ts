@@ -17,7 +17,7 @@ export type ActionDescription<T> = {
   payload: T;
 };
 
-type ActionDispatcher<T, A extends string[]> = (
+export type ActionDispatcher<T, A extends string[]> = (
   ...args: A
 ) => ActionDescription<T>;
 

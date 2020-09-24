@@ -669,29 +669,71 @@ export const evaluateDynamicBoundValue = (
   callbackData?: any,
 ): EvalResult => {
   const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
+  return evaluate(unescapedJS, data, callbackData);
+};
+
+const evaluate = (
+  js: string,
+  data: DataTree,
+  callbackData: any,
+): EvalResult => {
   const scriptToEvaluate = `
         function closedFunction () {
-          const result = ${unescapedJS};
-          return { result }
+          const result = ${js};
+          return { result, triggers }
         }
         closedFunction()
       `;
-
-  const result = (function() {
-    Object.keys(data).forEach(datum => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      self[datum] = data[datum];
-    });
-    return eval(scriptToEvaluate);
-  })();
-  return {
-    result: result.result,
-  };
-
-  return {
-    result: "YOYOYOY",
-  };
+  const scriptWithCallback = `
+         function callback (script) {
+            const userFunction = script;
+            const result = userFunction(CALLBACK_DATA);
+            return { result, triggers };
+         }
+         callback(${js});
+      `;
+  const script = callbackData ? scriptWithCallback : scriptToEvaluate;
+  try {
+    const { result, triggers } = (function() {
+      Object.keys(data).forEach(datum => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        self[datum] = safeData[datum];
+      });
+      if (data.actionPaths) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        self.triggers = [];
+        const pusher = function(
+          this: DataTree,
+          action: any,
+          ...payload: any[]
+        ) {
+          const actionPayload = action(...payload);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+          // @ts-ignore
+          self.triggers.push(actionPayload);
+        };
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        self.actionPaths.forEach(path => {
+          const action = _.get(self, path);
+          const entity = _.get(self, path.split(".")[0]);
+          if (action) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // @ts-ignore
+            _.set(self, path, pusher.bind(data, action.bind(entity)));
+          }
+        });
+      }
+      return eval(script);
+    })();
+    return { result, triggers };
+  } catch (e) {
+    log.debug(`Error: "${e.message}" when evaluating {{${js}}}`);
+    log.debug(e);
+    return { result: undefined, triggers: [] };
+  }
 };
 
 // For creating a final value where bindings could be in a template format
