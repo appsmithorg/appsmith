@@ -3,9 +3,11 @@ import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
 import styled from "styled-components";
 import Sidebar from "components/editorComponents/Sidebar";
-import { Switch } from "react-router";
-import AppRoute from "../common/AppRoute";
+import { Route, Switch } from "react-router";
 import { BUILDER_URL } from "constants/routes";
+
+import * as Sentry from "@sentry/react";
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Container = styled.div`
   display: flex;
@@ -23,13 +25,8 @@ const MainContainer = () => {
       <Sidebar />
       <EditorContainer>
         <Switch>
-          <AppRoute
-            exact
-            path={BUILDER_URL}
-            component={WidgetsEditor}
-            name={"WidgetsEditor"}
-          />
-          <AppRoute component={EditorsRouter} name={"OtherEditors"} />
+          <SentryRoute exact path={BUILDER_URL} component={WidgetsEditor} />
+          <SentryRoute component={EditorsRouter} />
         </Switch>
       </EditorContainer>
     </Container>

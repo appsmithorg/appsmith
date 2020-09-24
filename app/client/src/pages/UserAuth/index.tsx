@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, useRouteMatch, useLocation } from "react-router-dom";
+import { Switch, useRouteMatch, useLocation, Route } from "react-router-dom";
 import Login from "./Login";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { animated, useTransition } from "react-spring";
@@ -7,8 +7,10 @@ import { AuthContainer, AuthCard } from "./StyledComponents";
 import SignUp from "./SignUp";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
-import AppRoute from "pages/common/AppRoute";
 import PageNotFound from "pages/common/PageNotFound";
+import * as Sentry from "@sentry/react";
+const SentryRoute = Sentry.withSentryRouting(Route);
+
 const AnimatedAuthCard = animated(AuthContainer);
 export const UserAuth = () => {
   const { path } = useRouteMatch();
@@ -25,31 +27,19 @@ export const UserAuth = () => {
         <Centered>
           <AuthCard>
             <Switch location={location}>
-              <AppRoute
-                exact
-                path={`${path}/login`}
-                component={Login}
-                name={"Login"}
-              />
-              <AppRoute
-                exact
-                path={`${path}/signup`}
-                component={SignUp}
-                name={"SignUp"}
-              />
-              <AppRoute
+              <SentryRoute exact path={`${path}/login`} component={Login} />
+              <SentryRoute exact path={`${path}/signup`} component={SignUp} />
+              <SentryRoute
                 exact
                 path={`${path}/resetPassword`}
                 component={ResetPassword}
-                name={"ResetPassword"}
               />
-              <AppRoute
+              <SentryRoute
                 exact
                 path={`${path}/forgotPassword`}
                 component={ForgotPassword}
-                name={"ForgotPassword"}
               />
-              <AppRoute component={PageNotFound} name={"PageNotFound"} />
+              <SentryRoute component={PageNotFound} />
             </Switch>
           </AuthCard>
         </Centered>
