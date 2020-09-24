@@ -28,6 +28,9 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { closeAllModals } from "actions/widgetActions";
 import { useDispatch } from "react-redux";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -78,6 +81,7 @@ class EditorsRouter extends React.Component<
   }
 
   handleClose = (e: React.MouseEvent) => {
+    PerformanceTracker.startTracking(PerformanceTransactionName.CLOSE_API);
     e.stopPropagation();
     const { applicationId, pageId } = this.props.match.params;
     this.setState({

@@ -49,6 +49,9 @@ import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -57,7 +60,7 @@ function* syncApiParamsSaga(
   const field = actionPayload.meta.field;
   const value = actionPayload.payload;
   const padQueryParams = { key: "", value: "" };
-
+  PerformanceTracker.startTracking(PerformanceTransactionName.SYNC_PARAMS_SAGA);
   if (field === "actionConfiguration.path") {
     if (value.indexOf("?") > -1) {
       const paramsString = value.substr(value.indexOf("?") + 1);
@@ -122,6 +125,7 @@ function* syncApiParamsSaga(
       ),
     );
   }
+  PerformanceTracker.stopTracking();
 }
 
 function* initializeExtraFormDataSaga() {
@@ -162,6 +166,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   //   // @ts-ignore
   //   document.activeElement.blur();
+  PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
   const { id } = actionPayload.payload;
   const action = yield select(getAction, id);
   if (!action) return;
@@ -187,6 +192,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
       id,
     );
   }
+  PerformanceTracker.stopTracking();
 }
 
 function* updateFormFields(
