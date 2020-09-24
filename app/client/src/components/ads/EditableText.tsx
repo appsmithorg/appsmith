@@ -3,7 +3,7 @@ import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
-import { hexToRgba, Classes, CommonComponentProps } from "./common";
+import { Classes, CommonComponentProps } from "./common";
 import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
 import { getThemeDetails } from "selectors/themeSelectors";
@@ -55,9 +55,9 @@ const editModeBgcolor = (
   theme: any,
 ): string => {
   if ((isInvalid && isEditing) || savingState === SavingState.ERROR) {
-    return hexToRgba(theme.colors.danger.main, 0.08);
+    return theme.colors.editableText.dangerBg;
   } else if (!isInvalid && isEditing) {
-    return theme.colors.blackShades[2];
+    return theme.colors.editableText.bg;
   } else {
     return "transparent";
   }
@@ -89,7 +89,7 @@ const TextContainer = styled.div<{
 
   &&& .bp3-editable-text-content {
     cursor: pointer;
-    color: ${props => props.theme.colors.blackShades[9]};
+    color: ${props => props.theme.colors.editableText.color};
     overflow: hidden;
     text-overflow: ellipsis;
     ${props => (props.isEditing ? "display: none" : "display: block")};
@@ -99,7 +99,7 @@ const TextContainer = styled.div<{
     border: none;
     outline: none;
     height: ${props => props.theme.spaces[13] + 3}px;
-    color: ${props => props.theme.colors.blackShades[9]};
+    color: ${props => props.theme.colors.editableText.color};
     min-width: 100%;
     border-radius: ${props => props.theme.spaces[0]}px;
   }
