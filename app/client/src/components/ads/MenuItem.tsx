@@ -17,8 +17,18 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[6]}px;
+  padding: 0px ${props => props.theme.spaces[6]}px;
+  .${Classes.TEXT} {
+    color: ${props => props.theme.colors.menuItem.normalText};
+  }
+  .${Classes.ICON} {
+    svg {
+      path {
+        fill: ${props => props.theme.colors.menuItem.normalIcon};
+      }
+    }
+  }
+  height: 38px;
 
   ${props =>
     !props.disabled
@@ -26,19 +36,20 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
     &:hover {
       text-decoration: none;
       cursor: pointer;
-      background-color: ${props.theme.colors.blackShades[4]};
+      background-color: ${props.theme.colors.menuItem.hoverBg};
       .${Classes.TEXT} {
-        color: ${props.theme.colors.blackShades[9]};
+        color: ${props.theme.colors.menuItem.hoverText};
       }
       .${Classes.ICON} {
         path {
-          fill: ${props.theme.colors.blackShades[9]};
+          fill: ${props.theme.colors.menuItem.hoverIcon};
         }
       }
     }`
       : `
     &:hover {
-      cursor: not-allowed;
+      text-decoration: none;
+      cursor: default;
     }
     `}
 `;
@@ -68,7 +79,7 @@ function MenuItem(props: MenuItemProps) {
           </Text>
         ) : null}
       </IconContainer>
-      {props.label ? <Text type={TextType.P1}>{props.label}</Text> : null}
+      {props.label ? props.label : null}
     </ItemRow>
   );
 }

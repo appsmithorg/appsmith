@@ -174,8 +174,8 @@ const textIconStyles = (props: { color: string; hover: string }) => {
 const NewWorkspaceWrapper = styled.div`
   ${props => {
     return `${textIconStyles({
-      color: props.theme.colors.blackShades[7],
-      hover: props.theme.colors.blackShades[8],
+      color: props.theme.colors.applications.textColor,
+      hover: props.theme.colors.applications.hover.textColor,
     })}`;
   }}
 `;
@@ -184,7 +184,7 @@ const ApplicationAddCardWrapper = styled(Card)`
   display: flex;
   flex-direction: column;
   // justify-content: center;
-  background: ${props => props.theme.colors.blackShades[2]};
+  background: ${props => props.theme.colors.applications.bg};
   align-items: center;
   width: ${props => props.theme.card.minWidth}px;
   height: ${props => props.theme.card.minHeight}px;
@@ -205,12 +205,12 @@ const ApplicationAddCardWrapper = styled(Card)`
   }
   cursor: pointer;
   &:hover {
-    background: ${props => props.theme.colors.blackShades[4]};
+    background: ${props => props.theme.colors.applications.hover.bg};
   }
   ${props => {
     return `${textIconStyles({
-      color: props.theme.colors.blackShades[7],
-      hover: props.theme.colors.blackShades[8],
+      color: props.theme.colors.applications.textColor,
+      hover: props.theme.colors.applications.hover.textColor,
     })}`;
   }}
 `;
@@ -260,8 +260,8 @@ const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
 cursor: ${props => (!props.disabled ? "pointer" : "inherit")};
 ${props => {
   const color = props.disabled
-    ? props.theme.colors.blackShades[7]
-    : props.theme.colors.blackShades[9];
+    ? props.theme.colors.applications.orgColor
+    : props.theme.colors.applications.hover.orgColor[9];
   return `${textIconStyles({
     color: color,
     hover: color,
@@ -271,6 +271,7 @@ ${props => {
 .${Classes.ICON} {
   display: ${props => (!props.disabled ? "inline" : "none")};;
   margin-left: 8px;
+  color: ${props => props.theme.colors.applications.iconColor};
 }
 `;
 
@@ -405,41 +406,48 @@ const ApplicationsSection = () => {
                 )}
               </OrgDropDown>
               <ApplicationCardsWrapper key={organization.id}>
-                <FormDialogComponent
-                  permissions={organization.userPermissions}
-                  permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
-                  trigger={
-                    <PaddingWrapper>
-                      <ApplicationAddCardWrapper>
-                        <Icon
-                          className="t--create-app-popup"
-                          name={"plus"}
-                          size={IconSize.LARGE}
-                        ></Icon>
-                        <CreateNewLabel
-                          type={TextType.H4}
-                          className="createnew"
-                          // cypressSelector={"t--create-new-app"}
-                        >
-                          Create New
-                        </CreateNewLabel>
-                      </ApplicationAddCardWrapper>
-                    </PaddingWrapper>
-                  }
-                  Form={CreateApplicationForm}
-                  orgId={organization.id}
-                  title={"Create Application"}
-                />
+                {isPermitted(
+                  organization.userPermissions,
+                  PERMISSION_TYPE.CREATE_APPLICATION,
+                ) && (
+                  <PaddingWrapper>
+                    <FormDialogComponent
+                      permissions={organization.userPermissions}
+                      permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
+                      trigger={
+                        <ApplicationAddCardWrapper>
+                          <Icon
+                            className="t--create-app-popup"
+                            name={"plus"}
+                            size={IconSize.LARGE}
+                          ></Icon>
+                          <CreateNewLabel
+                            type={TextType.H4}
+                            className="createnew"
+                            // cypressSelector={"t--create-new-app"}
+                          >
+                            Create New
+                          </CreateNewLabel>
+                        </ApplicationAddCardWrapper>
+                      }
+                      Form={CreateApplicationForm}
+                      orgId={organization.id}
+                      title={"Create Application"}
+                    />
+                  </PaddingWrapper>
+                )}
                 {applications.map((application: any) => {
                   return (
                     application.pages?.length > 0 && (
-                      <ApplicationCard
-                        key={application.id}
-                        application={application}
-                        delete={deleteApplication}
-                        update={updateApplicationDispatch}
-                        duplicate={duplicateApplicationDispatch}
-                      />
+                      <PaddingWrapper>
+                        <ApplicationCard
+                          key={application.id}
+                          application={application}
+                          delete={deleteApplication}
+                          update={updateApplicationDispatch}
+                          duplicate={duplicateApplicationDispatch}
+                        />
+                      </PaddingWrapper>
                     )
                   );
                 })}

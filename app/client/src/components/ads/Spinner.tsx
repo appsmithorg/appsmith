@@ -31,7 +31,7 @@ const SvgContainer = styled.svg<SpinnerProp>`
 `;
 
 const SvgCircle = styled.circle`
-  stroke: ${props => props.theme.colors.blackShades[9]};
+  stroke: ${props => props.theme.colors.spinner};
   stroke-linecap: round;
   animation: ${dash} 1.5s ease-in-out infinite;
   stroke-width: ${props => props.theme.spaces[1]}px;

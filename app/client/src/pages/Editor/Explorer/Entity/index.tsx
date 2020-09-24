@@ -30,7 +30,7 @@ const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${props => props.theme.lineHeights[2]}px;
 `;
 
-const EntityItem = styled.div<{
+export const EntityItem = styled.div<{
   active: boolean;
   step: number;
   spaced: boolean;
