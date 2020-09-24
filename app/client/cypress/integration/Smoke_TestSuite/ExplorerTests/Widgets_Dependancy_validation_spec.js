@@ -5,12 +5,26 @@ const pages = require("../../../locators/Pages.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 
-describe("Binding the Datepicker and Text Widget", function() {
+describe("Binding the multiple input Widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("DatePicker-Text, Validate selectedDate functionality", function() {
+  it("Cyclic depedancy error message validation", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.get(widgetsPage.defaultInput)
+      .type(this.data.command)
+      .type(this.data.defaultMoustacheData);
+    cy.get(commonlocators.editPropCrossButton).click();
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(commonlocators.toastmsg).contains("Cyclic dependency");
+  });
+
+  it("Binding input widget1 and validating", function() {
     cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.defaultInput)
       .type(this.data.command)
@@ -30,7 +44,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     //cy.get(commonlocators.toastmsg).contains("Cyclic dependency")
   });
 
-  it("DatePicker-Text, Validate selectedDate functionality", function() {
+  it("Binding multiple input widgets with 1st input widget", function() {
     cy.SearchEntityandOpen("Input2");
     cy.get(widgetsPage.defaultInput)
       .type(this.data.command)
