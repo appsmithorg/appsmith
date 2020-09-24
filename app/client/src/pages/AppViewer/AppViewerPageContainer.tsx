@@ -17,6 +17,9 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const Section = styled.section`
   background: ${props => props.theme.colors.bodyBG};
@@ -108,11 +111,18 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
-  isFetchingPage: getIsFetchingPage(state),
-  widgets: getCanvasWidgetDsl(state),
-  currentPageName: getCurrentPageName(state),
-});
+const mapStateToProps = (state: AppState) => {
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.GENERATE_VIEW_MODE_PROPS,
+  );
+  const props = {
+    isFetchingPage: getIsFetchingPage(state),
+    widgets: getCanvasWidgetDsl(state),
+    currentPageName: getCurrentPageName(state),
+  };
+  PerformanceTracker.stopTracking();
+  return props;
+};
 
 const mapDispatchToProps = (dispatch: any) => ({
   fetchPage: (pageId: string, bustCache = false) =>

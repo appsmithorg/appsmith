@@ -15,12 +15,14 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import * as log from "loglevel";
 import equal from "fast-deep-equal/es6";
 import WidgetFactory from "utils/WidgetFactory";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { Action } from "entities/Action";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -261,52 +263,57 @@ let dependencyTreeCache: any = {};
 let cachedDataTreeString = "";
 
 export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
-  const totalStart = performance.now();
   // Create Dependencies DAG
-  const createDepsStart = performance.now();
   const dataTreeString = JSON.stringify(dataTree);
   // Stringify before doing a fast equals because the data tree has functions and fast equal will always treat those as changed values
   // Better solve will be to prune functions
-  if (!equal(dataTreeString, cachedDataTreeString)) {
+  const shouldCreateDependencyTree = !equal(
+    dataTreeString,
+    cachedDataTreeString,
+  );
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.CREATE_DEPENDENCIES,
+    { isCacheMiss: shouldCreateDependencyTree },
+  );
+  if (shouldCreateDependencyTree) {
     cachedDataTreeString = dataTreeString;
     dependencyTreeCache = createDependencyTree(dataTree);
   }
-  const createDepsEnd = performance.now();
   const {
     dependencyMap,
     sortedDependencies,
     dependencyTree,
   } = dependencyTreeCache;
-
+  PerformanceTracker.stopTracking();
   // Evaluate Tree
-  const evaluatedTreeStart = performance.now();
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.SORTED_DEPENDENCY_EVALUATION,
+    {
+      dependencies: sortedDependencies,
+      dependencyCount: sortedDependencies.length,
+      dataTreeSize: cachedDataTreeString.length,
+    },
+  );
   const evaluatedTree = dependencySortedEvaluateDataTree(
     dataTree,
     dependencyMap,
     sortedDependencies,
   );
-  const evaluatedTreeEnd = performance.now();
+  PerformanceTracker.stopTracking();
 
   // Set Loading Widgets
-  const loadingTreeStart = performance.now();
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.SET_WIDGET_LOADING,
+  );
   const treeWithLoading = setTreeLoading(evaluatedTree, dependencyTree);
-  const loadingTreeEnd = performance.now();
+  PerformanceTracker.stopTracking();
 
   // Validate Widgets
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.VALIDATE_DATA_TREE,
+  );
   const validated = getValidatedTree(treeWithLoading);
-
-  // End counting total time
-  const endStart = performance.now();
-
-  // Log time taken and count
-  const timeTaken = {
-    total: (endStart - totalStart).toFixed(2),
-    createDeps: (createDepsEnd - createDepsStart).toFixed(2),
-    evaluate: (evaluatedTreeEnd - evaluatedTreeStart).toFixed(2),
-    loading: (loadingTreeEnd - loadingTreeStart).toFixed(2),
-  };
-  log.debug("data tree evaluated");
-  log.debug(timeTaken);
+  PerformanceTracker.stopTracking();
   // dataTreeCache = validated;
   return validated;
 }
@@ -572,7 +579,6 @@ function evaluateDynamicProperty(
   if (isCacheHit && cacheObj) {
     return cacheObj.evaluated;
   } else {
-    log.debug("eval " + propertyPath);
     const dynamicResult = getDynamicValue(unEvalPropertyValue, currentTree);
     dynamicPropValueCache.set(propertyPath, {
       evaluated: dynamicResult.result,
