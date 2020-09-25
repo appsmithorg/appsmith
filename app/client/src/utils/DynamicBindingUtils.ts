@@ -660,6 +660,7 @@ export function dependencySortedEvaluateDataTree(
   try {
     return sortedDependencies.reduce(
       (currentTree: DataTree, propertyPath: string) => {
+        // PerformanceTracker.startTracking(PerformanceTransactionName.EVALUATE_BINDING, { binding: propertyPath }, true)
         const entityName = propertyPath.split(".")[0];
         const entity: DataTreeEntity = currentTree[entityName];
         const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
@@ -719,10 +720,13 @@ export function dependencySortedEvaluateDataTree(
                 widgetEntity,
               );
             }
+            // PerformanceTracker.stopTracking();
             return _.set(currentTree, propertyPath, parsedValue);
           }
+          // PerformanceTracker.stopTracking();
           return _.set(currentTree, propertyPath, evalPropertyValue);
         } else {
+          // PerformanceTracker.stopTracking();
           return _.set(currentTree, propertyPath, evalPropertyValue);
         }
       },
