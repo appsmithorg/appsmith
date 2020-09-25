@@ -48,8 +48,9 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
       onStart: true,
-      onPause: true,
       onEnd: true,
+      onPlay: true,
+      onPause: true,
     };
   }
 

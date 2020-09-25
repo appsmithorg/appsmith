@@ -171,7 +171,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             isJSConvertible: true,
           },
           {
-            id: "17.2.3",
+            id: "17.2.4",
             helpText: "Triggers an action when the video is paused",
             propertyName: "onPause",
             label: "onPause",
