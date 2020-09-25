@@ -11,6 +11,7 @@ import { fetchEditorConfigs } from "actions/configsActions";
 import {
   fetchPage,
   fetchPageList,
+  fetchPageListViewMode,
   setAppMode,
   updateAppStore,
 } from "actions/pageActions";
@@ -151,13 +152,13 @@ export function* initializeAppViewerSaga(
   const { applicationId } = action.payload;
   yield all([
     put(fetchActionsForView(applicationId)),
-    put(fetchPageList(applicationId)),
+    put(fetchPageListViewMode(applicationId)),
     put(fetchApplicationForViewMode(applicationId)),
   ]);
 
   yield all([
     take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
-    take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
+    take(ReduxActionTypes.FETCH_PAGE_LIST_VIEW_SUCCESS),
     take(ReduxActionTypes.FETCH_APPLICATION_VIEW_SUCCESS),
   ]);
 

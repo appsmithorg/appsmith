@@ -24,6 +24,17 @@ export const fetchPageList = (
   };
 };
 
+export const fetchPageListViewMode = (
+  applicationId: string,
+): ReduxAction<FetchPageListPayload> => {
+  return {
+    type: ReduxActionTypes.FETCH_PAGE_LIST_VIEW_INIT,
+    payload: {
+      applicationId,
+    },
+  };
+};
+
 export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,

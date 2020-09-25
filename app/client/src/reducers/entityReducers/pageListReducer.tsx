@@ -10,7 +10,11 @@ const initialState: PageListReduxState = {
   pages: [],
 };
 
-const pageListReducer = createReducer(initialState, {
+const initialStateViewMode: PageListViewModeReduxState = {
+  pages: [],
+};
+
+export const pageListReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_PAGE_INIT]: (
     state: PageListReduxState,
     action: ReduxAction<{ id: string }>,
@@ -104,6 +108,100 @@ const pageListReducer = createReducer(initialState, {
   },
 });
 
+export const pageListViewModeReducer = createReducer(initialStateViewMode, {
+  [ReduxActionTypes.DELETE_PAGE_INIT]: (
+    state: PageListViewModeReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    if (state.defaultPageId !== action.payload.id) {
+      const pages = [
+        ...state.pages.filter(page => page.pageId !== action.payload.id),
+      ];
+      return {
+        ...state,
+        pages,
+      };
+    }
+    return state;
+  },
+  [ReduxActionTypes.FETCH_PAGE_LIST_VIEW_SUCCESS]: (
+    state: PageListViewModeReduxState,
+    action: ReduxAction<{ pages: PageListPayload; applicationId: string }>,
+  ) => {
+    return {
+      ...state,
+      ...action.payload,
+      defaultPageId:
+        action.payload.pages.find(page => page.isDefault)?.pageId ||
+        action.payload.pages[0].pageId,
+    };
+  },
+  [ReduxActionTypes.CREATE_PAGE_SUCCESS]: (
+    state: PageListViewModeReduxState,
+    action: ReduxAction<{
+      pageName: string;
+      pageId: string;
+      layoutId: string;
+      isDefault: boolean;
+    }>,
+  ) => {
+    const _state = state;
+    _state.pages = state.pages.map(page => ({ ...page, latest: false }));
+    _state.pages.push({ ...action.payload, latest: true });
+    return { ..._state };
+  },
+  [ReduxActionTypes.CLONE_PAGE_SUCCESS]: (
+    state: PageListViewModeReduxState,
+    action: ReduxAction<ClonePageSuccessPayload>,
+  ): PageListViewModeReduxState => {
+    return {
+      ...state,
+      pages: state.pages
+        .map(page => ({ ...page, latest: false }))
+        .concat([{ ...action.payload, latest: true }]),
+    };
+  },
+  [ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS]: (
+    state: PageListViewModeReduxState,
+    action: ReduxAction<{ pageId: string; applicationId: string }>,
+  ) => {
+    if (
+      state.applicationId === action.payload.applicationId &&
+      state.defaultPageId !== action.payload.pageId
+    ) {
+      const pageList = state.pages.map(page => {
+        if (page.pageId === state.defaultPageId) page.isDefault = false;
+        if (page.pageId === action.payload.pageId) page.isDefault = true;
+        return page;
+      });
+      return {
+        ...state,
+        pages: pageList,
+        defaultPageId: action.payload.pageId,
+      };
+    }
+    return state;
+  },
+  [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: (
+    state: PageListViewModeReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    currentPageId: action.payload.id,
+  }),
+  [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
+    state: PageListViewModeReduxState,
+    action: ReduxAction<{ id: string; name: string }>,
+  ) => {
+    const pages = [...state.pages];
+    const updatedPage = pages.find(page => page.pageId === action.payload.id);
+    if (updatedPage) {
+      updatedPage.pageName = action.payload.name;
+    }
+    return { ...state, pages };
+  },
+});
+
 export interface PageListReduxState {
   pages: PageListPayload;
   applicationId?: string;
@@ -111,4 +209,11 @@ export interface PageListReduxState {
   currentPageId?: string;
 }
 
-export default pageListReducer;
+export interface PageListViewModeReduxState {
+  pages: PageListPayload;
+  applicationId?: string;
+  defaultPageId?: string;
+  currentPageId?: string;
+}
+
+// export default pageListReducer;
