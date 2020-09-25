@@ -52,14 +52,14 @@ const boxStyles = (
   isValid: boolean,
   theme: any,
 ): boxReturnType => {
-  let bgColor = theme.colors.blackShades[0];
-  let color = theme.colors.blackShades[9];
-  let borderColor = theme.colors.blackShades[0];
+  let bgColor = theme.colors.textInput.normal.bg;
+  let color = theme.colors.textInput.normal.text;
+  let borderColor = theme.colors.textInput.normal.border;
 
   if (props.disabled) {
-    bgColor = theme.colors.blackShades[2];
-    color = theme.colors.blackShades[6];
-    borderColor = theme.colors.blackShades[2];
+    bgColor = theme.colors.textInput.disable.bg;
+    color = theme.colors.textInput.disable.text;
+    borderColor = theme.colors.textInput.disable.border;
   }
   if (!isValid) {
     bgColor = hexToRgba(theme.colors.danger.main, 0.1);
@@ -83,7 +83,7 @@ const StyledInput = styled.input<
   color: ${props => props.inputStyle.color};
 
   &::placeholder {
-    color: ${props => props.theme.colors.blackShades[5]};
+    color: ${props => props.theme.colors.textInput.placeholder};
   }
   &:focus {
     border: 1px solid

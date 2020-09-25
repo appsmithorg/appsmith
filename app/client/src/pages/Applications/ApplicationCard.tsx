@@ -40,6 +40,7 @@ import { getThemeDetails } from "selectors/themeSelectors";
 import { useSelector } from "react-redux";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import { getIsSavingAppName } from "selectors/applicationSelectors";
+import { Classes as CsClasses } from "components/ads/common";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -57,7 +58,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     props.showOverlay &&
     `
       {
-        background-color: ${props.theme.colors.blackShades[4]};
+        background-color: ${props.theme.colors.card.hoverBorder}};
         justify-content: center;
         align-items: center;
 
@@ -124,6 +125,14 @@ const Wrapper = styled(
   }
   .bp3-card {
     border-radius: 0;
+  }
+  .${CsClasses.APP_ICON} {
+    margin: 0 auto;
+    svg {
+      path {
+        fill: #fff;
+      }
+    }
   }
 `;
 
@@ -193,13 +202,16 @@ const ContextDropdownWrapper = styled.div`
   position: absolute;
   top: -6px;
   right: -3px;
-`;
 
-const StyledAppIcon = styled(AppIcon)`
-  margin: 0 auto;
-  svg {
-    path {
-      fill: #fff;
+  .${Classes.POPOVER_TARGET} {
+    span {
+      background: ${props => props.theme.colors.card.targetBg};
+
+      svg {
+        path {
+          fill: ${props => props.theme.colors.card.iconColor};
+        }
+      }
     }
   }
 `;
@@ -379,7 +391,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         hasReadPermission={hasReadPermission}
         backgroundColor={colorCode}
       >
-        <StyledAppIcon size={Size.large} name={appIcon} />
+        <AppIcon size={Size.large} name={appIcon} />
         {/* <Initials>{initials}</Initials> */}
         {showOverlay && (
           <div className="overlay">

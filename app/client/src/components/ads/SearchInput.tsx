@@ -41,10 +41,10 @@ const StyledInput = styled.input<
   letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
   text-overflow: ellipsis;
 
-  color: ${props => props.theme.colors.blackShades[9]};
+  color: ${props => props.theme.colors.searchInput.text};
 
   &::placeholder {
-    color: ${props => props.theme.colors.blackShades[5]};
+    color: ${props => props.theme.colors.searchInput.placeholder};
   }
 `;
 
@@ -61,12 +61,14 @@ const InputWrapper = styled.div<{
     ${props => props.theme.spaces[6]}px;
   width: ${props => (props.fill ? "100%" : "210px")};
   background-color: ${props =>
-    props.variant === SearchVariant.SEAMLESS ? "transparent" : "#262626"};
+    props.variant === SearchVariant.SEAMLESS
+      ? "transparent"
+      : props.theme.colors.searchInput.bg};
   ${props =>
     props.variant === SearchVariant.BACKGROUND
       ? props.isFocused || props.value
         ? `box-shadow: 0px 1px 0px ${props.theme.colors.info.main}`
-        : `box-shadow: 0px 1px 0px ${props.theme.colors.blackShades[4]}`
+        : `box-shadow: 0px 1px 0px ${props.theme.colors.searchInput.border}`
       : null}
 `;
 
@@ -82,8 +84,8 @@ const SearchIcon = styled.div<{
       circle {
         stroke: ${props =>
           props.isFocused || props.value
-            ? props.theme.colors.blackShades[7]
-            : props.theme.colors.blackShades[5]};
+            ? props.theme.colors.searchInput.icon.focused
+            : props.theme.colors.searchInput.icon.normal};
       }
     }
   }

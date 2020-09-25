@@ -114,6 +114,7 @@ public class MySqlPluginTest {
                         ")");
 
                 statement.execute("alter table possessions add foreign key (username, email) references users (username, email)");
+                statement.execute("SET SESSION sql_mode = '';\n");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -121,7 +122,7 @@ public class MySqlPluginTest {
                         "INSERT INTO users VALUES (" +
                                 "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018," +
                                 " '18:32:45'," +
-                                " '2018-11-30 20:45:15', '2018-11-30 20:45:15'" +
+                                " '2018-11-30 20:45:15', '0000-00-00 00:00:00'" +
                                 ")");
             }
 
@@ -308,7 +309,7 @@ public class MySqlPluginTest {
                     assertEquals("2018", node.get("yob").asText());
                     assertTrue(node.get("time1").asText().matches("\\d{2}:\\d{2}:\\d{2}"));
                     assertTrue(node.get("created_on").asText().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
-                    assertTrue(node.get("updated_on").asText().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
+                    assertTrue(node.get("updated_on").isNull());
 
                     assertArrayEquals(
                             new String[]{

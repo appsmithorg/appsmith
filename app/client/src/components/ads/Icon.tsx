@@ -101,7 +101,7 @@ const IconWrapper = styled.span<IconProps>`
     width: ${props => sizeHandler(props.size)}px;
     height: ${props => sizeHandler(props.size)}px;
     path {
-      fill: ${props => props.theme.colors.blackShades[6]};
+      fill: ${props => props.theme.colors.icon.normal};
     }
   }
   visibility: ${props => (props.invisible ? "hidden" : "visible")};
@@ -109,14 +109,14 @@ const IconWrapper = styled.span<IconProps>`
   &:hover {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.blackShades[8]};
+      fill: ${props => props.theme.colors.icon.hover};
     }
   }
 
   &:active {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.icon.active};
     }
   }
 `;
