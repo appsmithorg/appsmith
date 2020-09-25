@@ -286,6 +286,9 @@ export function* executeActionSaga(
   event: ExecuteActionPayloadEvent,
 ) {
   const { actionId, onSuccess, onError, params } = apiAction;
+  PerformanceTracker.startTracking(PerformanceTransactionName.EXECUTE_ACTION, {
+    actionId: actionId,
+  });
   try {
     const api: RestAction = yield select(getAction, actionId);
 
@@ -329,6 +332,10 @@ export function* executeActionSaga(
       }),
     );
     if (isErrorResponse(response)) {
+      PerformanceTracker.stopTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        { failed: true },
+      );
       if (onError) {
         yield put(
           executeAction({
@@ -351,6 +358,9 @@ export function* executeActionSaga(
         type: "error",
       });
     } else {
+      PerformanceTracker.stopTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+      );
       if (onSuccess) {
         yield put(
           executeAction({
@@ -582,6 +592,9 @@ function* confirmRunActionSaga() {
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
+  PerformanceTracker.startTracking(PerformanceTransactionName.EXECUTE_ACTION, {
+    actionId: pageAction.id,
+  });
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
@@ -603,8 +616,12 @@ function* executePageLoadAction(pageAction: PageAction) {
         isPageLoad: true,
       }),
     );
+    PerformanceTracker.stopTracking(PerformanceTransactionName.EXECUTE_ACTION, {
+      failed: true,
+    });
   } else {
     const payload = createActionExecutionResponse(response);
+    PerformanceTracker.stopTracking(PerformanceTransactionName.EXECUTE_ACTION);
     yield put(
       executeApiActionSuccess({
         id: pageAction.id,
