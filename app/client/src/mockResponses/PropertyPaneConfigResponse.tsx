@@ -164,6 +164,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           },
           {
             id: "17.2.3",
+            helpText: "Triggers an action when the video is played",
+            propertyName: "onPlay",
+            label: "onPlay",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            id: "17.2.3",
             helpText: "Triggers an action when the video is paused",
             propertyName: "onPause",
             label: "onPause",

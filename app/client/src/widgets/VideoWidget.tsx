@@ -58,7 +58,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { url, autoPlay, onStart, onEnd, onPause } = this.props;
+    const { url, autoPlay, onStart, onEnd, onPause, onPlay } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
         <VideoComponent
@@ -79,6 +79,14 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           }}
           onPlay={() => {
             this.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+            if (onPlay) {
+              super.executeAction({
+                dynamicString: onPlay,
+                event: {
+                  type: EventType.ON_VIDEO_PLAY,
+                },
+              });
+            }
           }}
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
@@ -118,6 +126,7 @@ export interface VideoWidgetProps extends WidgetProps {
   autoPlay: boolean;
   onStart?: string;
   onPause?: string;
+  onPlay?: string;
   onEnd?: string;
 }
 
