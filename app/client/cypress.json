@@ -3,8 +3,7 @@
   "defaultCommandTimeout": 20000,
   "requestTimeout": 21000,
   "pageLoadTimeout": 20000,
-  "video": true,
-  "videoUploadOnPasses": false,
+  "video": false,
   "reporter": "mochawesome",
   "reporterOptions": {
     "reportDir": "results",
