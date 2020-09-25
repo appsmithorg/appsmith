@@ -36,6 +36,7 @@ const FIELD_VALUES: Record<
   VIDEO_WIDGET: {
     url: "string",
     autoPlay: "boolean",
+    isVisible: "boolean",
   },
   IMAGE_WIDGET: {
     image: "string",
