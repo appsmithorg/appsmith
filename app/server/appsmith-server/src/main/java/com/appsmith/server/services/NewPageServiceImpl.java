@@ -165,9 +165,6 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
      *                                 return actionRepository.archive(action);
      *                             }).collectList();
      *
-     * TODO : During publish, if a page is deleted in published mode as well, archive the page completely (instead of just
-     * published mode) and then archive all the actions associated with this page.
-     *
      * @param id The pageId which needs to be archived.
      * @return
      */
