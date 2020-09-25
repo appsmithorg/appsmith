@@ -71,6 +71,9 @@ type Props = ReduxActionProps &
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount() {
+    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
+      actionType: "API",
+    });
     this.props.changeAPIPage(this.props.match.params.apiId);
   }
   handleDeleteClick = () => {

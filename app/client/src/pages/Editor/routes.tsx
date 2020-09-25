@@ -88,7 +88,10 @@ class EditorsRouter extends React.Component<
   }
 
   handleClose = (e: React.MouseEvent) => {
-    PerformanceTracker.startTracking(PerformanceTransactionName.CLOSE_API);
+    PerformanceTracker.startTracking(
+      PerformanceTransactionName.CLOSE_SIDE_PANE,
+      { path: this.props.location.pathname },
+    );
     e.stopPropagation();
     const { applicationId, pageId } = this.props.match.params;
     this.setState({

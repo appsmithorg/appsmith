@@ -70,6 +70,9 @@ type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
 class QueryEditor extends React.Component<Props> {
   componentDidMount() {
     this.props.changeQueryPage(this.props.match.params.queryId);
+    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
+      actionType: "QUERY",
+    });
   }
   handleDeleteClick = () => {
     const { queryId } = this.props.match.params;
