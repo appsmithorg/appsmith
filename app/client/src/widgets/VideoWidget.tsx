@@ -57,7 +57,6 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     console.log({ url });
     return (
       <Suspense fallback={<Skeleton />}>
-        {/* <VideoComponent url="https://videowidget.s3.ap-south-1.amazonaws.com/Drone+Footage+of+a+Town.mp4"></VideoComponent> */}
         {<VideoComponent url={url}></VideoComponent>}
       </Suspense>
     );
