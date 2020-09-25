@@ -158,6 +158,7 @@ export function* initializeAppViewerSaga(
   yield all([
     take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
+    take(ReduxActionTypes.FETCH_APPLICATION_VIEW_SUCCESS),
   ]);
 
   yield put(setAppMode(APP_MODE.PUBLISHED));

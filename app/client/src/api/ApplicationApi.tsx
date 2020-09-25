@@ -120,7 +120,7 @@ class ApplicationApi extends Api {
   static fetchApplicationForViewMode(
     applicationId: string,
   ): AxiosPromise<FetchApplicationsResponse> {
-    return Api.get(`${ApplicationApi.baseURL}view`, { applicationId });
+    return Api.get(ApplicationApi.baseURL + "view/", { applicationId });
   }
 
   static createApplication(

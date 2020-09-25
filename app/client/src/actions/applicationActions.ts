@@ -30,7 +30,7 @@ export const fetchApplication = (applicationId: string) => {
 
 export const fetchApplicationForViewMode = (applicationId: string) => {
   return {
-    type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+    type: ReduxActionTypes.FETCH_APPLICATION_VIEW_INIT,
     payload: {
       applicationId,
     },
