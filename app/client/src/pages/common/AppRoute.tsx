@@ -1,6 +1,5 @@
 import React from "react";
 import { Route, RouteComponentProps } from "react-router-dom";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as Sentry from "@sentry/react";
 import { connect } from "react-redux";
 import { getThemeDetails } from "selectors/themeSelectors";
