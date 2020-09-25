@@ -457,7 +457,7 @@ const lightShades = [
   "#FFFFFF",
 ] as const;
 
-type ColorPalette = typeof darkShades[number] | typeof lightShades[number];
+type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
 
 type buttonVariant = {
   main: string;
@@ -469,7 +469,7 @@ type buttonVariant = {
 
 type ColorType = {
   button: {
-    disabledText: ColorPalette;
+    disabledText: ShadeColor;
   };
   tertiary: buttonVariant;
   info: buttonVariant;
@@ -480,161 +480,161 @@ type ColorType = {
   card: {
     hoverBG: Color;
     hoverBGOpacity: number;
-    hoverBorder: ColorPalette;
+    hoverBorder: ShadeColor;
     targetBg: string;
-    iconColor: ColorPalette;
+    iconColor: ShadeColor;
   };
   appCardColors: string[];
   text: {
-    normal: ColorPalette;
-    heading: ColorPalette;
-    hightlight: ColorPalette;
+    normal: ShadeColor;
+    heading: ShadeColor;
+    hightlight: ShadeColor;
   };
   icon: {
-    normal: ColorPalette;
-    hover: ColorPalette;
-    active: ColorPalette;
+    normal: ShadeColor;
+    hover: ShadeColor;
+    active: ShadeColor;
   };
   appIcon: {
-    normal: ColorPalette;
-    background: ColorPalette;
+    normal: ShadeColor;
+    background: ShadeColor;
   };
   menu: {
-    background: ColorPalette;
+    background: ShadeColor;
     shadow: string;
   };
   menuItem: {
-    normalText: ColorPalette;
-    normalIcon: ColorPalette;
-    hoverIcon: ColorPalette;
-    hoverText: ColorPalette;
-    hoverBg: ColorPalette;
+    normalText: ShadeColor;
+    normalIcon: ShadeColor;
+    hoverIcon: ShadeColor;
+    hoverText: ShadeColor;
+    hoverBg: ShadeColor;
   };
   colorSelector: {
-    shadow: ColorPalette;
-    checkmark: ColorPalette;
+    shadow: ShadeColor;
+    checkmark: ShadeColor;
   };
   checkbox: {
-    disabled: ColorPalette;
-    unchecked: ColorPalette;
-    disabledCheck: ColorPalette;
-    normalCheck: ColorPalette;
-    labelColor: ColorPalette;
+    disabled: ShadeColor;
+    unchecked: ShadeColor;
+    disabledCheck: ShadeColor;
+    normalCheck: ShadeColor;
+    labelColor: ShadeColor;
   };
   dropdown: {
     header: {
-      text: ColorPalette;
-      disabled: ColorPalette;
-      bg: ColorPalette;
-      disabledBg: ColorPalette;
+      text: ShadeColor;
+      disabled: ShadeColor;
+      bg: ShadeColor;
+      disabledBg: ShadeColor;
     };
-    menuBg: ColorPalette;
+    menuBg: ShadeColor;
     menuShadow: string;
     selected: {
-      text: ColorPalette;
-      bg: ColorPalette;
-      icon: ColorPalette;
+      text: ShadeColor;
+      bg: ShadeColor;
+      icon: ShadeColor;
     };
-    icon: ColorPalette;
+    icon: ShadeColor;
   };
   toggle: {
-    bg: ColorPalette;
+    bg: ShadeColor;
     hover: {
       on: string;
       off: string;
     };
     disable: {
       on: string;
-      off: ColorPalette;
+      off: ShadeColor;
     };
     disabledSlider: {
-      on: ColorPalette;
-      off: ColorPalette;
+      on: ShadeColor;
+      off: ShadeColor;
     };
-    spinner: ColorPalette;
+    spinner: ShadeColor;
   };
   textInput: {
     disable: {
-      bg: ColorPalette;
-      text: ColorPalette;
-      border: ColorPalette;
+      bg: ShadeColor;
+      text: ShadeColor;
+      border: ShadeColor;
     };
     normal: {
-      bg: ColorPalette;
-      text: ColorPalette;
-      border: ColorPalette;
+      bg: ShadeColor;
+      text: ShadeColor;
+      border: ShadeColor;
     };
-    placeholder: ColorPalette;
+    placeholder: ShadeColor;
   };
-  menuBorder: ColorPalette;
+  menuBorder: ShadeColor;
   editableText: {
-    color: ColorPalette;
-    bg: ColorPalette;
+    color: ShadeColor;
+    bg: ShadeColor;
     dangerBg: string;
   };
   radio: {
-    disable: ColorPalette;
-    border: ColorPalette;
+    disable: ShadeColor;
+    border: ShadeColor;
   };
   searchInput: {
-    placeholder: ColorPalette;
-    text: ColorPalette;
-    border: ColorPalette;
-    bg: ColorPalette;
+    placeholder: ShadeColor;
+    text: ShadeColor;
+    border: ShadeColor;
+    bg: ShadeColor;
     icon: {
-      focused: ColorPalette;
-      normal: ColorPalette;
+      focused: ShadeColor;
+      normal: ShadeColor;
     };
   };
-  spinner: ColorPalette;
+  spinner: ShadeColor;
   tableDropdown: {
-    bg: ColorPalette;
-    selectedBg: ColorPalette;
-    selectedText: ColorPalette;
+    bg: ShadeColor;
+    selectedBg: ShadeColor;
+    selectedText: ShadeColor;
     shadow: string;
   };
   tabs: {
-    normal: ColorPalette;
-    hover: ColorPalette;
-    border: ColorPalette;
+    normal: ShadeColor;
+    hover: ShadeColor;
+    border: ShadeColor;
   };
-  settingHeading: ColorPalette;
+  settingHeading: ShadeColor;
   table: {
-    headerBg: ColorPalette;
-    headerText: ColorPalette;
-    rowData: ColorPalette;
-    rowTitle: ColorPalette;
-    border: ColorPalette;
+    headerBg: ShadeColor;
+    headerText: ShadeColor;
+    rowData: ShadeColor;
+    rowTitle: ShadeColor;
+    border: ShadeColor;
     hover: {
-      headerColor: ColorPalette;
-      rowBg: ColorPalette;
-      rowTitle: ColorPalette;
-      rowData: ColorPalette;
+      headerColor: ShadeColor;
+      rowBg: ShadeColor;
+      rowTitle: ShadeColor;
+      rowData: ShadeColor;
     };
   };
   applications: {
-    bg: ColorPalette;
-    textColor: ColorPalette;
-    orgColor: ColorPalette;
-    iconColor: ColorPalette;
+    bg: ShadeColor;
+    textColor: ShadeColor;
+    orgColor: ShadeColor;
+    iconColor: ShadeColor;
     hover: {
-      bg: ColorPalette;
-      textColor: ColorPalette;
-      orgColor: ColorPalette;
+      bg: ShadeColor;
+      textColor: ShadeColor;
+      orgColor: ShadeColor;
     };
   };
   switch: {
-    border: ColorPalette;
-    bg: ColorPalette;
+    border: ShadeColor;
+    bg: ShadeColor;
     hover: {
-      bg: ColorPalette;
+      bg: ShadeColor;
     };
-    lightText: ColorPalette;
-    darkText: ColorPalette;
+    lightText: ShadeColor;
+    darkText: ShadeColor;
   };
   queryTemplate: {
-    bg: ColorPalette;
-    color: ColorPalette;
+    bg: ShadeColor;
+    color: ShadeColor;
   };
 };
 
