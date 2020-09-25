@@ -50,10 +50,9 @@ public class PageController extends BaseController<PageService, Page, String> {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @Deprecated
     @GetMapping("/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId) {
-        return service.findNamesByApplicationId(applicationId)
+        return newPageService.findNamesByApplicationIdAndViewMode(applicationId, false)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
@@ -158,10 +159,6 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         Mono<Application> applicationMono = findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)));
 
-        /**
-         * TODO : Archive the pages that have been deleted in the unpublished mode
-         */
-
         return applicationMono
                 //Return all the pages in the Application
                 .flatMap(application -> {
@@ -169,8 +166,42 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     if (pages == null) {
                         pages = new ArrayList<>();
                     }
+
+                    // This is the time to delete any page which was deleted in edit mode but still exists in the published mode
+                    List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    if (publishedPages == null) {
+                        publishedPages = new ArrayList<>();
+                    }
+                    Set<String> publishedPageIds = publishedPages.stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toSet());
+                    Set<String> editedPageIds = pages.stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toSet());
+
+                    /**
+                     * Now add the published page ids and edited page ids into a single set and then remove the edited
+                     * page ids to get a set of page ids which have been deleted in the edit mode.
+                     * For example :
+                     * Published page ids : [ A, B, C ]
+                     * Edited Page ids : [ B, C, D ] aka A has been deleted and D has been added
+                     * Step 1. Add both the ids into a single set : [ A, B, C, D]
+                     * Step 2. Remove Edited Page Ids : [ A ]
+                     * Result : Page A which has been deleted in the edit mode
+                     */
+                    publishedPageIds.addAll(editedPageIds);
+                    publishedPageIds.removeAll(editedPageIds);
+
+                    Mono<List<Boolean>> archivePageListMono;
+                    if (!publishedPageIds.isEmpty()) {
+                        archivePageListMono = Flux.fromStream(publishedPageIds.stream())
+                                .flatMap(id -> newPageRepository.archiveById(id))
+                                .collectList();
+                    } else {
+                        archivePageListMono = Mono.just(new ArrayList<>());
+                    }
+
                     application.setPublishedPages(pages);
-                    return repository.save(application)
+
+                    // Archive the deleted pages and save the application changes and then return the pages so that
+                    // the pages can also be published
+                    return Mono.zip(archivePageListMono, repository.save(application))
                             .thenReturn(pages);
                 })
                 .flatMapMany(Flux::fromIterable)

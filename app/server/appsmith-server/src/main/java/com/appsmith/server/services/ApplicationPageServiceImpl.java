@@ -138,19 +138,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Page> getPage(String pageId, boolean viewMode) {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return newPageService.findPageById(pageId, permission, viewMode)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
-                /**
-                 * TODO : Remove the following code snippet because view mode is now handled at page level instead of layout level.
-                 */
-                .map(page -> {
-                    List<Layout> layoutList = page.getLayouts();
-                    // Set the view mode for all the layouts in the page. This ensures that we send the correct DSL
-                    // back to the client
-                    layoutList.stream()
-                            .forEach(layout -> layout.setViewMode(viewMode));
-                    page.setLayouts(layoutList);
-                    return page;
-                });
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
     }
 
     @Override
