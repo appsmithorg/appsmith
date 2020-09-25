@@ -176,18 +176,21 @@ export const EditableText = (props: EditableTextProps) => {
     [props],
   );
 
-  const onConfirm = (_value: string) => {
-    if (savingState === SavingState.ERROR || isInvalid) {
-      setValue(lastValidValue);
-      props.onBlur(lastValidValue);
-      setSavingState(SavingState.NOT_STARTED);
-    } else if (changeStarted) {
-      props.onTextChanged(_value);
-      props.onBlur(_value);
-    }
-    setIsEditing(false);
-    setChangeStarted(false);
-  };
+  const onConfirm = useCallback(
+    (_value: string) => {
+      if (savingState === SavingState.ERROR || isInvalid) {
+        setValue(lastValidValue);
+        props.onBlur(lastValidValue);
+        setSavingState(SavingState.NOT_STARTED);
+      } else if (changeStarted) {
+        props.onTextChanged(_value);
+        props.onBlur(_value);
+      }
+      setIsEditing(false);
+      setChangeStarted(false);
+    },
+    [changeStarted, lastValidValue, props.onBlur, props.onTextChanged],
+  );
 
   const onInputchange = useCallback(
     (_value: string) => {
@@ -202,7 +205,7 @@ export const EditableText = (props: EditableTextProps) => {
       setIsInvalid(error);
       setChangeStarted(true);
     },
-    [props],
+    [props.isInvalid],
   );
 
   const iconName =
