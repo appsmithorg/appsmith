@@ -4,7 +4,27 @@ import {
   PopoverInteractionKind,
   PopoverPosition,
 } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 import VideoComponent, { VideoComponentProps } from "./VideoComponent";
+import styled, { AnyStyledComponent } from "styled-components";
+import { ControlIcons } from "icons/ControlIcons";
+const PlayIcon = styled(ControlIcons.PLAY_VIDEO as AnyStyledComponent)`
+  position: relative;
+  top: 10px;
+  cursor: pointer;
+  &:hover {
+    svg {
+      path {
+        fill: ${Colors.POMEGRANATE};
+      }
+    }
+  }
+`;
+
+const PlayerWrapper = styled.div`	import React, { Ref } from "react";
+  width: 600px;	
+  height: 400px;	
+`;
 
 const PopoverVideo = (props: VideoComponentProps) => {
   return (
@@ -32,7 +52,10 @@ const PopoverVideo = (props: VideoComponentProps) => {
           },
         }}
       >
-        <VideoComponent url={props.url}></VideoComponent>
+        <PlayIcon></PlayIcon>
+        <PlayerWrapper>
+          <VideoComponent url={props.url} />
+        </PlayerWrapper>
       </Popover>
     </div>
   );

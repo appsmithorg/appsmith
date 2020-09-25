@@ -1,21 +1,5 @@
-import { ControlIcons } from "icons/ControlIcons";
-import styled, { AnyStyledComponent } from "styled-components";
-import { Colors } from "constants/Colors";
 import ReactPlayer from "react-player";
 import React, { Ref } from "react";
-
-const PlayIcon = styled(ControlIcons.PLAY_VIDEO as AnyStyledComponent)`
-  position: relative;
-  top: 10px;
-  &:hover {
-    svg {
-      path {
-        fill: ${Colors.POMEGRANATE};
-      }
-    }
-  }
-`;
-
 export interface VideoComponentProps {
   url: string;
   autoplay?: boolean;
