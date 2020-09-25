@@ -98,6 +98,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 7,
       widgetName: "Video",
       url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+      autoPlay: false,
     },
     TABLE_WIDGET: {
       rows: 7,

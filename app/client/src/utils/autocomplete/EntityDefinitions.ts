@@ -69,16 +69,10 @@ export const entityDefinitions = {
   }),
   VIDEO_WIDGET: (widget: any) => ({
     "!doc":
-      "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
-    "!url": "https://docs.appsmith.com/widget-reference/table",
-    selectedRow: generateTypeDef(widget.selectedRow),
-    selectedRows: generateTypeDef(widget.selectedRows),
-    selectedRowIndex: "number",
-    tableData: generateTypeDef(widget.tableData),
-    pageNo: "number",
-    pageSize: "number",
-    isVisible: isVisible,
-    searchText: "string",
+      "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
+    "!url": "https://docs.appsmith.com/widget-reference/video",
+    playState: "number",
+    autoPlay: "bool",
   }),
   DROP_DOWN_WIDGET: {
     "!doc":

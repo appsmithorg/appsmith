@@ -3,27 +3,31 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { RenderModes } from "constants/WidgetConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
 } from "utils/ValidationFactory";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
-import moment from "moment";
-import { isString, isNumber, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
-import VideoComponent from "components/designSystems/appsmith/VideoComponent";
+import ReactPlayer from "react-player";
 
-// const ReactTableComponent = lazy(() =>
-//     retryPromise(() =>
-//         import("components/designSystems/appsmith/VideoComponent"),
-//     ),
-// );
+const VideoComponent = lazy(() =>
+  retryPromise(() =>
+    import("components/designSystems/appsmith/VideoComponent"),
+  ),
+);
+
+export enum PlayState {
+  NOT_STARTED = "NOT_STARTED",
+  PAUSED = "PAUSED",
+  ENDED = "ENDED",
+  PLAYING = "PLAYING",
+}
 
 class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
+  private _player = React.createRef<ReactPlayer>();
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -32,7 +36,9 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    return {};
+    return {
+      playState: PlayState.NOT_STARTED,
+    };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -41,10 +47,9 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
-      // onRowSelected: true,
-      // onPageChange: true,
-      // onSearchTextChanged: true,
-      // columnActions: true,
+      onStart: true,
+      onPause: true,
+      onEnd: true,
     };
   }
 
@@ -53,11 +58,52 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { url } = this.props;
-    console.log({ url });
+    const { url, autoPlay, onStart, onEnd, onPause } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
-        {<VideoComponent url={url}></VideoComponent>}
+        <VideoComponent
+          player={this._player}
+          url={url}
+          autoplay={autoPlay}
+          controls={true}
+          onStart={() => {
+            this.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+            if (onStart) {
+              super.executeAction({
+                dynamicString: onStart,
+                event: {
+                  type: EventType.ON_VIDEO_START,
+                },
+              });
+            }
+          }}
+          onPlay={() => {
+            this.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+          }}
+          onPause={() => {
+            //TODO: We do not want the pause event for onSeek or onEnd.
+            this.updateWidgetMetaProperty("playState", PlayState.PAUSED);
+            if (onPause) {
+              super.executeAction({
+                dynamicString: onPause,
+                event: {
+                  type: EventType.ON_VIDEO_PAUSE,
+                },
+              });
+            }
+          }}
+          onEnded={() => {
+            this.updateWidgetMetaProperty("playState", PlayState.ENDED);
+            if (onEnd) {
+              super.executeAction({
+                dynamicString: onEnd,
+                event: {
+                  type: EventType.ON_VIDEO_END,
+                },
+              });
+            }
+          }}
+        />
       </Suspense>
     );
   }
@@ -69,6 +115,10 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 
 export interface VideoWidgetProps extends WidgetProps {
   url: string;
+  autoPlay: boolean;
+  onStart?: string;
+  onPause?: string;
+  onEnd?: string;
 }
 
 export default VideoWidget;
