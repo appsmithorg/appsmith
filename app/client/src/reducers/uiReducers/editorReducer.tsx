@@ -8,6 +8,11 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import moment from "moment";
+import { ExecuteErrorPayload, PageAction } from "constants/ActionConstants";
+import { ActionResponse } from "api/ActionAPI";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const initialState: EditorReduxState = {
   initialized: false,
@@ -26,6 +31,7 @@ const initialState: EditorReduxState = {
     cloningPageError: false,
     updatingWidgetName: false,
     updateWidgetNameError: false,
+    actionsExecuting: 0,
   },
 };
 
@@ -66,9 +72,14 @@ const editorReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.INITIALIZE_EDITOR_ERROR]: (
     state: EditorReduxState,
   ) => {
-    state.loadingStates.loading = false;
-    state.loadingStates.loadingError = true;
-    return { ...state };
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        loading: false,
+        loadingError: true,
+      },
+    };
   },
   [ReduxActionTypes.PUBLISH_APPLICATION_INIT]: (state: EditorReduxState) => {
     state.loadingStates.publishing = true;
@@ -169,6 +180,72 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.updateWidgetNameError = true;
     return { ...state };
   },
+  [ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS]: (
+    state: EditorReduxState,
+    action: ReduxAction<{
+      id: string;
+      response: ActionResponse;
+      isPageLoad: boolean;
+    }>,
+  ) => {
+    if (action.payload.isPageLoad) {
+      const actionsExecuting = state.loadingStates.actionsExecuting - 1;
+      if (actionsExecuting === 0) {
+        PerformanceTracker.stopTracking(
+          PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+          { isEditor: true },
+        );
+      }
+      return {
+        ...state,
+        loadingStates: {
+          ...state.loadingStates,
+          actionsExecuting: actionsExecuting,
+        },
+      };
+    } else {
+      return state;
+    }
+  },
+  [ReduxActionErrorTypes.EXECUTE_ACTION_ERROR]: (
+    state: EditorReduxState,
+    action: ReduxAction<ExecuteErrorPayload>,
+  ) => {
+    if (action.payload.isPageLoad) {
+      const actionsExecuting = state.loadingStates.actionsExecuting - 1;
+      if (actionsExecuting === 0) {
+        PerformanceTracker.stopTracking(
+          PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+          { isEditor: true },
+        );
+      }
+      return {
+        ...state,
+        loadingStates: {
+          ...state.loadingStates,
+          actionsExecuting: actionsExecuting,
+        },
+      };
+    } else {
+      return state;
+    }
+  },
+  [ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS]: (
+    state: EditorReduxState,
+    action: ReduxAction<PageAction[][]>,
+  ) => {
+    let actionsExecuting = 0;
+    action.payload.forEach(actions => {
+      actionsExecuting += actions.length;
+    });
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        actionsExecuting: actionsExecuting,
+      },
+    };
+  },
 });
 
 export interface EditorReduxState {
@@ -194,6 +271,7 @@ export interface EditorReduxState {
     cloningPageError: boolean;
     updatingWidgetName: boolean;
     updateWidgetNameError: boolean;
+    actionsExecuting: 0;
   };
 }
 

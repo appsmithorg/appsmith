@@ -192,6 +192,7 @@ export const executeApiActionRequest = (payload: { id: string }) => ({
 export const executeApiActionSuccess = (payload: {
   id: string;
   response: ActionResponse;
+  isPageLoad?: boolean;
 }) => ({
   type: ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   payload: payload,

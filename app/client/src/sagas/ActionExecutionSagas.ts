@@ -77,6 +77,9 @@ import { updateAppStore } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -592,12 +595,12 @@ function* executePageLoadAction(pageAction: PageAction) {
     executeActionRequest,
     pageAction.timeoutInMillisecond,
   );
-
   if (isErrorResponse(response)) {
     yield put(
       executeActionError({
         actionId: pageAction.id,
         error: response.responseMeta.error,
+        isPageLoad: true,
       }),
     );
   } else {
@@ -606,6 +609,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       executeApiActionSuccess({
         id: pageAction.id,
         response: payload,
+        isPageLoad: true,
       }),
     );
   }
@@ -613,9 +617,15 @@ function* executePageLoadAction(pageAction: PageAction) {
 
 function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+    { numActions: action.payload.length },
+  );
   for (const actionSet of pageActions) {
     // Load all sets in parallel
-    yield* yield all(actionSet.map(a => call(executePageLoadAction, a)));
+    yield* yield all(
+      actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
+    );
   }
 }
 

@@ -36,6 +36,8 @@ export enum PerformanceTransactionName {
   GENERATE_API_PROPS = "GENERATE_API_PROPS",
   CHANGE_API_SAGA = "CHANGE_API_SAGA",
   SYNC_PARAMS_SAGA = "SYNC_PARAMS_SAGA",
+  RUN_API_CLICK = "RUN_API_CLICK",
+  RUN_QUERY_CLICK = "RUN_QUERY_CLICK",
 }
 
 export enum PerformanceTagNames {
@@ -117,8 +119,8 @@ class PerformanceTracker {
   };
 
   static stopTracking = (
-    data?: any,
     eventName?: PerformanceTransactionName,
+    data?: any,
   ) => {
     if (eventName) {
       const index = _.findLastIndex(
@@ -128,9 +130,13 @@ class PerformanceTracker {
         },
       );
       if (index !== -1) {
-        for (let i = PerformanceTracker.perfLogQueue.length - 1; i >= 0; i--) {
-          const perfLog = PerformanceTracker.perfLogQueue[i];
-          if (i >= index) {
+        for (
+          let i = PerformanceTracker.perfLogQueue.length - 1;
+          i >= index;
+          i--
+        ) {
+          const perfLog = PerformanceTracker.perfLogQueue.pop();
+          if (perfLog) {
             const currentSpan = perfLog.sentrySpan;
             currentSpan.finish();
             if (!perfLog?.skipLog) {
@@ -143,9 +149,6 @@ class PerformanceTracker {
             }
           }
         }
-        PerformanceTracker.perfLogQueue = PerformanceTracker.perfLogQueue.splice(
-          index,
-        );
       }
     } else {
       const perfLog = PerformanceTracker.perfLogQueue.pop();
