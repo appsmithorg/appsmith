@@ -637,6 +637,9 @@ type ColorType = {
     bg: ColorPalette;
     color: ColorPalette;
   };
+  profileDropdown: {
+    userName: ColorPalette;
+  };
 };
 
 export const dark: ColorType = {
@@ -849,6 +852,9 @@ export const dark: ColorType = {
     bg: darkShades[3],
     color: darkShades[7],
   },
+  profileDropdown: {
+    userName: darkShades[9],
+  },
 };
 
 export const light: ColorType = {
@@ -1060,6 +1066,9 @@ export const light: ColorType = {
   queryTemplate: {
     bg: lightShades[3],
     color: lightShades[7],
+  },
+  profileDropdown: {
+    userName: lightShades[9],
   },
 };
 
