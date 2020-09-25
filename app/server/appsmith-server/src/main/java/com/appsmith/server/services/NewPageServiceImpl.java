@@ -182,9 +182,17 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                                 application.getPages().removeIf(p -> p.getId().equals(page.getId()));
                                 return applicationService.save(application);
                             });
-                    PageDTO unpublishedPage = page.getUnpublishedPage();
-                    unpublishedPage.setDeletedAt(Instant.now());
-                    Mono<Page> archivedPageMono = repository.save(page)
+                    Mono<NewPage> newPageMono;
+                    if (page.getPublishedPage() != null) {
+                        PageDTO unpublishedPage = page.getUnpublishedPage();
+                        unpublishedPage.setDeletedAt(Instant.now());
+                        newPageMono = repository.save(page);
+                    } else {
+                        // This page was never published. This can be safely archived.
+                        newPageMono = repository.archive(page);
+                    }
+
+                    Mono<Page> archivedPageMono = newPageMono
                             .map(newPage -> getPageByViewMode(newPage, false));
 
                     /**
