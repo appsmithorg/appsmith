@@ -27,8 +27,8 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
     ${props => props.theme.spaces[6]}px;
   background: ${props =>
     props.disabled
-      ? props.theme.colors.blackShades[2]
-      : props.theme.colors.blackShades[0]};
+      ? props.theme.colors.dropdown.header.disabledText
+      : props.theme.colors.dropdown.header.disabledBg};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -47,15 +47,15 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   .${Classes.TEXT} {
     ${props =>
       props.disabled
-        ? `color: ${props.theme.colors.blackShades[6]}`
-        : `color: ${props.theme.colors.blackShades[7]}`};
+        ? `color: ${props.theme.colors.dropdown.text}`
+        : `color: ${props.theme.colors.dropdown.disabledText}`};
   }
 `;
 
 const DropdownWrapper = styled.div`
   margin-top: ${props => props.theme.spaces[2] - 1}px;
-  background: ${props => props.theme.colors.blackShades[3]};
-  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.6);
+  background: ${props => props.theme.colors.dropdown.menuBg};
+  box-shadow: 0px 12px 28px ${props => props.theme.colors.dropdown.menuShadow};
   width: 100%;
 `;
 
@@ -66,10 +66,14 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
   ${props =>
-    props.selected ? `background: ${props.theme.colors.blackShades[4]}` : null};
+    props.selected
+      ? `background: ${props.theme.colors.dropdown.selected.bg}`
+      : null};
   .${Classes.TEXT} {
     ${props =>
-      props.selected ? `color: ${props.theme.colors.blackShades[9]}` : null};
+      props.selected
+        ? `color: ${props.theme.colors.dropdown.selected.text}`
+        : null};
   }
   .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[5]}px;
@@ -77,20 +81,20 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
       path {
         ${props =>
           props.selected
-            ? `fill: ${props.theme.colors.blackShades[8]}`
-            : `fill: ${props.theme.colors.blackShades[6]}`};
+            ? `fill: ${props.theme.colors.dropdown.selected.icon}`
+            : `fill: ${props.theme.colors.dropdown.icon}`};
       }
     }
   }
 
   &:hover {
     .${Classes.TEXT} {
-      color: ${props => props.theme.colors.blackShades[9]};
+      color: ${props => props.theme.colors.dropdown.selected.text};
     }
     .${Classes.ICON} {
       svg {
         path {
-          fill: ${props => props.theme.colors.blackShades[8]};
+          fill: ${props => props.theme.colors.dropdown.selected.icon};
         }
       }
     }
@@ -100,7 +104,7 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
 const LabelWrapper = styled.div<{ label?: string }>`
   display: flex;
   flex-direction: column;
-  align-item: flex-start;
+  align-items: flex-start;
 
   ${props =>
     props.label

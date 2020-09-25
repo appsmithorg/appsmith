@@ -1,4 +1,4 @@
-import React, { useRef, MutableRefObject, useCallback } from "react";
+import React, { useRef, MutableRefObject, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import {
@@ -18,6 +18,9 @@ import history from "utils/history";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "./helpers";
 import JSDependencies from "./JSDependencies";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -40,7 +43,10 @@ const EntityExplorer = (props: IPanelProps) => {
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
-
+  PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);
+  useEffect(() => {
+    PerformanceTracker.stopTracking();
+  });
   const explorerRef = useRef<HTMLDivElement | null>(null);
   const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
   const datasources = useFilteredDatasources(searchKeyword);

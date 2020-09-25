@@ -18,6 +18,9 @@ import { getCanvasClassName } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import { useParams } from "react-router";
 import { fetchPage } from "actions/pageActions";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -46,6 +49,7 @@ const CanvasContainer = styled.section`
 
 /* eslint-disable react/display-name */
 const WidgetsEditor = () => {
+  PerformanceTracker.startTracking(PerformanceTransactionName.EDITOR_MOUNT);
   const { focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
@@ -54,6 +58,11 @@ const WidgetsEditor = () => {
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
+
+  useEffect(() => {
+    PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
+    PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_API);
+  });
 
   // Switch page
   useEffect(() => {

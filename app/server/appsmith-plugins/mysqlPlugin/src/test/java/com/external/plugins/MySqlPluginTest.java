@@ -6,10 +6,12 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.log4j.Log4j;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -43,6 +45,14 @@ public class MySqlPluginTest {
             .withUsername("mysql")
             .withPassword("password")
             .withDatabaseName("test_db");
+
+    @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
+    @ClassRule
+    public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer()
+            .withUsername("mysql")
+            .withPassword("password")
+            .withDatabaseName("test_db")
+            .withEnv("TZ", "PDT");
 
     String address;
     Integer port;
@@ -104,6 +114,7 @@ public class MySqlPluginTest {
                         ")");
 
                 statement.execute("alter table possessions add foreign key (username, email) references users (username, email)");
+                statement.execute("SET SESSION sql_mode = '';\n");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -111,7 +122,7 @@ public class MySqlPluginTest {
                         "INSERT INTO users VALUES (" +
                                 "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018," +
                                 " '18:32:45'," +
-                                " '2018-11-30 20:45:15', '2018-11-30 20:45:15'" +
+                                " '2018-11-30 20:45:15', '0000-00-00 00:00:00'" +
                                 ")");
             }
 
@@ -152,10 +163,33 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(connection -> {
-                    java.sql.Connection conn = (Connection) connection;
-                    assertNotNull(conn);
-                })
+                .assertNext(Assert::assertNotNull)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testConnectMySQLContainerWithInvalidTimezone() {
+        AuthenticationDTO authDTO = new AuthenticationDTO();
+        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
+        authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
+        authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(mySQLContainerWithInvalidTimezone.getContainerIpAddress());
+        endpoint.setPort(mySQLContainerWithInvalidTimezone.getFirstMappedPort().longValue());
+
+        final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(authDTO);
+        dsConfig.setEndpoints(List.of(endpoint));
+        dsConfig.setProperties(List.of(
+                new Property("serverTimezone", "UTC")
+        ));
+
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(Assert::assertNotNull)
                 .verifyComplete();
     }
 
@@ -216,10 +250,9 @@ public class MySqlPluginTest {
 
         StepVerifier.create(connectionMono)
                 .assertNext(connection -> {
-                    java.sql.Connection conn = (Connection) connection;
-                    pluginExecutor.datasourceDestroy(conn);
+                    pluginExecutor.datasourceDestroy(connection);
                     try {
-                        assertEquals(conn.isClosed(), true);
+                        assertTrue(connection.isClosed());
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -276,7 +309,7 @@ public class MySqlPluginTest {
                     assertEquals("2018", node.get("yob").asText());
                     assertTrue(node.get("time1").asText().matches("\\d{2}:\\d{2}:\\d{2}"));
                     assertTrue(node.get("created_on").asText().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
-                    assertTrue(node.get("updated_on").asText().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
+                    assertTrue(node.get("updated_on").isNull());
 
                     assertArrayEquals(
                             new String[]{

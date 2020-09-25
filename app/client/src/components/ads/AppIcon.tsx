@@ -14,7 +14,7 @@ import { ReactComponent as FlightIcon } from "assets/icons/ads/flight.svg";
 
 import styled from "styled-components";
 import { Size } from "./Button";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, Classes } from "./common";
 
 export const AppIconCollection = [
   "bag",
@@ -72,7 +72,7 @@ const IconWrapper = styled.a<AppIconProps & { styledProps: cssAttributes }>`
     width: ${props => props.styledProps.width}px;
     height: ${props => props.styledProps.height}px;
     path {
-      fill: ${props => props.theme.colors.blackShades[7]};
+      fill: ${props => props.theme.colors.appIcon.normal};
     }
   }
 `;
@@ -133,6 +133,7 @@ const AppIcon = (props: AppIconProps) => {
     <IconWrapper
       data-cy={props.cypressSelector}
       {...props}
+      className={Classes.APP_ICON}
       styledProps={styledProps}
     >
       {returnIcon}
