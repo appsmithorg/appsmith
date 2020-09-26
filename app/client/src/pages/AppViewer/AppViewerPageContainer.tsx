@@ -17,9 +17,6 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 
 const Section = styled.section`
   background: ${props => props.theme.colors.bodyBG};

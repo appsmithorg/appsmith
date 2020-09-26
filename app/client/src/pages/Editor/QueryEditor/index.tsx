@@ -12,7 +12,6 @@ import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin } from "api/PluginApi";
 import { Datasource } from "api/DatasourcesApi";
-import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
 import {
   getPluginIdsOfPackageNames,
   getPlugins,
