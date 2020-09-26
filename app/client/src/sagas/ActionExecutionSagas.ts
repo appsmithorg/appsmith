@@ -653,9 +653,10 @@ function* executePageLoadAction(pageAction: PageAction) {
 
 function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
+  const actionCount = _.flatten(pageActions).length;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-    { numActions: action.payload.length },
+    { numActions: actionCount },
   );
   for (const actionSet of pageActions) {
     // Load all sets in parallel
@@ -663,6 +664,9 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
       actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
     );
   }
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+  );
 }
 
 export function* watchActionExecutionSagas() {
