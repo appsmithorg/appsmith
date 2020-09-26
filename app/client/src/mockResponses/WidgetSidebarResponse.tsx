@@ -75,6 +75,11 @@ const WidgetSidebarResponse: {
       key: generateReactKey(),
     },
     {
+      type: "VIDEO_WIDGET",
+      widgetCardName: "Video",
+      key: generateReactKey(),
+    },
+    {
       type: "MAP_WIDGET",
       widgetCardName: "Map",
       key: generateReactKey(),
