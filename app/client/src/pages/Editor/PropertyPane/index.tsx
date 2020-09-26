@@ -175,11 +175,20 @@ class PropertyPane extends Component<
     }
   };
 
+  componentDidMount() {
+    PerformanceTracker.stopTracking(
+      PerformanceTransactionName.OPEN_PROPERTY_PANE,
+    );
+  }
+
   componentDidUpdate(prevProps: PropertyPaneProps & PropertyPaneFunctions) {
     if (
       this.props.widgetId !== prevProps.widgetId &&
       this.props.widgetId !== undefined
     ) {
+      PerformanceTracker.stopTracking(
+        PerformanceTransactionName.OPEN_PROPERTY_PANE,
+      );
       if (prevProps.widgetId && prevProps.widgetProperties) {
         AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
           widgetType: prevProps.widgetProperties.type,

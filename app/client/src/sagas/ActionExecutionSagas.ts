@@ -605,6 +605,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       actionId: pageAction.id,
     },
     pageAction.id,
+    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
   );
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(

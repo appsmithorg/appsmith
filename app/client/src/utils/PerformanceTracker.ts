@@ -2,7 +2,6 @@ import * as Sentry from "@sentry/react";
 import { Span, SpanStatus } from "@sentry/tracing";
 import _ from "lodash";
 import * as log from "loglevel";
-const uuid = require("uuid");
 
 export enum PerformanceTransactionName {
   DEPLOY_APPLICATION = "DEPLOY_APPLICATION",
@@ -32,7 +31,8 @@ export enum PerformanceTransactionName {
   FETCH_PAGE_ACTIONS_API = "FETCH_PAGE_ACTIONS_API",
   FETCH_PAGE_API = "FETCH_PAGE_API",
   SAVE_PAGE_API = "SAVE_PAGE_API",
-  UPDATE_ACTION_API = "FETCH_PAGE_ACTIONS_API",
+  UPDATE_ACTION_API = "UPDATE_ACTION_API",
+  OPEN_PROPERTY_PANE = "OPEN_PROPERTY_PANE",
   REFACTOR_ACTION_NAME = "REFACTOR_ACTION_NAME",
 }
 
@@ -170,6 +170,7 @@ class PerformanceTracker {
     eventName: PerformanceTransactionName,
     data?: any,
     uniqueId?: string,
+    parentEventId?: string,
     skipLog = false,
   ) => {
     if (!skipLog) {
@@ -180,13 +181,28 @@ class PerformanceTracker {
           " Track Transaction ",
       );
     }
-    const newTransaction = Sentry.startTransaction({ name: eventName });
-    newTransaction.setData("startData", data);
-    PerformanceTracker.perfAsyncMap.set(uniqueId ? uniqueId : eventName, {
-      sentrySpan: newTransaction,
-      eventName: eventName,
-      skipLog: skipLog,
-    });
+    if (!parentEventId) {
+      const newTransaction = Sentry.startTransaction({ name: eventName });
+      newTransaction.setData("startData", data);
+      PerformanceTracker.perfAsyncMap.set(uniqueId ? uniqueId : eventName, {
+        sentrySpan: newTransaction,
+        eventName: eventName,
+        skipLog: skipLog,
+      });
+    } else {
+      const perfLog = PerformanceTracker.perfAsyncMap.get(parentEventId);
+      const childSpan = perfLog?.sentrySpan.startChild({
+        op: eventName,
+        data: data,
+      });
+      if (childSpan) {
+        PerformanceTracker.perfAsyncMap.set(uniqueId ? uniqueId : eventName, {
+          sentrySpan: childSpan,
+          eventName: eventName,
+          skipLog: skipLog,
+        });
+      }
+    }
   };
 
   static stopAsyncTracking(
