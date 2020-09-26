@@ -664,7 +664,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
       actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
     );
   }
-  PerformanceTracker.startAsyncTracking(
+  PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
   );
 }
