@@ -98,7 +98,7 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
 
 export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
   const { applicationId } = action.payload;
-  PerformanceTracker.startTracking(
+  PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
   );
@@ -112,7 +112,7 @@ export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
         type: ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
         payload: response.data,
       });
-      PerformanceTracker.stopTracking(
+      PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_ACTIONS_API,
       );
     }
@@ -121,7 +121,7 @@ export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
       type: ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
       payload: { error },
     });
-    PerformanceTracker.stopTracking(
+    PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.FETCH_ACTIONS_API,
       { failed: true },
     );
@@ -132,7 +132,7 @@ export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
   const { applicationId } = action.payload;
-  PerformanceTracker.startTracking(
+  PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
   );
@@ -146,7 +146,7 @@ export function* fetchActionsForViewModeSaga(
         type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
         payload: response.data,
       });
-      PerformanceTracker.stopTracking(
+      PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_ACTIONS_API,
       );
     }
@@ -155,7 +155,7 @@ export function* fetchActionsForViewModeSaga(
       type: ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
       payload: { error },
     });
-    PerformanceTracker.stopTracking(
+    PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.FETCH_ACTIONS_API,
       { failed: true },
     );
@@ -166,7 +166,7 @@ export function* fetchActionsForPageSaga(
   action: ReduxAction<{ pageId: string }>,
 ) {
   const { pageId } = action.payload;
-  PerformanceTracker.startTracking(
+  PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
     { pageId: pageId },
   );
@@ -178,12 +178,15 @@ export function* fetchActionsForPageSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(fetchActionsForPageSuccess(response.data));
-      PerformanceTracker.stopTracking(
+      PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
-        { failed: true },
       );
     }
   } catch (error) {
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
+      { failed: true },
+    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACTIONS_FOR_PAGE_ERROR,
       payload: { error },
@@ -193,7 +196,7 @@ export function* fetchActionsForPageSaga(
 
 export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
-    PerformanceTracker.startTracking(
+    PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.UPDATE_ACTION_API,
       { actionid: actionPayload.payload.id },
     );
@@ -230,13 +233,13 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
           pageName: pageName,
         });
       }
-      PerformanceTracker.stopTracking(
+      PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.UPDATE_ACTION_API,
       );
       yield put(updateActionSuccess({ data: response.data }));
     }
   } catch (error) {
-    PerformanceTracker.stopTracking(
+    PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.UPDATE_ACTION_API,
       { failed: true },
     );
@@ -393,7 +396,7 @@ export function* refactorActionName(
   newName: string,
 ) {
   // fetch page of the action
-  PerformanceTracker.startTracking(
+  PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.REFACTOR_ACTION_NAME,
     { actionId: id },
   );
@@ -417,7 +420,7 @@ export function* refactorActionName(
 
     const currentPageId = yield select(getCurrentPageId);
 
-    PerformanceTracker.stopTracking(
+    PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.REFACTOR_ACTION_NAME,
       { isSuccess: isRefactorSuccessful },
     );

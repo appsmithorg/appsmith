@@ -2,16 +2,10 @@ import * as Sentry from "@sentry/react";
 import { Span, SpanStatus } from "@sentry/tracing";
 import _ from "lodash";
 import * as log from "loglevel";
+const uuid = require("uuid");
 
 export enum PerformanceTransactionName {
   DEPLOY_APPLICATION = "DEPLOY_APPLICATION",
-  RUN_ACTION = "RUN_ACTION",
-  PAGE_SWITCH_EDIT = "PAGE_SWITCH_EDIT",
-  PAGE_SWITCH_VIEW = "PAGE_SWITCH_VIEW",
-  CREATE_ACTION = "CREATE_ACTION",
-  CURL_IMPORT = "CURL_IMPORT",
-  EXECUTE_WIDGET_ACTION = "EXECUTE_WIDGET_ACTION",
-  RUN_ACTION_WAIT_FOR_SAVE = "RUN_ACTION_WAIT_FOR_SAVE",
   DATA_TREE_EVALUATION = "DATA_TREE_EVALUATION",
   CONSTRUCT_UNEVAL_TREE = "CONSTRUCT_UNEVAL_TREE",
   CONSTRUCT_CANVAS_DSL = "CONSTRUCT_CANVAS_DSL",
@@ -20,12 +14,7 @@ export enum PerformanceTransactionName {
   SET_WIDGET_LOADING = "SET_WIDGET_LOADING",
   VALIDATE_DATA_TREE = "VALIDATE_DATA_TREE",
   EXECUTE_PAGE_LOAD_ACTIONS = "EXECUTE_PAGE_LOAD_ACTIONS",
-  SAVE_PAGE_LAYOUT = "SAVE_PAGE_LAYOUT",
-  SAVE_ACTION = "SAVE_ACTION",
   EVALUATE_BINDING = "EVALUATE_BINDING",
-  GENERATE_PROPERTY_PANE_PROPS = "GENERATE_PROPERTY_PANE_PROPS",
-  GENERATE_VIEW_MODE_PROPS = "GENERATE_VIEW_MODE_PROPS",
-  GENERATE_WIDGET_EDITOR_PROPS = "GENERATE_WIDGET_EDITOR_PROPS",
   ENTITY_EXPLORER_ENTITY = "ENTITY_EXPLORER_ENTITY",
   ENTITY_EXPLORER = "ENTITY_EXPLORER",
   CLOSE_SIDE_PANE = "CLOSE_SIDE_PANE",
@@ -34,7 +23,6 @@ export enum PerformanceTransactionName {
   SIDE_BAR_MOUNT = "SIDE_BAR_MOUNT",
   CANVAS_MOUNT = "CANVAS_MOUNT",
   EXECUTE_ACTION = "EXECUTE_ACTION",
-  GENERATE_API_PROPS = "GENERATE_API_PROPS",
   CHANGE_API_SAGA = "CHANGE_API_SAGA",
   SYNC_PARAMS_SAGA = "SYNC_PARAMS_SAGA",
   RUN_API_CLICK = "RUN_API_CLICK",
@@ -63,6 +51,7 @@ export interface PerfLog {
 
 class PerformanceTracker {
   private static perfLogQueue: PerfLog[] = [];
+  private static perfAsyncMap: Map<string, PerfLog> = new Map();
 
   static startTracking = (
     eventName: PerformanceTransactionName,
@@ -94,6 +83,7 @@ class PerformanceTracker {
         );
       }
       const newTransaction = Sentry.startTransaction({ name: eventName });
+      newTransaction.setData("startData", data);
       Sentry.getCurrentHub().configureScope(scope =>
         scope.setSpan(newTransaction),
       );
@@ -176,6 +166,53 @@ class PerformanceTracker {
     }
   };
 
+  static startAsyncTracking = (
+    eventName: PerformanceTransactionName,
+    data?: any,
+    uniqueId?: string,
+    skipLog = false,
+  ) => {
+    if (!skipLog) {
+      log.debug(
+        "Async " +
+          PerformanceTracker.generateSpaces(0) +
+          eventName +
+          " Track Transaction ",
+      );
+    }
+    const newTransaction = Sentry.startTransaction({ name: eventName });
+    newTransaction.setData("startData", data);
+    PerformanceTracker.perfAsyncMap.set(uniqueId ? uniqueId : eventName, {
+      sentrySpan: newTransaction,
+      eventName: eventName,
+      skipLog: skipLog,
+    });
+  };
+
+  static stopAsyncTracking(
+    eventName: PerformanceTransactionName,
+    data?: any,
+    uniqueId?: string,
+  ) {
+    const perfLog = PerformanceTracker.perfAsyncMap.get(
+      uniqueId ? uniqueId : eventName,
+    );
+    if (perfLog) {
+      const currentSpan = perfLog.sentrySpan;
+      currentSpan.setData("endData", data);
+      currentSpan.finish();
+      if (!perfLog?.skipLog) {
+        PerformanceTracker.printDuration(
+          perfLog.eventName,
+          0,
+          currentSpan.startTimestamp,
+          currentSpan.endTimestamp,
+          true,
+        );
+      }
+    }
+  }
+
   static generateSpaces(num: number) {
     let str = "";
     for (let i = 0; i < num; i++) {
@@ -189,10 +226,18 @@ class PerformanceTracker {
     level: number,
     startTime: number,
     endTime?: number,
+    isAsync?: boolean,
   ) {
     const duration = ((endTime || 0) - startTime) * 1000;
     const spaces = PerformanceTracker.generateSpaces(level);
-    log.debug(spaces + eventName + " Finish Tracking in " + duration + "ms");
+    log.debug(
+      (isAsync ? "Async " : "") +
+        spaces +
+        eventName +
+        " Finish Tracking in " +
+        duration +
+        "ms",
+    );
   }
 }
 

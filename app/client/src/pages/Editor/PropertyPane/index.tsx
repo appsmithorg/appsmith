@@ -227,16 +227,12 @@ class PropertyPane extends Component<
 }
 
 const mapStateToProps = (state: AppState): PropertyPaneProps => {
-  PerformanceTracker.startTracking(
-    PerformanceTransactionName.GENERATE_PROPERTY_PANE_PROPS,
-  );
   const props = {
     propertySections: getPropertyConfig(state),
     widgetId: getCurrentWidgetId(state),
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
   };
-  PerformanceTracker.stopTracking();
   return props;
 };
 

@@ -226,9 +226,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
   const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
-  PerformanceTracker.startTracking(
-    PerformanceTransactionName.GENERATE_API_PROPS,
-  );
   const apiEditorState = {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
@@ -244,7 +241,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
   };
-  PerformanceTracker.stopTracking();
   return apiEditorState;
 };
 

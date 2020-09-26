@@ -55,7 +55,7 @@ const appViewReducer = createReducer(initialState, {
       let actionsExecuting = state.actionsExecuting - 1;
       if (actionsExecuting <= 0) {
         actionsExecuting = 0;
-        PerformanceTracker.stopTracking(
+        PerformanceTracker.stopAsyncTracking(
           PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
           { isAppViewer: true },
         );
@@ -76,7 +76,7 @@ const appViewReducer = createReducer(initialState, {
       let actionsExecuting = state.actionsExecuting - 1;
       if (actionsExecuting <= 0) {
         actionsExecuting = 0;
-        PerformanceTracker.stopTracking(
+        PerformanceTracker.stopAsyncTracking(
           PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
           { isAppViewer: true },
         );

@@ -190,8 +190,9 @@ const editorReducer = createReducer(initialState, {
   ) => {
     if (action.payload.isPageLoad) {
       const actionsExecuting = state.loadingStates.actionsExecuting - 1;
+      console.log("Async API " + actionsExecuting);
       if (actionsExecuting === 0) {
-        PerformanceTracker.stopTracking(
+        PerformanceTracker.stopAsyncTracking(
           PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
           { isEditor: true },
         );
@@ -213,8 +214,9 @@ const editorReducer = createReducer(initialState, {
   ) => {
     if (action.payload.isPageLoad) {
       const actionsExecuting = state.loadingStates.actionsExecuting - 1;
+      console.log("Async API error " + actionsExecuting);
       if (actionsExecuting === 0) {
-        PerformanceTracker.stopTracking(
+        PerformanceTracker.stopAsyncTracking(
           PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
           { isEditor: true },
         );

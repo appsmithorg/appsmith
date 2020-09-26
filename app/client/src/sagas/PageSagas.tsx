@@ -82,7 +82,7 @@ const getWidgetName = (state: AppState, widgetId: string) =>
 export function* fetchPageListSaga(
   fetchPageListAction: ReduxAction<FetchPageListPayload>,
 ) {
-  PerformanceTracker.startTracking(
+  PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_PAGE_LIST_API,
   );
   try {
@@ -112,12 +112,12 @@ export function* fetchPageListSaga(
           applicationId,
         },
       });
-      PerformanceTracker.stopTracking(
+      PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_LIST_API,
       );
     }
   } catch (error) {
-    PerformanceTracker.stopTracking(
+    PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_LIST_API,
       { failed: true },
     );
@@ -152,7 +152,7 @@ export function* fetchPageSaga(
 ) {
   try {
     const { id } = pageRequestAction.payload;
-    PerformanceTracker.startTracking(
+    PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
     );
@@ -184,15 +184,18 @@ export function* fetchPageSaga(
           dsl: extractCurrentDSL(fetchPageResponse),
         },
       });
-      PerformanceTracker.stopTracking(
+      PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
     }
   } catch (error) {
     console.log(error);
-    PerformanceTracker.stopTracking(PerformanceTransactionName.FETCH_PAGE_API, {
-      failed: true,
-    });
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_API,
+      {
+        failed: true,
+      },
+    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_PAGE_ERROR,
       payload: {
@@ -207,7 +210,7 @@ export function* fetchPublishedPageSaga(
 ) {
   try {
     const { pageId, bustCache } = pageRequestAction.payload;
-    PerformanceTracker.startTracking(
+    PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: pageId, published: true },
     );
@@ -240,15 +243,18 @@ export function* fetchPublishedPageSaga(
         }),
       );
       // Execute page load actions
-      PerformanceTracker.stopTracking(
+      PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }
   } catch (error) {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.FETCH_PAGE_API, {
-      failed: true,
-    });
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_API,
+      {
+        failed: true,
+      },
+    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
       payload: {
@@ -275,9 +281,12 @@ function* savePageSaga() {
   const widgets = yield select(getWidgets);
   const editorConfigs = yield select(getEditorConfigs) as any;
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
-  PerformanceTracker.startTracking(PerformanceTransactionName.SAVE_PAGE_API, {
-    pageId: savePageRequest.pageId,
-  });
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.SAVE_PAGE_API,
+    {
+      pageId: savePageRequest.pageId,
+    },
+  );
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
@@ -302,12 +311,17 @@ function* savePageSaga() {
         }
       }
       yield put(savePageSuccess(savePageResponse));
-      PerformanceTracker.stopTracking(PerformanceTransactionName.SAVE_PAGE_API);
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.SAVE_PAGE_API,
+      );
     }
   } catch (error) {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.SAVE_PAGE_API, {
-      failed: true,
-    });
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.SAVE_PAGE_API,
+      {
+        failed: true,
+      },
+    );
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {

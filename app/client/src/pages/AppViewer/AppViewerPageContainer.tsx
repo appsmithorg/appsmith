@@ -112,15 +112,11 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
 }
 
 const mapStateToProps = (state: AppState) => {
-  PerformanceTracker.startTracking(
-    PerformanceTransactionName.GENERATE_VIEW_MODE_PROPS,
-  );
   const props = {
     isFetchingPage: getIsFetchingPage(state),
     widgets: getCanvasWidgetDsl(state),
     currentPageName: getCurrentPageName(state),
   };
-  PerformanceTracker.stopTracking();
   return props;
 };
 
