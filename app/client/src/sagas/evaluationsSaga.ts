@@ -24,12 +24,10 @@ const initEvaluationWorkers = () => {
 
 function* evaluateTreeSaga() {
   const unEvalTree = yield select(getUnevaluatedDataTree);
-  const data = JSONFn.stringify({
+  evaluationWorker.postMessage({
     dataTree: unEvalTree,
     widgetTypeConfigMap,
   });
-  console.log({ data });
-  evaluationWorker.postMessage(data);
   const workerResponse = yield take(workerChannel);
   const evalTree = JSON.parse(workerResponse.data);
   yield put({

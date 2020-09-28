@@ -13,6 +13,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
 class FormButtonWidget extends BaseWidget<
   FormButtonWidgetProps,
@@ -74,7 +75,7 @@ class FormButtonWidget extends BaseWidget<
         isLoading: true,
       });
       super.executeAction({
-        dynamicString: this.props.onClick,
+        triggers: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
           callback: this.handleActionResult,
@@ -132,7 +133,7 @@ export type ButtonStyle =
 export interface FormButtonWidgetProps extends WidgetProps, WithMeta {
   text?: string;
   buttonStyle?: ButtonStyle;
-  onClick?: string;
+  onClick?: ActionDescription<any>[];
   isVisible?: boolean;
   buttonType: ButtonType;
   isFormValid?: boolean;

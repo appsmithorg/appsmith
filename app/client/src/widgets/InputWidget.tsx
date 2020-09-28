@@ -17,6 +17,7 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -116,7 +117,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   onValueChange = (value: string) => {
     this.props.updateWidgetMetaProperty("text", value, {
-      dynamicString: this.props.onTextChanged,
+      triggers: this.props.onTextChanged,
       event: {
         type: EventType.ON_TEXT_CHANGE,
       },
@@ -200,7 +201,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   maxChars?: number;
   minNum?: number;
   maxNum?: number;
-  onTextChanged?: string;
+  onTextChanged?: ActionDescription<any>[];
   label: string;
   inputValidators: InputValidator[];
   isValid: boolean;

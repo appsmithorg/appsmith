@@ -13,6 +13,7 @@ import {
   DerivedPropertiesMap,
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
@@ -65,7 +66,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 
   onCheckChange = (isChecked: boolean) => {
     this.props.updateWidgetMetaProperty("isChecked", isChecked, {
-      dynamicString: this.props.onCheckChange,
+      triggers: this.props.onCheckChange,
       event: {
         type: EventType.ON_CHECK_CHANGE,
       },
@@ -82,7 +83,7 @@ export interface CheckboxWidgetProps extends WidgetProps, WithMeta {
   defaultCheckedState: boolean;
   isChecked?: boolean;
   isDisabled?: boolean;
-  onCheckChange?: string;
+  onCheckChange?: ActionDescription<any>[];
 }
 
 export default CheckboxWidget;

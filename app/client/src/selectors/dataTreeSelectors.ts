@@ -22,16 +22,13 @@ export const getUnevaluatedDataTree = createSelector(
       PerformanceTransactionName.CONSTRUCT_UNEVAL_TREE,
     );
     const pageList = pageListPayload || [];
-    const unevalTree = DataTreeFactory.create(
-      {
-        actions,
-        widgets,
-        widgetsMeta,
-        pageList,
-        appData,
-      },
-      true,
-    );
+    const unevalTree = DataTreeFactory.create({
+      actions,
+      widgets,
+      widgetsMeta,
+      pageList,
+      appData,
+    });
     PerformanceTracker.stopTracking();
     return unevalTree;
   },

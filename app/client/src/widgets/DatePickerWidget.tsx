@@ -13,6 +13,7 @@ import {
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
@@ -75,7 +76,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
 
   onDateSelected = (selectedDate: string) => {
     this.props.updateWidgetMetaProperty("selectedDate", selectedDate, {
-      dynamicString: this.props.onDateSelected,
+      triggers: this.props.onDateSelected,
       event: {
         type: EventType.ON_DATE_SELECTED,
       },
@@ -96,8 +97,8 @@ export interface DatePickerWidgetProps extends WidgetProps, WithMeta {
   dateFormat: string;
   label: string;
   datePickerType: DatePickerType;
-  onDateSelected?: string;
-  onDateRangeSelected?: string;
+  onDateSelected?: ActionDescription<any>[];
+  onDateRangeSelected?: ActionDescription<any>[];
   maxDate: Date;
   minDate: Date;
   isRequired?: boolean;

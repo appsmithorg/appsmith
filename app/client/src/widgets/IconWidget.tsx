@@ -8,6 +8,7 @@ import IconComponent, {
 } from "components/designSystems/appsmith/IconComponent";
 import { EventType, ExecutionResult } from "constants/ActionConstants";
 import * as Sentry from "@sentry/react";
+import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -26,7 +27,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
   onClick = () => {
     if (this.props.onClick) {
       super.executeAction({
-        dynamicString: this.props.onClick,
+        triggers: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
           callback: this.handleActionResult,
@@ -64,7 +65,7 @@ export type IconSize = typeof IconSizes[keyof typeof IconSizes] | undefined;
 
 export interface IconWidgetProps extends WidgetProps {
   iconName: IconType;
-  onClick: string;
+  onClick: ActionDescription<any>[];
   iconSize: IconSize;
   color: string;
 }

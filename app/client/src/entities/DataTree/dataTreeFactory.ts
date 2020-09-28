@@ -29,8 +29,8 @@ export enum ENTITY_TYPE {
 
 export type RunActionPayload = {
   actionId: string;
-  onSuccess: string;
-  onError: string;
+  onSuccess: ActionDescription<any>[];
+  onError: ActionDescription<any>[];
   params: Record<string, any>;
 };
 
@@ -76,15 +76,14 @@ type DataTreeSeed = {
 };
 
 export class DataTreeFactory {
-  static create(
-    { actions, widgets, widgetsMeta, pageList, appData }: DataTreeSeed,
-    // TODO(hetu)
-    // temporary fix for not getting functions while normal evals which crashes the app
-    // need to remove this after we get a proper solve
-    withFunctions?: boolean,
-  ): DataTree {
+  static create({
+    actions,
+    widgets,
+    widgetsMeta,
+    pageList,
+    appData,
+  }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
-    const actionPaths = [];
     actions.forEach(a => {
       const config = a.config;
       let dynamicBindingPathList: Property[] = [];
@@ -106,30 +105,8 @@ export class DataTreeFactory {
         config: config.actionConfiguration,
         dynamicBindingPathList,
         data: a.data ? a.data.body : {},
-        run: withFunctions
-          ? function(
-              this: DataTreeAction,
-              onSuccess: string,
-              onError: string,
-              params = "",
-            ) {
-              return {
-                type: "RUN_ACTION",
-                payload: {
-                  actionId: this.actionId,
-                  onSuccess: onSuccess ? `{{${onSuccess.toString()}}}` : "",
-                  onError: onError ? `{{${onError.toString()}}}` : "",
-                  params,
-                },
-              };
-            }
-          : {},
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
       };
-      if (withFunctions) {
-        actionPaths.push(`${config.name}.run`);
-      }
-      dataTree.actionPaths && dataTree.actionPaths.push();
     });
     Object.keys(widgets).forEach(w => {
       const widget = { ...widgets[w] };
@@ -165,63 +142,59 @@ export class DataTreeFactory {
       };
     });
 
-    if (withFunctions) {
-      dataTree.navigateTo = function(
-        pageNameOrUrl: string,
-        params: Record<string, unknown>,
-      ) {
-        return {
-          type: "NAVIGATE_TO",
-          payload: { pageNameOrUrl, params },
-        };
-      };
-      actionPaths.push("navigateTo");
-
-      dataTree.showAlert = function(message: string, style: string) {
-        return {
-          type: "SHOW_ALERT",
-          payload: { message, style },
-        };
-      };
-      actionPaths.push("showAlert");
-
-      // dataTree.url = url;
-      dataTree.showModal = function(modalName: string) {
-        return {
-          type: "SHOW_MODAL_BY_NAME",
-          payload: { modalName },
-        };
-      };
-      actionPaths.push("showModal");
-
-      dataTree.closeModal = function(modalName: string) {
-        return {
-          type: "CLOSE_MODAL",
-          payload: { modalName },
-        };
-      };
-      actionPaths.push("closeModal");
-
-      dataTree.storeValue = function(key: string, value: string) {
-        return {
-          type: "STORE_VALUE",
-          payload: { key, value },
-        };
-      };
-      actionPaths.push("storeValue");
-
-      dataTree.download = function(data: string, name: string, type: string) {
-        return {
-          type: "DOWNLOAD",
-          payload: { data, name, type },
-        };
-      };
-      actionPaths.push("download");
-    }
+    // if (withFunctions) {
+    //   dataTree.navigateTo = function(pageNameOrUrl: string, params: object) {
+    //     return {
+    //       type: "NAVIGATE_TO",
+    //       payload: { pageNameOrUrl, params },
+    //     };
+    //   };
+    //   actionPaths.push("navigateTo");
+    //
+    //   dataTree.showAlert = function(message: string, style: string) {
+    //     return {
+    //       type: "SHOW_ALERT",
+    //       payload: { message, style },
+    //     };
+    //   };
+    //   actionPaths.push("showAlert");
+    //
+    //   // dataTree.url = url;
+    //   dataTree.showModal = function(modalName: string) {
+    //     return {
+    //       type: "SHOW_MODAL_BY_NAME",
+    //       payload: { modalName },
+    //     };
+    //   };
+    //   actionPaths.push("showModal");
+    //
+    //   dataTree.closeModal = function(modalName: string) {
+    //     return {
+    //       type: "CLOSE_MODAL",
+    //       payload: { modalName },
+    //     };
+    //   };
+    //   actionPaths.push("closeModal");
+    //
+    //   dataTree.storeValue = function(key: string, value: string) {
+    //     return {
+    //       type: "STORE_VALUE",
+    //       payload: { key, value },
+    //     };
+    //   };
+    //   actionPaths.push("storeValue");
+    //
+    //   dataTree.download = function(data: string, name: string, type: string) {
+    //     return {
+    //       type: "DOWNLOAD",
+    //       payload: { data, name, type },
+    //     };
+    //   };
+    //   actionPaths.push("download");
+    // }
 
     dataTree.pageList = pageList;
-    dataTree.actionPaths = actionPaths;
-
+    // dataTree.actionPaths = actionPaths;
     dataTree.appsmith = { ...appData } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     return dataTree;

@@ -9,6 +9,7 @@ import {
 import {
   ActionDescription,
   DataTree,
+  DataTreeAction,
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
@@ -31,7 +32,6 @@ import unescapeJS from "unescape-js";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
-import JSONFn from "json-fn";
 import { WIDGET_TYPE_VALIDATION_ERROR } from "../constants/messages";
 import moment from "moment";
 
@@ -581,7 +581,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
 let WIDGET_TYPE_CONFIG_MAP: WidgetTypeConfigMap = {};
 
 ctx.addEventListener("message", e => {
-  const { dataTree, widgetTypeConfigMap } = JSONFn.parse(e.data);
+  const { dataTree, widgetTypeConfigMap } = e.data;
   WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
   const response = getEvaluatedDataTree(dataTree);
   ctx.postMessage(JSON.stringify(response));
@@ -592,6 +592,8 @@ let cachedDataTreeString = "";
 
 function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   const totalStart = performance.now();
+  // Add functions to the tre
+  const withFunctions = addFunctions(dataTree);
   // Create Dependencies DAG
   const createDepsStart = performance.now();
   const dataTreeString = JSON.stringify(dataTree);
@@ -599,7 +601,7 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   // Better solve will be to prune functions
   if (!equal(dataTreeString, cachedDataTreeString)) {
     cachedDataTreeString = dataTreeString;
-    dependencyTreeCache = createDependencyTree(dataTree);
+    dependencyTreeCache = createDependencyTree(withFunctions);
   }
   const createDepsEnd = performance.now();
   const {
@@ -640,6 +642,85 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   // dataTreeCache = validated;
   return validated;
 }
+
+const addFunctions = (dataTree: DataTree): DataTree => {
+  dataTree.actionPaths = [];
+  Object.keys(dataTree).forEach(entityName => {
+    const entity = dataTree[entityName];
+    if (
+      entity &&
+      "ENTITY_TYPE" in entity &&
+      entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+    ) {
+      const runFunction = function(
+        this: DataTreeAction,
+        onSuccess: string,
+        onError: string,
+        params = "",
+      ) {
+        return {
+          type: "RUN_ACTION",
+          payload: {
+            actionId: this.actionId,
+            onSuccess: onSuccess ? `{{${onSuccess.toString()}}}` : "",
+            onError: onError ? `{{${onError.toString()}}}` : "",
+            params,
+          },
+        };
+      };
+      _.set(dataTree, `${entityName}.run`, runFunction);
+      dataTree.actionPaths && dataTree.actionPaths.push(`${entityName}.run`);
+    }
+  });
+  dataTree.navigateTo = function(pageNameOrUrl: string, params: object) {
+    return {
+      type: "NAVIGATE_TO",
+      payload: { pageNameOrUrl, params },
+    };
+  };
+  dataTree.actionPaths.push("navigateTo");
+
+  dataTree.showAlert = function(message: string, style: string) {
+    return {
+      type: "SHOW_ALERT",
+      payload: { message, style },
+    };
+  };
+  dataTree.actionPaths.push("showAlert");
+
+  dataTree.showModal = function(modalName: string) {
+    return {
+      type: "SHOW_MODAL_BY_NAME",
+      payload: { modalName },
+    };
+  };
+  dataTree.actionPaths.push("showModal");
+
+  dataTree.closeModal = function(modalName: string) {
+    return {
+      type: "CLOSE_MODAL",
+      payload: { modalName },
+    };
+  };
+  dataTree.actionPaths.push("closeModal");
+
+  dataTree.storeValue = function(key: string, value: string) {
+    return {
+      type: "STORE_VALUE",
+      payload: { key, value },
+    };
+  };
+  dataTree.actionPaths.push("storeValue");
+
+  dataTree.download = function(data: string, name: string, type: string) {
+    return {
+      type: "DOWNLOAD",
+      payload: { data, name, type },
+    };
+  };
+  dataTree.actionPaths.push("download");
+  return dataTree;
+};
 
 type DynamicDependencyMap = Record<string, Array<string>>;
 const createDependencyTree = (
@@ -842,6 +923,7 @@ function dependencySortedEvaluateDataTree(
     return sortedDependencies.reduce(
       (currentTree: DataTree, propertyPath: string) => {
         const entityName = propertyPath.split(".")[0];
+        const propertyName = propertyPath.split(".")[1];
         const entity: DataTreeEntity = currentTree[entityName];
         const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
         let evalPropertyValue;
@@ -860,6 +942,7 @@ function dependencySortedEvaluateDataTree(
               currentTree,
               unEvalPropertyValue,
               currentDependencyValues,
+              isDynamicTrigger(entity, propertyName),
               cachedDependencyValues,
             );
           } catch (e) {
@@ -876,7 +959,6 @@ function dependencySortedEvaluateDataTree(
         }
         if (isWidget(entity)) {
           const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
-          const propertyName = propertyPath.split(".")[1];
           if (propertyName) {
             let parsedValue = validateAndParseWidgetProperty(
               propertyPath,
@@ -1137,6 +1219,17 @@ function isWidget(entity: DataTreeEntity): boolean {
   return "ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
 }
 
+function isDynamicTrigger(
+  entity: DataTreeEntity,
+  propertyPath: string,
+): boolean {
+  return (
+    "dynamicTriggers" in entity &&
+    typeof entity.dynamicTriggers === "object" &&
+    propertyPath in entity.dynamicTriggers
+  );
+}
+
 function validateAndParseWidgetProperty(
   propertyPath: string,
   widget: DataTreeWidget,
@@ -1147,20 +1240,10 @@ function validateAndParseWidgetProperty(
   cachedDependencyValues?: Array<string>,
 ): any {
   const propertyName = propertyPath.split(".")[1];
-  let valueToValidate = evalPropertyValue;
-  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
-    const { triggers } = getDynamicValue(
-      unEvalPropertyValue,
-      currentTree,
-      undefined,
-      true,
-    );
-    valueToValidate = triggers;
-  }
   const { parsed, isValid, message, transformed } = validateWidgetProperty(
     widget.type,
     propertyName,
-    valueToValidate,
+    evalPropertyValue,
     widget,
     currentTree,
   );
@@ -1172,22 +1255,19 @@ function validateAndParseWidgetProperty(
     _.set(widget, `invalidProps.${propertyName}`, true);
     _.set(widget, `validationMessages.${propertyName}`, message);
   }
-  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
-    return unEvalPropertyValue;
-  } else {
-    const parsedCache = getParsedValueCache(propertyPath);
-    if (
-      !equal(parsedCache.value, parsed) ||
-      (cachedDependencyValues !== undefined &&
-        !equal(currentDependencyValues, cachedDependencyValues))
-    ) {
-      parsedValueCache.set(propertyPath, {
-        value: parsed,
-        version: Date.now(),
-      });
-    }
-    return parsed;
+
+  const parsedCache = getParsedValueCache(propertyPath);
+  if (
+    !equal(parsedCache.value, parsed) ||
+    (cachedDependencyValues !== undefined &&
+      !equal(currentDependencyValues, cachedDependencyValues))
+  ) {
+    parsedValueCache.set(propertyPath, {
+      value: parsed,
+      version: Date.now(),
+    });
   }
+  return parsed;
 }
 
 function evaluateDynamicProperty(
@@ -1195,6 +1275,7 @@ function evaluateDynamicProperty(
   currentTree: DataTree,
   unEvalPropertyValue: any,
   currentDependencyValues: Array<string>,
+  returnTriggers = false,
   cachedDependencyValues?: Array<string>,
 ): any {
   const cacheObj = getDynamicPropValueCache(propertyPath);
@@ -1207,13 +1288,17 @@ function evaluateDynamicProperty(
     return cacheObj.evaluated;
   } else {
     log.debug("eval " + propertyPath);
-    const dynamicResult = getDynamicValue(unEvalPropertyValue, currentTree);
+    const dynamicResult = getDynamicValue(
+      unEvalPropertyValue,
+      currentTree,
+      returnTriggers,
+    );
     dynamicPropValueCache.set(propertyPath, {
-      evaluated: dynamicResult.result,
+      evaluated: dynamicResult,
       unEvaluated: unEvalPropertyValue,
     });
     dependencyCache.set(propertyPath, currentDependencyValues);
-    return dynamicResult.result;
+    return dynamicResult;
   }
 }
 
@@ -1240,7 +1325,7 @@ const evaluate = (
   const scriptToEvaluate = `
         function closedFunction () {
           const result = ${js};
-          return { result, triggers }
+          return { result, triggers: self.triggers }
         }
         closedFunction()
       `;
@@ -1248,7 +1333,7 @@ const evaluate = (
          function callback (script) {
             const userFunction = script;
             const result = userFunction(CALLBACK_DATA);
-            return { result, triggers };
+            return { result, triggers: self.triggers };
          }
          callback(${js});
       `;
@@ -1260,33 +1345,32 @@ const evaluate = (
         // @ts-ignore
         self[datum] = data[datum];
       });
-      // todo hetu
-      // if (data.actionPaths) {
-      //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      //   // @ts-ignore
-      //   self.triggers = [];
-      //   const pusher = function(
-      //     this: DataTree,
-      //     action: any,
-      //     ...payload: any[]
-      //   ) {
-      //     const actionPayload = action(...payload);
-      //     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      //     // @ts-ignore
-      //     self.triggers.push(actionPayload);
-      //   };
-      //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      //   // @ts-ignore
-      //   self.actionPaths.forEach(path => {
-      //     const action = _.get(self, path);
-      //     const entity = _.get(self, path.split(".")[0]);
-      //     if (action) {
-      //       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      //       // @ts-ignore
-      //       _.set(self, path, pusher.bind(data, action.bind(entity)));
-      //     }
-      //   });
-      // }
+      if (data.actionPaths) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        self.triggers = [];
+        const pusher = function(
+          this: DataTree,
+          action: any,
+          ...payload: any[]
+        ) {
+          const actionPayload = action(...payload);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+          // @ts-ignore
+          self.triggers.push(actionPayload);
+        };
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        self.actionPaths.forEach(path => {
+          const action = _.get(self, path);
+          const entity = _.get(self, path.split(".")[0]);
+          if (action) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // @ts-ignore
+            _.set(self, path, pusher.bind(data, action.bind(entity)));
+          }
+        });
+      }
       return eval(script);
     })();
     return { result, triggers };
@@ -1325,39 +1409,32 @@ export const createDynamicValueString = (
 export const getDynamicValue = (
   dynamicBinding: string,
   data: DataTree,
+  returnTriggers: boolean,
   callBackData?: any,
-  includeTriggers = false,
-): EvalResult => {
+) => {
   // Get the {{binding}} bound values
   const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
+  if (returnTriggers) {
+    const result = evaluateDynamicBoundValue(data, jsSnippets[0], callBackData);
+    return result.triggers;
+  }
   if (stringSegments.length) {
     // Get the Data Tree value of those "binding "paths
     const values = jsSnippets.map((jsSnippet, index) => {
       if (jsSnippet) {
         const result = evaluateDynamicBoundValue(data, jsSnippet, callBackData);
-        if (includeTriggers) {
-          return result;
-        } else {
-          return { result: result.result };
-        }
+        return result.result;
       } else {
-        return { result: stringSegments[index], triggers: [] };
+        return stringSegments[index];
       }
     });
 
     // if it is just one binding, no need to create template string
     if (stringSegments.length === 1) return values[0];
     // else return a string template with bindings
-    const templateString = createDynamicValueString(
-      dynamicBinding,
-      stringSegments,
-      values.map(v => v.result),
-    );
-    return {
-      result: templateString,
-    };
+    return createDynamicValueString(dynamicBinding, stringSegments, values);
   }
-  return { result: undefined, triggers: [] };
+  return undefined;
 };
 
 const validateWidgetProperty = (

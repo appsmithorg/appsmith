@@ -12,6 +12,7 @@ import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
 const RichTextEditorComponent = lazy(() =>
   retryPromise(() =>
@@ -62,7 +63,7 @@ class RichTextEditorWidget extends BaseWidget<
 
   onValueChange = (text: string) => {
     this.props.updateWidgetMetaProperty("text", text, {
-      dynamicString: this.props.onTextChange,
+      triggers: this.props.onTextChange,
       event: {
         type: EventType.ON_TEXT_CHANGE,
       },
@@ -94,7 +95,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps, WithMeta {
   defaultText?: string;
   text?: string;
   placeholder?: string;
-  onTextChange?: string;
+  onTextChange?: ActionDescription<any>[];
   isDisabled?: boolean;
   isVisible?: boolean;
 }
