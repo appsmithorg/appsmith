@@ -173,19 +173,5 @@
     "Test3"
   ],
   "paginationUrl": "https://mock-api.appsmith.com/",
-  "paginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}",
-  "defaultMoustacheData": "{{Input1.text",
-  "defaultInputWidget": "{{Table1.selectedRow.id",
-  "deafultDropDownWidget": [
-    {
-      "label": "{{Table1.selectedRow.email}}",
-      "value": "1"
-    },
-    {
-      "label": "{{Table1.tableData[1].email}}",
-      "value": "2"
-    }
-  ],
-  "defaultRichtextWidget": "{{Table1.selectedRow.userName",
-  "defaultDropDownValue": "1"
+  "paginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}"
 }
