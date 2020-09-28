@@ -1,4 +1,6 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { EditorModes } from "../components/editorComponents/CodeEditor/EditorConfig";
+import { APP_MODE } from "../reducers/entityReducers/appReducer";
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -19,20 +21,20 @@ export const fetchApplications = () => {
   };
 };
 
-export const fetchApplication = (applicationId: string) => {
+export interface FetchApplicationPayload {
+  applicationId: string;
+  mode: APP_MODE;
+}
+
+export const fetchApplication = (
+  applicationId: string,
+  mode: APP_MODE,
+): ReduxAction<FetchApplicationPayload> => {
   return {
     type: ReduxActionTypes.FETCH_APPLICATION_INIT,
     payload: {
       applicationId,
-    },
-  };
-};
-
-export const fetchApplicationForViewMode = (applicationId: string) => {
-  return {
-    type: ReduxActionTypes.FETCH_APPLICATION_VIEW_INIT,
-    payload: {
-      applicationId,
+      mode,
     },
   };
 };

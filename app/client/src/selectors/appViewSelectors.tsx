@@ -1,11 +1,11 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
-import { PageListViewModeReduxState } from "reducers/entityReducers/pageListReducer";
+import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 import { BUILDER_PAGE_URL } from "constants/routes";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
-const getPageListState = (state: AppState): PageListViewModeReduxState =>
+const getPageListState = (state: AppState): PageListReduxState =>
   state.entities.pageList;
 
 // For the viewer, this does not need to be wrapped in createCachedSelector, as it will not change in subsequent renders.
@@ -18,8 +18,8 @@ const getPageListState = (state: AppState): PageListViewModeReduxState =>
 
 export const getPageList = createSelector(
   getPageListState,
-  (pageListViewMode: PageListViewModeReduxState) =>
-  pageListViewMode.pages.length > 0 ? pageListViewMode.pages : undefined,
+  (pageList: PageListReduxState) =>
+    pageList.pages.length > 0 ? pageList.pages : undefined,
 );
 
 export const getIsFetchingPage = createSelector(
@@ -34,13 +34,13 @@ export const getIsInitialized = createSelector(
 
 export const getCurrentDSLPageId = createSelector(
   getPageListState,
-  (pageListViewMode: PageListViewModeReduxState) => pageListViewMode.currentPageId,
+  (pageList: PageListReduxState) => pageList.currentPageId,
 );
 
 export const getEditorURL = createSelector(
   getPageListState,
-  (pageListViewMode: PageListViewModeReduxState) =>
-  pageListViewMode.applicationId && pageListViewMode.currentPageId
-      ? BUILDER_PAGE_URL(pageListViewMode.applicationId, pageListViewMode.currentPageId)
+  (pageList: PageListReduxState) =>
+    pageList.applicationId && pageList.currentPageId
+      ? BUILDER_PAGE_URL(pageList.applicationId, pageList.currentPageId)
       : "",
 );

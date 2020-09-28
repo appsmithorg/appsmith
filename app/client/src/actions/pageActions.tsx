@@ -2,35 +2,30 @@ import { FetchPageRequest } from "api/PageApi";
 import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
-  ReduxActionTypes,
   ReduxAction,
-  UpdateCanvasPayload,
+  ReduxActionTypes,
   SavePageSuccessPayload,
-  FetchPageListPayload,
+  UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 
+export interface FetchPageListPayload {
+  applicationId: string;
+  mode: APP_MODE;
+}
+
 export const fetchPageList = (
   applicationId: string,
+  mode: APP_MODE,
 ): ReduxAction<FetchPageListPayload> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
     payload: {
       applicationId,
-    },
-  };
-};
-
-export const fetchPageListViewMode = (
-  applicationId: string,
-): ReduxAction<FetchPageListPayload> => {
-  return {
-    type: ReduxActionTypes.FETCH_PAGE_LIST_VIEW_INIT,
-    payload: {
-      applicationId,
+      mode,
     },
   };
 };

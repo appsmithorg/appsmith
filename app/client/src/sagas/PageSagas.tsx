@@ -1,7 +1,6 @@
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppState } from "reducers";
 import {
-  FetchPageListPayload,
   PageListPayload,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -9,8 +8,9 @@ import {
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
 import {
-  deletePageSuccess,
   clonePageSuccess,
+  deletePageSuccess,
+  FetchPageListPayload,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
   savePageSuccess,
@@ -20,6 +20,7 @@ import {
   updateWidgetNameSuccess,
 } from "actions/pageActions";
 import PageApi, {
+  ClonePageRequest,
   CreatePageRequest,
   DeletePageRequest,
   FetchPageListResponse,
@@ -32,7 +33,6 @@ import PageApi, {
   UpdatePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
-  ClonePageRequest,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -70,7 +70,7 @@ import {
   setActionsToExecuteOnPageLoad,
 } from "actions/actionActions";
 import { clearCaches } from "utils/DynamicBindingUtils";
-import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 import { getQueryParams } from "utils/AppsmithUtils";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
@@ -80,11 +80,12 @@ export function* fetchPageListSaga(
   fetchPageListAction: ReduxAction<FetchPageListPayload>,
 ) {
   try {
-    const { applicationId } = fetchPageListAction.payload;
-    const response: FetchPageListResponse = yield call(
-      PageApi.fetchPageList,
-      applicationId,
-    );
+    const { applicationId, mode } = fetchPageListAction.payload;
+    const apiCall =
+      mode === APP_MODE.EDIT
+        ? PageApi.fetchPageList
+        : PageApi.fetchPageListViewMode;
+    const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
@@ -110,47 +111,6 @@ export function* fetchPageListSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* fetchPageListInViewModeSaga(
-  fetchPageListAction: ReduxAction<FetchPageListPayload>,
-) {
-  try {
-    const { applicationId } = fetchPageListAction.payload;
-    const response: FetchPageListResponse = yield call(
-      PageApi.fetchPageListViewMode,
-      applicationId,
-    );
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      const orgId = response.data.organizationId;
-      const pages: PageListPayload = response.data.pages.map(page => ({
-        pageName: page.name,
-        pageId: page.id,
-        isDefault: page.isDefault,
-      }));
-      yield put({
-        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
-        payload: {
-          orgId,
-        },
-      });
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_LIST_VIEW_SUCCESS,
-        payload: {
-          pages,
-          applicationId,
-        },
-      });
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_PAGE_LIST_VIEW_ERROR,
       payload: {
         error,
       },
@@ -582,7 +542,6 @@ export default function* pageSagas() {
     takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLeading(ReduxActionTypes.CLONE_PAGE_INIT, clonePageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
-    takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_VIEW_INIT, fetchPageListInViewModeSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
     debounce(500, ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),

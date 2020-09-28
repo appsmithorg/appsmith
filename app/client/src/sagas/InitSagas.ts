@@ -11,14 +11,13 @@ import { fetchEditorConfigs } from "actions/configsActions";
 import {
   fetchPage,
   fetchPageList,
-  fetchPageListViewMode,
   setAppMode,
   updateAppStore,
 } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
-import { fetchApplication, fetchApplicationForViewMode} from "actions/applicationActions";
+import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { AppState } from "reducers";
@@ -46,11 +45,11 @@ function* initializeEditorSaga(
   const { applicationId, pageId } = initializeEditorAction.payload;
   // Step 1: Start getting all the data needed by the
   yield all([
-    put(fetchPageList(applicationId)),
+    put(fetchPageList(applicationId, APP_MODE.EDIT)),
     put(fetchEditorConfigs()),
     put(fetchActions(applicationId)),
     put(fetchPage(pageId)),
-    put(fetchApplication(applicationId)),
+    put(fetchApplication(applicationId, APP_MODE.EDIT)),
   ]);
   // Step 2: Wait for all data to be in the state
   yield all([
@@ -151,15 +150,16 @@ export function* initializeAppViewerSaga(
 ) {
   const { applicationId } = action.payload;
   yield all([
+    // TODO (hetu) Remove spl view call for fetch actions
     put(fetchActionsForView(applicationId)),
-    put(fetchPageListViewMode(applicationId)),
-    put(fetchApplicationForViewMode(applicationId)),
+    put(fetchPageList(applicationId, APP_MODE.PUBLISHED)),
+    put(fetchApplication(applicationId, APP_MODE.PUBLISHED)),
   ]);
 
   yield all([
     take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
-    take(ReduxActionTypes.FETCH_PAGE_LIST_VIEW_SUCCESS),
-    take(ReduxActionTypes.FETCH_APPLICATION_VIEW_SUCCESS),
+    take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
+    take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
   ]);
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
