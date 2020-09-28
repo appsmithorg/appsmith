@@ -65,6 +65,7 @@ export interface PageAction {
 export interface ExecuteErrorPayload {
   actionId: string;
   error: any;
+  isPageLoad?: boolean;
 }
 
 // Group 1 = datasource (https://www.domain.com)

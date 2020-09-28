@@ -66,9 +66,14 @@ const editorReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.INITIALIZE_EDITOR_ERROR]: (
     state: EditorReduxState,
   ) => {
-    state.loadingStates.loading = false;
-    state.loadingStates.loadingError = true;
-    return { ...state };
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        loading: false,
+        loadingError: true,
+      },
+    };
   },
   [ReduxActionTypes.PUBLISH_APPLICATION_INIT]: (state: EditorReduxState) => {
     state.loadingStates.publishing = true;
