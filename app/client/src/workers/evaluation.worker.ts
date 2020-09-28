@@ -1,3 +1,4 @@
+/* eslint no-restricted-globals: 0 */
 import {
   ISO_DATE_FORMAT,
   VALIDATION_TYPES,
@@ -1259,32 +1260,32 @@ const evaluate = (
         // @ts-ignore
         self[datum] = data[datum];
       });
-      if (data.actionPaths) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
-        self.triggers = [];
-        const pusher = function(
-          this: DataTree,
-          action: any,
-          ...payload: any[]
-        ) {
-          const actionPayload = action(...payload);
-          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-          // @ts-ignore
-          self.triggers.push(actionPayload);
-        };
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
-        self.actionPaths.forEach(path => {
-          const action = _.get(self, path);
-          const entity = _.get(self, path.split(".")[0]);
-          if (action) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
-            _.set(self, path, pusher.bind(data, action.bind(entity)));
-          }
-        });
-      }
+      // if (data.actionPaths) {
+      //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      //   // @ts-ignore
+      //   self.triggers = [];
+      //   const pusher = function(
+      //     this: DataTree,
+      //     action: any,
+      //     ...payload: any[]
+      //   ) {
+      //     const actionPayload = action(...payload);
+      //     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      //     // @ts-ignore
+      //     self.triggers.push(actionPayload);
+      //   };
+      //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      //   // @ts-ignore
+      //   self.actionPaths.forEach(path => {
+      //     const action = _.get(self, path);
+      //     const entity = _.get(self, path.split(".")[0]);
+      //     if (action) {
+      //       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      //       // @ts-ignore
+      //       _.set(self, path, pusher.bind(data, action.bind(entity)));
+      //     }
+      //   });
+      // }
       return eval(script);
     })();
     return { result, triggers };

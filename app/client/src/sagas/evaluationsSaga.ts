@@ -1,4 +1,3 @@
-/* eslint import/no-webpack-loader-syntax: off */
 import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import { eventChannel, EventChannel } from "redux-saga";
 import JSONFn from "json-fn";
@@ -13,7 +12,7 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const initEvaluationWorkers = () => {
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
-  evaluationWorker = new evaluateTreeWorker();
+  evaluationWorker = new Worker();
   workerChannel = eventChannel(emitter => {
     evaluationWorker.addEventListener("message", emitter);
     // The subscriber must return an unsubscribe function

@@ -6110,11 +6110,6 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-comlink@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/comlink/-/comlink-4.3.0.tgz#80b3366baccd87897dab3638ebfcfae28b2f87c7"
-  integrity sha512-mu4KKKNuW8TvkfpW/H88HBPeILubBS6T94BdD1VWBXNXfiyqVtwUCVNO1GeNOBTsIswzsMjWlycYr+77F5b84g==
-
 comma-separated-tokens@^1.0.0:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/comma-separated-tokens/-/comma-separated-tokens-1.0.8.tgz#632b80b6117867a158f1080ad498b2fbe7e3f5ea"
