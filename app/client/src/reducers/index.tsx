@@ -14,7 +14,7 @@ import { DatasourceDataState } from "./entityReducers/datasourceReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
 import { DatasourcePaneReduxState } from "./uiReducers/datasourcePaneReducer";
 import { ApplicationsReduxState } from "./uiReducers/applicationsReducer";
-import { PageListReduxState, PageListViewModeReduxState } from "./entityReducers/pageListReducer";
+import { PageListReduxState } from "./entityReducers/pageListReducer";
 import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
 import { QueryPaneReduxState } from "./uiReducers/queryPaneReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
@@ -74,7 +74,6 @@ export interface AppState {
     widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;
     pageList: PageListReduxState;
-    pageListViewMode: PageListViewModeReduxState;
     plugins: PluginDataState;
     meta: MetaState;
     app: AppDataState;
