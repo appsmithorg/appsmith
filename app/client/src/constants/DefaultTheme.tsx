@@ -637,7 +637,7 @@ type ColorType = {
     color: ShadeColor;
   };
   profileDropdown: {
-    userName: ColorPalette;
+    userName: ShadeColor;
   };
 };
 

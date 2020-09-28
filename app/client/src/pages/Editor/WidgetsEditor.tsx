@@ -61,7 +61,7 @@ const WidgetsEditor = () => {
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
-    PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_API);
+    PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
 
   // Switch page
