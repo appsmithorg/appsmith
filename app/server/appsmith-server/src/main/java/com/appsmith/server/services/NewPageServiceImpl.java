@@ -33,6 +33,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+
 @Service
 @Slf4j
 public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, String> implements NewPageService {
@@ -319,7 +321,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         PageDTO pageDTOFromPage = getPageDTOFromPage(page);
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(pageDTOFromPage);
-        return this.update(id, newPage)
+
+        return repository.findById(id, AclPermission.MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
+                .flatMap(dbPage -> {
+                    copyNewFieldValuesIntoOldObject(pageDTOFromPage, dbPage.getUnpublishedPage());
+                    return this.update(id, dbPage);
+                })
                 .flatMap(savedPage -> getPageByViewMode(savedPage, false));
     }
 }
