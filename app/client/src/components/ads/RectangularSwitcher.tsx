@@ -56,10 +56,6 @@ const StyledSwitch = styled.label<{
   input:checked + .slider:before {
     background-color: ${props => props.theme.colors.switch.hover.bg};
   }
-
-  input:hover + .slider {
-    border: 1px solid ${props => props.theme.colors.switch.hover.border};
-  }
 `;
 
 const Light = styled.div<{ value: boolean }>`

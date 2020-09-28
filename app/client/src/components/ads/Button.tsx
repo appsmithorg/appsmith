@@ -221,7 +221,7 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
       padding =
         !props.text && props.icon
           ? `0px ${props.theme.spaces[1]}px`
-          : `0px ${props.theme.spaces[6]}px`;
+          : `0px ${props.theme.spaces[3]}px`;
       break;
     case Size.medium:
       buttonFont = mediumButton;
@@ -258,7 +258,7 @@ const StyledButton = styled("a")<ThemeProp & ButtonProps>`
   padding: ${props => btnFontStyles(props).padding};
   .${Classes.ICON} {
     margin-right: ${props =>
-      props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`};
+      props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
     path {
       fill: ${props => btnColorStyles(props, "main").txtColor};
     }
@@ -272,7 +272,7 @@ const StyledButton = styled("a")<ThemeProp & ButtonProps>`
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .${Classes.ICON} {
       margin-right: ${props =>
-        props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`};
+        props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
       path {
         fill: ${props => btnColorStyles(props, "hover").txtColor};
       }
