@@ -4,7 +4,7 @@ import JSONFn from "json-fn";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
-import evaluateTreeWorker from "worker-loader!../workers/evaluation.worker";
+import Worker from "worker-loader!../workers/evaluation.worker";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
