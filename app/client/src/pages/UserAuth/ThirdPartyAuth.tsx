@@ -7,6 +7,9 @@ import {
 import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
@@ -84,6 +87,12 @@ const SocialLoginButton = (props: {
         if (props.type === "SIGNUP") {
           eventName = "SIGNUP_CLICK";
         }
+        PerformanceTracker.startTracking(
+          eventName === "SIGNUP_CLICK"
+            ? PerformanceTransactionName.SIGN_UP
+            : PerformanceTransactionName.LOGIN_CLICK,
+          { name: props.name.toUpperCase() },
+        );
         AnalyticsUtil.logEvent(eventName, {
           loginMethod: props.name.toUpperCase(),
         });

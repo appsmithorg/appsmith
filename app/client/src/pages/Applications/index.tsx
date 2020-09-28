@@ -46,6 +46,9 @@ import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -487,6 +490,8 @@ class Applications extends Component<
   }
 
   componentDidMount() {
+    PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
+    PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
   }
   public render() {
