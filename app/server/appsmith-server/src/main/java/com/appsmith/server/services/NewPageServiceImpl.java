@@ -54,7 +54,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         this.actionRepository = actionRepository;
     }
 
-    private Page getPageByViewMode(NewPage newPage, Boolean viewMode) {
+    private Mono<Page> getPageByViewMode(NewPage newPage, Boolean viewMode) {
         Page page = new Page();
         page.setApplicationId(newPage.getApplicationId());
         page.setUserPermissions(newPage.getUserPermissions());
@@ -64,6 +64,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
             if (newPage.getPublishedPage() != null) {
                 page.setLayouts(newPage.getPublishedPage().getLayouts());
                 page.setName(newPage.getPublishedPage().getName());
+            } else {
+                // We are trying to fetch published page but it doesnt exist because the page hasn't been published yet
+                return Mono.empty();
             }
         } else {
             if (newPage.getUnpublishedPage() != null) {
@@ -72,7 +75,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
             }
         }
 
-        return page;
+        return Mono.just(page);
     }
 
     private PageDTO getPageDTOFromPage(Page page) {
@@ -90,13 +93,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Mono<Page> findPageById(String pageId, AclPermission aclPermission, Boolean view) {
         return this.findById(pageId, aclPermission)
-                .map(page -> getPageByViewMode(page, view));
+                .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Flux<Page> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, permission)
-                .map(page -> getPageByViewMode(page, view));
+                .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
@@ -108,7 +111,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     newPage.setUnpublishedPage(unpublishedPage);
                     return repository.save(newPage);
                 })
-                .map(savedPage -> getPageByViewMode(savedPage, false));
+                .flatMap(savedPage -> getPageByViewMode(savedPage, false));
     }
 
     @Override
@@ -121,19 +124,19 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         newPage.setUnpublishedPage(unpublishedPageDto);
         newPage.setPolicies(object.getPolicies());
         return super.create(newPage)
-                .map(page -> getPageByViewMode(page, false));
+                .flatMap(page -> getPageByViewMode(page, false));
     }
 
     @Override
     public Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
         return repository.findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
-                .map(page -> getPageByViewMode(page, view));
+                .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Mono<Page> findByNameAndViewMode(String name, AclPermission permission, Boolean view) {
         return repository.findByNameAndViewMode(name, permission, view)
-                .map(page -> getPageByViewMode(page, view));
+                .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
@@ -190,7 +193,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     }
 
                     Mono<Page> archivedPageMono = newPageMono
-                            .map(newPage -> getPageByViewMode(newPage, false));
+                            .flatMap(newPage -> getPageByViewMode(newPage, false));
 
                     /**
                      * TODO : Only delete unpublished action and not the entire action.
@@ -277,7 +280,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Mono<Page> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission permission, Boolean view) {
         return repository.findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
-                .map(page -> getPageByViewMode(page, view));
+                .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
@@ -317,6 +320,6 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(pageDTOFromPage);
         return this.update(id, newPage)
-                .map(savedPage -> getPageByViewMode(savedPage, false));
+                .flatMap(savedPage -> getPageByViewMode(savedPage, false));
     }
 }
