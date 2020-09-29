@@ -72,7 +72,7 @@ This command will end up creating 2 files in the `docker/` directory:
 
 ##### Steps to build & run the code:
 
-1. Add a domain like `dev.appsmith.com` to `/etc/hosts`. 
+1. Add a domain like `dev.appsmith.com` to `/etc/hosts`.
 
 ```bash
 echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
