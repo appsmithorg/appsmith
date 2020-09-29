@@ -240,10 +240,17 @@ export const getValidatedTree = (tree: any) => {
           );
           parsedEntity[property] = parsed;
           if (!hasEvaluatedValue) {
-            const evaluatedValue = _.isUndefined(transformed)
+            const evaluatedValue = isValid
+              ? parsed
+              : _.isUndefined(transformed)
               ? value
               : transformed;
-            _.set(parsedEntity, `evaluatedValues.${property}`, evaluatedValue);
+            const safeEvaluatedValue = removeFunctions(evaluatedValue);
+            _.set(
+              parsedEntity,
+              `evaluatedValues.${property}`,
+              safeEvaluatedValue,
+            );
           }
 
           const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
@@ -621,10 +628,13 @@ function validateAndParseWidgetProperty(
     widget,
     currentTree,
   );
-  const evaluatedValue = _.isUndefined(transformed)
+  const evaluatedValue = isValid
+    ? parsed
+    : _.isUndefined(transformed)
     ? evalPropertyValue
     : transformed;
-  _.set(widget, `evaluatedValues.${propertyName}`, evaluatedValue);
+  const safeEvaluatedValue = removeFunctions(evaluatedValue);
+  _.set(widget, `evaluatedValues.${propertyName}`, safeEvaluatedValue);
   if (!isValid) {
     _.set(widget, `invalidProps.${propertyName}`, true);
     _.set(widget, `validationMessages.${propertyName}`, message);
@@ -660,6 +670,7 @@ export function dependencySortedEvaluateDataTree(
   try {
     return sortedDependencies.reduce(
       (currentTree: DataTree, propertyPath: string) => {
+        // PerformanceTracker.startTracking(PerformanceTransactionName.EVALUATE_BINDING, { binding: propertyPath }, true)
         const entityName = propertyPath.split(".")[0];
         const entity: DataTreeEntity = currentTree[entityName];
         const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
@@ -719,10 +730,13 @@ export function dependencySortedEvaluateDataTree(
                 widgetEntity,
               );
             }
+            // PerformanceTracker.stopTracking();
             return _.set(currentTree, propertyPath, parsedValue);
           }
+          // PerformanceTracker.stopTracking();
           return _.set(currentTree, propertyPath, evalPropertyValue);
         } else {
+          // PerformanceTracker.stopTracking();
           return _.set(currentTree, propertyPath, evalPropertyValue);
         }
       },
@@ -751,6 +765,18 @@ const overwriteDefaultDependentProps = (
     return defaultPropertyCache.value;
   }
   return propertyValue;
+};
+
+// We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
+// Check issue https://github.com/appsmithorg/appsmith/issues/719
+const removeFunctions = (value: any) => {
+  if (_.isFunction(value)) {
+    return "Function call";
+  } else if (_.isObject(value) && _.some(value, _.isFunction)) {
+    return JSON.parse(JSON.stringify(value));
+  } else {
+    return value;
+  }
 };
 
 /*

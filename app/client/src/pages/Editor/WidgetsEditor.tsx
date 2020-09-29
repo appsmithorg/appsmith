@@ -49,9 +49,7 @@ const CanvasContainer = styled.section`
 
 /* eslint-disable react/display-name */
 const WidgetsEditor = () => {
-  PerformanceTracker.startTracking(
-    PerformanceTransactionName.GENERATE_WIDGET_EDITOR_PROPS,
-  );
+  PerformanceTracker.startTracking(PerformanceTransactionName.EDITOR_MOUNT);
   const { focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
@@ -62,7 +60,8 @@ const WidgetsEditor = () => {
   const currentPageName = useSelector(getCurrentPageName);
 
   useEffect(() => {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_API);
+    PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
+    PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
 
   // Switch page
@@ -111,7 +110,6 @@ const WidgetsEditor = () => {
     node = <Canvas dsl={widgets} />;
   }
   log.debug("Canvas rendered");
-  PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>

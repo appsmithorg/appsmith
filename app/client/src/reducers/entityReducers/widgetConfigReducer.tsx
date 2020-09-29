@@ -25,6 +25,7 @@ import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
 import { MapWidgetProps } from "widgets/MapWidget";
 import { ModalWidgetProps } from "widgets/ModalWidget";
 import { IconWidgetProps } from "widgets/IconWidget";
+import { VideoWidgetProps } from "widgets/VideoWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -57,6 +58,7 @@ export interface WidgetConfigReducerState {
       WidgetConfigProps;
     DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
     TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
+    VIDEO_WIDGET: Partial<VideoWidgetProps> & WidgetConfigProps;
     DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
     CHECKBOX_WIDGET: Partial<CheckboxWidgetProps> & WidgetConfigProps;
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;

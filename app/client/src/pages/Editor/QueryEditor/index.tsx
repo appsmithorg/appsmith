@@ -12,7 +12,6 @@ import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin } from "api/PluginApi";
 import { Datasource } from "api/DatasourcesApi";
-import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
 import {
   getPluginIdsOfPackageNames,
   getPlugins,
@@ -26,6 +25,10 @@ import { QueryAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeQuery } from "actions/queryPaneActions";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -46,7 +49,8 @@ type ReduxDispatchProps = {
 type ReduxStateProps = {
   plugins: Plugin[];
   dataSources: Datasource[];
-  queryPane: QueryPaneReduxState;
+  isRunning: boolean;
+  isDeleting: boolean;
   formData: QueryAction;
   runErrorMessage: Record<string, string>;
   pluginIds: Array<string> | undefined;
@@ -65,6 +69,9 @@ type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
 class QueryEditor extends React.Component<Props> {
   componentDidMount() {
     this.props.changeQueryPage(this.props.match.params.queryId);
+    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
+      actionType: "QUERY",
+    });
   }
   handleDeleteClick = () => {
     const { queryId } = this.props.match.params;
@@ -74,10 +81,22 @@ class QueryEditor extends React.Component<Props> {
 
   handleRunClick = () => {
     const { match } = this.props;
+    PerformanceTracker.startTracking(
+      PerformanceTransactionName.RUN_QUERY_CLICK,
+      { queryId: this.props.match.params.queryId },
+    );
+    AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
+      queryId: this.props.match.params.queryId,
+    });
     this.props.runAction(match.params.queryId);
   };
 
   componentDidUpdate(prevProps: Props) {
+    if (prevProps.isRunning === true && this.props.isRunning === false) {
+      PerformanceTracker.stopTracking(
+        PerformanceTransactionName.RUN_QUERY_CLICK,
+      );
+    }
     if (prevProps.match.params.queryId !== this.props.match.params.queryId) {
       this.props.changeQueryPage(this.props.match.params.queryId);
     }
@@ -86,7 +105,8 @@ class QueryEditor extends React.Component<Props> {
   render() {
     const {
       dataSources,
-      queryPane,
+      isRunning,
+      isDeleting,
       match: {
         params: { queryId },
       },
@@ -114,7 +134,6 @@ class QueryEditor extends React.Component<Props> {
         </LoadingContainer>
       );
     }
-    const { isRunning, isDeleting } = queryPane;
 
     const DATASOURCES_OPTIONS = dataSources.map(dataSource => ({
       label: dataSource.name,
@@ -128,8 +147,8 @@ class QueryEditor extends React.Component<Props> {
             location={this.props.location}
             applicationId={applicationId}
             pageId={pageId}
-            isRunning={isRunning[queryId]}
-            isDeleting={isDeleting[queryId]}
+            isRunning={isRunning}
+            isDeleting={isDeleting}
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
             dataSources={dataSources}
@@ -175,7 +194,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources: getDBDatasources(state),
     responses: getActionResponses(state),
-    queryPane: state.ui.queryPane,
+    isRunning: state.ui.queryPane.isRunning[props.match.params.queryId],
+    isDeleting: state.ui.queryPane.isDeleting[props.match.params.queryId],
     formData,
     editorConfig,
     loadingFormConfigs,

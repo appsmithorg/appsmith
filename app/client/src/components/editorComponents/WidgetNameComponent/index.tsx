@@ -11,6 +11,9 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetType } from "constants/WidgetConstants";
 import HelpControl from "./HelpControl";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const PositionStyle = styled.div`
   position: absolute;
@@ -68,6 +71,9 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
         props.widgetId === propertyPaneState.widgetId) ||
       props.widgetId !== propertyPaneState.widgetId
     ) {
+      PerformanceTracker.startTracking(
+        PerformanceTransactionName.OPEN_PROPERTY_PANE,
+      );
       AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN_CLICK", {
         widgetType: props.type,
         widgetId: props.widgetId,
