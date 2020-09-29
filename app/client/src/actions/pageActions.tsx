@@ -8,10 +8,7 @@ import {
   SavePageSuccessPayload,
   FetchPageListPayload,
 } from "constants/ReduxActionConstants";
-import {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";

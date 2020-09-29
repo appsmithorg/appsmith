@@ -71,7 +71,6 @@ import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
-import produce, { current } from "immer";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
