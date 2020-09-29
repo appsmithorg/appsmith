@@ -48,11 +48,11 @@
   "deafultDropDownWidget": [
     {
       "label": "{{Table1.selectedRow.email}}",
-      "value": "1"
+      "value": "VEG"
     },
     {
       "label": "{{Table1.tableData[1].email}}",
-      "value": "2"
+      "value": "NONVEG"
     }
   ],
   "defaultRichtextWidget": "{{Table1.selectedRow.userName",

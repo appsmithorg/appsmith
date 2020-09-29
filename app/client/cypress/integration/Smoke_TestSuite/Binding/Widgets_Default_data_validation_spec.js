@@ -25,9 +25,6 @@ describe("Binding the multiple widgets and validating default data", function() 
   it("Dropdown widget test with default value from table widget", function() {
     cy.openPropertyPane("dropdownwidget");
     cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
-    cy.get(widgetsPage.defaultOption)
-      .type(testdata.command)
-      .type(testdata.defaultDropDownValue);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
