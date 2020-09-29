@@ -366,13 +366,14 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   }
 
   if (deletedWidgets) {
-    const widgets = yield select(getWidgets);
+    const stateWidgets = yield select(getWidgets);
+    let widgets = { ...stateWidgets };
     deletedWidgets.forEach(widget => {
       widgets[widget.widgetId] = widget;
       if (widget.widgetId === action.payload.widgetId) {
         //SPECIAL HANDLING FOR TAB IN A TABS WIDGET
         if (widget.tabId && widget.type === WidgetTypes.CANVAS_WIDGET) {
-          const parent = widgets[widget.parentId];
+          const parent = { ...widgets[widget.parentId] };
           if (parent.tabs) {
             try {
               const tabs = _.isString(parent.tabs)
@@ -383,7 +384,13 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
                 widgetId: widget.widgetId,
                 label: widget.tabName || widget.widgetName,
               });
-              widgets[widget.parentId].tabs = JSON.stringify(tabs);
+              widgets = {
+                ...widgets,
+                [widget.parentId]: {
+                  ...widgets[widget.parentId],
+                  tabs: JSON.stringify(tabs),
+                },
+              };
             } catch (error) {
               log.debug("Error deleting tabs widget: ", { error });
             }
@@ -395,11 +402,23 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
                 label: widget.tabName || widget.widgetName,
               },
             ]);
+            widgets = {
+              ...widgets,
+              [widget.parentId]: parent,
+            };
           }
         }
-        if (widgets[widget.parentId].children)
-          widgets[widget.parentId].children?.push(widget.widgetId);
-        else widgets[widget.parentId].children = [widget.widgetId];
+        let newChildren = [widget.widgetId];
+        if (widgets[widget.parentId].children) {
+          newChildren = newChildren.concat(widgets[widget.parentId].children);
+        }
+        widgets = {
+          ...widgets,
+          [widget.parentId]: {
+            ...widgets[widget.parentId],
+            children: newChildren,
+          },
+        };
       }
     });
 
@@ -722,7 +741,8 @@ function* pasteWidgetSaga() {
       widgetType: copiedWidget.type,
     });
 
-    const widgets = yield select(getWidgets);
+    const stateWidgets = yield select(getWidgets);
+    let widgets = { ...stateWidgets };
 
     const selectedWidget = yield select(getSelectedWidget);
     let newWidgetParentId = MAIN_CONTAINER_WIDGET_ID;
@@ -834,14 +854,23 @@ function* pasteWidgetSaga() {
         widget.parentId = newWidgetParentId;
         // Also, update the parent widget in the canvas widgets
         // to include this new copied widget's id in the parent's children
+        let parentChildren = [widget.widgetId];
         if (
           widgets[newWidgetParentId].children &&
           Array.isArray(widgets[newWidgetParentId].children)
         ) {
-          widgets[newWidgetParentId].children.push(widget.widgetId);
-        } else {
-          widgets[newWidgetParentId].children = [widget.widgetId];
+          // Add the new child to existing children
+          parentChildren = parentChildren.concat(
+            widgets[newWidgetParentId].children,
+          );
         }
+        widgets = {
+          ...widgets,
+          [newWidgetParentId]: {
+            ...widgets[newWidgetParentId],
+            children: parentChildren,
+          },
+        };
         // If the copied widget's boundaries exceed the parent's
         // Make the parent scrollable
         if (
