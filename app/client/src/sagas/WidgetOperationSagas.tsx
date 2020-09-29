@@ -272,9 +272,15 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     }
 
     if (widgetId && parentId) {
-      const widgets = yield select(getWidgets);
-      const widget = yield select(getWidget, widgetId);
-      const parent: FlattenedWidgetProps = yield select(getWidget, parentId);
+      const stateWidgets = yield select(getWidgets);
+      const widgets = { ...stateWidgets };
+      const stateWidget = yield select(getWidget, widgetId);
+      const widget = { ...stateWidget };
+      const stateParent: FlattenedWidgetProps = yield select(
+        getWidget,
+        parentId,
+      );
+      let parent = { ...stateParent };
 
       const analyticsEvent = isShortcut
         ? "WIDGET_DELETE_VIA_SHORTCUT"
@@ -288,9 +294,10 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       // Remove entry from parent's children
 
       if (parent.children) {
-        const indexOfChild = parent.children.indexOf(widgetId);
-        if (indexOfChild > -1) delete parent.children[indexOfChild];
-        parent.children = parent.children.filter(Boolean);
+        parent = {
+          ...parent,
+          children: parent.children.filter(c => c === widgetId),
+        };
       }
 
       widgets[parentId] = parent;
@@ -326,11 +333,12 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         }, WIDGET_DELETE_UNDO_TIMEOUT);
       }
 
-      otherWidgetsToDelete.forEach(widget => {
-        delete widgets[widget.widgetId];
-      });
+      const finalWidgets = _.omit(
+        widgets,
+        otherWidgetsToDelete.map(widgets => widgets.widgetId),
+      );
 
-      yield put(updateAndSaveLayout(widgets));
+      yield put(updateAndSaveLayout(finalWidgets));
     }
   } catch (error) {
     yield put({
@@ -529,7 +537,8 @@ function* updateDynamicBindings(
     stringProp = JSON.stringify(propertyValue);
   }
   const isDynamic = isDynamicValue(stringProp);
-  let dynamicBindings: Record<string, boolean> = widget.dynamicBindings || {};
+  let dynamicBindings: Record<string, boolean> =
+    { ...widget.dynamicBindings } || {};
   if (!isDynamic && propertyName in dynamicBindings) {
     dynamicBindings = _.omit(dynamicBindings, propertyName);
   }
@@ -547,7 +556,8 @@ function* updateWidgetPropertySaga(
   const {
     payload: { propertyValue, propertyName, widgetId },
   } = updateAction;
-  const widget: WidgetProps = yield select(getWidget, widgetId);
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  const widget = { ...stateWidget };
 
   const dynamicTriggersUpdated = yield updateDynamicTriggers(
     widget,
@@ -558,7 +568,8 @@ function* updateWidgetPropertySaga(
     yield updateDynamicBindings(widget, propertyName, propertyValue);
 
   yield put(updateWidgetProperty(widgetId, propertyName, propertyValue));
-  const widgets = yield select(getWidgets);
+  const stateWidgets = yield select(getWidgets);
+  const widgets = { ...stateWidgets, [widgetId]: widget };
   yield put(updateAndSaveLayout(widgets));
 }
 
@@ -639,7 +650,6 @@ function* updateCanvasSize(
 
 function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   const selectedWidget = yield select(getSelectedWidget);
-  console.log({ selectedWidget });
   if (!selectedWidget) return;
   const widgets = yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(selectedWidget.widgetId, widgets);
