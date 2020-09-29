@@ -127,7 +127,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           {
             id: "17.1.1",
             propertyName: "url",
-            label: "Url",
+            label: "URL",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter url",
             inputType: "TEXT",
@@ -135,7 +135,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           {
             id: "17.1.1",
             propertyName: "autoPlay",
-            label: "autoPlay",
+            label: "Auto Play",
             helpText: "Video will be automatically played",
             controlType: "SWITCH",
             isJSConvertible: true,
