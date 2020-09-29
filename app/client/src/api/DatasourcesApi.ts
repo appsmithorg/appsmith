@@ -95,8 +95,13 @@ class DatasourcesApi extends API {
     return API.delete(DatasourcesApi.url + `/${id}`);
   }
 
-  static fetchDatasourceStructure(id: string): Promise<{}> {
-    return API.get(DatasourcesApi.url + `/${id}/structure`);
+  static fetchDatasourceStructure(
+    id: string,
+    ignoreCache = false,
+  ): Promise<{}> {
+    return API.get(
+      DatasourcesApi.url + `/${id}/structure?ignoreCache=${ignoreCache}`,
+    );
   }
 }
 
