@@ -52,7 +52,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
         onClosed={() => {
           setActive(false);
         }}
-        className={`${EntityClassNames.CONTEXT_MENU} t--template-menu`}
+        className={`${EntityClassNames.CONTEXT_MENU} t--structure-template-menu`}
         minimal
         position={Position.RIGHT_TOP}
         boundary={"viewport"}

@@ -34,6 +34,9 @@ export enum PerformanceTransactionName {
   UPDATE_ACTION_API = "UPDATE_ACTION_API",
   OPEN_PROPERTY_PANE = "OPEN_PROPERTY_PANE",
   REFACTOR_ACTION_NAME = "REFACTOR_ACTION_NAME",
+  USER_ME_API = "USER_ME_API",
+  SIGN_UP = "SIGN_UP",
+  LOGIN_CLICK = "LOGIN_CLICK",
 }
 
 export enum PerformanceTagNames {
