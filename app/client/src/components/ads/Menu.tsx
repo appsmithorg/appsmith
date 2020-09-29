@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { CommonComponentProps, Classes } from "./common";
+import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { Popover } from "@blueprintjs/core/lib/esm/components/popover/popover";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -14,18 +14,12 @@ type MenuProps = CommonComponentProps & {
 
 const MenuWrapper = styled.div`
   width: 234px;
-  background: ${props => props.theme.colors.blackShades[3]};
-  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.75);
+  background: ${props => props.theme.colors.menu.background};
+  box-shadow: 0px 12px 28px ${props => props.theme.colors.menu.shadow};
 `;
 
 const MenuOption = styled.div`
-  color: ${props => props.theme.colors.blackShades[6]};
   font-family: ${props => props.theme.fonts[3]};
-  .${Classes.ICON} {
-    path {
-      fill: ${props => props.theme.colors.blackShades[6]};
-    }
-  }
 `;
 
 const Menu = (props: MenuProps) => {
@@ -36,6 +30,7 @@ const Menu = (props: MenuProps) => {
       onOpening={props.onOpening}
       onClosing={props.onClosing}
       className={props.className}
+      portalClassName={props.className}
       data-cy={props.cypressSelector}
     >
       {props.target}

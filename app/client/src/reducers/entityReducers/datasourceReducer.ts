@@ -12,6 +12,7 @@ export interface DatasourceDataState {
   isTesting: boolean;
   isDeleting: boolean;
   fetchingDatasourceStructure: boolean;
+  isRefreshingStructure: boolean;
   structure: Record<string, DatasourceStructure>;
 }
 
@@ -21,6 +22,7 @@ const initialState: DatasourceDataState = {
   isTesting: false,
   isDeleting: false,
   fetchingDatasourceStructure: false,
+  isRefreshingStructure: false,
   structure: {},
 };
 
@@ -45,6 +47,11 @@ const datasourceReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, isDeleting: true };
   },
+  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, isRefreshingStructure: true };
+  },
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: (
     state: DatasourceDataState,
   ) => {
@@ -52,11 +59,24 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS]: (
     state: DatasourceDataState,
-    action: ReduxAction<{ data: any; datasourceId: string }>,
+    action: ReduxAction<{ data: DatasourceStructure; datasourceId: string }>,
   ) => {
     return {
       ...state,
       fetchingDatasourceStructure: false,
+      structure: {
+        ...state.structure,
+        [action.payload.datasourceId]: action.payload.data,
+      },
+    };
+  },
+  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ data: DatasourceStructure; datasourceId: string }>,
+  ) => {
+    return {
+      ...state,
+      isRefreshingStructure: false,
       structure: {
         ...state.structure,
         [action.payload.datasourceId]: action.payload.data,
@@ -174,6 +194,14 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       loading: false,
+    };
+  },
+  [ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      isRefreshingStructure: false,
     };
   },
 });

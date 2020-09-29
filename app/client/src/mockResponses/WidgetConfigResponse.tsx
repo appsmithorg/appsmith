@@ -92,6 +92,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "DatePicker",
       defaultDate: moment().format("DD/MM/YYYY HH:mm"),
     },
+
+    VIDEO_WIDGET: {
+      rows: 7,
+      columns: 7,
+      widgetName: "Video",
+      url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+      autoPlay: false,
+    },
     TABLE_WIDGET: {
       rows: 7,
       columns: 8,

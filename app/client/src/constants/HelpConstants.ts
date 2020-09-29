@@ -31,6 +31,10 @@ export const HelpMap = {
     path: "/widget-reference/table",
     searchKey: "Table",
   },
+  VIDEO_WIDGET: {
+    path: "/widget-reference/video",
+    searchKey: "Video",
+  },
   DROP_DOWN_WIDGET: {
     path: "/widget-reference/dropdown",
     searchKey: "Dropdown",

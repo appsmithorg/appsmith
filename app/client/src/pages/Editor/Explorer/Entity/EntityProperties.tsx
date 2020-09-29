@@ -26,7 +26,9 @@ export const EntityProperties = (props: {
     PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
   );
   useEffect(() => {
-    PerformanceTracker.stopTracking();
+    PerformanceTracker.stopTracking(
+      PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
+    );
   });
   let entity: any;
   const dataTree: DataTree = useSelector(evaluateDataTreeWithoutFunctions);
