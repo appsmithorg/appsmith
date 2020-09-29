@@ -19,9 +19,7 @@ describe("Binding the multiple input Widget", function() {
 
   it("Cyclic depedancy error message validation", function() {
     cy.openPropertyPane("inputwidget");
-    cy.get(widgetsPage.defaultInput)
-      .type(testdata.command)
-      .type(testdata.defaultMoustacheData);
+    cy.get(widgetsPage.defaultInput).type(testdata.defaultMoustacheData);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -50,9 +48,7 @@ describe("Binding the multiple input Widget", function() {
 
   it("Binding second input widget with first input widget and validating", function() {
     cy.SearchEntityandOpen("Input2");
-    cy.get(widgetsPage.defaultInput)
-      .type(testdata.command)
-      .type(testdata.defaultMoustacheData);
+    cy.get(widgetsPage.defaultInput).type(testdata.defaultMoustacheData);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -74,9 +70,7 @@ describe("Binding the multiple input Widget", function() {
 
   it("Binding third input widget with first input widget and validating", function() {
     cy.SearchEntityandOpen("Input3");
-    cy.get(widgetsPage.defaultInput)
-      .type(testdata.command)
-      .type(testdata.defaultMoustacheData);
+    cy.get(widgetsPage.defaultInput).type(testdata.defaultMoustacheData);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",

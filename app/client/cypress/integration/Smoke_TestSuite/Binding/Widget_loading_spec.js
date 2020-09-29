@@ -60,9 +60,7 @@ describe("Binding the multiple widgets and validating default data", function() 
 
   it("Input widget test with default value update with query data", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput)
-      .type(testdata.command)
-      .type(testdata.defaultInputQuery);
+    cy.get(widgetsPage.defaultInput).type(testdata.defaultInputQuery);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -75,30 +73,11 @@ describe("Binding the multiple widgets and validating default data", function() 
       .click();
   });
 
-  it.skip("Text widget label update with query data", function() {
-    cy.SearchEntityandOpen("Text1");
-    cy.testCodeMirror(testdata.labelFrmQuery);
-    cy.get(commonlocators.editPropCrossButton).click();
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-  });
-
   it("Publish App and validate loading functionalty", function() {
-    /*
-    cy.SearchEntityandOpen("Table1");  
-    cy.testJsontext("tabledata", testdata.defaultTableQuery);
-    cy.wait(2000);
-    cy.get('.CodeMirror-Tern-completion').click();
-    cy.get(commonlocators.editPropCrossButton).click();
-    cy.wait("@updateLayout");
-    */
     cy.PublishtheApp();
     cy.wait(2000);
-    cy.get("button")
-      .last()
+    cy.get(widgetsPage.widgetBtn)
+      .first()
       .click({ force: true });
     cy.wait("@postExecute").should(
       "have.nested.property",
