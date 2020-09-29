@@ -88,6 +88,26 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     .click();
 });
 
+Cypress.Commands.add("shareApp", (email, role) => {
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.get(homePage.manageUsers).click({ force: true });
+  cy.xpath(homePage.appHome)
+    .first()
+    .should("be.visible")
+    .click();
+});
+
 Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
