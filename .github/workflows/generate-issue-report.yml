@@ -22,7 +22,7 @@ jobs:
     - uses: brcrista/summarize-issues@dev
       with:
         title: 'My Issues Report'
-        configPath: '.github/workflows/issues-report-config.json'
+        configPath: '.github/workflows/issue-report-config.json'
         outputPath: ${{ env.OUTPUT_FILE_NAME }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
