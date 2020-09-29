@@ -1,0 +1,39 @@
+name: Generate issues report
+
+# Use `push` for easier testing.
+# Note that `push` won't re-trigger for the file we commit in this workflow.
+# In real life, you probably want to run on a schedule.
+# You can also try `on: issue`, but that generates a lot of events!
+on: push
+
+env:
+  OUTPUT_FILE_NAME: IssuesReport.md
+  COMMITTER_EMAIL: nikhil@users.noreply.github.com
+  COMMITTER_NAME: Nikhil Nandagopal
+  COMMITTER_USERNAME: Nikhil-Nandagopal
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: brcrista/summarize-issues@dev
+      with:
+        title: 'My Issues Report'
+        configPath: '.github/workflows/issues-report-config.json'
+        outputPath: ${{ env.OUTPUT_FILE_NAME }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: "Commit if any changes were made"
+      run: |
+        git remote add github "https://$COMMITTER_USERNAME:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY.git"
+        git pull github ${GITHUB_REF} --ff-only
+        if [[ `git status --porcelain` ]]; then
+          git add ${OUTPUT_FILE_NAME}
+          git config --global user.email $COMMITTER_EMAIL
+          git config --global user.name $COMMITTER_NAME
+          git commit -m "Update $OUTPUT_FILE_NAME"
+          git push github HEAD:${GITHUB_REF}
+        fi
