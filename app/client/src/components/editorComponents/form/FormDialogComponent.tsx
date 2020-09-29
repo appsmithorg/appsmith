@@ -5,10 +5,35 @@ import { isPermitted } from "pages/Applications/permissionHelpers";
 
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   && {
-    background: white;
+    border-radius: 0px;
+    padding-bottom: 10px;
+    background: ${props => props.theme.colors.inviteModal.bg};
+    width: 640px;
+
     & .bp3-dialog-header {
-      padding: ${props => props.theme.spaces[4]}px
-        ${props => props.theme.spaces[4]}px;
+      padding: ${props => props.theme.spaces[4]}px;
+      background: ${props => props.theme.colors.inviteModal.bg};
+      box-shadow: none;
+      .bp3-icon {
+        color: ${props => props.theme.colors.inviteModal.iconColor};
+      }
+      .bp3-heading {
+        color: ${props => props.theme.colors.inviteModal.headerText};
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        font-size: 20px;
+        line-height: 24px;
+        font-weight: 500;
+      }
+
+      .bp3-button.bp3-minimal:hover {
+        background-color: ${props => props.theme.colors.inviteModal.bg};
+      }
+    }
+    & .bp3-dialog-body {
+      margin: ${props => props.theme.spaces[9]}px
+        ${props => props.theme.spaces[3]}px;
     }
     & .bp3-dialog-footer-actions {
       display: block;

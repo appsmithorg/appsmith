@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import SelectComponent from "components/editorComponents/SelectComponent";
+import Dropdown from "components/ads/Dropdown";
 
 const renderComponent = (
   componentProps: SelectFieldProps & {
@@ -14,15 +14,15 @@ const renderComponent = (
 ) => {
   return (
     <React.Fragment>
-      <SelectComponent {...componentProps} />
+      <Dropdown {...componentProps} />
     </React.Fragment>
   );
 };
 
 type SelectFieldProps = {
   name: string;
-  placeholder?: string;
-  options?: Array<{ id: string; name: string; value?: string }>;
+  placeholder: string;
+  options: Array<{ id: string; name: string; value?: string }>;
   size?: "large" | "small";
   outline?: boolean;
 };

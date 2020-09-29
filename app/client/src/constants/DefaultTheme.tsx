@@ -481,7 +481,6 @@ type ColorType = {
     hoverBG: Color;
     hoverBGOpacity: number;
     hoverBorder: ShadeColor;
-    targetBg: string;
     iconColor: ShadeColor;
   };
   appCardColors: string[];
@@ -524,7 +523,7 @@ type ColorType = {
   dropdown: {
     header: {
       text: ShadeColor;
-      disabled: ShadeColor;
+      disabledText: ShadeColor;
       bg: ShadeColor;
       disabledBg: ShadeColor;
     };
@@ -639,6 +638,27 @@ type ColorType = {
   profileDropdown: {
     userName: ShadeColor;
   };
+  inviteModal: {
+    bg: ShadeColor;
+    headerText: ShadeColor;
+    iconColor: string;
+    user: {
+      textColor: ShadeColor;
+    };
+    email: {
+      message: ShadeColor;
+      desc: ShadeColor;
+    };
+  };
+  tagInput: {
+    bg: ShadeColor;
+    tag: {
+      text: ShadeColor;
+    };
+    text: ShadeColor;
+    placeholder: ShadeColor;
+    shadow: string;
+  };
 };
 
 export const dark: ColorType = {
@@ -685,7 +705,6 @@ export const dark: ColorType = {
     hoverBG: Colors.BLACK,
     hoverBGOpacity: 0.5,
     hoverBorder: darkShades[4],
-    targetBg: "rgba(0, 0, 0, 0.1)",
     iconColor: darkShades[9],
   },
   appCardColors: [
@@ -738,9 +757,9 @@ export const dark: ColorType = {
   dropdown: {
     header: {
       text: darkShades[7],
-      disabled: darkShades[6],
-      bg: darkShades[2],
-      disabledBg: darkShades[0],
+      disabledText: darkShades[6],
+      bg: darkShades[0],
+      disabledBg: darkShades[2],
     },
     menuBg: darkShades[3],
     menuShadow: "rgba(0, 0, 0, 0.6)",
@@ -853,6 +872,27 @@ export const dark: ColorType = {
   profileDropdown: {
     userName: darkShades[9],
   },
+  inviteModal: {
+    bg: darkShades[1],
+    headerText: darkShades[9],
+    iconColor: "#6D6D6D",
+    user: {
+      textColor: darkShades[7],
+    },
+    email: {
+      message: darkShades[8],
+      desc: darkShades[6],
+    },
+  },
+  tagInput: {
+    bg: darkShades[0],
+    tag: {
+      text: darkShades[9],
+    },
+    text: darkShades[9],
+    placeholder: darkShades[5],
+    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+  },
 };
 
 export const light: ColorType = {
@@ -899,7 +939,6 @@ export const light: ColorType = {
     hoverBG: Colors.WHITE,
     hoverBGOpacity: 0.7,
     hoverBorder: lightShades[2],
-    targetBg: "rgba(0, 0, 0, 0.1)",
     iconColor: lightShades[11],
   },
   appCardColors: [
@@ -952,7 +991,7 @@ export const light: ColorType = {
   dropdown: {
     header: {
       text: lightShades[9],
-      disabled: darkShades[6],
+      disabledText: darkShades[6],
       bg: lightShades[2],
       disabledBg: lightShades[1],
     },
@@ -1066,6 +1105,27 @@ export const light: ColorType = {
   },
   profileDropdown: {
     userName: lightShades[9],
+  },
+  inviteModal: {
+    bg: lightShades[11],
+    headerText: lightShades[10],
+    iconColor: "#A9A7A7",
+    user: {
+      textColor: lightShades[9],
+    },
+    email: {
+      message: lightShades[9],
+      desc: lightShades[7],
+    },
+  },
+  tagInput: {
+    bg: lightShades[2],
+    tag: {
+      text: lightShades[11],
+    },
+    text: lightShades[9],
+    placeholder: darkShades[7],
+    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
   },
 };
 

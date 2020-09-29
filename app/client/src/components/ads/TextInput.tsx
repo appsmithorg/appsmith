@@ -77,8 +77,8 @@ const StyledInput = styled.input<
   outline: 0;
   box-shadow: none;
   border: 1px solid ${props => props.inputStyle.borderColor};
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[6]}px;
+  padding: 0px ${props => props.theme.spaces[6]}px;
+  height: 38px;
   background-color: ${props => props.inputStyle.bgColor};
   color: ${props => props.inputStyle.color};
 

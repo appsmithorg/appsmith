@@ -5,7 +5,6 @@ import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import Divider from "components/editorComponents/Divider";
-import Button from "components/editorComponents/Button";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import {
@@ -17,7 +16,6 @@ import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
-import { Classes } from "@blueprintjs/core";
 import FormMessage from "components/editorComponents/form/FormMessage";
 import {
   INVITE_USERS_SUBMIT_SUCCESS,
@@ -26,7 +24,6 @@ import {
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
 } from "constants/messages";
 import history from "utils/history";
-import { Colors } from "constants/Colors";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
@@ -35,32 +32,23 @@ import {
 import { getAppsmithConfigs } from "configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import Button, { Variant, Size } from "components/ads/Button";
 
 const OrgInviteTitle = styled.div`
   font-weight: bold;
   padding: 10px 0px;
 `;
 
-const DropDownOption = styled.div`
-  padding: 10px 0;
-`;
-
-const OptionTitle = styled.div`
-  font-weight: bold;
-`;
-
-const OptionDescription = styled.div`
-  padding: 5px 0px;
-  max-width: 250px;
-`;
-
 const StyledForm = styled.form`
   width: 100%;
-  background: white;
+  background: ${props => props.theme.colors.inviteModal.bg};
   padding: ${props => props.theme.spaces[5]}px;
   &&& {
-    .wrapper > div {
-      width: 70%;
+    .wrapper > div:nth-child(1) {
+      width: 60%;
+    }
+    .wrapper > div:nth-child(2) {
+      width: 40%;
     }
     .bp3-input {
       box-shadow: none;
@@ -84,33 +72,24 @@ const StyledInviteFieldGroup = styled.div`
     display: flex;
     width: 100%;
     flex-direction: row;
+    align-items: center;
     justify-content: space-between;
-    padding-right: 5px;
-    border-width: 1px;
+    margin-right: 5px;
     border-right: 0px;
-    border-style: solid;
-    border-color: ${Colors.ATHENS_GRAY};
   }
 `;
 
 const UserList = styled.div`
   max-height: 200px;
   margin-top: 20px;
-  overflow-y: scroll;
+  overflow-y: auto;
   .user {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     margin-top: 8px;
     margin-bottom: 8px;
-  }
-`;
-
-const StyledButton = styled(Button)`
-  &&&.${Classes.BUTTON} {
-    width: 83px;
-    height: 31px;
-    border-radius: 0px;
+    color: ${props => props.theme.colors.inviteModal.user.textColor};
   }
 `;
 
@@ -123,15 +102,16 @@ const Loading = styled(Spinner)`
 const MailConfigContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 5px;
+  padding: ${props => props.theme.spaces[9]}px
+    ${props => props.theme.spaces[2]}px;
   align-items: center;
   && > span {
-    color: #2e3d49;
+    color: ${props => props.theme.colors.inviteModal.email.message};
     font-weight: 500;
     font-size: 14px;
   }
   && > a {
-    color: rgba(46, 61, 73, 0.5);
+    color: ${props => props.theme.colors.inviteModal.email.desc};
     font-size: 12px;
     text-decoration: underline;
   }
@@ -208,13 +188,8 @@ const OrgInviteUsersForm = (props: any) => {
   const styledRoles = props.roles.map((role: any) => {
     return {
       id: role.id,
-      name: role.name,
-      content: (
-        <DropDownOption>
-          <OptionTitle>{role.name}</OptionTitle>
-          <OptionDescription>{role.description}</OptionDescription>
-        </DropDownOption>
-      ),
+      value: role.name,
+      label: role.description,
     };
   });
 
@@ -258,14 +233,13 @@ const OrgInviteUsersForm = (props: any) => {
               data-cy="t--invite-role-input"
             />
           </div>
-          <StyledButton
+          <Button
             className="t--invite-user-btn"
             disabled={!valid}
             text="Invite"
-            filled
-            intent="primary"
-            loading={submitting && !(submitFailed && !anyTouched)}
-            type="submit"
+            size={Size.large}
+            variant={Variant.info}
+            isLoading={submitting && !(submitFailed && !anyTouched)}
           />
         </StyledInviteFieldGroup>
         {isLoading ? (
@@ -301,8 +275,8 @@ const OrgInviteUsersForm = (props: any) => {
           <Button
             className="manageUsers"
             text="Manage Users"
-            filled
-            intent="primary"
+            size={Size.medium}
+            variant={Variant.info}
             onClick={() => {
               history.push(`/org/${props.orgId}/settings/members`);
             }}

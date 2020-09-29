@@ -19,17 +19,14 @@ export const Text = () => (
         {
           id: "111abc",
           value: text("1st Option", "First option"),
-          onSelect: action("selected-option"),
         },
         {
           id: "222abc",
           value: text("2nd Option", "Second option"),
-          onSelect: action("selected-option"),
         },
         {
           id: "322abc",
           value: text("3rd Option", "Third option"),
-          onSelect: action("selected-option"),
         },
       ]}
       selected={{
@@ -49,19 +46,16 @@ export const IconAndText = () => (
           id: "111abc",
           value: text("1st Option", "Delete"),
           icon: select("1st Icon", IconCollection, "delete"),
-          onSelect: action("selected-option"),
         },
         {
           id: "222abc",
           value: text("2nd Option", "User"),
           icon: select("2nd Icon", IconCollection, "user"),
-          onSelect: action("selected-option"),
         },
         {
           id: "322abc",
           value: text("3rd Option", "General"),
           icon: select("3rd Icon", IconCollection, "general"),
-          onSelect: action("selected-option"),
         },
       ]}
       selected={{
@@ -84,13 +78,11 @@ export const LabelAndText = () => (
             "1st label",
             "Can edit, view and invite other user to an app",
           ),
-          onSelect: action("selected-option"),
         },
         {
           id: "222abc",
           value: text("2nd Option", "Developer"),
           label: text("2nd label", "Can view and invite other user to an app"),
-          onSelect: action("selected-option"),
         },
         {
           id: "322abc",
@@ -99,7 +91,6 @@ export const LabelAndText = () => (
             "3rd label",
             "Can view and invite other user to an app and…",
           ),
-          onSelect: action("selected-option"),
         },
       ]}
       selected={{

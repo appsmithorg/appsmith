@@ -295,7 +295,7 @@ const StyledButton = styled("a")<ThemeProp & ButtonProps>`
   align-items: center;
   justify-content: center;
   position: relative;
-  .new-spinner {
+  .${Classes.SPINNER} {
     position: absolute;
     left: 0;
     right: 0;
