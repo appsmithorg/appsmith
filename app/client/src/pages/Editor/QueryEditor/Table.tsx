@@ -95,7 +95,7 @@ const Table = (props: TableProps) => {
     useFlexLayout,
   );
 
-  if (rows.length === 0 || headerGroups.length) return null;
+  if (rows.length === 0 || headerGroups.length === 0) return null;
 
   return (
     <StyledTableWrapped
