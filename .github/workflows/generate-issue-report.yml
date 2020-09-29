@@ -24,7 +24,7 @@ jobs:
         title: 'My Issues Report'
         configPath: '.github/workflows/issue-report-config.json'
         outputPath: ${{ env.OUTPUT_FILE_NAME }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GIT_ACTION_TOKEN }}
 
     - name: "Commit if any changes were made"
       run: |
