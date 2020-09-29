@@ -60,11 +60,7 @@ export const ExplorerDatasourcesGroup = (
           DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
         ) > -1
       }
-      isDefaultExpanded={
-        window.location.pathname.indexOf(
-          DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
-        ) > -1 || !!props.searchKeyword
-      }
+      isDefaultExpanded
       disabled={disableDatasourceGroup}
       onCreate={() => {
         history.push(
