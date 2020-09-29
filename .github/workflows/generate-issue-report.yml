@@ -1,4 +1,4 @@
-name: Generate issues report
+name: 'generate-issue-report'
 
 # Use `push` for easier testing.
 # Note that `push` won't re-trigger for the file we commit in this workflow.
