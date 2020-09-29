@@ -40,14 +40,16 @@ import { getThemeDetails } from "selectors/themeSelectors";
 import { useSelector } from "react-redux";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import { getIsSavingAppName } from "selectors/applicationSelectors";
+import { Classes as CsClasses } from "components/ads/common";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
   showOverlay: boolean;
+  isMenuOpen: boolean;
 };
 
 const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
-  <div {...omit(props, ["hasReadPermission", "showOverlay"])} />
+  <div {...omit(props, ["hasReadPermission", "showOverlay", "isMenuOpen"])} />
 ))`
   .bp3-card {
     border-radius: 0;
@@ -57,7 +59,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     props.showOverlay &&
     `
       {
-        background-color: ${props.theme.colors.blackShades[4]};
+        background-color: ${props.theme.colors.card.hoverBorder}};
         justify-content: center;
         align-items: center;
 
@@ -79,7 +81,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
           & div.image-container {
             background: ${
-              props.hasReadPermission
+              props.hasReadPermission && !props.isMenuOpen
                 ? getColorWithOpacity(
                     props.theme.colors.card.hoverBG,
                     props.theme.colors.card.hoverBGOpacity,
@@ -124,6 +126,14 @@ const Wrapper = styled(
   }
   .bp3-card {
     border-radius: 0;
+  }
+  .${CsClasses.APP_ICON} {
+    margin: 0 auto;
+    svg {
+      path {
+        fill: #fff;
+      }
+    }
   }
 `;
 
@@ -193,13 +203,16 @@ const ContextDropdownWrapper = styled.div`
   position: absolute;
   top: -6px;
   right: -3px;
-`;
 
-const StyledAppIcon = styled(AppIcon)`
-  margin: 0 auto;
-  svg {
-    path {
-      fill: #fff;
+  .${Classes.POPOVER_TARGET} {
+    span {
+      background: ${props => props.theme.colors.card.targetBg};
+
+      svg {
+        path {
+          fill: ${props => props.theme.colors.card.iconColor};
+        }
+      }
     }
   }
 `;
@@ -372,6 +385,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         !isMenuOpen && setShowOverlay(false);
       }}
       hasReadPermission={hasReadPermission}
+      isMenuOpen={isMenuOpen}
       className="t--application-card"
     >
       <Wrapper
@@ -379,7 +393,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         hasReadPermission={hasReadPermission}
         backgroundColor={colorCode}
       >
-        <StyledAppIcon size={Size.large} name={appIcon} />
+        <AppIcon size={Size.large} name={appIcon} />
         {/* <Initials>{initials}</Initials> */}
         {showOverlay && (
           <div className="overlay">
@@ -400,7 +414,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                   />
                 )} */}
 
-                {hasEditPermission && (
+                {hasEditPermission && !isMenuOpen && (
                   <EditButton
                     text="Edit"
                     size={Size.medium}
@@ -410,15 +424,17 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                     href={editApplicationURL}
                   />
                 )}
-                <Button
-                  text="LAUNCH"
-                  size={Size.medium}
-                  category={Category.tertiary}
-                  className="t--application-view-link"
-                  icon={"rocket"}
-                  href={viewApplicationURL}
-                  fill
-                />
+                {!isMenuOpen && (
+                  <Button
+                    text="LAUNCH"
+                    size={Size.medium}
+                    category={Category.tertiary}
+                    className="t--application-view-link"
+                    icon={"rocket"}
+                    href={viewApplicationURL}
+                    fill
+                  />
+                )}
               </Control>
             </ApplicationImage>
           </div>

@@ -44,7 +44,7 @@ export default function Settings() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchOrg(orgId as string));
-  }, []);
+  }, [orgId, dispatch]);
 
   const SettingsRenderer = (
     <div>

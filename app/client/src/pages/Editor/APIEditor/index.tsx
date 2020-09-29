@@ -40,8 +40,8 @@ const LoadingContainer = styled(CenteredWrapper)`
 
 interface ReduxStateProps {
   actions: ActionDataState;
-  isRunning: Record<string, boolean>;
-  isDeleting: Record<string, boolean>;
+  isRunning: boolean;
+  isDeleting: boolean;
   isCreating: boolean;
   apiName: string;
   currentApplication: UserApplication;
@@ -71,6 +71,9 @@ type Props = ReduxActionProps &
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount() {
+    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
+      actionType: "API",
+    });
     this.props.changeAPIPage(this.props.match.params.apiId);
   }
   handleDeleteClick = () => {
@@ -87,6 +90,9 @@ class ApiEditor extends React.Component<Props> {
   };
 
   componentDidUpdate(prevProps: Props) {
+    if (prevProps.isRunning === true && this.props.isRunning === false) {
+      PerformanceTracker.stopTracking(PerformanceTransactionName.RUN_API_CLICK);
+    }
     if (prevProps.match.params.apiId !== this.props.match.params.apiId) {
       this.props.changeAPIPage(this.props.match.params.apiId);
     }
@@ -97,6 +103,9 @@ class ApiEditor extends React.Component<Props> {
       this.props.pages,
       this.props.match.params.pageId,
     );
+    PerformanceTracker.startTracking(PerformanceTransactionName.RUN_API_CLICK, {
+      apiId: this.props.match.params.apiId,
+    });
     AnalyticsUtil.logEvent("RUN_API_CLICK", {
       apiName: this.props.apiName,
       apiID: this.props.match.params.apiId,
@@ -174,8 +183,8 @@ class ApiEditor extends React.Component<Props> {
               <ApiEditorForm
                 pluginId={pluginId}
                 paginationType={paginationType}
-                isRunning={isRunning[apiId]}
-                isDeleting={isDeleting[apiId]}
+                isRunning={isRunning}
+                isDeleting={isDeleting}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
                 appName={
@@ -192,8 +201,8 @@ class ApiEditor extends React.Component<Props> {
                 apiName={this.props.apiName}
                 apiId={this.props.match.params.apiId}
                 paginationType={paginationType}
-                isRunning={isRunning[apiId]}
-                isDeleting={isDeleting[apiId]}
+                isRunning={isRunning}
+                isDeleting={isDeleting}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
                 appName={
@@ -217,9 +226,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
   const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
-  PerformanceTracker.startTracking(
-    PerformanceTransactionName.GENERATE_API_PROPS,
-  );
   const apiEditorState = {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
@@ -230,12 +236,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId: _.get(apiAction, "pluginId"),
     paginationType: _.get(apiAction, "actionConfiguration.paginationType"),
     apiAction,
-    isRunning,
-    isDeleting,
-    isCreating,
+    isRunning: isRunning[props.match.params.apiId],
+    isDeleting: isDeleting[props.match.params.apiId],
+    isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
   };
-  PerformanceTracker.stopTracking();
   return apiEditorState;
 };
 

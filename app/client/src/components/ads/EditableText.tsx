@@ -3,7 +3,7 @@ import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
-import { hexToRgba, Classes, CommonComponentProps } from "./common";
+import { Classes, CommonComponentProps } from "./common";
 import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
 import { getThemeDetails } from "selectors/themeSelectors";
@@ -55,9 +55,9 @@ const editModeBgcolor = (
   theme: any,
 ): string => {
   if ((isInvalid && isEditing) || savingState === SavingState.ERROR) {
-    return hexToRgba(theme.colors.danger.main, 0.08);
+    return theme.colors.editableText.dangerBg;
   } else if (!isInvalid && isEditing) {
-    return theme.colors.blackShades[2];
+    return theme.colors.editableText.bg;
   } else {
     return "transparent";
   }
@@ -89,7 +89,7 @@ const TextContainer = styled.div<{
 
   &&& .bp3-editable-text-content {
     cursor: pointer;
-    color: ${props => props.theme.colors.blackShades[9]};
+    color: ${props => props.theme.colors.editableText.color};
     overflow: hidden;
     text-overflow: ellipsis;
     ${props => (props.isEditing ? "display: none" : "display: block")};
@@ -99,7 +99,7 @@ const TextContainer = styled.div<{
     border: none;
     outline: none;
     height: ${props => props.theme.spaces[13] + 3}px;
-    color: ${props => props.theme.colors.blackShades[9]};
+    color: ${props => props.theme.colors.editableText.color};
     min-width: 100%;
     border-radius: ${props => props.theme.spaces[0]}px;
   }
@@ -136,10 +136,17 @@ export const EditableText = (props: EditableTextProps) => {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
+  const valueRef = React.useRef(props.defaultValue);
 
   useEffect(() => {
     setSavingState(props.savingState);
   }, [props.savingState]);
+
+  useEffect(() => {
+    return () => {
+      props.onBlur(valueRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     setValue(props.defaultValue);
@@ -169,18 +176,21 @@ export const EditableText = (props: EditableTextProps) => {
     [props],
   );
 
-  const onConfirm = (_value: string) => {
-    if (savingState === SavingState.ERROR || isInvalid) {
-      setValue(lastValidValue);
-      props.onBlur(lastValidValue);
-      setSavingState(SavingState.NOT_STARTED);
-    } else if (changeStarted) {
-      props.onTextChanged(_value);
-      props.onBlur(_value);
-    }
-    setIsEditing(false);
-    setChangeStarted(false);
-  };
+  const onConfirm = useCallback(
+    (_value: string) => {
+      if (savingState === SavingState.ERROR || isInvalid) {
+        setValue(lastValidValue);
+        props.onBlur(lastValidValue);
+        setSavingState(SavingState.NOT_STARTED);
+      } else if (changeStarted) {
+        props.onTextChanged(_value);
+        props.onBlur(_value);
+      }
+      setIsEditing(false);
+      setChangeStarted(false);
+    },
+    [changeStarted, lastValidValue, props.onBlur, props.onTextChanged],
+  );
 
   const onInputchange = useCallback(
     (_value: string) => {
@@ -189,12 +199,13 @@ export const EditableText = (props: EditableTextProps) => {
       const error = errorMessage ? errorMessage : false;
       if (!error) {
         setLastValidValue(finalVal);
+        valueRef.current = finalVal;
       }
       setValue(finalVal);
       setIsInvalid(error);
       setChangeStarted(true);
     },
-    [props],
+    [props.isInvalid],
   );
 
   const iconName =
