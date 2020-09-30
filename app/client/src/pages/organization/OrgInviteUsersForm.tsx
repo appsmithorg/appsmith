@@ -234,6 +234,7 @@ const OrgInviteUsersForm = (props: any) => {
             />
           </div>
           <Button
+            tag="button"
             className="t--invite-user-btn"
             disabled={!valid}
             text="Invite"
@@ -273,6 +274,7 @@ const OrgInviteUsersForm = (props: any) => {
         )}
         {!pathRegex.test(currentPath) && canManage && (
           <Button
+            tag="button"
             className="manageUsers"
             text="Manage Users"
             size={Size.medium}
