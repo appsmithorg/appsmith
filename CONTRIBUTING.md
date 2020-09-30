@@ -21,13 +21,13 @@ We welcome all feature requests, whether it's to add new functionality to an exi
 File your feature request through GitHub Issues using the [Feature Request](https://github.com/appsmithorg/appsmith/issues/new?assignees=Nikhil-Nandagopal&labels=&template=----feature-request.md&title=%5BFeature%5D) template.
 
 #### 📝 Improve the documentation
-In the process of shipping features quickly, we often forget to keep our [Documentation](https://docs.appsmith.com) up to date. You can help by suggesting improvements to our documentation. See our [Documentation Contribution Guide]()
+In the process of shipping features quickly, we often forget to keep our [Documentation](https://docs.appsmith.com) up to date. You can help by suggesting improvements to our documentation. Read our [Documentation Contribution Guide]()
 
 #### 💥 Fix a bug
-We welcome contributions that help make appsmith bug free. Read our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md)
+We welcome contributions that help make appsmith bug free. Read our contribution section [below](#code-contribution)
 
 #### ⚙️ Build a feature
-Being a horizontal platform, we have a never ending list of [feature requests](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3AEnhancement) that you can contribute to. Read our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md)
+Being a horizontal platform, we have a never ending list of [feature requests](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3AEnhancement) that you can contribute to. Read our contribution section [below](#code-contribution)
 
 ## Code Contribution
 All Code contributions are welcome and highly encouraged. Before opening a PR, create an issue and talk to a maintainer about a possible solution.
