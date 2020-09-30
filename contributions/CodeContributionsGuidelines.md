@@ -20,8 +20,8 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 
 ### 🏡 Setup for local development
 
-- [Client](contributions/ClientSetup.md)
-- [Server](contributions/ServerSetup.md)
+- [Running the Client](contributions/ClientSetup.md)
+- [Running the Server](contributions/ServerSetup.md)
 
 ### 🧪 Running tests
 
