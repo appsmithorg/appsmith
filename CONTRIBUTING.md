@@ -34,6 +34,6 @@ Being a horizontal platform, we have a never ending list of [feature requests](h
 
 ## Code Contribution
 All Code contributions are welcome and highly encouraged. Before opening a PR, create an issue and talk to a maintainer about a possible solution.
-This ensures that your PR has the highest chances of getting merged in and avoids 2 contributors from working on the same issue. Also read our 
-[Code Contribution Guide](contributions/CodeContributionsGuidelines.md) to ensure your PR follows our community standards.
+This ensures that your PR has the highest chances of getting merged in and avoids 2 contributors from working on the same issue. Read our 
+[Code Contribution Guide](contributions/CodeContributionsGuidelines.md) for help getting started.
 
