@@ -45,12 +45,13 @@ cd app/client
 Your client is pointing to the cloud staging server https://release-api.appsmith.com
 
 #### If you would like to hit a different appsmith server:
-Please Run
-
-    REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start
-    
 - Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). 
 - Run `start-https.sh` script again.
+- Run
+```bash
+    REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start
+```
+    
 
 #### If you are unable to run docker:
 
