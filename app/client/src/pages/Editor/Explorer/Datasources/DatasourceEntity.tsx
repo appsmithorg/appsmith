@@ -1,7 +1,8 @@
 import React, { useCallback } from "react";
 import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
 import DataSourceContextMenu from "./DataSourceContextMenu";
-import { queryIcon } from "../ExplorerIcons";
+import { getPluginIcon } from "../ExplorerIcons";
 import { useParams } from "react-router";
 import { ExplorerURLParams, getDatasourceIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
@@ -16,6 +17,7 @@ import { AppState } from "reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 
 type ExplorerDatasourceEntityProps = {
+  plugin: Plugin;
   datasource: Datasource;
   step: number;
   searchKeyword?: string;
@@ -26,6 +28,7 @@ export const ExplorerDatasourceEntity = (
 ) => {
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
+  const icon = getPluginIcon(props.plugin);
   const switchDatasource = useCallback(
     () =>
       history.push(
@@ -58,7 +61,7 @@ export const ExplorerDatasourceEntity = (
       entityId={props.datasource.id}
       className="datasource"
       key={props.datasource.id}
-      icon={queryIcon}
+      icon={icon}
       name={props.datasource.name}
       active={active}
       step={props.step}

@@ -1,16 +1,16 @@
-import React, { useMemo, ReactNode } from "react";
+import React, { useMemo } from "react";
 import { datasourceIcon } from "../ExplorerIcons";
 import Entity from "../Entity";
-import { groupBy } from "lodash";
+import { keyBy } from "lodash";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import history from "utils/history";
-import { Plugin } from "api/PluginApi";
-import DatasourcePluginGroup from "./PluginGroup";
+
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { Datasource } from "api/DatasourcesApi";
+import ExplorerDatasourceEntity from "./DatasourceEntity";
 
 type ExplorerDatasourcesGroupProps = {
   step: number;
@@ -25,29 +25,12 @@ export const ExplorerDatasourcesGroup = (
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
-  const { datasources } = props;
+  const { datasources = [] } = props;
   const disableDatasourceGroup = !datasources || !datasources.length;
 
-  const pluginGroups = useMemo(() => groupBy(datasources, "pluginId"), [
-    datasources,
-  ]);
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
 
-  const pluginGroupNodes: ReactNode[] = [];
-  for (const [pluginId, datasources] of Object.entries(pluginGroups)) {
-    const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
-
-    pluginGroupNodes.push(
-      <DatasourcePluginGroup
-        plugin={plugin}
-        datasources={datasources}
-        searchKeyword={props.searchKeyword}
-        step={props.step + 1}
-        key={plugin?.id || "unknown-plugin"}
-      />,
-    );
-  }
-
-  if (pluginGroupNodes.length === 0 && props.searchKeyword) return null;
+  if (disableDatasourceGroup && props.searchKeyword) return null;
   return (
     <Entity
       entityId="DataSources"
@@ -68,7 +51,17 @@ export const ExplorerDatasourcesGroup = (
         );
       }}
     >
-      {pluginGroupNodes}
+      {datasources.map((datasource: Datasource) => {
+        return (
+          <ExplorerDatasourceEntity
+            plugin={pluginGroups[datasource.pluginId]}
+            key={datasource.id}
+            datasource={datasource}
+            step={props.step + 1}
+            searchKeyword={props.searchKeyword}
+          />
+        );
+      })}
     </Entity>
   );
 };
