@@ -78,7 +78,7 @@ We are committed to fostering an open and welcoming environment in the community
 
 ## ∞ Contributing to Appsmith
 
-Please read our [contribution guidelines](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) in order to contribute to Appsmith.
+Read our [contribution guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) and join our community of contributors!
 
 ## 📑 License
 
