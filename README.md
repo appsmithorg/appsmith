@@ -56,7 +56,7 @@ Appsmith is a quicker way of building internal tools by visualising them as modu
 
 ## 🏭 Features
 
-* **5 minute setup**: Install Appsmith in 5 minutes on your servers.
+* **5 minute setup**: Deploy Appsmith on your servers in 5 minutes.
 * **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**.
 * **Query data**: Query & update your database directly from the UI. Connect to **postgres, mongo, MySQL, REST & GraphQL APIs**.
 * **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows. Use popular libraries like lodash & moment anywhere in the app
