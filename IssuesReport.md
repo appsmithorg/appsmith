@@ -3,7 +3,7 @@
 | Section Title | Labels | Threshold | Count | Status |
 | -- | -- | -- | -- | -- |
 | [Critical](#-Critical-query) | `Critical` | 100 | 2 | 💚🥳 |
-| [High](#-High-query) | `High` | 100 | 24 | 💚🥳 |
+| [High](#-High-query) | `High` | 100 | 39 | 💚🥳 |
 | [Low](#-Low-query) | `Low` | 100 | 63 | 💚🥳 |
 | [Good First Issue](#-Good-First-Issue-query) | `Good First Issue` | 100 | 49 | 💚🥳 |
 ## Details
@@ -19,7 +19,7 @@ Labels: `Critical`
 | [riodeuno](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3ACritical+assignee%3Ariodeuno) | 2 |
 | [Nikhil-Nandagopal](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3ACritical+assignee%3ANikhil-Nandagopal) | 1 |
 ### 💚🥳 High [(query)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh)
-Total: 24
+Total: 39
 
 Threshold: 100
 
@@ -27,16 +27,17 @@ Labels: `High`
 
 | Owner | Count |
 | -- | -- |
-| [Nikhil-Nandagopal](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3ANikhil-Nandagopal) | 15 |
-| [hetunandu](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Ahetunandu) | 9 |
-| [mohanarpit](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Amohanarpit) | 4 |
+| [Nikhil-Nandagopal](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3ANikhil-Nandagopal) | 26 |
+| [hetunandu](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Ahetunandu) | 15 |
+| [mohanarpit](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Amohanarpit) | 6 |
+| [vicky-primathon](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Avicky-primathon) | 5 |
+| [riodeuno](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Ariodeuno) | 4 |
 | [trishaanand](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Atrishaanand) | 3 |
-| [riodeuno](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Ariodeuno) | 3 |
-| [vicky-primathon](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Avicky-primathon) | 2 |
+| [satbir121](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Asatbir121) | 2 |
+| [sharat87](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Asharat87) | 2 |
+| [devrk96](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Adevrk96) | 1 |
 | [akash-codemonk](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Aakash-codemonk) | 1 |
 | [areyabhishek](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Aareyabhishek) | 1 |
-| [sharat87](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Asharat87) | 1 |
-| [satbir121](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3AHigh+assignee%3Asatbir121) | 1 |
 ### 💚🥳 Low [(query)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3ALow)
 Total: 63
 
@@ -68,3 +69,4 @@ Labels: `Good First Issue`
 | [riodeuno](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good%20First%20Issue%22+assignee%3Ariodeuno) | 9 |
 | [mohanarpit](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good%20First%20Issue%22+assignee%3Amohanarpit) | 7 |
 | [trishaanand](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good%20First%20Issue%22+assignee%3Atrishaanand) | 3 |
+| [ari-hacks](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good%20First%20Issue%22+assignee%3Aari-hacks) | 1 |
