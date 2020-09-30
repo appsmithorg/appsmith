@@ -103,6 +103,9 @@ export const Entity = forwardRef(
       if (!props.searchKeyword && !props.isDefaultExpanded) {
         open(false);
       }
+      if (props.searchKeyword && props.isDefaultExpanded) {
+        open(true);
+      }
     }, [props.searchKeyword]);
     /* eslint-enable react-hooks/exhaustive-deps */
 
