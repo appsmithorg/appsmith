@@ -33,11 +33,9 @@ This ensures that your PR has the highest chance of getting merged quickly and a
 ### Contributing to the Frontend (React / HTML / CSS / JS)
 - Go through our list of frontend [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+label%3A%22Frontend%22)
 - Pick the ones you like most and drop us a comment!
-- [Run the codebase](contributions/ClientSetup.md) on your local machine
 - Follow our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) and raise your first PR!
 
 ### Contributing to the Backend (Java / Mongo / Springboot)
 - Go through our list of backend [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+label%3A%22Backend%22+)
 - Pick the ones you like most and drop us a comment!
-- [Run the codebase](contributions/ServerSetup.md) on your local machine
 - Follow our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) and raise your first PR!
