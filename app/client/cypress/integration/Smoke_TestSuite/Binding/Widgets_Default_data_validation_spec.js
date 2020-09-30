@@ -34,6 +34,8 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
 
   it("validation of default data displayed in all widgets based on row selected", function() {
+    cy.isSelectRow(2);
+    cy.get(widgetsPage.defaultSingleSelectValue).click();
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then(tabData => {
       const tabValue = tabData;
