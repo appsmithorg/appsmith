@@ -23,7 +23,7 @@ File your feature request through GitHub Issues using the [Feature Request](http
 #### 📝 Improve the documentation
 In the process of shipping features quickly, we often forget to keep our docs up to date. You can help by suggesting improvements to our documentation or helping with one of our many [documentation issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3ADocumentation). Read our [Documentation Contribution Guide]() to get started!
 
-#### ⚙️ Close a Bug / Feature Request
+#### ⚙️ Close a Bug / Feature issue
 We welcome contributions that help make appsmith bug free & improve the experience of our users. Check our [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) & [begin contributing](#code-contribution)
 
 ## Code Contribution
