@@ -65,6 +65,7 @@ export const ExplorerDatasourcesGroup = (
           DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
         ) > -1 || !!props.searchKeyword
       }
+      searchKeyword={props.searchKeyword}
       disabled={disableDatasourceGroup}
       onCreate={() => {
         history.push(

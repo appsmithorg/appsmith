@@ -29,6 +29,7 @@ export const DatasourcePluginGroup = (props: DatasourcePluginGroupProps) => {
       name={props.plugin?.name || "Unknown Plugin"}
       active={currentGroup}
       isDefaultExpanded={currentGroup || !!props.searchKeyword}
+      searchKeyword={props.searchKeyword}
       step={props.step}
     >
       {props.datasources.map((datasource: Datasource) => {

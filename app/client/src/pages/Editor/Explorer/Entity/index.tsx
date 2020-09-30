@@ -100,11 +100,13 @@ export const Entity = forwardRef(
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
+      if (!!props.isDefaultExpanded) {
+        open(true);
+      }
+    }, [props.isDefaultExpanded]);
+    useEffect(() => {
       if (!props.searchKeyword && !props.isDefaultExpanded) {
         open(false);
-      }
-      if (props.searchKeyword && props.isDefaultExpanded) {
-        open(true);
       }
     }, [props.searchKeyword]);
     /* eslint-enable react-hooks/exhaustive-deps */
