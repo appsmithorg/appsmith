@@ -12,26 +12,24 @@ Read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing
 
 There are many ways in which we/one can to contribute to Appsmith. All contributions are highly appreciated.
 
-#### Report an issue
+#### 🐛 Report an issue
 Report all issues through GitHub Issues using the [Report a Bug](https://github.com/appsmithorg/appsmith/issues/new?assignees=Nikhil-Nandagopal&labels=Bug%2C+High&template=---bug-report.md&title=%5BBug%5D) template.
-
 To help resolve your issue as quickly as possible, read the template and provide all the requested information.
 
-#### File a feature request
+#### 🛠 File a feature request
 We welcome all feature requests, whether it's to add new functionality to an existing extension or to offer an idea for a brand new extension.
-
 File your feature request through GitHub Issues using the [Feature Request](https://github.com/appsmithorg/appsmith/issues/new?assignees=Nikhil-Nandagopal&labels=&template=----feature-request.md&title=%5BFeature%5D) template.
 
-#### Beta Testing
+#### 💻 Beta Testing
 Join our [Beta Program](https://github.com/appsmithorg/appsmith/issues/377) and give us your valuable feedback on new and cutting edge features.
 
-#### Improve the documentation
+#### 📝 Improve the documentation
 In the process of shipping features quickly, we often forget to keep our [Documentation](https://docs.appsmith.com) up to date. You can help by suggesting improvements to our documentation. See our [Documentation Contribution Guide]()
 
-#### Fix a bug
+#### 💥 Fix a bug
 We welcome contributors who want to help make appsmith bug free. Read our [Code Contribution Guidelines](contributions/CodeContributionsGuidelines.md)
 
-#### Build a feature
+#### ⚙️ Build a feature
 Being a horizontal platform, we have a never ending list of [feature requests](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3AEnhancement) that you can contribute to. Read our [Code Contribution Guidelines](contributions/CodeContributionsGuidelines.md)
 
 ## Code Contribution
