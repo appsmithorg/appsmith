@@ -57,10 +57,10 @@ Appsmith is a quicker way of building internal tools by visualising them as modu
 ## 🏭 Features
 
 * **5 minute setup**: Install Appsmith in 5 minutes on your servers.
-* **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui)
-* **Query data**: Query & update your database directly from the UI. Connect to **postgres, mongo, MySQL, REST & GraphQL APIs**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/displaying-api-data)
+* **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**.
+* **Query data**: Query & update your database directly from the UI. Connect to **postgres, mongo, MySQL, REST & GraphQL APIs**.
 * **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows. Use popular libraries like lodash & moment anywhere in the app
-* **Data Workflows**: Simple configuration to create flows when users interact with the UI. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/calling-apis-from-widgets)
+* **Data Workflows**: Simple configuration to create flows when users interact with the UI.
 * **Realtime Editor**: Changes in your application reflect instantly with every edit. No need to compile!
 * **Works with existing, live databases**: Connect directly to any Postgres, MySQL, & Mongo db
 * **Fine-grained access control**: Control who can edit / view your applications from a single control panel
@@ -78,7 +78,7 @@ We are committed to fostering an open and welcoming environment in the community
 
 ## ∞ Contributing to Appsmith
 
-Read our [contribution guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) and join our community of contributors!
+Read our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) and join our community of contributors!
 
 ## 📑 License
 
