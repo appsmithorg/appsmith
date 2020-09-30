@@ -8,11 +8,17 @@ import com.appsmith.server.domains.Documentation;
 import com.appsmith.server.domains.PluginType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Transient;
 
 import java.util.List;
 import java.util.Set;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class ActionDTO {
 
     @Transient
@@ -59,8 +65,10 @@ public class ActionDTO {
 
     String cacheResponse;
 
+    @Transient
     String templateId; //If action is created via a template, store the id here.
 
+    @Transient
     String providerId; //If action is created via a template, store the template's provider id here.
 
     @Transient
@@ -71,6 +79,7 @@ public class ActionDTO {
 
     Boolean confirmBeforeExecute = false;
 
+    @Transient
     Documentation documentation;
 
     /**

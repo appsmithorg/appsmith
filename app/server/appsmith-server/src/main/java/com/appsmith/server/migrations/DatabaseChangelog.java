@@ -13,6 +13,7 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
@@ -22,11 +23,13 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
@@ -998,6 +1001,82 @@ public class DatabaseChangelog {
                 }
                 mongoTemplate.save(page);
             }
+        }
+    }
+
+    @ChangeSet(order = "028", id = "createNewActionIndex", author = "")
+    public void addNewActionIndex(MongoTemplate mongoTemplate) {
+        Index createdAtIndex = makeIndex("createdAt");
+
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                createdAtIndex
+        );
+    }
+
+    private ActionDTO copyOldActionToDTO(Action action) {
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setName(action.getName());
+        actionDTO.setDatasource(action.getDatasource());
+        actionDTO.setPageId(action.getPageId());
+        actionDTO.setActionConfiguration(action.getActionConfiguration());
+        actionDTO.setExecuteOnLoad(action.getExecuteOnLoad());
+        actionDTO.setDynamicBindingPathList(action.getDynamicBindingPathList());
+        actionDTO.setIsValid(action.getIsValid());
+        actionDTO.setInvalids(action.getInvalids());
+        actionDTO.setJsonPathKeys(action.getJsonPathKeys());
+        actionDTO.setCacheResponse(action.getCacheResponse());
+        actionDTO.setUserSetOnLoad(action.getUserSetOnLoad());
+        actionDTO.setConfirmBeforeExecute(action.getConfirmBeforeExecute());
+
+        return actionDTO;
+    }
+
+    @ChangeSet(order = "029", id = "migrate-action", author = "")
+    public void migrateAction(MongoTemplate mongoTemplate) {
+        final List<Action> actions = mongoTemplate.find(
+                query(where("deletedAt").is(null)),
+                Action.class
+        );
+
+        for (Action oldAction : actions) {
+            ActionDTO unpublishedAction = copyOldActionToDTO(oldAction);
+            ActionDTO publishedAction = copyOldActionToDTO(oldAction);
+
+            NewAction newAction = new NewAction();
+
+            newAction.setOrganizationId(oldAction.getOrganizationId());
+            newAction.setPluginType(oldAction.getPluginType());
+            newAction.setPluginId(oldAction.getPluginId());
+            newAction.setTemplateId(oldAction.getTemplateId());
+            newAction.setProviderId(oldAction.getProviderId());
+            newAction.setDocumentation(oldAction.getDocumentation());
+
+            // During the first migration, both the published and the unpublished action dtos would match the existing
+            // action because before this action only had a single instance (whether in edit/view mode)
+            newAction.setUnpublishedAction(unpublishedAction);
+            newAction.setPublishedAction(publishedAction);
+
+            // Now set the application id for this action
+
+            // Find the page
+            final NewPage page = mongoTemplate.findOne(
+                    query(where(fieldName(QNewPage.newPage.id)).is(oldAction.getPageId())),
+                    NewPage.class
+            );
+
+            // Set the applicationId in the new action
+            if (page != null) {
+                newAction.setApplicationId(page.getApplicationId());
+            }
+
+            //Set the base domain fields
+            newAction.setId(oldAction.getId());
+            newAction.setCreatedAt(oldAction.getCreatedAt());
+            newAction.setUpdatedAt(oldAction.getUpdatedAt());
+            newAction.setPolicies(oldAction.getPolicies());
+
+            mongoTemplate.insert(newAction, "newAction");
         }
     }
 
