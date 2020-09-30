@@ -1,8 +1,9 @@
 ## Contributing code
 
-Before raising a pull request, ensure you have raised a corresponding issue and discussed a possible solution with a maintainer. This gives your PR the highest chance to get merged quickly. 
+Before raising a pull request, ensure you have raised a corresponding issue and discussed a possible solution with a maintainer. This gives your pull request the highest chance of getting merged quickly. 
 
-### 🔍 Code and copy reviews
+### 🔎 Code and copy reviews
+
 All submissions, including submissions by project members, require review. We use GitHub pull requests for this purpose. Consult GitHub Help for more information on using pull requests.
 
 ### 🍴 Git Workflow
@@ -18,6 +19,7 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 7. When you raise a pull request, we automatically run tests on our CI. Please ensure that all the tests are passing for your code change. We will not be able to accept your change if the test suite doesn't pass.
 
 ### 🏡 Setup for local development
+
 - [Client](contributions/ClientSetup.md)
 - [Server](contributions/ServerSetup.md)
 
