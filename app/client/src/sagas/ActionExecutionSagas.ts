@@ -77,6 +77,9 @@ import { updateAppStore } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -283,6 +286,13 @@ export function* executeActionSaga(
   event: ExecuteActionPayloadEvent,
 ) {
   const { actionId, onSuccess, onError, params } = apiAction;
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.EXECUTE_ACTION,
+    {
+      actionId: actionId,
+    },
+    actionId,
+  );
   try {
     const api: RestAction = yield select(getAction, actionId);
 
@@ -326,6 +336,11 @@ export function* executeActionSaga(
       }),
     );
     if (isErrorResponse(response)) {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        { failed: true },
+        actionId,
+      );
       if (onError) {
         yield put(
           executeAction({
@@ -348,6 +363,11 @@ export function* executeActionSaga(
         type: "error",
       });
     } else {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        undefined,
+        actionId,
+      );
       if (onSuccess) {
         yield put(
           executeAction({
@@ -579,6 +599,14 @@ function* confirmRunActionSaga() {
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.EXECUTE_ACTION,
+    {
+      actionId: pageAction.id,
+    },
+    pageAction.id,
+    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+  );
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
@@ -592,20 +620,33 @@ function* executePageLoadAction(pageAction: PageAction) {
     executeActionRequest,
     pageAction.timeoutInMillisecond,
   );
-
   if (isErrorResponse(response)) {
     yield put(
       executeActionError({
         actionId: pageAction.id,
         error: response.responseMeta.error,
+        isPageLoad: true,
       }),
+    );
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.EXECUTE_ACTION,
+      {
+        failed: true,
+      },
+      pageAction.id,
     );
   } else {
     const payload = createActionExecutionResponse(response);
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.EXECUTE_ACTION,
+      undefined,
+      pageAction.id,
+    );
     yield put(
       executeApiActionSuccess({
         id: pageAction.id,
         response: payload,
+        isPageLoad: true,
       }),
     );
   }
@@ -613,10 +654,20 @@ function* executePageLoadAction(pageAction: PageAction) {
 
 function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
+  const actionCount = _.flatten(pageActions).length;
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+    { numActions: actionCount },
+  );
   for (const actionSet of pageActions) {
     // Load all sets in parallel
-    yield* yield all(actionSet.map(a => call(executePageLoadAction, a)));
+    yield* yield all(
+      actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
+    );
   }
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+  );
 }
 
 export function* watchActionExecutionSagas() {

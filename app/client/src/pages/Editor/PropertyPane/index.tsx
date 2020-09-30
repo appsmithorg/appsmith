@@ -11,6 +11,9 @@ import { PanelStack, IPanel } from "@blueprintjs/core";
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import * as log from "loglevel";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import PropertiesEditor from "pages/Editor/PropertyPane/PropertiesEditor";
 
 const StyledPanelStack = styled(PanelStack)`
@@ -42,6 +45,23 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     this.state = {
       currentPanelStack: [initialPanel],
     };
+  }
+
+  componentDidMount() {
+    PerformanceTracker.stopTracking(
+      PerformanceTransactionName.OPEN_PROPERTY_PANE,
+    );
+  }
+
+  componentDidUpdate(prevProps: PropertyPaneProps) {
+    if (
+      this.props.widgetId !== prevProps.widgetId &&
+      this.props.widgetId !== undefined
+    ) {
+      PerformanceTracker.stopTracking(
+        PerformanceTransactionName.OPEN_PROPERTY_PANE,
+      );
+    }
   }
 
   addToPanelStack = (newPanel: IPanel) => {
@@ -83,10 +103,11 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 }
 
 const mapStateToProps = (state: AppState): PropertyPaneProps => {
-  return {
+  const props = {
     widgetId: getCurrentWidgetId(state),
     isVisible: getIsPropertyPaneVisible(state),
   };
+  return props;
 };
 
 export interface PropertyPaneProps {

@@ -50,6 +50,9 @@ import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 const {
   enableGithubOAuth,
   enableGoogleOAuth,
@@ -153,6 +156,9 @@ export const SignUp = (props: SignUpFormProps) => {
                 AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                   signupMethod: "EMAIL",
                 });
+                PerformanceTracker.startTracking(
+                  PerformanceTransactionName.SIGN_UP,
+                );
               }}
             />
           </FormActions>

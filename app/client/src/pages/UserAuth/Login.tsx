@@ -48,6 +48,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { TncPPLinks } from "./SignUp";
 import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
@@ -151,6 +154,9 @@ export const Login = (props: LoginFormProps) => {
               filled
               size="large"
               onClick={() => {
+                PerformanceTracker.startTracking(
+                  PerformanceTransactionName.LOGIN_CLICK,
+                );
                 AnalyticsUtil.logEvent("LOGIN_CLICK", {
                   loginMethod: "EMAIL",
                 });

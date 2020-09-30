@@ -38,16 +38,16 @@ const typeSelector = (props: TextProps & ThemeProp): string => {
   let color = "";
   switch (props.type) {
     case TextType.P1:
-      color = props.theme.colors.blackShades[6];
+      color = props.theme.colors.text.normal;
       break;
     case TextType.P2:
-      color = props.theme.colors.blackShades[6];
+      color = props.theme.colors.text.normal;
       break;
     case TextType.P3:
-      color = props.theme.colors.blackShades[6];
+      color = props.theme.colors.text.normal;
       break;
     default:
-      color = props.theme.colors.blackShades[7];
+      color = props.theme.colors.text.heading;
       break;
   }
   return color;
@@ -70,7 +70,7 @@ const Text = styled.span.attrs((props: TextProps) => ({
   letter-spacing: ${props =>
     props.theme.typography[props.type].letterSpacing}px;
   color: ${props =>
-    props.highlight ? props.theme.colors.blackShades[9] : typeSelector(props)};
+    props.highlight ? props.theme.colors.text.hightlight : typeSelector(props)};
   text-transform: ${props => (props.case ? props.case : "none")};
 `;
 

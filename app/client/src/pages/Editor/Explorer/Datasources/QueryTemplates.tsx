@@ -15,13 +15,13 @@ import { ExplorerURLParams } from "../helpers";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 
 const Container = styled.div`
-  background-color: ${props => props.theme.colors.blackShades[3]};
+  background-color: ${props => props.theme.colors.queryTemplate.bg};
   color: ${props => props.theme.colors.textOnDarkBG};
   width: 250px;
 `;
 
 const TemplateType = styled.div`
-  color: ${props => props.theme.colors.blackShades[7]};
+  color: ${props => props.theme.colors.queryTemplate.color};
   padding: 8px;
   &:hover {
     cursor: pointer;

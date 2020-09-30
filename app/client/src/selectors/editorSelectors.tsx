@@ -20,6 +20,9 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "sagas/selectors";
 
 import * as log from "loglevel";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
@@ -107,6 +110,9 @@ export const getCanvasWidgetDsl = createSelector(
     entities: AppState["entities"],
     evaluatedDataTree,
   ): ContainerWidgetProps<WidgetProps> => {
+    PerformanceTracker.startTracking(
+      PerformanceTransactionName.CONSTRUCT_CANVAS_DSL,
+    );
     log.debug("Evaluating data tree to get canvas widgets");
     log.debug({ evaluatedDataTree });
     const widgets = { ...entities.canvasWidgets };
@@ -121,6 +127,7 @@ export const getCanvasWidgetDsl = createSelector(
     const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets: widgets,
     });
+    PerformanceTracker.stopTracking();
     return denormalizedWidgets;
   },
 );

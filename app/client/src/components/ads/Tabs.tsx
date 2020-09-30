@@ -30,10 +30,10 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     display: flex;
     align-items: center;
     border-bottom: ${props => props.theme.spaces[1] - 2}px solid
-      ${props => props.theme.colors.blackShades[3]};
-    color: ${props => props.theme.colors.blackShades[6]};
+      ${props => props.theme.colors.tabs.border};
+    color: ${props => props.theme.colors.tabs.normal};
     path {
-      fill: ${props => props.theme.colors.blackShades[6]};
+      fill: ${props => props.theme.colors.tabs.normal};
     }
     ${props =>
       props.shouldOverflow &&
@@ -57,17 +57,17 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     position: relative;
   }
   .react-tabs__tab:hover {
-    color: ${props => props.theme.colors.blackShades[9]};
+    color: ${props => props.theme.colors.tabs.hover};
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.tabs.hover};
     }
   }
   .react-tabs__tab--selected {
-    color: ${props => props.theme.colors.blackShades[9]};
+    color: ${props => props.theme.colors.tabs.hover};
     background-color: transparent;
 
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.tabs.hover};
     }
 
     &::after {
@@ -93,7 +93,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     box-shadow: none;
     border-color: transparent;
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.tabs.hover};
     }
   }
 `;

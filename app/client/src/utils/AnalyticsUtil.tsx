@@ -45,6 +45,7 @@ export type EventName =
   | "DUPLICATE_API"
   | "DUPLICATE_API_CLICK"
   | "RUN_QUERY"
+  | "RUN_QUERY_CLICK"
   | "DELETE_QUERY"
   | "SAVE_QUERY"
   | "MOVE_API"
