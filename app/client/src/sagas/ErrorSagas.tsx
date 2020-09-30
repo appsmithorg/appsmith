@@ -10,6 +10,7 @@ import { ApiResponse } from "api/ApiResponses";
 import { put, takeLatest, call } from "redux-saga/effects";
 import { ERROR_401, ERROR_500, ERROR_0 } from "constants/messages";
 import { ToastType } from "react-toastify";
+import log from "loglevel";
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
@@ -84,7 +85,8 @@ export function* errorSaga(
 ) {
   // Just a pass through for now.
   // Add procedures to customize errors here
-  console.log({ error: errorAction });
+  log.debug(`Error in action ${errorAction.type}`);
+  log.error(errorAction.payload.error);
   // Show a toast when the error occurs
   const {
     type,
