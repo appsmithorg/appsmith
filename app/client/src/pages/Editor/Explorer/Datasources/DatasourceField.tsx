@@ -1,5 +1,5 @@
 import React from "react";
-import { Popover, Position } from "@blueprintjs/core";
+import { Popover, Position, PopoverInteractionKind } from "@blueprintjs/core";
 import {
   DATASOURCE_FIELD_ICONS_MAP,
   datasourceColumnIcon,
@@ -22,7 +22,7 @@ const Wrapper = styled.div<{ step: number }>`
   cursor: pointer;
 `;
 
-const Value = styled.div`
+const FieldName = styled.div`
   color: ${Colors.ALTO};
   flex: 1;
   font-size: 12px;
@@ -30,13 +30,15 @@ const Value = styled.div`
   overflow: hidden;
   line-height: 13px;
   text-overflow: ellipsis;
-  :nth-child(2) {
-    text-align: right;
-    font-size: 10px;
-    line-height: 12px;
-    color: #777777;
-    font-weight: 300;
-  }
+  padding-right: 30px;
+`;
+
+const FieldValue = styled.div`
+  text-align: right;
+  font-size: 10px;
+  line-height: 12px;
+  color: #777777;
+  font-weight: 300;
 `;
 
 const Content = styled.div`
@@ -93,14 +95,20 @@ export const DatabaseColumns = (props: DatabaseFieldProps) => {
     <Wrapper step={props.step + 1} className="t--datasource-column">
       {icon}
       <Content>
-        <Value>{fieldName}</Value>
-        <Value>{fieldType}</Value>
+        <FieldName>{fieldName}</FieldName>
+        <FieldValue>{fieldType}</FieldValue>
       </Content>
     </Wrapper>
   );
 
   return (
-    <Popover minimal position={Position.RIGHT_TOP} boundary={"viewport"}>
+    <Popover
+      minimal
+      position={Position.RIGHT_TOP}
+      boundary={"viewport"}
+      hoverCloseDelay={0}
+      interactionKind={PopoverInteractionKind.HOVER}
+    >
       {content}
       <Container>
         {icon}
