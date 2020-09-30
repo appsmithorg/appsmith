@@ -24,15 +24,14 @@ File your feature request through GitHub Issues using the [Feature Request](http
 In the process of shipping features quickly, we often forget to keep our [Documentation](https://docs.appsmith.com) up to date. You can help by suggesting improvements to our documentation. See our [Documentation Contribution Guide]()
 
 #### 💥 Fix a bug
-We welcome contributors who want to help make appsmith bug free. Read our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md)
+We welcome contributions that help make appsmith bug free. Read our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md)
 
 #### ⚙️ Build a feature
 Being a horizontal platform, we have a never ending list of [feature requests](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3AEnhancement) that you can contribute to. Read our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md)
 
 ## Code Contribution
 All Code contributions are welcome and highly encouraged. Before opening a PR, create an issue and talk to a maintainer about a possible solution.
-This ensures that your PR has the highest chances of getting merged in and avoids 2 contributors from working on the same issue. Read our 
-[Code Contribution Guide](contributions/CodeContributionsGuidelines.md) for help getting started.
+This ensures that your PR has the highest chance of getting merged quickly and avoids 2 contributors from working on the same issue.
 
 ### Contributing to the Frontend (React / HTML / CSS / JS)
 - Go through our list of frontend [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+label%3A%22Frontend%22)
