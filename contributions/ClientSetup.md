@@ -49,7 +49,7 @@ Your client is pointing to the cloud staging server https://release-api.appsmith
 - Run `start-https.sh` script again.
 - Run
 ```bash
-    REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start
+REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start
 ```
     
 
