@@ -205,7 +205,8 @@ export function* addChildrenSaga(
 ) {
   try {
     const { widgetId, children } = addChildrenAction.payload;
-    const widgets = yield select(getWidgets);
+    const stateWidgets = yield select(getWidgets);
+    const widgets = { ...stateWidgets };
     const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
 
     children.forEach(child => {
@@ -221,12 +222,13 @@ export function* addChildrenSaga(
           widgetName: newWidgetName,
           renderMode: RenderModes.CANVAS,
         };
-        if (
-          widgets[widgetId].children &&
-          Array.isArray(widgets[widgetId].children)
-        ) {
-          widgets[widgetId].children?.push(child.widgetId);
-        } else widgets[widgetId].children = [child.widgetId];
+
+        const existingChildren = widgets[widgetId].children || [];
+
+        widgets[widgetId] = {
+          ...widgets[widgetId],
+          children: [...existingChildren, child.widgetId],
+        };
       }
     });
 
@@ -295,7 +297,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       if (parent.children) {
         parent = {
           ...parent,
-          children: parent.children.filter(c => c === widgetId),
+          children: parent.children.filter(c => c !== widgetId),
         };
       }
 
@@ -351,13 +353,18 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 }
 
 export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
+  // Get the list of widget and its children which were deleted
   const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
     action.payload.widgetId,
   );
+  // Find the parent in the list of deleted widgets
   const deletedWidget = deletedWidgets.find(
     widget => widget.widgetId === action.payload.widgetId,
   );
+
+  // If the deleted widget is infact available.
   if (deletedWidget) {
+    // Log an undo event
     AnalyticsUtil.logEvent("WIDGET_DELETE_UNDO", {
       widgetName: deletedWidget.widgetName,
       widgetType: deletedWidget.type,
@@ -365,10 +372,14 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   }
 
   if (deletedWidgets) {
+    // Get the current list of widgets from reducer
     const stateWidgets = yield select(getWidgets);
     let widgets = { ...stateWidgets };
+    // For each deleted widget
     deletedWidgets.forEach(widget => {
+      // Add it to the widgets list we fetched from reducer
       widgets[widget.widgetId] = widget;
+      // If the widget in question is the deleted widget
       if (widget.widgetId === action.payload.widgetId) {
         //SPECIAL HANDLING FOR TAB IN A TABS WIDGET
         if (widget.tabId && widget.type === WidgetTypes.CANVAS_WIDGET) {
@@ -409,6 +420,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
         }
         let newChildren = [widget.widgetId];
         if (widgets[widget.parentId].children) {
+          // Concatenate the list of paren't children with the current widgetId
           newChildren = newChildren.concat(widgets[widget.parentId].children);
         }
         widgets = {
@@ -878,9 +890,11 @@ function* pasteWidgetSaga() {
           widget.bottomRow * widget.parentRowSpace
         ) {
           if (widget.parentId !== MAIN_CONTAINER_WIDGET_ID) {
-            widgets[
-              widgets[newWidgetParentId].parentId
-            ].shouldScrollContents = true;
+            const parent = widgets[widgets[newWidgetParentId].parentId];
+            widgets[widgets[newWidgetParentId].parentId] = {
+              ...parent,
+              shouldScrollContents: true,
+            };
           }
         }
       } else {
