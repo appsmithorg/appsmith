@@ -15,12 +15,14 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import * as log from "loglevel";
 import equal from "fast-deep-equal/es6";
 import WidgetFactory from "utils/WidgetFactory";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { Action } from "entities/Action";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -238,10 +240,17 @@ export const getValidatedTree = (tree: any) => {
           );
           parsedEntity[property] = parsed;
           if (!hasEvaluatedValue) {
-            const evaluatedValue = _.isUndefined(transformed)
+            const evaluatedValue = isValid
+              ? parsed
+              : _.isUndefined(transformed)
               ? value
               : transformed;
-            _.set(parsedEntity, `evaluatedValues.${property}`, evaluatedValue);
+            const safeEvaluatedValue = removeFunctions(evaluatedValue);
+            _.set(
+              parsedEntity,
+              `evaluatedValues.${property}`,
+              safeEvaluatedValue,
+            );
           }
 
           const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
@@ -261,52 +270,57 @@ let dependencyTreeCache: any = {};
 let cachedDataTreeString = "";
 
 export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
-  const totalStart = performance.now();
   // Create Dependencies DAG
-  const createDepsStart = performance.now();
   const dataTreeString = JSON.stringify(dataTree);
   // Stringify before doing a fast equals because the data tree has functions and fast equal will always treat those as changed values
   // Better solve will be to prune functions
-  if (!equal(dataTreeString, cachedDataTreeString)) {
+  const shouldCreateDependencyTree = !equal(
+    dataTreeString,
+    cachedDataTreeString,
+  );
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.CREATE_DEPENDENCIES,
+    { isCacheMiss: shouldCreateDependencyTree },
+  );
+  if (shouldCreateDependencyTree) {
     cachedDataTreeString = dataTreeString;
     dependencyTreeCache = createDependencyTree(dataTree);
   }
-  const createDepsEnd = performance.now();
   const {
     dependencyMap,
     sortedDependencies,
     dependencyTree,
   } = dependencyTreeCache;
-
+  PerformanceTracker.stopTracking();
   // Evaluate Tree
-  const evaluatedTreeStart = performance.now();
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.SORTED_DEPENDENCY_EVALUATION,
+    {
+      dependencies: sortedDependencies,
+      dependencyCount: sortedDependencies.length,
+      dataTreeSize: cachedDataTreeString.length,
+    },
+  );
   const evaluatedTree = dependencySortedEvaluateDataTree(
     dataTree,
     dependencyMap,
     sortedDependencies,
   );
-  const evaluatedTreeEnd = performance.now();
+  PerformanceTracker.stopTracking();
 
   // Set Loading Widgets
-  const loadingTreeStart = performance.now();
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.SET_WIDGET_LOADING,
+  );
   const treeWithLoading = setTreeLoading(evaluatedTree, dependencyTree);
-  const loadingTreeEnd = performance.now();
+  PerformanceTracker.stopTracking();
 
   // Validate Widgets
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.VALIDATE_DATA_TREE,
+  );
   const validated = getValidatedTree(treeWithLoading);
-
-  // End counting total time
-  const endStart = performance.now();
-
-  // Log time taken and count
-  const timeTaken = {
-    total: (endStart - totalStart).toFixed(2),
-    createDeps: (createDepsEnd - createDepsStart).toFixed(2),
-    evaluate: (evaluatedTreeEnd - evaluatedTreeStart).toFixed(2),
-    loading: (loadingTreeEnd - loadingTreeStart).toFixed(2),
-  };
-  log.debug("data tree evaluated");
-  log.debug(timeTaken);
+  PerformanceTracker.stopTracking();
   // dataTreeCache = validated;
   return validated;
 }
@@ -572,7 +586,6 @@ function evaluateDynamicProperty(
   if (isCacheHit && cacheObj) {
     return cacheObj.evaluated;
   } else {
-    log.debug("eval " + propertyPath);
     const dynamicResult = getDynamicValue(unEvalPropertyValue, currentTree);
     dynamicPropValueCache.set(propertyPath, {
       evaluated: dynamicResult.result,
@@ -615,10 +628,13 @@ function validateAndParseWidgetProperty(
     widget,
     currentTree,
   );
-  const evaluatedValue = _.isUndefined(transformed)
+  const evaluatedValue = isValid
+    ? parsed
+    : _.isUndefined(transformed)
     ? evalPropertyValue
     : transformed;
-  _.set(widget, `evaluatedValues.${propertyName}`, evaluatedValue);
+  const safeEvaluatedValue = removeFunctions(evaluatedValue);
+  _.set(widget, `evaluatedValues.${propertyName}`, safeEvaluatedValue);
   if (!isValid) {
     _.set(widget, `invalidProps.${propertyName}`, true);
     _.set(widget, `validationMessages.${propertyName}`, message);
@@ -654,6 +670,7 @@ export function dependencySortedEvaluateDataTree(
   try {
     return sortedDependencies.reduce(
       (currentTree: DataTree, propertyPath: string) => {
+        // PerformanceTracker.startTracking(PerformanceTransactionName.EVALUATE_BINDING, { binding: propertyPath }, true)
         const entityName = propertyPath.split(".")[0];
         const entity: DataTreeEntity = currentTree[entityName];
         const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
@@ -713,10 +730,13 @@ export function dependencySortedEvaluateDataTree(
                 widgetEntity,
               );
             }
+            // PerformanceTracker.stopTracking();
             return _.set(currentTree, propertyPath, parsedValue);
           }
+          // PerformanceTracker.stopTracking();
           return _.set(currentTree, propertyPath, evalPropertyValue);
         } else {
+          // PerformanceTracker.stopTracking();
           return _.set(currentTree, propertyPath, evalPropertyValue);
         }
       },
@@ -745,6 +765,18 @@ const overwriteDefaultDependentProps = (
     return defaultPropertyCache.value;
   }
   return propertyValue;
+};
+
+// We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
+// Check issue https://github.com/appsmithorg/appsmith/issues/719
+const removeFunctions = (value: any) => {
+  if (_.isFunction(value)) {
+    return "Function call";
+  } else if (_.isObject(value) && _.some(value, _.isFunction)) {
+    return JSON.parse(JSON.stringify(value));
+  } else {
+    return value;
+  }
 };
 
 /*

@@ -1,6 +1,9 @@
 import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import { deleteDatasource } from "actions/datasourceActions";
+import {
+  deleteDatasource,
+  refreshDatasourceStructure,
+} from "actions/datasourceActions";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { noop } from "lodash";
@@ -19,6 +22,9 @@ export const DataSourceContextMenu = (props: {
     () => dispatch(initExplorerEntityNameEdit(props.datasourceId)),
     [dispatch, props.datasourceId],
   );
+  const dispatchRefresh = useCallback(() => {
+    dispatch(refreshDatasourceStructure(props.datasourceId));
+  }, [dispatch, props.datasourceId]);
   return (
     <TreeDropdown
       className={props.className}
@@ -31,6 +37,11 @@ export const DataSourceContextMenu = (props: {
           value: "rename",
           onSelect: editDatasourceName,
           label: "Edit Name",
+        },
+        {
+          value: "refresh",
+          onSelect: dispatchRefresh,
+          label: "Refresh",
         },
         {
           value: "delete",

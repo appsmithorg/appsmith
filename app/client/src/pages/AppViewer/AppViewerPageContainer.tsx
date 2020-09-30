@@ -108,11 +108,14 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
-  isFetchingPage: getIsFetchingPage(state),
-  widgets: getCanvasWidgetDsl(state),
-  currentPageName: getCurrentPageName(state),
-});
+const mapStateToProps = (state: AppState) => {
+  const props = {
+    isFetchingPage: getIsFetchingPage(state),
+    widgets: getCanvasWidgetDsl(state),
+    currentPageName: getCurrentPageName(state),
+  };
+  return props;
+};
 
 const mapDispatchToProps = (dispatch: any) => ({
   fetchPage: (pageId: string, bustCache = false) =>

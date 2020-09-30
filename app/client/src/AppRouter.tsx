@@ -1,8 +1,7 @@
 import React, { Suspense } from "react";
 import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
-import { Redirect, Router, Switch } from "react-router-dom";
-import AppRoute from "pages/common/AppRoute";
+import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
   APP_VIEW_URL,
   APPLICATIONS_URL,
@@ -28,70 +27,81 @@ import Users from "pages/users";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ServerUnavailable from "pages/common/ServerUnavailable";
+import { getThemeDetails } from "selectors/themeSelectors";
+import { ThemeMode } from "reducers/uiReducers/themeReducer";
+import { AppState } from "reducers";
+import { setThemeMode } from "actions/themeActions";
+import { connect } from "react-redux";
+
+import * as Sentry from "@sentry/react";
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const loadingIndicator = <PageLoadingBar />;
 
+function changeAppBackground(currentTheme: any) {
+  if (
+    window.location.pathname === "/applications" ||
+    window.location.pathname.indexOf("/settings/") !== -1
+  ) {
+    document.body.style.backgroundColor =
+      currentTheme.colors.homepageBackground;
+  } else {
+    document.body.style.backgroundColor = currentTheme.colors.appBackground;
+  }
+}
+
 class AppRouter extends React.Component<any, any> {
   render() {
+    const { currentTheme } = this.props;
+    // This is needed for the theme switch.
+    changeAppBackground(currentTheme);
+    // This is needed for the route switch.
+    history.listen(() => {
+      changeAppBackground(currentTheme);
+    });
+
     return (
       <Router history={history}>
         <Suspense fallback={loadingIndicator}>
           <AppHeader />
           <Switch>
-            <AppRoute
-              exact
-              path={BASE_URL}
-              component={LandingScreen}
-              name={"App"}
-            />
+            <SentryRoute exact path={BASE_URL} component={LandingScreen} />
             <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
             <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-            <AppRoute
-              path={ORG_URL}
-              component={OrganizationLoader}
-              name={"Organisation"}
-            />
-            <AppRoute exact path={USERS_URL} component={Users} name={"Users"} />
-            <AppRoute
-              path={USER_AUTH_URL}
-              component={UserAuth}
-              name={"UserAuth"}
-            />
-            <AppRoute
+            <SentryRoute path={ORG_URL} component={OrganizationLoader} />
+            <SentryRoute exact path={USERS_URL} component={Users} />
+            <SentryRoute path={USER_AUTH_URL} component={UserAuth} />
+            <SentryRoute
               exact
               path={APPLICATIONS_URL}
               component={ApplicationListLoader}
-              name={"Home"}
             />
-            <AppRoute
-              path={BUILDER_URL}
-              component={EditorLoader}
-              name={"Editor"}
-            />
-            <AppRoute
-              path={APP_VIEW_URL}
-              component={AppViewerLoader}
-              name={"AppViewer"}
-              logDisable
-            />
-            <AppRoute
+            <SentryRoute path={BUILDER_URL} component={EditorLoader} />
+            <SentryRoute path={APP_VIEW_URL} component={AppViewerLoader} />
+            <SentryRoute
               exact
               path={PAGE_NOT_FOUND_URL}
               component={PageNotFound}
-              name={"PageNotFound"}
             />
-            <AppRoute
+            <SentryRoute
               exact
               path={SERVER_ERROR_URL}
               component={ServerUnavailable}
-              name={"ServerError"}
             />
-            <AppRoute component={PageNotFound} name={"PageNotFound"} />
+            <SentryRoute component={PageNotFound} />
           </Switch>
         </Suspense>
       </Router>
     );
   }
 }
+const mapStateToProps = (state: AppState) => ({
+  currentTheme: getThemeDetails(state).theme,
+});
+const mapDispatchToProps = (dispatch: any) => ({
+  setTheme: (mode: ThemeMode) => {
+    dispatch(setThemeMode(mode));
+  },
+});
 
-export default AppRouter;
+export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);
