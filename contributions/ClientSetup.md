@@ -24,9 +24,8 @@ This command will create 2 files in the `docker/` directory:
 - `_wildcard.appsmith.com.pem`
 
 2. Add the domain `dev.appsmith.com` to `/etc/hosts`.
-```
-#/etc/hosts
-127.0.0.1      dev.appsmith.com
+```bash
+echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
 ```
 
 3. Run the script `start-https.sh` in order to start the nginx container that will proxy the frontend code on your local system.
@@ -36,22 +35,19 @@ cd app/client
 ```
 
 ### Steps to build & run the code:
-
-```bash
-echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
-```
 1. Run `yarn`
 2. Run `yarn start`
 
-Your appsmith client is now running & is pointing to our staging server [https://release-api.appsmith.com](https://release-api.appsmith.com)
-Open https://dev.appsmith.com in your browser and you should see the login / signup page.
+Your appsmith client is now running on https://dev.appsmith.com & is pointing to our staging server https://release-api.appsmith.com
 
-> By default this url is opened with the port 3000, this is incorrect and the port should be removed from the URL
+    This URL must be opened with https and not have the port 3000 in it
 
-**Note:**
-If you would like to hit a different appsmith server, please run:
+
+### If you would like to hit a different appsmith server:
+Please Run
 
     REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start
+    
 - Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). 
 - Run `start-https.sh` script again.
 
