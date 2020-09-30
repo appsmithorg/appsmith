@@ -1,4 +1,4 @@
-## Running Appsmith Client Code Locally
+## Running Client Codebase
 Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows.
  
 ### Pre-requisites:
@@ -38,12 +38,13 @@ cd app/client
 1. Run `yarn`
 2. Run `yarn start`
 
-Your appsmith client is now running on https://dev.appsmith.com & is pointing to our staging server https://release-api.appsmith.com
+🎉 Your appsmith client is now running on https://dev.appsmith.com.
 
     This URL must be opened with https and not have the port 3000 in it
 
+Your client is pointing to the cloud staging server https://release-api.appsmith.com
 
-### If you would like to hit a different appsmith server:
+#### If you would like to hit a different appsmith server:
 Please Run
 
     REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start
@@ -51,7 +52,7 @@ Please Run
 - Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). 
 - Run `start-https.sh` script again.
 
-### If you are unable to run docker:
+#### If you are unable to run docker:
 
 1. Make the values in `nginx-mac.conf.template` empty. None of those properties are required.
 2. `proxy_pass` value must be changed from `http://host.docker.internal:3000` to `http://localhost:3000`
