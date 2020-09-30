@@ -41,6 +41,12 @@
   <div id="loader" style="width: 30vw;"></div>
   <div id="root"></div>
   <script type="text/javascript">
+    window.onerror = function(message, url) {
+      if(/\/static\/js/.test(url) && url.indexOf(window.location.host) > -1) {
+        console.log("chunk load failed!", url);
+        window.location.assign(window.location.href);
+      }
+    };
     window.addEventListener("DOMContentLoaded", (event) => {
       document.getElementById("loader").style.width = "50vw";
     });
