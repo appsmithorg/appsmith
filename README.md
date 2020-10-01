@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://appsmith.com">
-    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo.png" alt="Appsmith.com logo" height="150"><h1>Appsmith</h1>
+    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
     </a>
     <h3>A low code way to build internal tools.</h3>
   <h3> The only open source alternative to MSFT Power Apps, Salesforce Lightning, Service Now, Quickbase, Retool, Forest Admin, and many more. </h3>
