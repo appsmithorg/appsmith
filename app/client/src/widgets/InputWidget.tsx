@@ -113,15 +113,15 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
 
   onValueChange = (value: string) => {
     this.setState({ text: value }, () => {
-      this.updateWidgetMetaProperty("text", value);
+      this.debouncedHandleTextChanged(value);
     });
+  };
+
+  handleTextChanged(value: string) {
+    this.updateWidgetMetaProperty("text", value);
     if (!this.props.isDirty) {
       this.updateWidgetMetaProperty("isDirty", true);
     }
-    this.debouncedHandleTextChanged();
-  };
-
-  handleTextChanged() {
     if (this.props.onTextChanged) {
       super.executeAction({
         dynamicString: this.props.onTextChanged,
