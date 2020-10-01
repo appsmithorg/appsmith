@@ -1,7 +1,7 @@
 # Internal Function docs
 
 Steps to contribute:
-1. Create a appsmith-docs/function-reference/<action>.md file.
+1. Create a appsmith-docs/function-reference/<function>.md file.
 2. Follow the [asset-upload](UploadingAssets.md) guidelines to upload and use an asset in the docs.
 
 ## Functions docs template
@@ -12,12 +12,12 @@ description: >-
   Description of the function
 ---
 
-# Action Name
+# Function Name
 
 ## Signature
 
 ##
-    function signature of the action wrapped in code blocks
+    function signature wrapped in code blocks
 
 #### Arguments
 
@@ -25,5 +25,8 @@ description: >-
 | :--- | :--- |
 | **Argument Name** |  Argument Description |
 
-## Image / gif of the action used
+## Image / gif of the function being used
 ```
+
+[Example Doc](https://github.com/appsmithorg/appsmith-docs/blob/v1.2/function-reference/show-modal.md)
+
