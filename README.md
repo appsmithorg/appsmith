@@ -18,9 +18,10 @@
 </div>
 
 -----------------
-<div align="center"><h3>We mixed Visual Basic's UI creator with your favourite DB editor & sprinkled javascript on top</h3></div>
+<div align="center"><h3>We mixed Visual Basic's UI creator with your favourite DB editor & sprinkled javascript on top</h3>
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
+</div>
 
 -------------------
 
