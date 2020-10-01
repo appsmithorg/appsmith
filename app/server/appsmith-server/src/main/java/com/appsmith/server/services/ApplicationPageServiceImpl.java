@@ -95,11 +95,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, page.getApplicationId())));
 
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-        Mono<Page> pageMono = Mono.zip(applicationMono, userMono)
-                .map(tuple -> {
-                    Application application = tuple.getT1();
-                    User user = tuple.getT2();
+        Mono<Page> pageMono = applicationMono
+                .map(application -> {
                     generateAndSetPagePolicies(application, page);
                     return page;
                 });

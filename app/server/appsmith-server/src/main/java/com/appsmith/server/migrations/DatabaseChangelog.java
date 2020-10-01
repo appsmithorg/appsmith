@@ -1014,7 +1014,7 @@ public class DatabaseChangelog {
         );
     }
 
-    private ActionDTO copyOldActionToDTO(Action action) {
+    private ActionDTO copyActionToDTO(Action action) {
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName(action.getName());
         actionDTO.setDatasource(action.getDatasource());
@@ -1040,8 +1040,8 @@ public class DatabaseChangelog {
         );
 
         for (Action oldAction : actions) {
-            ActionDTO unpublishedAction = copyOldActionToDTO(oldAction);
-            ActionDTO publishedAction = copyOldActionToDTO(oldAction);
+            ActionDTO unpublishedAction = copyActionToDTO(oldAction);
+            ActionDTO publishedAction = copyActionToDTO(oldAction);
 
             NewAction newAction = new NewAction();
 
