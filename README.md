@@ -20,7 +20,7 @@
 </div>
 
 -----------------
-<h3>Appsmith is what you get when you mix Visual Basic's UI creator with your favourite DB editor & sprinkle javascript on top</h3>
+<h3>We mixed Visual Basic's UI creator with your favourite DB editor & sprinkled javascript on top</h3>
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
 
