@@ -24,18 +24,4 @@ File your feature request through GitHub Issues using the [Feature Request](http
 In the process of shipping features quickly, we often forget to keep our docs up to date. You can help by suggesting improvements to our documentation or dive right in to our [Contribution Guide](contributions/docs/CONTRIBUTING.md)!
 
 #### ⚙️ Close a Bug / Feature issue
-We welcome contributions that help make appsmith bug free & improve the experience of our users. Check out the [Contribution Section](#code-contribution) below to begin.
-
-## Code Contribution
-All Code contributions are welcome and highly encouraged. Before opening a PR, create an issue and talk to a maintainer about a possible solution.
-This ensures that your PR has the highest chance of getting merged quickly and avoids 2 contributors from working on the same issue.
-
-### Contributing to the Frontend (React / HTML / CSS / JS)
-- Go through our list of frontend [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+label%3A%22Frontend%22)
-- Pick the ones you like most and drop us a comment!
-- Follow our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) and raise your first PR!
-
-### Contributing to the Backend (Java / Mongo / Springboot)
-- Go through our list of backend [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+label%3A%22Backend%22+)
-- Pick the ones you like most and drop us a comment!
-- Follow our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) and raise your first PR!
+We welcome contributions that help make appsmith bug free & improve the experience of our users. Check out our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) to begin.
