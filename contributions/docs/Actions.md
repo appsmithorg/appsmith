@@ -1,20 +1,11 @@
 # Action docs
-Following actions are available inside code editor in appsmith:
-api.run()
-query.run()
-showModal()
-closeModal()
-showAlert()
-storeValue()
-download()
-navigateTo()
 
 Steps to contribute:
 1. Create a appsmith-docs/actions/<action>.md file.
-2. Follow the [asset-upload](./asset-upload.md) guidelines to upload and use an asset in docs.
+2. Follow the [asset-upload](UploadingAssets.md) guidelines to upload and use an asset in the docs.
 
 ## Action docs template
-Copy paste this template 
+Copy paste this template in the file you are updating
 ```
 ---
 description: >-
@@ -34,4 +25,3 @@ description: >-
 
 ## Example
 ```
-
