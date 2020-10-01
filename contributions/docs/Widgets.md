@@ -1,6 +1,6 @@
 # Widget docs
-Create a appsmith-docs/widget-reference/<widget>.md file.
-Follow the [asset-upload](./asset-upload.md) guidelines to upload and use an asset in docs.
+1. Create a appsmith-docs/widget-reference/<widget>.md file.
+2. Follow the [asset-upload](UploadingAssets.md) guidelines to upload and use an asset in the docs.
 
 ## Widget docs template
 Copy paste this template 
@@ -12,9 +12,9 @@ description: >-
 
 # WidgetName
 
-## Image/gif of the widget and the icon in widget creation sidebar.
+## Image/gif of the widget on the canvas with the icon of the widget in the sidebar
 
-## Usage with dynamic bindings
+## 2 different usages of the widget with API / Query data
 
 ## Properties
 | Property      | Description           |
