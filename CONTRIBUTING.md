@@ -52,13 +52,10 @@ description: >-
 ```
 
 ### Contributing to widget docs
-Read our [widget.md](./contributing/docs/widget.md) for contributing
+Follow [widget.md](./contributions/docs/widget.md)
 
 ### Contributing to action docs
-Read our [action.md](./contributing/docs/action.md) for contributing
+Follow [action.md](./contributions/docs/action.md)
 
 ### Contributing to database integration docs
-Read our [db-integration.md](./contributing/docs/db-integration.md) for contributing
-
-### Uploading assets for the docs
-Read our [asset-upload.md](./contributing/docs/asset-upload.md) for uploading assets
+Follow [db-integration.md](./contributions/docs/db-integration.md)

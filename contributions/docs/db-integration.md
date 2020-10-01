@@ -1,8 +1,3 @@
----
-description: >-
-  DB integration docs need to adhere to the given rules. 
----
-
 # DB Integration docs
 Create a appsmith-docs/db-integrations/<integratiom>.md file.
 Follow the [asset-upload](./asset-upload.md) guidelines to upload and use an asset in docs.

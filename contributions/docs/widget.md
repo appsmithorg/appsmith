@@ -1,8 +1,3 @@
----
-description: >-
-  Widget docs need to adhere to the given rules. 
----
-
 # Widget docs
 Create a appsmith-docs/widget-reference/<widget>.md file.
 Follow the [asset-upload](./asset-upload.md) guidelines to upload and use an asset in docs.
