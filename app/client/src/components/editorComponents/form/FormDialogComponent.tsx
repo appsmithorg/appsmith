@@ -6,7 +6,7 @@ import { isPermitted } from "pages/Applications/permissionHelpers";
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   && {
     border-radius: 0px;
-    padding-bottom: 10px;
+    padding-bottom: 5px;
     background: ${props => props.theme.colors.inviteModal.bg};
     width: 640px;
 
@@ -32,8 +32,7 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
       }
     }
     & .bp3-dialog-body {
-      margin: ${props => props.theme.spaces[9]}px
-        ${props => props.theme.spaces[3]}px;
+      margin: ${props => props.theme.spaces[9]}px;
     }
     & .bp3-dialog-footer-actions {
       display: block;

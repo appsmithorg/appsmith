@@ -97,6 +97,7 @@ const IconWrapper = styled.span<IconProps>`
     outline: none;
   }
   display: flex;
+  align-items: center;
   svg {
     width: ${props => sizeHandler(props.size)}px;
     height: ${props => sizeHandler(props.size)}px;

@@ -5,7 +5,7 @@ import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import Divider from "components/editorComponents/Divider";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getRolesForField,
@@ -16,7 +16,6 @@ import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
-import FormMessage from "components/editorComponents/form/FormMessage";
 import {
   INVITE_USERS_SUBMIT_SUCCESS,
   INVITE_USERS_VALIDATION_EMAILS_EMPTY,
@@ -33,16 +32,21 @@ import { getAppsmithConfigs } from "configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Button, { Variant, Size } from "components/ads/Button";
+import Text, { TextType } from "components/ads/Text";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Classes } from "components/ads/common";
+import Callout from "components/ads/Callout";
+import { getInitialsAndColorCode } from "utils/AppsmithUtils";
+import { getThemeDetails } from "selectors/themeSelectors";
+import { ProfileImage } from "pages/common/ProfileDropdown";
 
 const OrgInviteTitle = styled.div`
-  font-weight: bold;
   padding: 10px 0px;
 `;
 
 const StyledForm = styled.form`
   width: 100%;
   background: ${props => props.theme.colors.inviteModal.bg};
-  padding: ${props => props.theme.spaces[5]}px;
   &&& {
     .wrapper > div:nth-child(1) {
       width: 60%;
@@ -57,10 +61,39 @@ const StyledForm = styled.form`
       padding-top: 5px;
     }
   }
-  .manageUsers {
-    float: right;
-    margin-top: 20px;
+`;
+
+const ManageUsers = styled("a")`
+  margin-top: 20px;
+  display: inline-flex;
+  &&&& {
+    text-decoration: none;
   }
+
+  .${Classes.TEXT} {
+    color: ${props => props.theme.colors.inviteModal.manageUser};
+    margin-right: ${props => props.theme.spaces[1]}px;
+  }
+  .${Classes.ICON} {
+    svg path {
+      fill: ${props => props.theme.colors.inviteModal.manageUser};
+    }
+  }
+
+  &:hover {
+    .${Classes.TEXT} {
+      color: ${props => props.theme.colors.inviteModal.headerText};
+    }
+    .${Classes.ICON} {
+      svg path {
+        fill: ${props => props.theme.colors.inviteModal.headerText};
+      }
+    }
+  }
+`;
+
+const ErrorBox = styled.div<{ message?: boolean }>`
+  ${props => (props.message ? `margin: ${props.theme.spaces[9]}px 0px` : null)};
 `;
 
 const StyledInviteFieldGroup = styled.div`
@@ -80,17 +113,41 @@ const StyledInviteFieldGroup = styled.div`
 `;
 
 const UserList = styled.div`
-  max-height: 200px;
-  margin-top: 20px;
-  overflow-y: auto;
-  .user {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 8px;
-    margin-bottom: 8px;
-    color: ${props => props.theme.colors.inviteModal.user.textColor};
+  margin-top: 10px;
+`;
+
+const User = styled.div`
+  display: flex;
+  align-items: center;
+  height: 54px;
+  padding-left: 15px;
+  justify-content: space-between;
+  color: ${props => props.theme.colors.inviteModal.user.textColor};
+`;
+
+const UserInfo = styled.div`
+  display: inline-flex;
+  align-items: center;
+`;
+
+const UserRole = styled.div`
+  flex-basis: 25%;
+  .${Classes.TEXT} {
+    color: ${props => props.theme.colors.inviteModal.headerText};
   }
+`;
+
+const UserName = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  span:nth-child(1) {
+    margin-bottom: 1px;
+  }
+`;
+
+const RoleDivider = styled.div`
+  border-top: 1px solid ${props => props.theme.colors.menuBorder};
 `;
 
 const Loading = styled(Spinner)`
@@ -193,12 +250,34 @@ const OrgInviteUsersForm = (props: any) => {
     };
   });
 
+  const themeDetails = useSelector(getThemeDetails);
+
+  const allUsersProfiles = React.useMemo(
+    () =>
+      allUsers.map(
+        (user: { username: string; roleName: string; name: string }) => {
+          const details = getInitialsAndColorCode(
+            user.name,
+            themeDetails.theme.colors.appCardColors,
+          );
+          return {
+            ...user,
+            imageBackground: details[1],
+            initials: details[0],
+          };
+        },
+      ),
+    [allUsers, themeDetails],
+  );
+
   return (
     <>
       {isApplicationInvite && (
         <>
           <Divider />
-          <OrgInviteTitle>Invite Users to {currentOrg?.name} </OrgInviteTitle>
+          <OrgInviteTitle>
+            <Text type={TextType.H5}>Invite Users to {currentOrg?.name} </Text>
+          </OrgInviteTitle>
         </>
       )}
       <StyledForm
@@ -208,12 +287,6 @@ const OrgInviteUsersForm = (props: any) => {
           return inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
         })}
       >
-        {submitSucceeded && (
-          <FormMessage intent="primary" message={INVITE_USERS_SUBMIT_SUCCESS} />
-        )}
-        {submitFailed && error && (
-          <FormMessage intent="danger" message={error} />
-        )}
         <StyledInviteFieldGroup>
           <div className="wrapper">
             <TagListField
@@ -261,28 +334,62 @@ const OrgInviteUsersForm = (props: any) => {
               </MailConfigContainer>
             )}
             <UserList style={{ justifyContent: "space-between" }}>
-              {allUsers.map((user: { username: string; roleName: string }) => {
-                return (
-                  <div className="user" key={user.username}>
-                    <div>{user.username}</div>
-                    <div>{user.roleName}</div>
-                  </div>
-                );
-              })}
+              {allUsersProfiles.map(
+                (user: {
+                  username: string;
+                  name: string;
+                  roleName: string;
+                  imageBackground: string;
+                  initials: string;
+                }) => {
+                  return (
+                    <>
+                      <User key={user.username}>
+                        <UserInfo>
+                          <ProfileImage backgroundColor={user.imageBackground}>
+                            <Text type={TextType.H6} highlight>
+                              {user.initials}
+                            </Text>
+                          </ProfileImage>
+                          <UserName>
+                            <Text type={TextType.H5}>{user.name}</Text>
+                            <Text type={TextType.P2}>{user.username}</Text>
+                          </UserName>
+                        </UserInfo>
+                        <UserRole>
+                          <Text type={TextType.P1}>{user.roleName}</Text>
+                        </UserRole>
+                      </User>
+
+                      <RoleDivider />
+                    </>
+                  );
+                },
+              )}
             </UserList>
           </React.Fragment>
         )}
+        <ErrorBox message={submitSucceeded || submitFailed}>
+          {submitSucceeded && (
+            <Callout
+              text={INVITE_USERS_SUBMIT_SUCCESS}
+              variant={Variant.success}
+              fill
+            />
+          )}
+          {submitFailed && error && (
+            <Callout text={error} variant={Variant.danger} fill />
+          )}
+        </ErrorBox>
         {!pathRegex.test(currentPath) && canManage && (
-          <Button
-            tag="button"
-            className="manageUsers"
-            text="Manage Users"
-            size={Size.medium}
-            variant={Variant.info}
+          <ManageUsers
             onClick={() => {
               history.push(`/org/${props.orgId}/settings/members`);
             }}
-          />
+          >
+            <Text type={TextType.H6}>MANAGE USERS</Text>
+            <Icon name="share" size={IconSize.XXS} />
+          </ManageUsers>
         )}
       </StyledForm>
     </>
