@@ -1,7 +1,7 @@
 # Internal Function docs
 
 Steps to contribute:
-1. Create a appsmith-docs/action-reference/<action>.md file.
+1. Create a appsmith-docs/function-reference/<action>.md file.
 2. Follow the [asset-upload](UploadingAssets.md) guidelines to upload and use an asset in the docs.
 
 ## Functions docs template
