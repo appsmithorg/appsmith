@@ -29,6 +29,6 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 To maintain consistency, we have a set structure for the different types of documentation pages on appsmith. Refer to the following when updating the docs
 
 - [Documenting Widgets](Widgets.md)
-- [Documenting Actions](Actions.md)
+- [Documenting Actions](InternalFunctions.md)
 - [Documenting DB Integrations](DB%20Integrations.md)
 - [Uploading Assets](UploadingAssets.md)
