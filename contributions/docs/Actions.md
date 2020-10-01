@@ -21,7 +21,7 @@ description: >-
 | **param2** | param2 description |
 | **param3** | param3 description |
 
-## Image/gif of the widget and the icon in widget creation sidebar.
+## Image/gif of the action used in a widget
 
 ## Example
 ```
