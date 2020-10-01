@@ -38,4 +38,3 @@ This ensures that your PR has the highest chance of getting merged quickly and a
 ### Contributing to the Backend (Java / Mongo / Springboot)
 - Go through our list of backend [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+label%3A%22Backend%22+)
 - Pick the ones you like most and drop us a comment!
-- Follow our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) and raise your first PR!
