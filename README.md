@@ -3,7 +3,7 @@
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
     </a>
     <h3>A low code way to build internal tools.</h3>
-  <h3> The only open source alternative to MSFT Power Apps, Salesforce Lightning, Service Now, Quickbase, Retool, Forest Admin, and many more. </h3>
+  <b> The only open source alternative to MSFT Power Apps, Salesforce Lightning, Service Now, Quickbase, Retool, Forest Admin, and many more. </b>
   <p>
   </p>
   <p>
@@ -20,7 +20,7 @@
 </div>
 
 -----------------
-<b>Appsmith is what you get when you mix Visual Basic's UI creator with your favourite DB editor & sprinkle javascript on top</b>
+<h3>Appsmith is what you get when you mix Visual Basic's UI creator with your favourite DB editor & sprinkle javascript on top</h3>
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
 
