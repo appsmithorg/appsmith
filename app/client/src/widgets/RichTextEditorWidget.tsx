@@ -22,8 +22,15 @@ const RichTextEditorComponent = lazy(() =>
 
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
-  WidgetState
+  RichTextEditorWidgetState
 > {
+  constructor(props: RichTextEditorWidgetProps) {
+    super(props);
+    this.state = {
+      text: props.text,
+    };
+  }
+
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       text: VALIDATION_TYPES.TEXT,
@@ -59,16 +66,34 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
-  onValueChange = (text: string) => {
-    this.updateWidgetMetaProperty("text", text);
-    if (this.props.onTextChange) {
-      super.executeAction({
-        dynamicString: this.props.onTextChange,
-        event: {
-          type: EventType.ON_TEXT_CHANGE,
-        },
-      });
+  componentDidUpdate(prevProps: RichTextEditorWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (
+      prevProps.text !== this.props.text &&
+      this.props.defaultText === this.props.text
+    ) {
+      const text = this.props.text;
+      this.setState({ text });
     }
+  }
+
+  onValueChange = (text: string) => {
+    this.setState(
+      {
+        text,
+      },
+      () => {
+        this.updateWidgetMetaProperty("text", text);
+        if (this.props.onTextChange) {
+          super.executeAction({
+            dynamicString: this.props.onTextChange,
+            event: {
+              type: EventType.ON_TEXT_CHANGE,
+            },
+          });
+        }
+      },
+    );
   };
 
   getPageView() {
@@ -76,7 +101,7 @@ class RichTextEditorWidget extends BaseWidget<
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
           onValueChange={this.onValueChange}
-          defaultValue={this.props.text || ""}
+          defaultValue={this.state.text || ""}
           widgetId={this.props.widgetId}
           placeholder={this.props.placeholder}
           key={this.props.widgetId}
@@ -92,11 +117,6 @@ class RichTextEditorWidget extends BaseWidget<
   }
 }
 
-export interface InputValidator {
-  validationRegex: string;
-  errorMessage: string;
-}
-
 export interface RichTextEditorWidgetProps extends WidgetProps {
   defaultText?: string;
   text?: string;
@@ -104,6 +124,10 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   onTextChange?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
+}
+
+export interface RichTextEditorWidgetState extends WidgetState {
+  text?: string;
 }
 
 export default RichTextEditorWidget;

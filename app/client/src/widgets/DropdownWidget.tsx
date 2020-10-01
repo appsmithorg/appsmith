@@ -15,7 +15,17 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 
-class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
+class DropdownWidget extends BaseWidget<
+  DropdownWidgetProps,
+  DropdownWidgetState
+> {
+  constructor(props: DropdownWidgetProps) {
+    super(props);
+    this.state = {
+      selectedOptionValue: props.selectedOptionValue,
+      selectedOptionValueArr: props.selectedOptionValueArr,
+    };
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -95,19 +105,36 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     return {
       selectedOptionValue: undefined,
       selectedOptionValueArr: undefined,
-      selectedOptionValues: undefined,
     };
+  }
+
+  componentDidUpdate(prevProps: DropdownWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (
+      prevProps.selectedOptionValue !== this.props.selectedOptionValue &&
+      this.props.defaultOptionValue === this.props.selectedOptionValue
+    ) {
+      const selectedOptionValue = this.props.selectedOptionValue;
+      this.setState({ selectedOptionValue });
+    }
+    if (
+      prevProps.selectedOptionValueArr !== this.props.selectedOptionValueArr &&
+      this.props.defaultOptionValue === this.props.selectedOptionValueArr
+    ) {
+      const selectedOptionValueArr = this.props.selectedOptionValueArr;
+      this.setState({ selectedOptionValueArr });
+    }
   }
 
   getPageView() {
     const options = this.props.options || [];
     const selectedIndex = _.findIndex(this.props.options, {
-      value: this.props.selectedOptionValue,
+      value: this.state.selectedOptionValue,
     });
     const computedSelectedIndexArr = Array.isArray(
-      this.props.selectedOptionValueArr,
+      this.state.selectedOptionValueArr,
     )
-      ? this.props.selectedOptionValueArr
+      ? this.state.selectedOptionValueArr
           .map((opt: string) =>
             _.findIndex(this.props.options, {
               value: opt,
@@ -140,9 +167,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     if (this.props.selectionType === "SINGLE_SELECT") {
       isChanged = !(this.props.selectedOption.value == selectedOption.value);
       if (isChanged) {
-        this.updateWidgetMetaProperty(
-          "selectedOptionValue",
-          selectedOption.value,
+        this.setState(
+          {
+            selectedOptionValue: selectedOption.value,
+          },
+          () => {
+            this.updateWidgetMetaProperty(
+              "selectedOptionValue",
+              selectedOption.value,
+            );
+          },
         );
       }
     } else if (this.props.selectionType === "MULTI_SELECT") {
@@ -158,7 +192,17 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       } else {
         newSelectedValue.push(selectedOption.value);
       }
-      this.updateWidgetMetaProperty("selectedOptionValueArr", newSelectedValue);
+      this.setState(
+        {
+          selectedOptionValueArr: newSelectedValue,
+        },
+        () => {
+          this.updateWidgetMetaProperty(
+            "selectedOptionValueArr",
+            newSelectedValue,
+          );
+        },
+      );
     }
 
     if (this.props.onOptionChange && isChanged) {
@@ -176,7 +220,17 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       (v: string) =>
         _.findIndex(this.props.options, { value: v }) !== removedIndex,
     );
-    this.updateWidgetMetaProperty("selectedOptionValueArr", newSelectedValue);
+    this.setState(
+      {
+        selectedOptionValueArr: newSelectedValue,
+      },
+      () => {
+        this.updateWidgetMetaProperty(
+          "selectedOptionValueArr",
+          newSelectedValue,
+        );
+      },
+    );
     if (this.props.onOptionChange) {
       super.executeAction({
         dynamicString: this.props.onOptionChange,
@@ -213,6 +267,13 @@ export interface DropdownWidgetProps extends WidgetProps {
   onOptionChange?: string;
   defaultOptionValue?: string | string[];
   isRequired: boolean;
+  selectedOptionValue: string;
+  selectedOptionValueArr: string[];
+}
+
+export interface DropdownWidgetState extends WidgetState {
+  selectedOptionValue: string;
+  selectedOptionValueArr: string[];
 }
 
 export default DropdownWidget;

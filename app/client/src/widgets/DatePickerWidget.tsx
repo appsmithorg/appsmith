@@ -14,7 +14,16 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 
-class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
+class DatePickerWidget extends BaseWidget<
+  DatePickerWidgetProps,
+  DatePickerWidgetState
+> {
+  constructor(props: DatePickerWidgetProps) {
+    super(props);
+    this.state = {
+      selectedDate: props.selectedDate,
+    };
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -57,6 +66,17 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     };
   }
 
+  componentDidUpdate(prevProps: DatePickerWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (
+      prevProps.selectedDate !== this.props.selectedDate &&
+      this.props.defaultDate === this.props.selectedDate
+    ) {
+      const selectedDate = this.props.selectedDate;
+      this.setState({ selectedDate });
+    }
+  }
+
   getPageView() {
     return (
       <DatePickerComponent
@@ -66,22 +86,29 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
         onDateSelected={this.onDateSelected}
-        selectedDate={this.props.selectedDate}
+        selectedDate={this.state.selectedDate}
         isLoading={this.props.isLoading}
       />
     );
   }
 
   onDateSelected = (selectedDate: string) => {
-    this.updateWidgetMetaProperty("selectedDate", selectedDate);
-    if (this.props.onDateSelected) {
-      super.executeAction({
-        dynamicString: this.props.onDateSelected,
-        event: {
-          type: EventType.ON_DATE_SELECTED,
-        },
-      });
-    }
+    this.setState(
+      {
+        selectedDate,
+      },
+      () => {
+        this.updateWidgetMetaProperty("selectedDate", selectedDate);
+        if (this.props.onDateSelected) {
+          super.executeAction({
+            dynamicString: this.props.onDateSelected,
+            event: {
+              type: EventType.ON_DATE_SELECTED,
+            },
+          });
+        }
+      },
+    );
   };
 
   getWidgetType(): WidgetType {
@@ -103,6 +130,10 @@ export interface DatePickerWidgetProps extends WidgetProps {
   maxDate: Date;
   minDate: Date;
   isRequired?: boolean;
+}
+
+export interface DatePickerWidgetState extends WidgetState {
+  selectedDate: string;
 }
 
 export default DatePickerWidget;
