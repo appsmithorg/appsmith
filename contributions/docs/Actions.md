@@ -1,27 +1,29 @@
 # Action docs
 
 Steps to contribute:
-1. Create a appsmith-docs/actions/<action>.md file.
+1. Create a appsmith-docs/action-reference/<action>.md file.
 2. Follow the [asset-upload](UploadingAssets.md) guidelines to upload and use an asset in the docs.
 
 ## Action docs template
 Copy paste this template in the file you are updating
-```
+```bash
 ---
 description: >-
-  Action Description
+  Description of the action
 ---
 
-# ActionName
+# Action Name
 
-## Parameters
-| Param      | Description        |
-| :--------- | :----------------- |
-| **param1** | param1 description |
-| **param2** | param2 description |
-| **param3** | param3 description |
+## Signature
 
-## Image/gif of the action used in a widget
+##
+    function signature of the action wrapped in code blocks
 
-## Example
+#### Arguments
+
+| Argument Name | Description |
+| :--- | :--- |
+| **Argument Name** |  Argument Description |
+
+## Image / gif of the action used
 ```
