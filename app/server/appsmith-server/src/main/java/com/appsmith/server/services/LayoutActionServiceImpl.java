@@ -37,17 +37,16 @@ import java.util.regex.Pattern;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static java.util.stream.Collectors.toSet;
 
 @Service
 @Slf4j
 public class LayoutActionServiceImpl implements LayoutActionService {
     private final ActionService actionService;
-    private final PageService pageService;
     private final ObjectMapper objectMapper;
     private final AnalyticsService analyticsService;
     private final NewPageService newPageService;
+    private final NewActionService newActionService;
     /*
      * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
      * e.g. for the given JS function using action with name "fetchUsers"
@@ -65,15 +64,15 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final String postWord = ")\\b";
 
     public LayoutActionServiceImpl(ActionService actionService,
-                                   PageService pageService,
                                    ObjectMapper objectMapper,
                                    AnalyticsService analyticsService,
-                                   NewPageService newPageService) {
+                                   NewPageService newPageService,
+                                   NewActionService newActionService) {
         this.actionService = actionService;
-        this.pageService = pageService;
         this.objectMapper = objectMapper;
         this.analyticsService = analyticsService;
         this.newPageService = newPageService;
+        this.newActionService = newActionService;
     }
 
     @Override
@@ -496,10 +495,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     /**
-     * This function updates an existing action in the DB. We are completely overriding the base update function to
-     * ensure that we can populate the JsonPathKeys field in the ActionConfiguration based on any changes that may
-     * have happened in the action object.
-     * <p>
      * After updating the action, page layout needs to be updated to update the page load actions with the new json
      * path keys.
      * <p>
@@ -514,19 +509,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      */
     @Override
     public Mono<Action> updateAction(String id, Action action) {
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-
-        Mono<Action> dbActionMono = actionService.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
-
-        return dbActionMono
-                .map(dbAction -> {
-                    copyNewFieldValuesIntoOldObject(action, dbAction);
-                    return dbAction;
-                })
-                .flatMap(actionService::validateAndSaveActionToRepository)
+        return newActionService.updateUnpublishedAction(id, action)
                 .flatMap(this::updatePageLayoutsGivenAction)
                 .flatMap(analyticsService::sendUpdateEvent);
     }

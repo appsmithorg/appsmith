@@ -31,7 +31,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ActionRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,8 +71,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final ActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
-    private final PageService pageService;
-    private final ObjectMapper objectMapper;
     private final DatasourceContextService datasourceContextService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final SessionUserService sessionUserService;
@@ -89,9 +86,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              ActionRepository repository,
                              DatasourceService datasourceService,
                              PluginService pluginService,
-                             PageService pageService,
                              AnalyticsService analyticsService,
-                             ObjectMapper objectMapper,
                              DatasourceContextService datasourceContextService,
                              PluginExecutorHelper pluginExecutorHelper,
                              SessionUserService sessionUserService,
@@ -102,8 +97,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.repository = repository;
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
-        this.pageService = pageService;
-        this.objectMapper = objectMapper;
         this.datasourceContextService = datasourceContextService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.sessionUserService = sessionUserService;
