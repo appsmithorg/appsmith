@@ -95,6 +95,8 @@ const Table = (props: TableProps) => {
     useFlexLayout,
   );
 
+  if (rows.length === 0 || headerGroups.length === 0) return null;
+
   return (
     <StyledTableWrapped
       width={200}
@@ -126,7 +128,6 @@ const Table = (props: TableProps) => {
               ))}
             </div>
           ))}
-          {headerGroups.length === 0 && renderEmptyRows(1, 2)}
           <div {...getTableBodyProps()} className="tbody">
             {rows.map((row: any, index: number) => {
               prepareRow(row);
@@ -150,45 +151,10 @@ const Table = (props: TableProps) => {
                 </div>
               );
             })}
-            {rows.length === 0 && renderEmptyRows(1, 2)}
           </div>
         </div>
       </div>
     </StyledTableWrapped>
-  );
-};
-
-const renderEmptyRows = (rowCount: number, columns: number) => {
-  const rows: string[] = new Array(rowCount).fill("");
-  const tableColumns = new Array(columns).fill("");
-  return (
-    <React.Fragment>
-      {rows.map((row: string, index: number) => {
-        return (
-          <div
-            className="tr"
-            key={index}
-            style={{
-              display: "flex",
-              flex: "1 0 auto",
-            }}
-          >
-            {tableColumns.map((column: any, colIndex: number) => {
-              return (
-                <div
-                  key={colIndex}
-                  className="td"
-                  style={{
-                    boxSizing: "border-box",
-                    flex: "1 0 auto",
-                  }}
-                />
-              );
-            })}
-          </div>
-        );
-      })}
-    </React.Fragment>
   );
 };
 
