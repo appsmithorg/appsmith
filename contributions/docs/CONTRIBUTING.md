@@ -9,11 +9,11 @@ Appsmith uses Gitbook for [documentation](https://docs.appsmith.com). The docs a
 
 If you feel parts of our documentation can be improved or have incorrect information, you can open a new issue using our [Documentation Template](https://github.com/appsmithorg/appsmith/issues/new?assignees=Nikhil-Nandagopal&labels=Documentation&template=---documentation-improvement.md&title=%5BDocs%5D+)
 
-## Documentation Issues
+## Contributing
 
 Our [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3ADocumentation+label%3A%22Good+First+Issue%22) list is the best place to begin contributing
 
-## Updating the docs
+### Updating the docs
 
 Before raising a pull request, ensure you have raised a corresponding issue and discussed it with a maintainer. This gives your pull request the highest chance of getting merged quickly.
 
