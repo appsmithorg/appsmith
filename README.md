@@ -26,7 +26,7 @@
 ### Here's how you build something:
 1. Compose a page using pre-built UI components like table, charts, map viewers and forms.	
 2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.	
-3. Deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
+3. Deploy the internal tool to a custom URL and invite users to sign in with their Google accounts. 
 
 -------------------
 
