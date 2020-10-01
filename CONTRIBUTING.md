@@ -10,6 +10,7 @@ Feel free to propose changes to this document in a pull request.
 - Git Workflow
 - Setting up local development
 - Running tests
+- Contributing to docs
 
 ## How can I contribute?
 There are many ways in which we/one can to contribute to Appsmith. All contributions are highly appreciated.
@@ -163,3 +164,26 @@ By default, the server will start on port 8080.
 ```bash
   mvn clean package
 ```
+
+## Contributing to docs
+Appsmith uses Gitbook for docs. Docs from [appsmith-docs](https://github.com/appsmithorg/appsmith-docs) will be synced to Gitbook.
+
+Any *.md file inside `appsmith-docs` repo has to start with the following markdown:
+```
+---
+description: >-
+  Description of the doc page
+---
+```
+
+### Contributing to widget docs
+Read our [widget.md](./contributing/widget.md) for contributing
+
+### Contributing to action docs
+Read our [action.md](./contributing/action.md) for contributing
+
+### Contributing to database integration docs
+Read our [db-integration.md](./contributing/db-integration.md) for contributing
+
+### Uploading assets for the docs
+Read our [asset-upload.md](./contributing/asset-upload.md) for uploading assets
