@@ -59,7 +59,7 @@ Appsmith doesn't take the fun out of coding, because it treats every block as an
 * **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows. Use popular libraries like lodash & moment anywhere in the app
 * **Data Workflows**: Simple configuration to create flows when users interact with the UI.
 * **Realtime Editor**: Changes in your application reflect instantly with every edit. No need to compile!
-* **Works with existing, live databases**: Connect directly to any Postgres, MySQL, & Mongo db
+* **Works with existing, live databases**: Connect directly to any PostgreSQL, MySQL, MongoDB and with any SQL Databases
 * **Fine-grained access control**: Control who can edit / view your applications from a single control panel
 * **App management**: Build and organise multiple applications on a single platform
 
