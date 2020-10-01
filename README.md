@@ -4,9 +4,7 @@
     </a>
     <h3>A low code way to build internal tools.</h3>
   <b> The only open source alternative to MSFT Power Apps, Salesforce Lightning, Service Now, Quickbase, Retool, Forest Admin, and many more. </b>
-  <p>
-  </p>
-  <p>
+<p>
 
 [![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
@@ -20,7 +18,7 @@
 </div>
 
 -----------------
-<h3>We mixed Visual Basic's UI creator with your favourite DB editor & sprinkled javascript on top</h3>
+<p><h3>We mixed Visual Basic's UI creator with your favourite DB editor & sprinkled javascript on top</h3></p>
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
 
