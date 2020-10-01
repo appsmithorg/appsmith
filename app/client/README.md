@@ -82,4 +82,4 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 
 ### Cypress tests via Github Actions
 
-The cypress tests run via Github Actions. The Github Action `.github/workflows/client.yml` pulls the `release` Docker image of the server to run as a service locally. This is to ensure that we don't face any network flakiness during tests.
+Cypress is our integration test framework of choice. The Cypress tests run via Github Actions. The Github Action `.github/workflows/client.yml` pulls the `release` Docker image of the server to run as a service locally. This is to ensure that we don't face any network flakiness during tests.
