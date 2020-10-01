@@ -31,10 +31,19 @@ public class DatasourceStructure {
 
     @Data
     @AllArgsConstructor
-    public static class Column {
+    public static class Column implements Comparable<Column> {
         String name;
         String type;
         String defaultValue;
+
+        @Override
+        public int compareTo(Column other) {
+            if (other == null || other.getName() == null) {
+                return 1;
+            }
+
+            return name.compareTo(other.getName());
+        }
     }
 
     public interface Key extends Comparable<Key> {

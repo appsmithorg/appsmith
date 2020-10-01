@@ -6,7 +6,7 @@ on:
     # Only trigger if files have changed in this specific path
     paths:
       - 'app/client/**'
-  pull_request:
+  pull_request_target:
     branches: [ release, master ]
     paths:
       - 'app/client/**'
@@ -138,7 +138,7 @@ jobs:
         --env APPSMITH_ENCRYPTION_PASSWORD=password \
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
-        appsmith/appsmith-server:release
+        appsmith/appsmith-server-ee:release
 
     - name: Installing Yarn serve
       run: |

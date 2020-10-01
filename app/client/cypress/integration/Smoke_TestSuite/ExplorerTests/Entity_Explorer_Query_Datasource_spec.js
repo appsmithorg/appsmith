@@ -65,7 +65,6 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.deleteQuery();
     cy.get(commonlocators.entityExplorersearch).clear();
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgresEntity).click();
     cy.get("@createDatasource").then(httpResponse => {
       const datasourceName = httpResponse.response.body.data.name;
       cy.GlobalSearchEntity(`${datasourceName}`);
