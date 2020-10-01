@@ -1,15 +1,10 @@
 <div align="center">
   <a href="https://appsmith.com">
-    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo.png" alt="Appsmith.com logo" height="160"><h1>Appsmith</h1>
+    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
     </a>
-  <br>
-  <p>
     <h3>A low code way to build internal tools.</h3>
-  <h3> The only open source alternative to MSFT Power Apps, Salesforce Lightning platform, Service Now platform, Quickbase, Retool, Forest Admin, and many more. </h3>
-  </p>
-  <p>
-  </p>
-  <p>
+  <b> The only open source alternative to Power Apps, Salesforce Lightning, Service Now, Retool, Forest Admin, and many more. </b>
+<p>
 
 [![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
@@ -23,14 +18,15 @@
 </div>
 
 -----------------
-Appsmith is a fast, easy, and secure way to build any custom internal tools. Here's how you build something:
-1. Create a page using pre-built UI components like table, charts, map viewers and forms.
-2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.
-3. Deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
-
-Do all this without depending on multiple UI libraries, coding authentication logic or writing any DB or API integrations. See the looped gif below to see how something gets built on Appsmith. It might remind you of Visual Basic.
+<div align="center"><h3>Create apps by connecting UI widgets to any database and writing any logic in JS.</h3>
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
+</div>
+
+### Here's how you build something:
+1. Compose a page using pre-built UI components like table, charts, map viewers and forms.	
+2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.	
+3. Deploy the internal tool to a custom URL and invite users to sign in with their Google accounts. 
 
 -------------------
 
@@ -48,11 +44,12 @@ You can try our online sandbox or deploy a Docker image on a server.
 * [Online sandbox](https://bit.ly/appsmith-signup-github)
 * [Deploy with Docker](https://bit.ly/appsmith-docker-github)
 
-## ⁉ Why Appsmith?
+## 😇 Why Appsmith?
 
 When we build internal tools today, we turn to admin panels, UI frameworks or use a bootstrap theme. We took inspirations from the best admin panels, bootstrap themes, and brought back the easy UI builder of Visual Basic.
 
-Appsmith is a quicker way of building internal tools by visualising them as modular blocks (**Widgets, APIs, Queries, JS**) and giving developers a simple user interface to configure them. New features, UI modification, changing dataflows, and modifying business logic becomes a [piece of cake](https://i.kym-cdn.com/photos/images/newsfeed/001/355/125/5ca.png) because you no longer have to trudge through large undocumented code bases or wrestle with HTML/CSS. We understand that while some configurations are static and are better controlled via UI, a lot of it is dynamic and should be configured through code. Appsmith doesn't take the fun out of coding, instead it treats every block as an object and exposes it via javascript so that you can read, transform and manipulate it. Whether it's a widget, API or query, you get to decide where you need to configure and where you need to code!
+Appsmith is a quicker way of building internal tools by visualising them as modular blocks (**Widgets, APIs, Queries, JS**) and giving developers a simple user interface to configure them. Building new features, creating UI, changing dataflows, and modifying business logic becomes a [piece of cake](https://i.kym-cdn.com/photos/images/newsfeed/001/355/125/5ca.png) because you no longer have to trudge through large undocumented code bases or wrestle with HTML/CSS. 
+Appsmith doesn't take the fun out of coding, because it treats every block as an object and exposes it via javascript so that you can read, transform and manipulate it. Whether it's a widget, API or query, you get to decide where you need to configure using UI and where you need to code.
 
 ## 🏭 Features
 
