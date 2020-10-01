@@ -388,7 +388,7 @@ const OrgInviteUsersForm = (props: any) => {
             }}
           >
             <Text type={TextType.H6}>MANAGE USERS</Text>
-            <Icon name="share" size={IconSize.XXS} />
+            <Icon name="manage" size={IconSize.XXS} />
           </ManageUsers>
         )}
       </StyledForm>
