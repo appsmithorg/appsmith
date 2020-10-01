@@ -26,7 +26,7 @@
 Appsmith is a fast, easy, and secure way to build any custom internal tools. Here's how you build something:
 1. Create a page using pre-built UI components like table, charts, map viewers and forms.
 2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.
-3. Deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
+3. Deploy the internal tool to a custom URL and invite users to sign in with their Google accounts. 
 
 Do all this without depending on multiple UI libraries, coding authentication logic or writing any DB or API integrations. See the looped gif below to see how something gets built on Appsmith. It might remind you of Visual Basic.
 
