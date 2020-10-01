@@ -18,12 +18,13 @@
 </div>
 
 -----------------
-<div align="center"><h3>Create apps by connecting UI widgets to any database and write all logic in JS.</h3>
+<div align="center"><h3>Create apps by connecting UI widgets to any database and writing any logic in JS.</h3>
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
 </div>
-Here's how you build something:
-1. Create a page using pre-built UI components like table, charts, map viewers and forms.	
+
+### Here's how you build something:
+1. Compose a page using pre-built UI components like table, charts, map viewers and forms.	
 2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.	
 3. Deploy the interal tool to a custom URL and invite users to sign in with their Google acounts. 
 
