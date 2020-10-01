@@ -3,7 +3,7 @@
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
     </a>
     <h3>A low code way to build internal tools.</h3>
-  <b> The only open source alternative to MSFT Power Apps, Salesforce Lightning, Service Now, Quickbase, Retool, Forest Admin, and many more. </b>
+  <b> The only open source alternative to Power Apps, Salesforce Lightning, Service Now, Retool, Forest Admin, and many more. </b>
 <p>
 
 [![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
