@@ -13,18 +13,12 @@ import {
   DerivedPropertiesMap,
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class CheckboxWidget extends BaseWidget<
-  CheckboxWidgetProps,
-  CheckboxWidgetState
+  CheckboxWidgetProps & WithMeta,
+  WidgetState
 > {
-  constructor(props: CheckboxWidgetProps) {
-    super(props);
-    this.state = {
-      isChecked: !!props.isChecked,
-    };
-  }
-
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -58,21 +52,10 @@ class CheckboxWidget extends BaseWidget<
     };
   }
 
-  componentDidUpdate(prevProps: CheckboxWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      prevProps.isChecked !== this.props.isChecked &&
-      this.props.defaultCheckedState === this.props.isChecked
-    ) {
-      const isChecked = this.props.isChecked;
-      this.setState({ isChecked });
-    }
-  }
-
   getPageView() {
     return (
       <CheckboxComponent
-        isChecked={this.state.isChecked}
+        isChecked={!!this.props.isChecked}
         label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
@@ -84,22 +67,15 @@ class CheckboxWidget extends BaseWidget<
   }
 
   onCheckChange = (isChecked: boolean) => {
-    this.setState(
-      {
-        isChecked: isChecked,
-      },
-      () => {
-        this.updateWidgetMetaProperty("isChecked", isChecked);
-        if (this.props.onCheckChange) {
-          super.executeAction({
-            dynamicString: this.props.onCheckChange,
-            event: {
-              type: EventType.ON_CHECK_CHANGE,
-            },
-          });
-        }
-      },
-    );
+    this.props.updateWidgetMetaProperty("isChecked", isChecked);
+    if (this.props.onCheckChange) {
+      super.executeAction({
+        dynamicString: this.props.onCheckChange,
+        event: {
+          type: EventType.ON_CHECK_CHANGE,
+        },
+      });
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -115,9 +91,7 @@ export interface CheckboxWidgetProps extends WidgetProps {
   onCheckChange?: string;
 }
 
-export interface CheckboxWidgetState extends WidgetState {
-  isChecked: boolean;
-}
-
 export default CheckboxWidget;
-export const ProfiledCheckboxWidget = Sentry.withProfiler(CheckboxWidget);
+export const ProfiledCheckboxWidget = Sentry.withProfiler(
+  withMeta(CheckboxWidget),
+);

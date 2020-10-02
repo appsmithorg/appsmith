@@ -11,6 +11,7 @@ import {
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 const RichTextEditorComponent = lazy(() =>
   retryPromise(() =>
@@ -21,16 +22,9 @@ const RichTextEditorComponent = lazy(() =>
 );
 
 class RichTextEditorWidget extends BaseWidget<
-  RichTextEditorWidgetProps,
-  RichTextEditorWidgetState
+  RichTextEditorWidgetProps & WithMeta,
+  WidgetState
 > {
-  constructor(props: RichTextEditorWidgetProps) {
-    super(props);
-    this.state = {
-      text: props.text,
-    };
-  }
-
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       text: VALIDATION_TYPES.TEXT,
@@ -66,34 +60,16 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
-  componentDidUpdate(prevProps: RichTextEditorWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      prevProps.text !== this.props.text &&
-      this.props.defaultText === this.props.text
-    ) {
-      const text = this.props.text;
-      this.setState({ text });
-    }
-  }
-
   onValueChange = (text: string) => {
-    this.setState(
-      {
-        text,
-      },
-      () => {
-        this.updateWidgetMetaProperty("text", text);
-        if (this.props.onTextChange) {
-          super.executeAction({
-            dynamicString: this.props.onTextChange,
-            event: {
-              type: EventType.ON_TEXT_CHANGE,
-            },
-          });
-        }
-      },
-    );
+    this.props.updateWidgetMetaProperty("text", text);
+    if (this.props.onTextChange) {
+      super.executeAction({
+        dynamicString: this.props.onTextChange,
+        event: {
+          type: EventType.ON_TEXT_CHANGE,
+        },
+      });
+    }
   };
 
   getPageView() {
@@ -101,7 +77,7 @@ class RichTextEditorWidget extends BaseWidget<
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
           onValueChange={this.onValueChange}
-          defaultValue={this.state.text || ""}
+          defaultValue={this.props.text || ""}
           widgetId={this.props.widgetId}
           placeholder={this.props.placeholder}
           key={this.props.widgetId}
@@ -126,11 +102,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   isVisible?: boolean;
 }
 
-export interface RichTextEditorWidgetState extends WidgetState {
-  text?: string;
-}
-
 export default RichTextEditorWidget;
 export const ProfiledRichTextEditorWidget = Sentry.withProfiler(
-  RichTextEditorWidget,
+  withMeta(RichTextEditorWidget),
 );

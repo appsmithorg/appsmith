@@ -12,6 +12,7 @@ import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 const VideoComponent = lazy(() =>
   retryPromise(() =>
@@ -26,7 +27,7 @@ export enum PlayState {
   PLAYING = "PLAYING",
 }
 
-class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
+class VideoWidget extends BaseWidget<VideoWidgetProps & WithMeta, WidgetState> {
   private _player = React.createRef<ReactPlayer>();
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -67,7 +68,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           autoplay={autoPlay}
           controls={true}
           onPlay={() => {
-            this.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+            this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
             if (onPlay) {
               super.executeAction({
                 dynamicString: onPlay,
@@ -79,7 +80,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           }}
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
-            this.updateWidgetMetaProperty("playState", PlayState.PAUSED);
+            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED);
             if (onPause) {
               super.executeAction({
                 dynamicString: onPause,
@@ -90,7 +91,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             }
           }}
           onEnded={() => {
-            this.updateWidgetMetaProperty("playState", PlayState.ENDED);
+            this.props.updateWidgetMetaProperty("playState", PlayState.ENDED);
             if (onEnd) {
               super.executeAction({
                 dynamicString: onEnd,
@@ -119,4 +120,4 @@ export interface VideoWidgetProps extends WidgetProps {
 }
 
 export default VideoWidget;
-export const ProfiledVideoWidget = Sentry.withProfiler(VideoWidget);
+export const ProfiledVideoWidget = Sentry.withProfiler(withMeta(VideoWidget));

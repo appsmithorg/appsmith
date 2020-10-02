@@ -12,6 +12,7 @@ import {
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
@@ -24,7 +25,7 @@ const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   },
 };
 
-class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
+class ModalWidget extends BaseWidget<ModalWidgetProps & WithMeta, WidgetState> {
   static defaultProps = {
     isOpen: true,
     canEscapeKeyClose: false,
@@ -48,7 +49,7 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     this.props.showPropertyPane(undefined);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
-    super.updateWidgetMetaProperty("isVisible", false);
+    this.props.updateWidgetMetaProperty("isVisible", false);
     e.stopPropagation();
     e.preventDefault();
   };
@@ -131,4 +132,4 @@ export default ModalWidget;
 export const ProfiledModalWidget = connect(
   null,
   mapDispatchToProps,
-)(Sentry.withProfiler(ModalWidget));
+)(Sentry.withProfiler(withMeta(ModalWidget)));

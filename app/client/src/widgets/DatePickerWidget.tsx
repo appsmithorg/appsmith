@@ -13,17 +13,12 @@ import {
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class DatePickerWidget extends BaseWidget<
-  DatePickerWidgetProps,
-  DatePickerWidgetState
+  DatePickerWidgetProps & WithMeta,
+  WidgetState
 > {
-  constructor(props: DatePickerWidgetProps) {
-    super(props);
-    this.state = {
-      selectedDate: props.selectedDate,
-    };
-  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -66,17 +61,6 @@ class DatePickerWidget extends BaseWidget<
     };
   }
 
-  componentDidUpdate(prevProps: DatePickerWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      prevProps.selectedDate !== this.props.selectedDate &&
-      this.props.defaultDate === this.props.selectedDate
-    ) {
-      const selectedDate = this.props.selectedDate;
-      this.setState({ selectedDate });
-    }
-  }
-
   getPageView() {
     return (
       <DatePickerComponent
@@ -86,29 +70,22 @@ class DatePickerWidget extends BaseWidget<
         isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
         onDateSelected={this.onDateSelected}
-        selectedDate={this.state.selectedDate}
+        selectedDate={this.props.selectedDate}
         isLoading={this.props.isLoading}
       />
     );
   }
 
   onDateSelected = (selectedDate: string) => {
-    this.setState(
-      {
-        selectedDate,
-      },
-      () => {
-        this.updateWidgetMetaProperty("selectedDate", selectedDate);
-        if (this.props.onDateSelected) {
-          super.executeAction({
-            dynamicString: this.props.onDateSelected,
-            event: {
-              type: EventType.ON_DATE_SELECTED,
-            },
-          });
-        }
-      },
-    );
+    this.props.updateWidgetMetaProperty("selectedDate", selectedDate);
+    if (this.props.onDateSelected) {
+      super.executeAction({
+        dynamicString: this.props.onDateSelected,
+        event: {
+          type: EventType.ON_DATE_SELECTED,
+        },
+      });
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -132,9 +109,7 @@ export interface DatePickerWidgetProps extends WidgetProps {
   isRequired?: boolean;
 }
 
-export interface DatePickerWidgetState extends WidgetState {
-  selectedDate: string;
-}
-
 export default DatePickerWidget;
-export const ProfiledDatePickerWidget = Sentry.withProfiler(DatePickerWidget);
+export const ProfiledDatePickerWidget = Sentry.withProfiler(
+  withMeta(DatePickerWidget),
+);

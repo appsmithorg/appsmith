@@ -10,17 +10,12 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class RadioGroupWidget extends BaseWidget<
-  RadioGroupWidgetProps,
-  RadioGroupWidgetState
+  RadioGroupWidgetProps & WithMeta,
+  WidgetState
 > {
-  constructor(props: RadioGroupWidgetProps) {
-    super(props);
-    this.state = {
-      selectedOptionValue: props.selectedOptionValue,
-    };
-  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -58,17 +53,6 @@ class RadioGroupWidget extends BaseWidget<
     };
   }
 
-  componentDidUpdate(prevProps: RadioGroupWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      prevProps.selectedOptionValue !== this.props.selectedOptionValue &&
-      this.props.defaultOptionValue === this.props.selectedOptionValue
-    ) {
-      const selectedOptionValue = this.props.selectedOptionValue;
-      this.setState({ selectedOptionValue });
-    }
-  }
-
   getPageView() {
     return (
       <RadioGroupComponent
@@ -76,7 +60,7 @@ class RadioGroupWidget extends BaseWidget<
         onRadioSelectionChange={this.onRadioSelectionChange}
         key={this.props.widgetId}
         label={`${this.props.label}`}
-        selectedOptionValue={this.state.selectedOptionValue}
+        selectedOptionValue={this.props.selectedOptionValue}
         options={this.props.options}
         isLoading={this.props.isLoading}
         isDisabled={this.props.isDisabled}
@@ -85,22 +69,15 @@ class RadioGroupWidget extends BaseWidget<
   }
 
   onRadioSelectionChange = (updatedValue: string) => {
-    this.setState(
-      {
-        selectedOptionValue: updatedValue,
-      },
-      () => {
-        this.updateWidgetMetaProperty("selectedOptionValue", updatedValue);
-        if (this.props.onSelectionChange) {
-          super.executeAction({
-            dynamicString: this.props.onSelectionChange,
-            event: {
-              type: EventType.ON_OPTION_CHANGE,
-            },
-          });
-        }
-      },
-    );
+    this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue);
+    if (this.props.onSelectionChange) {
+      super.executeAction({
+        dynamicString: this.props.onSelectionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -122,9 +99,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   isRequired?: boolean;
 }
 
-export interface RadioGroupWidgetState extends WidgetState {
-  selectedOptionValue: string;
-}
-
 export default RadioGroupWidget;
-export const ProfiledRadioGroupWidget = Sentry.withProfiler(RadioGroupWidget);
+export const ProfiledRadioGroupWidget = Sentry.withProfiler(
+  withMeta(RadioGroupWidget),
+);

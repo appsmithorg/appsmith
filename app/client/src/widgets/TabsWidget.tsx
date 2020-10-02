@@ -10,9 +10,10 @@ import { EventType } from "constants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
 import * as Sentry from "@sentry/react";
 import { generateReactKey } from "utils/generators";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class TabsWidget extends BaseWidget<
-  TabsWidgetProps<TabContainerWidgetProps>,
+  TabsWidgetProps<TabContainerWidgetProps> & WithMeta,
   WidgetState
 > {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -23,7 +24,7 @@ class TabsWidget extends BaseWidget<
   }
 
   onTabChange = (tabId: string) => {
-    this.updateWidgetMetaProperty("selectedTabId", tabId);
+    this.props.updateWidgetMetaProperty("selectedTabId", tabId);
     if (this.props.onTabSelected) {
       super.executeAction({
         dynamicString: this.props.onTabSelected,
@@ -174,7 +175,7 @@ class TabsWidget extends BaseWidget<
           label: this.props.defaultTab,
         });
         const selectedTabId = selectedTab ? selectedTab.id : undefined;
-        this.updateWidgetMetaProperty("selectedTabId", selectedTabId);
+        this.props.updateWidgetMetaProperty("selectedTabId", selectedTabId);
       }
     }
   }
@@ -227,12 +228,15 @@ class TabsWidget extends BaseWidget<
       // If we have a legitimate default tab Id and it is not already the selected Tab
       if (selectedTabId && selectedTabId !== this.props.selectedTabId) {
         // Select the default tab
-        this.updateWidgetMetaProperty("selectedTabId", selectedTabId);
+        this.props.updateWidgetMetaProperty("selectedTabId", selectedTabId);
       }
     } else if (!this.props.selectedTabId) {
       // If no tab is selected
       // Select the first tab in the tabs list.
-      this.updateWidgetMetaProperty("selectedTabId", this.props.tabs[0].id);
+      this.props.updateWidgetMetaProperty(
+        "selectedTabId",
+        this.props.tabs[0].id,
+      );
     }
     this.generateTabContainers();
   }
@@ -261,4 +265,4 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
 }
 
 export default TabsWidget;
-export const ProfiledTabsWidget = Sentry.withProfiler(TabsWidget);
+export const ProfiledTabsWidget = Sentry.withProfiler(withMeta(TabsWidget));
