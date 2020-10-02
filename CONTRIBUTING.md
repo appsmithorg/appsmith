@@ -1,7 +1,7 @@
 # Contributing to Appsmith
 
-Thank you for your interest in Appsmith and taking the time to contribute on this project. 🙌 
-Appsmith is a project by developers for developers and there are a lot of ways you can contribute. 
+Thank you for your interest in Appsmith and taking time to contribute on this project. 🙌 
+Appsmith is a project by developers for developers and there are alot of ways you can contribute. 
 Feel free to propose changes to this document in a pull request.
 
 ## Code of conduct
@@ -10,7 +10,7 @@ Read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing
 
 ## How can I contribute?
 
-There are many ways in which we/one can to contribute to Appsmith. All contributions are highly appreciated.
+There are many ways in which we/one can contribute to Appsmith. Any type of contribution is highly appreciated.
 
 #### 🐛 Report a bug
 Report all issues through GitHub Issues using the [Report a Bug](https://github.com/appsmithorg/appsmith/issues/new?assignees=Nikhil-Nandagopal&labels=Bug%2C+High&template=---bug-report.md&title=%5BBug%5D) template.
