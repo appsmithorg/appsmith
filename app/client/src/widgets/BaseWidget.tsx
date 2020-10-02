@@ -115,13 +115,28 @@ abstract class BaseWidget<
       updateWidgetProperty(widgetId, propertyName, propertyValue);
   }
 
-  updateWidgetMetaProperty(propertyName: string, propertyValue: any): void {
+  updateWidgetMetaProperty(
+    propertyName: string,
+    propertyValue: any,
+    callback?: Function,
+  ): void {
     const { updateWidgetMetaProperty } = this.context;
     const { widgetId } = this.props;
+
     // Whenever this value updates, we need to clear cache to handle correct evaluation
-    clearPropertyCache(`${this.props.widgetName}.${propertyName}`);
-    updateWidgetMetaProperty &&
-      updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+    this.setState(
+      {
+        [propertyName]: propertyValue,
+      },
+      () => {
+        clearPropertyCache(`${this.props.widgetName}.${propertyName}`);
+        updateWidgetMetaProperty &&
+          updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+        if (callback) {
+          callback();
+        }
+      },
+    );
   }
 
   resetChildrenMetaProperty(widgetId: string) {
@@ -131,7 +146,35 @@ abstract class BaseWidget<
 
   /* eslint-disable @typescript-eslint/no-empty-function */
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {}
+  componentDidUpdate(prevProps: T) {
+    const metaState: any = {};
+    let hasMetaChanged = false;
+    const metaPropNames = Object.keys(this.getMetaPropertiesMap());
+    const defaultPropMap = this.getDefaultPropertiesMap();
+    metaPropNames.forEach(propName => {
+      const defaultPropName = defaultPropMap[propName];
+      if (
+        this.props[propName] !== prevProps[propName] &&
+        this.props[defaultPropName] === this.props[propName]
+      ) {
+        metaState[propName] = this.props[propName];
+        hasMetaChanged = true;
+      }
+    });
+    if (hasMetaChanged) {
+      this.setState({ ...this.state, ...metaState });
+    }
+  }
+
+  getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      isChecked: "defaultCheckedState",
+    };
+  }
+
+  getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
 
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
@@ -302,7 +345,7 @@ export interface BaseStyle {
   widthUnit?: CSSUnit;
 }
 
-export type WidgetState = {};
+export type WidgetState = { [x: string]: any };
 
 export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
   buildWidget(widgetProps: T): JSX.Element;

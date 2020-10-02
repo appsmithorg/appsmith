@@ -58,15 +58,16 @@ class CheckboxWidget extends BaseWidget<
     };
   }
 
-  componentDidUpdate(prevProps: CheckboxWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      prevProps.isChecked !== this.props.isChecked &&
-      this.props.defaultCheckedState === this.props.isChecked
-    ) {
-      const isChecked = this.props.isChecked;
-      this.setState({ isChecked });
-    }
+  getMetaPropertiesMap(): Record<string, any> {
+    return {
+      isChecked: undefined,
+    };
+  }
+
+  getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      isChecked: "defaultCheckedState",
+    };
   }
 
   getPageView() {
@@ -84,22 +85,16 @@ class CheckboxWidget extends BaseWidget<
   }
 
   onCheckChange = (isChecked: boolean) => {
-    this.setState(
-      {
-        isChecked: isChecked,
-      },
-      () => {
-        this.updateWidgetMetaProperty("isChecked", isChecked);
-        if (this.props.onCheckChange) {
-          super.executeAction({
-            dynamicString: this.props.onCheckChange,
-            event: {
-              type: EventType.ON_CHECK_CHANGE,
-            },
-          });
-        }
-      },
-    );
+    this.updateWidgetMetaProperty("isChecked", isChecked, () => {
+      if (this.props.onCheckChange) {
+        super.executeAction({
+          dynamicString: this.props.onCheckChange,
+          event: {
+            type: EventType.ON_CHECK_CHANGE,
+          },
+        });
+      }
+    });
   };
 
   getWidgetType(): WidgetType {
