@@ -11,14 +11,14 @@ If you feel parts of our documentation can be improved or have incorrect informa
 
 ## Contributing
 
-Our [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3ADocumentation+label%3A%22Good+First+Issue%22) list is the best place to begin contributing
+Our [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3ADocumentation+label%3A%22Good+First+Issue%22) list is the best place to begin contributing.
 
 ### Updating the docs
 
 Before raising a pull request, ensure you have raised a corresponding issue and discussed it with a maintainer. This gives your pull request the highest chance of getting merged quickly.
 
-1. Fork the [appsmith-docs](https://github.com/appsmithorg/appsmith-docs) repo and branch out from the default branch.
-2. If a new release is being created, contact a maintainer to update the default branch to mirror the new release version.
+1. Fork the [appsmith-docs](https://github.com/appsmithorg/appsmith-docs) repository and branch out from the default branch.
+2. If a new release has been created, contact a maintainer to update the default branch to mirror the new release version.
 3. Read our [guidelines](#guidelines) for the section you wish to update
 4. Add / Update the relevant files and commit them with a clear commit message
 3. Create a pull request in your fork to the default branch in the appsmithorg/appsmith-docs base repository
@@ -26,7 +26,7 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 
 ## Guidelines
 
-To maintain consistency, we have a set structure for the different types of documentation pages on appsmith. Refer to the following when updating the docs
+To maintain consistency, we have a set structure for the different types of documentation pages on appsmith. Refer to the following while updating the docs
 
 - [Documenting Widgets](Widgets.md)
 - [Documenting Functions](InternalFunctions.md)
