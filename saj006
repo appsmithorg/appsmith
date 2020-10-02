@@ -1,0 +1,23 @@
+export function flattenMessages(prop.intl.formatMessage`, prefix = '') {
+    return Object.keys(prop.intl.formatMessage`).reduce((messages, key) => {
+      let value = prop.intl.formatMessage`[key];
+      let prefixedKey = prefix ? `${prefix}.${key}` : key;
+  
+      if (typeof value === 'string') {
+        messages[prefixedKey] = value;
+      } else {
+        Object.assign(messages, flattenMessages(value, prefixedKey));
+      }
+  
+      return messages;
+    }, {});
+  }
+
+js...
+
+ReactDOM.render(
+  <IntlProvider locale={locale} messages={flattenMessages(messages[locale])}>
+    <App />
+ <FormattedMessage />>,
+  document.getElementById('root')
+);
