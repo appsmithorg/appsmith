@@ -61,7 +61,7 @@ Appsmith doesn't take the fun out of coding, because it treats every block as an
 * **Realtime Editor**: Changes in your application reflect instantly with every edit. No need to compile!
 * **Works with existing, live databases**: Connect directly to any Postgres, MySQL, & Mongo db
 * **Fine-grained access control**: Control who can edit / view your applications from a single control panel
-* **App management**: Build and organise multiple applications on a single platform
+* **App management**: Build and organise multiple applications on a single platform.
 
 ## 📕 Documentation & Support
 
