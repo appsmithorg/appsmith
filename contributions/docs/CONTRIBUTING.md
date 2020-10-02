@@ -21,8 +21,9 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 2. If a new release is being created, contact a maintainer to update the default branch to mirror the new release version.
 3. Read our [guidelines](#guidelines) for the section you wish to update
 4. Add / Update the relevant files and commit them with a clear commit message
-3. Create a pull request in your fork to the default branch in the appsmithorg/appsmith-docs base repository
-4. Link the issue of the base repository in your Pull request description. [Guide](https://docs.github.com/en/free-pro-team@latest/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue)
+5. If you are creating a new page, don't forget to add an entry in the SUMMARY.md file of the main repo
+6. Create a pull request in your fork to the default branch in the appsmithorg/appsmith-docs base repository
+7. Link the issue of the base repository in your Pull request description. [Guide](https://docs.github.com/en/free-pro-team@latest/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue)
 
 ## Guidelines
 
