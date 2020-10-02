@@ -51,25 +51,39 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return {
       isValid: `{{
         function(){
+          let parsedRegex = null;
+          if (regex) {
+            // break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
+            // Example /appsmith/i will be split into ["/appsmith/gi", "/", "appsmith", "gi"]
+            const regexParts = regex.match(/(\\/?)(.+)\\1([a-z]*)/i);
+            if (regexParts === null) {
+              parsedRegex = new RegExp(regex);
+            }
+            // if we don't have a regex flags (gmisuy), convert provided string into regexp directly
+            if (regexParts[3] && !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])) {
+              parsedRegex = RegExp(regex);
+            }
+            // if we have a regex flags, use it to form regexp
+            return new RegExp(regexParts[2], regexParts[3]);
+          }
           if (this.inputType === "EMAIL") {
             const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
             return emailRegex.test(this.text);
-          }
-          else if (this.inputType === "NUMBER") {
+          } else if (this.inputType === "NUMBER") {
             return !isNaN(this.text)
-          }
-          else if (this.isRequired) {
+          } 
+          else if(this.isRequired) {
             if(this.text && this.text.length) {
-              if(this.regex) {
-                return new RegExp(this.regex).test(this.text)
+              if(parsedRegex) {
+                return parsedRegex.test(this.text)
               } else {
                 return true;
               }
             } else {
               return false;
             }
-          } if (this.regex) {
-            return new RegExp(this.regex).test(this.text)
+          } if(parsedRegex) {
+            return parsedRegex.test(this.text)
           } else {
             return true;
           }
