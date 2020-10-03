@@ -32,6 +32,7 @@ type FormTextFieldProps = {
   label?: string;
   intent?: Intent;
   disabled?: boolean;
+  autoFocus?: boolean;
 };
 
 const FormTextField = (props: FormTextFieldProps) => {
