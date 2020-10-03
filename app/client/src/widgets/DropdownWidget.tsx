@@ -136,29 +136,30 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   }
 
   onOptionSelected = (selectedOption: DropdownOption) => {
-    let isChanged = true;
-    if (this.props.selectionType === "SINGLE_SELECT") {
-      isChanged = !(this.props.selectedOption.value == selectedOption.value);
-      if (isChanged) {
-        this.updateWidgetMetaProperty(
-          "selectedOptionValue",
-          selectedOption.value,
-        );
-      }
-    } else if (this.props.selectionType === "MULTI_SELECT") {
-      const isAlreadySelected = this.props.selectedOptionValueArr.includes(
-        selectedOption.value,
-      );
+    let metaProp = "selectedOptionValue";
+    let previousValue, newValue;
 
-      let newSelectedValue = [...this.props.selectedOptionValueArr];
+    if (this.props.selectionType === "SINGLE_SELECT") {
+      previousValue = this.props.selectedOption.value;
+      newValue = selectedOption.value;
+    } else if (this.props.selectionType === "MULTI_SELECT") {
+      metaProp = "selectedOptionValueArr";
+      previousValue = this.props.selectedOptionValueArr;
+
+      const isAlreadySelected = previousValue.includes(selectedOption.value);
+      newValue = [...this.props.selectedOptionValueArr];
       if (isAlreadySelected) {
-        newSelectedValue = newSelectedValue.filter(
-          v => v !== selectedOption.value,
+        newValue = previousValue.filter(
+          (v: string) => v !== selectedOption.value,
         );
       } else {
-        newSelectedValue.push(selectedOption.value);
+        newValue.push(selectedOption.value);
       }
-      this.updateWidgetMetaProperty("selectedOptionValueArr", newSelectedValue);
+    }
+
+    const isChanged = !(previousValue == newValue);
+    if (isChanged) {
+      this.updateWidgetMetaProperty(metaProp, newValue);
     }
 
     if (this.props.onOptionChange && isChanged) {
