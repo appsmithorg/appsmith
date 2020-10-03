@@ -1,7 +1,7 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react";
-import ImageWidget, { ImageWidgetProps } from "../ImageWidget";
-import RealmExecutor from "../../jsExecution/RealmExecutor";
+import ImageWidget, { ImageWidgetProps } from "./ImageWidget";
+import RealmExecutor from "../jsExecution/RealmExecutor";
 
 import { useDrag } from "react-dnd";
 import { Provider } from "react-redux";
