@@ -24,4 +24,4 @@ File your feature request through GitHub Issues using the [Feature Request](http
 In the process of shipping features quickly, we often forget to keep our docs up to date. You can help by suggesting improvements to our documentation or dive right in to our [Contribution Guide](contributions/docs/CONTRIBUTING.md)!
 
 #### ⚙️ Close a Bug / Feature issue
-We welcome contributions that help make appsmith bug free & improve the experience of our users. Check out our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) to begin.
+We welcome contributions that help make Appsmith bug free & improve the experience of our users. Check out our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) to begin.
