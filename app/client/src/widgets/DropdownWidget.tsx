@@ -138,13 +138,13 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
     if (this.props.selectionType === "SINGLE_SELECT") {
-      if (this.props.selectedOption.value == selectedOption.value) {
-        isChanged = false;
+      isChanged = !(this.props.selectedOption.value == selectedOption.value);
+      if (isChanged) {
+        this.updateWidgetMetaProperty(
+          "selectedOptionValue",
+          selectedOption.value,
+        );
       }
-      this.updateWidgetMetaProperty(
-        "selectedOptionValue",
-        selectedOption.value,
-      );
     } else if (this.props.selectionType === "MULTI_SELECT") {
       const isAlreadySelected = this.props.selectedOptionValueArr.includes(
         selectedOption.value,
