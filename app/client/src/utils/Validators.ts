@@ -365,10 +365,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     const hasOptions = _.every(parsed, (datum: { label: any; value: any }) => {
       if (_.isObject(datum)) {
-        if(_.isEmpty(datum.label) || _.isEmpty(datum.value)){
-          return false;
-        }
-        return _.isString(datum.label) && _.isString(datum.value);
+        return (
+            _.isString(datum.label) 
+            && _.isString(datum.value) 
+            && !_.isEmpty(datum.label) 
+            && !_.isEmpty(datum.value)
+        );
       } else {
         return false;
       }
