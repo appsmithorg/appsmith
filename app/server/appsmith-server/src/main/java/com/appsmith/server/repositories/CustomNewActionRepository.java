@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Set;
 
 public interface CustomNewActionRepository extends AppsmithRepository<NewAction> {
-    Mono<NewAction> findByNameAndPageId(String name, String pageId, AclPermission aclPermission);
+    Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
 
     Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
-    Flux<NewAction> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
-                                                                               String pageId,
-                                                                               String httpMethod,
-                                                                               AclPermission aclPermission);
+    Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
+                                                                                             String pageId,
+                                                                                             String httpMethod,
+                                                                                             AclPermission aclPermission);
 
     Flux<NewAction> findAllActionsByNameAndPageIds(String name, List<String> pageIds, AclPermission aclPermission, Sort sort);
 }

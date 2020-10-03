@@ -4,6 +4,7 @@ import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QAction;
+import com.appsmith.server.domains.QNewAction;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -28,9 +29,9 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewAction> findByNameAndPageId(String name, String pageId, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QAction.action.name)).is(name);
-        Criteria pageCriteria = where(fieldName(QAction.action.pageId)).is(pageId);
+    public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
+        Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
+        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
 
         return queryOne(List.of(nameCriteria, pageCriteria), aclPermission);
     }
@@ -42,10 +43,10 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewAction> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
-                                                                                      String pageId,
-                                                                                      String httpMethod,
-                                                                                      AclPermission aclPermission) {
+    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
+                                                                                                    String pageId,
+                                                                                                    String httpMethod,
+                                                                                                    AclPermission aclPermission) {
         Criteria namesCriteria = where(fieldName(QAction.action.name)).in(names);
         Criteria pageCriteria = where(fieldName(QAction.action.pageId)).is(pageId);
         String httpMethodQueryKey = fieldName(QAction.action.actionConfiguration)
