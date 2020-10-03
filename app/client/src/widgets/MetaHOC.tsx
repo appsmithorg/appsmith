@@ -11,10 +11,15 @@ export type WithMeta = {
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
   return class MetaHOC extends React.Component<WidgetProps, any> {
     static contextType = EditorContext;
+    updatedProperties = new Map<string, true>();
 
     debouncedHandleUpdateWidgetMetaProperty = _.debounce(
       this.handleUpdateWidgetMetaProperty.bind(this),
       200,
+      {
+        leading: true,
+        trailing: true,
+      },
     );
 
     constructor(props: any) {
@@ -48,16 +53,24 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       this.setState({
         [propertyName]: propertyValue,
       });
-      // TODO Handle debouncing different properties without loosing updates
-      this.debouncedHandleUpdateWidgetMetaProperty(propertyName, propertyValue);
+      this.updatedProperties.set(propertyName, true);
+      this.debouncedHandleUpdateWidgetMetaProperty();
     };
 
-    handleUpdateWidgetMetaProperty(propertyName: string, propertyValue: any) {
+    handleUpdateWidgetMetaProperty() {
       const { updateWidgetMetaProperty } = this.context;
       const { widgetId, widgetName } = this.props;
-      clearPropertyCache(`${widgetName}.${propertyName}`);
-      updateWidgetMetaProperty &&
-        updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+      // We have kept a map of all updated properties. After debouncing we will
+      // go through these properties and update with the final value. This way
+      // we will only update a certain property once per debounce interval.
+      [...this.updatedProperties.keys()].forEach(propertyName => {
+        if (updateWidgetMetaProperty) {
+          const propertyValue = this.state[propertyName];
+          clearPropertyCache(`${widgetName}.${propertyName}`);
+          updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+          this.updatedProperties.delete(propertyName);
+        }
+      });
     }
 
     updatedProps = () => {
