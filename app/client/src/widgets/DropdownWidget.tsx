@@ -136,7 +136,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   }
 
   onOptionSelected = (selectedOption: DropdownOption) => {
+    let isChanged = true;
     if (this.props.selectionType === "SINGLE_SELECT") {
+      if (this.props.selectedOption.value == selectedOption.value)
+        isChanged = false;
       this.updateWidgetMetaProperty(
         "selectedOptionValue",
         selectedOption.value,
@@ -156,7 +159,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       }
       this.updateWidgetMetaProperty("selectedOptionValueArr", newSelectedValue);
     }
-    if (this.props.onOptionChange) {
+
+    if (this.props.onOptionChange && isChanged) {
       super.executeAction({
         dynamicString: this.props.onOptionChange,
         event: {
