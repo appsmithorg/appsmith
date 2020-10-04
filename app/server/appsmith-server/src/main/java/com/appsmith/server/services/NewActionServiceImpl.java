@@ -39,6 +39,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -692,7 +693,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public Mono<Action> saveAction(Action action) {
         ActionDTO unpublishedAction = this.generateDTOFromAction(action);
-        return repository.findById(action.getId(), MANAGE_ACTIONS)
+        return findById(action.getId(), MANAGE_ACTIONS)
                 .flatMap(dbAction -> {
                     dbAction.setUnpublishedAction(unpublishedAction);
                     return repository.save(dbAction);
@@ -714,13 +715,27 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      * @param pageId Id of the Page within which to look for Actions.
      * @return A Flux of Actions that are identified to be executed on page-load.
      */
-//    public Flux<Action> findOnLoadActionsInPage(Set<String> names, String pageId) {
-//        final Flux<Action> getApiActions = repository
-//                .findDistinctUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(names, pageId, "GET", false);
-//
-//        final Flux<Action> explicitOnLoadActions = repository
-//                .findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId);
-//
-//        return getApiActions.concatWith(explicitOnLoadActions);
-//    }
+    @Override
+    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId) {
+        final Flux<NewAction> getApiActions = repository
+                .findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(names,
+                        pageId, "GET", false, MANAGE_ACTIONS);
+
+        final Flux<NewAction> explicitOnLoadActions = repository
+                .findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId, MANAGE_ACTIONS);
+
+        return getApiActions.concatWith(explicitOnLoadActions);
+    }
+
+    @Override
+    public Mono<NewAction> findById(String id) {
+        return repository.findById(id);
+    }
+
+    @Override
+    public Mono<NewAction> findById(String id, AclPermission aclPermission) {
+        return repository.findById(id, aclPermission);
+    }
+
+
 }

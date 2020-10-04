@@ -3,7 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.QNewAction;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -47,23 +46,29 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
-                                                                                                    String pageId,
-                                                                                                    String httpMethod,
-                                                                                                    AclPermission aclPermission) {
+    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(
+            Set<String> names,
+            String pageId,
+            String httpMethod,
+            Boolean userSetOnLoad,
+            AclPermission aclPermission) {
         Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
         Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        Criteria userSetOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.userSetOnLoad)).is(userSetOnLoad);
         String httpMethodQueryKey = fieldName(QNewAction.newAction.unpublishedAction.actionConfiguration)
                 + "."
                 + fieldName(QActionConfiguration.actionConfiguration.httpMethod);
         Criteria httpMethodCriteria = where(httpMethodQueryKey).is(httpMethod);
-        List<Criteria> criterias = List.of(namesCriteria, pageCriteria, httpMethodCriteria);
+        List<Criteria> criterias = List.of(namesCriteria, pageCriteria, httpMethodCriteria, userSetOnLoadCriteria);
 
         return queryAll(criterias, aclPermission);
     }
 
     @Override
-    public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission,
+    public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(String name,
+                                                                     List<String> pageIds,
+                                                                     Boolean viewMode,
+                                                                     AclPermission aclPermission,
                                                                      Sort sort) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
@@ -101,5 +106,23 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
         }
 
         return queryAll(criteriaList, aclPermission, sort);
+    }
+
+    @Override
+    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(Set<String> names,
+                                                                                       String pageId,
+                                                                                       AclPermission permission) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        if (names != null) {
+            Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
+            criteriaList.add(namesCriteria);
+        }
+        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        criteriaList.add(pageCriteria);
+
+        Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad)).is(Boolean.TRUE);
+        criteriaList.add(executeOnLoadCriteria);
+
+        return queryAll(criteriaList, permission);
     }
 }

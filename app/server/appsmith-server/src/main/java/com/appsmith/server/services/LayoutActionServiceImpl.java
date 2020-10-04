@@ -160,13 +160,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         }
                         bindingNames.remove(action.getName());
                     }
-                    DslActionDTO newAction = new DslActionDTO();
-                    newAction.setId(action.getId());
-                    newAction.setPluginType(action.getPluginType());
-                    newAction.setJsonPathKeys(action.getJsonPathKeys());
-                    newAction.setName(action.getName());
+                    DslActionDTO actionDTO = new DslActionDTO();
+                    actionDTO.setId(action.getId());
+                    actionDTO.setPluginType(action.getPluginType());
+                    actionDTO.setJsonPathKeys(action.getJsonPathKeys());
+                    actionDTO.setName(action.getName());
                     if (action.getActionConfiguration() != null) {
-                        newAction.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
+                        actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
                     }
 
                     // If the executeOnLoad field isn't true, set it to true
@@ -175,10 +175,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         updateAction.setExecuteOnLoad(true);
 
                         return actionService.update(action.getId(), updateAction)
-                                .thenReturn(newAction);
+                                .thenReturn(actionDTO);
                     }
 
-                    return Mono.just(newAction);
+                    return Mono.just(actionDTO);
 
                 })
                 .collect(toSet())
