@@ -7,6 +7,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -40,4 +41,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
+
+    Mono<Action> deleteUnpublishedAction(String id);
+
+    Flux<Action> getUnpublishedActions(MultiValueMap<String, String> params);
 }

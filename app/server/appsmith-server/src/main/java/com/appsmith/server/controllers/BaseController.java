@@ -40,10 +40,12 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
 
     /**
      * TODO : Remove this function completely if this is not being used.
+     * If not, atleast remove it for :
+     * 1. Page
+     * 2. Datasources
      * @param params
      * @return
      */
-    @Deprecated
     @GetMapping("")
     public Mono<ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources");

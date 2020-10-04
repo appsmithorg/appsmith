@@ -41,6 +41,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -52,6 +53,8 @@ import javax.validation.constraints.NotNull;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +65,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -330,8 +334,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 }).map(act -> extractAndSetJsonPathKeys(act))
                 .flatMap(super::create)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
-                .flatMap(this::setTransientFieldsInUnpublishedAction)
-                .flatMap(savedAction -> getActionByViewMode(savedAction, false));
+                .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
     /**
@@ -369,7 +372,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return newAction;
     }
 
-    private Mono<NewAction> setTransientFieldsInUnpublishedAction(NewAction newAction) {
+    private Mono<Action> setTransientFieldsInUnpublishedAction(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
 
         // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
@@ -398,7 +401,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .map(actionDTO -> {
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
-                });
+                })
+                .flatMap(action1 -> getActionByViewMode(action1, false));
     }
 
     @Override
@@ -795,6 +799,53 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     }
                     return actionViewDTO;
                 });
+    }
+
+    @Override
+    public Mono<Action> deleteUnpublishedAction(String id) {
+        Mono<NewAction> actionMono = repository.findById(id, MANAGE_ACTIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
+        return actionMono
+                .flatMap(toDelete -> {
+                    Mono<NewAction> newActionMono;
+                    if (toDelete.getPublishedAction() != null) {
+                        toDelete.getUnpublishedAction().setDeletedAt(Instant.now());
+                        newActionMono = repository.save(toDelete);
+                    } else {
+                        // This action was never published. This can be safely deleted.
+                        newActionMono = repository.delete(toDelete).thenReturn(toDelete);
+                    }
+
+                    return newActionMono
+                            .flatMap(updatedAction -> getActionByViewMode(updatedAction, false));
+                })
+                .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    @Override
+    public Flux<Action> getUnpublishedActions(MultiValueMap<String, String> params) {
+        String name = null;
+        List<String> pageIds = new ArrayList<>();
+        Sort sort = Sort.by(FieldName.NAME);
+
+        if (params.getFirst(FieldName.NAME) != null) {
+            name = params.getFirst(FieldName.NAME);
+        }
+
+        if (params.getFirst(FieldName.PAGE_ID) != null) {
+            pageIds.add(params.getFirst(FieldName.PAGE_ID));
+        }
+
+        if (params.getFirst(FieldName.APPLICATION_ID) != null) {
+            String finalName = name;
+            // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
+            // function call is made which takes care of returning only the essential fields of an action
+            return repository
+                    .findByApplicationIdAndNamesAndViewMode(params.getFirst(FieldName.APPLICATION_ID), Set.of(finalName), false, READ_ACTIONS)
+                    .flatMap(this::setTransientFieldsInUnpublishedAction);
+        }
+        return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
+                .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
 }

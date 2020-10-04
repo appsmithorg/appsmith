@@ -12,9 +12,12 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.NewActionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,14 +41,17 @@ public class ActionController extends BaseController<ActionService, Action, Stri
 
     private final ActionCollectionService actionCollectionService;
     private final LayoutActionService layoutActionService;
+    private final NewActionService newActionService;
 
     @Autowired
     public ActionController(ActionService service,
                             ActionCollectionService actionCollectionService,
-                            LayoutActionService layoutActionService) {
+                            LayoutActionService layoutActionService,
+                            NewActionService newActionService) {
         super(service);
         this.actionCollectionService = actionCollectionService;
         this.layoutActionService = layoutActionService;
+        this.newActionService = newActionService;
     }
 
     @PostMapping
@@ -95,5 +101,20 @@ public class ActionController extends BaseController<ActionService, Action, Stri
         log.debug("Going to set execute on load for action id {} to {}", id, flag);
         return layoutActionService.setExecuteOnLoad(id, flag)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<ResponseDTO<Action>> delete(@PathVariable String id) {
+        log.debug("Going to delete action with id: {}", id);
+        return newActionService.deleteUnpublishedAction(id)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @Override
+    @GetMapping("")
+    public Mono<ResponseDTO<List<Action>>> getAll(@RequestParam MultiValueMap<String, String> params) {
+        log.debug("Going to get all resources");
+        return newActionService.getUnpublishedActions(params).collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }

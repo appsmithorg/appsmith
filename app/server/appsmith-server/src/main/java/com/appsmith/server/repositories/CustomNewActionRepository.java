@@ -27,4 +27,6 @@ public interface CustomNewActionRepository extends AppsmithRepository<NewAction>
             Set<String> names, String pageId, AclPermission permission);
 
     Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
+
+    Flux<NewAction> findByApplicationIdAndNamesAndViewMode(String applicationId, Set<String> names, Boolean viewMode, AclPermission aclPermission);
 }
