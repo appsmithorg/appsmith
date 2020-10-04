@@ -176,6 +176,10 @@ public class PolicyUtils {
 
     public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
 
+        // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures that all the published
+        // AND the unpublished pages are updated with the new policy change [This covers the edge cases where a page may exist
+        // in published app but has been deleted in the edit mode]. This means that we don't have to do any special treatment
+        // during deployment of the application to handle edge cases.
         return newPageRepository
                 .findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.empty())
@@ -191,6 +195,17 @@ public class PolicyUtils {
                         .saveAll(updatedPages));
     }
 
+    /**
+     * TODO : Instead of fetching actions by pageId, fetch actions by applicationId and then update the action policies
+     * using the new ActionPoliciesMap. This ensures the following :
+     * 1. Instead of bulk updating actions page wise, we do bulk update of actions in one go for the entire application.
+     * 2. If the action is associated with different pages (in published/unpublished page due to movement of action), fetching
+     * actions by applicationId ensures that we update ALL the actions and don't have to do special handling for the same.
+     * @param pageId
+     * @param newActionPoliciesMap
+     * @param addPolicyToObject
+     * @return
+     */
     public Flux<Action> updateWithPagePermissionsToAllItsActions(String pageId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
 
         return actionRepository
