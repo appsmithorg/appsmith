@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import org.springframework.data.domain.Sort;
@@ -16,9 +17,13 @@ import java.util.Map;
 import java.util.Set;
 
 public interface NewActionService extends CrudService<NewAction, String> {
+    Action createActionFromDTO(ActionDTO actionDTO);
+
     Mono<Action> generateActionByViewMode(NewAction newAction, Boolean viewMode);
 
     Mono<Action> createAction(@NotNull Action action);
+
+    NewAction extractAndSetJsonPathKeys(NewAction newAction);
 
     Mono<Action> updateUnpublishedAction(String id, Action action);
 
@@ -48,4 +53,5 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<Action> getUnpublishedActions(MultiValueMap<String, String> params);
 
+    Mono<NewAction> save(NewAction action);
 }

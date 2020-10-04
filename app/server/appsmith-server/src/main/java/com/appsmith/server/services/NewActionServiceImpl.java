@@ -132,7 +132,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return actionDTO;
     }
 
-    private Action createActionFromDTO(ActionDTO actionDTO) {
+    @Override
+    public Action createActionFromDTO(ActionDTO actionDTO) {
         Action action = new Action();
         action.setName(actionDTO.getName());
         action.setDatasource(actionDTO.getDatasource());
@@ -353,6 +354,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      * @param newAction
      * @return
      */
+    @Override
     public NewAction extractAndSetJsonPathKeys(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
         Set<String> actionKeys = extractKeysFromAction(action.getActionConfiguration());
@@ -840,6 +842,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
+    }
+
+    @Override
+    public Mono<NewAction> save(NewAction action) {
+        return repository.save(action);
     }
 
 }
