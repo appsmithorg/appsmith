@@ -73,7 +73,7 @@ public class ActionController extends BaseController<ActionService, Action, Stri
 
     @PostMapping("/execute")
     public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody ExecuteActionDTO executeActionDTO) {
-        return service.executeAction(executeActionDTO)
+        return newActionService.executeAction(executeActionDTO)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
@@ -92,7 +92,7 @@ public class ActionController extends BaseController<ActionService, Action, Stri
 
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(@RequestParam String applicationId) {
-        return service.getActionsForViewMode(applicationId).collectList()
+        return newActionService.getActionsForViewMode(applicationId).collectList()
                 .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
     }
 
