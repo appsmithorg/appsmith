@@ -153,7 +153,7 @@ public class SecurityConfig {
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
 
-                // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
+                // For GitHub SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 .and().oauth2Login()
                 .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository, commonConfig, redirectHelper))

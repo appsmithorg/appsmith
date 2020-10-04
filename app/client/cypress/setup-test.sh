@@ -1,7 +1,7 @@
 #! /bin/sh
 
-# This script is responsible for setting up the local Nginx server for running E2E Cypress tests 
-# on our CI/CD system. Currently the script is geared towards Github Actions
+# This script is responsible for setting up the local Nginx server for running E2E Cypress tests
+# on our CI/CD system. Currently the script is geared towards GitHub Actions
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
 echo "Starting the setup the test framework"
@@ -29,7 +29,7 @@ sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
 echo "Sleeping for 10 seconds to let the server start"
 sleep 10
 
-# Create the test user 
+# Create the test user
 curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
 --header 'Content-Type: application/json' \
 --data-raw '{

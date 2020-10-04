@@ -28,7 +28,7 @@ APPSMITH_MAIL_ENABLED=false
 # APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET=
 # ******************************
 
-# ********* Github OAUth **********
+# ********* GitHub OAUth **********
 # APPSMITH_OAUTH2_GITHUB_CLIENT_ID=
 # APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET=
 # *********************************

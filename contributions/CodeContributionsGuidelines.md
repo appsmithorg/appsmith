@@ -11,7 +11,7 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 
 ### 🍴 Git Workflow
 
-We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so all code changes happen through pull requests. 
+We use [GitHub Flow](https://guides.github.com/introduction/flow/index.html), so all code changes happen through pull requests. 
 
 1. Fork the repo and create a new branch from the `release` branch.
 2. Branches are named as `fix/fix-name` or `feature/feature-name`

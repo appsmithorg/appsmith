@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 /**
- * This class is invoked for SSO logins like <strong>Github</strong> which implement the {@link OAuth2User} interface for the user.
+ * This class is invoked for SSO logins like <strong>GitHub</strong> which implement the {@link OAuth2User} interface for the user.
  * We transform the {@link OAuth2User} object to {@link User} object via the {@link #loadUser(OAuth2UserRequest)}
  * We also create the user if it doesn't exist we create it via {@link #checkAndCreateUser(OAuth2User, OAuth2UserRequest)}
  */

@@ -84,7 +84,7 @@ jobs:
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-server
   
-  # These are dummy jobs in the CI build to satisfy required status checks for merging PRs. This is a hack because Github doesn't support conditional 
+  # These are dummy jobs in the CI build to satisfy required status checks for merging PRs. This is a hack because GitHub doesn't support conditional
   # required checks in monorepos. These jobs are a clone of similarly named jobs in client.yml. 
   #
   # Check support request at: https://github.community/t/feature-request-conditional-required-checks/16761

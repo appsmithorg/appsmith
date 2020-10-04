@@ -1,4 +1,4 @@
-name: Appsmith Github Release Workflow 
+name: Appsmith GitHub Release Workflow
 
 on:
   push:
@@ -120,12 +120,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Creating the release on Github
+    # Creating the release on GitHub
     - name: Get the version
       id: get_version
       run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
 
-    # If the tag has the string "beta", then mark the Github release as a pre-release
+    # If the tag has the string "beta", then mark the GitHub release as a pre-release
     - name: Get the version
       id: get_prerelease
       run: |
