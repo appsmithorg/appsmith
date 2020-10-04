@@ -33,7 +33,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.data.domain.Sort;
@@ -78,10 +77,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
-    private final ObjectMapper objectMapper;
     private final DatasourceContextService datasourceContextService;
     private final PluginExecutorHelper pluginExecutorHelper;
-    private final SessionUserService sessionUserService;
     private final MarketplaceService marketplaceService;
     private final PolicyGenerator policyGenerator;
     private final NewPageService newPageService;
@@ -94,10 +91,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 AnalyticsService analyticsService,
                                 DatasourceService datasourceService,
                                 PluginService pluginService,
-                                ObjectMapper objectMapper,
                                 DatasourceContextService datasourceContextService,
                                 PluginExecutorHelper pluginExecutorHelper,
-                                SessionUserService sessionUserService,
                                 MarketplaceService marketplaceService,
                                 PolicyGenerator policyGenerator,
                                 NewPageService newPageService) {
@@ -105,10 +100,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.repository = repository;
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
-        this.objectMapper = objectMapper;
         this.datasourceContextService = datasourceContextService;
         this.pluginExecutorHelper = pluginExecutorHelper;
-        this.sessionUserService = sessionUserService;
         this.marketplaceService = marketplaceService;
         this.policyGenerator = policyGenerator;
         this.newPageService = newPageService;
@@ -178,7 +171,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         newAction.setDocumentation(action.getDocumentation());
     }
 
-    private Mono<Action> getActionByViewMode(NewAction newAction, Boolean viewMode) {
+    @Override
+    public Mono<Action> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
         Action action = null;
 
         if (TRUE.equals(viewMode)) {
@@ -286,7 +280,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             }
             action.setInvalids(invalids);
             return super.create(newAction)
-                    .flatMap(savedAction -> getActionByViewMode(savedAction, false));
+                    .flatMap(savedAction -> generateActionByViewMode(savedAction, false));
         }
 
         Mono<Datasource> datasourceMono;
@@ -402,7 +396,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
-                .flatMap(action1 -> getActionByViewMode(action1, false));
+                .flatMap(action1 -> generateActionByViewMode(action1, false));
     }
 
     @Override
@@ -706,13 +700,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     dbAction.setUnpublishedAction(unpublishedAction);
                     return repository.save(dbAction);
                 })
-                .flatMap(savedAction -> getActionByViewMode(savedAction, false));
+                .flatMap(savedAction -> generateActionByViewMode(savedAction, false));
     }
 
     @Override
     public Mono<Action> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
         return repository.findByUnpublishedNameAndPageId(name, pageId, permission)
-                .flatMap(action -> getActionByViewMode(action, false));
+                .flatMap(action -> generateActionByViewMode(action, false));
     }
 
     /**
@@ -817,7 +811,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     }
 
                     return newActionMono
-                            .flatMap(updatedAction -> getActionByViewMode(updatedAction, false));
+                            .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
                 })
                 .flatMap(analyticsService::sendDeleteEvent);
     }

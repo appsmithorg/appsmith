@@ -78,18 +78,23 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
     }
 
     @Override
-    public Mono<Action> removeSingleActionFromCollection(String collectionId, Action action) {
+    public Mono<Action> removeSingleActionFromCollection(String collectionId, Mono<Action> actionMono) {
         if (collectionId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
-        }
-        if (action.getId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "action"));
         }
 
         return repository
                 .findById(collectionId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "collectionId")))
-                .flatMap(collection -> {
+                .zipWith(actionMono)
+                .flatMap(tuple -> {
+                    Collection collection = tuple.getT1();
+                    Action action = tuple.getT2();
+
+                    if (action.getId() == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "action"));
+                    }
+
                     List<Action> actions = collection.getActions();
                     if (actions == null || actions.isEmpty()) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "actionId or collectionId"));
@@ -101,11 +106,9 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
                             break;
                         }
                     }
+                    log.debug("Action {} removed from Collection {}", action.getId(), collection.getId());
                     return repository.save(collection);
                 })
-                .map(collection -> {
-                    log.debug("Action {} removed from Collection {}", action.getId(), collection.getId());
-                    return action;
-                });
+                .then(actionMono);
     }
 }

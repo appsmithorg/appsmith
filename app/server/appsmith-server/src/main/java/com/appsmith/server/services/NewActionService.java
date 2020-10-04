@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 public interface NewActionService extends CrudService<NewAction, String> {
+    Mono<Action> generateActionByViewMode(NewAction newAction, Boolean viewMode);
+
     Mono<Action> createAction(@NotNull Action action);
 
     Mono<Action> updateUnpublishedAction(String id, Action action);
@@ -45,4 +47,5 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Mono<Action> deleteUnpublishedAction(String id);
 
     Flux<Action> getUnpublishedActions(MultiValueMap<String, String> params);
+
 }

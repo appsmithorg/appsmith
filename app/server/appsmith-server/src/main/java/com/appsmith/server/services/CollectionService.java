@@ -13,5 +13,5 @@ public interface CollectionService extends CrudService<Collection, String> {
 
     Mono<Action> addSingleActionToCollection(String collectionId, Action action);
 
-    Mono<Action> removeSingleActionFromCollection(String collectionId, Action action);
+    Mono<Action> removeSingleActionFromCollection(String collectionId, Mono<Action> action);
 }
