@@ -19,5 +19,5 @@ public interface CustomNewActionRepository extends AppsmithRepository<NewAction>
                                                                                              String httpMethod,
                                                                                              AclPermission aclPermission);
 
-    Flux<NewAction> findAllActionsByNameAndPageIds(String name, List<String> pageIds, AclPermission aclPermission, Sort sort);
+    Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 }

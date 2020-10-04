@@ -38,6 +38,12 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    /**
+     * TODO : Remove this function completely if this is not being used.
+     * @param params
+     * @return
+     */
+    @Deprecated
     @GetMapping("")
     public Mono<ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources");

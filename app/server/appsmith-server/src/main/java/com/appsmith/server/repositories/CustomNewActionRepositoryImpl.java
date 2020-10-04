@@ -38,7 +38,11 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission) {
-        Criteria pageCriteria = where(fieldName(QAction.action.pageId)).is(pageId);
+        Criteria unpublishedPageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        Criteria publishedPageCriteria = where(fieldName(QNewAction.newAction.publishedAction.pageId)).is(pageId);
+
+        Criteria pageCriteria = new Criteria().orOperator(unpublishedPageCriteria, publishedPageCriteria);
+
         return queryAll(List.of(pageCriteria), aclPermission);
     }
 
@@ -47,9 +51,9 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
                                                                                                     String pageId,
                                                                                                     String httpMethod,
                                                                                                     AclPermission aclPermission) {
-        Criteria namesCriteria = where(fieldName(QAction.action.name)).in(names);
-        Criteria pageCriteria = where(fieldName(QAction.action.pageId)).is(pageId);
-        String httpMethodQueryKey = fieldName(QAction.action.actionConfiguration)
+        Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
+        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        String httpMethodQueryKey = fieldName(QNewAction.newAction.unpublishedAction.actionConfiguration)
                 + "."
                 + fieldName(QActionConfiguration.actionConfiguration.httpMethod);
         Criteria httpMethodCriteria = where(httpMethodQueryKey).is(httpMethod);
@@ -59,8 +63,8 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewAction> findAllActionsByNameAndPageIds(String name, List<String> pageIds, AclPermission aclPermission,
-                                                       Sort sort) {
+    public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission,
+                                                                     Sort sort) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
@@ -69,14 +73,31 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
         List<Criteria> criteriaList = new ArrayList<>();
 
-        if (name != null) {
-            Criteria nameCriteria = where(fieldName(QAction.action.name)).is(name);
-            criteriaList.add(nameCriteria);
-        }
+        // Fetch published actions
+        if (Boolean.TRUE.equals(viewMode)) {
 
-        if (pageIds != null && !pageIds.isEmpty()) {
-            Criteria pageCriteria = where(fieldName(QAction.action.pageId)).in(pageIds);
-            criteriaList.add(pageCriteria);
+            if (name != null) {
+                Criteria nameCriteria = where(fieldName(QNewAction.newAction.publishedAction.name)).is(name);
+                criteriaList.add(nameCriteria);
+            }
+
+            if (pageIds != null && !pageIds.isEmpty()) {
+                Criteria pageCriteria = where(fieldName(QNewAction.newAction.publishedAction.pageId)).in(pageIds);
+                criteriaList.add(pageCriteria);
+            }
+        }
+        // Fetch unpublished actions
+        else {
+
+            if (name != null) {
+                Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
+                criteriaList.add(nameCriteria);
+            }
+
+            if (pageIds != null && !pageIds.isEmpty()) {
+                Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+                criteriaList.add(pageCriteria);
+            }
         }
 
         return queryAll(criteriaList, aclPermission, sort);
