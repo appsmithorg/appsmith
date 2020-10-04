@@ -24,7 +24,9 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -34,6 +36,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -61,6 +64,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 @Service
@@ -737,5 +741,60 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return repository.findById(id, aclPermission);
     }
 
+    @Override
+    public Flux<NewAction> findByPageId(String pageId, AclPermission permission) {
+        return repository.findByPageId(pageId, permission);
+    }
+
+    @Override
+    public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission) {
+        return repository.findByPageIdAndViewMode(pageId, viewMode, permission);
+    }
+
+    @Override
+    public Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
+        return repository.findByApplicationId(applicationId, permission, sort)
+                // In case of view mode being true, filter out all the actions which haven't been published
+                .flatMap(action -> {
+                    if (Boolean.TRUE.equals(viewMode)) {
+                        // In case we are trying to fetch published actions but this action has not been published, do not return
+                        if (action.getPublishedAction() == null) {
+                            return Mono.empty();
+                        }
+                    }
+                    // No need to handle the edge case of unpublished action not being present. This is not possible because
+                    // every created action starts from an unpublishedAction state.
+
+                    return Mono.just(action);
+                });
+    }
+
+    @Override
+    public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
+        Sort sort = Sort.by(fieldName(QNewAction.newAction.publishedAction.name));
+
+        if (applicationId == null || applicationId.isEmpty()) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+        }
+
+        // fetch the published actions by applicationId
+        return findAllByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS, sort)
+                .map(action -> {
+                    ActionViewDTO actionViewDTO = new ActionViewDTO();
+                    actionViewDTO.setId(action.getId());
+                    actionViewDTO.setName(action.getPublishedAction().getName());
+                    actionViewDTO.setPageId(action.getPublishedAction().getPageId());
+                    if (action.getPublishedAction().getJsonPathKeys() != null && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
+                        Set<String> jsonPathKeys;
+                        jsonPathKeys = new HashSet<>();
+                        jsonPathKeys.addAll(action.getPublishedAction().getJsonPathKeys());
+                        actionViewDTO.setJsonPathKeys(jsonPathKeys);
+                    }
+                    if (action.getPublishedAction().getActionConfiguration() != null) {
+                        actionViewDTO.setTimeoutInMillisecond(action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond());
+                    }
+                    return actionViewDTO;
+                });
+    }
 
 }

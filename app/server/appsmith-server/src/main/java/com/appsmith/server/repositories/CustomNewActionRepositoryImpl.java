@@ -46,6 +46,21 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
+    public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission) {
+        Criteria pageCriteria;
+
+        // Fetch published actions
+        if (Boolean.TRUE.equals(viewMode)) {
+            pageCriteria = where(fieldName(QNewAction.newAction.publishedAction.pageId)).is(pageId);
+        }
+        // Fetch unpublished actions
+        else {
+            pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        }
+        return queryAll(List.of(pageCriteria), aclPermission);
+    }
+
+    @Override
     public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(
             Set<String> names,
             String pageId,
@@ -124,5 +139,13 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
         criteriaList.add(executeOnLoadCriteria);
 
         return queryAll(criteriaList, permission);
+    }
+
+    @Override
+    public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
+
+        Criteria applicationCriteria = where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+
+        return queryAll(List.of(applicationCriteria), aclPermission, sort);
     }
 }

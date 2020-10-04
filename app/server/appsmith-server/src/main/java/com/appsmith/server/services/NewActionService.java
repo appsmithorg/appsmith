@@ -4,7 +4,9 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,4 +32,12 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Mono<NewAction> findById(String id);
 
     Mono<NewAction> findById(String id, AclPermission aclPermission);
+
+    abstract Flux<NewAction> findByPageId(String pageId, AclPermission permission);
+
+    Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission);
+
+    Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
+
+    Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 }

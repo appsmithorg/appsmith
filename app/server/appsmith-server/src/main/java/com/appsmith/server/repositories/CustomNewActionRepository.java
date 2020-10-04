@@ -14,6 +14,8 @@ public interface CustomNewActionRepository extends AppsmithRepository<NewAction>
 
     Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
+    Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
+
     Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(Set<String> names,
                                                                                                              String pageId,
                                                                                                              String httpMethod,
@@ -23,4 +25,6 @@ public interface CustomNewActionRepository extends AppsmithRepository<NewAction>
 
     Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
             Set<String> names, String pageId, AclPermission permission);
+
+    Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 }
