@@ -23,6 +23,8 @@ jobs:
         working-directory: app/client
 
     steps:
+    - name: Figure out the ref
+      - run: echo ::set-output name=tag::${GITHUB_REF}
     # Checkout the code
     - uses: actions/checkout@v2
       with:
