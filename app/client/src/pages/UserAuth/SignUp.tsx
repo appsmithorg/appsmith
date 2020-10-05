@@ -163,8 +163,12 @@ export const SignUp = (props: SignUpFormProps) => {
             />
           </FormActions>
         </SpacedSubmitForm>
-        {SocialLoginList.length > 0 && <Divider />}
-        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+        {SocialLoginList.length > 0 && (
+          <>
+            <Divider />
+            <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+          </>
+        )}
       </AuthCardBody>
       <AuthCardFooter>
         <TncPPLinks />

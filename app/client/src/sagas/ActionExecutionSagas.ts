@@ -150,6 +150,8 @@ function* downloadSaga(
         message: "Download failed. File name was not provided",
         type: "error",
       });
+
+      if (event.callback) event.callback({ success: false });
       return;
     }
     const dataType = getType(data);

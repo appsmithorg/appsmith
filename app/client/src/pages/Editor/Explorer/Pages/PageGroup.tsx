@@ -64,6 +64,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       entityId="Pages"
       step={props.step}
       onCreate={createPageCallback}
+      searchKeyword={props.searchKeyword}
     >
       {pageEntities}
     </Entity>
