@@ -226,7 +226,8 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     getFormData,
     DATASOURCE_DB_FORM,
   );
-  const payload = { ...actionPayload.payload };
+  const datasource = yield select(getDatasource, actionPayload.payload.id);
+  const payload = { ...actionPayload.payload, name: datasource.name };
 
   if (!_.isEqual(initialValues, values)) {
     delete payload.id;
@@ -250,7 +251,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         });
       } else {
         AppToaster.show({
-          message: `${actionPayload.payload.name} is valid`,
+          message: `${payload.name} is valid`,
           type: ToastType.SUCCESS,
         });
       }
@@ -262,7 +263,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
-      payload: { error },
+      payload: { error, show: false },
     });
   }
 }
@@ -353,7 +354,7 @@ function* createDatasourceFromFormSaga(
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
 
-      yield put(initialize(DATASOURCE_DB_FORM, response.data));
+      yield put(initialize(DATASOURCE_DB_FORM, _.omit(response.data, "name")));
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
       );
@@ -405,7 +406,7 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     data = draft;
   }
 
-  yield put(initialize(DATASOURCE_DB_FORM, data));
+  yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
   yield put(selectPlugin(pluginId));
 
   if (!formConfigs[pluginId]) {
@@ -482,6 +483,59 @@ function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
   });
 }
 
+function* fetchDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
+  try {
+    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
+      action.payload.id,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS,
+        payload: {
+          data: response.data,
+          datasourceId: action.payload.id,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
+      payload: {
+        error,
+        show: false,
+      },
+    });
+  }
+}
+
+function* refreshDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
+  try {
+    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
+      action.payload.id,
+      true,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_SUCCESS,
+        payload: {
+          data: response.data,
+          datasourceId: action.payload.id,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR,
+      payload: {
+        error,
+        show: false,
+      },
+    });
+  }
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -504,6 +558,14 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
       updateDatasourceSuccessSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
+      fetchDatasourceStrucuture,
+    ),
+    takeEvery(
+      ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
+      refreshDatasourceStrucuture,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

@@ -2,12 +2,13 @@ import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
 import { CommonComponentProps, hexToRgba, Classes } from "./common";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
-import { theme } from "constants/DefaultTheme";
 import {
   FORM_VALIDATION_INVALID_EMAIL,
   ERROR_MESSAGE_NAME_EMPTY,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
+import { useSelector } from "react-redux";
+import { getThemeDetails } from "selectors/themeSelectors";
 
 export type Validator = (
   value: string,
@@ -46,15 +47,19 @@ type boxReturnType = {
   borderColor: string;
 };
 
-const boxStyles = (props: TextInputProps, isValid: boolean): boxReturnType => {
-  let bgColor = theme.colors.blackShades[0];
-  let color = theme.colors.blackShades[9];
-  let borderColor = theme.colors.blackShades[0];
+const boxStyles = (
+  props: TextInputProps,
+  isValid: boolean,
+  theme: any,
+): boxReturnType => {
+  let bgColor = theme.colors.textInput.normal.bg;
+  let color = theme.colors.textInput.normal.text;
+  let borderColor = theme.colors.textInput.normal.border;
 
   if (props.disabled) {
-    bgColor = theme.colors.blackShades[2];
-    color = theme.colors.blackShades[6];
-    borderColor = theme.colors.blackShades[2];
+    bgColor = theme.colors.textInput.disable.bg;
+    color = theme.colors.textInput.disable.text;
+    borderColor = theme.colors.textInput.disable.border;
   }
   if (!isValid) {
     bgColor = hexToRgba(theme.colors.danger.main, 0.1);
@@ -78,7 +83,7 @@ const StyledInput = styled.input<
   color: ${props => props.inputStyle.color};
 
   &::placeholder {
-    color: ${props => props.theme.colors.blackShades[5]};
+    color: ${props => props.theme.colors.textInput.placeholder};
   }
   &:focus {
     border: 1px solid
@@ -108,8 +113,8 @@ const InputWrapper = styled.div`
 `;
 
 const ErrorWrapper = styled.div`
-  position absolute;
-  bottom: -17px; 
+  position: absolute;
+  bottom: -17px;
 `;
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
@@ -126,10 +131,12 @@ const TextInput = forwardRef(
       message: string;
     }>(initialValidation());
 
-    const inputStyle = useMemo(() => boxStyles(props, validation.isValid), [
-      props,
-      validation.isValid,
-    ]);
+    const theme = useSelector(getThemeDetails).theme;
+
+    const inputStyle = useMemo(
+      () => boxStyles(props, validation.isValid, theme),
+      [props, validation.isValid, theme],
+    );
 
     const memoizedChangeHandler = useCallback(
       el => {

@@ -47,7 +47,10 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name").click({ force: true });
+  cy.get(".t--org-name span")
+    .contains(orgName)
+    .first()
+    .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
   cy.wait("@getRoles").should(
@@ -85,11 +88,56 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     .click();
 });
 
+Cypress.Commands.add("shareApp", (email, role) => {
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.get(homePage.closeBtn).click();
+});
+
+Cypress.Commands.add("shareAndPublic", (email, role) => {
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.enablePublicAccess();
+});
+
+Cypress.Commands.add("enablePublicAccess", () => {
+  cy.get(homePage.enablePublicAccess).click();
+  cy.wait("@changeAccess").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(homePage.closeBtn).click();
+});
+
 Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name").click({ force: true });
+  cy.get(".t--org-name span")
+    .contains(orgName)
+    .first()
+    .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
   cy.wait("@getRoles").should(
@@ -113,7 +161,10 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name").click({ force: true });
+  cy.get(".t--org-name span")
+    .contains(orgName)
+    .first()
+    .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
@@ -206,7 +257,7 @@ Cypress.Commands.add("DeleteApp", appName => {
     .should("have.length", 1)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton)
+  cy.get(homePage.deleteApp)
     .should("be.visible")
     .click({ force: true });
 });
@@ -251,7 +302,7 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton)
+  cy.get(homePage.deleteApp)
     .contains("Delete")
     .click({ force: true });
 });
@@ -293,7 +344,9 @@ Cypress.Commands.add("NavigateToWidgets", pageName => {
 Cypress.Commands.add("SearchApp", appname => {
   cy.get(homePage.searchInput).type(appname);
   cy.wait(2000);
-  cy.get(homePage.applicationCard).trigger("mouseover");
+  cy.get(homePage.applicationCard)
+    .first()
+    .trigger("mouseover", { force: true });
   cy.get(homePage.appEditIcon)
     .first()
     .click({ force: true });
@@ -979,7 +1032,7 @@ Cypress.Commands.add("Deletepage", Pagename => {
 Cypress.Commands.add("generateUUID", () => {
   const uuid = require("uuid");
   const id = uuid.v4();
-  return id;
+  return id.split("-")[0];
 });
 
 Cypress.Commands.add("addDsl", dsl => {
@@ -1329,7 +1382,6 @@ Cypress.Commands.add("createPostgresDatasource", () => {
 
 Cypress.Commands.add("deletePostgresDatasource", datasourceName => {
   cy.NavigateToDatasourceEditor();
-  cy.get(".t--entity-name:contains(PostgreSQL)").click();
   cy.get(`.t--entity-name:contains(${datasourceName})`).click();
 
   cy.get(".t--delete-datasource").click();
@@ -1533,6 +1585,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
+  cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+    "getDatasourceStructure",
+  );
 
   cy.route("GET", "/api/v1/organizations").as("organizations");
   cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
@@ -1572,6 +1627,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/users/me").as("getUser");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
+  cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 });
 
 Cypress.Commands.add("alertValidate", text => {

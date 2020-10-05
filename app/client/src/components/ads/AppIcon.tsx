@@ -14,7 +14,7 @@ import { ReactComponent as FlightIcon } from "assets/icons/ads/flight.svg";
 
 import styled from "styled-components";
 import { Size } from "./Button";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, Classes } from "./common";
 
 export const AppIconCollection = [
   "bag",
@@ -61,34 +61,31 @@ const appSizeHandler = (size: Size): cssAttributes => {
   return { width, height, padding };
 };
 
-const IconWrapper = styled.div<AppIconProps & { styledProps: cssAttributes }>`
+const IconWrapper = styled.a<AppIconProps & { styledProps: cssAttributes }>`
   cursor: pointer;
+  width: ${props => props.styledProps.width}px;
+  height: ${props => props.styledProps.height}px;
   &:focus {
     outline: none;
   }
-  display: flex;
-  width: ${props => props.styledProps.width + 2 * props.styledProps.padding}px;
-  height: ${props =>
-    props.styledProps.height + 2 * props.styledProps.padding}px;
   svg {
     width: ${props => props.styledProps.width}px;
     height: ${props => props.styledProps.height}px;
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.appIcon.normal};
     }
   }
-  padding: ${props => props.styledProps.padding}px;
-  background-color: ${props => props.color};
 `;
 
 export type AppIconProps = CommonComponentProps & {
-  size: Size;
-  color: string;
+  size?: Size;
   name: AppIconName;
 };
 
 const AppIcon = (props: AppIconProps) => {
-  const styledProps = useMemo(() => appSizeHandler(props.size), [props]);
+  const styledProps = useMemo(() => appSizeHandler(props.size || Size.medium), [
+    props,
+  ]);
 
   let returnIcon;
   switch (props.name) {
@@ -136,6 +133,7 @@ const AppIcon = (props: AppIconProps) => {
     <IconWrapper
       data-cy={props.cypressSelector}
       {...props}
+      className={Classes.APP_ICON}
       styledProps={styledProps}
     >
       {returnIcon}

@@ -1,8 +1,8 @@
 ---
 name: "\U0001F6E0️ Feature request"
 about: Suggest an idea to improve appsmith
-title: "[FEATURE]"
-labels: enhancement
+title: "[Feature]"
+labels: ''
 assignees: Nikhil-Nandagopal
 
 ---

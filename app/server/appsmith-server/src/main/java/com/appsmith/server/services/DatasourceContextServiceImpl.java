@@ -141,6 +141,10 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
 
     @Override
     public Mono<DatasourceContext> deleteDatasourceContext(String datasourceId) {
+        if (datasourceId == null) {
+            return Mono.empty();
+        }
+
         DatasourceContext datasourceContext = datasourceContextMap.get(datasourceId);
         if (datasourceContext == null) {
             // No resource context exists for this resource. Return void.

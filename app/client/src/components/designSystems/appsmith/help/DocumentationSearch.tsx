@@ -23,7 +23,12 @@ import {
 import { Icon } from "@blueprintjs/core";
 import moment from "moment";
 
-const { algolia, appVersion, cloudHosting } = getAppsmithConfigs();
+const {
+  algolia,
+  appVersion,
+  cloudHosting,
+  intercomAppID,
+} = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
@@ -108,6 +113,11 @@ const DefaultHelpMenuItem = (props: {
         id={props.item.id}
         onClick={() => {
           if (props.item.link) window.open(props.item.link, "_blank");
+          if (props.item.id === "intercom-trigger") {
+            if (cloudHosting && intercomAppID && window.Intercom) {
+              window.Intercom("show");
+            }
+          }
           props.onSelect();
         }}
       >

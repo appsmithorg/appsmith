@@ -103,8 +103,8 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
 };
 
 const getConfig = (fromENV: string, fromWindow: string) => {
-  if (fromENV.length > 0) return { enabled: true, value: fromENV };
-  else if (fromWindow.length > 0) return { enabled: true, value: fromWindow };
+  if (fromWindow.length > 0) return { enabled: true, value: fromWindow };
+  else if (fromENV.length > 0) return { enabled: true, value: fromENV };
   return { enabled: false, value: "" };
 };
 
@@ -178,7 +178,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
           routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
         }),
       ],
-      tracesSampleRate: 1.0,
+      tracesSampleRate: 0.5,
     },
     smartLook: {
       enabled: smartLook.enabled,

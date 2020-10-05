@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -260,11 +261,13 @@ public class PostgresPluginTest {
                             possessionsTable.getColumns().toArray()
                     );
 
-                    final DatasourceStructure.PrimaryKey possessionsPrimaryKey = new DatasourceStructure.PrimaryKey("possessions_pkey");
+                    final DatasourceStructure.PrimaryKey possessionsPrimaryKey = new DatasourceStructure.PrimaryKey("possessions_pkey", new ArrayList<>());
                     possessionsPrimaryKey.getColumnNames().add("id");
-                    final DatasourceStructure.ForeignKey possessionsUserForeignKey = new DatasourceStructure.ForeignKey("user_fk");
-                    possessionsUserForeignKey.getFromColumns().add("user_id");
-                    possessionsUserForeignKey.getToColumns().add("users.id");
+                    final DatasourceStructure.ForeignKey possessionsUserForeignKey = new DatasourceStructure.ForeignKey(
+                            "user_fk",
+                            List.of("user_id"),
+                            List.of("users.id")
+                    );
                     assertArrayEquals(
                             new DatasourceStructure.Key[]{possessionsPrimaryKey, possessionsUserForeignKey},
                             possessionsTable.getKeys().toArray()
@@ -272,10 +275,14 @@ public class PostgresPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.possessions LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.possessions (title, user_id)\n" +
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"possessions\" (\"title\", \"user_id\")\n" +
                                             "  VALUES ('', 1);"),
-                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.possessions\n" +
+                                    new DatasourceStructure.Template("UPDATE", "UPDATE public.\"possessions\" SET\n" +
+                                            "    \"title\" = ''\n" +
+                                            "    \"user_id\" = 1\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"possessions\"\n" +
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             possessionsTable.getTemplates().toArray()
@@ -301,7 +308,7 @@ public class PostgresPluginTest {
                             usersTable.getColumns().toArray()
                     );
 
-                    final DatasourceStructure.PrimaryKey usersPrimaryKey = new DatasourceStructure.PrimaryKey("users_pkey");
+                    final DatasourceStructure.PrimaryKey usersPrimaryKey = new DatasourceStructure.PrimaryKey("users_pkey", new ArrayList<>());
                     usersPrimaryKey.getColumnNames().add("id");
                     assertArrayEquals(
                             new DatasourceStructure.Key[]{usersPrimaryKey},
@@ -310,10 +317,22 @@ public class PostgresPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.users LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.users (username, password, email, spouse_dob, dob, time1, time_tz, created_on, created_on_tz, interval1)\n" +
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\", \"email\", \"spouse_dob\", \"dob\", \"time1\", \"time_tz\", \"created_on\", \"created_on_tz\", \"interval1\")\n" +
                                             "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET', 1);"),
-                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.users\n" +
+                                    new DatasourceStructure.Template("UPDATE", "UPDATE public.\"users\" SET\n" +
+                                            "    \"username\" = ''\n" +
+                                            "    \"password\" = ''\n" +
+                                            "    \"email\" = ''\n" +
+                                            "    \"spouse_dob\" = '2019-07-01'\n" +
+                                            "    \"dob\" = '2019-07-01'\n" +
+                                            "    \"time1\" = '18:32:45'\n" +
+                                            "    \"time_tz\" = '04:05:06 PST'\n" +
+                                            "    \"created_on\" = TIMESTAMP '2019-07-01 10:00:00'\n" +
+                                            "    \"created_on_tz\" = TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'\n" +
+                                            "    \"interval1\" = 1\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"users\"\n" +
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             usersTable.getTemplates().toArray()

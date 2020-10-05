@@ -4,43 +4,57 @@ import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Text, { TextType, FontWeight } from "./Text";
 
-type MenuItemProps = CommonComponentProps & {
+export type MenuItemProps = CommonComponentProps & {
   icon?: IconName;
   text: string;
   label?: ReactNode;
+  href?: string;
   onSelect?: () => void;
 };
 
-const ItemRow = styled.div<{ disabled?: boolean }>`
+const ItemRow = styled.a<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[6]}px;
+  text-decoration: none;
+  padding: 0px ${props => props.theme.spaces[6]}px;
+  .${Classes.TEXT} {
+    color: ${props => props.theme.colors.menuItem.normalText};
+  }
+  .${Classes.ICON} {
+    svg {
+      path {
+        fill: ${props => props.theme.colors.menuItem.normalIcon};
+      }
+    }
+  }
+  height: 38px;
 
   ${props =>
     !props.disabled
       ? ` 
     &:hover {
+      text-decoration: none;
       cursor: pointer;
-      background-color: ${props.theme.colors.blackShades[4]};
+      background-color: ${props.theme.colors.menuItem.hoverBg};
       .${Classes.TEXT} {
-        color: ${props.theme.colors.blackShades[9]};
+        color: ${props.theme.colors.menuItem.hoverText};
       }
       .${Classes.ICON} {
         path {
-          fill: ${props.theme.colors.blackShades[9]};
+          fill: ${props.theme.colors.menuItem.hoverIcon};
         }
       }
     }`
       : `
     &:hover {
-      cursor: not-allowed;
+      text-decoration: none;
+      cursor: default;
     }
     `}
 `;
 
-const IconContainer = styled.div`
+const IconContainer = styled.span`
   display: flex;
   align-items: center;
 
@@ -52,6 +66,7 @@ const IconContainer = styled.div`
 function MenuItem(props: MenuItemProps) {
   return (
     <ItemRow
+      href={props.href}
       onClick={props.onSelect}
       disabled={props.disabled}
       data-cy={props.cypressSelector}
@@ -64,7 +79,7 @@ function MenuItem(props: MenuItemProps) {
           </Text>
         ) : null}
       </IconContainer>
-      {props.label ? <Text type={TextType.P1}>{props.label}</Text> : null}
+      {props.label ? props.label : null}
     </ItemRow>
   );
 }
