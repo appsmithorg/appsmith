@@ -84,7 +84,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 export interface RadioOption {
   label: string;
   value: string;
-  id: string;
 }
 
 export interface RadioGroupWidgetProps extends WidgetProps {
