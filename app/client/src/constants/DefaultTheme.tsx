@@ -481,7 +481,6 @@ type ColorType = {
     hoverBG: Color;
     hoverBGOpacity: number;
     hoverBorder: ShadeColor;
-    targetBg: string;
     iconColor: ShadeColor;
   };
   appCardColors: string[];
@@ -524,7 +523,7 @@ type ColorType = {
   dropdown: {
     header: {
       text: ShadeColor;
-      disabled: ShadeColor;
+      disabledText: ShadeColor;
       bg: ShadeColor;
       disabledBg: ShadeColor;
     };
@@ -639,6 +638,46 @@ type ColorType = {
   profileDropdown: {
     userName: ShadeColor;
   };
+  modal: {
+    bg: ShadeColor;
+    headerText: ShadeColor;
+    iconColor: string;
+    user: {
+      textColor: ShadeColor;
+    };
+    email: {
+      message: ShadeColor;
+      desc: ShadeColor;
+    };
+    manageUser: ShadeColor;
+  };
+  tagInput: {
+    bg: ShadeColor;
+    tag: {
+      text: ShadeColor;
+    };
+    text: ShadeColor;
+    placeholder: ShadeColor;
+    shadow: string;
+  };
+  callout: {
+    info: {
+      color: string;
+      bgColor: string;
+    };
+    success: {
+      color: string;
+      bgColor: string;
+    };
+    danger: {
+      color: string;
+      bgColor: string;
+    };
+    warning: {
+      color: string;
+      bgColor: string;
+    };
+  };
 };
 
 export const dark: ColorType = {
@@ -685,7 +724,6 @@ export const dark: ColorType = {
     hoverBG: Colors.BLACK,
     hoverBGOpacity: 0.5,
     hoverBorder: darkShades[4],
-    targetBg: "rgba(0, 0, 0, 0.1)",
     iconColor: darkShades[9],
   },
   appCardColors: [
@@ -738,9 +776,9 @@ export const dark: ColorType = {
   dropdown: {
     header: {
       text: darkShades[7],
-      disabled: darkShades[6],
-      bg: darkShades[2],
-      disabledBg: darkShades[0],
+      disabledText: darkShades[6],
+      bg: darkShades[0],
+      disabledBg: darkShades[2],
     },
     menuBg: darkShades[3],
     menuShadow: "rgba(0, 0, 0, 0.6)",
@@ -853,6 +891,46 @@ export const dark: ColorType = {
   profileDropdown: {
     userName: darkShades[9],
   },
+  modal: {
+    bg: darkShades[1],
+    headerText: darkShades[9],
+    iconColor: "#6D6D6D",
+    user: {
+      textColor: darkShades[7],
+    },
+    email: {
+      message: darkShades[8],
+      desc: darkShades[6],
+    },
+    manageUser: darkShades[6],
+  },
+  tagInput: {
+    bg: darkShades[0],
+    tag: {
+      text: darkShades[9],
+    },
+    text: darkShades[9],
+    placeholder: darkShades[5],
+    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+  },
+  callout: {
+    info: {
+      color: "#EE5A1A",
+      bgColor: "#241C1B",
+    },
+    success: {
+      color: "#30CF89",
+      bgColor: "#17211E",
+    },
+    danger: {
+      color: "#FF4D4D",
+      bgColor: "#2B1A1D",
+    },
+    warning: {
+      color: "#E0B30E",
+      bgColor: "#29251A",
+    },
+  },
 };
 
 export const light: ColorType = {
@@ -899,7 +977,6 @@ export const light: ColorType = {
     hoverBG: Colors.WHITE,
     hoverBGOpacity: 0.7,
     hoverBorder: lightShades[2],
-    targetBg: "rgba(0, 0, 0, 0.1)",
     iconColor: lightShades[11],
   },
   appCardColors: [
@@ -952,7 +1029,7 @@ export const light: ColorType = {
   dropdown: {
     header: {
       text: lightShades[9],
-      disabled: darkShades[6],
+      disabledText: darkShades[6],
       bg: lightShades[2],
       disabledBg: lightShades[1],
     },
@@ -992,7 +1069,7 @@ export const light: ColorType = {
       text: lightShades[9],
       border: lightShades[2],
     },
-    placeholder: lightShades[6],
+    placeholder: lightShades[7],
   },
   menuBorder: lightShades[3],
   editableText: {
@@ -1066,6 +1143,46 @@ export const light: ColorType = {
   },
   profileDropdown: {
     userName: lightShades[9],
+  },
+  modal: {
+    bg: lightShades[11],
+    headerText: lightShades[10],
+    iconColor: "#A9A7A7",
+    user: {
+      textColor: lightShades[9],
+    },
+    email: {
+      message: lightShades[9],
+      desc: lightShades[7],
+    },
+    manageUser: lightShades[6],
+  },
+  tagInput: {
+    bg: lightShades[2],
+    tag: {
+      text: lightShades[11],
+    },
+    text: lightShades[9],
+    placeholder: darkShades[7],
+    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+  },
+  callout: {
+    info: {
+      color: "#D44100",
+      bgColor: "#F8F3F0",
+    },
+    success: {
+      color: "#007340",
+      bgColor: "#D9FDED",
+    },
+    danger: {
+      color: "#C60707",
+      bgColor: "#FFE9E9",
+    },
+    warning: {
+      color: "#DCAD00",
+      bgColor: "#FAF6E6",
+    },
   },
 };
 
@@ -1172,28 +1289,6 @@ export const theme: Theme = {
     tooltip: {
       lightBg: lightShades[0],
       darkBg: lightShades[10],
-    },
-    callout: {
-      note: {
-        dark: {
-          color: "#EE5A1A",
-          bgColor: "#241C1B",
-        },
-        light: {
-          color: "#D44100",
-          bgColor: "#F8F3F0",
-        },
-      },
-      warning: {
-        light: {
-          color: "#DCAD00",
-          bgColor: "#FAF6E6",
-        },
-        dark: {
-          color: "#E0B30E",
-          bgColor: "#29251A",
-        },
-      },
     },
     appBackground: "#EFEFEF",
     primaryOld: Colors.GREEN,
