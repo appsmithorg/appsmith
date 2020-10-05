@@ -109,7 +109,7 @@ jobs:
         # work-around an issue where wrong a commit is being checked out.
         # For more details, see:
         # https://github.com/actions/checkout/issues/299.
-        ref: refs/pull/${{ github.event.pull_request.number }}/head
+        ref: ${{ github.event.pull_request_target.ref }}
 
     - name: Use Node.js 10.16.3
       uses: actions/setup-node@v1
