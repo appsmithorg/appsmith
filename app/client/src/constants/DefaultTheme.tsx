@@ -638,7 +638,7 @@ type ColorType = {
   profileDropdown: {
     userName: ShadeColor;
   };
-  inviteModal: {
+  modal: {
     bg: ShadeColor;
     headerText: ShadeColor;
     iconColor: string;
@@ -891,7 +891,7 @@ export const dark: ColorType = {
   profileDropdown: {
     userName: darkShades[9],
   },
-  inviteModal: {
+  modal: {
     bg: darkShades[1],
     headerText: darkShades[9],
     iconColor: "#6D6D6D",
@@ -1069,7 +1069,7 @@ export const light: ColorType = {
       text: lightShades[9],
       border: lightShades[2],
     },
-    placeholder: lightShades[6],
+    placeholder: lightShades[7],
   },
   menuBorder: lightShades[3],
   editableText: {
@@ -1144,7 +1144,7 @@ export const light: ColorType = {
   profileDropdown: {
     userName: lightShades[9],
   },
-  inviteModal: {
+  modal: {
     bg: lightShades[11],
     headerText: lightShades[10],
     iconColor: "#A9A7A7",

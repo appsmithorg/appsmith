@@ -46,7 +46,7 @@ const OrgInviteTitle = styled.div`
 
 const StyledForm = styled.form`
   width: 100%;
-  background: ${props => props.theme.colors.inviteModal.bg};
+  background: ${props => props.theme.colors.modal.bg};
   &&& {
     .wrapper > div:nth-child(1) {
       width: 60%;
@@ -71,22 +71,22 @@ const ManageUsers = styled("a")`
   }
 
   .${Classes.TEXT} {
-    color: ${props => props.theme.colors.inviteModal.manageUser};
+    color: ${props => props.theme.colors.modal.manageUser};
     margin-right: ${props => props.theme.spaces[1]}px;
   }
   .${Classes.ICON} {
     svg path {
-      fill: ${props => props.theme.colors.inviteModal.manageUser};
+      fill: ${props => props.theme.colors.modal.manageUser};
     }
   }
 
   &:hover {
     .${Classes.TEXT} {
-      color: ${props => props.theme.colors.inviteModal.headerText};
+      color: ${props => props.theme.colors.modal.headerText};
     }
     .${Classes.ICON} {
       svg path {
-        fill: ${props => props.theme.colors.inviteModal.headerText};
+        fill: ${props => props.theme.colors.modal.headerText};
       }
     }
   }
@@ -122,7 +122,7 @@ const User = styled.div`
   height: 54px;
   padding-left: 15px;
   justify-content: space-between;
-  color: ${props => props.theme.colors.inviteModal.user.textColor};
+  color: ${props => props.theme.colors.modal.user.textColor};
 `;
 
 const UserInfo = styled.div`
@@ -133,7 +133,7 @@ const UserInfo = styled.div`
 const UserRole = styled.div`
   flex-basis: 25%;
   .${Classes.TEXT} {
-    color: ${props => props.theme.colors.inviteModal.headerText};
+    color: ${props => props.theme.colors.modal.headerText};
   }
 `;
 
@@ -163,12 +163,12 @@ const MailConfigContainer = styled.div`
     ${props => props.theme.spaces[2]}px;
   align-items: center;
   && > span {
-    color: ${props => props.theme.colors.inviteModal.email.message};
+    color: ${props => props.theme.colors.modal.email.message};
     font-weight: 500;
     font-size: 14px;
   }
   && > a {
-    color: ${props => props.theme.colors.inviteModal.email.desc};
+    color: ${props => props.theme.colors.modal.email.desc};
     font-size: 12px;
     text-decoration: underline;
   }
@@ -257,7 +257,7 @@ const OrgInviteUsersForm = (props: any) => {
       allUsers.map(
         (user: { username: string; roleName: string; name: string }) => {
           const details = getInitialsAndColorCode(
-            user.name,
+            user.name || user.username,
             themeDetails.theme.colors.appCardColors,
           );
           return {

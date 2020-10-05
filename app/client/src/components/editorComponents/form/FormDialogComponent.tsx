@@ -7,18 +7,18 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   && {
     border-radius: 0px;
     padding-bottom: 5px;
-    background: ${props => props.theme.colors.inviteModal.bg};
+    background: ${props => props.theme.colors.modal.bg};
     width: 640px;
 
     & .bp3-dialog-header {
       padding: ${props => props.theme.spaces[4]}px;
-      background: ${props => props.theme.colors.inviteModal.bg};
+      background: ${props => props.theme.colors.modal.bg};
       box-shadow: none;
       .bp3-icon {
-        color: ${props => props.theme.colors.inviteModal.iconColor};
+        color: ${props => props.theme.colors.modal.iconColor};
       }
       .bp3-heading {
-        color: ${props => props.theme.colors.inviteModal.headerText};
+        color: ${props => props.theme.colors.modal.headerText};
         display: flex;
         justify-content: center;
         margin-top: 20px;
@@ -28,7 +28,7 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
       }
 
       .bp3-button.bp3-minimal:hover {
-        background-color: ${props => props.theme.colors.inviteModal.bg};
+        background-color: ${props => props.theme.colors.modal.bg};
       }
     }
     & .bp3-dialog-body {
