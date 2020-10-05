@@ -363,6 +363,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
+
     const isValidOption = (option: { label: any; value: any }) =>
       _.isString(option.label) &&
       _.isString(option.value) &&
