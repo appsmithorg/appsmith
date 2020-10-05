@@ -6,7 +6,7 @@ Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The app
 On your development machine, please ensure that:
 
 1. You have `docker` installed in your system. If not, please visit: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
-2. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details. For `mkcert` to work with firefox you may require the `nss` utility to be installed. Details are in the link above.
+2. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details. For `mkcert` to work with Firefox you may require the `nss` utility to be installed. Details are in the link above.
 3. You have `envsubst` installed. use `brew install gettext` on macOS. Linux machines usually have this installed.
 4. You have cloned the repo in your local machine.
 
@@ -15,7 +15,7 @@ On your development machine, please ensure that:
 1. Run the following command from the project root.
 
 ```bash
-cd app/client/docker && mkcert -install && mkcert "*.appsmith.com" && cd ..
+cd app/client/docker && mkcert -install && mkcert "*.appsmith.com" && cd ../../..
 ```
 
 This command will create 2 files in the `docker/` directory:
@@ -38,13 +38,13 @@ cd app/client
 1. Run `yarn`
 2. Run `yarn start`
 
-🎉 Your appsmith client is now running on https://dev.appsmith.com.
+🎉 Your Appsmith client is now running on https://dev.appsmith.com.
 
     This URL must be opened with https and not have the port 3000 in it
 
 Your client is pointing to the cloud staging server https://release-api.appsmith.com
 
-#### If you would like to hit a different appsmith server:
+#### If you would like to hit a different Appsmith server:
 - Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). 
 - Run `start-https.sh` script again.
 - Run
