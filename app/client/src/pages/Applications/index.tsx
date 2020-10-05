@@ -246,6 +246,7 @@ function LeftPane() {
                 key={org.organization.name}
                 href={`${window.location.pathname}#${org.organization.name}`}
                 text={org.organization.name}
+                ellipsize={20}
               />
             ))}
         </WorkpsacesNavigator>
