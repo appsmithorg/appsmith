@@ -33,7 +33,7 @@ public enum AppsmithError {
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}"),
     INVALID_CREDENTIALS(200, 4023, "Invalid credentials provided. Did you input the credentials correctly?"),
     DUPLICATE_KEY(409, 4024, "Duplicate key error"),
-    USER_ALREADY_EXISTS_SIGNUP(409, 4025, "There is already an account registered with this username {0}. Please sign in."),
+    USER_ALREADY_EXISTS_SIGNUP(409, 4025, "There is already an account registered with this email {0}. Please sign in."),
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access"),
     ACTION_IS_NOT_AUTHORIZED(403, 4026, "Sorry. You do not have permissions to perform this action"),
     INVALID_DATASOURCE_NAME(400, 4026, "Invalid datasource name. Check again."),
