@@ -356,7 +356,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props,
       dataTree,
     );
-
     if (!isValid) {
       return {
         isValid,
