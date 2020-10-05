@@ -25,9 +25,11 @@ jobs:
     steps:
     # Checkout the code
     - uses: actions/checkout@v2
+      with:
+        ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-    - name: Figure out the ref
-      run: echo ${GITHUB_REF}
+    - name: Figure out the PR number
+      run: echo ${{ github.event.pull_request.number }}
 
     - name: Use Node.js 10.16.3
       uses: actions/setup-node@v1
