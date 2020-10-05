@@ -366,10 +366,10 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     const hasOptions = _.every(parsed, (datum: { label: any; value: any }) => {
       if (_.isObject(datum)) {
         return (
-            _.isString(datum.label) 
-            && _.isString(datum.value) 
-            && !_.isEmpty(datum.label) 
-            && !_.isEmpty(datum.value)
+          _.isString(datum.label) &&
+          _.isString(datum.value) &&
+          !_.isEmpty(datum.label) &&
+          !_.isEmpty(datum.value)
         );
       } else {
         return false;
@@ -378,7 +378,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     if (!hasOptions) {
       return {
         isValid: false,
-        parsed: [],
+        parsed: parsed.filter(
+          (option: { label: any; value: any }) =>
+            _.isString(option.label) &&
+            _.isString(option.value) &&
+            !_.isEmpty(option.label) &&
+            !_.isEmpty(option.value),
+        ),
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
