@@ -38,6 +38,7 @@ public enum AppsmithError {
     ACTION_IS_NOT_AUTHORIZED(403, 4026, "Sorry. You do not have permissions to perform this action"),
     INVALID_DATASOURCE_NAME(400, 4026, "Invalid datasource name. Check again."),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} with id {1}"),
+    USER_NOT_FOUND(404, 4027, "Unable to find user with email {0}"),
     ACL_NO_RESOURCE_FOUND(404, 4028, "Unable to find {0} with id {1}. Either the asset doesn't exist or you don't have required permissions"),
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}"),
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import."),
