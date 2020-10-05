@@ -363,14 +363,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
+    let values: string[] = []
     const hasOptions = _.every(parsed, (datum: { label: any; value: any }) => {
       if (_.isObject(datum)) {
+        if(_.isString(datum.value)) values.push(datum.value)
         return _.isString(datum.label) && _.isString(datum.value);
       } else {
         return false;
       }
     });
-    if (!hasOptions) {
+    if (!hasOptions || new Set(values).size !== values.length) {
       return {
         isValid: false,
         parsed: [],
