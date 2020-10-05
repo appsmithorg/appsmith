@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: Figure out the ref
-      - run: echo ::set-output name=tag::${GITHUB_REF}
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
     # Checkout the code
     - uses: actions/checkout@v2
       with:
