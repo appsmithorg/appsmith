@@ -53,9 +53,12 @@ export default function MemberSettings(props: PageProps) {
     dispatch(fetchOrg(orgId));
   }, [orgId]);
 
-  const { isFetchingAllUsers, isFetchingAllRoles } = useSelector(
-    getOrgLoadingStates,
-  );
+  const {
+    isFetchingAllUsers,
+    isFetchingAllRoles,
+    isUserDeleting,
+    isUserRoleChanging,
+  } = useSelector(getOrgLoadingStates);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
   const currentOrg = useSelector(getCurrentOrg);
@@ -161,7 +164,9 @@ export default function MemberSettings(props: PageProps) {
           title={`Invite Users to ${currentOrgName}`}
         />
       </PageSectionHeader>
-      {isFetchingAllUsers && isFetchingAllRoles ? (
+      {(isFetchingAllUsers && isFetchingAllRoles) ||
+      isUserDeleting ||
+      isUserRoleChanging ? (
         <Loader className={Classes.SKELETON} />
       ) : (
         <Table data={userTableData} columns={columns}></Table>

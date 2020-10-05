@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { createRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   getApplicationViewerPageURL,
@@ -188,6 +188,7 @@ const AppNameWrapper = styled.div`
   padding-top: 0;
 `;
 type ApplicationCardProps = {
+  activeAppCard?: boolean;
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
@@ -261,39 +262,85 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const deleteApp = () => {
     props.delete && props.delete(props.application.id);
   };
-  const moreActionItems: MenuItemProps[] = [];
-  if (props.share) {
-    moreActionItems.push({
-      onSelect: shareApp,
-      text: "Share",
-      icon: "share",
-      cypressSelector: "t--share",
-    });
-  }
-  if (props.duplicate && hasEditPermission) {
-    moreActionItems.push({
-      onSelect: duplicateApp,
-      text: "Duplicate",
-      icon: "duplicate",
-      cypressSelector: "t--duplicate",
-    });
-  }
-  if (props.delete && hasEditPermission) {
-    moreActionItems.push({
+
+  const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
+
+  const askForConfirmation = () => {
+    const updatedActionItems = [...moreActionItems];
+    updatedActionItems.pop();
+    updatedActionItems.push({
       onSelect: deleteApp,
-      text: "Delete",
+      text: "Are you sure",
       icon: "delete",
+      type: "warning",
       cypressSelector: "t--delete",
     });
-  }
+    setMoreActionItems(updatedActionItems);
+  };
+
+  useEffect(() => {
+    if (props.share) {
+      moreActionItems.push({
+        onSelect: shareApp,
+        text: "Share",
+        icon: "share",
+        cypressSelector: "t--share",
+      });
+    }
+    if (props.duplicate && hasEditPermission) {
+      moreActionItems.push({
+        onSelect: duplicateApp,
+        text: "Duplicate",
+        icon: "duplicate",
+        cypressSelector: "t--duplicate",
+      });
+    }
+    if (props.delete && hasEditPermission) {
+      moreActionItems.push({
+        onSelect: askForConfirmation,
+        text: "Delete",
+        icon: "delete",
+        cypressSelector: "t--confirmation",
+      });
+    }
+    setMoreActionItems(moreActionItems);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNewCard, SetIsNewCard] = useState(false);
+  const menuIconRef = createRef<HTMLSpanElement>();
+
+  useEffect(() => {
+    if (props.activeAppCard) {
+      SetIsNewCard(true);
+      setShowOverlay(true);
+    }
+  }, [props.activeAppCard]);
+
+  useEffect(() => {
+    if (isNewCard && menuIconRef.current) {
+      menuIconRef.current.click();
+    }
+  }, [isNewCard]);
+
+  useEffect(() => {
+    setSelectedColor(colorCode);
+  }, [colorCode]);
+
+  const [lastUpdatedValue, SetLastUpdatedValue] = useState("");
 
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
         position={Position.RIGHT_TOP}
-        target={<Icon name="context-menu" size={IconSize.XXXL}></Icon>}
+        target={
+          <Icon
+            name="context-menu"
+            ref={menuIconRef}
+            size={IconSize.XXXL}
+          ></Icon>
+        }
         className="more"
         onOpening={() => {
           setIsMenuOpen(true);
@@ -301,14 +348,20 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         onClosing={() => {
           setIsMenuOpen(false);
           setShowOverlay(false);
+          if (lastUpdatedValue && props.application.name !== lastUpdatedValue)
+            props.update &&
+              props.update(props.application.id, {
+                name: lastUpdatedValue,
+              });
         }}
       >
         {hasEditPermission && (
           <EditableText
+            isEditingDefault={isNewCard}
             defaultValue={props.application.name}
             editInteractionKind={EditInteractionKind.SINGLE}
-            onTextChanged={(onChange: string) => {
-              console.log(onChange);
+            onTextChanged={(value: string) => {
+              SetLastUpdatedValue(value);
             }}
             valueTransform={(value: any) => value.toUpperCase()}
             placeholder={"Edit text input"}
@@ -323,9 +376,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             savingState={
               isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
             }
-            isEditingDefault={false}
             fill={true}
             onBlur={(value: string) => {
+              SetIsNewCard(false);
               props.update &&
                 props.update(props.application.id, {
                   name: value,
@@ -336,7 +389,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         {hasEditPermission && (
           <>
             <ColorSelector
-              defaultValue={colorCode}
+              defaultValue={selectedColor}
               colorPalette={themeDetails.theme.colors.appCardColors}
               fill={true}
               onSelect={updateColor}

@@ -21,7 +21,6 @@ import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import ApplicationCard from "./ApplicationCard";
-import CreateApplicationForm from "./CreateApplicationForm";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
@@ -49,6 +48,7 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -278,7 +278,7 @@ ${props => {
 }
 `;
 
-const ApplicationsSection = () => {
+const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const currentUser = useSelector(getCurrentUser);
@@ -358,6 +358,16 @@ const ApplicationsSection = () => {
     );
   };
 
+  const createNewApplication = (applicationName: string, orgId: string) => {
+    return dispatch({
+      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
+      payload: {
+        applicationName,
+        orgId,
+      },
+    });
+  };
+
   return (
     <ApplicationContainer className="t--applications-container">
       {userOrgs &&
@@ -414,29 +424,30 @@ const ApplicationsSection = () => {
                   PERMISSION_TYPE.CREATE_APPLICATION,
                 ) && (
                   <PaddingWrapper>
-                    <FormDialogComponent
-                      permissions={organization.userPermissions}
-                      permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
-                      trigger={
-                        <ApplicationAddCardWrapper>
-                          <Icon
-                            className="t--create-app-popup"
-                            name={"plus"}
-                            size={IconSize.LARGE}
-                          ></Icon>
-                          <CreateNewLabel
-                            type={TextType.H4}
-                            className="createnew"
-                            // cypressSelector={"t--create-new-app"}
-                          >
-                            Create New
-                          </CreateNewLabel>
-                        </ApplicationAddCardWrapper>
+                    <ApplicationAddCardWrapper
+                      onClick={() =>
+                        createNewApplication(
+                          getNextEntityName(
+                            "New App",
+                            applications.map((el: any) => el.name),
+                          ),
+                          organization.id,
+                        )
                       }
-                      Form={CreateApplicationForm}
-                      orgId={organization.id}
-                      title={"Create Application"}
-                    />
+                    >
+                      <Icon
+                        className="t--create-app-popup"
+                        name={"plus"}
+                        size={IconSize.LARGE}
+                      ></Icon>
+                      <CreateNewLabel
+                        type={TextType.H4}
+                        className="createnew"
+                        // cypressSelector={"t--create-new-app"}
+                      >
+                        Create New
+                      </CreateNewLabel>
+                    </ApplicationAddCardWrapper>
                   </PaddingWrapper>
                 )}
                 {applications.map((application: any) => {
@@ -446,6 +457,11 @@ const ApplicationsSection = () => {
                         <ApplicationCard
                           key={application.id}
                           application={application}
+                          activeAppCard={
+                            props.newApplicationList[
+                              props.newApplicationList.length - 1
+                            ] === application.id
+                          }
                           delete={deleteApplication}
                           update={updateApplicationDispatch}
                           duplicate={duplicateApplicationDispatch}
@@ -479,13 +495,14 @@ type ApplicationProps = {
 };
 class Applications extends Component<
   ApplicationProps,
-  { selectedOrgId: string }
+  { selectedOrgId: string; newApplicationList: any }
 > {
   constructor(props: ApplicationProps) {
     super(props);
 
     this.state = {
       selectedOrgId: "",
+      newApplicationList: [],
     };
   }
 
@@ -493,7 +510,25 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
+    if (this.props.applicationList.length > 0) {
+      this.setState({
+        newApplicationList: this.props.applicationList.map(el => el.id),
+      });
+    }
   }
+
+  componentDidUpdate() {
+    if (
+      this.props.applicationList.length > 0 &&
+      this.props.applicationList.length !== this.state.newApplicationList.length
+    ) {
+      this.props.getAllApplication();
+      this.setState({
+        newApplicationList: this.props.applicationList.map(el => el.id),
+      });
+    }
+  }
+
   public render() {
     return (
       <PageWrapper displayName="Applications">
@@ -504,7 +539,9 @@ class Applications extends Component<
             queryFn: this.props.searchApplications,
           }}
         />
-        <ApplicationsSection></ApplicationsSection>
+        <ApplicationsSection
+          newApplicationList={this.state.newApplicationList}
+        ></ApplicationsSection>
       </PageWrapper>
     );
   }

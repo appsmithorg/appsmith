@@ -143,12 +143,6 @@ export const EditableText = (props: EditableTextProps) => {
   }, [props.savingState]);
 
   useEffect(() => {
-    return () => {
-      props.onBlur(valueRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
     setValue(props.defaultValue);
     setIsEditing(!!props.isEditingDefault);
   }, [props.defaultValue, props.isEditingDefault]);
@@ -200,6 +194,7 @@ export const EditableText = (props: EditableTextProps) => {
       if (!error) {
         setLastValidValue(finalVal);
         valueRef.current = finalVal;
+        props.onTextChanged(finalVal);
       }
       setValue(finalVal);
       setIsInvalid(error);

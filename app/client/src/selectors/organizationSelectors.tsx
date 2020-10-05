@@ -11,6 +11,10 @@ export const getOrgLoadingStates = (state: AppState) => {
     isFetchingOrg: state.ui.orgs.loadingStates.isFetchingOrg,
     isFetchingAllUsers: state.ui.orgs.loadingStates.isFetchAllUsers,
     isFetchingAllRoles: state.ui.orgs.loadingStates.isFetchAllRoles,
+    isUserDeleting: state.ui.orgs.orgUsers.some(el => el.isDeleting === true),
+    isUserRoleChanging: state.ui.orgs.orgUsers.some(
+      el => el.isChangingRole === true,
+    ),
   };
 };
 

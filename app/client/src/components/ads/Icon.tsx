@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef, Ref } from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
@@ -129,80 +129,85 @@ export type IconProps = {
   onClick?: () => void;
 };
 
-const Icon = (props: IconProps & CommonComponentProps) => {
-  let returnIcon;
-  switch (props.name) {
-    case "delete":
-      returnIcon = <DeleteIcon />;
-      break;
-    case "user":
-      returnIcon = <UserIcon />;
-      break;
-    case "general":
-      returnIcon = <GeneralIcon />;
-      break;
-    case "billing":
-      returnIcon = <BillingIcon />;
-      break;
-    case "edit":
-      returnIcon = <EditIcon />;
-      break;
-    case "error":
-      returnIcon = <ErrorIcon />;
-      break;
-    case "success":
-      returnIcon = <SuccessIcon />;
-      break;
-    case "search":
-      returnIcon = <SearchIcon />;
-      break;
-    case "close":
-      returnIcon = <CloseIcon />;
-      break;
-    case "downArrow":
-      returnIcon = <DownArrow />;
-      break;
-    case "share":
-      returnIcon = <ShareIcon />;
-      break;
-    case "rocket":
-      returnIcon = <RocketIcon />;
-      break;
-    case "workspace":
-      returnIcon = <WorkspaceIcon />;
-      break;
-    case "plus":
-      returnIcon = <CreateNewIcon />;
-      break;
-    case "invite-user":
-      returnIcon = <InviteUserIcon />;
-      break;
-    case "view-all":
-      returnIcon = <ViewAllIcon />;
-      break;
-    case "context-menu":
-      returnIcon = <ContextMenuIcon />;
-      break;
-    case "duplicate":
-      returnIcon = <DuplicateIcon />;
-      break;
-    case "logout":
-      returnIcon = <LogoutIcon />;
-      break;
-    default:
-      returnIcon = null;
-      break;
-  }
-  return returnIcon ? (
-    <IconWrapper
-      className={Classes.ICON}
-      data-cy={props.cypressSelector}
-      {...props}
-      onClick={props.onClick || noop}
-    >
-      {returnIcon}
-    </IconWrapper>
-  ) : null;
-};
+const Icon = forwardRef(
+  (props: IconProps & CommonComponentProps, ref: Ref<HTMLSpanElement>) => {
+    let returnIcon;
+    switch (props.name) {
+      case "delete":
+        returnIcon = <DeleteIcon />;
+        break;
+      case "user":
+        returnIcon = <UserIcon />;
+        break;
+      case "general":
+        returnIcon = <GeneralIcon />;
+        break;
+      case "billing":
+        returnIcon = <BillingIcon />;
+        break;
+      case "edit":
+        returnIcon = <EditIcon />;
+        break;
+      case "error":
+        returnIcon = <ErrorIcon />;
+        break;
+      case "success":
+        returnIcon = <SuccessIcon />;
+        break;
+      case "search":
+        returnIcon = <SearchIcon />;
+        break;
+      case "close":
+        returnIcon = <CloseIcon />;
+        break;
+      case "downArrow":
+        returnIcon = <DownArrow />;
+        break;
+      case "share":
+        returnIcon = <ShareIcon />;
+        break;
+      case "rocket":
+        returnIcon = <RocketIcon />;
+        break;
+      case "workspace":
+        returnIcon = <WorkspaceIcon />;
+        break;
+      case "plus":
+        returnIcon = <CreateNewIcon />;
+        break;
+      case "invite-user":
+        returnIcon = <InviteUserIcon />;
+        break;
+      case "view-all":
+        returnIcon = <ViewAllIcon />;
+        break;
+      case "context-menu":
+        returnIcon = <ContextMenuIcon />;
+        break;
+      case "duplicate":
+        returnIcon = <DuplicateIcon />;
+        break;
+      case "logout":
+        returnIcon = <LogoutIcon />;
+        break;
+      default:
+        returnIcon = null;
+        break;
+    }
+    return returnIcon ? (
+      <IconWrapper
+        className={Classes.ICON}
+        data-cy={props.cypressSelector}
+        ref={ref}
+        {...props}
+        onClick={props.onClick || noop}
+      >
+        {returnIcon}
+      </IconWrapper>
+    ) : null;
+  },
+);
+
+Icon.displayName = "Icon";
 
 export default Icon;

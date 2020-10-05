@@ -9,6 +9,7 @@ export type MenuItemProps = CommonComponentProps & {
   text: string;
   label?: ReactNode;
   href?: string;
+  type?: "warning";
   onSelect?: () => void;
 };
 
@@ -36,13 +37,25 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
     &:hover {
       text-decoration: none;
       cursor: pointer;
-      background-color: ${props.theme.colors.menuItem.hoverBg};
+      background-color: ${
+        props.type === "warning"
+          ? props.theme.colors.menuItem.warning.bg
+          : props.theme.colors.menuItem.hoverBg
+      };
       .${Classes.TEXT} {
-        color: ${props.theme.colors.menuItem.hoverText};
+        color: ${
+          props.type === "warning"
+            ? props.theme.colors.menuItem.warning.color
+            : props.theme.colors.menuItem.hoverText
+        };
       }
       .${Classes.ICON} {
         path {
-          fill: ${props.theme.colors.menuItem.hoverIcon};
+          fill: ${
+            props.type === "warning"
+              ? props.theme.colors.menuItem.warning.color
+              : props.theme.colors.menuItem.hoverIcon
+          };
         }
       }
     }`
@@ -70,6 +83,7 @@ function MenuItem(props: MenuItemProps) {
       onClick={props.onSelect}
       disabled={props.disabled}
       data-cy={props.cypressSelector}
+      type={props.type}
     >
       <IconContainer>
         {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}

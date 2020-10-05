@@ -509,6 +509,10 @@ type ColorType = {
     hoverIcon: ShadeColor;
     hoverText: ShadeColor;
     hoverBg: ShadeColor;
+    warning: {
+      color: string;
+      bg: string;
+    };
   };
   colorSelector: {
     shadow: ShadeColor;
@@ -723,6 +727,10 @@ export const dark: ColorType = {
     hoverIcon: darkShades[8],
     hoverText: darkShades[9],
     hoverBg: darkShades[4],
+    warning: {
+      color: "#EABB0C",
+      bg: "#3A3628",
+    },
   },
   colorSelector: {
     shadow: darkShades[4],
@@ -937,6 +945,10 @@ export const light: ColorType = {
     hoverIcon: lightShades[8],
     hoverText: lightShades[10],
     hoverBg: lightShades[2],
+    warning: {
+      color: "#D2A500",
+      bg: "#FDFAF2",
+    },
   },
   colorSelector: {
     shadow: lightShades[3],
