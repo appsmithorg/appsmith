@@ -149,6 +149,18 @@
           ]
         }
       ]
+    },
+    {
+      "id": 4,
+      "sectionName": "MySQL Specific Parameters",
+      "children": [
+        {
+          "label": "Server Timezone Override",
+          "configProperty": "datasourceConfiguration.properties[0].serverTimezone",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "UTC or any valid timezone"
+        }
+      ]
     }
   ]
 }

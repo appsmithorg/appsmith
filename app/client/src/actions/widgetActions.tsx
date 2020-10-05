@@ -9,6 +9,9 @@ import {
   PageAction,
 } from "constants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 export const executeAction = (
   payload: ExecuteActionPayload,
@@ -79,6 +82,9 @@ export const closeAllModals = () => {
 };
 
 export const forceOpenPropertyPane = (id: string) => {
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.OPEN_PROPERTY_PANE,
+  );
   return {
     type: ReduxActionTypes.SHOW_PROPERTY_PANE,
     payload: {

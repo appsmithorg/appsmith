@@ -31,6 +31,15 @@ export const fetchDatasourceStructure = (id: string) => {
   };
 };
 
+export const refreshDatasourceStructure = (id: string) => {
+  return {
+    type: ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
+    payload: {
+      id,
+    },
+  };
+};
+
 export const saveDatasourceName = (payload: { id: string; name: string }) => ({
   type: ReduxActionTypes.SAVE_DATASOURCE_NAME,
   payload: payload,

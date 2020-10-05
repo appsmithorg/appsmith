@@ -19,16 +19,16 @@ const Checkmark = styled.span<{
   background-color: ${props =>
     props.isChecked
       ? props.disabled
-        ? props.theme.colors.blackShades[3]
+        ? props.theme.colors.checkbox.disabled
         : props.theme.colors.info.main
       : "transparent"};
   border: 2px solid
     ${props =>
       props.isChecked
         ? props.disabled
-          ? props.theme.colors.blackShades[3]
+          ? props.theme.colors.checkbox.disabled
           : props.theme.colors.info.main
-        : props.theme.colors.blackShades[4]};
+        : props.theme.colors.checkbox.unchecked};
 
   &::after {
     content: "";
@@ -40,7 +40,9 @@ const Checkmark = styled.span<{
     height: 11px;
     border: solid
       ${props =>
-        props.disabled ? "#565656" : props.theme.colors.blackShades[9]};
+        props.disabled
+          ? props.theme.colors.checkbox.disabledCheck
+          : props.theme.colors.checkbox.normalCheck};
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
   }
@@ -57,7 +59,7 @@ const StyledCheckbox = styled.label<{
   font-size: ${props => props.theme.typography.p1.fontSize}px;
   line-height: ${props => props.theme.typography.p1.lineHeight}px;
   letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
-  color: ${props => props.theme.colors.blackShades[7]};
+  color: ${props => props.theme.colors.checkbox.labelColor};
   padding-left: ${props => props.theme.spaces[12] - 2}px;
 
   input {

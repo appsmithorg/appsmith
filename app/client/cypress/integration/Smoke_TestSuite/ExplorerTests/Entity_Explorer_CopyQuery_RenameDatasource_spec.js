@@ -77,7 +77,6 @@ describe("Entity explorer tests related to copy query", function() {
     cy.deleteQuery();
     cy.get(commonlocators.entityExplorersearch).clear();
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgresEntity).click();
     cy.GlobalSearchEntity(`${datasourceName}`);
     cy.get(`.t--entity-name:contains(${datasourceName})`).click();
     cy.generateUUID().then(uid => {

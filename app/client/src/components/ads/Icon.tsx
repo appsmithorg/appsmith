@@ -17,6 +17,7 @@ import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
 import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
 import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
+import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -86,6 +87,7 @@ export const IconCollection = [
   "downArrow",
   "context-menu",
   "duplicate",
+  "logout",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -99,7 +101,7 @@ const IconWrapper = styled.span<IconProps>`
     width: ${props => sizeHandler(props.size)}px;
     height: ${props => sizeHandler(props.size)}px;
     path {
-      fill: ${props => props.theme.colors.blackShades[6]};
+      fill: ${props => props.theme.colors.icon.normal};
     }
   }
   visibility: ${props => (props.invisible ? "hidden" : "visible")};
@@ -107,14 +109,14 @@ const IconWrapper = styled.span<IconProps>`
   &:hover {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.blackShades[8]};
+      fill: ${props => props.theme.colors.icon.hover};
     }
   }
 
   &:active {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.icon.active};
     }
   }
 `;
@@ -183,6 +185,9 @@ const Icon = (props: IconProps & CommonComponentProps) => {
       break;
     case "duplicate":
       returnIcon = <DuplicateIcon />;
+      break;
+    case "logout":
+      returnIcon = <LogoutIcon />;
       break;
     default:
       returnIcon = null;

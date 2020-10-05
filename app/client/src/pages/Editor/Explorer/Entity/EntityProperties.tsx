@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import EntityProperty, { EntityPropertyProps } from "./EntityProperty";
 import { isFunction } from "lodash";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
@@ -10,6 +10,10 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { useSelector } from "react-redux";
 import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import * as Sentry from "@sentry/react";
 
 export const EntityProperties = (props: {
   entityType: ENTITY_TYPE;
@@ -18,6 +22,14 @@ export const EntityProperties = (props: {
   step: number;
   entity?: any;
 }) => {
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
+  );
+  useEffect(() => {
+    PerformanceTracker.stopTracking(
+      PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
+    );
+  });
   let entity: any;
   const dataTree: DataTree = useSelector(evaluateDataTreeWithoutFunctions);
   if (props.isCurrentPage && dataTree[props.entityName]) {
@@ -27,7 +39,6 @@ export const EntityProperties = (props: {
   } else {
     return null;
   }
-
   let config: any;
   let entityProperties: Array<EntityPropertyProps> = [];
   switch (props.entityType) {
@@ -87,4 +98,4 @@ export const EntityProperties = (props: {
   );
 };
 
-export default EntityProperties;
+export default Sentry.withProfiler(EntityProperties);
