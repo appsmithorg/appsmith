@@ -269,10 +269,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    if (_.isString(value)) {
-      value = value.replace(/\s/g, "");
-      value = `${value}`;
-    }
     const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
       value,
       props,
@@ -369,7 +365,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     const hasOptions = _.every(parsed, (datum: { label: any; value: any }) => {
       if (_.isObject(datum)) {
-        return _.isString(datum.label) && _.isString(datum.value);
+        return (
+          _.isString(datum.label) &&
+          _.isString(datum.value) &&
+          !_.isEmpty(datum.label) &&
+          !_.isEmpty(datum.value)
+        );
       } else {
         return false;
       }

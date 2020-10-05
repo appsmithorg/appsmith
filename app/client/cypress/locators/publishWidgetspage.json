@@ -19,8 +19,8 @@
   "tableLength": ".t--widget-tablewidget .tbody",
   "mapSearch": ".t--widget-mapwidget input",
   "pickMyLocation": ".t--widget-mapwidget div[title='Pick My Location']",
-  "rectChart":".t--widget-chartwidget g  rect",
-  "chartLab":".t--widget-chartwidget g:nth-child(5) text",
+  "rectChart": ".t--widget-chartwidget g  rect",
+  "chartLab": ".t--widget-chartwidget g:nth-child(5) text",
   "searchInput": "input",
   "downloadBtn": ".t--table-download-btn",
   "filterBtn": ".t--table-filter-toggle-btn",
@@ -34,5 +34,6 @@
   "compactOpt": ".t--table-compact-mode-option",
   "visibilityMode": ".t--table-column-visibility-toggle-btn",
   "visibilityOpt": ".option-title",
-  "containerWidget": ".t--widget-containerwidget"
+  "containerWidget": ".t--widget-containerwidget",
+  "pageInfo": ".bp3-heading"
 }
