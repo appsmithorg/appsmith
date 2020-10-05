@@ -383,6 +383,7 @@ const OrgInviteUsersForm = (props: any) => {
         </ErrorBox>
         {!pathRegex.test(currentPath) && canManage && (
           <ManageUsers
+            className="manageUsers"
             onClick={() => {
               history.push(`/org/${props.orgId}/settings/members`);
             }}
