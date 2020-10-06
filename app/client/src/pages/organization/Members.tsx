@@ -56,8 +56,8 @@ export default function MemberSettings(props: PageProps) {
   const {
     isFetchingAllUsers,
     isFetchingAllRoles,
-    isUserDeleting,
-    isUserRoleChanging,
+    deletingUserInfo,
+    roleChangingUserInfo,
   } = useSelector(getOrgLoadingStates);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
@@ -104,6 +104,11 @@ export default function MemberSettings(props: PageProps) {
           <TableDropdown
             selectedIndex={index}
             options={roles}
+            isLoading={
+              roleChangingUserInfo &&
+              roleChangingUserInfo.username ===
+                cellProps.cell.row.values.username
+            }
             onSelect={option => {
               dispatch(
                 changeOrgUserRole(
@@ -132,6 +137,10 @@ export default function MemberSettings(props: PageProps) {
             name="delete"
             size={IconSize.LARGE}
             cypressSelector="t--deleteUser"
+            isLoading={
+              deletingUserInfo &&
+              deletingUserInfo.username === cellProps.cell.row.values.username
+            }
             onClick={() => {
               dispatch(
                 deleteOrgUser(orgId, cellProps.cell.row.values.username),
@@ -164,9 +173,7 @@ export default function MemberSettings(props: PageProps) {
           title={`Invite Users to ${currentOrgName}`}
         />
       </PageSectionHeader>
-      {(isFetchingAllUsers && isFetchingAllRoles) ||
-      isUserDeleting ||
-      isUserRoleChanging ? (
+      {isFetchingAllUsers && isFetchingAllRoles ? (
         <Loader className={Classes.SKELETON} />
       ) : (
         <Table data={userTableData} columns={columns}></Table>

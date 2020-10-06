@@ -23,6 +23,7 @@ import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
+import Spinner from "./Spinner";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -107,7 +108,7 @@ const IconWrapper = styled.span<IconProps>`
       fill: ${props => props.theme.colors.icon.normal};
     }
   }
-  visibility: ${props => (props.invisible ? "hidden" : "visible")};
+  ${props => (props.invisible ? `visibility: hidden;` : null)};
 
   &:hover {
     cursor: pointer;
@@ -208,7 +209,7 @@ const Icon = forwardRef(
         {...props}
         onClick={props.onClick || noop}
       >
-        {returnIcon}
+        {props.isLoading ? <Spinner size={props.size} /> : returnIcon}
       </IconWrapper>
     ) : null;
   },
