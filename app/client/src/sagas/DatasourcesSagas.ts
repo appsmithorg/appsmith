@@ -29,6 +29,8 @@ import {
   selectPlugin,
   createDatasource,
   changeDatasource,
+  testDatasource,
+  setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { GenericApiResponse } from "api/ApiResponses";
@@ -179,6 +181,7 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           id: response.data.id,
         },
       });
+      yield put(testDatasource(response.data));
     }
   } catch (error) {
     yield put({
@@ -249,16 +252,23 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           message: responseData.invalids[0],
           type: ToastType.ERROR,
         });
+        yield put({
+          type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
+          payload: { show: false },
+        });
       } else {
         AppToaster.show({
           message: `${payload.name} is valid`,
           type: ToastType.SUCCESS,
         });
+        yield put({
+          type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
+          payload: response.data,
+        });
+        yield put(
+          setDatsourceEditorMode({ id: datasource.id, viewMode: true }),
+        );
       }
-      yield put({
-        type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
-        payload: response.data,
-      });
     }
   } catch (error) {
     yield put({

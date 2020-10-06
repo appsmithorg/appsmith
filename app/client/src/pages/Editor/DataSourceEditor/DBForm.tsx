@@ -11,6 +11,7 @@ import FormTitle from "./FormTitle";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
+import Connected from "./Connected";
 
 import FormControlFactory from "utils/FormControlFactory";
 import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
@@ -26,6 +27,7 @@ interface DatasourceDBEditorProps {
   onSave: (formValues: Datasource) => void;
   onTest: (formValus: Datasource) => void;
   handleDelete: (id: string) => void;
+  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   selectedPluginPackage: string;
   isSaving: boolean;
   isDeleting: boolean;
@@ -38,6 +40,7 @@ interface DatasourceDBEditorProps {
   formConfig: [];
   isNewDatasource: boolean;
   pluginImage: string;
+  viewMode: boolean;
 }
 
 interface DatasourceDBEditorState {
@@ -73,6 +76,13 @@ export const FormTitleContainer = styled.div`
   flex-direction: row;
   display: flex;
   align-items: center;
+`;
+
+export const Header = styled.div`
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 16px;
 `;
 
@@ -287,6 +297,7 @@ class DatasourceDBEditor extends React.Component<
       isDeleting,
       datasourceId,
       handleDelete,
+      viewMode,
     } = this.props;
 
     return (
@@ -312,10 +323,24 @@ class DatasourceDBEditor extends React.Component<
           {" Back"}
         </span>
         <br />
-        <FormTitleContainer>
-          <PluginImage src={this.props.pluginImage} alt="Datasource" />
-          <FormTitle focusOnMount={this.props.isNewDatasource} />
-        </FormTitleContainer>
+        <Header>
+          <FormTitleContainer>
+            <PluginImage src={this.props.pluginImage} alt="Datasource" />
+            <FormTitle focusOnMount={this.props.isNewDatasource} />
+          </FormTitleContainer>
+          {viewMode && (
+            <ActionButton
+              text="EDIT"
+              accent="secondary"
+              onClick={() =>
+                this.props.setDatasourceEditorMode(
+                  this.props.datasourceId,
+                  false,
+                )
+              }
+            />
+          )}
+        </Header>
         {cloudHosting && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
@@ -331,36 +356,42 @@ class DatasourceDBEditor extends React.Component<
             </CollapsibleHelp>
           </CollapsibleWrapper>
         )}
-        {!_.isNil(sections)
-          ? _.map(sections, this.renderMainSection)
-          : undefined}
-        <SaveButtonContainer>
-          <ActionButton
-            className="t--delete-datasource"
-            text="Delete"
-            accent="error"
-            loading={isDeleting}
-            onClick={() => handleDelete(datasourceId)}
-          />
+        {!viewMode ? (
+          <>
+            {!_.isNil(sections)
+              ? _.map(sections, this.renderMainSection)
+              : undefined}
+            <SaveButtonContainer>
+              <ActionButton
+                className="t--delete-datasource"
+                text="Delete"
+                accent="error"
+                loading={isDeleting}
+                onClick={() => handleDelete(datasourceId)}
+              />
 
-          <ActionButton
-            className="t--test-datasource"
-            text="Test"
-            loading={isTesting}
-            accent="secondary"
-            onClick={this.test}
-          />
-          <StyledButton
-            className="t--save-datasource"
-            onClick={this.save}
-            text="Save"
-            disabled={this.validate()}
-            loading={isSaving}
-            intent="primary"
-            filled
-            size="small"
-          />
-        </SaveButtonContainer>
+              <ActionButton
+                className="t--test-datasource"
+                text="Test"
+                loading={isTesting}
+                accent="secondary"
+                onClick={this.test}
+              />
+              <StyledButton
+                className="t--save-datasource"
+                onClick={this.save}
+                text="Save"
+                disabled={this.validate()}
+                loading={isSaving}
+                intent="primary"
+                filled
+                size="small"
+              />
+            </SaveButtonContainer>
+          </>
+        ) : (
+          <Connected />
+        )}
       </form>
     );
   };
