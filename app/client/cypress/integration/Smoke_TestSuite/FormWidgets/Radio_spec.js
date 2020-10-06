@@ -33,13 +33,10 @@ describe("Radio Widget Functionality", function() {
     cy.radioInput(2, this.data.radio2);
     cy.get(formWidgetsPage.labelradio)
       .eq(1)
-      .should("have.text", "test2");
+      .should("have.text", this.data.radio2);
     cy.radioInput(3, "2");
     cy.get(formWidgetsPage.radioAddButton).click({ force: true });
     cy.radioInput(4, this.data.radio4);
-    cy.get(formWidgetsPage.labelradio)
-      .eq(2)
-      .should("have.text", "test4");
     cy.get(formWidgetsPage.deleteradiovalue)
       .eq(2)
       .click({ force: true });
