@@ -363,8 +363,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
-    let values: string[] = []
-
     const isValidOption = (option: { label: any; value: any }) =>
       _.isString(option.label) &&
       _.isString(option.value) &&
@@ -373,17 +371,19 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
 
     const hasOptions = _.every(parsed, (datum: { label: any; value: any }) => {
       if (_.isObject(datum)) {
-        if(_.isString(datum.value)) values.push(datum.value)
         return isValidOption(datum);
       } else {
         return false;
       }
     });
 
-    if (!hasOptions || _.uniq(values).length !== values.length) {
+    const validOptions = parsed.filter(isValidOption)
+    const uniqValidOptions = _.uniqBy(validOptions, 'value')
+
+    if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
       return {
         isValid: false,
-        parsed: _.uniqBy(parsed.filter(isValidOption), 'value'),
+        parsed: uniqValidOptions,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
