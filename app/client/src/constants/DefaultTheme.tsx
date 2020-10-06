@@ -70,12 +70,10 @@ export const BlueprintControlTransform = css`
       }
       & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
-        background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
       & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
-        background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
       &:hover .${Classes.CONTROL_INDICATOR} {
