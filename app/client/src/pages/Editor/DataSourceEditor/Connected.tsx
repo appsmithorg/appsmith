@@ -33,6 +33,11 @@ const ConnectedText = styled.div`
   width: 100%;
 `;
 
+const Wrapper = styled.div`
+  display: flex;
+  flexdirection: column;
+`;
+
 const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 140px;
@@ -66,6 +71,7 @@ const Connected = () => {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
+
   const createQueryAction = useCallback(() => {
     const newQueryName = createNewQueryName(actions, currentPageId || "");
 
@@ -90,16 +96,15 @@ const Connected = () => {
   }, [dispatch, actions, currentPageId, params.applicationId, datasource]);
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
-  const firstSection = currentFormConfig[0];
 
   return (
-    <div
-      style={{ display: "flex", alignItems: "center", flexDirection: "column" }}
-    >
+    <Wrapper>
       <ConnectedText>Connected</ConnectedText>
-      {!isNil(firstSection)
-        ? renderMainSection(firstSection, datasource)
-        : undefined}
+      <div style={{ marginTop: "36px" }}>
+        {!isNil(currentFormConfig)
+          ? renderMainSection(currentFormConfig[0], datasource)
+          : undefined}
+      </div>
       <ActionButton
         icon={"plus"}
         text="New Query"
@@ -107,7 +112,7 @@ const Connected = () => {
         accent="primary"
         onClick={createQueryAction}
       />
-    </div>
+    </Wrapper>
   );
 };
 
@@ -130,7 +135,7 @@ const renderMainSection = (section: any, datasource: any): any => {
             }
 
             return (
-              <div style={{ marginTop: 9, textAlign: "center" }}>
+              <div style={{ marginTop: 9 }}>
                 <Key>{label}: </Key> <Value>{value}</Value>
               </div>
             );

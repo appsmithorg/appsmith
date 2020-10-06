@@ -148,7 +148,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[datasourcePane.selectedPlugin] || [],
     loadingFormConfigs,
     newDatasource: datasourcePane.newDatasource,
-    viewMode: !!datasourcePane.viewMode[datasource?.id ?? ""],
+    viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
   };
 };
 
