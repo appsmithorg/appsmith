@@ -83,18 +83,19 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
 
   onCreateMarker = (lat: number, long: number) => {
     this.disableDrag(true);
-    this.props.updateWidgetMetaProperty("selectedMarker", {
-      lat,
-      long,
-    });
-    if (this.props.onCreateMarker) {
-      super.executeAction({
+    this.props.updateWidgetMetaProperty(
+      "selectedMarker",
+      {
+        lat,
+        long,
+      },
+      {
         dynamicString: this.props.onCreateMarker,
         event: {
           type: EventType.ON_CREATE_MARKER,
         },
-      });
-    }
+      },
+    );
   };
 
   onMarkerClick = (lat: number, long: number, title: string) => {
@@ -104,15 +105,12 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       long: long,
       title: title,
     };
-    this.props.updateWidgetMetaProperty("selectedMarker", selectedMarker);
-    if (this.props.onMarkerClick) {
-      super.executeAction({
-        dynamicString: this.props.onMarkerClick,
-        event: {
-          type: EventType.ON_MARKER_CLICK,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("selectedMarker", selectedMarker, {
+      dynamicString: this.props.onMarkerClick,
+      event: {
+        type: EventType.ON_MARKER_CLICK,
+      },
+    });
   };
 
   getPageView() {

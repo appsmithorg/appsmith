@@ -24,15 +24,12 @@ class TabsWidget extends BaseWidget<
   }
 
   onTabChange = (tabId: string) => {
-    this.props.updateWidgetMetaProperty("selectedTabId", tabId);
-    if (this.props.onTabSelected) {
-      super.executeAction({
-        dynamicString: this.props.onTabSelected,
-        event: {
-          type: EventType.ON_TAB_CHANGE,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("selectedTabId", tabId, {
+      dynamicString: this.props.onTabSelected,
+      event: {
+        type: EventType.ON_TAB_CHANGE,
+      },
+    });
   };
 
   static getDerivedPropertiesMap() {
