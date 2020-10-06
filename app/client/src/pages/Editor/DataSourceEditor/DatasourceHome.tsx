@@ -120,11 +120,12 @@ interface ReduxStateProps {
 type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
 
 class DatasourceHomeScreen extends React.Component<Props> {
-  goToCreateDatasource = (pluginId: string) => {
+  goToCreateDatasource = (pluginId: string, pluginName: string) => {
     const { currentApplication } = this.props;
 
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       appName: currentApplication?.name,
+      plugin: pluginName,
     });
 
     this.props.selectPlugin(pluginId);
@@ -154,7 +155,9 @@ class DatasourceHomeScreen extends React.Component<Props> {
                     interactive={false}
                     className="eachDatasourceCard"
                     key={plugin.id}
-                    onClick={() => this.goToCreateDatasource(plugin.id)}
+                    onClick={() =>
+                      this.goToCreateDatasource(plugin.id, plugin.name)
+                    }
                   >
                     <img
                       src={pluginImages[plugin.id]}
