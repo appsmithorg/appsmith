@@ -6,45 +6,38 @@ import Text, { TextType } from "./Text";
 
 type DropdownOption = {
   label?: string;
-  value?: string;
+  value: string;
   id?: string;
   icon?: IconName;
+  onSelect?: (option: DropdownOption) => void;
+  children?: DropdownOption[];
 };
 
 type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
-  selected?: DropdownOption;
-  placeholder?: string;
-  input?: {
-    value?: string;
-    onChange?: (value?: string) => void;
-  };
+  selected: DropdownOption;
 };
 
 const DropdownContainer = styled.div`
   width: 260px;
-  position: relative;
 `;
 
 const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
-  height: 38px;
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
   background: ${props =>
     props.disabled
-      ? props.theme.colors.dropdown.header.disabledBg
-      : props.theme.colors.dropdown.header.bg};
+      ? props.theme.colors.dropdown.header.disabledText
+      : props.theme.colors.dropdown.header.disabledBg};
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   cursor: pointer;
   ${props =>
-    props.isOpen
-      ? `border: 1px solid ${props.theme.colors.info.main}`
-      : props.disabled
-      ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
-      : `border: 1px solid ${props.theme.colors.dropdown.header.bg}`};
+    props.isOpen && !props.disabled
+      ? `border: 1.2px solid ${props.theme.colors.info.main}`
+      : null};
   ${props =>
     props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
   ${props =>
@@ -54,16 +47,12 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   .${Classes.TEXT} {
     ${props =>
       props.disabled
-        ? `color: ${props.theme.colors.dropdown.header.disabledText}`
-        : `color: ${props.theme.colors.dropdown.header.text}`};
+        ? `color: ${props.theme.colors.dropdown.text}`
+        : `color: ${props.theme.colors.dropdown.disabledText}`};
   }
 `;
 
 const DropdownWrapper = styled.div`
-  position: absolute;
-  top: 38px;
-  left: 0px;
-  z-index: 1;
   margin-top: ${props => props.theme.spaces[2] - 1}px;
   background: ${props => props.theme.colors.dropdown.menuBg};
   box-shadow: 0px 12px 28px ${props => props.theme.colors.dropdown.menuShadow};
@@ -129,24 +118,17 @@ const LabelWrapper = styled.div<{ label?: string }>`
 
 export default function Dropdown(props: DropdownProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<string>(props.placeholder || "");
+  const [selected, setSelected] = useState<DropdownOption>(props.selected);
 
   useEffect(() => {
-    if (props.input && props.input.value) {
-      setSelected(props.input.value);
-    }
-  }, [props.input]);
+    setSelected(props.selected);
+  }, [props.selected]);
 
-  const optionClickHandler = useCallback(
-    (option: DropdownOption) => {
-      if (option.value) {
-        setSelected(option.value);
-      }
-      setIsOpen(false);
-      props.input && props.input.onChange && props.input.onChange(option.id);
-    },
-    [props.input],
-  );
+  const optionClickHandler = useCallback((option: DropdownOption) => {
+    setSelected(option);
+    setIsOpen(false);
+    option.onSelect && option.onSelect(option);
+  }, []);
 
   return (
     <DropdownContainer
@@ -159,8 +141,8 @@ export default function Dropdown(props: DropdownProps) {
         disabled={props.disabled}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Text type={TextType.P1}>{selected}</Text>
-        <Icon name="downArrow" size={IconSize.XXS} />
+        <Text type={TextType.P1}>{selected.value}</Text>
+        <Icon name="downArrow" size={IconSize.SMALL} />
       </Selected>
 
       {isOpen && !props.disabled ? (
@@ -169,7 +151,7 @@ export default function Dropdown(props: DropdownProps) {
             return (
               <OptionWrapper
                 key={index}
-                selected={selected === option.value}
+                selected={selected.value === option.value}
                 onClick={() => optionClickHandler(option)}
               >
                 {option.icon ? (
