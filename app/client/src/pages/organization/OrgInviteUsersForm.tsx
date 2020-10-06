@@ -343,7 +343,7 @@ const OrgInviteUsersForm = (props: any) => {
                   initials: string;
                 }) => {
                   return (
-                    <>
+                    <React.Fragment key={user.username}>
                       <User key={user.username}>
                         <UserInfo>
                           <ProfileImage backgroundColor={user.imageBackground}>
@@ -362,7 +362,7 @@ const OrgInviteUsersForm = (props: any) => {
                       </User>
 
                       <RoleDivider />
-                    </>
+                    </React.Fragment>
                   );
                 },
               )}

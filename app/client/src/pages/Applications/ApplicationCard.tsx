@@ -45,10 +45,11 @@ import { Classes as CsClasses } from "components/ads/common";
 type NameWrapperProps = {
   hasReadPermission: boolean;
   showOverlay: boolean;
+  isMenuOpen: boolean;
 };
 
 const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
-  <div {...omit(props, ["hasReadPermission", "showOverlay"])} />
+  <div {...omit(props, ["hasReadPermission", "showOverlay", "isMenuOpen"])} />
 ))`
   .bp3-card {
     border-radius: 0;
@@ -80,7 +81,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
           & div.image-container {
             background: ${
-              props.hasReadPermission
+              props.hasReadPermission && !props.isMenuOpen
                 ? getColorWithOpacity(
                     props.theme.colors.card.hoverBG,
                     props.theme.colors.card.hoverBGOpacity,
@@ -182,6 +183,15 @@ const Control = styled.div<{ fixed?: boolean }>`
   }
 `;
 
+const TargetElement = styled.div`
+  width: 22px;
+  height: 22px;
+  background-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const AppNameWrapper = styled.div`
   padding: 12px;
   padding-top: 0;
@@ -191,8 +201,9 @@ type ApplicationCardProps = {
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
-  delete?: (applicationId: string) => void;
+  delete?: (applicationId: string, orgId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
+  orgId: string;
 };
 
 const EditButton = styled(Button)`
@@ -257,7 +268,8 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.share && props.share(props.application.id);
   };
   const deleteApp = () => {
-    props.delete && props.delete(props.application.id);
+    setShowOverlay(false);
+    props.delete && props.delete(props.application.id, props.orgId);
   };
 
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
@@ -267,12 +279,28 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     updatedActionItems.pop();
     updatedActionItems.push({
       onSelect: deleteApp,
-      text: "Are you sure",
+      text: "Are you sure?",
       icon: "delete",
       type: "warning",
       cypressSelector: "t--delete",
     });
     setMoreActionItems(updatedActionItems);
+  };
+
+  const addDeleteOption = () => {
+    if (props.delete && hasEditPermission) {
+      const index = moreActionItems.findIndex(el => el.icon === "delete");
+      if (index >= 0) {
+        moreActionItems.pop();
+      }
+      moreActionItems.push({
+        onSelect: askForConfirmation,
+        text: "Delete",
+        icon: "delete",
+        cypressSelector: "t--confirmation",
+      });
+      setMoreActionItems(moreActionItems);
+    }
   };
 
   useEffect(() => {
@@ -292,15 +320,8 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         cypressSelector: "t--duplicate",
       });
     }
-    if (props.delete && hasEditPermission) {
-      moreActionItems.push({
-        onSelect: askForConfirmation,
-        text: "Delete",
-        icon: "delete",
-        cypressSelector: "t--confirmation",
-      });
-    }
     setMoreActionItems(moreActionItems);
+    addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -332,11 +353,13 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       <Menu
         position={Position.RIGHT_TOP}
         target={
-          <Icon
-            name="context-menu"
-            ref={menuIconRef}
-            size={IconSize.XXXL}
-          ></Icon>
+          <TargetElement>
+            <Icon
+              name="context-menu"
+              ref={menuIconRef}
+              size={IconSize.XXXL}
+            ></Icon>
+          </TargetElement>
         }
         className="more"
         onOpening={() => {
@@ -345,11 +368,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         onClosing={() => {
           setIsMenuOpen(false);
           setShowOverlay(false);
-          if (lastUpdatedValue && props.application.name !== lastUpdatedValue)
+          SetIsNewCard(false);
+          addDeleteOption();
+          if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
             props.update &&
               props.update(props.application.id, {
                 name: lastUpdatedValue,
               });
+          }
         }}
       >
         {hasEditPermission && (
@@ -427,6 +453,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
 
   return (
     <NameWrapper
+      isMenuOpen={isMenuOpen}
       showOverlay={showOverlay}
       onMouseEnter={() => setShowOverlay(true)}
       onMouseLeave={() => {

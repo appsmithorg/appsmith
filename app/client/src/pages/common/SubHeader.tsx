@@ -5,6 +5,8 @@ import styled from "styled-components";
 import _, { noop } from "lodash";
 import SearchInput, { SearchVariant } from "components/ads/SearchInput";
 import Button, { Size } from "components/ads/Button";
+import { useSelector } from "react-redux";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
 const SubHeaderWrapper = styled.div`
   width: 100%;
@@ -48,6 +50,7 @@ type SubHeaderProps = {
 };
 
 export const ApplicationsSubHeader = (props: SubHeaderProps) => {
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
   const query =
     props.search &&
     props.search.queryFn &&
@@ -58,26 +61,30 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
 
   return (
     <SubHeaderWrapper>
-      <SearchContainer>
-        {props.search && (
-          <ControlGroup>
-            <SearchInput
-              cypressSelector={"t--application-search-input"}
-              placeholder={props.search.placeholder}
-              variant={SearchVariant.SEAMLESS}
-              onChange={query || noop}
-            />
-          </ControlGroup>
-        )}
-      </SearchContainer>
+      {!isFetchingApplications ? (
+        <React.Fragment>
+          <SearchContainer>
+            {props.search && (
+              <ControlGroup>
+                <SearchInput
+                  cypressSelector={"t--application-search-input"}
+                  placeholder={props.search.placeholder}
+                  variant={SearchVariant.SEAMLESS}
+                  onChange={query || noop}
+                />
+              </ControlGroup>
+            )}
+          </SearchContainer>
 
-      {props.add && (
-        <FormDialogComponent
-          trigger={createTrigger}
-          Form={props.add.form}
-          title={props.add.title}
-        />
-      )}
+          {props.add && (
+            <FormDialogComponent
+              trigger={createTrigger}
+              Form={props.add.form}
+              title={props.add.title}
+            />
+          )}
+        </React.Fragment>
+      ) : null}
     </SubHeaderWrapper>
   );
 };

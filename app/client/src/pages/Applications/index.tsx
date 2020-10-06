@@ -49,6 +49,12 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import {
+  ApplicationLoader,
+  AppLoader,
+  LeftPaneLoader,
+} from "./ApplicationLoaders";
+import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -220,6 +226,7 @@ const ApplicationAddCardWrapper = styled(Card)`
 
 function LeftPane() {
   const userOrgs = useSelector(getUserApplicationsOrgs);
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
   const NewWorkspaceTrigger = (
     <NewWorkspaceWrapper>
       <MenuItem
@@ -231,26 +238,29 @@ function LeftPane() {
   );
   return (
     <LeftPaneWrapper>
-      <LeftPaneSection heading="ORGANIZATIONS">
-        <WorkpsacesNavigator>
-          <FormDialogComponent
-            trigger={NewWorkspaceTrigger}
-            Form={CreateOrganizationForm}
-            title={CREATE_ORGANIZATION_FORM_NAME}
-          />
-          {/* {CreateOrg} */}
-          {userOrgs &&
-            userOrgs.map((org: any) => (
-              <MenuItem
-                icon="workspace"
-                key={org.organization.name}
-                href={`${window.location.pathname}#${org.organization.name}`}
-                text={org.organization.name}
-              />
-            ))}
-        </WorkpsacesNavigator>
-      </LeftPaneSection>
-      {/* <LeftPaneSection heading="GETTING STARTED"></LeftPaneSection> */}
+      {isFetchingApplications ? (
+        <LeftPaneLoader />
+      ) : (
+        <LeftPaneSection heading="ORGANIZATIONS">
+          <WorkpsacesNavigator>
+            <FormDialogComponent
+              trigger={NewWorkspaceTrigger}
+              Form={CreateOrganizationForm}
+              title={CREATE_ORGANIZATION_FORM_NAME}
+            />
+            {/* {CreateOrg} */}
+            {userOrgs &&
+              userOrgs.map((org: any) => (
+                <MenuItem
+                  icon="workspace"
+                  key={org.organization.name}
+                  href={`${window.location.pathname}#${org.organization.name}`}
+                  text={org.organization.name}
+                />
+              ))}
+          </WorkpsacesNavigator>
+        </LeftPaneSection>
+      )}
     </LeftPaneWrapper>
   );
 }
@@ -281,8 +291,9 @@ ${props => {
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
   const userOrgs = useSelector(getUserApplicationsOrgsList);
+  const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
-  const deleteApplication = (applicationId: string) => {
+  const deleteApplication = (applicationId: string, orgId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
@@ -453,10 +464,11 @@ const ApplicationsSection = (props: any) => {
                 {applications.map((application: any) => {
                   return (
                     application.pages?.length > 0 && (
-                      <PaddingWrapper>
+                      <PaddingWrapper key={application.id}>
                         <ApplicationCard
                           key={application.id}
                           application={application}
+                          orgId={organization.id}
                           activeAppCard={
                             props.newApplicationList[
                               props.newApplicationList.length - 1
@@ -470,6 +482,10 @@ const ApplicationsSection = (props: any) => {
                     )
                   );
                 })}
+                {creatingApplicationMap &&
+                creatingApplicationMap[organization.id]?.creating ? (
+                  <AppLoader />
+                ) : null}
                 <PageSectionDivider />
               </ApplicationCardsWrapper>
             </OrgSection>
@@ -483,7 +499,7 @@ type ApplicationProps = {
   applicationList: ApplicationPayload[];
   createApplication: (appName: string) => void;
   searchApplications: (keyword: string) => void;
-  isCreatingApplication: boolean;
+  isCreatingApplication: creatingApplicationMap;
   isFetchingApplications: boolean;
   createApplicationError?: string;
   deleteApplication: (id: string) => void;
@@ -522,7 +538,6 @@ class Applications extends Component<
       this.props.applicationList.length > 0 &&
       this.props.applicationList.length !== this.state.newApplicationList.length
     ) {
-      this.props.getAllApplication();
       this.setState({
         newApplicationList: this.props.applicationList.map(el => el.id),
       });
@@ -539,9 +554,13 @@ class Applications extends Component<
             queryFn: this.props.searchApplications,
           }}
         />
-        <ApplicationsSection
-          newApplicationList={this.state.newApplicationList}
-        ></ApplicationsSection>
+        {this.props.isFetchingApplications ? (
+          <ApplicationLoader />
+        ) : (
+          <ApplicationsSection
+            newApplicationList={this.state.newApplicationList}
+          ></ApplicationsSection>
+        )}
       </PageWrapper>
     );
   }

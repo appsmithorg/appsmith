@@ -682,6 +682,10 @@ type ColorType = {
       bgColor: string;
     };
   };
+  loader: {
+    light: ShadeColor;
+    dark: ShadeColor;
+  };
 };
 
 export const dark: ColorType = {
@@ -939,6 +943,10 @@ export const dark: ColorType = {
       bgColor: "#29251A",
     },
   },
+  loader: {
+    light: darkShades[2],
+    dark: darkShades[4],
+  },
 };
 
 export const light: ColorType = {
@@ -1195,6 +1203,10 @@ export const light: ColorType = {
       color: "#DCAD00",
       bgColor: "#FAF6E6",
     },
+  },
+  loader: {
+    light: lightShades[2],
+    dark: lightShades[4],
   },
 };
 
