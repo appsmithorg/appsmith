@@ -15,20 +15,10 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
-import _ from "lodash";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
-class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
-  debouncedHandleTextChanged = _.debounce(
-    this.handleTextChanged.bind(this),
-    200,
-  );
-  constructor(props: InputWidgetProps) {
-    super(props);
-    this.state = {
-      text: props.text,
-    };
-  }
+class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -103,28 +93,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
     };
   }
 
-  componentDidUpdate(prevProps: InputWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      prevProps.text !== this.props.text &&
-      this.props.defaultText === this.props.text
-    ) {
-      const text = this.props.text;
-      this.setState({ text });
-    }
-  }
-
   onValueChange = (value: string) => {
-    this.setState({ text: value }, () => {
-      this.updateWidgetMetaProperty("text", value);
-    });
+    this.props.updateWidgetMetaProperty("text", value);
     if (!this.props.isDirty) {
-      this.updateWidgetMetaProperty("isDirty", true);
+      this.props.updateWidgetMetaProperty("isDirty", true);
     }
-    this.debouncedHandleTextChanged();
-  };
-
-  handleTextChanged() {
     if (this.props.onTextChanged) {
       super.executeAction({
         dynamicString: this.props.onTextChanged,
@@ -133,14 +106,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
         },
       });
     }
-  }
+  };
 
   handleFocusChange = (focusState: boolean) => {
-    this.updateWidgetMetaProperty("isFocused", focusState);
+    this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 
   getPageView() {
-    const value = this.state.text || "";
+    const value = this.props.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
 
@@ -198,7 +171,7 @@ export interface InputValidator {
   validationRegex: string;
   errorMessage: string;
 }
-export interface InputWidgetProps extends WidgetProps {
+export interface InputWidgetProps extends WidgetProps, WithMeta {
   inputType: InputType;
   defaultText?: string;
   isDisabled?: boolean;
@@ -220,9 +193,5 @@ export interface InputWidgetProps extends WidgetProps {
   isDirty?: boolean;
 }
 
-interface InputWidgetState extends WidgetState {
-  text: string;
-}
-
 export default InputWidget;
-export const ProfiledInputWidget = Sentry.withProfiler(InputWidget);
+export const ProfiledInputWidget = Sentry.withProfiler(withMeta(InputWidget));

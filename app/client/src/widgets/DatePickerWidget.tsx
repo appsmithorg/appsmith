@@ -13,6 +13,7 @@ import {
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -73,7 +74,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   }
 
   onDateSelected = (selectedDate: string) => {
-    this.updateWidgetMetaProperty("selectedDate", selectedDate);
+    this.props.updateWidgetMetaProperty("selectedDate", selectedDate);
     if (this.props.onDateSelected) {
       super.executeAction({
         dynamicString: this.props.onDateSelected,
@@ -91,7 +92,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
 
 export type DatePickerType = "DATE_PICKER" | "DATE_RANGE_PICKER";
 
-export interface DatePickerWidgetProps extends WidgetProps {
+export interface DatePickerWidgetProps extends WidgetProps, WithMeta {
   defaultDate: string;
   selectedDate: string;
   isDisabled: boolean;
@@ -106,4 +107,6 @@ export interface DatePickerWidgetProps extends WidgetProps {
 }
 
 export default DatePickerWidget;
-export const ProfiledDatePickerWidget = Sentry.withProfiler(DatePickerWidget);
+export const ProfiledDatePickerWidget = Sentry.withProfiler(
+  withMeta(DatePickerWidget),
+);
