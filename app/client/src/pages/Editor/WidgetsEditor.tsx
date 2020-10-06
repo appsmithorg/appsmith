@@ -21,6 +21,7 @@ import { fetchPage } from "actions/pageActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -58,6 +59,7 @@ const WidgetsEditor = () => {
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
+  const currentApp = useSelector(getCurrentApplication);
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
@@ -77,6 +79,7 @@ const WidgetsEditor = () => {
       AnalyticsUtil.logEvent("PAGE_LOAD", {
         pageName: currentPageName,
         pageId: currentPageId,
+        appName: currentApp?.name,
         mode: "EDIT",
       });
     }

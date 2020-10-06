@@ -16,8 +16,8 @@ import {
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { UserApplication } from "constants/userConstants";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 const DatasourceHomePage = styled.div`
   font-size: 20px;
@@ -113,7 +113,7 @@ interface ReduxDispatchProps {
 
 interface ReduxStateProps {
   plugins: Plugin[];
-  currentApplication: UserApplication;
+  currentApplication?: ApplicationPayload;
   pluginImages: Record<string, string>;
 }
 
@@ -124,7 +124,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
     const { currentApplication } = this.props;
 
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-      appName: currentApplication.name,
+      appName: currentApplication?.name,
     });
 
     this.props.selectPlugin(pluginId);
