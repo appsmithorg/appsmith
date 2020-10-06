@@ -4,9 +4,9 @@ import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearPropertyCache } from "../utils/DynamicBindingUtils";
 
-export type WithMeta = {
+export interface WithMeta {
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
-};
+}
 
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
   return class MetaHOC extends React.Component<WidgetProps, any> {

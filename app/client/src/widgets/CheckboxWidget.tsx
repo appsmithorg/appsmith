@@ -15,10 +15,7 @@ import {
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
-class CheckboxWidget extends BaseWidget<
-  CheckboxWidgetProps & WithMeta,
-  WidgetState
-> {
+class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -83,7 +80,7 @@ class CheckboxWidget extends BaseWidget<
   }
 }
 
-export interface CheckboxWidgetProps extends WidgetProps {
+export interface CheckboxWidgetProps extends WidgetProps, WithMeta {
   label: string;
   defaultCheckedState: boolean;
   isChecked?: boolean;

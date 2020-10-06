@@ -13,7 +13,7 @@ import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class TabsWidget extends BaseWidget<
-  TabsWidgetProps<TabContainerWidgetProps> & WithMeta,
+  TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -247,7 +247,8 @@ export interface TabContainerWidgetProps extends WidgetProps {
 }
 
 export interface TabsWidgetProps<T extends TabContainerWidgetProps>
-  extends WidgetProps {
+  extends WidgetProps,
+    WithMeta {
   isVisible?: boolean;
   shouldScrollContents: boolean;
   tabs: Array<{

@@ -27,7 +27,7 @@ export enum PlayState {
   PLAYING = "PLAYING",
 }
 
-class VideoWidget extends BaseWidget<VideoWidgetProps & WithMeta, WidgetState> {
+class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   private _player = React.createRef<ReactPlayer>();
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -111,7 +111,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps & WithMeta, WidgetState> {
   }
 }
 
-export interface VideoWidgetProps extends WidgetProps {
+export interface VideoWidgetProps extends WidgetProps, WithMeta {
   url: string;
   autoPlay: boolean;
   onPause?: string;

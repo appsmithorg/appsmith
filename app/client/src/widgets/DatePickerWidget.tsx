@@ -15,10 +15,7 @@ import {
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
-class DatePickerWidget extends BaseWidget<
-  DatePickerWidgetProps & WithMeta,
-  WidgetState
-> {
+class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -95,7 +92,7 @@ class DatePickerWidget extends BaseWidget<
 
 export type DatePickerType = "DATE_PICKER" | "DATE_RANGE_PICKER";
 
-export interface DatePickerWidgetProps extends WidgetProps {
+export interface DatePickerWidgetProps extends WidgetProps, WithMeta {
   defaultDate: string;
   selectedDate: string;
   isDisabled: boolean;

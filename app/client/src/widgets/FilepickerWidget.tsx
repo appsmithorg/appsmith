@@ -24,12 +24,12 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class FilePickerWidget extends BaseWidget<
-  FilePickerWidgetProps & WithMeta,
+  FilePickerWidgetProps,
   FilePickerWidgetState
 > {
   uppy: any;
 
-  constructor(props: FilePickerWidgetProps & WithMeta) {
+  constructor(props: FilePickerWidgetProps) {
     super(props);
     this.state = {
       version: 0,
@@ -172,7 +172,7 @@ class FilePickerWidget extends BaseWidget<
     }
   };
 
-  componentDidUpdate(prevProps: FilePickerWidgetProps & WithMeta) {
+  componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
     if (
       prevProps.files &&
@@ -221,7 +221,7 @@ export interface FilePickerWidgetState extends WidgetState {
   version: number;
 }
 
-export interface FilePickerWidgetProps extends WidgetProps {
+export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;

@@ -28,7 +28,7 @@ const DisabledContainer = styled.div`
     color: #0a0b0e;
   }
 `;
-class MapWidget extends BaseWidget<MapWidgetProps & WithMeta, WidgetState> {
+class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       defaultMarkers: VALIDATION_TYPES.MARKERS,
@@ -174,7 +174,7 @@ export interface MarkerProps {
   description?: string;
 }
 
-export interface MapWidgetProps extends WidgetProps {
+export interface MapWidgetProps extends WidgetProps, WithMeta {
   isDisabled?: boolean;
   isVisible?: boolean;
   enableSearch: boolean;

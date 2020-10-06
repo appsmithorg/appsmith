@@ -16,10 +16,7 @@ import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
-class DropdownWidget extends BaseWidget<
-  DropdownWidgetProps & WithMeta,
-  WidgetState
-> {
+class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -141,7 +138,7 @@ class DropdownWidget extends BaseWidget<
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
     if (this.props.selectionType === "SINGLE_SELECT") {
-      isChanged = !(this.props.selectedOption.value == selectedOption.value);
+      isChanged = !(this.props.selectedOption.value === selectedOption.value);
       if (isChanged) {
         this.props.updateWidgetMetaProperty(
           "selectedOptionValue",
@@ -211,7 +208,7 @@ export interface DropdownOption {
   intent?: BlueprintIntent;
 }
 
-export interface DropdownWidgetProps extends WidgetProps {
+export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   placeholderText?: string;
   label?: string;
   selectedIndex?: number;

@@ -12,10 +12,7 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
-class RadioGroupWidget extends BaseWidget<
-  RadioGroupWidgetProps & WithMeta,
-  WidgetState
-> {
+class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -90,7 +87,7 @@ export interface RadioOption {
   value: string;
 }
 
-export interface RadioGroupWidgetProps extends WidgetProps {
+export interface RadioGroupWidgetProps extends WidgetProps, WithMeta {
   label: string;
   options: RadioOption[];
   selectedOptionValue: string;

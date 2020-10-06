@@ -79,7 +79,7 @@ export enum OperatorTypes {
   OR = "OR",
   AND = "AND",
 }
-class TableWidget extends BaseWidget<TableWidgetProps & WithMeta, WidgetState> {
+class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -700,7 +700,7 @@ export interface ReactTableColumnProps {
   Cell: (props: any) => JSX.Element;
 }
 
-export interface TableWidgetProps extends WidgetProps {
+export interface TableWidgetProps extends WidgetProps, WithMeta {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;

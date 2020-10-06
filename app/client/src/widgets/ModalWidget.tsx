@@ -25,7 +25,7 @@ const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   },
 };
 
-class ModalWidget extends BaseWidget<ModalWidgetProps & WithMeta, WidgetState> {
+class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static defaultProps = {
     isOpen: true,
     canEscapeKeyClose: false,
@@ -98,7 +98,7 @@ class ModalWidget extends BaseWidget<ModalWidgetProps & WithMeta, WidgetState> {
   }
 }
 
-export interface ModalWidgetProps extends WidgetProps {
+export interface ModalWidgetProps extends WidgetProps, WithMeta {
   renderMode: RenderMode;
   isOpen?: boolean;
   children?: WidgetProps[];

@@ -22,7 +22,7 @@ const RichTextEditorComponent = lazy(() =>
 );
 
 class RichTextEditorWidget extends BaseWidget<
-  RichTextEditorWidgetProps & WithMeta,
+  RichTextEditorWidgetProps,
   WidgetState
 > {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -93,7 +93,7 @@ class RichTextEditorWidget extends BaseWidget<
   }
 }
 
-export interface RichTextEditorWidgetProps extends WidgetProps {
+export interface RichTextEditorWidgetProps extends WidgetProps, WithMeta {
   defaultText?: string;
   text?: string;
   placeholder?: string;

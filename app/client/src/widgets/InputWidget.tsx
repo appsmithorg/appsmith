@@ -18,7 +18,7 @@ import {
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
-class InputWidget extends BaseWidget<InputWidgetProps & WithMeta, WidgetState> {
+class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -171,7 +171,7 @@ export interface InputValidator {
   validationRegex: string;
   errorMessage: string;
 }
-export interface InputWidgetProps extends WidgetProps {
+export interface InputWidgetProps extends WidgetProps, WithMeta {
   inputType: InputType;
   defaultText?: string;
   isDisabled?: boolean;
