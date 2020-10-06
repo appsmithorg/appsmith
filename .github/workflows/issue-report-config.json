@@ -1,0 +1,22 @@
+[
+  {
+    "section": "Critical",
+    "labels": ["Critical"],
+    "threshold": 100
+  },
+  {
+    "section": "High",
+    "labels": ["High"],
+    "threshold": 100
+  },
+  {
+    "section": "Low",
+    "labels": ["Low"],
+    "threshold": 100
+  },
+  {
+    "section": "Good First Issue",
+    "labels": ["Good First Issue"],
+    "threshold": 100
+  }
+]

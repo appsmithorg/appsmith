@@ -127,7 +127,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           {
             id: "17.1.1",
             propertyName: "url",
-            label: "Url",
+            label: "URL",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter url",
             inputType: "TEXT",
@@ -135,7 +135,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           {
             id: "17.1.1",
             propertyName: "autoPlay",
-            label: "autoPlay",
+            label: "Auto Play",
             helpText: "Video will be automatically played",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -155,22 +155,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
         sectionName: "Actions",
         children: [
           {
-            id: "17.2.1",
-            helpText: "Triggers an action when the video starts playing",
-            propertyName: "onStart",
-            label: "onStart",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-          },
-          {
-            id: "17.2.2",
-            helpText: "Triggers an action when the video ends",
-            propertyName: "onEnd",
-            label: "onEnd",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-          },
-          {
             id: "17.2.3",
             helpText: "Triggers an action when the video is played",
             propertyName: "onPlay",
@@ -183,6 +167,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             helpText: "Triggers an action when the video is paused",
             propertyName: "onPause",
             label: "onPause",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            id: "17.2.5",
+            helpText: "Triggers an action when the video ends",
+            propertyName: "onEnd",
+            label: "onEnd",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },

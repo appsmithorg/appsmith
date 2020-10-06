@@ -269,10 +269,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    if (_.isString(value)) {
-      value = value.replace(/\s/g, "");
-      value = `${value}`;
-    }
     const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
       value,
       props,
@@ -367,9 +363,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
+
+    const isValidOption = (option: { label: any; value: any }) =>
+      _.isString(option.label) &&
+      _.isString(option.value) &&
+      !_.isEmpty(option.label) &&
+      !_.isEmpty(option.value);
+
     const hasOptions = _.every(parsed, (datum: { label: any; value: any }) => {
       if (_.isObject(datum)) {
-        return _.isString(datum.label) && _.isString(datum.value);
+        return isValidOption(datum);
       } else {
         return false;
       }
@@ -377,7 +380,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     if (!hasOptions) {
       return {
         isValid: false,
-        parsed: [],
+        parsed: parsed.filter(isValidOption),
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }

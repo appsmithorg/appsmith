@@ -1,29 +1,30 @@
-import React, { Suspense, lazy } from "react";
+import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import {
   compare,
-  getAllTableColumnKeys,
-  renderCell,
-  renderActions,
-  sortTableFunction,
   ConditionFunctions,
+  getAllTableColumnKeys,
+  renderActions,
   getDefaultColumnProperties,
+  renderCell,
+  reorderColumns,
+  sortTableFunction,
 } from "components/designSystems/appsmith/TableUtilities";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { RenderModes } from "constants/WidgetConstants";
 import {
-  WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
+  WidgetPropertyValidationType,
 } from "utils/ValidationFactory";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isString, isNumber, isUndefined } from "lodash";
+import { isNumber, isString, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -327,7 +328,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (!tableData || !tableData.length) {
       return [];
     }
-    let sortedTableData = [];
+    let sortedTableData: any[];
     const columns = this.getTableColumns();
     const searchKey = searchText ? searchText.toUpperCase() : "";
     if (sortedColumn) {
@@ -342,35 +343,32 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } else {
       sortedTableData = [...tableData];
     }
-    const filteredTableData = sortedTableData.filter(
-      (item: { [key: string]: any }) => {
-        const searchFound = searchKey
-          ? Object.values(item)
-              .join(", ")
-              .toUpperCase()
-              .includes(searchKey)
-          : true;
-        if (!searchFound) return false;
-        if (!filters || filters.length === 0) return true;
-        const filterOperator: Operator =
-          filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
-        let filter = filterOperator === OperatorTypes.AND ? true : false;
-        for (let i = 0; i < filters.length; i++) {
-          const filterValue = compare(
-            item[filters[i].column],
-            filters[i].value,
-            filters[i].condition,
-          );
-          if (filterOperator === OperatorTypes.AND) {
-            filter = filter && filterValue;
-          } else {
-            filter = filter || filterValue;
-          }
+    return sortedTableData.filter((item: { [key: string]: any }) => {
+      const searchFound = searchKey
+        ? Object.values(item)
+            .join(", ")
+            .toUpperCase()
+            .includes(searchKey)
+        : true;
+      if (!searchFound) return false;
+      if (!filters || filters.length === 0) return true;
+      const filterOperator: Operator =
+        filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
+      let filter = filterOperator === OperatorTypes.AND;
+      for (let i = 0; i < filters.length; i++) {
+        const filterValue = compare(
+          item[filters[i].column],
+          filters[i].value,
+          filters[i].condition,
+        );
+        if (filterOperator === OperatorTypes.AND) {
+          filter = filter && filterValue;
+        } else {
+          filter = filter || filterValue;
         }
-        return filter;
-      },
-    );
-    return filteredTableData;
+      }
+      return filter;
+    });
   };
 
   getEmptyRow = () => {
@@ -408,8 +406,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       filteredTableData,
       this.props.selectedRowIndex,
     );
-    super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-    super.updateWidgetMetaProperty("selectedRow", selectedRow);
+    this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+    this.props.updateWidgetMetaProperty("selectedRow", selectedRow);
     setTimeout(() => {
       if (!this.props.primaryColumns) {
         this.createTablePrimaryColumns();
@@ -430,14 +428,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       !this.props.filteredTableData
     ) {
       const filteredTableData = this.filterTableData();
-      super.updateWidgetMetaProperty("filteredTableData", filteredTableData);
+      this.props.updateWidgetMetaProperty(
+        "filteredTableData",
+        filteredTableData,
+      );
       if (!this.props.multiRowSelection) {
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRow",
           this.getSelectedRow(filteredTableData),
         );
       } else {
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRows",
           filteredTableData.filter((item: object, i: number) => {
             return this.props.selectedRowIndices.includes(i);
@@ -446,40 +447,39 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
     if (tableDataModified) {
-      //Setting this propery in next event loop to avoid infinite loop
       setTimeout(() => {
         this.createTablePrimaryColumns();
       }, 0);
-      super.updateWidgetMetaProperty("selectedRowIndices", []);
-      super.updateWidgetMetaProperty("selectedRows", []);
-      super.updateWidgetMetaProperty("selectedRowIndex", -1);
+      this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+      this.props.updateWidgetMetaProperty("selectedRows", []);
+      this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
     }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       if (this.props.multiRowSelection) {
         const selectedRowIndices = this.props.selectedRowIndex
           ? [this.props.selectedRowIndex]
           : [];
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,
         );
-        super.updateWidgetMetaProperty("selectedRowIndex", -1);
+        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
         const filteredTableData = this.filterTableData();
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRows",
           filteredTableData.filter((item: object, i: number) => {
             return selectedRowIndices.includes(i);
           }),
         );
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedRow",
           this.getSelectedRow(filteredTableData),
         );
       } else {
         const filteredTableData = this.filterTableData();
-        super.updateWidgetMetaProperty("selectedRowIndices", []);
-        super.updateWidgetMetaProperty("selectedRows", []);
-        super.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+        this.props.updateWidgetMetaProperty("selectedRows", []);
+        this.props.updateWidgetMetaProperty(
           "selectedRow",
           this.getSelectedRow(filteredTableData),
         );
@@ -508,7 +508,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (pageNo === undefined) {
       pageNo = 1;
-      super.updateWidgetMetaProperty("pageNo", pageNo);
+      this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
     const tableSizes =
@@ -529,7 +529,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize += 1;
 
     if (pageSize !== this.props.pageSize) {
-      super.updateWidgetMetaProperty("pageSize", pageSize);
+      this.props.updateWidgetMetaProperty("pageSize", pageSize);
     }
     return (
       <Suspense fallback={<Skeleton />}>
@@ -562,7 +562,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           prevPageClick={this.handlePrevPageClick}
           primaryColumns={this.props.primaryColumns}
           updatePageNo={(pageNo: number) => {
-            super.updateWidgetMetaProperty("pageNo", pageNo);
+            this.props.updateWidgetMetaProperty("pageNo", pageNo);
           }}
           updatePrimaryColumnProperties={(
             columnProperties: ColumnProperties[],
@@ -582,14 +582,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
             this.resetSelectedRowIndex();
-            super.updateWidgetMetaProperty("filters", filters);
+            this.props.updateWidgetMetaProperty("filters", filters);
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
             if (this.props.renderMode === RenderModes.CANVAS) {
-              super.updateWidgetProperty("compactMode", compactMode);
+              this.props.updateWidgetMetaProperty("compactMode", compactMode);
             } else {
-              super.updateWidgetMetaProperty("compactMode", compactMode);
+              this.props.updateWidgetMetaProperty("compactMode", compactMode);
             }
           }}
           sortTableColumn={this.handleColumnSorting}
@@ -601,9 +601,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleColumnSorting = (column: string, asc: boolean) => {
     this.resetSelectedRowIndex();
     if (column === "") {
-      super.updateWidgetMetaProperty("sortedColumn", undefined);
+      this.props.updateWidgetMetaProperty("sortedColumn", undefined);
     } else {
-      super.updateWidgetMetaProperty("sortedColumn", {
+      this.props.updateWidgetMetaProperty("sortedColumn", {
         column: column,
         asc: asc,
       });
@@ -613,8 +613,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
     this.resetSelectedRowIndex();
-    this.updateWidgetMetaProperty("pageNo", 1);
-    super.updateWidgetMetaProperty("searchText", searchKey);
+    this.props.updateWidgetMetaProperty("pageNo", 1);
+    this.props.updateWidgetMetaProperty("searchText", searchKey);
     if (onSearchTextChanged) {
       super.executeAction({
         dynamicString: onSearchTextChanged,
@@ -648,16 +648,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       } else {
         selectedRowIndices.push(index);
       }
-      super.updateWidgetMetaProperty("selectedRowIndices", selectedRowIndices);
-      super.updateWidgetMetaProperty(
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+      this.props.updateWidgetMetaProperty(
         "selectedRows",
         this.props.filteredTableData.filter((item: object, i: number) => {
           return selectedRowIndices.includes(i);
         }),
       );
     } else {
-      super.updateWidgetMetaProperty("selectedRowIndex", index);
-      super.updateWidgetMetaProperty(
+      this.props.updateWidgetMetaProperty("selectedRowIndex", index);
+      this.props.updateWidgetMetaProperty(
         "selectedRow",
         this.props.filteredTableData[index],
       );
@@ -675,7 +678,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleNextPageClick = () => {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo + 1;
-    super.updateWidgetMetaProperty("pageNo", pageNo);
+    this.props.updateWidgetMetaProperty("pageNo", pageNo);
     if (this.props.onPageChange) {
       this.resetSelectedRowIndex();
       super.executeAction({
@@ -688,15 +691,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   resetSelectedRowIndex = () => {
-    super.updateWidgetMetaProperty("selectedRowIndex", -1);
-    super.updateWidgetMetaProperty("selectedRowIndices", []);
+    this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+    this.props.updateWidgetMetaProperty("selectedRowIndices", []);
   };
 
   handlePrevPageClick = () => {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo - 1;
     if (pageNo >= 1) {
-      super.updateWidgetMetaProperty("pageNo", pageNo);
+      this.props.updateWidgetMetaProperty("pageNo", pageNo);
       if (this.props.onPageChange) {
         this.resetSelectedRowIndex();
         super.executeAction({
@@ -777,7 +780,7 @@ export interface ColumnProperties {
   };
 }
 
-export interface TableWidgetProps extends WidgetProps {
+export interface TableWidgetProps extends WidgetProps, WithMeta {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
@@ -811,4 +814,4 @@ export interface TableWidgetProps extends WidgetProps {
 }
 
 export default TableWidget;
-export const ProfiledTableWidget = Sentry.withProfiler(TableWidget);
+export const ProfiledTableWidget = Sentry.withProfiler(withMeta(TableWidget));

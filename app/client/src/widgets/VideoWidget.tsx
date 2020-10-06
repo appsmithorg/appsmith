@@ -12,6 +12,7 @@ import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 const VideoComponent = lazy(() =>
   retryPromise(() =>
@@ -47,7 +48,6 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
-      onStart: true,
       onEnd: true,
       onPlay: true,
       onPause: true,
@@ -59,7 +59,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { url, autoPlay, onStart, onEnd, onPause, onPlay } = this.props;
+    const { url, autoPlay, onEnd, onPause, onPlay } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
         <VideoComponent
@@ -67,19 +67,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           url={url}
           autoplay={autoPlay}
           controls={true}
-          onStart={() => {
-            this.updateWidgetMetaProperty("playState", PlayState.PLAYING);
-            if (onStart) {
-              super.executeAction({
-                dynamicString: onStart,
-                event: {
-                  type: EventType.ON_VIDEO_START,
-                },
-              });
-            }
-          }}
           onPlay={() => {
-            this.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+            this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
             if (onPlay) {
               super.executeAction({
                 dynamicString: onPlay,
@@ -91,7 +80,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           }}
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
-            this.updateWidgetMetaProperty("playState", PlayState.PAUSED);
+            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED);
             if (onPause) {
               super.executeAction({
                 dynamicString: onPause,
@@ -102,7 +91,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             }
           }}
           onEnded={() => {
-            this.updateWidgetMetaProperty("playState", PlayState.ENDED);
+            this.props.updateWidgetMetaProperty("playState", PlayState.ENDED);
             if (onEnd) {
               super.executeAction({
                 dynamicString: onEnd,
@@ -122,14 +111,13 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   }
 }
 
-export interface VideoWidgetProps extends WidgetProps {
+export interface VideoWidgetProps extends WidgetProps, WithMeta {
   url: string;
   autoPlay: boolean;
-  onStart?: string;
   onPause?: string;
   onPlay?: string;
   onEnd?: string;
 }
 
 export default VideoWidget;
-export const ProfiledVideoWidget = Sentry.withProfiler(VideoWidget);
+export const ProfiledVideoWidget = Sentry.withProfiler(withMeta(VideoWidget));

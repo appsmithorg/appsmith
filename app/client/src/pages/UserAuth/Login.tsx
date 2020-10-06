@@ -164,8 +164,12 @@ export const Login = (props: LoginFormProps) => {
             />
           </FormActions>
         </SpacedSubmitForm>
-        {SocialLoginList.length > 0 && <Divider />}
-        <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
+        {SocialLoginList.length > 0 && (
+          <>
+            <Divider />
+            <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
+          </>
+        )}
       </AuthCardBody>
       <AuthCardNavLink to={signupURL}>
         {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
