@@ -1006,7 +1006,7 @@ function useApiOptionTree() {
           value: `${apiName}`,
           type: ActionType.api,
         });
-        dispatch(createNewApiAction(pageId, "API Pane"));
+        dispatch(createNewApiAction(pageId, "API_PANE"));
       }
     },
   });
@@ -1052,7 +1052,7 @@ function useQueryOptionTree() {
           value: `${queryName}`,
           type: ActionType.query,
         });
-        dispatch(createNewQueryAction(pageId, "Query Pane"));
+        dispatch(createNewQueryAction(pageId, "QUERY_PANE"));
       }
     },
   });

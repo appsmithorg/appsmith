@@ -43,7 +43,7 @@ export const getApiOptions = (
             />
           ),
           onSelect: () => {
-            dispatch(createNewApiAction(pageId, "Lightning Menu"));
+            dispatch(createNewApiAction(pageId, "LIGHTNING_MENU"));
           },
         },
       ],
@@ -92,7 +92,7 @@ export const getQueryOptions = (
             />
           ),
           onSelect: () => {
-            dispatch(createNewQueryAction(pageId, "Lightning Menu"));
+            dispatch(createNewQueryAction(pageId, "LIGHTNING_MENU"));
           },
         },
       ],

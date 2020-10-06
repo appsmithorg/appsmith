@@ -6,6 +6,12 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import { User } from "../constants/userConstants";
 
+export type EventLocation =
+  | "LIGHTNING_MENU"
+  | "API_PANE"
+  | "QUERY_PANE"
+  | "QUERY_TEMPLATE";
+
 export type EventName =
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"

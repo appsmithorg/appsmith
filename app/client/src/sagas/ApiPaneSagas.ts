@@ -52,6 +52,7 @@ import log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -315,7 +316,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
 }
 
 function* handleCreateNewApiActionSaga(
-  action: ReduxAction<{ pageId: string; from: string }>,
+  action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
   const organizationId = yield select(getCurrentOrgId);
   const pluginId = yield select(
@@ -354,7 +355,7 @@ function* handleCreateNewApiActionSaga(
 }
 
 function* handleCreateNewQueryActionSaga(
-  action: ReduxAction<{ pageId: string; from: string }>,
+  action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
   const { pageId } = action.payload;
   const applicationId = yield select(getCurrentApplicationId);
