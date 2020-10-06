@@ -94,17 +94,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   }
 
   onValueChange = (value: string) => {
-    this.props.updateWidgetMetaProperty("text", value);
+    this.props.updateWidgetMetaProperty("text", value, {
+      dynamicString: this.props.onTextChanged,
+      event: {
+        type: EventType.ON_TEXT_CHANGE,
+      },
+    });
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-    if (this.props.onTextChanged) {
-      super.executeAction({
-        dynamicString: this.props.onTextChanged,
-        event: {
-          type: EventType.ON_TEXT_CHANGE,
-        },
-      });
     }
   };
 

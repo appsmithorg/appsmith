@@ -61,15 +61,12 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   onValueChange = (text: string) => {
-    this.props.updateWidgetMetaProperty("text", text);
-    if (this.props.onTextChange) {
-      super.executeAction({
-        dynamicString: this.props.onTextChange,
-        event: {
-          type: EventType.ON_TEXT_CHANGE,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("text", text, {
+      dynamicString: this.props.onTextChange,
+      event: {
+        type: EventType.ON_TEXT_CHANGE,
+      },
+    });
   };
 
   getPageView() {
