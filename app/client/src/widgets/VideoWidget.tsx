@@ -68,38 +68,33 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           autoplay={autoPlay}
           controls={true}
           onPlay={() => {
-            this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
-            if (onPlay) {
-              super.executeAction({
+            this.props.updateWidgetMetaProperty(
+              "playState",
+              PlayState.PLAYING,
+              {
                 dynamicString: onPlay,
                 event: {
                   type: EventType.ON_VIDEO_PLAY,
                 },
-              });
-            }
+              },
+            );
           }}
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
-            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED);
-            if (onPause) {
-              super.executeAction({
-                dynamicString: onPause,
-                event: {
-                  type: EventType.ON_VIDEO_PAUSE,
-                },
-              });
-            }
+            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
+              dynamicString: onPause,
+              event: {
+                type: EventType.ON_VIDEO_PAUSE,
+              },
+            });
           }}
           onEnded={() => {
-            this.props.updateWidgetMetaProperty("playState", PlayState.ENDED);
-            if (onEnd) {
-              super.executeAction({
-                dynamicString: onEnd,
-                event: {
-                  type: EventType.ON_VIDEO_END,
-                },
-              });
-            }
+            this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
+              dynamicString: onEnd,
+              event: {
+                type: EventType.ON_VIDEO_END,
+              },
+            });
           }}
         />
       </Suspense>

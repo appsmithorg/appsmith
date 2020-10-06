@@ -570,15 +570,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { onSearchTextChanged } = this.props;
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("pageNo", 1);
-    this.props.updateWidgetMetaProperty("searchText", searchKey);
-    if (onSearchTextChanged) {
-      super.executeAction({
-        dynamicString: onSearchTextChanged,
-        event: {
-          type: EventType.ON_SEARCH,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("searchText", searchKey, {
+      dynamicString: onSearchTextChanged,
+      event: {
+        type: EventType.ON_SEARCH,
+      },
+    });
   };
 
   updateHiddenColumns = (hiddenColumns?: string[]) => {
@@ -596,7 +593,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleRowClick = (rowData: object, index: number) => {
-    const { onRowSelected, selectedRowIndices } = this.props;
+    const { selectedRowIndices } = this.props;
     if (this.props.multiRowSelection) {
       if (selectedRowIndices.includes(index)) {
         const rowIndex = selectedRowIndices.indexOf(index);
@@ -619,30 +616,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty(
         "selectedRow",
         this.props.filteredTableData[index],
-      );
-    }
-    if (onRowSelected) {
-      super.executeAction({
-        dynamicString: onRowSelected,
-        event: {
-          type: EventType.ON_ROW_SELECTED,
+        {
+          dynamicString: this.props.onRowSelected,
+          event: {
+            type: EventType.ON_ROW_SELECTED,
+          },
         },
-      });
+      );
     }
   };
 
   handleNextPageClick = () => {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo + 1;
-    this.props.updateWidgetMetaProperty("pageNo", pageNo);
+    this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+      dynamicString: this.props.onPageChange,
+      event: {
+        type: EventType.ON_NEXT_PAGE,
+      },
+    });
     if (this.props.onPageChange) {
       this.resetSelectedRowIndex();
-      super.executeAction({
-        dynamicString: this.props.onPageChange,
-        event: {
-          type: EventType.ON_NEXT_PAGE,
-        },
-      });
     }
   };
 
@@ -655,15 +649,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo - 1;
     if (pageNo >= 1) {
-      this.props.updateWidgetMetaProperty("pageNo", pageNo);
+      this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+        dynamicString: this.props.onPageChange,
+        event: {
+          type: EventType.ON_PREV_PAGE,
+        },
+      });
       if (this.props.onPageChange) {
         this.resetSelectedRowIndex();
-        super.executeAction({
-          dynamicString: this.props.onPageChange,
-          event: {
-            type: EventType.ON_PREV_PAGE,
-          },
-        });
       }
     }
   };

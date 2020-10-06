@@ -257,11 +257,10 @@ class ChartDataControl extends BaseControl<ControlProps> {
     }> = this.props.propertyValue;
     const updatedChartData = chartData.map((item, i) => {
       if (index === i) {
-        if (propertyName === "seriesName") {
-          item.seriesName = updatedValue;
-        } else {
-          item.data = updatedValue;
-        }
+        return {
+          ...item,
+          [propertyName]: updatedValue,
+        };
       }
       return item;
     });
