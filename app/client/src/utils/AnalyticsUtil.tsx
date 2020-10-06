@@ -76,7 +76,8 @@ export type EventName =
   | "WIDGET_DELETE_VIA_SHORTCUT"
   | "OPEN_HELP"
   | "INVITE_USER"
-  | "PROPERTY_PANE_CLOSE_CLICK";
+  | "PROPERTY_PANE_CLOSE_CLICK"
+  | "EXECUTE_ACTION";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
