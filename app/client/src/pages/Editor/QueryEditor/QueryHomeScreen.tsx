@@ -112,7 +112,7 @@ type QueryHomeScreenProps = {
   dataSources: Datasource[];
   applicationId: string;
   pageId: string;
-  createAction: (data: Partial<QueryAction>) => void;
+  createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
   actions: ActionDataState;
   isCreating: boolean;
   location: {
@@ -143,6 +143,10 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         pageId,
         datasource: {
           id: dataSourceId,
+        },
+        eventData: {
+          actionType: "Query",
+          from: "home-screen",
         },
         actionConfiguration: {},
       });
@@ -237,7 +241,7 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  createAction: (data: Partial<QueryAction>) => {
+  createAction: (data: Partial<QueryAction> & { eventData: any }) => {
     dispatch(createActionRequest(data));
   },
 });

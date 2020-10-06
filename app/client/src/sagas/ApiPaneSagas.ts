@@ -315,7 +315,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
 }
 
 function* handleCreateNewApiActionSaga(
-  action: ReduxAction<{ pageId: string }>,
+  action: ReduxAction<{ pageId: string; from: string }>,
 ) {
   const organizationId = yield select(getCurrentOrgId);
   const pluginId = yield select(
@@ -340,6 +340,10 @@ function* handleCreateNewApiActionSaga(
           pluginId,
           organizationId,
         },
+        eventData: {
+          actionType: "API",
+          from: action.payload.from,
+        },
         pageId,
       }),
     );
@@ -350,7 +354,7 @@ function* handleCreateNewApiActionSaga(
 }
 
 function* handleCreateNewQueryActionSaga(
-  action: ReduxAction<{ pageId: string }>,
+  action: ReduxAction<{ pageId: string; from: string }>,
 ) {
   const { pageId } = action.payload;
   const applicationId = yield select(getCurrentApplicationId);
@@ -378,6 +382,10 @@ function* handleCreateNewQueryActionSaga(
         pageId,
         datasource: {
           id: dataSourceId,
+        },
+        eventData: {
+          actionType: "Query",
+          from: action.payload.from,
         },
         actionConfiguration: {},
       }),

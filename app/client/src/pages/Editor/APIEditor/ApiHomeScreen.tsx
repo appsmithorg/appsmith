@@ -335,7 +335,7 @@ type ApiHomeScreenProps = {
   isFetchingProviders: boolean;
   providersTotal: number;
   isSwitchingCategory: boolean;
-  createNewApiAction: (pageId: string) => void;
+  createNewApiAction: (pageId: string, from: string) => void;
   setCurrentCategory: (category: string) => void;
   previouslySetCategory: string;
   fetchProvidersError: boolean;
@@ -402,7 +402,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       "importTo",
     );
     if (pageId) {
-      this.props.createNewApiAction(pageId);
+      this.props.createNewApiAction(pageId, "API Pane");
     }
   };
 
@@ -819,7 +819,8 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchProvidersWithCategory(request)),
   searchApiOrProvider: (searchKey: string) =>
     dispatch(searchApiOrProvider({ searchKey })),
-  createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
+  createNewApiAction: (pageId: string, from: string) =>
+    dispatch(createNewApiAction(pageId, from)),
   setCurrentCategory: (category: string) =>
     dispatch(setCurrentCategory(category)),
 });

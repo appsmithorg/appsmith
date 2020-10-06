@@ -46,14 +46,16 @@ export const setLastSelectedPage = (
 
 export const createNewApiAction = (
   pageId: string,
-): ReduxAction<{ pageId: string }> => ({
+  from: string,
+): ReduxAction<{ pageId: string; from: string }> => ({
   type: ReduxActionTypes.CREATE_NEW_API_ACTION,
-  payload: { pageId },
+  payload: { pageId, from },
 });
 
 export const createNewQueryAction = (
   pageId: string,
-): ReduxAction<{ pageId: string }> => ({
+  from: string,
+): ReduxAction<{ pageId: string; from: string }> => ({
   type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
-  payload: { pageId },
+  payload: { pageId, from },
 });

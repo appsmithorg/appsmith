@@ -30,7 +30,7 @@ export type EventName =
   | "PUBLISH_APP"
   | "PREVIEW_APP"
   | "EDITOR_OPEN"
-  | "CREATE_API"
+  | "CREATE_ACTION"
   | "SAVE_API"
   | "SAVE_API_CLICK"
   | "RUN_API"
