@@ -61,12 +61,15 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
     return {
       isValid: `{{
         function(){
-          const isEmailType = this.inputType === "EMAIL";
-          if(isEmailType) {
+          if (this.inputType === "EMAIL") {
             const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
             return emailRegex.test(this.text);
-          } else if(this.isRequired) {
-            if(this.text && this.text.length > 0) {
+          }
+          else if (this.inputType === "NUMBER") {
+            return !isNaN(this.text)
+          }
+          else if (this.isRequired) {
+            if(this.text && this.text.length) {
               if(this.regex) {
                 return new RegExp(this.regex).test(this.text)
               } else {
@@ -75,7 +78,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
             } else {
               return false;
             }
-          } if(this.regex) {
+          } if (this.regex) {
             return new RegExp(this.regex).test(this.text)
           } else {
             return true;
