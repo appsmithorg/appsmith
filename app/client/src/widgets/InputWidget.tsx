@@ -64,7 +64,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
               parsedRegex = RegExp(regex);
             }
             // if we have a regex flags, use it to form regexp
-            return new RegExp(regexParts[2], regexParts[3]);
+            parsedRegex = new RegExp(regexParts[2], regexParts[3]);
           }
           if (this.inputType === "EMAIL") {
             const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
