@@ -177,7 +177,9 @@ export default function Dropdown(props: DropdownProps) {
                 ) : null}
                 <LabelWrapper label={option.label}>
                   {option.label ? (
-                    <Text type={TextType.H5}>{option.value}</Text>
+                    <div className="label-title">
+                      <Text type={TextType.H5}>{option.value}</Text>
+                    </div>
                   ) : (
                     <Text type={TextType.P1}>{option.value}</Text>
                   )}
