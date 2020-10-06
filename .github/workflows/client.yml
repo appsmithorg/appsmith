@@ -104,6 +104,8 @@ jobs:
     steps:
     # Checkout the code
     - uses: actions/checkout@v2
+      with:
+        ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
     - name: Use Node.js 10.16.3
       uses: actions/setup-node@v1
@@ -207,6 +209,8 @@ jobs:
     
     # Checkout the code
     - uses: actions/checkout@v2
+      with:
+        ref: refs/pull/${{ github.event.pull_request.number }}/merge
   
     - name: Download the react build artifact
       uses: actions/download-artifact@v2
