@@ -14,6 +14,7 @@ import { VALIDATORS } from "utils/Validators";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -95,7 +96,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     return {
       selectedOptionValue: undefined,
       selectedOptionValueArr: undefined,
-      selectedOptionValues: undefined,
     };
   }
 
@@ -138,9 +138,9 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
     if (this.props.selectionType === "SINGLE_SELECT") {
-      isChanged = !(this.props.selectedOption.value == selectedOption.value);
+      isChanged = !(this.props.selectedOption.value === selectedOption.value);
       if (isChanged) {
-        this.updateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "selectedOptionValue",
           selectedOption.value,
         );
@@ -158,7 +158,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       } else {
         newSelectedValue.push(selectedOption.value);
       }
-      this.updateWidgetMetaProperty("selectedOptionValueArr", newSelectedValue);
+      this.props.updateWidgetMetaProperty(
+        "selectedOptionValueArr",
+        newSelectedValue,
+      );
     }
 
     if (this.props.onOptionChange && isChanged) {
@@ -176,7 +179,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       (v: string) =>
         _.findIndex(this.props.options, { value: v }) !== removedIndex,
     );
-    this.updateWidgetMetaProperty("selectedOptionValueArr", newSelectedValue);
+    this.props.updateWidgetMetaProperty(
+      "selectedOptionValueArr",
+      newSelectedValue,
+    );
     if (this.props.onOptionChange) {
       super.executeAction({
         dynamicString: this.props.onOptionChange,
@@ -202,7 +208,7 @@ export interface DropdownOption {
   intent?: BlueprintIntent;
 }
 
-export interface DropdownWidgetProps extends WidgetProps {
+export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   placeholderText?: string;
   label?: string;
   selectedIndex?: number;
@@ -213,7 +219,11 @@ export interface DropdownWidgetProps extends WidgetProps {
   onOptionChange?: string;
   defaultOptionValue?: string | string[];
   isRequired: boolean;
+  selectedOptionValue: string;
+  selectedOptionValueArr: string[];
 }
 
 export default DropdownWidget;
-export const ProfiledDropDownWidget = Sentry.withProfiler(DropdownWidget);
+export const ProfiledDropDownWidget = Sentry.withProfiler(
+  withMeta(DropdownWidget),
+);
