@@ -155,8 +155,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 3,
       label: "",
       options: [
-        { id: "1", label: "Male", value: "M" },
-        { id: "2", label: "Female", value: "F" },
+        { label: "Male", value: "M" },
+        { label: "Female", value: "F" },
       ],
       defaultOptionValue: "M",
       widgetName: "RadioGroup",

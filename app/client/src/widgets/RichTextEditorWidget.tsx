@@ -11,6 +11,7 @@ import {
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 const RichTextEditorComponent = lazy(() =>
   retryPromise(() =>
@@ -60,7 +61,7 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   onValueChange = (text: string) => {
-    this.updateWidgetMetaProperty("text", text);
+    this.props.updateWidgetMetaProperty("text", text);
     if (this.props.onTextChange) {
       super.executeAction({
         dynamicString: this.props.onTextChange,
@@ -92,12 +93,7 @@ class RichTextEditorWidget extends BaseWidget<
   }
 }
 
-export interface InputValidator {
-  validationRegex: string;
-  errorMessage: string;
-}
-
-export interface RichTextEditorWidgetProps extends WidgetProps {
+export interface RichTextEditorWidgetProps extends WidgetProps, WithMeta {
   defaultText?: string;
   text?: string;
   placeholder?: string;
@@ -108,5 +104,5 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
 
 export default RichTextEditorWidget;
 export const ProfiledRichTextEditorWidget = Sentry.withProfiler(
-  RichTextEditorWidget,
+  withMeta(RichTextEditorWidget),
 );
