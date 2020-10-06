@@ -38,7 +38,7 @@ const CopyToClipboard = (props: any) => {
       <TextInput
         fill
         ref={copyURLInput}
-        disabled
+        readOnly
         onChange={() => {
           selectText();
         }}
