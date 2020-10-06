@@ -62,14 +62,18 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       propertyValue: any,
       actionExecution?: DebouncedExecuteActionPayload,
     ): void => {
-      this.setState({
-        [propertyName]: propertyValue,
-      });
       this.updatedProperties.set(propertyName, true);
       if (actionExecution) {
         this.propertyTriggers.set(propertyName, actionExecution);
       }
-      this.debouncedHandleUpdateWidgetMetaProperty();
+      this.setState(
+        {
+          [propertyName]: propertyValue,
+        },
+        () => {
+          this.debouncedHandleUpdateWidgetMetaProperty();
+        },
+      );
     };
 
     handleUpdateWidgetMetaProperty() {
