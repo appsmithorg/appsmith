@@ -101,11 +101,11 @@ export const flashElementById = (id: string) => {
   if (el) flashElement(el);
 };
 
-export const resolveAsSpaceChar = (value: string, limit?: number) => {
+export const resolveAsEmptyChar = (value: string, limit?: number) => {
   const separatorRegex = /[\W_]+/;
   return value
     .split(separatorRegex)
-    .join(" ")
+    .join("")
     .slice(0, limit || 30);
 };
 
