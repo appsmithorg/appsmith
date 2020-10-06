@@ -69,10 +69,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           if (this.inputType === "EMAIL") {
             const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
             return emailRegex.test(this.text);
-          } else if (this.inputType === "NUMBER") {
-            return !isNaN(this.text)
           } 
-          else if(this.isRequired) {
+          else if (this.inputType === "NUMBER") {
+            return !isNaN(this.text)
+          }
+          else if (this.isRequired) {
             if(this.text && this.text.length) {
               if(parsedRegex) {
                 return parsedRegex.test(this.text)
