@@ -6,3 +6,7 @@ export const batchAction = (action: ReduxAction<any>) => ({
 });
 
 export type BatchAction<T> = ReduxAction<ReduxAction<T>>;
+
+export const batchActionSuccess = () => ({
+  type: ReduxActionTypes.BATCH_UPDATES_SUCCESS,
+});
