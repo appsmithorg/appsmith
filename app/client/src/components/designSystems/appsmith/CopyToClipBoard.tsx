@@ -8,10 +8,10 @@ const Wrapper = styled.div`
   display: flex;
 
   div {
-    flex-basis: calc(100% - 300px);
+    flex-basis: calc(100% - 150px);
   }
   a {
-    flex-basis: 300px;
+    flex-basis: 150px;
   }
 `;
 
@@ -38,7 +38,7 @@ const CopyToClipboard = (props: any) => {
       <TextInput
         fill
         ref={copyURLInput}
-        readOnly
+        disabled
         onChange={() => {
           selectText();
         }}
