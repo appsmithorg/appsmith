@@ -379,10 +379,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         return false;
       }
     });
-    if (!hasOptions || new Set(values).size !== values.length) {
+
+    if (!hasOptions || _.uniq(values).length !== values.length) {
       return {
         isValid: false,
-        parsed: parsed.filter(isValidOption),
+        parsed: _.uniqBy(parsed.filter(isValidOption), 'value'),
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
