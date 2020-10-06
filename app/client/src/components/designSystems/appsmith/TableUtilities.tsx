@@ -15,10 +15,10 @@ import {
   Condition,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
-  TextTypes,
   FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
+  TextSizes,
 } from "widgets/TableWidget";
 import { isString } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
@@ -977,7 +977,7 @@ export function getDefaultColumnProperties(
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     type: ColumnTypes.TEXT,
     textColor: Colors.BLUE_BAYOUX,
-    textStyle: TextTypes.BODY,
+    textSize: TextSizes.PARAGRAPH,
     fontStyle: FontStyleTypes.NORMAL,
     enableFilter: true,
     enableSort: true,

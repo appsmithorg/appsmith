@@ -281,12 +281,12 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                       },
                     ],
                   },
-                  // {
-                  //   id: "7.1.6.1.2",
-                  //   propertyName: "computedValue",
-                  //   label: "Computed Value",
-                  //   controlType: "INPUT_TEXT",
-                  // },
+                  {
+                    id: "7.1.6.1.2",
+                    propertyName: "computedValue",
+                    label: "Computed Value",
+                    controlType: "INPUT_TEXT",
+                  },
                   {
                     id: "7.1.6.1.3",
                     propertyName: "enableFilter",
@@ -311,27 +311,60 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                     id: "7.1.6.2.1",
                     propertyName: "horizontalAlignment",
                     label: "Text Align",
-                    controlType: "TEXT_ALIGNMENT",
+                    controlType: "ICON_TABS",
+                    options: [
+                      {
+                        icon: "LEFT_ALIGN",
+                        value: "LEFT",
+                      },
+                      {
+                        icon: "CENTER_ALIGN",
+                        value: "CENTER",
+                      },
+                      {
+                        icon: "RIGHT_ALIGN",
+                        value: "RIGHT",
+                      },
+                    ],
+                    defaultValue: "LEFT",
                     isJSConvertible: true,
                   },
                   {
                     id: "7.1.6.2.2",
-                    propertyName: "textStyle",
+                    propertyName: "textSize",
                     label: "Text Size",
                     controlType: "DROP_DOWN",
                     isJSConvertible: true,
                     options: [
                       {
-                        label: "Heading",
-                        value: "HEADING",
+                        label: "Heading 1",
+                        value: "HEADING1",
+                        subText: "24px",
+                        icon: "HEADING_ONE",
                       },
                       {
-                        label: "Label",
-                        value: "LABEL",
+                        label: "Heading 2",
+                        value: "HEADING2",
+                        subText: "18px",
+                        icon: "HEADING_TWO",
                       },
                       {
-                        label: "Body",
-                        value: "BODY",
+                        label: "Heading 3",
+                        value: "HEADING3",
+                        subText: "16px",
+                        icon: "HEADING_THREE",
+                      },
+                      {
+                        label: "Paragraph",
+                        value: "PARAGRAPH",
+                        subText: "14px",
+                        icon: "PARAGRAPH",
+                      },
+                      {
+                        label: "Bullet Points",
+                        value: "BULLETPOINTS",
+                        subText: "14px",
+                        icon: "BULLETS",
                       },
                     ],
                   },
@@ -339,14 +372,40 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                     id: "7.1.6.2.3",
                     propertyName: "fontStyle",
                     label: "Font Style",
-                    controlType: "FONT_STYLE",
+                    controlType: "BUTTON_TABS",
+                    options: [
+                      {
+                        icon: "BOLD_FONT",
+                        value: "BOLD",
+                      },
+                      {
+                        icon: "ITALICS_FONT",
+                        value: "ITALIC",
+                      },
+                    ],
+                    defaultValue: "NORMAL",
                     isJSConvertible: true,
                   },
                   {
                     id: "7.1.6.2.4",
                     propertyName: "verticalAlignment",
                     label: "Vertical Alignment",
-                    controlType: "VERTICAL_ALIGNMENT",
+                    controlType: "ICON_TABS",
+                    options: [
+                      {
+                        icon: "VERTICAL_TOP",
+                        value: "TOP",
+                      },
+                      {
+                        icon: "VERTICAL_CENTER",
+                        value: "CENTER",
+                      },
+                      {
+                        icon: "VERTICAL_BOTTOM",
+                        value: "BOTTOM",
+                      },
+                    ],
+                    defaultValue: "LEFT",
                     isJSConvertible: true,
                   },
                   {
@@ -422,12 +481,12 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                       },
                     ],
                   },
-                  // {
-                  //   id: "7.1.7.1.1",
-                  //   propertyName: "computedValue",
-                  //   label: "Computed Value",
-                  //   controlType: "INPUT_TEXT",
-                  // },
+                  {
+                    id: "7.1.7.1.1",
+                    propertyName: "computedValue",
+                    label: "Computed Value",
+                    controlType: "INPUT_TEXT",
+                  },
                   {
                     id: "7.1.7.1.2",
                     propertyName: "enableFilter",
@@ -453,28 +512,56 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                     propertyName: "horizontalAlignment",
                     helpText: "Sets the alignments of the text",
                     label: "Text Align",
-                    controlType: "TEXT_ALIGNMENT",
+                    controlType: "ICON_TABS",
+                    options: [
+                      {
+                        icon: "LEFT_ALIGN",
+                        value: "LEFT",
+                      },
+                      {
+                        icon: "CENTER_ALIGN",
+                        value: "CENTER",
+                      },
+                      {
+                        icon: "RIGHT_ALIGN",
+                        value: "RIGHT",
+                      },
+                    ],
+                    defaultValue: "LEFT",
                     isJSConvertible: true,
                   },
                   {
                     id: "7.1.7.3.2",
-                    propertyName: "textStyle",
+                    propertyName: "textSize",
                     helpText: "Sets the font and style of the text",
-                    label: "Text Style",
+                    label: "Text Size",
                     controlType: "DROP_DOWN",
                     isJSConvertible: true,
                     options: [
                       {
-                        label: "Heading",
-                        value: "HEADING",
+                        label: "Heading 1",
+                        value: "HEADING1",
+                        subText: "24px",
                       },
                       {
-                        label: "Label",
-                        value: "LABEL",
+                        label: "Heading 2",
+                        value: "HEADING2",
+                        subText: "18px",
                       },
                       {
-                        label: "Body",
-                        value: "BODY",
+                        label: "Heading 3",
+                        value: "HEADING3",
+                        subText: "16px",
+                      },
+                      {
+                        label: "Paragraph",
+                        value: "PARAGRAPH",
+                        subText: "14px",
+                      },
+                      {
+                        label: "Bullet Points",
+                        value: "BULLETPOINTS",
+                        subText: "14px",
                       },
                     ],
                   },
@@ -482,14 +569,40 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
                     id: "7.1.7.3.3",
                     propertyName: "fontStyle",
                     label: "Font Style",
-                    controlType: "FONT_STYLE",
+                    controlType: "BUTTON_TABS",
+                    options: [
+                      {
+                        icon: "BOLD_FONT",
+                        value: "BOLD",
+                      },
+                      {
+                        icon: "ITALICS_FONT",
+                        value: "ITALIC",
+                      },
+                    ],
+                    defaultValue: "NORMAL",
                     isJSConvertible: true,
                   },
                   {
                     id: "7.1.7.3.4",
                     propertyName: "verticalAlignment",
                     label: "Vertical Alignment",
-                    controlType: "VERTICAL_ALIGNMENT",
+                    controlType: "ICON_TABS",
+                    options: [
+                      {
+                        icon: "VERTICAL_TOP",
+                        value: "TOP",
+                      },
+                      {
+                        icon: "VERTICAL_CENTER",
+                        value: "CENTER",
+                      },
+                      {
+                        icon: "VERTICAL_BOTTOM",
+                        value: "BOTTOM",
+                      },
+                    ],
+                    defaultValue: "LEFT",
                     isJSConvertible: true,
                   },
                   {

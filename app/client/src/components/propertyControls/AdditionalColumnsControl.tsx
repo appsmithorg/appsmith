@@ -91,6 +91,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
 class AdditionalColumnsControl extends BaseControl<ControlProps> {
   render() {
     const columns: ColumnProperties[] = this.props.propertyValue || [];
+    // if (this.props.widgetProperties.primaryColumns.length === 0) return null;
     return (
       <TabsWrapper>
         <DroppableComponent

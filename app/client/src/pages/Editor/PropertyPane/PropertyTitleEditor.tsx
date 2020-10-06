@@ -1,25 +1,33 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Icon, Tooltip, Position } from "@blueprintjs/core";
+import { Icon, Tooltip, Position, Classes } from "@blueprintjs/core";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { WidgetType } from "constants/WidgetConstants";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 import { theme } from "constants/DefaultTheme";
-import { CloseButton } from "components/designSystems/blueprint/CloseButton";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const StyledToolTip = styled(Tooltip)`
-  position: absolute;
-  top: 0;
-  right: 35px;
-`;
-
 const Wrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
+  display: grid;
+  width: 100%;
+  grid-template-columns: 171px 25px 25px 25px;
+  justify-items: center;
+  align-items: center;
+  justify-content: stretch;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: ${props => props.theme.colors.paneBG};
+  & span.${Classes.POPOVER_TARGET} {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 export type PropertyTitleEditorProps = {
@@ -62,7 +70,7 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
         isEditingDefault={false}
         onBlur={exitEditMode}
       />
-      <StyledToolTip
+      <Tooltip
         content={
           <div>
             <span>You can connect data from your API by adding </span>
@@ -82,22 +90,24 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
           color={theme.colors.paneSectionLabel}
           icon="help"
         />
-      </StyledToolTip>
-
-      <CloseButton
-        onClick={(e: any) => {
-          AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-            widgetType: props.widgetType || "",
-            widgetId: props.widgetId,
-          });
-          props.onClose();
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        size={theme.spaces[5]}
-        color={theme.colors.paneSectionLabel}
-        className={"t--property-pane-close-btn"}
-      />
+      </Tooltip>
+      <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
+        <Icon
+          onClick={(e: any) => {
+            AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+              widgetType: props.widgetType || "",
+              widgetId: props.widgetId,
+            });
+            props.onClose();
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          iconSize={16}
+          color={theme.colors.paneSectionLabel}
+          icon="cross"
+          className={"t--property-pane-close-btn"}
+        />
+      </Tooltip>
     </Wrapper>
   );
 };

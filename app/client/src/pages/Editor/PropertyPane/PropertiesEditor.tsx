@@ -27,6 +27,7 @@ import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import PaneWrapper from "pages/common/PaneWrapper";
 import { ControlIcons } from "icons/ControlIcons";
+import CollapseComponent from "components/utils/CollapseComponent";
 
 const PropertySectionLabel = styled.div`
   color: ${props => props.theme.colors.paneSectionLabel};
@@ -44,21 +45,22 @@ const PropertyPaneWrapper = styled(PaneWrapper)`
   max-height: ${props => props.theme.propertyPane.height}px;
   width: ${props => props.theme.propertyPane.width}px;
   box-shadow: 0px 0px 10px ${props => props.theme.colors.paneCard};
-  border: ${props => props.theme.spaces[5]}px solid
-    ${props => props.theme.colors.paneBG};
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 ${props => props.theme.spaces[2]}px 0 0;
   text-transform: none;
   ${scrollbarDark};
+  padding: 0;
 `;
+//border: ${props => props.theme.spaces[5]}px solid ${props => props.theme.colors.paneBG};
+//padding: 0 ${props => props.theme.spaces[2]}px 0 0;
 
 const PaneTitleWrapper = styled.div`
   display: flex;
   align-items: center;
   background-color: ${props => props.theme.colors.paneBG};
   color: ${props => props.theme.colors.textOnDarkBG};
+  padding: 12px;
 `;
 
 const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
@@ -78,16 +80,14 @@ const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
 
 const PropertySectionComponent = (props: PropertySectionComponentProps) => {
   const { propertySection, id, widgetProperties } = props;
+  // <CollapseComponent title={propertySection.sectionName} />
   return (
     <div key={id}>
-      {!_.isNil(propertySection) ? (
-        <PropertySectionLabel>
-          {propertySection.sectionName}
-        </PropertySectionLabel>
-      ) : (
-        undefined
-      )}
-      <div>
+      <CollapseComponent
+        title={
+          !_.isNil(propertySection) ? propertySection.sectionName : undefined
+        }
+      >
         {_.map(
           propertySection.children,
           (propertyControlOrSection: ControlProps | PropertySection) => {
@@ -124,7 +124,7 @@ const PropertySectionComponent = (props: PropertySectionComponentProps) => {
             }
           },
         )}
-      </div>
+      </CollapseComponent>
     </div>
   );
 };
@@ -367,7 +367,6 @@ class PropertiesEditor extends React.Component<
           onPropertyChange={this.onPropertyChange}
           updatePropertyTitle={this.updatePropertyTitle}
         />
-        <Divider />
         {!_.isNil(propertySections)
           ? _.map(propertySections, (propertySection: PropertySection) => {
               return (

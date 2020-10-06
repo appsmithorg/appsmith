@@ -56,10 +56,12 @@ export enum VerticalAlignmentTypes {
   CENTER = "CENTER",
 }
 
-export enum TextTypes {
-  HEADING = "HEADING",
-  LABEL = "LABEL",
-  BODY = "BODY",
+export enum TextSizes {
+  HEADING1 = "HEADING1",
+  HEADING2 = "HEADING2",
+  HEADING3 = "HEADING3",
+  PARAGRAPH = "PARAGRAPH",
+  BULLETPOINTS = "BULLETPOINTS",
 }
 
 export enum FontStyleTypes {
@@ -113,6 +115,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
+      primaryColumns: VALIDATION_TYPES.ARRAY,
+      derivedColumns: VALIDATION_TYPES.ARRAY,
     };
   }
 
@@ -167,7 +171,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const cellProperties: CellLayoutProperties = {
           horizontalAlignment: columnProperties.horizontalAlignment,
           verticalAlignment: columnProperties.verticalAlignment,
-          textStyle: columnProperties.textStyle,
+          textSize: columnProperties.textSize,
           fontStyle: columnProperties.fontStyle,
           textColor: columnProperties.textColor,
         };
@@ -716,7 +720,7 @@ export type Operator = keyof typeof OperatorTypes;
 export type CellAlignment = keyof typeof CellAlignmentTypes;
 export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
 export type FontStyle = keyof typeof FontStyleTypes;
-export type TextType = keyof typeof TextTypes;
+export type TextSize = keyof typeof TextSizes;
 
 export interface ReactTableFilter {
   column: string;
@@ -728,7 +732,7 @@ export interface ReactTableFilter {
 export interface CellLayoutProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  textStyle?: TextType;
+  textSize?: TextSize;
   fontStyle?: FontStyle;
   textColor?: string;
 }
@@ -761,7 +765,7 @@ export interface ColumnProperties {
   width: number;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  textStyle?: TextType;
+  textSize?: TextSize;
   fontStyle?: FontStyle;
   textColor?: string;
   enableFilter?: boolean;

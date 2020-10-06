@@ -9,6 +9,7 @@ import {
 import styled from "constants/DefaultTheme";
 import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
 import { ColumnProperties } from "widgets/TableWidget";
+import EmptyDataState from "components/utils/EmptyDataState";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -83,6 +84,9 @@ function ColumnControlComponent(props: RenderComponentProps) {
 class PrimaryColumnsControl extends BaseControl<ControlProps> {
   render() {
     const columns = this.props.propertyValue || [];
+    if (columns.length === 0) {
+      return <EmptyDataState />;
+    }
     return (
       <TabsWrapper>
         <DroppableComponent
