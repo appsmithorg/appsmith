@@ -10,14 +10,14 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
     background: ${props => props.theme.colors.modal.bg};
     width: 640px;
 
-    & .bp3-dialog-header {
+    & .${Classes.DIALOG_HEADER} {
       padding: ${props => props.theme.spaces[4]}px;
       background: ${props => props.theme.colors.modal.bg};
       box-shadow: none;
-      .bp3-icon {
+      .${Classes.ICON} {
         color: ${props => props.theme.colors.modal.iconColor};
       }
-      .bp3-heading {
+      .${Classes.HEADING} {
         color: ${props => props.theme.colors.modal.headerText};
         display: flex;
         justify-content: center;
@@ -27,14 +27,14 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
         font-weight: 500;
       }
 
-      .bp3-button.bp3-minimal:hover {
+      .${Classes.BUTTON}.${Classes.MINIMAL}:hover {
         background-color: ${props => props.theme.colors.modal.bg};
       }
     }
-    & .bp3-dialog-body {
+    & .${Classes.DIALOG_BODY} {
       margin: ${props => props.theme.spaces[9]}px;
     }
-    & .bp3-dialog-footer-actions {
+    & .${Classes.DIALOG_FOOTER_ACTIONS} {
       display: block;
     }
     ${props => props.setMaxWidth && `width: 100vh;`}
