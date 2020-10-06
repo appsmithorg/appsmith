@@ -72,6 +72,7 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
       step={props.step}
       disabled={!!props.searchKeyword && (!childNode || !props.actions.length)}
       onCreate={switchToCreateActionPage}
+      searchKeyword={props.searchKeyword}
       isDefaultExpanded={
         props.config?.isGroupExpanded(params, props.page.pageId) ||
         !!props.searchKeyword

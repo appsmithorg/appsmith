@@ -26,7 +26,7 @@ public class PingScheduledTask {
 
     private final ConfigService configService;
 
-    public static final URI GET_IP_URI = URI.create("https://api6.ipify.org");
+    public static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
