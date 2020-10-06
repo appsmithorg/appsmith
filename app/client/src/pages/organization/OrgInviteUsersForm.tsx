@@ -5,7 +5,8 @@ import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import Divider from "components/editorComponents/Divider";
-import { connect, useSelector } from "react-redux";
+import Button from "components/editorComponents/Button";
+import { connect } from "react-redux";
 import { AppState } from "reducers";
 import {
   getRolesForField,
@@ -16,6 +17,8 @@ import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
+import { Classes } from "@blueprintjs/core";
+import FormMessage from "components/editorComponents/form/FormMessage";
 import {
   INVITE_USERS_SUBMIT_SUCCESS,
   INVITE_USERS_VALIDATION_EMAILS_EMPTY,
@@ -23,6 +26,7 @@ import {
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
 } from "constants/messages";
 import history from "utils/history";
+import { Colors } from "constants/Colors";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
@@ -31,28 +35,32 @@ import {
 import { getAppsmithConfigs } from "configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import Button, { Variant, Size } from "components/ads/Button";
-import Text, { TextType } from "components/ads/Text";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
-import Callout from "components/ads/Callout";
-import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import { getThemeDetails } from "selectors/themeSelectors";
-import { ProfileImage } from "pages/common/ProfileDropdown";
 
 const OrgInviteTitle = styled.div`
+  font-weight: bold;
   padding: 10px 0px;
+`;
+
+const DropDownOption = styled.div`
+  padding: 10px 0;
+`;
+
+const OptionTitle = styled.div`
+  font-weight: bold;
+`;
+
+const OptionDescription = styled.div`
+  padding: 5px 0px;
+  max-width: 250px;
 `;
 
 const StyledForm = styled.form`
   width: 100%;
-  background: ${props => props.theme.colors.modal.bg};
+  background: white;
+  padding: ${props => props.theme.spaces[5]}px;
   &&& {
-    .wrapper > div:nth-child(1) {
-      width: 60%;
-    }
-    .wrapper > div:nth-child(2) {
-      width: 40%;
+    .wrapper > div {
+      width: 70%;
     }
     .bp3-input {
       box-shadow: none;
@@ -61,39 +69,10 @@ const StyledForm = styled.form`
       padding-top: 5px;
     }
   }
-`;
-
-const ManageUsers = styled("a")`
-  margin-top: 20px;
-  display: inline-flex;
-  &&&& {
-    text-decoration: none;
+  .manageUsers {
+    float: right;
+    margin-top: 20px;
   }
-
-  .${Classes.TEXT} {
-    color: ${props => props.theme.colors.modal.manageUser};
-    margin-right: ${props => props.theme.spaces[1]}px;
-  }
-  .${Classes.ICON} {
-    svg path {
-      fill: ${props => props.theme.colors.modal.manageUser};
-    }
-  }
-
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${props => props.theme.colors.modal.headerText};
-    }
-    .${Classes.ICON} {
-      svg path {
-        fill: ${props => props.theme.colors.modal.headerText};
-      }
-    }
-  }
-`;
-
-const ErrorBox = styled.div<{ message?: boolean }>`
-  ${props => (props.message ? `margin: ${props.theme.spaces[9]}px 0px` : null)};
 `;
 
 const StyledInviteFieldGroup = styled.div`
@@ -105,49 +84,34 @@ const StyledInviteFieldGroup = styled.div`
     display: flex;
     width: 100%;
     flex-direction: row;
-    align-items: center;
     justify-content: space-between;
-    margin-right: 5px;
+    padding-right: 5px;
+    border-width: 1px;
     border-right: 0px;
+    border-style: solid;
+    border-color: ${Colors.ATHENS_GRAY};
   }
 `;
 
 const UserList = styled.div`
-  margin-top: 10px;
-`;
-
-const User = styled.div`
-  display: flex;
-  align-items: center;
-  height: 54px;
-  padding-left: 15px;
-  justify-content: space-between;
-  color: ${props => props.theme.colors.modal.user.textColor};
-`;
-
-const UserInfo = styled.div`
-  display: inline-flex;
-  align-items: center;
-`;
-
-const UserRole = styled.div`
-  flex-basis: 25%;
-  .${Classes.TEXT} {
-    color: ${props => props.theme.colors.modal.headerText};
+  max-height: 200px;
+  margin-top: 20px;
+  overflow-y: scroll;
+  .user {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 8px;
+    margin-bottom: 8px;
   }
 `;
 
-const UserName = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 10px;
-  span:nth-child(1) {
-    margin-bottom: 1px;
+const StyledButton = styled(Button)`
+  &&&.${Classes.BUTTON} {
+    width: 83px;
+    height: 31px;
+    border-radius: 0px;
   }
-`;
-
-const RoleDivider = styled.div`
-  border-top: 1px solid ${props => props.theme.colors.menuBorder};
 `;
 
 const Loading = styled(Spinner)`
@@ -159,16 +123,15 @@ const Loading = styled(Spinner)`
 const MailConfigContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${props => props.theme.spaces[9]}px
-    ${props => props.theme.spaces[2]}px;
+  padding: 5px;
   align-items: center;
   && > span {
-    color: ${props => props.theme.colors.modal.email.message};
+    color: #2e3d49;
     font-weight: 500;
     font-size: 14px;
   }
   && > a {
-    color: ${props => props.theme.colors.modal.email.desc};
+    color: rgba(46, 61, 73, 0.5);
     font-size: 12px;
     text-decoration: underline;
   }
@@ -245,39 +208,22 @@ const OrgInviteUsersForm = (props: any) => {
   const styledRoles = props.roles.map((role: any) => {
     return {
       id: role.id,
-      value: role.name,
-      label: role.description,
+      name: role.name,
+      content: (
+        <DropDownOption>
+          <OptionTitle>{role.name}</OptionTitle>
+          <OptionDescription>{role.description}</OptionDescription>
+        </DropDownOption>
+      ),
     };
   });
-
-  const themeDetails = useSelector(getThemeDetails);
-
-  const allUsersProfiles = React.useMemo(
-    () =>
-      allUsers.map(
-        (user: { username: string; roleName: string; name: string }) => {
-          const details = getInitialsAndColorCode(
-            user.name || user.username,
-            themeDetails.theme.colors.appCardColors,
-          );
-          return {
-            ...user,
-            imageBackground: details[1],
-            initials: details[0],
-          };
-        },
-      ),
-    [allUsers, themeDetails],
-  );
 
   return (
     <>
       {isApplicationInvite && (
         <>
           <Divider />
-          <OrgInviteTitle>
-            <Text type={TextType.H5}>Invite Users to {currentOrg?.name} </Text>
-          </OrgInviteTitle>
+          <OrgInviteTitle>Invite Users to {currentOrg?.name} </OrgInviteTitle>
         </>
       )}
       <StyledForm
@@ -287,6 +233,12 @@ const OrgInviteUsersForm = (props: any) => {
           return inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
         })}
       >
+        {submitSucceeded && (
+          <FormMessage intent="primary" message={INVITE_USERS_SUBMIT_SUCCESS} />
+        )}
+        {submitFailed && error && (
+          <FormMessage intent="danger" message={error} />
+        )}
         <StyledInviteFieldGroup>
           <div className="wrapper">
             <TagListField
@@ -306,14 +258,14 @@ const OrgInviteUsersForm = (props: any) => {
               data-cy="t--invite-role-input"
             />
           </div>
-          <Button
-            tag="button"
+          <StyledButton
             className="t--invite-user-btn"
             disabled={!valid}
             text="Invite"
-            size={Size.large}
-            variant={Variant.info}
-            isLoading={submitting && !(submitFailed && !anyTouched)}
+            filled
+            intent="primary"
+            loading={submitting && !(submitFailed && !anyTouched)}
+            type="submit"
           />
         </StyledInviteFieldGroup>
         {isLoading ? (
@@ -334,62 +286,27 @@ const OrgInviteUsersForm = (props: any) => {
               </MailConfigContainer>
             )}
             <UserList style={{ justifyContent: "space-between" }}>
-              {allUsersProfiles.map(
-                (user: {
-                  username: string;
-                  name: string;
-                  roleName: string;
-                  imageBackground: string;
-                  initials: string;
-                }) => {
-                  return (
-                    <>
-                      <User key={user.username}>
-                        <UserInfo>
-                          <ProfileImage backgroundColor={user.imageBackground}>
-                            <Text type={TextType.H6} highlight>
-                              {user.initials}
-                            </Text>
-                          </ProfileImage>
-                          <UserName>
-                            <Text type={TextType.H5}>{user.name}</Text>
-                            <Text type={TextType.P2}>{user.username}</Text>
-                          </UserName>
-                        </UserInfo>
-                        <UserRole>
-                          <Text type={TextType.P1}>{user.roleName}</Text>
-                        </UserRole>
-                      </User>
-
-                      <RoleDivider />
-                    </>
-                  );
-                },
-              )}
+              {allUsers.map((user: { username: string; roleName: string }) => {
+                return (
+                  <div className="user" key={user.username}>
+                    <div>{user.username}</div>
+                    <div>{user.roleName}</div>
+                  </div>
+                );
+              })}
             </UserList>
           </React.Fragment>
         )}
-        <ErrorBox message={submitSucceeded || submitFailed}>
-          {submitSucceeded && (
-            <Callout
-              text={INVITE_USERS_SUBMIT_SUCCESS}
-              variant={Variant.success}
-              fill
-            />
-          )}
-          {submitFailed && error && (
-            <Callout text={error} variant={Variant.danger} fill />
-          )}
-        </ErrorBox>
         {!pathRegex.test(currentPath) && canManage && (
-          <ManageUsers
+          <Button
+            className="manageUsers"
+            text="Manage Users"
+            filled
+            intent="primary"
             onClick={() => {
               history.push(`/org/${props.orgId}/settings/members`);
             }}
-          >
-            <Text type={TextType.H6}>MANAGE USERS</Text>
-            <Icon name="manage" size={IconSize.XXS} />
-          </ManageUsers>
+          />
         )}
       </StyledForm>
     </>
