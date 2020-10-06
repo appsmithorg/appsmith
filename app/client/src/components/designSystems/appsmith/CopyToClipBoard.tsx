@@ -1,17 +1,36 @@
 import React, { createRef, useState } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 
 const Wrapper = styled.div`
   display: flex;
+  flex-direction: row;
+`;
+const StyledInput = styled.input`
+  flex: 1;
+  border: 1px solid #d3dee3;
+  border-right: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #768896;
+  border-radius: 4px 0 0 4px;
+  width: 90%;
+  overflow: hidden;
+`;
 
-  div {
-    flex-basis: 82%;
-  }
-  a {
-    flex-basis: 18%;
+const SelectButton = styled(BaseButton)`
+  &&&& {
+    max-width: 70px;
+    margin: 0 0px;
+    min-height: 32px;
+    border-radius: 0px 4px 4px 0px;
+    font-weight: bold;
+    background-color: #f6f7f8;
+    font-size: 14px;
+    &.bp3-button {
+      padding: 0px 0px;
+    }
   }
 `;
 
@@ -35,23 +54,21 @@ const CopyToClipboard = (props: any) => {
   };
   return (
     <Wrapper>
-      <TextInput
-        fill
+      <StyledInput
+        type="text"
         ref={copyURLInput}
         readOnly
-        onChange={() => {
+        onClick={() => {
           selectText();
         }}
-        defaultValue={copyText}
+        value={copyText}
       />
-
-      <Button
+      <SelectButton
         text={isCopied ? "Copied" : "Copy"}
-        category={Category.tertiary}
+        accent="secondary"
         onClick={() => {
           copyToClipboard(copyText);
         }}
-        size={Size.large}
       />
     </Wrapper>
   );

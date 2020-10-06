@@ -1,35 +1,23 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { TagInput } from "@blueprintjs/core";
-import { Intent } from "constants/DefaultTheme";
+import {
+  Intent,
+  IntentColors,
+  getColorWithOpacity,
+} from "constants/DefaultTheme";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
-  margin-right: 8px;
-
   &&& {
-    .bp3-tag-input {
-      background-color: ${props => props.theme.colors.tagInput.bg};
-      min-height: 38px;
-      border: 1px solid ${props => props.theme.colors.tagInput.bg};
-      border-radius: 0px;
-    }
-    .bp3-tag-input.bp3-active {
-      border: 1px solid ${props => props.theme.colors.info.main};
-      box-shadow: ${props => props.theme.colors.tagInput.shadow};
-    }
-    .bp3-input-ghost {
-      color: ${props => props.theme.colors.tagInput.text};
-      &::placeholder {
-        color: ${props => props.theme.colors.tagInput.placeholder};
-      }
-    }
     .bp3-tag {
-      padding: 3px 10px;
-      color: ${props => props.theme.colors.tagInput.tag.text};
-      background-color: ${props => props.theme.colors.info.main};
-      border-radius: 0px;
-      font-size: 11px;
-      line-height: 13px;
-      letter-spacing: 0.4px;
+      color: ${props => props.theme.colors.textDefault};
+      font-size: ${props => props.theme.fontSizes[3]}px;
+      background: ${props =>
+        props.intent
+          ? getColorWithOpacity(IntentColors[props.intent], 0.2)
+          : getColorWithOpacity(IntentColors.none, 0.2)};
+      border: 1px solid
+        ${props =>
+          props.intent ? IntentColors[props.intent] : IntentColors.none};
     }
   }
 `;
