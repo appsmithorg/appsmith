@@ -140,23 +140,22 @@ export const EditableText = (props: EditableTextProps) => {
 
   useEffect(() => {
     setSavingState(props.savingState);
-  }, [props]);
+  }, [props.savingState]);
 
   useEffect(() => {
     return () => {
       props.onBlur(valueRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     setValue(props.defaultValue);
     setIsEditing(!!props.isEditingDefault);
-  }, [props]);
+  }, [props.defaultValue, props.isEditingDefault]);
 
   useEffect(() => {
     if (props.forceDefault === true) setValue(props.defaultValue);
-  }, [props]);
+  }, [props.forceDefault, props.defaultValue]);
 
   const themeDetails = useSelector(getThemeDetails);
   const bgColor = useMemo(
@@ -190,7 +189,7 @@ export const EditableText = (props: EditableTextProps) => {
       setIsEditing(false);
       setChangeStarted(false);
     },
-    [changeStarted, savingState, isInvalid, lastValidValue, props],
+    [changeStarted, lastValidValue, props.onBlur, props.onTextChanged],
   );
 
   const onInputchange = useCallback(
@@ -206,7 +205,7 @@ export const EditableText = (props: EditableTextProps) => {
       setIsInvalid(error);
       setChangeStarted(true);
     },
-    [props],
+    [props.isInvalid],
   );
 
   const iconName =

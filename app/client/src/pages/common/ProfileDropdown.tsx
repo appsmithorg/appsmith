@@ -21,9 +21,9 @@ type TagProps = CommonComponentProps & {
   userName?: string;
 };
 
-export const ProfileImage = styled.div<{ backgroundColor?: string }>`
-  width: 34px;
-  height: 34px;
+const ProfileImage = styled.div<{ backgroundColor?: string }>`
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   border-radius: 50%;
