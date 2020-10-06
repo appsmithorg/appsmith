@@ -58,7 +58,7 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
                 className={this.props.isLoading ? "bp3-skeleton" : ""}
                 label={option.label}
                 value={option.value}
-                key={option.id}
+                key={option.value}
               />
             );
           })}
