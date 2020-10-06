@@ -83,6 +83,9 @@ export const SpacedSubmitForm = styled.form`
   & a {
     font-size: ${props => props.theme.fontSizes[3]}px;
   }
+  &:only-child {
+    margin-right: 0;
+  }
 `;
 
 export const FormActions = styled.div`

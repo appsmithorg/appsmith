@@ -42,5 +42,9 @@
     "orgSectionBtn": ".t--org-section .bp3-button",
     "shareOrg": ") a:contains('Share')",
     "orgSection": "a:contains(",
-    "createAppFrOrg": ") .t--create-app-popup"
+    "createAppFrOrg": ") .t--create-app-popup",
+    "shareApp": ".t--application-share-btn",
+    "enablePublicAccess": ".bp3-control-indicator",
+    "closeBtn": ".bp3-dialog-close-button"
+
 }
