@@ -79,6 +79,9 @@ export enum OperatorTypes {
   OR = "OR",
   AND = "AND",
 }
+type ColumnProps = {
+  columnType: ColumnTypes;
+};
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -90,6 +93,191 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
     };
+  }
+
+  static getPropertyPaneConfig(props: TableWidgetProps) {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            sectionName: "Columns",
+            children: [
+              {
+                helpText: "",
+                propertyName: "columns",
+                label: "Columns",
+                controlType: "REORDER_LIST",
+                // emptyStateAction: {
+                //   action: () => void
+                //   text: ""
+                // }, // NEEDS EMPTY STATE
+                children: [
+                  {
+                    helpText: "Individual Column",
+                    controlType: "COLUMN",
+                    panelProps: {
+                      enabled: true,
+                      editableTitle: true,
+                      titlePropertyName: "columnName",
+                    },
+                    children: [
+                      {
+                        helpText: "",
+                        propertyName: "columnType",
+                        label: "Column Type",
+                        controlType: "DROP_DOWN",
+                        options: [
+                          {
+                            label: "Line Chart",
+                            value: "LINE_CHART",
+                            icon: "text",
+                            subtext: "",
+                          },
+                          {
+                            label: "Bar Chart",
+                            value: "BAR_CHART",
+                            icon: "something",
+                            subtext: "",
+                          },
+                        ],
+                        isJSConvertible: true,
+                      },
+                      {
+                        helpText: "",
+                        propertyName: "computedValue",
+                        label: "Computed Value",
+                        controlType: "INPUT_TEXT",
+                      },
+                      {
+                        helpText: "",
+                        propertyName: "serverSideFilter",
+                        label: "Server Side Filter",
+                        controlType: "SWITCH",
+                      },
+                      {
+                        helpText: "",
+                        propertyName: "serverSideSort",
+                        label: "Server Side Sort",
+                        controlType: "SWITCH",
+                      },
+                      {
+                        helpText: "",
+                        propertyName: "textColor",
+                        label: "Text Color",
+                        controlType: "COLOR_PICKER",
+                        hidden: (props: ColumnProps) =>
+                          props.columnType === ColumnTypes.VIDEO,
+                      },
+                      {
+                        helpText: "",
+                        propertyName: "textSize",
+                        label: "Text Size",
+                        controlType: "DROP_DOWN",
+                        hidden: (props: ColumnProps) =>
+                          props.columnType === ColumnTypes.VIDEO,
+                        option: [
+                          {
+                            label: "Line Chart",
+                            value: "LINE_CHART",
+                            icon: "text",
+                            subtext: "",
+                          },
+                          {
+                            label: "Bar Chart",
+                            value: "BAR_CHART",
+                            icon: "something",
+                            subtext: "",
+                          },
+                        ],
+                      },
+                      {
+                        helpText: "",
+                        propertyName: "videoURL",
+                        label: "Video URL",
+                        controlType: "INPUT_TEXT",
+                        hidden: (props: ColumnProps) =>
+                          props.columnType !== ColumnTypes.VIDEO,
+                      },
+                      {
+                        propertyPane: "inputDate",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                helpText:
+                  "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
+                propertyName: "tableData",
+                label: "Table Data",
+                controlType: "INPUT_TEXT",
+                placeholderText: 'Enter [{ "col1": "val1" }]',
+                inputType: "ARRAY",
+              },
+              {
+                helpText:
+                  "Bind the Table.pageNo property in your API and call it onPageChange",
+                propertyName: "serverSidePaginationEnabled",
+                label: "Server Side Pagination",
+                controlType: "SWITCH",
+              },
+              {
+                helpText: "Controls the visibility of the widget",
+                propertyName: "isVisible",
+                isJSConvertible: true,
+                label: "Visible",
+                controlType: "SWITCH",
+              },
+              {
+                helpText: "Enable PDF Export",
+                propertyName: "exportPDF",
+                label: "PDF Export",
+                controlType: "SWITCH",
+              },
+              {
+                helpText: "Enable Excel Export",
+                propertyName: "exportExcel",
+                label: "Excel Export",
+                controlType: "SWITCH",
+              },
+              {
+                helpText: "Enable CSV Export",
+                propertyName: "exportCsv",
+                label: "CSV Export",
+                controlType: "SWITCH",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText:
+              "Adds a button action for every row. Reference the Table.selectedRow property in the action",
+            propertyName: "columnActions",
+            label: "Row Button",
+            controlType: "COLUMN_ACTION_SELECTOR",
+          },
+          {
+            helpText: "Triggers an action when a table row is selected",
+            propertyName: "onRowSelected",
+            label: "onRowSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            helpText: "Triggers an action when a table page is changed",
+            propertyName: "onPageChange",
+            label: "onPageChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

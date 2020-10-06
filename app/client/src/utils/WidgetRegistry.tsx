@@ -302,6 +302,7 @@ export default class WidgetBuilderRegistry {
       ChartWidget.getTriggerPropertyMap(),
       ChartWidget.getDefaultPropertiesMap(),
       ChartWidget.getMetaPropertiesMap(),
+      ChartWidget.getPropertyPaneConfig,
     );
     WidgetFactory.registerWidgetBuilder(
       "FORM_WIDGET",

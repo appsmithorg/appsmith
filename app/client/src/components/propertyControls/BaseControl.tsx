@@ -5,6 +5,7 @@
 import { Component } from "react";
 import _ from "lodash";
 import { ControlType } from "constants/PropertyControlConstants";
+import { WidgetProps } from "widgets/BaseWidget";
 
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -38,6 +39,9 @@ export interface ControlData {
   evaluatedValue: any;
   validationMessage?: string;
   dataTreePath?: string;
+  children?: ControlData[];
+  panelProps?: boolean;
+  hidden?: (props: WidgetProps) => boolean;
 }
 
 export interface ControlFunctions {

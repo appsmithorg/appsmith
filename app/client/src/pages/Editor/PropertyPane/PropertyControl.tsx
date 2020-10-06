@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import _ from "lodash";
 import {
   ControlPropertyLabelContainer,
@@ -11,21 +11,77 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyControlPropsType } from "components/propertyControls";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
+import { useDispatch } from "react-redux";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  setWidgetDynamicProperty,
+  updateWidgetPropertyRequest,
+} from "actions/controlActions";
+import { RenderModes } from "constants/WidgetConstants";
 
 type Props = {
   widgetProperties: WidgetProps;
   propertyConfig: PropertyControlPropsType;
-  toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
-  onPropertyChange: (propertyName: string, propertyValue: any) => void;
 };
 
 const PropertyControl = (props: Props) => {
-  const {
-    widgetProperties,
-    propertyConfig,
-    toggleDynamicProperty,
-    onPropertyChange,
-  } = props;
+  const dispatch = useDispatch();
+  const { widgetProperties, propertyConfig } = props;
+
+  const toggleDynamicProperty = useCallback(
+    (propertyName: string, isDynamic: boolean) => {
+      AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
+        widgetType: widgetProperties.type,
+        widgetName: widgetProperties.widgetName,
+        propertyName: propertyName,
+        propertyState: !isDynamic ? "JS" : "NORMAL",
+      });
+      dispatch(
+        setWidgetDynamicProperty(
+          widgetProperties.widgetId,
+          propertyName,
+          isDynamic,
+        ),
+      );
+    },
+    [
+      dispatch,
+      widgetProperties.widgetId,
+      widgetProperties.type,
+      widgetProperties.widgetName,
+    ],
+  );
+  const onPropertyChange = useCallback(
+    (propertyName: string, propertyValue: string) => {
+      AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
+        widgetType: widgetProperties.type,
+        widgetName: widgetProperties.widgetName,
+        propertyName: propertyName,
+        updatedValue: propertyValue,
+      });
+      dispatch(
+        updateWidgetPropertyRequest(
+          widgetProperties.widgetId,
+          propertyName,
+          propertyValue,
+          RenderModes.CANVAS, // This seems to be not needed anymore.
+        ),
+      );
+    },
+    [
+      dispatch,
+      widgetProperties.widgetId,
+      widgetProperties.type,
+      widgetProperties.widgetName,
+    ],
+  );
+  // Do not render the control if it needs to be hidden
+  if (
+    props.propertyConfig.hidden &&
+    props.propertyConfig.hidden(props.widgetProperties)
+  ) {
+    return null;
+  }
 
   const getPropertyValidation = (
     propertyName: string,

@@ -14,6 +14,7 @@ import React from "react";
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type TriggerPropertiesMap = Record<string, true>;
+type PropertyConfigGenerator = (props: any) => any;
 
 class WidgetFactory {
   static widgetMap: Map<
@@ -41,6 +42,10 @@ class WidgetFactory {
     Record<string, string>
   > = new Map();
   static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
+  static propertyPaneConfigsMap: Map<
+    WidgetType,
+    PropertyConfigGenerator
+  > = new Map();
 
   static registerWidgetBuilder(
     widgetType: WidgetType,
@@ -50,6 +55,7 @@ class WidgetFactory {
     triggerPropertiesMap: TriggerPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
+    propertyPaneConfig?: (props: any) => any,
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
     this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
@@ -57,6 +63,8 @@ class WidgetFactory {
     this.triggerPropertiesMap.set(widgetType, triggerPropertiesMap);
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+    propertyPaneConfig &&
+      this.propertyPaneConfigsMap.set(widgetType, propertyPaneConfig);
   }
 
   static createWidget(

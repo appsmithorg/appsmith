@@ -2,10 +2,14 @@ import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  VALIDATION_TYPES,
+} from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -14,6 +18,18 @@ const ChartComponent = lazy(() =>
     ),
   ),
 );
+type ChartSeries = { seriesName: string; data: string };
+type ChartDataType = Array<ChartSeries>;
+
+const chartDataValidator = (
+  value: ChartDataType,
+  props: WidgetProps,
+  dataTree?: DataTree,
+): ValidationResponse => ({
+  isValid: true,
+  parsed: value,
+  message: "",
+});
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -22,7 +38,100 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       yAxisName: VALIDATION_TYPES.TEXT,
       chartName: VALIDATION_TYPES.TEXT,
       isVisible: VALIDATION_TYPES.BOOLEAN,
-      chartData: VALIDATION_TYPES.CHART_DATA,
+      chartData: chartDataValidator,
+    };
+  }
+
+  static getPropertyPaneConfig(props: ChartWidgetProps) {
+    return {
+      sectionName: "General",
+      children: [
+        {
+          helpText: "Adds a title to the chart",
+          placeholderText: "Enter title",
+          propertyName: "chartName",
+          label: "Title",
+          controlType: "INPUT_TEXT",
+        },
+        {
+          helpText: "Changes the visualisation of the chart data",
+          propertyName: "chartType",
+          label: "Chart Type",
+          controlType: "DROP_DOWN",
+          options: [
+            {
+              label: "Line Chart",
+              value: "LINE_CHART",
+            },
+            {
+              label: "Bar Chart",
+              value: "BAR_CHART",
+            },
+            {
+              label: "Pie Chart",
+              value: "PIE_CHART",
+            },
+            {
+              label: "Column Chart",
+              value: "COLUMN_CHART",
+            },
+            {
+              label: "Area Chart",
+              value: "AREA_CHART",
+            },
+          ],
+          isJSConvertible: true,
+        },
+        {
+          helpText: "Populates the chart with the data",
+          propertyName: "chartData",
+          placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
+          label: "Chart Data",
+          controlType: "CONTROL_GROUP_LIST",
+          hidden: (props: ChartWidgetProps) => props.chartType === "PIE_CHART",
+          children: [
+            {
+              helpText: "Series Name",
+              propertyName: "seriesName",
+              label: "Series Name",
+              controlType: "INPUT_TEXT",
+            },
+            {
+              helpText: "Series data",
+              propertyName: "data",
+              label: "Series Data",
+              controlType: "INPUT_TEXT_AREA",
+            },
+          ],
+        },
+        {
+          helpText: "Specifies the label of the x-axis",
+          propertyName: "xAxisName",
+          placeholderText: "Enter label text",
+          label: "x-axis Label",
+          controlType: "INPUT_TEXT",
+        },
+        {
+          helpText: "Specifies the label of the y-axis",
+          propertyName: "yAxisName",
+          placeholderText: "Enter label text",
+          label: "y-axis Label",
+          controlType: "INPUT_TEXT",
+        },
+        {
+          helpText: "Enables scrolling inside the chart",
+          propertyName: "allowHorizontalScroll",
+          label: "Allow horizontal scroll",
+          controlType: "SWITCH",
+        },
+        {
+          propertyName: "isVisible",
+          label: "Visible",
+          helpText: "Controls the visibility of the widget",
+          controlType: "SWITCH",
+          isJSConvertible: true,
+        },
+      ],
     };
   }
 
