@@ -24,9 +24,15 @@ jobs:
 
     steps:
     # Checkout the code
-    - uses: actions/checkout@v2
+    - name: Checkout the merged commit from PR and base branch
+      if: ${{ github.event_name == 'pull_request_target' }}
+      uses: actions/checkout@v2
       with:
         ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+    - name: Checkout the head commit of the branch
+      if: ${{ github.event_name == 'push' }}
+      uses: actions/checkout@v2
 
     - name: Figure out the PR number
       run: echo ${{ github.event.pull_request.number }}
@@ -103,9 +109,15 @@ jobs:
 
     steps:
     # Checkout the code
-    - uses: actions/checkout@v2
+    - name: Checkout the merged commit from PR and base branch
+      if: ${{ github.event_name == 'pull_request_target' }}
+      uses: actions/checkout@v2
       with:
         ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+    - name: Checkout the head commit of the branch
+      if: ${{ github.event_name == 'push' }}
+      uses: actions/checkout@v2
 
     - name: Use Node.js 10.16.3
       uses: actions/setup-node@v1
@@ -209,9 +221,15 @@ jobs:
     steps:
     
     # Checkout the code
-    - uses: actions/checkout@v2
+    - name: Checkout the merged commit from PR and base branch
+      if: ${{ github.event_name == 'pull_request_target' }}
+      uses: actions/checkout@v2
       with:
         ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+    - name: Checkout the head commit of the branch
+      if: ${{ github.event_name == 'push' }}
+      uses: actions/checkout@v2
   
     - name: Download the react build artifact
       uses: actions/download-artifact@v2
