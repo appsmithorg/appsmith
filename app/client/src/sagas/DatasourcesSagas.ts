@@ -180,8 +180,6 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           id: response.data.id,
         },
       });
-      yield put(testDatasource(response.data));
-      yield take(ReduxActionTypes.TEST_DATASOURCE_SUCCESS);
       yield put(
         setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
       );
