@@ -6,6 +6,12 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import { User } from "../constants/userConstants";
 
+export type EventLocation =
+  | "LIGHTNING_MENU"
+  | "API_PANE"
+  | "QUERY_PANE"
+  | "QUERY_TEMPLATE";
+
 export type EventName =
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
@@ -30,7 +36,7 @@ export type EventName =
   | "PUBLISH_APP"
   | "PREVIEW_APP"
   | "EDITOR_OPEN"
-  | "CREATE_API"
+  | "CREATE_ACTION"
   | "SAVE_API"
   | "SAVE_API_CLICK"
   | "RUN_API"
@@ -58,6 +64,9 @@ export type EventName =
   | "CREATE_APP"
   | "CREATE_DATA_SOURCE_CLICK"
   | "SAVE_DATA_SOURCE"
+  | "SAVE_DATA_SOURCE_CLICK"
+  | "TEST_DATA_SOURCE_SUCCESS"
+  | "TEST_DATA_SOURCE_CLICK"
   | "CREATE_QUERY_CLICK"
   | "NAVIGATE"
   | "PAGE_LOAD"
@@ -73,7 +82,8 @@ export type EventName =
   | "WIDGET_DELETE_VIA_SHORTCUT"
   | "OPEN_HELP"
   | "INVITE_USER"
-  | "PROPERTY_PANE_CLOSE_CLICK";
+  | "PROPERTY_PANE_CLOSE_CLICK"
+  | "EXECUTE_ACTION";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
