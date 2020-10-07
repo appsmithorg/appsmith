@@ -262,7 +262,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       }
       yield put({
         type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
-        payload: response.data,
+        payload: datasource,
       });
     }
   } catch (error) {
@@ -489,7 +489,7 @@ function* fetchDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse = yield validateResponse(response, false);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS,
