@@ -62,7 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class ActionServiceTest {
     @Autowired
-    ActionService actionService;
+    NewActionService newActionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -165,7 +165,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<Action> actionMono = actionService.create(action);
+        Mono<Action> actionMono = newActionService.createAction(action);
 
         StepVerifier
                 .create(actionMono)
@@ -195,7 +195,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<Action> createActionMono = actionService.create(action).cache();
+        Mono<Action> createActionMono = newActionService.createAction(action).cache();
 
         Mono<Action> movedActionMono = createActionMono
                 .flatMap(savedAction -> {
@@ -234,7 +234,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
         Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .assertNext(createdAction -> {
@@ -255,7 +255,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setDatasource(datasource);
         Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .assertNext(createdAction -> {
@@ -277,7 +277,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
         Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -294,7 +294,7 @@ public class ActionServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -312,7 +312,7 @@ public class ActionServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -360,7 +360,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(new ActionConfiguration());
         action.getActionConfiguration().setBody("{{Input.text}}");
 
-        Action renderedAction = actionService.variableSubstitution(action, Map.of("Input.text", json));
+        Action renderedAction = newActionService.variableSubstitution(action, Map.of("Input.text", json));
         assertThat(renderedAction).isNotNull();
         assertThat(renderedAction.getActionConfiguration().getBody()).isEqualTo(json);
     }
@@ -372,7 +372,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(new ActionConfiguration());
         action.getActionConfiguration().setBody("{{Input.text}}");
 
-        Action renderedAction = actionService.variableSubstitution(action, Map.of("Input.text", "name\nvalue"));
+        Action renderedAction = newActionService.variableSubstitution(action, Map.of("Input.text", "name\nvalue"));
         assertThat(renderedAction).isNotNull();
         assertThat(renderedAction.getActionConfiguration().getBody()).isEqualTo("name\nvalue");
     }
@@ -461,7 +461,7 @@ public class ActionServiceTest {
         Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
-        Mono<ActionExecutionResult> executionResultMono = actionService.executeAction(executeActionDTO);
+        Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -500,10 +500,10 @@ public class ActionServiceTest {
         action2.setPageId(testPage.getId());
         action2.setDatasource(datasource);
 
-        Mono<List<ActionViewDTO>> actionsListMono = actionService.create(action)
-                .then(actionService.create(action1))
-                .then(actionService.create(action2))
-                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
+        Mono<List<ActionViewDTO>> actionsListMono = newActionService.createAction(action)
+                .then(newActionService.createAction(action1))
+                .then(newActionService.createAction(action2))
+                .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier
                 .create(actionsListMono)
@@ -553,7 +553,7 @@ public class ActionServiceTest {
                 .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = actionService.executeAction(executeActionDTO);
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(executeActionDTO);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -580,7 +580,7 @@ public class ActionServiceTest {
         Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = actionService.executeAction(executeActionDTO);
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(executeActionDTO);
         return actionExecutionResultMono;
     }
 }

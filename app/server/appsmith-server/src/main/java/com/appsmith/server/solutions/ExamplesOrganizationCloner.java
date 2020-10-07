@@ -12,16 +12,15 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PageRepository;
-import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
@@ -48,15 +47,14 @@ public class ExamplesOrganizationCloner {
     private final OrganizationRepository organizationRepository;
     private final DatasourceService datasourceService;
     private final PageRepository pageRepository;
-    private final ActionService actionService;
     private final DatasourceRepository datasourceRepository;
-    private final ActionRepository actionRepository;
     private final ConfigService configService;
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final ApplicationPageService applicationPageService;
     private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
+    private final NewActionService newActionService;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -204,8 +202,9 @@ public class ExamplesOrganizationCloner {
                                             : Mono.just(savedPage))
                             .flatMapMany(savedPage -> {
                                 clonedPages.add(savedPage);
-                                return actionRepository
+                                return newActionService
                                         .findByPageId(templatePageId)
+                                        .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                                         .map(action -> {
                                             log.info("Preparing action for cloning {} {}.", action.getName(), action.getId());
                                             action.setPageId(savedPage.getId());
@@ -233,7 +232,7 @@ public class ExamplesOrganizationCloner {
                         }
                     }
                     return actionMono
-                            .flatMap(actionService::create)
+                            .flatMap(newActionService::createAction)
                             .map(Action::getId)
                             .zipWith(Mono.just(originalActionId));
                 })

@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
@@ -49,8 +50,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     //TODO : Solve for this across LayoutService, PageService and ApplicationService.
     private final NewPageRepository newPageRepository;
     private final PolicyUtils policyUtils;
-    private final DatasourceService datasourceService;
     private final ConfigService configService;
+    private final NewActionService newActionService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -60,14 +61,14 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
-                                  DatasourceService datasourceService,
                                   ConfigService configService,
-                                  NewPageRepository newPageRepository) {
+                                  NewPageRepository newPageRepository,
+                                  NewActionService newActionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
-        this.datasourceService = datasourceService;
         this.configService = configService;
         this.newPageRepository = newPageRepository;
+        this.newActionService = newActionService;
     }
 
     @Override
@@ -160,7 +161,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         Mono<Application> applicationMono = findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)));
 
-        return applicationMono
+        Flux<NewPage> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
                 .flatMap(application -> {
                     List<ApplicationPage> pages = application.getPages();
@@ -213,13 +214,27 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         .map(page -> {
                             page.setPublishedPage(page.getUnpublishedPage());
                             return page;
-                        })
-                        .flatMap(newPageRepository::save))
-                /**
-                 * TODO : Publish the actions as well at this point
-                 */
+                        }))
                 .collectList()
-                .map(pages -> true);
+                .flatMapMany(newPageRepository::saveAll);
+
+        Flux<NewAction> publishedActionsFlux = newActionService
+                .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
+                .flatMap(newAction -> {
+                    // If the action was deleted in edit mode, now this can be safely deleted from the repository
+                    if (newAction.getUnpublishedAction().getDeletedAt() != null) {
+                        return newActionService.delete(newAction.getId())
+                                .then(Mono.empty());
+                    }
+                    // Publish the action by copying the unpublished actionDTO to published actionDTO
+                    newAction.setPublishedAction(newAction.getUnpublishedAction());
+                    return Mono.just(newAction);
+                })
+                .collectList()
+                .flatMapMany(actions -> newActionService.saveAll(actions));
+
+        return Mono.zip(publishApplicationAndPages.collectList(), publishedActionsFlux.collectList())
+                .map(tuple -> true);
     }
 
     @Override

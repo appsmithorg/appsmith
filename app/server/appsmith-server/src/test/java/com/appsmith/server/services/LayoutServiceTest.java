@@ -69,7 +69,7 @@ public class LayoutServiceTest {
     OrganizationService organizationService;
 
     @Autowired
-    ActionService actionService;
+    NewActionService newActionService;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -276,7 +276,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(actionService.create(action));
+                    monos.add(newActionService.createAction(action));
 
                     action = new Action();
                     action.setName("aPostAction");
@@ -284,7 +284,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(actionService.create(action));
+                    monos.add(newActionService.createAction(action));
 
                     action = new Action();
                     action.setName("aPostActionWithAutoExec");
@@ -296,7 +296,7 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
-                    monos.add(actionService.create(action));
+                    monos.add(newActionService.createAction(action));
 
                     action = new Action();
                     action.setName("aPostSecondaryAction");
@@ -304,7 +304,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(actionService.create(action));
+                    monos.add(newActionService.createAction(action));
 
                     action = new Action();
                     action.setName("aPostTertiaryAction");
@@ -313,7 +313,7 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
-                    monos.add(actionService.create(action));
+                    monos.add(newActionService.createAction(action));
 
                     action = new Action();
                     action.setName("aDeleteAction");
@@ -321,7 +321,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(actionService.create(action));
+                    monos.add(newActionService.createAction(action));
 
                     return Mono.zip(monos, objects -> page1);
                 })

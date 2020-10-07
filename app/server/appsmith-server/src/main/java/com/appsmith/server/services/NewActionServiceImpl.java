@@ -849,4 +849,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return repository.save(action);
     }
 
+    @Override
+    public Flux<NewAction> saveAll(List<NewAction> actions) {
+        return repository.saveAll(actions);
+    }
+
+    @Override
+    public Flux<NewAction> findByPageId(String pageId) {
+        return repository.findByPageId(pageId);
+    }
+
 }

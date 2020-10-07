@@ -63,7 +63,7 @@ public class DatasourceServiceTest {
     OrganizationRepository organizationRepository;
 
     @Autowired
-    ActionService actionService;
+    NewActionService newActionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -411,7 +411,7 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return actionService.create(action).thenReturn(datasource);
+                    return newActionService.createAction(action).thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.delete(datasource.getId()));
 

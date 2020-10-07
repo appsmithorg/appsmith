@@ -18,15 +18,14 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
-import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
-import com.appsmith.server.services.PageService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -88,10 +87,7 @@ public class ExamplesOrganizationClonerTests {
     private SessionUserService sessionUserService;
 
     @Autowired
-    private ActionService actionService;
-
-    @Autowired
-    private PageService pageService;
+    private NewActionService newActionService;
 
     @Autowired
     private ActionCollectionService actionCollectionService;
@@ -658,7 +654,7 @@ public class ExamplesOrganizationClonerTests {
                 .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
-                .flatMap(page -> actionService.get(new LinkedMultiValueMap<>(
+                .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
 }

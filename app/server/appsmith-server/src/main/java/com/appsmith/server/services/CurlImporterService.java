@@ -40,11 +40,11 @@ public class CurlImporterService extends BaseApiImporter {
 
     private static final String CONTENT_TYPE_URLENCODED = "application/x-www-form-urlencoded";
 
-    private final ActionService actionService;
+    private final NewActionService newActionService;
     private final PluginService pluginService;
 
-    public CurlImporterService(ActionService actionService, PluginService pluginService) {
-        this.actionService = actionService;
+    public CurlImporterService(NewActionService newActionService, PluginService pluginService) {
+        this.newActionService = newActionService;
         this.pluginService = pluginService;
     }
 
@@ -75,7 +75,7 @@ public class CurlImporterService extends BaseApiImporter {
                     datasource.setOrganizationId(orgId);
                     return Mono.just(action1);
                 })
-                .flatMap(actionService::create);
+                .flatMap(newActionService::createAction);
     }
 
     public Action curlToAction(String command, String pageId, String name) throws AppsmithException {

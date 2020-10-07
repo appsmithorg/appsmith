@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class LayoutActionServiceTest {
     @Autowired
-    ActionService actionService;
+    NewActionService newActionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -136,8 +136,8 @@ public class LayoutActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<Page> resultMono = actionService
-                .create(action)
+        Mono<Page> resultMono = newActionService
+                .createAction(action)
                 .flatMap(savedAction -> {
                     Action updates = new Action();
                     updates.setExecuteOnLoad(true);

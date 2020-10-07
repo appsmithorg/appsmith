@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
@@ -84,7 +85,7 @@ public class ApplicationServiceTest {
     PluginService pluginService;
 
     @Autowired
-    ActionService actionService;
+    NewActionService newActionService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -527,7 +528,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
 
-        Action savedAction = actionService.create(action).block();
+        Action savedAction = newActionService.createAction(action).block();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -539,14 +540,14 @@ public class ApplicationServiceTest {
         Mono<Datasource> datasourceMono = publicAppMono
                 .then(datasourceService.findById(savedDatasource.getId()));
 
-        Mono<Action> actionMono = publicAppMono
-                .then(actionService.findById(savedAction.getId()));
+        Mono<NewAction> actionMono = publicAppMono
+                .then(newActionService.findById(savedAction.getId()));
 
         StepVerifier
                 .create(Mono.zip(datasourceMono, actionMono))
                 .assertNext(tuple -> {
                     Datasource datasource1 = tuple.getT1();
-                    Action action1 = tuple.getT2();
+                    NewAction action1 = tuple.getT2();
 
                     // Check that the datasource used in the app contains public execute permission
                     assertThat(datasource1.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));

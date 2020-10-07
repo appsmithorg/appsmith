@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,4 +55,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Flux<Action> getUnpublishedActions(MultiValueMap<String, String> params);
 
     Mono<NewAction> save(NewAction action);
+
+    Flux<NewAction> saveAll(List<NewAction> actions);
+
+    Flux<NewAction> findByPageId(String pageId);
 }

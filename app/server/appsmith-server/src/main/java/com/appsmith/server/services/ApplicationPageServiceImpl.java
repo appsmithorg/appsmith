@@ -8,10 +8,12 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -51,7 +53,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final PolicyGenerator policyGenerator;
 
     private final ApplicationRepository applicationRepository;
-    private final ActionService actionService;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
 
@@ -62,7 +63,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                       AnalyticsService analyticsService,
                                       PolicyGenerator policyGenerator,
                                       ApplicationRepository applicationRepository,
-                                      ActionService actionService,
                                       NewPageService newPageService,
                                       NewActionService newActionService) {
         this.applicationService = applicationService;
@@ -72,7 +72,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         this.analyticsService = analyticsService;
         this.policyGenerator = policyGenerator;
         this.applicationRepository = applicationRepository;
-        this.actionService = actionService;
         this.newPageService = newPageService;
         this.newActionService = newActionService;
     }
@@ -345,7 +344,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         }));
 
         // This call is without
-        Flux<Action> sourceActionFlux = actionService.findByPageId(pageId, MANAGE_ACTIONS)
+        Flux<NewAction> sourceActionFlux = newActionService.findByPageId(pageId, MANAGE_ACTIONS)
                 // In case there are no actions in the page being cloned, return empty
                 .switchIfEmpty(Flux.empty());
 
@@ -378,10 +377,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(page -> {
                     String newPageId = page.getId();
                     return sourceActionFlux
-                            .flatMap(action -> {
-                                action.setId(null);
-                                action.setPageId(newPageId);
-                                return actionService.create(action);
+                            .map(action -> {
+                                ActionDTO unpublishedAction = action.getUnpublishedAction();
+                                unpublishedAction.setPageId(newPageId);
+                                return newActionService.createActionFromDTO(unpublishedAction);
                             })
                             .collectList()
                             .thenReturn(page);
@@ -473,14 +472,13 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     /**
-     * This function archives the unpublished page.
-     *
-     * TODO : Archive the unpublished actions as well using the following code fragment :
-     * Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId(), AclPermission.MANAGE_ACTIONS)
-     *                             .flatMap(action -> {
-     *                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
-     *                                 return actionRepository.archive(action);
-     *                             }).collectList();
+     * This function archives the unpublished page. This also archives the unpublished action. The reason that the
+     * entire action is not deleted at this point is to handle the following edge case :
+     * An application is published with 1 page and 1 action.
+     * Post publish, create a new page and move the action from the existing page to the new page. Now delete this newly
+     * created page.
+     * In this scenario, if we were to delete all actions associated with the page, we would end up deleting an action
+     * which is currently in published state and is being used. 
      *
      * @param id The pageId which needs to be archived.
      * @return
