@@ -39,6 +39,9 @@ public class AnalyticsService {
                         traitsMap.put("name", savedUser.getName());
                     }
                     traitsMap.put("email", savedUser.getEmail());
+                    if (savedUser.getSource() != null) {
+                        traitsMap.put("source", savedUser.getSource().toString());
+                    }
                     analytics.enqueue(IdentifyMessage.builder()
                             .userId(savedUser.getUsername())
                             .traits(traitsMap)
