@@ -4,13 +4,13 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import lombok.extern.slf4j.Slf4j;
@@ -37,14 +37,14 @@ import java.util.List;
 @RestController
 @RequestMapping(Url.ACTION_URL)
 @Slf4j
-public class ActionController extends BaseController<NewActionService, NewAction, String> {
+public class ActionController extends BaseController<ActionService, Action, String> {
 
     private final ActionCollectionService actionCollectionService;
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
 
     @Autowired
-    public ActionController(NewActionService service,
+    public ActionController(ActionService service,
                             ActionCollectionService actionCollectionService,
                             LayoutActionService layoutActionService,
                             NewActionService newActionService) {
@@ -92,7 +92,7 @@ public class ActionController extends BaseController<NewActionService, NewAction
 
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(@RequestParam String applicationId) {
-        return service.getActionsForViewMode(applicationId).collectList()
+        return newActionService.getActionsForViewMode(applicationId).collectList()
                 .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
     }
 
@@ -103,17 +103,19 @@ public class ActionController extends BaseController<NewActionService, NewAction
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
     }
 
+    @Override
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<Action>> deleteUnpublishedAction(@PathVariable String id) {
+    public Mono<ResponseDTO<Action>> delete(@PathVariable String id) {
         log.debug("Going to delete unpublished action with id: {}", id);
-        return service.deleteUnpublishedAction(id)
+        return newActionService.deleteUnpublishedAction(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
+    @Override
     @GetMapping("")
-    public Mono<ResponseDTO<List<Action>>> getAllUnpublishedActions(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<List<Action>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources");
-        return service.getUnpublishedActions(params).collectList()
+        return newActionService.getUnpublishedActions(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }

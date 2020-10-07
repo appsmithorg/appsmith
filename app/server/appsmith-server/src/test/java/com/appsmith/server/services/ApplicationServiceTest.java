@@ -615,7 +615,7 @@ public class ApplicationServiceTest {
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
-                .flatMap(application -> applicationService.publish(application.getId()))
+                .flatMap(application -> applicationPageService.publish(application.getId()))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
@@ -664,7 +664,7 @@ public class ApplicationServiceTest {
                     page.setLayouts(layouts);
                     return applicationPageService.createPage(page);
                 })
-                .flatMap(page -> applicationService.publish(page.getApplicationId()))
+                .flatMap(page -> applicationPageService.publish(page.getApplicationId()))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
@@ -710,7 +710,7 @@ public class ApplicationServiceTest {
                     page.setLayouts(layouts);
                     return applicationPageService.createPage(page);
                 })
-                .flatMap(page -> applicationService.publish(page.getApplicationId()))
+                .flatMap(page -> applicationPageService.publish(page.getApplicationId()))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
@@ -762,7 +762,7 @@ public class ApplicationServiceTest {
                     page.setLayouts(layouts);
                     return applicationPageService.createPage(page);
                 })
-                .flatMap(page -> applicationService.publish(page.getApplicationId()))
+                .flatMap(page -> applicationPageService.publish(page.getApplicationId()))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 

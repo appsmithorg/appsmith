@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -16,7 +15,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewPageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -28,17 +26,12 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
 
@@ -46,12 +39,8 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 @Service
 public class ApplicationServiceImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationService {
 
-    //Using PageRepository instead of PageService is because a cyclic dependency is introduced if PageService is used here.
-    //TODO : Solve for this across LayoutService, PageService and ApplicationService.
-    private final NewPageRepository newPageRepository;
     private final PolicyUtils policyUtils;
     private final ConfigService configService;
-    private final NewActionService newActionService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -61,14 +50,10 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
-                                  ConfigService configService,
-                                  NewPageRepository newPageRepository,
-                                  NewActionService newActionService) {
+                                  ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
-        this.newPageRepository = newPageRepository;
-        this.newActionService = newActionService;
     }
 
     @Override
@@ -148,94 +133,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.archive(application);
     }
 
-    /**
-     * This function walks through all the pages in the application. In each page, it walks through all the layouts.
-     * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
-     * the publishedDsl.
-     *
-     * @param applicationId The id of the application that will be published.
-     * @return Publishes a Boolean true, when the application has been published.
-     */
-    @Override
-    public Mono<Boolean> publish(String applicationId) {
-        Mono<Application> applicationMono = findById(applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)));
 
-        Flux<NewPage> publishApplicationAndPages = applicationMono
-                //Return all the pages in the Application
-                .flatMap(application -> {
-                    List<ApplicationPage> pages = application.getPages();
-                    if (pages == null) {
-                        pages = new ArrayList<>();
-                    }
-
-                    // This is the time to delete any page which was deleted in edit mode but still exists in the published mode
-                    List<ApplicationPage> publishedPages = application.getPublishedPages();
-                    if (publishedPages == null) {
-                        publishedPages = new ArrayList<>();
-                    }
-                    Set<String> publishedPageIds = publishedPages.stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toSet());
-                    Set<String> editedPageIds = pages.stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toSet());
-
-                    /**
-                     * Now add the published page ids and edited page ids into a single set and then remove the edited
-                     * page ids to get a set of page ids which have been deleted in the edit mode.
-                     * For example :
-                     * Published page ids : [ A, B, C ]
-                     * Edited Page ids : [ B, C, D ] aka A has been deleted and D has been added
-                     * Step 1. Add both the ids into a single set : [ A, B, C, D]
-                     * Step 2. Remove Edited Page Ids : [ A ]
-                     * Result : Page A which has been deleted in the edit mode
-                     */
-                    publishedPageIds.addAll(editedPageIds);
-                    publishedPageIds.removeAll(editedPageIds);
-
-                    Mono<List<Boolean>> archivePageListMono;
-                    if (!publishedPageIds.isEmpty()) {
-                        archivePageListMono = Flux.fromStream(publishedPageIds.stream())
-                                .flatMap(id -> newPageRepository.archiveById(id))
-                                .collectList();
-                    } else {
-                        archivePageListMono = Mono.just(new ArrayList<>());
-                    }
-
-                    application.setPublishedPages(pages);
-
-                    // Archive the deleted pages and save the application changes and then return the pages so that
-                    // the pages can also be published
-                    return Mono.zip(archivePageListMono, repository.save(application))
-                            .thenReturn(pages);
-                })
-                .flatMapMany(Flux::fromIterable)
-                //In each page, copy each layout's dsl to publishedDsl field
-                .flatMap(applicationPage -> newPageRepository
-                        .findById(applicationPage.getId())
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", applicationPage.getId())))
-                        .map(page -> {
-                            page.setPublishedPage(page.getUnpublishedPage());
-                            return page;
-                        }))
-                .collectList()
-                .flatMapMany(newPageRepository::saveAll);
-
-        Flux<NewAction> publishedActionsFlux = newActionService
-                .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
-                .flatMap(newAction -> {
-                    // If the action was deleted in edit mode, now this can be safely deleted from the repository
-                    if (newAction.getUnpublishedAction().getDeletedAt() != null) {
-                        return newActionService.delete(newAction.getId())
-                                .then(Mono.empty());
-                    }
-                    // Publish the action by copying the unpublished actionDTO to published actionDTO
-                    newAction.setPublishedAction(newAction.getUnpublishedAction());
-                    return Mono.just(newAction);
-                })
-                .collectList()
-                .flatMapMany(actions -> newActionService.saveAll(actions));
-
-        return Mono.zip(publishApplicationAndPages.collectList(), publishedActionsFlux.collectList())
-                .map(tuple -> true);
-    }
 
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {

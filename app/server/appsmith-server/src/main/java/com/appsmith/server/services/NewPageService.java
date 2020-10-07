@@ -49,4 +49,8 @@ public interface NewPageService extends CrudService<NewPage, String> {
     Mono<NewPage> save(NewPage page);
 
     Mono<NewPage> archive(NewPage page);
+
+    Mono<Boolean> archiveById(String id);
+
+    Flux<NewPage> saveAll(List<NewPage> pages);
 }

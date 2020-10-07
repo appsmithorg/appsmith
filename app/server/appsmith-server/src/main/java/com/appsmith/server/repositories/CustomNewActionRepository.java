@@ -14,6 +14,8 @@ public interface CustomNewActionRepository extends AppsmithRepository<NewAction>
 
     Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
+    Flux<NewAction> findByPageId(String pageId);
+
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
 
     Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(Set<String> names,
@@ -29,4 +31,6 @@ public interface CustomNewActionRepository extends AppsmithRepository<NewAction>
     Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
     Flux<NewAction> findByApplicationIdAndNamesAndViewMode(String applicationId, Set<String> names, Boolean viewMode, AclPermission aclPermission);
+
+    Mono<Long> countByDatasourceId(String datasourceId);
 }

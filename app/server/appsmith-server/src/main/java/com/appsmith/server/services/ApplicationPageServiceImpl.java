@@ -478,7 +478,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * Post publish, create a new page and move the action from the existing page to the new page. Now delete this newly
      * created page.
      * In this scenario, if we were to delete all actions associated with the page, we would end up deleting an action
-     * which is currently in published state and is being used. 
+     * which is currently in published state and is being used.
      *
      * @param id The pageId which needs to be archived.
      * @return
@@ -528,6 +528,95 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return pageMono
                 .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    /**
+     * This function walks through all the pages in the application. In each page, it walks through all the layouts.
+     * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
+     * the publishedDsl.
+     *
+     * @param applicationId The id of the application that will be published.
+     * @return Publishes a Boolean true, when the application has been published.
+     */
+    @Override
+    public Mono<Boolean> publish(String applicationId) {
+        Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)));
+
+        Flux<NewPage> publishApplicationAndPages = applicationMono
+                //Return all the pages in the Application
+                .flatMap(application -> {
+                    List<ApplicationPage> pages = application.getPages();
+                    if (pages == null) {
+                        pages = new ArrayList<>();
+                    }
+
+                    // This is the time to delete any page which was deleted in edit mode but still exists in the published mode
+                    List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    if (publishedPages == null) {
+                        publishedPages = new ArrayList<>();
+                    }
+                    Set<String> publishedPageIds = publishedPages.stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toSet());
+                    Set<String> editedPageIds = pages.stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toSet());
+
+                    /**
+                     * Now add the published page ids and edited page ids into a single set and then remove the edited
+                     * page ids to get a set of page ids which have been deleted in the edit mode.
+                     * For example :
+                     * Published page ids : [ A, B, C ]
+                     * Edited Page ids : [ B, C, D ] aka A has been deleted and D has been added
+                     * Step 1. Add both the ids into a single set : [ A, B, C, D]
+                     * Step 2. Remove Edited Page Ids : [ A ]
+                     * Result : Page A which has been deleted in the edit mode
+                     */
+                    publishedPageIds.addAll(editedPageIds);
+                    publishedPageIds.removeAll(editedPageIds);
+
+                    Mono<List<Boolean>> archivePageListMono;
+                    if (!publishedPageIds.isEmpty()) {
+                        archivePageListMono = Flux.fromStream(publishedPageIds.stream())
+                                .flatMap(id -> newPageService.archiveById(id))
+                                .collectList();
+                    } else {
+                        archivePageListMono = Mono.just(new ArrayList<>());
+                    }
+
+                    application.setPublishedPages(pages);
+
+                    // Archive the deleted pages and save the application changes and then return the pages so that
+                    // the pages can also be published
+                    return Mono.zip(archivePageListMono, applicationService.save(application))
+                            .thenReturn(pages);
+                })
+                .flatMapMany(Flux::fromIterable)
+                //In each page, copy each layout's dsl to publishedDsl field
+                .flatMap(applicationPage -> newPageService
+                        .findById(applicationPage.getId(), MANAGE_PAGES)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", applicationPage.getId())))
+                        .map(page -> {
+                            page.setPublishedPage(page.getUnpublishedPage());
+                            return page;
+                        }))
+                .collectList()
+                .flatMapMany(newPageService::saveAll);
+
+        Flux<NewAction> publishedActionsFlux = newActionService
+                .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
+                .flatMap(newAction -> {
+                    // If the action was deleted in edit mode, now this can be safely deleted from the repository
+                    if (newAction.getUnpublishedAction().getDeletedAt() != null) {
+                        return newActionService.delete(newAction.getId())
+                                .then(Mono.empty());
+                    }
+                    // Publish the action by copying the unpublished actionDTO to published actionDTO
+                    newAction.setPublishedAction(newAction.getUnpublishedAction());
+                    return Mono.just(newAction);
+                })
+                .collectList()
+                .flatMapMany(actions -> newActionService.saveAll(actions));
+
+        return Mono.zip(publishApplicationAndPages.collectList(), publishedActionsFlux.collectList())
+                .map(tuple -> true);
     }
 
 }

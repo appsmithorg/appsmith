@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,6 +44,16 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria pageCriteria = new Criteria().orOperator(unpublishedPageCriteria, publishedPageCriteria);
 
         return queryAll(List.of(pageCriteria), aclPermission);
+    }
+
+    @Override
+    public Flux<NewAction> findByPageId(String pageId) {
+        Criteria unpublishedPageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        Criteria publishedPageCriteria = where(fieldName(QNewAction.newAction.publishedAction.pageId)).is(pageId);
+
+        Criteria pageCriteria = new Criteria().orOperator(unpublishedPageCriteria, publishedPageCriteria);
+
+        return queryAll(List.of(pageCriteria), null);
     }
 
     @Override
@@ -169,5 +180,18 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
         }
 
         return queryAll(List.of(applicationCriteria, nameCriterion), aclPermission);
+    }
+
+    @Override
+    public Mono<Long> countByDatasourceId(String datasourceId) {
+        Criteria unpublishedDatasourceCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.datasource.id)).is(datasourceId);
+        Criteria publishedDatasourceCriteria = where(fieldName(QNewAction.newAction.publishedAction.datasource.id)).is(datasourceId);
+
+        Criteria datasourceCriteria = new Criteria().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
+
+        Query query = new Query();
+        query.addCriteria(datasourceCriteria);
+
+        return mongoOperations.count(query, "newAction");
     }
 }

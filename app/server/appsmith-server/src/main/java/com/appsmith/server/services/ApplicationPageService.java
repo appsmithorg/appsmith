@@ -31,4 +31,6 @@ public interface ApplicationPageService {
     Mono<Application> cloneApplication(String applicationId);
 
     Mono<Page> deleteUnpublishedPage(String id);
+
+    Mono<Boolean> publish(String applicationId);
 }

@@ -5,7 +5,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -29,7 +28,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -280,5 +278,15 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Mono<NewPage> archive(NewPage page) {
         return repository.archive(page);
+    }
+
+    @Override
+    public Mono<Boolean> archiveById(String id) {
+        return repository.archiveById(id);
+    }
+
+    @Override
+    public Flux<NewPage> saveAll(List<NewPage> pages) {
+        return repository.saveAll(pages);
     }
 }
