@@ -16,6 +16,49 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     super(props);
     this.onImageClick = this.onImageClick.bind(this);
   }
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Renders the url or Base64 in the widget",
+            propertyName: "image",
+            label: "Image",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter URL / Base64",
+          },
+          {
+            helpText: "Renders the url or Base64 when no image is provided",
+            propertyName: "defaultImage",
+            label: "Default Image",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter URL / Base64",
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText:
+              "Triggers an action when a user changes the selected option",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

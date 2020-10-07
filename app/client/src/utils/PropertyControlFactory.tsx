@@ -2,8 +2,8 @@ import { ControlType } from "constants/PropertyControlConstants";
 import {
   ControlBuilder,
   ControlProps,
-  ControlData,
   ControlFunctions,
+  ControlData,
 } from "components/propertyControls/BaseControl";
 
 class PropertyControlFactory {

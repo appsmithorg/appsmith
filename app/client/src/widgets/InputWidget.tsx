@@ -29,6 +29,105 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
       text: props.text,
     };
   }
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Changes the type of data captured in the input",
+            propertyName: "inputType",
+            label: "Data Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Text",
+                value: "TEXT",
+              },
+              {
+                label: "Number",
+                value: "NUMBER",
+              },
+              {
+                label: "Password",
+                value: "PASSWORD",
+              },
+              {
+                label: "Email",
+                value: "EMAIL",
+              },
+            ],
+          },
+          {
+            helpText:
+              "Sets the default text of the widget. The text is updated if the default text changes",
+            propertyName: "defaultText",
+            label: "Default Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter default text",
+          },
+          {
+            helpText: "Sets a placeholder text for the input",
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter placeholder text",
+          },
+          {
+            helpText:
+              "Adds a validation to the input which displays an error on failure",
+            propertyName: "regex",
+            label: "Regex",
+            controlType: "INPUT_TEXT",
+            placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
+            inputType: "TEXT",
+          },
+          {
+            helpText:
+              "Displays the error message if the regex validation fails",
+            propertyName: "errorMessage",
+            label: "Error Message",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter error message",
+            inputType: "TEXT",
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            helpText: "Disables input to this widget",
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the text is changed",
+            propertyName: "onTextChanged",
+            label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

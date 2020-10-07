@@ -24,6 +24,69 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     };
   }
 
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "text",
+            label: "Label",
+            helpText: "Sets the label of the button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+          },
+          {
+            propertyName: "buttonStyle",
+            label: "Button Style",
+            controlType: "DROP_DOWN",
+            helpText: "Changes the style of the button",
+            options: [
+              {
+                label: "Primary Button",
+                value: "PRIMARY_BUTTON",
+              },
+              {
+                label: "Secondary Button",
+                value: "SECONDARY_BUTTON",
+              },
+              {
+                label: "Danger Button",
+                value: "DANGER_BUTTON",
+              },
+            ],
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables clicks to this widget",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the button is clicked",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
+
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

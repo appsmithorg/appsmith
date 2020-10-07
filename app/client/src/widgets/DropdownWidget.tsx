@@ -16,6 +16,80 @@ import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText:
+              "Allows users to select either a single option or multiple options",
+            propertyName: "selectionType",
+            label: "Selection Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Single Select",
+                value: "SINGLE_SELECT",
+              },
+              {
+                label: "Multi Select",
+                value: "MULTI_SELECT",
+              },
+            ],
+          },
+          {
+            helpText:
+              "Allows users to select either a single option or multiple options. Values must be unique",
+            propertyName: "options",
+            label: "Options",
+            controlType: "INPUT_TEXT",
+            placeholderText: 'Enter [{label: "label1", value: "value2"}]',
+          },
+          {
+            helpText: "Selects the option with value by default",
+            propertyName: "defaultOptionValue",
+            label: "Default Option",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter option value",
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when a user selects an option",
+            propertyName: "onOptionChange",
+            label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

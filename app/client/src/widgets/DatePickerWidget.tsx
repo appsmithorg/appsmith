@@ -15,6 +15,85 @@ import {
 import * as Sentry from "@sentry/react";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "defaultDate",
+            label: "Default Date",
+            helpText:
+              "Sets the default date of the widget. The date is updated if the default date changes",
+            controlType: "DATE_PICKER",
+            placeholderText: "Enter Default Date",
+            isJSConvertible: true,
+          },
+          {
+            helpText: "Sets the format of the selected date",
+            propertyName: "dateFormat",
+            label: "Date Format",
+            controlType: "DROP_DOWN",
+            isJSConvertible: true,
+            options: [
+              {
+                label: "YYYY-MM-DD",
+                value: "YYYY-MM-DD",
+              },
+              {
+                label: "YYYY-MM-DD HH:mm",
+                value: "YYYY-MM-DD HH:mm",
+              },
+              {
+                label: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                value: "YYYY-MM-DDTHH:mm:ss.sssZ",
+              },
+              {
+                label: "DD/MM/YYYY",
+                value: "DD/MM/YYYY",
+              },
+              {
+                label: "DD/MM/YYYY HH:mm",
+                value: "DD/MM/YYYY HH:mm",
+              },
+            ],
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            propertyName: "onDateSelected",
+            label: "onDateSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

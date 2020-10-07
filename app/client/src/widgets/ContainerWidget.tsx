@@ -23,6 +23,36 @@ class ContainerWidget extends BaseWidget<
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
+
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "backgroundColor",
+            label: "Background Color",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+          },
+        ],
+      },
+    ];
+  }
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     return {

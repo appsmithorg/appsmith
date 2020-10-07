@@ -4,8 +4,7 @@
  */
 import { Component } from "react";
 import _ from "lodash";
-import { ControlType } from "constants/PropertyControlConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -24,26 +23,14 @@ export interface ControlBuilder<T extends ControlProps> {
 export interface ControlProps extends ControlData, ControlFunctions {
   key?: string;
 }
-
-export interface ControlData {
-  id: string;
-  label: string;
-  propertyName: string;
-  helpText?: string;
-  isJSConvertible?: boolean;
-  controlType: ControlType;
+export interface ControlData extends PropertyPaneControlConfig {
   propertyValue?: any;
   isValid: boolean;
   errorMessage?: string;
   expected: string;
   evaluatedValue: any;
   validationMessage?: string;
-  dataTreePath?: string;
-  children?: ControlData[];
-  panelProps?: boolean;
-  hidden?: (props: WidgetProps) => boolean;
 }
-
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
 }

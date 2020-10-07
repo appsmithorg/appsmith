@@ -27,6 +27,77 @@ class FormButtonWidget extends BaseWidget<
     };
   }
 
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "text",
+            label: "Label",
+            helpText: "Sets the label of the button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+          },
+          {
+            propertyName: "buttonStyle",
+            label: "Button Style",
+            helpText: "Changes the style of the button",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Primary Button",
+                value: "PRIMARY_BUTTON",
+              },
+              {
+                label: "Secondary Button",
+                value: "SECONDARY_BUTTON",
+              },
+              {
+                label: "Danger Button",
+                value: "DANGER_BUTTON",
+              },
+            ],
+          },
+          {
+            helpText:
+              "Disables the button when the parent form has a required widget that is not filled",
+            propertyName: "disabledWhenInvalid",
+            label: "Disabled Invalid Forms",
+            controlType: "SWITCH",
+          },
+          {
+            helpText:
+              "Resets the fields within the parent form when the click action succeeds",
+            propertyName: "resetFormOnClick",
+            label: "Reset Form on Success",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the button is clicked",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
+
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

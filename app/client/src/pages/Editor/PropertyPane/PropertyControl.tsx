@@ -8,7 +8,6 @@ import {
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import { WidgetProps } from "widgets/BaseWidget";
-import { PropertyControlPropsType } from "components/propertyControls";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
 import { useDispatch } from "react-redux";
@@ -18,10 +17,11 @@ import {
   updateWidgetPropertyRequest,
 } from "actions/controlActions";
 import { RenderModes } from "constants/WidgetConstants";
+import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 
 type Props = {
   widgetProperties: WidgetProps;
-  propertyConfig: PropertyControlPropsType;
+  propertyConfig: PropertyPaneControlConfig;
 };
 
 const PropertyControl = (props: Props) => {

@@ -15,6 +15,63 @@ import {
 import * as Sentry from "@sentry/react";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "label",
+            label: "Label",
+            controlType: "INPUT_TEXT",
+            helpText: "Displays a label next to the widget",
+            placeholderText: "Enter label text",
+          },
+          {
+            propertyName: "defaultCheckedState",
+            label: "Default Selected",
+            helpText:
+              "Checks / un-checks the checkbox by default. Changes to the default selection update the widget state",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables input to this widget",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the check state is changed",
+            propertyName: "onCheckChange",
+            label: "onCheckChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

@@ -10,12 +10,24 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "./ValidationFactory";
 import React from "react";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { generateReactKey } from "./generators";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type TriggerPropertiesMap = Record<string, true>;
-type PropertyConfigGenerator = (props: any) => any;
 
+const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
+  return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
+    sectionOrControlConfig.id = generateReactKey();
+    if (sectionOrControlConfig.children) {
+      sectionOrControlConfig.children = addPropertyConfigIds(
+        sectionOrControlConfig.children,
+      );
+    }
+    return sectionOrControlConfig;
+  });
+};
 class WidgetFactory {
   static widgetMap: Map<
     WidgetType,
@@ -44,7 +56,7 @@ class WidgetFactory {
   static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
   static propertyPaneConfigsMap: Map<
     WidgetType,
-    PropertyConfigGenerator
+    PropertyPaneConfig[]
   > = new Map();
 
   static registerWidgetBuilder(
@@ -55,7 +67,7 @@ class WidgetFactory {
     triggerPropertiesMap: TriggerPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
-    propertyPaneConfig?: (props: any) => any,
+    propertyPaneConfig?: PropertyPaneConfig[],
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
     this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
@@ -64,7 +76,10 @@ class WidgetFactory {
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
     propertyPaneConfig &&
-      this.propertyPaneConfigsMap.set(widgetType, propertyPaneConfig);
+      this.propertyPaneConfigsMap.set(
+        widgetType,
+        addPropertyConfigIds(propertyPaneConfig),
+      );
   }
 
   static createWidget(

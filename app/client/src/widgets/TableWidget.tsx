@@ -95,166 +95,59 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  static getPropertyPaneConfig(props: TableWidgetProps) {
+  static getPropertyPaneConfig() {
     return [
       {
+        id: "7.1",
         sectionName: "General",
         children: [
           {
-            sectionName: "Columns",
-            children: [
-              {
-                helpText: "",
-                propertyName: "columns",
-                label: "Columns",
-                controlType: "REORDER_LIST",
-                // emptyStateAction: {
-                //   action: () => void
-                //   text: ""
-                // }, // NEEDS EMPTY STATE
-                children: [
-                  {
-                    helpText: "Individual Column",
-                    controlType: "COLUMN",
-                    panelProps: {
-                      enabled: true,
-                      editableTitle: true,
-                      titlePropertyName: "columnName",
-                    },
-                    children: [
-                      {
-                        helpText: "",
-                        propertyName: "columnType",
-                        label: "Column Type",
-                        controlType: "DROP_DOWN",
-                        options: [
-                          {
-                            label: "Line Chart",
-                            value: "LINE_CHART",
-                            icon: "text",
-                            subtext: "",
-                          },
-                          {
-                            label: "Bar Chart",
-                            value: "BAR_CHART",
-                            icon: "something",
-                            subtext: "",
-                          },
-                        ],
-                        isJSConvertible: true,
-                      },
-                      {
-                        helpText: "",
-                        propertyName: "computedValue",
-                        label: "Computed Value",
-                        controlType: "INPUT_TEXT",
-                      },
-                      {
-                        helpText: "",
-                        propertyName: "serverSideFilter",
-                        label: "Server Side Filter",
-                        controlType: "SWITCH",
-                      },
-                      {
-                        helpText: "",
-                        propertyName: "serverSideSort",
-                        label: "Server Side Sort",
-                        controlType: "SWITCH",
-                      },
-                      {
-                        helpText: "",
-                        propertyName: "textColor",
-                        label: "Text Color",
-                        controlType: "COLOR_PICKER",
-                        hidden: (props: ColumnProps) =>
-                          props.columnType === ColumnTypes.VIDEO,
-                      },
-                      {
-                        helpText: "",
-                        propertyName: "textSize",
-                        label: "Text Size",
-                        controlType: "DROP_DOWN",
-                        hidden: (props: ColumnProps) =>
-                          props.columnType === ColumnTypes.VIDEO,
-                        option: [
-                          {
-                            label: "Line Chart",
-                            value: "LINE_CHART",
-                            icon: "text",
-                            subtext: "",
-                          },
-                          {
-                            label: "Bar Chart",
-                            value: "BAR_CHART",
-                            icon: "something",
-                            subtext: "",
-                          },
-                        ],
-                      },
-                      {
-                        helpText: "",
-                        propertyName: "videoURL",
-                        label: "Video URL",
-                        controlType: "INPUT_TEXT",
-                        hidden: (props: ColumnProps) =>
-                          props.columnType !== ColumnTypes.VIDEO,
-                      },
-                      {
-                        propertyPane: "inputDate",
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                helpText:
-                  "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
-                propertyName: "tableData",
-                label: "Table Data",
-                controlType: "INPUT_TEXT",
-                placeholderText: 'Enter [{ "col1": "val1" }]',
-                inputType: "ARRAY",
-              },
-              {
-                helpText:
-                  "Bind the Table.pageNo property in your API and call it onPageChange",
-                propertyName: "serverSidePaginationEnabled",
-                label: "Server Side Pagination",
-                controlType: "SWITCH",
-              },
-              {
-                helpText: "Controls the visibility of the widget",
-                propertyName: "isVisible",
-                isJSConvertible: true,
-                label: "Visible",
-                controlType: "SWITCH",
-              },
-              {
-                helpText: "Enable PDF Export",
-                propertyName: "exportPDF",
-                label: "PDF Export",
-                controlType: "SWITCH",
-              },
-              {
-                helpText: "Enable Excel Export",
-                propertyName: "exportExcel",
-                label: "Excel Export",
-                controlType: "SWITCH",
-              },
-              {
-                helpText: "Enable CSV Export",
-                propertyName: "exportCsv",
-                label: "CSV Export",
-                controlType: "SWITCH",
-              },
-            ],
+            id: "7.1.1",
+            helpText:
+              "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
+            propertyName: "tableData",
+            label: "Table Data",
+            controlType: "INPUT_TEXT",
+            placeholderText: 'Enter [{ "col1": "val1" }]',
+            inputType: "ARRAY",
+          },
+          {
+            id: "7.1.2",
+            propertyName: "defaultSearchText",
+            label: "Default Search Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter default search text",
+          },
+          {
+            id: "7.1.3",
+            helpText:
+              "Bind the Table.pageNo property in your API and call it onPageChange",
+            propertyName: "serverSidePaginationEnabled",
+            label: "Server Side Pagination",
+            controlType: "SWITCH",
+          },
+          {
+            id: "7.1.4",
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            isJSConvertible: true,
+            label: "Visible",
+            controlType: "SWITCH",
+          },
+          {
+            id: "7.1.5",
+            propertyName: "multiRowSelection",
+            label: "Enable multi row selection",
+            controlType: "SWITCH",
           },
         ],
       },
       {
+        id: "7.2",
         sectionName: "Actions",
         children: [
           {
+            id: "7.2.1",
             helpText:
               "Adds a button action for every row. Reference the Table.selectedRow property in the action",
             propertyName: "columnActions",
@@ -262,6 +155,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             controlType: "COLUMN_ACTION_SELECTOR",
           },
           {
+            id: "7.2.2",
             helpText: "Triggers an action when a table row is selected",
             propertyName: "onRowSelected",
             label: "onRowSelected",
@@ -269,9 +163,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isJSConvertible: true,
           },
           {
+            id: "7.2.3",
             helpText: "Triggers an action when a table page is changed",
             propertyName: "onPageChange",
             label: "onPageChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            id: "7.2.4",
+            propertyName: "onSearchTextChanged",
+            label: "onSearchTextChanged",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
