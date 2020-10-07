@@ -10,6 +10,7 @@ describe("Create a query with a postgres datasource, run, save and then delete t
 
     cy.getPluginFormsAndCreateDatasource();
 
+    cy.get(datasource.editDatasource).click();
     cy.fillPostgresDatasourceForm();
 
     cy.testSaveDatasource();

@@ -5,53 +5,55 @@ import { AppState } from "reducers";
 import { isNil, map, get } from "lodash";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { getDatasource } from "selectors/entitiesSelector";
+import { Colors } from "constants/Colors";
+import { HeaderIcons } from "icons/HeaderIcons";
 import history from "utils/history";
 import styled from "styled-components";
 import { createActionRequest } from "actions/actionActions";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { Datasource } from "api/DatasourcesApi";
 
 const ConnectedText = styled.div`
-  height: 120px;
-  padding: 37px 0;
-  background: radial-gradient(
-      25vh circle at center,
-      #29cca3 50%,
-      transparent 51%
-    ),
-    radial-gradient(50vh circle at center, #51d5b4 50%, transparent 51%),
-    radial-gradient(100vh circle at center, #79dfc6 50%, transparent 50.4%),
-    radial-gradient(200vh circle at center, #c9f2e8 50%, transparent 51%);
-  color: white;
+  color: ${Colors.GREEN};
   font-size: 17px;
   font-weight: bold;
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-top: 28px;
-  width: 100%;
+`;
+
+const Header = styled.div`
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const Wrapper = styled.div`
   display: flex;
-  flexdirection: column;
+  flex-direction: column;
+  border-top: 1px solid #d0d7dd;
+  border-bottom: 1px solid #d0d7dd;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  margin-top: 18px;
 `;
 
 const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 140px;
-    margin: 30px 5px;
-    min-height: 30px;
+    :30px ;
     align-self: center;
   }
 `;
 
 const Key = styled.div`
-  color: #d0d7dd;
+  color: #6d6d6d;
   font-size: 14px;
   font-weight: 500;
   display: inline-block;
+  width: 130px;
 `;
 
 const Value = styled.div`
@@ -99,29 +101,42 @@ const Connected = () => {
 
   return (
     <Wrapper>
-      <ConnectedText>Connected</ConnectedText>
-      <div style={{ marginTop: "36px" }}>
+      <Header>
+        <ConnectedText>
+          <HeaderIcons.SAVE_SUCCESS
+            color={Colors.GREEN}
+            height={30}
+            width={30}
+          />
+          <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
+        </ConnectedText>
+        <ActionButton
+          className="t--create-query"
+          icon={"plus"}
+          text="New Query"
+          filled
+          accent="primary"
+          onClick={createQueryAction}
+        />
+      </Header>
+      <div style={{ marginTop: "30px" }}>
         {!isNil(currentFormConfig)
-          ? renderMainSection(currentFormConfig[0], datasource)
+          ? renderSection(currentFormConfig[0], datasource)
           : undefined}
       </div>
-      <ActionButton
-        icon={"plus"}
-        text="New Query"
-        filled
-        accent="primary"
-        onClick={createQueryAction}
-      />
     </Wrapper>
   );
 };
 
-const renderMainSection = (section: any, datasource: any): any => {
+const renderSection = (
+  section: any,
+  datasource: Datasource | undefined,
+): any => {
   return (
     <>
       {map(section.children, subSection => {
         if ("children" in subSection) {
-          return renderMainSection(subSection, datasource);
+          return renderSection(subSection, datasource);
         } else {
           try {
             const { label, configProperty, controlType } = subSection;

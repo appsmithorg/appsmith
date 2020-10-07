@@ -146,13 +146,9 @@ export function* deleteDatasourceSaga(
       });
     }
   } catch (error) {
-    AppToaster.show({
-      message: error.message,
-      type: ToastType.ERROR,
-    });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
-      payload: { error, id: actionPayload.payload.id },
+      payload: { error, id: actionPayload.payload.id, show: false },
     });
   }
 }
@@ -182,6 +178,10 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         },
       });
       yield put(testDatasource(response.data));
+      yield take(ReduxActionTypes.TEST_DATASOURCE_SUCCESS);
+      yield put(
+        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
+      );
     }
   } catch (error) {
     yield put({
@@ -265,9 +265,6 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
           payload: response.data,
         });
-        yield put(
-          setDatsourceEditorMode({ id: datasource.id, viewMode: true }),
-        );
       }
     }
   } catch (error) {

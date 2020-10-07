@@ -330,6 +330,7 @@ class DatasourceDBEditor extends React.Component<
           </FormTitleContainer>
           {viewMode && (
             <ActionButton
+              className="t--edit-datasource"
               text="EDIT"
               accent="secondary"
               onClick={() =>

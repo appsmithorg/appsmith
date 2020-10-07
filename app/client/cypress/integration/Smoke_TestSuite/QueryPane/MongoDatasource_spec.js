@@ -9,6 +9,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
     cy.getPluginFormsAndCreateDatasource();
 
+    cy.get(datasource.editDatasource).click();
     cy.fillMongoDatasourceForm();
 
     cy.testSaveDatasource();
