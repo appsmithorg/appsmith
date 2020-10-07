@@ -357,6 +357,9 @@ function* createDatasourceFromFormSaga(
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
+      yield put(
+        setDatsourceEditorMode({ id: response.data.id, viewMode: false }),
+      );
 
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);

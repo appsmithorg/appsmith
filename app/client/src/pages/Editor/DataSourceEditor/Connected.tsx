@@ -43,7 +43,6 @@ const Wrapper = styled.div`
 const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 140px;
-    :30px ;
     align-self: center;
   }
 `;
@@ -108,7 +107,7 @@ const Connected = () => {
             height={30}
             width={30}
           />
-          <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
+          <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
         </ConnectedText>
         <ActionButton
           className="t--create-query"
@@ -144,9 +143,14 @@ const renderSection = (
 
             if (controlType === "KEYVALUE_ARRAY") {
               const configPropertyInfo = configProperty.split("[*].");
-              const values = get(datasource, configPropertyInfo[0]);
-              const keyValuePair = values[0];
-              value = keyValuePair[configPropertyInfo[1]];
+              const values = get(datasource, configPropertyInfo[0], null);
+
+              if (values) {
+                const keyValuePair = values[0];
+                value = keyValuePair[configPropertyInfo[1]];
+              } else {
+                value = "";
+              }
             }
 
             return (
