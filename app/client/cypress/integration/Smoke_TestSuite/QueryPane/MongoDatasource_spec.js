@@ -9,7 +9,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
     cy.getPluginFormsAndCreateDatasource();
 
-    cy.get(datasource.editDatasource).click();
     cy.fillMongoDatasourceForm();
 
     cy.testSaveDatasource();
@@ -45,6 +44,8 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
       cy.get(`.t--entity-name:contains(${datasourceName})`).click();
     });
+
+    cy.get(datasource.editDatasource).click();
     cy.get(".t--delete-datasource").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",

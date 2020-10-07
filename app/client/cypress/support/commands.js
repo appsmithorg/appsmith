@@ -1278,6 +1278,8 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     200,
   );
 
+  cy.get(datasourceEditor.editDatasource).click();
+
   cy.get(".t--delete-datasource").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
@@ -1383,7 +1385,7 @@ Cypress.Commands.add("createPostgresDatasource", () => {
 Cypress.Commands.add("deletePostgresDatasource", datasourceName => {
   cy.NavigateToDatasourceEditor();
   cy.get(`.t--entity-name:contains(${datasourceName})`).click();
-
+  cy.get(datasourceEditor.editDatasource).click();
   cy.get(".t--delete-datasource").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",

@@ -85,6 +85,10 @@ const Connected = () => {
           id: datasource?.id,
         },
         actionConfiguration: {},
+        eventData: {
+          actionType: "Query",
+          from: "datasource-pane",
+        },
       }),
     );
     history.push(
