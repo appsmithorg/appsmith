@@ -5,6 +5,7 @@ import {
   CreateOrganizationFormValues,
   createOrganizationSubmitHandler,
 } from "./helpers";
+import { noSpaces } from "utils/formhelpers";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import FormFooter from "components/editorComponents/form/FormFooter";
@@ -19,18 +20,19 @@ export const CreateApplicationForm = (
     onCancel: () => void;
   },
 ) => {
-  const { error, handleSubmit, pristine, submitting } = props;
+  const { error, handleSubmit, pristine, submitting, invalid } = props;
   return (
     <Form onSubmit={handleSubmit(createOrganizationSubmitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}
       <FormGroup intent={error ? "danger" : "none"} helperText={error}>
-        <TextField name="name" placeholder="Name" />
+        <TextField name="name" placeholder="Name"  validate={noSpaces}/>
       </FormGroup>
       <FormFooter
         onCancel={props.onCancel}
         divider
         data-cy="t--create-org-submit"
         submitOnEnter
+        canSubmit={!invalid}
         submitText="Submit"
         onSubmit={handleSubmit(createOrganizationSubmitHandler)}
         size="small"
