@@ -55,6 +55,12 @@ describe("Binding the multiple input Widget", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.xpath(testdata.input2)
+      .invoke("attr", "value")
+      .should("contain", testdata.defaultdata);
+    cy.reload();
+
+    /*
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
@@ -66,6 +72,7 @@ describe("Binding the multiple input Widget", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
+      */
   });
 
   it("Binding third input widget with first input widget and validating", function() {

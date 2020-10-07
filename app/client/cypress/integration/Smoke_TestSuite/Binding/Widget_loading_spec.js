@@ -67,10 +67,6 @@ describe("Binding the multiple widgets and validating default data", function() 
       "response.body.responseMeta.status",
       200,
     );
-    cy.PublishtheApp();
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
   });
 
   it("Publish App and validate loading functionalty", function() {
