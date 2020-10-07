@@ -83,3 +83,4 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
 
 ## Contributors
 
+Contributions are always welcome. Please read the [CONTRIBUTING.md](https://github.com/appsmithorg/appsmith/blob/release/CONTRIBUTING.md) before contibuting.
