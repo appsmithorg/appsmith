@@ -106,7 +106,7 @@ export const Login = (props: LoginFormProps) => {
     <AuthCardContainer>
       {showError && (
         <FormMessage
-          intent="danger"
+          intent="warning"
           message={LOGIN_PAGE_INVALID_CREDS_ERROR}
           actions={[
             {

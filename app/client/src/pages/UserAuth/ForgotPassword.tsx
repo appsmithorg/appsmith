@@ -86,7 +86,9 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
           ]}
         />
       )}
-      {submitFailed && error && <FormMessage intent="danger" message={error} />}
+      {submitFailed && error && (
+        <FormMessage intent="warning" message={error} />
+      )}
       <AuthCardHeader>
         <h1>{FORGOT_PASSWORD_PAGE_TITLE}</h1>
         <h5>{FORGOT_PASSWORD_PAGE_SUBTITLE}</h5>
