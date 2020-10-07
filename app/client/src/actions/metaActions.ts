@@ -10,15 +10,15 @@ export const updateWidgetMetaProperty = (
   widgetId: string,
   propertyName: string,
   propertyValue: any,
-): BatchAction<UpdateWidgetMetaPropertyPayload> => {
-  return batchAction({
+): ReduxAction<UpdateWidgetMetaPropertyPayload> => {
+  return {
     type: ReduxActionTypes.SET_META_PROP,
     payload: {
       widgetId,
       propertyName,
       propertyValue,
     },
-  });
+  };
 };
 
 export const resetWidgetMetaProperty = (

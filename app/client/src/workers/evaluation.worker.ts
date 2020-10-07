@@ -584,7 +584,7 @@ ctx.addEventListener("message", e => {
   const { dataTree, widgetTypeConfigMap } = e.data;
   WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
   const response = getEvaluatedDataTree(dataTree);
-  ctx.postMessage(JSON.stringify(response));
+  ctx.postMessage(response);
 });
 
 let dependencyTreeCache: any = {};
@@ -627,6 +627,8 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   // Validate Widgets
   const validated = getValidatedTree(treeWithLoading);
 
+  const withoutFunctions = removeFunctions(validated);
+
   // End counting total time
   const endStart = performance.now();
 
@@ -640,7 +642,7 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   log.debug("data tree evaluated");
   log.debug(timeTaken);
   // dataTreeCache = validated;
-  return validated;
+  return withoutFunctions;
 }
 
 const addFunctions = (dataTree: DataTree): DataTree => {
@@ -719,6 +721,13 @@ const addFunctions = (dataTree: DataTree): DataTree => {
     };
   };
   dataTree.actionPaths.push("download");
+  return dataTree;
+};
+
+const removeFunctions = (dataTree: DataTree) => {
+  dataTree.actionPaths?.forEach(functionPath => {
+    _.set(dataTree, functionPath, {});
+  });
   return dataTree;
 };
 
