@@ -4,14 +4,14 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -26,25 +26,27 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+
 @Component
 public class PolicyUtils {
 
     private final PolicyGenerator policyGenerator;
     private final ApplicationRepository applicationRepository;
-    private final ActionRepository actionRepository;
     private final DatasourceRepository datasourceRepository;
     private final NewPageRepository newPageRepository;
+    private final NewActionRepository newActionRepository;
 
     public PolicyUtils(PolicyGenerator policyGenerator,
                        ApplicationRepository applicationRepository,
-                       ActionRepository actionRepository,
                        DatasourceRepository datasourceRepository,
-                       NewPageRepository newPageRepository) {
+                       NewPageRepository newPageRepository,
+                       NewActionRepository newActionRepository) {
         this.policyGenerator = policyGenerator;
         this.applicationRepository = applicationRepository;
-        this.actionRepository = actionRepository;
         this.datasourceRepository = datasourceRepository;
         this.newPageRepository = newPageRepository;
+        this.newActionRepository = newActionRepository;
     }
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
@@ -157,6 +159,26 @@ public class PolicyUtils {
                 .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));
     }
 
+    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
+
+        return datasourceRepository
+                        .findAllByIds(ids, MANAGE_DATASOURCES)
+                        // In case we have come across a datasource the current user is not allowed to manage, move on.
+                        .switchIfEmpty(Mono.empty())
+                        .flatMap(datasource -> {
+                            Datasource updatedDatasource;
+                            if (addPolicyToObject) {
+                                updatedDatasource = addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                            } else {
+                                updatedDatasource = removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
+                            }
+
+                            return Mono.just(updatedDatasource);
+                        })
+                .collectList()
+                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
+    }
+
     public Flux<Application> updateWithNewPoliciesToApplicationsByOrgId(String orgId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
 
         return applicationRepository
@@ -196,20 +218,20 @@ public class PolicyUtils {
     }
 
     /**
-     * TODO : Instead of fetching actions by pageId, fetch actions by applicationId and then update the action policies
+     * Instead of fetching actions by pageId, fetch actions by applicationId and then update the action policies
      * using the new ActionPoliciesMap. This ensures the following :
      * 1. Instead of bulk updating actions page wise, we do bulk update of actions in one go for the entire application.
      * 2. If the action is associated with different pages (in published/unpublished page due to movement of action), fetching
      * actions by applicationId ensures that we update ALL the actions and don't have to do special handling for the same.
-     * @param pageId
+     * @param applicationId
      * @param newActionPoliciesMap
      * @param addPolicyToObject
      * @return
      */
-    public Flux<Action> updateWithPagePermissionsToAllItsActions(String pageId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+    public Flux<NewAction> updateWithPagePermissionsToAllItsActions(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
 
-        return actionRepository
-                .findByPageId(pageId, AclPermission.MANAGE_ACTIONS)
+        return newActionRepository
+                .findByApplicationId(applicationId)
                 .switchIfEmpty(Mono.empty())
                 .map(action -> {
                     if (addPolicyToObject) {
@@ -218,14 +240,8 @@ public class PolicyUtils {
                         return removePoliciesFromExistingObject(newActionPoliciesMap, action);
                     }
                 })
-                .map(action -> {
-                    if (action.getDatasource() == null) {
-                        action.setDatasource(new Datasource());
-                    }
-                    return action;
-                })
                 .collectList()
-                .flatMapMany(updatedActions -> actionRepository.saveAll(updatedActions));
+                .flatMapMany(updatedActions -> newActionRepository.saveAll(updatedActions));
     }
 
     public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,

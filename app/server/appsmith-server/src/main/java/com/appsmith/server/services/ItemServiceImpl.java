@@ -20,19 +20,19 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
     private final ApiTemplateService apiTemplateService;
-    private final ActionService actionService;
     private final PluginService pluginService;
     private final MarketplaceService marketplaceService;
+    private final NewActionService newActionService;
     private static final String RAPID_API_PLUGIN = "rapidapi-plugin";
 
     public ItemServiceImpl(ApiTemplateService apiTemplateService,
-                           ActionService actionService,
                            PluginService pluginService,
-                           MarketplaceService marketplaceService) {
+                           MarketplaceService marketplaceService,
+                           NewActionService newActionService) {
         this.apiTemplateService = apiTemplateService;
-        this.actionService = actionService;
         this.pluginService = pluginService;
         this.marketplaceService = marketplaceService;
+        this.newActionService = newActionService;
     }
 
     @Override
@@ -108,6 +108,6 @@ public class ItemServiceImpl implements ItemService {
                     action.setPluginType(plugin.getType());
                     return action;
                 })
-                .flatMap(actionService::create);
+                .flatMap(newActionService::createAction);
     }
 }

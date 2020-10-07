@@ -8,10 +8,12 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -23,6 +25,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +43,6 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 @Service
 public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationService applicationService;
-    private final PageService pageService;
     private final SessionUserService sessionUserService;
     private final OrganizationService organizationService;
     private final LayoutActionService layoutActionService;
@@ -51,9 +53,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationRepository applicationRepository;
     private final ActionService actionService;
     private final NewPageService newPageService;
+    private final NewActionService newActionService;
 
     public ApplicationPageServiceImpl(ApplicationService applicationService,
-                                      PageService pageService,
                                       SessionUserService sessionUserService,
                                       OrganizationService organizationService,
                                       LayoutActionService layoutActionService,
@@ -61,9 +63,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                       PolicyGenerator policyGenerator,
                                       ApplicationRepository applicationRepository,
                                       ActionService actionService,
-                                      NewPageService newPageService) {
+                                      NewPageService newPageService,
+                                      NewActionService newActionService) {
         this.applicationService = applicationService;
-        this.pageService = pageService;
         this.sessionUserService = sessionUserService;
         this.organizationService = organizationService;
         this.layoutActionService = layoutActionService;
@@ -72,6 +74,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         this.applicationRepository = applicationRepository;
         this.actionService = actionService;
         this.newPageService = newPageService;
+        this.newActionService = newActionService;
     }
 
     public Mono<Page> createPage(Page page) {
@@ -467,6 +470,66 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                    })
                            );
                 });
+    }
+
+    /**
+     * This function archives the unpublished page.
+     *
+     * TODO : Archive the unpublished actions as well using the following code fragment :
+     * Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId(), AclPermission.MANAGE_ACTIONS)
+     *                             .flatMap(action -> {
+     *                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
+     *                                 return actionRepository.archive(action);
+     *                             }).collectList();
+     *
+     * @param id The pageId which needs to be archived.
+     * @return
+     */
+    @Override
+    public Mono<Page> deleteUnpublishedPage(String id) {
+        Mono<Page> pageMono = newPageService.findById(id, AclPermission.MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
+                .flatMap(page -> {
+                    log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
+                    Mono<Application> applicationMono = applicationService.getById(page.getApplicationId())
+                            .flatMap(application -> {
+                                application.getPages().removeIf(p -> p.getId().equals(page.getId()));
+                                return applicationService.save(application);
+                            });
+                    Mono<NewPage> newPageMono;
+                    if (page.getPublishedPage() != null) {
+                        PageDTO unpublishedPage = page.getUnpublishedPage();
+                        unpublishedPage.setDeletedAt(Instant.now());
+                        newPageMono = newPageService.save(page);
+                    } else {
+                        // This page was never published. This can be safely archived.
+                        newPageMono = newPageService.archive(page);
+                    }
+
+                    Mono<Page> archivedPageMono = newPageMono
+                            .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
+
+                    /**
+                     *  Only delete unpublished action and not the entire action.
+                     */
+                    Mono<List<Action>> archivedActionsMono = newActionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                            .flatMap(action -> {
+                                log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
+                                return newActionService.deleteUnpublishedAction(action.getId());
+                            }).collectList();
+
+                    return Mono.zip(archivedPageMono, archivedActionsMono, applicationMono)
+                            .map(tuple -> {
+                                Page page1 = tuple.getT1();
+                                List<Action> actions = tuple.getT2();
+                                Application application = tuple.getT3();
+                                log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), application.getId());
+                                return page1;
+                            });
+                });
+
+        return pageMono
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
 }

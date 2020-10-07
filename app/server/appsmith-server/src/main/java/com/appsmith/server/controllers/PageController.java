@@ -93,7 +93,7 @@ public class PageController extends BaseController<PageService, Page, String> {
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Page>> delete(@PathVariable String id) {
         log.debug("Going to delete page with id: {}", id);
-        return newPageService.deleteUnpublishedPage(id)
+        return applicationPageService.deleteUnpublishedPage(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 

@@ -671,7 +671,7 @@ public class ApplicationServiceTest {
                 .flatMap(application -> newPageService
                         .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
-                        .flatMap(page -> newPageService.deleteUnpublishedPage(page.getId()))).block();
+                        .flatMap(page -> applicationPageService.deleteUnpublishedPage(page.getId()))).block();
 
         ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setId(newPage.getId());
@@ -769,7 +769,7 @@ public class ApplicationServiceTest {
                 .flatMap(application -> newPageService
                         .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
-                        .flatMap(page -> newPageService.deleteUnpublishedPage(page.getId()))).block();
+                        .flatMap(page -> applicationPageService.deleteUnpublishedPage(page.getId()))).block();
 
         Mono<Application> viewModeApplicationMono = applicationMono
                 .flatMap(application -> applicationService.getApplicationInViewMode(application.getId()));

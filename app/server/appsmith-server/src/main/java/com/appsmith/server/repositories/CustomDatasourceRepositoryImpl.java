@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -31,5 +32,11 @@ public class CustomDatasourceRepositoryImpl extends BaseAppsmithRepositoryImpl<D
     public Mono<Datasource> findByName(String name, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
         return queryOne(List.of(nameCriteria), aclPermission);
+    }
+
+    @Override
+    public Flux<Datasource> findAllByIds(Set<String> ids, AclPermission permission) {
+        Criteria idcriteria = where(fieldName(QDatasource.datasource.id)).in(ids);
+        return queryAll(List.of(idcriteria), permission);
     }
 }

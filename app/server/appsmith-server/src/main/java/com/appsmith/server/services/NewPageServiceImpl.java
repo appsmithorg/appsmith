@@ -2,10 +2,10 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -13,7 +13,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ActionRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -40,7 +40,7 @@ import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOl
 public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, String> implements NewPageService {
 
     private final ApplicationService applicationService;
-    private final ActionRepository actionRepository;
+    private final NewActionRepository newActionRepository;
 
     @Autowired
     public NewPageServiceImpl(Scheduler scheduler,
@@ -50,13 +50,14 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                               NewPageRepository repository,
                               AnalyticsService analyticsService,
                               ApplicationService applicationService,
-                              ActionRepository actionRepository) {
+                              NewActionRepository newActionRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationService = applicationService;
-        this.actionRepository = actionRepository;
+        this.newActionRepository = newActionRepository;
     }
 
-    private Mono<Page> getPageByViewMode(NewPage newPage, Boolean viewMode) {
+    @Override
+    public Mono<Page> getPageByViewMode(NewPage newPage, Boolean viewMode) {
         Page page = new Page();
         page.setApplicationId(newPage.getApplicationId());
         page.setUserPermissions(newPage.getUserPermissions());
@@ -158,66 +159,6 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Mono<Void> deleteAll() {
         return repository.deleteAll();
-    }
-
-    /**
-     * This function archives the unpublished page.
-     *
-     * TODO : Archive the unpublished actions as well using the following code fragment :
-     * Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId(), AclPermission.MANAGE_ACTIONS)
-     *                             .flatMap(action -> {
-     *                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
-     *                                 return actionRepository.archive(action);
-     *                             }).collectList();
-     *
-     * @param id The pageId which needs to be archived.
-     * @return
-     */
-    @Override
-    public Mono<Page> deleteUnpublishedPage(String id) {
-        Mono<Page> pageMono = repository.findById(id, AclPermission.MANAGE_PAGES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
-                .flatMap(page -> {
-                    log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
-                    Mono<Application> applicationMono = applicationService.getById(page.getApplicationId())
-                            .flatMap(application -> {
-                                application.getPages().removeIf(p -> p.getId().equals(page.getId()));
-                                return applicationService.save(application);
-                            });
-                    Mono<NewPage> newPageMono;
-                    if (page.getPublishedPage() != null) {
-                        PageDTO unpublishedPage = page.getUnpublishedPage();
-                        unpublishedPage.setDeletedAt(Instant.now());
-                        newPageMono = repository.save(page);
-                    } else {
-                        // This page was never published. This can be safely archived.
-                        newPageMono = repository.archive(page);
-                    }
-
-                    Mono<Page> archivedPageMono = newPageMono
-                            .flatMap(newPage -> getPageByViewMode(newPage, false));
-
-                    /**
-                     * TODO : Only delete unpublished action and not the entire action.
-                     */
-                    Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId(), AclPermission.MANAGE_ACTIONS)
-                                                         .flatMap(action -> {
-                                      log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
-                                      return actionRepository.archive(action);
-                                 }).collectList();
-
-                    return Mono.zip(archivedPageMono, archivedActionsMono, applicationMono)
-                            .map(tuple -> {
-                                Page page1 = tuple.getT1();
-                                List<Action> actions = tuple.getT2();
-                                Application application = tuple.getT3();
-                                log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), application.getId());
-                                return page1;
-                            });
-                });
-
-        return pageMono
-                .flatMap(analyticsService::sendDeleteEvent);
     }
 
     @Override
@@ -329,5 +270,15 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     return this.update(id, dbPage);
                 })
                 .flatMap(savedPage -> getPageByViewMode(savedPage, false));
+    }
+
+    @Override
+    public Mono<NewPage> save(NewPage page) {
+        return repository.save(page);
+    }
+
+    @Override
+    public Mono<NewPage> archive(NewPage page) {
+        return repository.archive(page);
     }
 }

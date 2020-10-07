@@ -6,10 +6,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -28,6 +29,7 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +38,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
 
@@ -256,7 +257,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 });
     }
 
-    private Mono<Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
+    private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
         AclPermission applicationPermission = READ_APPLICATIONS;
         AclPermission datasourcePermission = EXECUTE_DATASOURCES;
 
@@ -272,34 +273,34 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         Flux<NewPage> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
 
-        Flux<Action> updatedActionsFlux = updatedPagesFlux
-                .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, isPublic));
+        Flux<NewAction> updatedActionsFlux = updatedPagesFlux
+                .collectList()
+                .then(Mono.just(application.getId()))
+                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux
-                .flatMap(action -> {
-                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService
-                                .findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                                        FieldName.DATASOURCE, action.getDatasource().getId())))
-                                .map(datasource -> {
-                                    Datasource updatedDatasource;
-                                    if (isPublic) {
-                                        updatedDatasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
-                                    } else {
-                                        updatedDatasource = policyUtils.removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
-                                    }
-
-                                    return datasourceService.save(updatedDatasource);
-                                })
-                                // In case the datasource is not found, do not stop the processing for other actions.
-                                .switchIfEmpty(Mono.empty());
-                    }
-                    // In case of no datasource / embedded datasource, nothing else needs to be done here.
-                    return Mono.empty();
-                })
-                .flatMap(obj -> obj)
                 .collectList()
+                .flatMap(actions -> {
+                    Set<String> datasourceIds = new HashSet<>();
+                    for (NewAction action : actions) {
+                        ActionDTO unpublishedAction = action.getUnpublishedAction();
+                        ActionDTO publishedAction = action.getPublishedAction();
+
+                        if (unpublishedAction.getDatasource() != null &&
+                                unpublishedAction.getDatasource().getId() != null) {
+                            datasourceIds.add(unpublishedAction.getDatasource().getId());
+                        }
+
+                        if (publishedAction != null &&
+                                publishedAction.getDatasource() != null &&
+                                publishedAction.getDatasource().getId() != null) {
+                            datasourceIds.add(publishedAction.getDatasource().getId());
+                        }
+                    }
+
+                    return policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIds(datasourceIds, datasourcePolicyMap, isPublic)
+                            .collectList();
+                })
                 .thenReturn(application)
                 .flatMap(app -> {
                     Application updatedApplication;

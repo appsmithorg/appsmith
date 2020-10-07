@@ -12,6 +12,8 @@ import java.util.List;
 
 public interface NewPageService extends CrudService<NewPage, String> {
 
+    Mono<Page> getPageByViewMode(NewPage newPage, Boolean viewMode);
+
     Mono<NewPage> findById(String pageId, AclPermission aclPermission);
 
     Mono<Page> findPageById(String pageId, AclPermission aclPermission, Boolean view);
@@ -30,8 +32,6 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<Void> deleteAll();
 
-    Mono<Page> deleteUnpublishedPage(String id);
-
     Mono<ApplicationPagesDTO> findNamesByApplicationIdAndViewMode(String applicationId, Boolean view);
 
     Layout createDefaultLayout();
@@ -45,4 +45,8 @@ public interface NewPageService extends CrudService<NewPage, String> {
     Mono<List<String>> findAllPageIdsInApplication(String applicationId, AclPermission permission, Boolean view);
 
     Mono<Page> updatePage(String id, Page page);
+
+    Mono<NewPage> save(NewPage page);
+
+    Mono<NewPage> archive(NewPage page);
 }

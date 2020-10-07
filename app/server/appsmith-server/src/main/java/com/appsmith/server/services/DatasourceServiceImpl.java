@@ -35,6 +35,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -336,6 +337,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
         return repository.findAllByOrganizationId(organizationId, permission);
+    }
+
+    @Override
+    public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
+        return repository.saveAll(datasourceList);
     }
 
     @Override
