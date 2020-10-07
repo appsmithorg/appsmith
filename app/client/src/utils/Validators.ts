@@ -363,7 +363,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
-
     const isValidOption = (option: { label: any; value: any }) =>
       _.isString(option.label) &&
       _.isString(option.value) &&
@@ -377,10 +376,14 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         return false;
       }
     });
-    if (!hasOptions) {
+
+    const validOptions = parsed.filter(isValidOption)
+    const uniqValidOptions = _.uniqBy(validOptions, 'value')
+
+    if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
       return {
         isValid: false,
-        parsed: parsed.filter(isValidOption),
+        parsed: uniqValidOptions,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
