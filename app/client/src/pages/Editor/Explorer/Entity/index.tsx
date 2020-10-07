@@ -102,6 +102,7 @@ export const Entity = forwardRef(
     useEffect(() => {
       if (!!props.isDefaultExpanded) {
         open(true);
+        props.onToggle && props.onToggle();
       }
     }, [props.isDefaultExpanded]);
     useEffect(() => {
