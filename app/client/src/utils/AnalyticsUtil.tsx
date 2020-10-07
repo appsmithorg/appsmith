@@ -83,6 +83,7 @@ export type EventName =
   | "OPEN_HELP"
   | "INVITE_USER"
   | "PROPERTY_PANE_CLOSE_CLICK"
+  | "APPLICATIONS_PAGE_LOAD"
   | "EXECUTE_ACTION";
 
 function getApplicationId(location: Location) {
@@ -161,7 +162,7 @@ class AnalyticsUtil {
     })(window);
   }
 
-  static logEvent(eventName: EventName, eventData: any) {
+  static logEvent(eventName: EventName, eventData: any = {}) {
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
