@@ -488,7 +488,7 @@ function* fetchDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse = yield validateResponse(response, false);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS,
