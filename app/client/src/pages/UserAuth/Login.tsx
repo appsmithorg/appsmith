@@ -131,6 +131,7 @@ export const Login = (props: LoginFormProps) => {
               name={LOGIN_FORM_EMAIL_FIELD_NAME}
               type="email"
               placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
+              autoFocus
             />
           </FormGroup>
           <FormGroup
