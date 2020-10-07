@@ -387,6 +387,7 @@ function* handleCreateNewQueryActionSaga(
         eventData: {
           actionType: "Query",
           from: action.payload.from,
+          dataSource: validDataSources[0].name,
         },
         actionConfiguration: {},
       }),
