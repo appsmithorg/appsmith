@@ -127,14 +127,10 @@ type QueryHomeScreenProps = {
 };
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
-  handleCreateNewQuery = (dataSourceId: string, params: string) => {
+  handleCreateNewQuery = (dataSource: Datasource, params: string) => {
     const { actions, pages } = this.props;
     const pageId = new URLSearchParams(params).get("importTo");
     const page = pages.find(page => page.pageId === pageId);
-
-    AnalyticsUtil.logEvent("CREATE_QUERY_CLICK", {
-      pageName: page?.pageName ?? "",
-    });
     if (pageId) {
       const newQueryName = createNewQueryName(actions, pageId);
 
@@ -142,11 +138,12 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         name: newQueryName,
         pageId,
         datasource: {
-          id: dataSourceId,
+          id: dataSource.id,
         },
         eventData: {
           actionType: "Query",
           from: "home-screen",
+          dataSource: dataSource.name,
         },
         actionConfiguration: {},
       });
@@ -193,7 +190,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
               className="eachDatasourceCard"
               onClick={() => {
                 if (dataSources.length) {
-                  this.handleCreateNewQuery(dataSources[0].id, queryParams);
+                  this.handleCreateNewQuery(dataSources[0], queryParams);
                 } else {
                   history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
                 }
@@ -209,7 +206,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
                   className="eachDatasourceCard"
                   key={dataSource.id}
                   onClick={() =>
-                    this.handleCreateNewQuery(dataSource.id, queryParams)
+                    this.handleCreateNewQuery(dataSource, queryParams)
                   }
                 >
                   <img

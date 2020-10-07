@@ -16,9 +16,6 @@ describe("Entity explorer datasource structure", function() {
 
   it("Entity explorer datasource structure", function() {
     cy.GlobalSearchEntity(datasourceName);
-    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
-      .find(explorer.collapse)
-      .click();
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
