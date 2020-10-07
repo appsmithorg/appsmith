@@ -82,8 +82,8 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
       );
 
       AnalyticsUtil.logEvent("CREATE_ACTION", {
-        apiId: response.data.id,
-        apiName: response.data.name,
+        id: response.data.id,
+        actionName: response.data.name,
         pageName: pageName,
         ...actionPayload.payload.eventData,
       });
