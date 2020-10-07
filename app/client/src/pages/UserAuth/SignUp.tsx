@@ -130,6 +130,7 @@ export const SignUp = (props: SignUpFormProps) => {
               name="email"
               type="email"
               placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
+              autoFocus
             />
           </FormGroup>
           <FormGroup

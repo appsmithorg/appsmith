@@ -15,7 +15,6 @@ import {
 import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
 import _ from "lodash";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { UserApplication } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getActionById,
@@ -33,6 +32,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -44,7 +44,7 @@ interface ReduxStateProps {
   isDeleting: boolean;
   isCreating: boolean;
   apiName: string;
-  currentApplication: UserApplication;
+  currentApplication?: ApplicationPayload;
   currentPageName: string | undefined;
   pages: any;
   plugins: Plugin[];

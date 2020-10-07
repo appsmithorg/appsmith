@@ -55,6 +55,10 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
           datasource: {
             id: props.datasourceId,
           },
+          eventData: {
+            actionType: "Query",
+            from: "explorer-template",
+          },
           ...queryactionConfiguration,
         }),
       );
