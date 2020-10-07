@@ -257,7 +257,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       }
       yield put({
         type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
-        payload: response.data,
+        payload: datasource,
       });
     }
   } catch (error) {
