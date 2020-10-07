@@ -18,6 +18,7 @@ type InputComponentProps = {
   type?: InputType;
   intent?: Intent;
   disabled?: boolean;
+  autoFocus?: boolean;
 };
 
 const InputComponent = (props: InputComponentProps) => {
@@ -28,6 +29,7 @@ const InputComponent = (props: InputComponentProps) => {
       placeholder={props.placeholder}
       type={props.type}
       intent={props.intent as BlueprintIntent}
+      autoFocus={props.autoFocus}
     />
   );
 };
