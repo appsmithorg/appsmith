@@ -30,7 +30,7 @@ const getErrorMessage = (code: number) => {
   }
 };
 
-export function* validateResponse(response: ApiResponse | any) {
+export function* validateResponse(response: ApiResponse | any, show = true) {
   if (!response) {
     throw Error("");
   }
@@ -47,7 +47,7 @@ export function* validateResponse(response: ApiResponse | any) {
       type: ReduxActionErrorTypes.API_ERROR,
       payload: {
         error: response.responseMeta.error,
-        show: true,
+        show,
       },
     });
     throw Error(response.responseMeta.error.message);

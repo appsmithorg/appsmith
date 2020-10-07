@@ -33,7 +33,6 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
-import { clearPropertyCache } from "utils/DynamicBindingUtils";
 
 /***
  * BaseWidget
@@ -113,15 +112,6 @@ abstract class BaseWidget<
     const { widgetId } = this.props;
     updateWidgetProperty &&
       updateWidgetProperty(widgetId, propertyName, propertyValue);
-  }
-
-  updateWidgetMetaProperty(propertyName: string, propertyValue: any): void {
-    const { updateWidgetMetaProperty } = this.context;
-    const { widgetId } = this.props;
-    // Whenever this value updates, we need to clear cache to handle correct evaluation
-    clearPropertyCache(`${this.props.widgetName}.${propertyName}`);
-    updateWidgetMetaProperty &&
-      updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
   }
 
   resetChildrenMetaProperty(widgetId: string) {

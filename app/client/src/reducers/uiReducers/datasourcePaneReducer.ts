@@ -9,6 +9,7 @@ const initialState: DatasourcePaneReduxState = {
   datasourceRefs: {},
   drafts: {},
   actionRouteInfo: {},
+  expandDatasourceId: "",
   newDatasource: "",
 };
 
@@ -16,6 +17,7 @@ export interface DatasourcePaneReduxState {
   selectedPlugin: string;
   datasourceRefs: {};
   drafts: Record<string, Datasource>;
+  expandDatasourceId: string;
   actionRouteInfo: Partial<{
     apiId: string;
     datasourceId: string;
@@ -104,10 +106,21 @@ const datasourcePaneReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
     state: DatasourcePaneReduxState,
+    action: ReduxAction<Datasource>,
   ) => {
     return {
       ...state,
       newDatasource: "",
+      expandDatasourceId: action.payload.id,
+    };
+  },
+  [ReduxActionTypes.TEST_DATASOURCE_SUCCESS]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<Datasource>,
+  ) => {
+    return {
+      ...state,
+      expandDatasourceId: action.payload.id,
     };
   },
 });
