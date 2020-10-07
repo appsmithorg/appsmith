@@ -108,7 +108,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           "selectedOptionValue",
           selectedOption.value,
           {
-            dynamicString: this.props.onOptionChange,
+            triggers: this.props.onOptionChange,
             event: {
               type: EventType.ON_OPTION_CHANGE,
             },
