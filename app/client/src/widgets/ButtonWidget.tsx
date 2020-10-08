@@ -69,6 +69,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         widgetName={this.props.widgetName}
         text={this.props.text}
         disabled={this.props.isDisabled}
+        googleRecaptchaKey={this.props.googleRecaptchaKey}
+        googleRecaptchaSecret={this.props.googleRecaptchaSecret}
         onClick={this.onButtonClickBound}
         isLoading={this.props.isLoading || this.state.isLoading}
         type={this.props.buttonType || ButtonType.BUTTON}
@@ -94,6 +96,8 @@ export interface ButtonWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   buttonType?: ButtonType;
+  googleRecaptchaKey?: string;
+  googleRecaptchaSecret?: string;
 }
 
 interface ButtonWidgetState extends WidgetState {

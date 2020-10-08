@@ -954,6 +954,22 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             helpText: "Disables clicks to this widget",
             isJSConvertible: true,
           },
+          {
+            id: "1.1.4",
+            propertyName: "googleRecaptchaKey",
+            label: "Google Recaptcha Key",
+            helpText: "Sets Google Recaptcha Key v3 for button.",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter google recaptcha key",
+          },
+          {
+            id: "1.1.4",
+            propertyName: "googleRecaptchaSecret",
+            label: "Google Recaptcha Secret",
+            helpText: "Sets Google Recaptcha secret v3 for button.",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter google recaptcha Secret",
+          },
         ],
       },
       {
