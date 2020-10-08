@@ -142,6 +142,13 @@ const DropdownStyles = createGlobalStyle`
       }
     }
   }
+  .bp3-popover-wrapper {
+    &.ifupwd {
+      div {
+        height: auto;
+      }
+    }
+  }
 `;
 
 const DropdownContainer = styled.div`
@@ -259,7 +266,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               disabled={this.props.disabled}
               popoverProps={{
                 minimal: true,
-                usePortal: true,
+                usePortal: false,
                 popoverClassName: "select-popover-wrapper",
               }}
               itemListPredicate={this.itemListPredicate}
@@ -303,7 +310,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               onItemSelect={this.onItemSelect}
               popoverProps={{
                 minimal: true,
-                usePortal: true,
+                usePortal: false,
                 popoverClassName: "select-popover-wrapper",
               }}
               width={this.props.width}
