@@ -4,9 +4,13 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import {
+  getDataTree,
+  getUnevaluatedDataTree,
+} from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import Worker from "worker-loader!../workers/evaluation.worker";
+import { EVAL_WORKER_ACTIONS } from "./SagaUtils";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
@@ -27,6 +31,7 @@ const initEvaluationWorkers = () => {
 function* evaluateTreeSaga() {
   const unEvalTree = yield select(getUnevaluatedDataTree);
   evaluationWorker.postMessage({
+    action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     dataTree: unEvalTree,
     widgetTypeConfigMap,
   });
@@ -36,6 +41,39 @@ function* evaluateTreeSaga() {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: evalTree,
   });
+}
+
+export function* evaluateSingleValue(binding: string) {
+  if (evaluationWorker) {
+    const evalTree = yield select(getDataTree);
+    evaluationWorker.postMessage({
+      action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
+      dataTree: evalTree,
+      binding,
+    });
+    const workerResponse = yield take(workerChannel);
+    return workerResponse.data;
+  }
+}
+
+export function* clearEvalCache() {
+  if (evaluationWorker) {
+    evaluationWorker.postMessage({
+      action: EVAL_WORKER_ACTIONS.CLEAR_CACHE,
+    });
+    yield take(workerChannel);
+    return true;
+  }
+}
+
+export function* clearEvalPropertyCache(propertyPath: string) {
+  if (evaluationWorker) {
+    evaluationWorker.postMessage({
+      action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE,
+      propertyPath,
+    });
+    yield take(workerChannel);
+  }
 }
 
 const EVALUATE_REDUX_ACTIONS = [
@@ -65,7 +103,7 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_LAYOUT,
   // ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   // Widget Meta
-  ReduxActionTypes.SET_META_PROP,
+  // ReduxActionTypes.SET_META_PROP,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
 ];

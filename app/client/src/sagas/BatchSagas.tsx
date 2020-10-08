@@ -5,6 +5,10 @@ import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { batchActionSuccess } from "../actions/batchActions";
 
 const BATCH_PRIORITY = {
+  [ReduxActionTypes.SET_META_PROP]: {
+    priority: 0,
+    needsSaga: false,
+  },
   [ReduxActionTypes.RESET_WIDGET_META]: {
     priority: 0,
     needsSaga: false,

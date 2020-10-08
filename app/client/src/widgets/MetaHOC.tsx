@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
-import { clearPropertyCache } from "../utils/DynamicBindingUtils";
+import { clearEvalPropertyCache } from "sagas/evaluationsSaga";
 import { ExecuteActionPayload } from "../constants/ActionConstants";
 import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
@@ -87,7 +87,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       [...this.updatedProperties.keys()].forEach(propertyName => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];
-          clearPropertyCache(`${widgetName}.${propertyName}`);
+          clearEvalPropertyCache(`${widgetName}.${propertyName}`);
           updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
           this.updatedProperties.delete(propertyName);
         }

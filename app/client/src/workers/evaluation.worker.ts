@@ -34,6 +34,7 @@ import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
 import { WIDGET_TYPE_VALIDATION_ERROR } from "../constants/messages";
 import moment from "moment";
+import { EVAL_WORKER_ACTIONS } from "sagas/SagaUtils";
 
 const ctx: Worker = self as any;
 
@@ -581,10 +582,32 @@ const VALIDATORS: Record<ValidationType, Validator> = {
 let WIDGET_TYPE_CONFIG_MAP: WidgetTypeConfigMap = {};
 
 ctx.addEventListener("message", e => {
-  const { dataTree, widgetTypeConfigMap } = e.data;
-  WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
-  const response = getEvaluatedDataTree(dataTree);
-  ctx.postMessage(response);
+  const { action, ...rest } = e.data;
+
+  switch (action as EVAL_WORKER_ACTIONS) {
+    case EVAL_WORKER_ACTIONS.EVAL_TREE: {
+      const { widgetTypeConfigMap, dataTree } = rest;
+      WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
+      const response = getEvaluatedDataTree(dataTree);
+      ctx.postMessage(response);
+      break;
+    }
+    case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
+      const { binding, dataTree } = rest;
+      const withFunctions = addFunctions(dataTree);
+      const singleValue = getDynamicValue(binding, withFunctions, false);
+      ctx.postMessage(singleValue);
+      break;
+    }
+    case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
+      clearCaches();
+      break;
+    }
+    case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
+      const { propertyPath } = rest;
+      clearPropertyCache(propertyPath);
+    }
+  }
 });
 
 let dependencyTreeCache: any = {};
@@ -1468,4 +1491,10 @@ const validateWidgetProperty = (
   } else {
     return { isValid: true, parsed: value };
   }
+};
+
+export const clearCaches = () => {
+  dynamicPropValueCache.clear();
+  dependencyCache.clear();
+  parsedValueCache.clear();
 };
