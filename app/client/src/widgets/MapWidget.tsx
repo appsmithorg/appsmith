@@ -66,7 +66,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   };
 
   updateMarker = (lat: number, long: number, index: number) => {
-    const markers: Array<MarkerProps> = [...this.props.markers];
+    const markers: Array<MarkerProps> = [...(this.props.markers || [])];
     this.disableDrag(false);
     this.updateWidgetMetaProperty(
       "markers",

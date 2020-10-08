@@ -53,8 +53,8 @@ type RenderComponentProps = {
   length: number;
   isValid: boolean;
   validationMessage: string;
-  deleteOption: Function;
-  updateOption: Function;
+  deleteOption: (index: number) => void;
+  updateOption: (index: number, key: string, value: unknown) => void;
   evaluated: {
     seriesName: string;
     data: Array<{ x: string; y: string }> | any;
@@ -256,14 +256,15 @@ class ChartDataControl extends BaseControl<ControlProps> {
       data: string;
     }> = this.props.propertyValue;
     const updatedChartData = chartData.map((item, i) => {
+      const _item = { ...item };
       if (index === i) {
         if (propertyName === "seriesName") {
-          item.seriesName = updatedValue;
+          _item.seriesName = updatedValue;
         } else {
-          item.data = updatedValue;
+          _item.data = updatedValue;
         }
       }
-      return item;
+      return _item;
     });
     this.updateProperty(this.props.propertyName, updatedChartData);
   };

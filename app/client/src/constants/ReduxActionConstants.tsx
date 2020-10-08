@@ -478,7 +478,7 @@ export interface LoadWidgetSidebarPayload {
 
 export type SavePagePayload = Record<string, unknown>;
 export type SavePageErrorPayload = Record<string, unknown>;
-export type SavePageSuccessPayload = Record<string, unknown>;
+export type SavePageSuccessPayload = unknown;
 
 export type InitializeEditorPayload = {
   applicationId: string;

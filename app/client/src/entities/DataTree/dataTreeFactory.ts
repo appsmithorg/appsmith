@@ -219,10 +219,9 @@ export class DataTreeFactory {
 
     dataTree.pageList = pageList;
     dataTree.actionPaths = actionPaths;
-    dataTree.appsmith = {
-      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
-      ...appData,
-    };
+
+    dataTree.appsmith = { ...appData } as DataTreeAppsmith;
+    (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     return dataTree;
   }
 }

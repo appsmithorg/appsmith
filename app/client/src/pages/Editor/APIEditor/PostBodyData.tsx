@@ -52,11 +52,12 @@ interface PostDataProps {
   actionConfiguration: any;
   displayFormat: any;
   actionConfigurationHeaders?: any;
+  change: any;
   onDisplayFormatChange: (headers: any[]) => void;
   apiId: string;
   setDisplayFormat: (
     apiId: string,
-    option: { label: string; value: string },
+    displayFormat: { label: string; value: string },
   ) => void;
   dataTreePath: string;
 }
@@ -176,7 +177,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(
       change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", value),
     ),
-  setDisplayFormat: (id: string, displayFormat: string) => {
+  setDisplayFormat: (
+    id: string,
+    displayFormat: { label: string; value: string },
+  ) => {
     dispatch({
       type: ReduxActionTypes.SET_EXTRA_FORMDATA,
       payload: {

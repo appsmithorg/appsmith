@@ -23,6 +23,7 @@ import { Action } from "entities/Action";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+
 type StringTuple = [string, string];
 
 export const removeBindingsFromActionObject = (obj: Action) => {
