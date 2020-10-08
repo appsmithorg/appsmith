@@ -40,6 +40,7 @@ public enum AppsmithError {
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} with id {1}"),
     ACL_NO_RESOURCE_FOUND(404, 4028, "Unable to find {0} with id {1}. Either the asset doesn't exist or you don't have required permissions"),
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}"),
+    VALIDATION_FAILURE(400, 4028, "Validation Failure(s): {0}"),
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import."),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again."),
@@ -57,9 +58,9 @@ public enum AppsmithError {
     ;
 
 
-    private Integer httpErrorCode;
-    private Integer appErrorCode;
-    private String message;
+    private final Integer httpErrorCode;
+    private final Integer appErrorCode;
+    private final String message;
 
     AppsmithError(Integer httpErrorCode, Integer appErrorCode, String message, Object... args) {
         this.httpErrorCode = httpErrorCode;
