@@ -2,12 +2,14 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
@@ -19,8 +21,6 @@ import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.awssdk.services.dynamodb.model.ListTablesRequest;
 import software.amazon.awssdk.services.dynamodb.model.ListTablesResponse;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,18 +37,12 @@ public class DynamoPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class DynamoPluginExecutor implements PluginExecutor<Connection> {
+    public static class DynamoPluginExecutor implements PluginExecutor<DynamoDbClient> {
 
         @Override
-        public Mono<ActionExecutionResult> execute(Connection connection,
+        public Mono<ActionExecutionResult> execute(DynamoDbClient ddb,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-
-            DynamoDbClient ddb = DynamoDbClient.builder()
-                    .region(Region.AP_SOUTH_1)
-                    .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("", "")))
-                    .build();
-
             boolean moreTables = true;
             String lastName = null;
 
@@ -93,18 +87,24 @@ public class DynamoPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.empty();
+        public Mono<DynamoDbClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            if (authentication == null) {
+                return Mono.empty();
+            }
+
+            DynamoDbClient ddb = DynamoDbClient.builder()
+                    .region(Region.of(authentication.getDatabaseName()))
+                    .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(authentication.getUsername(), authentication.getPassword())))
+                    .build();
+
+            return Mono.justOrEmpty(ddb);
         }
 
         @Override
-        public void datasourceDestroy(Connection connection) {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                log.error("Error closing Dynamo Connection.", e);
+        public void datasourceDestroy(DynamoDbClient client) {
+            if (client != null) {
+                client.close();
             }
         }
 
@@ -117,7 +117,16 @@ public class DynamoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.just(new DatasourceTestResult());
+            return datasourceCreate(datasourceConfiguration)
+                .map(client -> {
+                    client.close();
+                    return true;
+                })
+                .defaultIfEmpty(false)
+                .map(isValid -> BooleanUtils.isTrue(isValid)
+                        ? new DatasourceTestResult()
+                        : new DatasourceTestResult("Unable to create DynamoDB Client.")
+                );
         }
 
     }
