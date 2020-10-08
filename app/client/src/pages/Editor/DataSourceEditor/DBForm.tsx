@@ -45,7 +45,7 @@ interface DatasourceDBEditorProps {
 }
 
 interface DatasourceDBEditorState {
-  isNameEditable: boolean;
+  viewMode: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -133,7 +133,7 @@ class DatasourceDBEditor extends React.Component<
     super(props);
 
     this.state = {
-      isNameEditable: true,
+      viewMode: true,
     };
     this.requiredFields = {};
     this.configDetails = {};
@@ -143,6 +143,14 @@ class DatasourceDBEditor extends React.Component<
     if (prevProps.datasourceId !== this.props.datasourceId) {
       this.requiredFields = {};
       this.configDetails = {};
+      this.setState({
+        viewMode: true,
+      });
+    }
+    if (!this.state.viewMode && this.props.viewMode) {
+      this.setState({
+        viewMode: true,
+      });
     }
   }
 
@@ -304,8 +312,8 @@ class DatasourceDBEditor extends React.Component<
       isDeleting,
       datasourceId,
       handleDelete,
-      viewMode,
     } = this.props;
+    const { viewMode } = this.state;
 
     return (
       <form
@@ -340,12 +348,15 @@ class DatasourceDBEditor extends React.Component<
               className="t--edit-datasource"
               text="EDIT"
               accent="secondary"
-              onClick={() =>
+              onClick={() => {
+                this.setState({
+                  viewMode: false,
+                });
                 this.props.setDatasourceEditorMode(
                   this.props.datasourceId,
                   false,
-                )
-              }
+                );
+              }}
             />
           )}
         </Header>
