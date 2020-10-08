@@ -3,15 +3,26 @@ import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearPropertyCache } from "../utils/DynamicBindingUtils";
+import { ExecuteActionPayload } from "../constants/ActionConstants";
+
+type DebouncedExecuteActionPayload = Omit<
+  ExecuteActionPayload,
+  "dynamicString"
+> & { dynamicString?: string };
 
 export interface WithMeta {
-  updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
+  updateWidgetMetaProperty: (
+    propertyName: string,
+    propertyValue: any,
+    actionExecution?: DebouncedExecuteActionPayload,
+  ) => void;
 }
 
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
   return class MetaHOC extends React.Component<WidgetProps, any> {
     static contextType = EditorContext;
     updatedProperties = new Map<string, true>();
+    propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
 
     debouncedHandleUpdateWidgetMetaProperty = _.debounce(
       this.handleUpdateWidgetMetaProperty.bind(this),
@@ -49,26 +60,45 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     updateWidgetMetaProperty = (
       propertyName: string,
       propertyValue: any,
+      actionExecution?: DebouncedExecuteActionPayload,
     ): void => {
-      this.setState({
-        [propertyName]: propertyValue,
-      });
       this.updatedProperties.set(propertyName, true);
-      this.debouncedHandleUpdateWidgetMetaProperty();
+      if (actionExecution) {
+        this.propertyTriggers.set(propertyName, actionExecution);
+      }
+      this.setState(
+        {
+          [propertyName]: propertyValue,
+        },
+        () => {
+          this.debouncedHandleUpdateWidgetMetaProperty();
+        },
+      );
     };
 
     handleUpdateWidgetMetaProperty() {
-      const { updateWidgetMetaProperty } = this.context;
+      const { updateWidgetMetaProperty, executeAction } = this.context;
       const { widgetId, widgetName } = this.props;
       // We have kept a map of all updated properties. After debouncing we will
       // go through these properties and update with the final value. This way
       // we will only update a certain property once per debounce interval.
+      // Then we will execute any action associated with the trigger of
+      // that value changing
       [...this.updatedProperties.keys()].forEach(propertyName => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];
           clearPropertyCache(`${widgetName}.${propertyName}`);
           updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
           this.updatedProperties.delete(propertyName);
+        }
+        const debouncedPayload = this.propertyTriggers.get(propertyName);
+        if (
+          debouncedPayload &&
+          debouncedPayload.dynamicString &&
+          executeAction
+        ) {
+          executeAction(debouncedPayload);
+          this.propertyTriggers.delete(propertyName);
         }
       });
     }
