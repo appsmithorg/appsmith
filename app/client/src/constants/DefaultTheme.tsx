@@ -564,8 +564,8 @@ type ColorType = {
     placeholder: ShadeColor;
     readOnly: {
       bg: ShadeColor;
-      text: ShadeColor;
       border: ShadeColor;
+      text: ShadeColor;
     };
   };
   menuBorder: ShadeColor;
@@ -822,8 +822,8 @@ export const dark: ColorType = {
     placeholder: darkShades[5],
     readOnly: {
       bg: darkShades[0],
-      text: darkShades[7],
       border: darkShades[0],
+      text: darkShades[7],
     },
   },
   menuBorder: darkShades[4],
@@ -1080,8 +1080,8 @@ export const light: ColorType = {
     placeholder: lightShades[7],
     readOnly: {
       bg: lightShades[2],
-      text: lightShades[7],
       border: lightShades[2],
+      text: lightShades[7],
     },
   },
   menuBorder: lightShades[3],
