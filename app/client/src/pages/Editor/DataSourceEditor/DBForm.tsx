@@ -256,7 +256,7 @@ class DatasourceDBEditor extends React.Component<
         if (newValues.length) {
           formData = _.set(formData, properties[0], newValues);
         } else {
-          _.unset(formData, properties[0]);
+          formData = _.set(formData, properties[0], []);
         }
       } else if (controlType === "KEY_VAL_INPUT") {
         if (checked[configProperty]) continue;
@@ -277,7 +277,7 @@ class DatasourceDBEditor extends React.Component<
         if (newValues.length) {
           formData = _.set(formData, configProperty, newValues);
         } else {
-          _.unset(formData, configProperty);
+          formData = _.set(formData, configProperty, []);
         }
       }
     }

@@ -4,16 +4,21 @@ import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { isNil, map, get } from "lodash";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import { getDatasource } from "selectors/entitiesSelector";
+import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import history from "utils/history";
 import styled from "styled-components";
 import { createActionRequest } from "actions/actionActions";
-import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
-import { createNewQueryName } from "utils/AppsmithUtils";
+import {
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+} from "constants/routes";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { Datasource } from "api/DatasourcesApi";
+import { DEFAULT_API_ACTION } from "constants/ApiEditorConstants";
+import { PluginType } from "entities/Action";
 
 const ConnectedText = styled.div`
   color: ${Colors.GREEN};
@@ -52,13 +57,18 @@ const Key = styled.div`
   font-size: 14px;
   font-weight: 500;
   display: inline-block;
-  width: 130px;
 `;
 
 const Value = styled.div`
   font-size: 14px;
   font-weight: 400;
   display: inline-block;
+  margin-left: 5px;
+`;
+
+const ValueWrapper = styled.div`
+  display: inline-block;
+  margin-left: 10px;
 `;
 
 const Connected = () => {
@@ -72,6 +82,10 @@ const Connected = () => {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
+  const plugin = useSelector((state: AppState) =>
+    getPlugin(state, datasource?.pluginId ?? ""),
+  );
+  const isDBDatasource = plugin?.type === PluginType.DB;
 
   const createQueryAction = useCallback(() => {
     const newQueryName = createNewQueryName(actions, currentPageId || "");
@@ -99,6 +113,33 @@ const Connected = () => {
       ),
     );
   }, [dispatch, actions, currentPageId, params.applicationId, datasource]);
+
+  const createApiAction = useCallback(() => {
+    const newApiName = createNewApiName(actions, currentPageId || "");
+
+    dispatch(
+      createActionRequest({
+        ...DEFAULT_API_ACTION,
+        name: newApiName,
+        pageId: currentPageId,
+        pluginId: datasource?.pluginId,
+        datasource: {
+          id: datasource?.id,
+        },
+        eventData: {
+          actionType: "API",
+          from: "datasource-pane",
+        },
+      }),
+    );
+    history.push(
+      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+        params.applicationId,
+        currentPageId,
+        currentPageId,
+      ),
+    );
+  }, [dispatch, actions, currentPageId, params.applicationId, datasource]);
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
 
@@ -116,10 +157,10 @@ const Connected = () => {
         <ActionButton
           className="t--create-query"
           icon={"plus"}
-          text="New Query"
+          text={isDBDatasource ? "New Query" : "New API"}
           filled
           accent="primary"
-          onClick={createQueryAction}
+          onClick={isDBDatasource ? createQueryAction : createApiAction}
         />
       </Header>
       <div style={{ marginTop: "30px" }}>
@@ -155,6 +196,28 @@ const renderSection = (
               } else {
                 value = "";
               }
+            }
+
+            if (controlType === "KEY_VAL_INPUT") {
+              return (
+                <div style={{ marginTop: 9 }}>
+                  <Key>{label}</Key>
+                  {value.map((val: { key: string; value: string }) => {
+                    return (
+                      <div key={val.key}>
+                        <div style={{ display: "inline-block" }}>
+                          <Key>Key: </Key>
+                          <Value>{val.key}</Value>
+                        </div>
+                        <ValueWrapper>
+                          <Key>Value: </Key>
+                          <Value>{val.value}</Value>
+                        </ValueWrapper>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
             }
 
             return (
