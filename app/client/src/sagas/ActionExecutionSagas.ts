@@ -162,6 +162,7 @@ function* downloadSaga(
       downloadjs(data, name, type);
     }
     if (event.callback) event.callback({ success: true });
+    yield;
   } catch (err) {
     AppToaster.show({
       message: `Download failed. ${err}`,

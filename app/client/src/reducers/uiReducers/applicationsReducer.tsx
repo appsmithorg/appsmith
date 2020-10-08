@@ -217,7 +217,36 @@ export interface ApplicationsReduxState {
   deletingApplication: boolean;
   duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
-  userOrgs: any;
+  userOrgs: Organization[];
+}
+
+// export interface Organization {
+//   id: string;
+//   name: string;
+//   userPermissions: string[];
+//   plugins: Array<{
+//     userPermissions: string[];
+//     pluginId: string;
+//     status: string;
+//     new: boolean;
+//   }>;
+//   organizationSettings: {
+//     slug: string;
+//     logoUrl: string;
+//     new: boolean;
+//   };
+// }
+export interface Application {
+  id: string;
+  name: string;
+  organizationId: string;
+  isPublic: boolean;
+  appIsExample: boolean;
+  new: boolean;
+  pageCount: number;
+  defaultPageId: string;
+  pages: Array<{ id: string; isDefault: boolean; default: boolean }>;
+  userPermissions: string[];
 }
 
 export default applicationsReducer;

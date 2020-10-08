@@ -35,7 +35,7 @@ interface DatasourceDBEditorProps {
   formData: Datasource;
   isTesting: boolean;
   loadingFormConfigs: boolean;
-  formConfig: [];
+  formConfig: any[];
   isNewDatasource: boolean;
   pluginImage: string;
 }

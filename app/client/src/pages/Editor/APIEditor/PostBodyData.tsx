@@ -52,10 +52,12 @@ interface PostDataProps {
   actionConfiguration: any;
   displayFormat: any;
   actionConfigurationHeaders?: any;
-  change: Function;
-  onDisplayFormatChange: Function;
+  onDisplayFormatChange: (headers: any[]) => void;
   apiId: string;
-  setDisplayFormat: Function;
+  setDisplayFormat: (
+    apiId: string,
+    option: { label: string; value: string },
+  ) => void;
   dataTreePath: string;
 }
 
@@ -170,7 +172,7 @@ const PostBodyData = (props: Props) => {
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 const mapDispatchToProps = (dispatch: any) => ({
-  onDisplayFormatChange: (value: []) =>
+  onDisplayFormatChange: (value: any[]) =>
     dispatch(
       change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", value),
     ),

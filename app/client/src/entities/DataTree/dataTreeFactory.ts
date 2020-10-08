@@ -40,7 +40,7 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   config: Partial<ActionConfig>;
   pluginType: PluginType;
   name: string;
-  run: ActionDispatcher<RunActionPayload, [string, string, string]> | {};
+  run: any; // Figure out a proper type for this.
   dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
@@ -51,7 +51,7 @@ export interface DataTreeWidget extends WidgetProps {
 
 export interface DataTreeAppsmith extends AppDataState {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
-  store: object;
+  store: Record<string, unknown>;
 }
 
 export type DataTreeEntity =
@@ -164,7 +164,10 @@ export class DataTreeFactory {
     });
 
     if (withFunctions) {
-      dataTree.navigateTo = function(pageNameOrUrl: string, params: object) {
+      dataTree.navigateTo = function(
+        pageNameOrUrl: string,
+        params: Record<string, unknown>,
+      ) {
         return {
           type: "NAVIGATE_TO",
           payload: { pageNameOrUrl, params },

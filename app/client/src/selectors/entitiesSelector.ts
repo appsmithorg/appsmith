@@ -88,7 +88,7 @@ export const getPluginNameFromId = (state: AppState, pluginId: string) => {
   return plugin.name;
 };
 
-export const getPluginForm = (state: AppState, pluginId: string): [] => {
+export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
 

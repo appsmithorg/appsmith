@@ -28,7 +28,7 @@ interface ReduxStateProps {
   isSaving: boolean;
   currentApplication: UserApplication;
   isTesting: boolean;
-  formConfig: [];
+  formConfig: any[];
   loadingFormConfigs: boolean;
   isDeleting: boolean;
   newDatasource: string;

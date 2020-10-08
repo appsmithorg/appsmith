@@ -461,7 +461,7 @@ export type ApplicationPayload = {
 
 export type OrganizationDetails = {
   organization: Org;
-  applications: [];
+  applications: any[];
 };
 
 // export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
@@ -476,9 +476,9 @@ export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
 
-export type SavePagePayload = {};
-export type SavePageErrorPayload = {};
-export type SavePageSuccessPayload = {};
+export type SavePagePayload = Record<string, unknown>;
+export type SavePageErrorPayload = Record<string, unknown>;
+export type SavePageSuccessPayload = Record<string, unknown>;
 
 export type InitializeEditorPayload = {
   applicationId: string;
