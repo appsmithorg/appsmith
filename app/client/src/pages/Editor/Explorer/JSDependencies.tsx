@@ -33,6 +33,10 @@ const Title = styled.div`
   cursor: pointer;
   height: 30px;
   align-items: center;
+  &:hover {
+    background: ${Colors.TUNDORA};
+    color: ${Colors.WHITE};
+  }
 `;
 const List = styled.ul`
   padding: 0px;
