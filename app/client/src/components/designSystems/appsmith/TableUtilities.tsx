@@ -24,7 +24,6 @@ import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import moment from "moment";
-import { ActionDescription } from "../../../entities/DataTree/dataTreeFactory";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -526,10 +525,7 @@ export const renderCell = (
 interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
-  onCommandClick: (
-    dynamicTrigger: ActionDescription<any>[],
-    onComplete: () => void,
-  ) => void;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
 export const renderActions = (props: RenderActionProps) => {
@@ -553,10 +549,7 @@ export const renderActions = (props: RenderActionProps) => {
 const TableAction = (props: {
   isSelected: boolean;
   action: ColumnAction;
-  onCommandClick: (
-    dynamicTrigger: ActionDescription<any>[],
-    onComplete: () => void,
-  ) => void;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) => {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
@@ -574,7 +567,7 @@ const TableAction = (props: {
         loading={loading}
         onClick={() => {
           setLoading(true);
-          props.onCommandClick(props.action.triggers, onComplete);
+          props.onCommandClick(props.action.dynamicTrigger, onComplete);
         }}
         text={props.action.label}
         intent="primary"

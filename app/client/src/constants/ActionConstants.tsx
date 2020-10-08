@@ -1,8 +1,3 @@
-import {
-  ActionDescription,
-  ActionDispatcher,
-} from "../entities/DataTree/dataTreeFactory";
-
 export type ExecuteActionPayloadEvent = {
   type: EventType;
   callback?: (result: ExecutionResult) => void;
@@ -13,7 +8,7 @@ export type ExecutionResult = {
 };
 
 export type ExecuteActionPayload = {
-  triggers: ActionDescription<any>[];
+  dynamicString: string;
   event: ExecuteActionPayloadEvent;
   responseData?: any;
 };

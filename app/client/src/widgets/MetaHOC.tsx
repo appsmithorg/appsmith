@@ -4,10 +4,12 @@ import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearEvalPropertyCache } from "sagas/evaluationsSaga";
 import { ExecuteActionPayload } from "../constants/ActionConstants";
-import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
-type DebouncedExecuteActionPayload = Omit<ExecuteActionPayload, "triggers"> & {
-  triggers?: ActionDescription<any>[];
+type DebouncedExecuteActionPayload = Omit<
+  ExecuteActionPayload,
+  "dynamicString"
+> & {
+  dynamicString?: string;
 };
 
 export interface WithMeta {
@@ -94,7 +96,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         const debouncedPayload = this.propertyTriggers.get(propertyName);
         if (
           debouncedPayload &&
-          debouncedPayload.triggers?.length &&
+          debouncedPayload.dynamicString &&
           executeAction
         ) {
           executeAction(debouncedPayload);

@@ -8,13 +8,11 @@ import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
 import { ActionCreator } from "components/editorComponents/actioncreator/ActionCreator";
-import { ActionDescription } from "../../entities/DataTree/dataTreeFactory";
 
 export interface ColumnAction {
   label: string;
   id: string;
-  dynamicTrigger: string; // todo hetu deprecate
-  triggers: ActionDescription<any>[];
+  dynamicTrigger: string;
 }
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 5px 0px;

@@ -29,8 +29,8 @@ export enum ENTITY_TYPE {
 
 export type RunActionPayload = {
   actionId: string;
-  onSuccess: ActionDescription<any>[];
-  onError: ActionDescription<any>[];
+  onSuccess: string;
+  onError: string;
   params: Record<string, any>;
 };
 
@@ -40,9 +40,7 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   config: Partial<ActionConfig>;
   pluginType: PluginType;
   name: string;
-  run:
-    | ActionDispatcher<RunActionPayload, [string, string, string]>
-    | Record<string, any>;
+  run: ActionDispatcher<RunActionPayload, [string, string, string]> | {};
   dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
@@ -99,6 +97,7 @@ export class DataTreeFactory {
       }
       dataTree[config.name] = {
         ...a,
+        run: {},
         actionId: config.id,
         name: config.name,
         pluginType: config.pluginType,
@@ -141,57 +140,6 @@ export class DataTreeFactory {
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
     });
-
-    // if (withFunctions) {
-    //   dataTree.navigateTo = function(pageNameOrUrl: string, params: object) {
-    //     return {
-    //       type: "NAVIGATE_TO",
-    //       payload: { pageNameOrUrl, params },
-    //     };
-    //   };
-    //   actionPaths.push("navigateTo");
-    //
-    //   dataTree.showAlert = function(message: string, style: string) {
-    //     return {
-    //       type: "SHOW_ALERT",
-    //       payload: { message, style },
-    //     };
-    //   };
-    //   actionPaths.push("showAlert");
-    //
-    //   // dataTree.url = url;
-    //   dataTree.showModal = function(modalName: string) {
-    //     return {
-    //       type: "SHOW_MODAL_BY_NAME",
-    //       payload: { modalName },
-    //     };
-    //   };
-    //   actionPaths.push("showModal");
-    //
-    //   dataTree.closeModal = function(modalName: string) {
-    //     return {
-    //       type: "CLOSE_MODAL",
-    //       payload: { modalName },
-    //     };
-    //   };
-    //   actionPaths.push("closeModal");
-    //
-    //   dataTree.storeValue = function(key: string, value: string) {
-    //     return {
-    //       type: "STORE_VALUE",
-    //       payload: { key, value },
-    //     };
-    //   };
-    //   actionPaths.push("storeValue");
-    //
-    //   dataTree.download = function(data: string, name: string, type: string) {
-    //     return {
-    //       type: "DOWNLOAD",
-    //       payload: { data, name, type },
-    //     };
-    //   };
-    //   actionPaths.push("download");
-    // }
 
     dataTree.pageList = pageList;
     // dataTree.actionPaths = actionPaths;

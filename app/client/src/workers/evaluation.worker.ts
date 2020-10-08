@@ -599,13 +599,28 @@ ctx.addEventListener("message", e => {
       ctx.postMessage(singleValue);
       break;
     }
+    case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
+      const { dynamicTrigger, callbackData, dataTree } = rest;
+      const withFunctions = addFunctions(dataTree);
+      const triggers = getDynamicValue(
+        dynamicTrigger,
+        withFunctions,
+        true,
+        callbackData,
+      );
+      ctx.postMessage(triggers);
+      break;
+    }
     case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
       clearCaches();
+      ctx.postMessage(true);
       break;
     }
     case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
       const { propertyPath } = rest;
       clearPropertyCache(propertyPath);
+      ctx.postMessage(true);
+      break;
     }
   }
 });
@@ -955,7 +970,6 @@ function dependencySortedEvaluateDataTree(
     return sortedDependencies.reduce(
       (currentTree: DataTree, propertyPath: string) => {
         const entityName = propertyPath.split(".")[0];
-        const propertyName = propertyPath.split(".")[1];
         const entity: DataTreeEntity = currentTree[entityName];
         const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
         let evalPropertyValue;
@@ -974,7 +988,6 @@ function dependencySortedEvaluateDataTree(
               currentTree,
               unEvalPropertyValue,
               currentDependencyValues,
-              isDynamicTrigger(entity, propertyName),
               cachedDependencyValues,
             );
           } catch (e) {
@@ -991,6 +1004,7 @@ function dependencySortedEvaluateDataTree(
         }
         if (isWidget(entity)) {
           const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
+          const propertyName = propertyPath.split(".")[1];
           if (propertyName) {
             let parsedValue = validateAndParseWidgetProperty(
               propertyPath,
@@ -1272,10 +1286,20 @@ function validateAndParseWidgetProperty(
   cachedDependencyValues?: Array<string>,
 ): any {
   const propertyName = propertyPath.split(".")[1];
+  let valueToValidate = evalPropertyValue;
+  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+    const { triggers } = getDynamicValue(
+      unEvalPropertyValue,
+      currentTree,
+      true,
+      undefined,
+    );
+    valueToValidate = triggers;
+  }
   const { parsed, isValid, message, transformed } = validateWidgetProperty(
     widget.type,
     propertyName,
-    evalPropertyValue,
+    valueToValidate,
     widget,
     currentTree,
   );
@@ -1288,18 +1312,22 @@ function validateAndParseWidgetProperty(
     _.set(widget, `validationMessages.${propertyName}`, message);
   }
 
-  const parsedCache = getParsedValueCache(propertyPath);
-  if (
-    !equal(parsedCache.value, parsed) ||
-    (cachedDependencyValues !== undefined &&
-      !equal(currentDependencyValues, cachedDependencyValues))
-  ) {
-    parsedValueCache.set(propertyPath, {
-      value: parsed,
-      version: Date.now(),
-    });
+  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+    return unEvalPropertyValue;
+  } else {
+    const parsedCache = getParsedValueCache(propertyPath);
+    if (
+      !equal(parsedCache.value, parsed) ||
+      (cachedDependencyValues !== undefined &&
+        !equal(currentDependencyValues, cachedDependencyValues))
+    ) {
+      parsedValueCache.set(propertyPath, {
+        value: parsed,
+        version: Date.now(),
+      });
+    }
+    return parsed;
   }
-  return parsed;
 }
 
 function evaluateDynamicProperty(
@@ -1307,7 +1335,6 @@ function evaluateDynamicProperty(
   currentTree: DataTree,
   unEvalPropertyValue: any,
   currentDependencyValues: Array<string>,
-  returnTriggers = false,
   cachedDependencyValues?: Array<string>,
 ): any {
   const cacheObj = getDynamicPropValueCache(propertyPath);
@@ -1323,7 +1350,7 @@ function evaluateDynamicProperty(
     const dynamicResult = getDynamicValue(
       unEvalPropertyValue,
       currentTree,
-      returnTriggers,
+      false,
     );
     dynamicPropValueCache.set(propertyPath, {
       evaluated: dynamicResult,

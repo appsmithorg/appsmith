@@ -10,7 +10,6 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import { EventType } from "constants/ActionConstants";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
-import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
@@ -46,7 +45,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   onImageClick() {
     if (this.props.onClick) {
       super.executeAction({
-        triggers: this.props.onClick,
+        dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
         },
@@ -65,7 +64,7 @@ export interface ImageWidgetProps extends WidgetProps {
   image: string;
   imageShape: ImageShape;
   defaultImage: string;
-  onClick?: ActionDescription<any>[];
+  onClick?: string;
 }
 
 export default ImageWidget;

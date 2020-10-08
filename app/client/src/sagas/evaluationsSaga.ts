@@ -11,6 +11,10 @@ import {
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import { EVAL_WORKER_ACTIONS } from "./SagaUtils";
+import {
+  ActionDescription,
+  ActionDispatcher,
+} from "../entities/DataTree/dataTreeFactory";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
@@ -54,6 +58,24 @@ export function* evaluateSingleValue(binding: string) {
     const workerResponse = yield take(workerChannel);
     return workerResponse.data;
   }
+}
+
+export function* evaluateDynamicTrigger(
+  dynamicTrigger: string,
+  callbackData: any,
+) {
+  if (evaluationWorker) {
+    const evalTree = yield select(getDataTree);
+    evaluationWorker.postMessage({
+      action: EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
+      dataTree: evalTree,
+      dynamicTrigger,
+      callbackData,
+    });
+    const workerResponse = yield take(workerChannel);
+    return workerResponse.data;
+  }
+  return [];
 }
 
 export function* clearEvalCache() {

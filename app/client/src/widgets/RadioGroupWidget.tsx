@@ -11,7 +11,6 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
-import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -68,7 +67,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   onRadioSelectionChange = (updatedValue: string) => {
     this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue, {
-      triggers: this.props.onSelectionChange,
+      dynamicString: this.props.onSelectionChange,
       event: {
         type: EventType.ON_OPTION_CHANGE,
       },
@@ -89,7 +88,7 @@ export interface RadioGroupWidgetProps extends WidgetProps, WithMeta {
   label: string;
   options: RadioOption[];
   selectedOptionValue: string;
-  onSelectionChange: ActionDescription<any>[];
+  onSelectionChange: string;
   defaultOptionValue: string;
   isRequired?: boolean;
 }

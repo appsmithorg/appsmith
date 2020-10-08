@@ -13,7 +13,6 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
-import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -108,7 +107,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           "selectedOptionValue",
           selectedOption.value,
           {
-            triggers: this.props.onOptionChange,
+            dynamicString: this.props.onOptionChange,
             event: {
               type: EventType.ON_OPTION_CHANGE,
             },
@@ -132,7 +131,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         "selectedOptionValueArr",
         newSelectedValue,
         {
-          triggers: this.props.onOptionChange,
+          dynamicString: this.props.onOptionChange,
           event: {
             type: EventType.ON_OPTION_CHANGE,
           },
@@ -150,7 +149,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       "selectedOptionValueArr",
       newSelectedValue,
       {
-        triggers: this.props.onOptionChange,
+        dynamicString: this.props.onOptionChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,
         },
@@ -181,7 +180,7 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   selectionType: SelectionType;
   selectedOption: DropdownOption;
   options?: DropdownOption[];
-  onOptionChange?: ActionDescription<any>[];
+  onOptionChange?: string;
   defaultOptionValue?: string | string[];
   isRequired: boolean;
   selectedOptionValue: string;
