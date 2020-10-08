@@ -130,6 +130,7 @@ export const SignUp = (props: SignUpFormProps) => {
               name="email"
               type="email"
               placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
+              autoFocus
             />
           </FormGroup>
           <FormGroup
@@ -163,8 +164,12 @@ export const SignUp = (props: SignUpFormProps) => {
             />
           </FormActions>
         </SpacedSubmitForm>
-        {SocialLoginList.length > 0 && <Divider />}
-        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+        {SocialLoginList.length > 0 && (
+          <>
+            <Divider />
+            <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+          </>
+        )}
       </AuthCardBody>
       <AuthCardFooter>
         <TncPPLinks />
