@@ -564,6 +564,11 @@ type ColorType = {
       border: ShadeColor;
     };
     placeholder: ShadeColor;
+    readOnly: {
+      bg: ShadeColor;
+      text: ShadeColor;
+      border: ShadeColor;
+    };
   };
   menuBorder: ShadeColor;
   editableText: {
@@ -817,6 +822,11 @@ export const dark: ColorType = {
       border: darkShades[0],
     },
     placeholder: darkShades[5],
+    readOnly: {
+      bg: darkShades[0],
+      text: darkShades[7],
+      border: darkShades[0],
+    },
   },
   menuBorder: darkShades[4],
   editableText: {
@@ -1070,6 +1080,11 @@ export const light: ColorType = {
       border: lightShades[2],
     },
     placeholder: lightShades[7],
+    readOnly: {
+      bg: lightShades[2],
+      text: lightShades[7],
+      border: lightShades[2],
+    },
   },
   menuBorder: lightShades[3],
   editableText: {
