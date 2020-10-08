@@ -48,7 +48,7 @@ You can try our online sandbox or deploy a Docker image on a server.
 
 When we build internal tools today, we turn to admin panels, UI frameworks or use a bootstrap theme. We took inspirations from the best admin panels, bootstrap themes, and brought back the easy UI builder of Visual Basic.
 
-Appsmith is a quicker way of building internal tools by visualising them as modular blocks (**Widgets, APIs, Queries, JS**) and giving developers a simple user interface to configure them. Building new features, creating UI, changing dataflows, and modifying business logic becomes a [piece of cake](https://i.kym-cdn.com/photos/images/newsfeed/001/355/125/5ca.png) because you no longer have to trudge through large undocumented code bases or wrestle with HTML/CSS. 
+Appsmith is a quicker way of building internal tools by visualising them as modular blocks (**Widgets, APIs, Queries, JS**) and giving developers a simple user interface to configure them. Building new features, creating UI, changing dataflows, and modifying business logic becomes simpler because you no longer have to trudge through large undocumented code bases or wrestle with HTML/CSS. 
 Appsmith doesn't take the fun out of coding, because it treats every block as an object and exposes it via javascript so that you can read, transform and manipulate it. Whether it's a widget, API or query, you get to decide where you need to configure using UI and where you need to code.
 
 ## 🏭 Features

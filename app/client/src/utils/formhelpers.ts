@@ -5,11 +5,15 @@ export const hashPassword = (password: string) => {
 };
 
 export const isEmptyString = (value: string) => {
-  return !value || value.trim().length === 0 || typeof value !== "string";
+  return !value || value.trim().length === 0 || false;
 };
 
 export const isStrongPassword = (value: string) => {
   return value.trim().length >= PASSWORD_MIN_LENGTH;
+};
+
+export const noSpaces = (value: string) => {
+  return !value || value.trim().length === 0;
 };
 
 // TODO (abhinav): Use a regex which adheres to standards RFC5322

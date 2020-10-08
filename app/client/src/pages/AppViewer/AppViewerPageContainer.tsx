@@ -17,6 +17,7 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 
 const Section = styled.section`
   background: ${props => props.theme.colors.bodyBG};
@@ -30,6 +31,7 @@ type AppViewerPageContainerProps = {
   isFetchingPage: boolean;
   widgets?: ContainerWidgetProps<WidgetProps>;
   currentPageName?: string;
+  currentAppName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
 } & RouteComponentProps<AppViewerRouteParams>;
 
@@ -98,6 +100,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
         <Section>
           <AppPage
             dsl={this.props.widgets}
+            appName={this.props.currentAppName}
             pageId={this.props.match.params.pageId}
             pageName={this.props.currentPageName}
           />
@@ -109,10 +112,12 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
 }
 
 const mapStateToProps = (state: AppState) => {
+  const currentApp = getCurrentApplication(state);
   const props = {
     isFetchingPage: getIsFetchingPage(state),
     widgets: getCanvasWidgetDsl(state),
     currentPageName: getCurrentPageName(state),
+    currentAppName: currentApp?.name,
   };
   return props;
 };

@@ -88,6 +88,48 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     .click();
 });
 
+Cypress.Commands.add("shareApp", (email, role) => {
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.get(homePage.closeBtn).click();
+});
+
+Cypress.Commands.add("shareAndPublic", (email, role) => {
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.enablePublicAccess();
+});
+
+Cypress.Commands.add("enablePublicAccess", () => {
+  cy.get(homePage.enablePublicAccess).click();
+  cy.wait("@changeAccess").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(homePage.closeBtn).click();
+});
+
 Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
@@ -1585,6 +1627,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/users/me").as("getUser");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
+  cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 });
 
 Cypress.Commands.add("alertValidate", text => {
