@@ -16,29 +16,7 @@ defaults:
     working-directory: app/client
 
 jobs:
-  build_id:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Set build id'
-        id: build_id
-        # add a step output `steps.build_id.outputs.id` as the unique id
-        run: echo "::set-output name=id::$(date +%s)"
-      - name: 'Cache .build-id'
-        uses: actions/cache@v1
-        with:
-          # store the build id to github cache
-          path: ${{ github.workspace }}/.build-id
-          # use the build id to generate a completly unique cache
-          key: ${{ runner.os }}-build-id-${{ github.head_ref }}-${{ github.sha }}-${{ steps.build_id.outputs.id }}
-      - name: 'Save build id'
-        # store the build id to a folder that we can later cache.
-        run: |
-          mkdir -p .build-id
-          echo $BUILD_ID > .build-id/id
-        env:
-          BUILD_ID: ${{ steps.build_id.outputs.id }}
   build:
-    needs: build_id
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -140,21 +118,6 @@ jobs:
     - name: Checkout the head commit of the branch
       if: ${{ github.event_name == 'push' }}
       uses: actions/checkout@v2
-
-    # restore the build id
-    - name: 'Cache .build-id'
-      uses: actions/cache@v1
-      with:
-        path: ${{ github.workspace }}/.build-id
-        key: ${{ runner.os }}-build-id-${{ github.head_ref }}-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-build-id-${{ github.head_ref }}-${{ github.sha }}
-    # set the build id from the restored cache
-    - name: 'Set build id'
-      id: build_id
-      run: echo "::set-output name=id::$(cat .build-id/id)"
-    # because of "record" and "parallel" parameters
-    # these containers will load balance all found tests among themselves
 
     - name: Use Node.js 10.16.3
       uses: actions/setup-node@v1
