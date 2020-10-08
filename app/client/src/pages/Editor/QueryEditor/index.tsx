@@ -80,13 +80,14 @@ class QueryEditor extends React.Component<Props> {
   };
 
   handleRunClick = () => {
-    const { match } = this.props;
+    const { match, dataSources } = this.props;
     PerformanceTracker.startTracking(
       PerformanceTransactionName.RUN_QUERY_CLICK,
       { queryId: this.props.match.params.queryId },
     );
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       queryId: this.props.match.params.queryId,
+      dataSourceSize: dataSources.length,
     });
     this.props.runAction(match.params.queryId);
   };

@@ -256,15 +256,13 @@ class ChartDataControl extends BaseControl<ControlProps> {
       data: string;
     }> = this.props.propertyValue;
     const updatedChartData = chartData.map((item, i) => {
-      const _item = { ...item };
       if (index === i) {
-        if (propertyName === "seriesName") {
-          _item.seriesName = updatedValue;
-        } else {
-          _item.data = updatedValue;
-        }
+        return {
+          ...item,
+          [propertyName]: updatedValue,
+        };
       }
-      return _item;
+      return item;
     });
     this.updateProperty(this.props.propertyName, updatedChartData);
   };

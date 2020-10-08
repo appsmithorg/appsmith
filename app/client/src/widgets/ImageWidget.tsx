@@ -33,7 +33,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     return (
       <ImageComponent
         widgetId={this.props.widgetId}
-        imageUrl={this.props.image}
+        imageUrl={this.props.image || ""}
         onClick={this.props.onClick ? this.onImageClick : undefined}
         showHoverPointer={this.props.renderMode === RenderModes.PAGE}
         defaultImageUrl={this.props.defaultImage}

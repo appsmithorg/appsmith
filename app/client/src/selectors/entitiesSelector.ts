@@ -95,9 +95,6 @@ export const getPluginForm = (state: AppState, pluginId: string): any[] => {
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
 
-export const getDatasourceRefs = (state: AppState): any =>
-  state.ui.datasourcePane.datasourceRefs;
-
 export const getDatasource = (
   state: AppState,
   datasourceId: string,

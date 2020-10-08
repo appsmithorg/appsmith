@@ -25,7 +25,7 @@ export const getApiOptions = (
   skin: Skin,
   apis: RestAction[],
   pageId: string,
-  dispatch: Function,
+  dispatch: (action: unknown) => void,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
@@ -43,7 +43,7 @@ export const getApiOptions = (
             />
           ),
           onSelect: () => {
-            dispatch(createNewApiAction(pageId));
+            dispatch(createNewApiAction(pageId, "LIGHTNING_MENU"));
           },
         },
       ],
@@ -74,7 +74,7 @@ export const getQueryOptions = (
   skin: Skin,
   queries: RestAction[],
   pageId: string,
-  dispatch: Function,
+  dispatch: (action: unknown) => void,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
@@ -92,7 +92,7 @@ export const getQueryOptions = (
             />
           ),
           onSelect: () => {
-            dispatch(createNewQueryAction(pageId));
+            dispatch(createNewQueryAction(pageId, "LIGHTNING_MENU"));
           },
         },
       ],
@@ -154,7 +154,7 @@ export const getLightningMenuOptions = (
   queries: RestAction[],
   widgets: WidgetProps[],
   pageId: string,
-  dispatch: Function,
+  dispatch: (action: unknown) => void,
   skin: Skin,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
 ) => {

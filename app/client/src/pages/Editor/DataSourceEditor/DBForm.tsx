@@ -20,6 +20,7 @@ import { reduxForm, InjectedFormProps } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { APPSMITH_IP_ADDRESS } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "configs";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps {
@@ -268,13 +269,19 @@ class DatasourceDBEditor extends React.Component<
 
   save = () => {
     const normalizedValues = this.normalizeValues();
-
+    AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
+      pageId: this.props.pageId,
+      appId: this.props.applicationId,
+    });
     this.props.onSave(normalizedValues);
   };
 
   test = () => {
     const normalizedValues = this.normalizeValues();
-
+    AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
+      pageId: this.props.pageId,
+      appId: this.props.applicationId,
+    });
     this.props.onTest(normalizedValues);
   };
 
