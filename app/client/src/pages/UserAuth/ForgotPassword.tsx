@@ -56,13 +56,11 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
   const {
     error,
     handleSubmit,
-    pristine,
     submitting,
     submitFailed,
     submitSucceeded,
   } = props;
-  const queryParams = new URLSearchParams(props.location.search);
-  const hasEmail = queryParams.get("email");
+
   return (
     <AuthCardContainer>
       {submitSucceeded && (
@@ -112,7 +110,7 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
               intent="primary"
               filled
               size="large"
-              disabled={pristine && !hasEmail}
+              disabled={!isEmail(props.emailValue)}
               loading={submitting}
             />
           </FormActions>
