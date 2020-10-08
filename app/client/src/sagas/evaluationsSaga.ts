@@ -104,7 +104,6 @@ const EVALUATE_REDUX_ACTIONS = [
   // ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   // Widget Meta
   // ReduxActionTypes.SET_META_PROP,
-
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
 ];
