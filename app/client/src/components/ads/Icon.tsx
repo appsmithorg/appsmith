@@ -201,7 +201,7 @@ const Icon = forwardRef(
         returnIcon = null;
         break;
     }
-    return returnIcon ? (
+    return returnIcon && !props.isLoading ? (
       <IconWrapper
         className={Classes.ICON}
         data-cy={props.cypressSelector}
@@ -209,8 +209,10 @@ const Icon = forwardRef(
         {...props}
         onClick={props.onClick || noop}
       >
-        {props.isLoading ? <Spinner size={props.size} /> : returnIcon}
+        {returnIcon}
       </IconWrapper>
+    ) : props.isLoading ? (
+      <Spinner size={props.size} />
     ) : null;
   },
 );

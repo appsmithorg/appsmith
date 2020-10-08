@@ -94,34 +94,37 @@ const TableDropdown = (props: DropdownProps) => {
 
   return (
     <Fragment>
-      <Popover
-        data-cy={props.cypressSelector}
-        usePortal={false}
-        position={props.position || Position.BOTTOM_LEFT}
-        isOpen={isDropdownOpen}
-        onInteraction={state => setIsDropdownOpen(state)}
-        interactionKind={PopoverInteractionKind.CLICK}
-      >
-        <Content isLoading={props.isLoading}>
-          {props.isLoading ? <Spinner size={IconSize.LARGE} /> : null}
-          <SelectedItem className="selected-item">
-            <Text type={TextType.P1}>{selectedOption.name}</Text>
-            <Icon name="downArrow" size={IconSize.XXS} />
-          </SelectedItem>
-        </Content>
-        <OptionsWrapper>
-          {props.options.map((el: DropdownOption, index: number) => (
-            <DropdownOption
-              key={index}
-              isSelected={selectedIndex === index}
-              onClick={() => optionSelector(index)}
-            >
-              <Text type={TextType.H5}>{el.name}</Text>
-              <Text type={TextType.P3}>{el.desc}</Text>
-            </DropdownOption>
-          ))}
-        </OptionsWrapper>
-      </Popover>
+      {props.isLoading ? (
+        <Spinner size={IconSize.LARGE} />
+      ) : (
+        <Popover
+          data-cy={props.cypressSelector}
+          usePortal={false}
+          position={props.position || Position.BOTTOM_LEFT}
+          isOpen={isDropdownOpen}
+          onInteraction={state => setIsDropdownOpen(state)}
+          interactionKind={PopoverInteractionKind.CLICK}
+        >
+          <Content isLoading={props.isLoading}>
+            <SelectedItem className="selected-item">
+              <Text type={TextType.P1}>{selectedOption.name}</Text>
+              <Icon name="downArrow" size={IconSize.XXS} />
+            </SelectedItem>
+          </Content>
+          <OptionsWrapper>
+            {props.options.map((el: DropdownOption, index: number) => (
+              <DropdownOption
+                key={index}
+                isSelected={selectedIndex === index}
+                onClick={() => optionSelector(index)}
+              >
+                <Text type={TextType.H5}>{el.name}</Text>
+                <Text type={TextType.P3}>{el.desc}</Text>
+              </DropdownOption>
+            ))}
+          </OptionsWrapper>
+        </Popover>
+      )}
     </Fragment>
   );
 };
