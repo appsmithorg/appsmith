@@ -29,6 +29,7 @@ import {
   selectPlugin,
   createDatasource,
   changeDatasource,
+  expandDatasourceEntity,
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { GenericApiResponse } from "api/ApiResponses";
@@ -65,6 +66,9 @@ function* fetchDatasourcesSaga() {
         type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
         payload: response.data,
       });
+      if (response.data.length) {
+        yield put(expandDatasourceEntity(response.data[0].id));
+      }
     }
   } catch (error) {
     yield put({
