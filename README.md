@@ -2,8 +2,7 @@
   <a href="https://appsmith.com">
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
     </a>
-    <h3>A low code way to build internal tools.</h3>
-  <b> The only open source alternative to Power Apps, Salesforce Lightning, Service Now, Retool, Forest Admin, and many more. </b>
+    <h3>A plug and play web framework to build internal tools.</h3>
 <p>
 
 [![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
@@ -18,7 +17,7 @@
 </div>
 
 -----------------
-<div align="center"><h3>Create apps by connecting UI widgets to any database and writing any logic in JS.</h3>
+<div align="center"><h3>Build apps by connecting UI widgets to database queries or APIs. Write any logic in JS.</h3>
 
 ![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
 </div>
