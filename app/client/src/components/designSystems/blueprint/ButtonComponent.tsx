@@ -174,10 +174,10 @@ const RecaptchaComponent = (
                 .execute(props.googleRecaptchaKey, { action: "submit" })
                 .then((token: any) => {
                   props.setRecaptchaToken(token);
-                  // props.onClick && props.onClick(event);
                 });
             } catch (ex) {
               console.error(ex);
+              props.onClick && props.onClick(event);
             }
           });
         }
