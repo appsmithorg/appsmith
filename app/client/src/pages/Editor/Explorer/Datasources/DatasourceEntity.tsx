@@ -15,6 +15,7 @@ import history from "utils/history";
 import {
   fetchDatasourceStructure,
   saveDatasourceName,
+  expandDatasourceEntity,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -26,7 +27,6 @@ type ExplorerDatasourceEntityProps = {
   datasource: Datasource;
   step: number;
   searchKeyword?: string;
-  isDefaultExpanded: boolean;
 };
 
 export const ExplorerDatasourceEntity = (
@@ -66,10 +66,16 @@ export const ExplorerDatasourceEntity = (
     return state.ui.datasourcePane.expandDatasourceId;
   });
 
-  const getDatasourceStructure = useCallback(() => {
-    if (!datasourceStructure)
-      dispatch(fetchDatasourceStructure(props.datasource.id));
-  }, [datasourceStructure, props.datasource.id, dispatch]);
+  const getDatasourceStructure = useCallback(
+    isOpen => {
+      if (!datasourceStructure && isOpen) {
+        dispatch(fetchDatasourceStructure(props.datasource.id));
+      }
+
+      dispatch(expandDatasourceEntity(isOpen ? props.datasource.id : ""));
+    },
+    [datasourceStructure, props.datasource.id, dispatch],
+  );
 
   return (
     <Entity
@@ -82,7 +88,6 @@ export const ExplorerDatasourceEntity = (
       step={props.step}
       searchKeyword={props.searchKeyword}
       isDefaultExpanded={
-        props.isDefaultExpanded ||
         expandDatasourceId === props.datasource.id ||
         queryAction?.datasource.id === props.datasource.id
       }
