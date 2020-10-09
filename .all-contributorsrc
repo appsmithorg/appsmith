@@ -103,6 +103,82 @@
       "contributions": [
         "design"
       ]
+    },
+    {
+      "login": "NandanAnantharamu",
+      "name": "NandanAnantharamu",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/67676905?v=4",
+      "profile": "https://github.com/NandanAnantharamu",
+      "contributions": [
+        "test"
+      ]
+    },
+    {
+      "login": "prapullac",
+      "name": "prapullac",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/71753653?v=4",
+      "profile": "https://github.com/prapullac",
+      "contributions": [
+        "bug",
+        "test"
+      ]
+    },
+    {
+      "login": "Saket2",
+      "name": "Saket Agrawal",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/49346036?v=4",
+      "profile": "https://github.com/Saket2",
+      "contributions": [
+        "bug",
+        "doc"
+      ]
+    },
+    {
+      "login": "harishkotra",
+      "name": "Harish Kotra",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/4999463?v=4",
+      "profile": "https://harishkotra.me",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "visibleajay",
+      "name": "Ajay Kumar",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/13945951?v=4",
+      "profile": "https://github.com/visibleajay",
+      "contributions": [
+        "bug",
+        "doc"
+      ]
+    },
+    {
+      "login": "akbansa",
+      "name": "Anshul Bansal",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/13042781?v=4",
+      "profile": "https://github.com/akbansa",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    },
+    {
+      "login": "gogetter22",
+      "name": "Navia Garg",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/71608910?v=4",
+      "profile": "https://github.com/gogetter22",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "Xniveres",
+      "name": "Xniveres",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/56609232?v=4",
+      "profile": "https://github.com/Xniveres",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
