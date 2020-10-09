@@ -58,6 +58,7 @@ describe("Binding the multiple widgets and validating default data", function() 
     );
   });
 
+
   it("Input widget test with default value update with query data", function() {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputQuery);
