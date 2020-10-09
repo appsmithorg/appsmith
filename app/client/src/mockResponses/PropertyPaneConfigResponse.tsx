@@ -806,6 +806,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "SWITCH",
             isJSConvertible: true,
           },
+          {
+            id: "15.1.6",
+            propertyName: "googleRecaptchaKey",
+            label: "Google Recaptcha Key",
+            helpText: "Sets Google Recaptcha Key v3 for button.",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter google recaptcha key",
+          },
         ],
       },
       {

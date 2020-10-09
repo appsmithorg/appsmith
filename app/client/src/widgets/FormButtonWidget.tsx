@@ -12,6 +12,7 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class FormButtonWidget extends BaseWidget<
   FormButtonWidgetProps,
@@ -22,8 +23,15 @@ class FormButtonWidget extends BaseWidget<
   constructor(props: FormButtonWidgetProps) {
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
+    this.setRecaptchaToken = this.setRecaptchaToken.bind(this);
     this.state = {
       isLoading: false,
+    };
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      recaptchaToken: undefined,
     };
   }
 
@@ -42,6 +50,15 @@ class FormButtonWidget extends BaseWidget<
     return {
       onClick: true,
     };
+  }
+
+  setRecaptchaToken(token: string) {
+    this.props.updateWidgetMetaProperty("recaptchaToken", token, {
+      dynamicString: this.props.onClick,
+      event: {
+        type: EventType.ON_CLICK,
+      },
+    });
   }
 
   onButtonClick() {
@@ -88,6 +105,8 @@ class FormButtonWidget extends BaseWidget<
         onClick={this.onButtonClickBound}
         isLoading={this.props.isLoading || this.state.isLoading}
         type={this.props.buttonType || ButtonType.BUTTON}
+        googleRecaptchaKey={this.props.googleRecaptchaKey}
+        setRecaptchaToken={this.setRecaptchaToken}
       />
     );
   }
@@ -103,7 +122,7 @@ export type ButtonStyle =
   | "SUCCESS_BUTTON"
   | "DANGER_BUTTON";
 
-export interface FormButtonWidgetProps extends WidgetProps {
+export interface FormButtonWidgetProps extends WidgetProps, WithMeta {
   text?: string;
   buttonStyle?: ButtonStyle;
   onClick?: string;
@@ -113,6 +132,7 @@ export interface FormButtonWidgetProps extends WidgetProps {
   resetFormOnClick?: boolean;
   onReset?: () => void;
   disabledWhenInvalid?: boolean;
+  googleRecaptchaKey?: string;
 }
 
 export interface FormButtonWidgetState extends WidgetState {
@@ -120,4 +140,6 @@ export interface FormButtonWidgetState extends WidgetState {
 }
 
 export default FormButtonWidget;
-export const ProfiledFormButtonWidget = Sentry.withProfiler(FormButtonWidget);
+export const ProfiledFormButtonWidget = Sentry.withProfiler(
+  withMeta(FormButtonWidget),
+);

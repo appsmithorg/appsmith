@@ -174,7 +174,7 @@ const RecaptchaComponent = (
                 .execute(props.googleRecaptchaKey, { action: "submit" })
                 .then((token: any) => {
                   props.setRecaptchaToken(token);
-                  props.onClick && props.onClick(event);
+                  // props.onClick && props.onClick(event);
                 });
             } catch (ex) {
               console.error(ex);
@@ -207,6 +207,7 @@ const ButtonContainer = (
     <BtnWrapper
       googleRecaptchaKey={props.googleRecaptchaKey}
       setRecaptchaToken={props.setRecaptchaToken}
+      onClick={props.onClick}
     >
       <BaseButton
         loading={props.isLoading}
