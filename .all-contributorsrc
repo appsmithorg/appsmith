@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "mohanarpit",
+      "name": "Arpit Mohan",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/458946?v=4",
+      "profile": "http://arpitmohan.com",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "appsmith",
+  "projectOwner": "appsmithorg",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
