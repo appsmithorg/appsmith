@@ -216,6 +216,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         NewAction newAction = new NewAction();
+        newAction.setPublishedAction(new ActionDTO());
+        newAction.getPublishedAction().setDatasource(new Datasource());
 
         return newPageService
                 .findById(action.getPageId(), READ_PAGES)
@@ -323,6 +325,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     Datasource datasource = tuple.getT2();
                     action.setDatasource(datasource);
                     action.setInvalids(invalids);
+                    newAction.setUnpublishedAction(action);
                     newAction.setPluginType(plugin.getType());
                     newAction.setPluginId(plugin.getId());
                     return newAction;
