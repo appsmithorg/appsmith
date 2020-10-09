@@ -11,7 +11,7 @@ import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
 import _ from "lodash";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import useScript from "utils/hooks/useScript";
-import Api from "api/Api";
+import { AppToaster } from "components/editorComponents/ToastComponent";
 
 const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   if (props.filled) return props.theme.colors.textOnDarkBG;
@@ -176,6 +176,11 @@ const RecaptchaComponent = (
                   props.setRecaptchaToken(token);
                 });
             } catch (ex) {
+              AppToaster.show({
+                message:
+                  "Google Re-Captcha Token Generation failed! Please check the Re-captcha Key and the allowed domains.",
+                type: "error",
+              });
               console.error(ex);
               props.onClick && props.onClick(event);
             }
