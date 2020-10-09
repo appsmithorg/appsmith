@@ -23,6 +23,7 @@ public class Organization extends BaseDomain {
     private String domain;
 
     @NotNull
+    @NotEmpty
     private String name;
 
     private String website;
