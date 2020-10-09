@@ -132,6 +132,15 @@
         "bug",
         "doc"
       ]
+    },
+    {
+      "login": "harishkotra",
+      "name": "Harish Kotra",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/4999463?v=4",
+      "profile": "https://harishkotra.me",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
