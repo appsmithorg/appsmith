@@ -125,6 +125,7 @@ const LabelWrapper = styled.div<{ label?: string }>`
 `;
 
 export default function Dropdown(props: DropdownProps) {
+  const { onSelect } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
 
@@ -136,10 +137,10 @@ export default function Dropdown(props: DropdownProps) {
     (option: DropdownOption) => {
       setSelected(option);
       setIsOpen(false);
-      props.onSelect && props.onSelect(option.value);
+      onSelect && onSelect(option.value);
       option.onSelect && option.onSelect(option.value);
     },
-    [props.onSelect],
+    [onSelect],
   );
 
   return (
