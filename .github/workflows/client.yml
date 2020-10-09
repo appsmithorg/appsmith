@@ -6,7 +6,7 @@ on:
     # Only trigger if files have changed in this specific path
     paths:
       - 'app/client/**'
-  pull_request_target:
+  pull_request:
     branches: [ release, master ]
     paths:
       - 'app/client/**'
