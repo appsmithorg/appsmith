@@ -4,11 +4,14 @@ import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,6 +23,7 @@ import java.util.Set;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
+@Slf4j
 public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepository {
 
@@ -38,23 +42,36 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission) {
-        Criteria unpublishedPageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
-        Criteria publishedPageCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId)).is(pageId);
+        String unpublishedPage = fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.pageId);
+        String publishedPage = fieldName(QNewAction.newAction.publishedAction)+"."+fieldName(QNewAction.newAction.publishedAction.pageId);
 
-        Criteria pageCriteria = unpublishedPageCriteria.orOperator(publishedPageCriteria);
-//        Criteria pageCriteria = new Criteria().orOperator(unpublishedPageCriteria, publishedPageCriteria);
+        Criteria pageCriteria = new Criteria().orOperator(
+        where(unpublishedPage).is(pageId),
+        where(publishedPage).is(pageId)
+        );
 
-        return queryAll(List.of(pageCriteria), aclPermission);
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMapMany(auth -> {
+                    User user = (User) auth.getPrincipal();
+                    Query query = new Query();
+
+                    if (aclPermission == null) {
+                        query.addCriteria(new Criteria().andOperator(notDeleted(), pageCriteria));
+                    } else {
+                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission), pageCriteria));
+                    }
+
+                    return mongoOperations.query(NewAction.class)
+                            .matching(query)
+                            .all()
+                            .map(obj -> setUserPermissionsInObject(obj, user));
+                });
     }
 
     @Override
     public Flux<NewAction> findByPageId(String pageId) {
-        Criteria unpublishedPageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
-        Criteria publishedPageCriteria = where(fieldName(QNewAction.newAction.publishedAction.pageId)).is(pageId);
-
-        Criteria pageCriteria = new Criteria().orOperator(unpublishedPageCriteria, publishedPageCriteria);
-
-        return queryAll(List.of(pageCriteria), null);
+        return this.findByPageId(pageId, null);
     }
 
     @Override
