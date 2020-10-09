@@ -13,6 +13,17 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Nikhil-Nandagopal",
+      "name": "Nikhil Nandagopal",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/3897254?v=4",
+      "profile": "https://github.com/Nikhil-Nandagopal",
+      "contributions": [
+        "doc",
+        "code",
+        "projectManagement"
+      ]
     }
   ],
   "contributorsPerLine": 7,
