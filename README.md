@@ -10,7 +10,7 @@
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
 [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 </p>
@@ -94,6 +94,7 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
     <td align="center"><a href="http://arpitmohan.com"><img src="https://avatars2.githubusercontent.com/u/458946?v=4" width="100px;" alt=""/><br /><sub><b>Arpit Mohan</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=mohanarpit" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/Nikhil-Nandagopal"><img src="https://avatars2.githubusercontent.com/u/3897254?v=4" width="100px;" alt=""/><br /><sub><b>Nikhil Nandagopal</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=Nikhil-Nandagopal" title="Documentation">📖</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=Nikhil-Nandagopal" title="Code">💻</a> <a href="#projectManagement-Nikhil-Nandagopal" title="Project Management">📆</a></td>
     <td align="center"><a href="https://github.com/areyabhishek"><img src="https://avatars1.githubusercontent.com/u/30255708?v=4" width="100px;" alt=""/><br /><sub><b>areyabhishek</b></sub></a><br /><a href="#ideas-areyabhishek" title="Ideas, Planning, & Feedback">🤔</a> <a href="#design-areyabhishek" title="Design">🎨</a></td>
+    <td align="center"><a href="https://github.com/trishaanand"><img src="https://avatars2.githubusercontent.com/u/8403079?v=4" width="100px;" alt=""/><br /><sub><b>Trisha Anand</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=trishaanand" title="Code">💻</a> <a href="#infra-trishaanand" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#ideas-trishaanand" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 
