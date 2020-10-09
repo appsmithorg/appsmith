@@ -94,21 +94,23 @@ export type EntityProps = {
 
 export const Entity = forwardRef(
   (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
-    const [isOpen, open] = useState(
-      !props.disabled && !!props.isDefaultExpanded,
-    );
+    const [isOpen, open] = useState(!!props.isDefaultExpanded);
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
 
+    /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
-      // If the default state must be expanded, expand to show children
-      if (props.isDefaultExpanded) {
+      if (!!props.isDefaultExpanded) {
         open(true);
+        props.onToggle && props.onToggle();
       }
+    }, [props.isDefaultExpanded]);
+    useEffect(() => {
       if (!props.searchKeyword && !props.isDefaultExpanded) {
         open(false);
       }
-    }, [props.isDefaultExpanded, open, props.searchKeyword]);
+    }, [props.searchKeyword]);
+    /* eslint-enable react-hooks/exhaustive-deps */
 
     const toggleChildren = () => {
       // Make sure this entity is enabled before toggling the collpse of children.
@@ -154,7 +156,7 @@ export const Entity = forwardRef(
             disabled={!!props.disabled}
             className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
           />
-          {props.icon}
+          <span onClick={handleClick}>{props.icon}</span>
           <EntityName
             entityId={props.entityId}
             className={`${EntityClassNames.NAME}`}

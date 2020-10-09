@@ -48,6 +48,7 @@ class ImageComponent extends React.Component<
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         imageError={this.state.imageError}
         {...this.props}
+        data-testid="styledImage"
       >
         <img
           style={{
