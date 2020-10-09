@@ -83,7 +83,7 @@ Read our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/maste
 
 The Appsmith platform is available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) (Apache-2.0).
 
-## Contributors
+## 🧑‍🤝‍🧑 Contributors
 
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
