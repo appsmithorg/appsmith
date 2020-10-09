@@ -123,6 +123,15 @@ const datasourcePaneReducer = createReducer(initialState, {
       expandDatasourceId: action.payload.id,
     };
   },
+  [ReduxActionTypes.EXPAND_DATASOURCE_ENTITY]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      expandDatasourceId: action.payload,
+    };
+  },
 });
 
 export default datasourcePaneReducer;
