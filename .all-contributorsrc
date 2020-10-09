@@ -112,6 +112,16 @@
       "contributions": [
         "test"
       ]
+    },
+    {
+      "login": "prapullac",
+      "name": "prapullac",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/71753653?v=4",
+      "profile": "https://github.com/prapullac",
+      "contributions": [
+        "bug",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
