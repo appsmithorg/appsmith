@@ -126,6 +126,11 @@ export enum ButtonType {
   BUTTON = "button",
 }
 
+interface RecaptchaProps {
+  googleRecaptchaKey?: string;
+  setRecaptchaToken: (token: string) => void;
+}
+
 interface ButtonContainerProps extends ComponentProps {
   text?: string;
   icon?: MaybeElement;
@@ -135,8 +140,6 @@ interface ButtonContainerProps extends ComponentProps {
   isLoading: boolean;
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
-  googleRecaptchaKey?: string;
-  googleRecaptchaSecret?: string;
 }
 
 const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
@@ -152,12 +155,12 @@ const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
   }
 };
 
-const RecaptchaComponent = (props: {
-  children: any;
-  googleRecaptchaKey?: string;
-  googleRecaptchaSecret?: string;
-  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-}) => {
+const RecaptchaComponent = (
+  props: {
+    children: any;
+    onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  } & RecaptchaProps,
+) => {
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${props.googleRecaptchaKey}`,
   );
@@ -170,13 +173,8 @@ const RecaptchaComponent = (props: {
               (window as any).grecaptcha
                 .execute(props.googleRecaptchaKey, { action: "submit" })
                 .then((token: any) => {
-                  Api.post("https://www.google.com/recaptcha/api/siteverify", {
-                    secret: props.googleRecaptchaSecret,
-                    response: token,
-                  }).then(response => {
-                    console.log(response);
-                    props.onClick && props.onClick(event);
-                  });
+                  props.setRecaptchaToken(token);
+                  props.onClick && props.onClick(event);
                 });
             } catch (ex) {
               console.error(ex);
@@ -190,20 +188,26 @@ const RecaptchaComponent = (props: {
   );
 };
 
-const BtnWrapper = (props: {
-  children: any;
-  googleRecaptchaKey?: string;
-  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-}) => {
+const BtnWrapper = (
+  props: {
+    children: any;
+    onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  } & RecaptchaProps,
+) => {
   if (!props.googleRecaptchaKey)
     return <div onClick={props.onClick}>{props.children}</div>;
   return <RecaptchaComponent {...props}></RecaptchaComponent>;
 };
 
 // To be used with the canvas
-const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
+const ButtonContainer = (
+  props: ButtonContainerProps & ButtonStyleProps & RecaptchaProps,
+) => {
   return (
-    <BtnWrapper googleRecaptchaKey={props.googleRecaptchaKey}>
+    <BtnWrapper
+      googleRecaptchaKey={props.googleRecaptchaKey}
+      setRecaptchaToken={props.setRecaptchaToken}
+    >
       <BaseButton
         loading={props.isLoading}
         icon={props.icon}

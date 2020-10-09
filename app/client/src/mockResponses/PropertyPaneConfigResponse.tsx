@@ -962,14 +962,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "INPUT_TEXT",
             placeholderText: "Enter google recaptcha key",
           },
-          {
-            id: "1.1.4",
-            propertyName: "googleRecaptchaSecret",
-            label: "Google Recaptcha Secret",
-            helpText: "Sets Google Recaptcha secret v3 for button.",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter google recaptcha Secret",
-          },
         ],
       },
       {

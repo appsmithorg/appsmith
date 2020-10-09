@@ -38,6 +38,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       onClick: true,
     };
   }
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      recaptchaToken: undefined,
+    };
+  }
 
   onButtonClick() {
     if (this.props.onClick) {
@@ -52,6 +57,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         },
       });
     }
+  }
+
+  setRecaptchaToken(token: string) {
+    this.props.updateWidgetMetaProperty("recaptchaToken", token);
   }
 
   handleActionComplete = () => {
@@ -70,10 +79,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         text={this.props.text}
         disabled={this.props.isDisabled}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
-        googleRecaptchaSecret={this.props.googleRecaptchaSecret}
         onClick={this.onButtonClickBound}
         isLoading={this.props.isLoading || this.state.isLoading}
         type={this.props.buttonType || ButtonType.BUTTON}
+        setRecaptchaToken={this.setRecaptchaToken}
       />
     );
   }
@@ -97,7 +106,6 @@ export interface ButtonWidgetProps extends WidgetProps {
   isVisible?: boolean;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
-  googleRecaptchaSecret?: string;
 }
 
 interface ButtonWidgetState extends WidgetState {
