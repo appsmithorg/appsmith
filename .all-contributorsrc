@@ -103,6 +103,15 @@
       "contributions": [
         "design"
       ]
+    },
+    {
+      "login": "NandanAnantharamu",
+      "name": "NandanAnantharamu",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/67676905?v=4",
+      "profile": "https://github.com/NandanAnantharamu",
+      "contributions": [
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
