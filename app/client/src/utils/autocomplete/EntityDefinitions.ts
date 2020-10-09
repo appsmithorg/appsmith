@@ -114,6 +114,7 @@ export const entityDefinitions = {
     text: "string",
     isDisabled: "bool",
     recaptchaToken: "string",
+    googleRecaptchaKey: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -178,6 +179,7 @@ export const entityDefinitions = {
     text: "string",
     isDisabled: "bool",
     recaptchaToken: "string",
+    googleRecaptchaKey: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
