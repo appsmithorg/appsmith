@@ -10,7 +10,7 @@
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
 [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 </p>
@@ -102,6 +102,7 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
   <tr>
     <td align="center"><a href="https://sharats.me"><img src="https://avatars3.githubusercontent.com/u/120119?v=4" width="100px;" alt=""/><br /><sub><b>Shrikant Sharat Kandula</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=sharat87" title="Code">💻</a> <a href="#plugin-sharat87" title="Plugin/utility libraries">🔌</a></td>
     <td align="center"><a href="https://github.com/aakashDesign"><img src="https://avatars2.githubusercontent.com/u/65771350?v=4" width="100px;" alt=""/><br /><sub><b>Aakash Shrivastava</b></sub></a><br /><a href="#design-aakashDesign" title="Design">🎨</a></td>
+    <td align="center"><a href="https://github.com/Debsourabh"><img src="https://avatars2.githubusercontent.com/u/34486435?v=4" width="100px;" alt=""/><br /><sub><b>Debsourabh Ghosh</b></sub></a><br /><a href="#design-Debsourabh" title="Design">🎨</a></td>
   </tr>
 </table>
 
