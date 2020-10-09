@@ -65,14 +65,15 @@ export function* evaluateDynamicTrigger(
   callbackData: any,
 ) {
   if (evaluationWorker) {
-    const evalTree = yield select(getDataTree);
+    const unEvalTree = yield select(getUnevaluatedDataTree);
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
-      dataTree: evalTree,
+      dataTree: unEvalTree,
       dynamicTrigger,
       callbackData,
     });
     const workerResponse = yield take(workerChannel);
+    console.log({ workerResponse });
     return workerResponse.data;
   }
   return [];

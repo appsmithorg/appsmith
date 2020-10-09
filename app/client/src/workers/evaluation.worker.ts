@@ -601,7 +601,9 @@ ctx.addEventListener("message", e => {
     }
     case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
       const { dynamicTrigger, callbackData, dataTree } = rest;
-      const withFunctions = addFunctions(dataTree);
+      debugger;
+      const evalTree = getEvaluatedDataTree(dataTree);
+      const withFunctions = addFunctions(evalTree);
       const triggers = getDynamicValue(
         dynamicTrigger,
         withFunctions,
@@ -1372,8 +1374,12 @@ export const evaluateDynamicBoundValue = (
   path: string,
   callbackData?: any,
 ): EvalResult => {
-  const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
-  return evaluate(unescapedJS, data, callbackData);
+  try {
+    const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
+    return evaluate(unescapedJS, data, callbackData);
+  } catch (e) {
+    return { result: undefined, triggers: [] };
+  }
 };
 
 const evaluate = (
