@@ -37,5 +37,8 @@
     "textbuttonWidget": ".t--draggable-buttonwidget button.bp3-button[type='button']",
     "textInputval": ".t--draggable-textwidget span.t--widget-name",
     "textAlign": ".t--property-control-textalign",
-    "ColumnAction": ".t--property-control-rowbutton button"
+    "ColumnAction": ".t--property-control-rowbutton button",
+    "defaultOption": ".t--property-control-defaultoption .CodeMirror-code",
+    "defaultSingleSelectValue": ".bp3-popover-target > div > .bp3-button > .bp3-button-text",
+    "widgetBtn": ".t--widget-buttonwidget button"
 }

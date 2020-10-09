@@ -1458,6 +1458,20 @@ Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
     .trigger("mouseup", { force: true });
 });
 
+Cypress.Commands.add("executeDbQuery", queryName => {
+  cy.get(widgetsPage.buttonOnClick)
+    .get(commonlocators.dropdownSelectButton)
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains("Execute a DB Query")
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains(queryName)
+    .click({ force: true });
+});
+
 Cypress.Commands.add("openPropertyPane", widgetType => {
   const selector = `.t--draggable-${widgetType}`;
   cy.get(selector)
