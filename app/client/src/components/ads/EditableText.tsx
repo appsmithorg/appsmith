@@ -128,35 +128,42 @@ const IconWrapper = styled.div`
 `;
 
 export const EditableText = (props: EditableTextProps) => {
-  const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
-  const [value, setValue] = useState(props.defaultValue);
-  const [lastValidValue, setLastValidValue] = useState(props.defaultValue);
+  const {
+    onBlur,
+    onTextChanged,
+    isInvalid: isInvalidCallback,
+    defaultValue,
+    isEditingDefault,
+  } = props;
+  const [isEditing, setIsEditing] = useState(!!isEditingDefault);
+  const [value, setValue] = useState(defaultValue);
+  const [lastValidValue, setLastValidValue] = useState(defaultValue);
   const [isInvalid, setIsInvalid] = useState<string | boolean>(false);
   const [changeStarted, setChangeStarted] = useState<boolean>(false);
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
-  const valueRef = React.useRef(props.defaultValue);
+  const valueRef = React.useRef(defaultValue);
 
   useEffect(() => {
     setSavingState(props.savingState);
-  }, [props]);
+  }, [props.savingState]);
 
   useEffect(() => {
     return () => {
-      props.onBlur(valueRef.current);
+      onBlur(valueRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    setValue(props.defaultValue);
-    setIsEditing(!!props.isEditingDefault);
-  }, [props]);
+    setValue(defaultValue);
+    setIsEditing(!!isEditingDefault);
+  }, [defaultValue, isEditingDefault]);
 
   useEffect(() => {
-    if (props.forceDefault === true) setValue(props.defaultValue);
-  }, [props]);
+    if (props.forceDefault === true) setValue(defaultValue);
+  }, [props.forceDefault, defaultValue]);
 
   const themeDetails = useSelector(getThemeDetails);
   const bgColor = useMemo(
@@ -168,35 +175,41 @@ export const EditableText = (props: EditableTextProps) => {
   const editMode = useCallback(
     (e: React.MouseEvent) => {
       setIsEditing(true);
-      const errorMessage =
-        props.isInvalid && props.isInvalid(props.defaultValue);
+      const errorMessage = isInvalidCallback && isInvalidCallback(defaultValue);
       setIsInvalid(errorMessage ? errorMessage : false);
       e.preventDefault();
       e.stopPropagation();
     },
-    [props],
+    [isInvalidCallback, defaultValue],
   );
 
   const onConfirm = useCallback(
     (_value: string) => {
       if (savingState === SavingState.ERROR || isInvalid) {
         setValue(lastValidValue);
-        props.onBlur(lastValidValue);
+        onBlur(lastValidValue);
         setSavingState(SavingState.NOT_STARTED);
       } else if (changeStarted) {
-        props.onTextChanged(_value);
-        props.onBlur(_value);
+        onTextChanged(_value);
+        onBlur(_value);
       }
       setIsEditing(false);
       setChangeStarted(false);
     },
-    [changeStarted, savingState, isInvalid, lastValidValue, props],
+    [
+      changeStarted,
+      savingState,
+      isInvalid,
+      lastValidValue,
+      onBlur,
+      onTextChanged,
+    ],
   );
 
   const onInputchange = useCallback(
     (_value: string) => {
       const finalVal: string = _value;
-      const errorMessage = props.isInvalid && props.isInvalid(finalVal);
+      const errorMessage = isInvalidCallback && isInvalidCallback(finalVal);
       const error = errorMessage ? errorMessage : false;
       if (!error) {
         setLastValidValue(finalVal);
@@ -206,7 +219,7 @@ export const EditableText = (props: EditableTextProps) => {
       setIsInvalid(error);
       setChangeStarted(true);
     },
-    [props],
+    [isInvalidCallback],
   );
 
   const iconName =

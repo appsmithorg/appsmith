@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { Fragment, useEffect } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import TagListField from "components/editorComponents/form/fields/TagListField";
@@ -343,8 +343,8 @@ const OrgInviteUsersForm = (props: any) => {
                   initials: string;
                 }) => {
                   return (
-                    <>
-                      <User key={user.username}>
+                    <Fragment key={user.username}>
+                      <User>
                         <UserInfo>
                           <ProfileImage backgroundColor={user.imageBackground}>
                             <Text type={TextType.H6} highlight>
@@ -362,7 +362,7 @@ const OrgInviteUsersForm = (props: any) => {
                       </User>
 
                       <RoleDivider />
-                    </>
+                    </Fragment>
                   );
                 },
               )}
