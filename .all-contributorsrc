@@ -45,6 +45,17 @@
         "infra",
         "ideas"
       ]
+    },
+    {
+      "login": "sharat87",
+      "name": "Shrikant Sharat Kandula",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/120119?v=4",
+      "profile": "https://sharats.me",
+      "contributions": [
+        "code",
+        "plugin",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
