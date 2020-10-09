@@ -1359,8 +1359,8 @@ Cypress.Commands.add("saveDatasource", () => {
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
-  cy.testDatasource();
   cy.saveDatasource();
+  cy.testDatasource();
 });
 
 Cypress.Commands.add("fillMongoDatasourceForm", () => {

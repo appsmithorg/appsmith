@@ -11,7 +11,7 @@ If you feel parts of our documentation can be improved or have incorrect informa
 
 ## Contributing
 
-Our [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3ADocumentation+label%3A%22Good+First+Issue%22) list is the best place to begin contributing
+Our [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22+label%3A%22Documentation%22+no%3Aassignee) list is the best place to begin contributing
 
 ### Updating the docs
 
