@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
@@ -21,16 +20,15 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
-import software.amazon.awssdk.services.dynamodb.model.ListTablesRequest;
-import software.amazon.awssdk.services.dynamodb.model.ListTablesResponse;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class DynamoPlugin extends BasePlugin {
@@ -67,60 +65,51 @@ public class DynamoPlugin extends BasePlugin {
             }
 
             final String action = command.getAction();
-            final Map parameters = command.getParameters();
+            final Map<String, Object> parameters = command.getParameters();
 
-            if ("ListTables".equalsIgnoreCase(action)) {
-                boolean moreTables = true;
-                String lastName = null;
-
-                while(moreTables) {
-                    try {
-                        ListTablesResponse response = null;
-                        if (lastName == null) {
-                            ListTablesRequest request = ListTablesRequest.builder().build();
-                            response = ddb.listTables(request);
-                        } else {
-                            ListTablesRequest request = ListTablesRequest.builder()
-                                    .exclusiveStartTableName(lastName).build();
-                            response = ddb.listTables(request);
-                        }
-
-                        List<String> tableNames = response.tableNames();
-
-                        if (!tableNames.isEmpty()) {
-                            for (String curName : tableNames) {
-                                System.out.format("* %s\n", curName);
-                            }
-                        } else {
-                            System.out.println("No tables found!");
-                            System.exit(0);
-                        }
-
-                        lastName = response.lastEvaluatedTableName();
-                        if (lastName == null) {
-                            moreTables = false;
-                        }
-
-                        final Map<String, Object> body = new LinkedHashMap<>();
-                        body.put("tables", ObjectUtils.defaultIfNull(tableNames, Collections.emptyList()));
-                        body.put("lastEvaluatedTableName", response.lastEvaluatedTableName());
-                        result.setBody(body);
-
-                    } catch (DynamoDbException e) {
-                        return Mono.error(e);
-
-                    }
-                }
-
-            } else {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unknown command `" + action + "`."));
-
+            final Map<String, Object> correctedCaseParameters = new HashMap<>();
+            for (final Map.Entry<String, Object> entry : parameters.entrySet()) {
+                correctedCaseParameters.put(
+                        entry.getKey().substring(0, 1).toLowerCase() + entry.getKey().substring(1),
+                        entry.getValue()
+                );
             }
 
-            result.setBody("result");
-            result.setIsExecutionSuccess(true);
+            // Get the class implementing this DynamoDB action.
+            final Class<?> actionClass;
+            try {
+                actionClass = Class.forName("com.external.plugins.dynamodb.actions." + action);
+            } catch (ClassNotFoundException e) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        "Action class not found for `" + action + "`."));
+            }
+
+            // Get the "execute" method in that action class.
+            final Optional<Method> executeMethod = Arrays
+                    .stream(actionClass.getMethods())
+                    .filter(method -> "execute".equals(method.getName()))
+                    .findFirst();
+
+            if (executeMethod.isEmpty()) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        "Missing execute method on action class for action `" + action + "`."));
+            }
+
+            try {
+                result.setBody(executeMethod.get().invoke(
+                        null,
+                        ddb,
+                        objectMapper.convertValue(
+                                correctedCaseParameters,
+                                Class.forName(actionClass.getName() + "$Parameters")
+                        )
+                ));
+            } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
+                return Mono.error(e);
+            }
+
             log.debug("In the DynamoPlugin, got action execution result: " + result.toString());
+            result.setIsExecutionSuccess(true);
             return Mono.just(result);
         }
 
@@ -149,7 +138,6 @@ public class DynamoPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
-
             return invalids;
         }
 
