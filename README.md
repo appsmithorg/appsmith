@@ -1,7 +1,4 @@
 <div align="center">
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
   <a href="https://appsmith.com">
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
     </a>
@@ -12,6 +9,9 @@
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
 [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 </p>
   <p>
