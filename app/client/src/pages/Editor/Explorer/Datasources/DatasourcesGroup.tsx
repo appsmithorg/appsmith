@@ -51,12 +51,11 @@ export const ExplorerDatasourcesGroup = (
         );
       }}
     >
-      {datasources.map((datasource: Datasource, index: number) => {
+      {datasources.map((datasource: Datasource) => {
         return (
           <ExplorerDatasourceEntity
             plugin={pluginGroups[datasource.pluginId]}
             key={datasource.id}
-            isDefaultExpanded={index === 0}
             datasource={datasource}
             step={props.step + 1}
             searchKeyword={props.searchKeyword}
