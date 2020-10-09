@@ -131,7 +131,7 @@ export const EditableText = (props: EditableTextProps) => {
   const {
     onBlur,
     onTextChanged,
-    isInvalid: isInvalidCallback,
+    isInvalid: inputValidation,
     defaultValue,
     isEditingDefault,
   } = props;
@@ -175,12 +175,12 @@ export const EditableText = (props: EditableTextProps) => {
   const editMode = useCallback(
     (e: React.MouseEvent) => {
       setIsEditing(true);
-      const errorMessage = isInvalidCallback && isInvalidCallback(defaultValue);
+      const errorMessage = inputValidation && inputValidation(defaultValue);
       setIsInvalid(errorMessage ? errorMessage : false);
       e.preventDefault();
       e.stopPropagation();
     },
-    [isInvalidCallback, defaultValue],
+    [inputValidation, defaultValue],
   );
 
   const onConfirm = useCallback(
@@ -209,7 +209,7 @@ export const EditableText = (props: EditableTextProps) => {
   const onInputchange = useCallback(
     (_value: string) => {
       const finalVal: string = _value;
-      const errorMessage = isInvalidCallback && isInvalidCallback(finalVal);
+      const errorMessage = inputValidation && inputValidation(finalVal);
       const error = errorMessage ? errorMessage : false;
       if (!error) {
         setLastValidValue(finalVal);
@@ -219,7 +219,7 @@ export const EditableText = (props: EditableTextProps) => {
       setIsInvalid(error);
       setChangeStarted(true);
     },
-    [isInvalidCallback],
+    [inputValidation],
   );
 
   const iconName =
