@@ -141,6 +141,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "visibleajay",
+      "name": "Ajay Kumar",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/13945951?v=4",
+      "profile": "https://github.com/visibleajay",
+      "contributions": [
+        "bug",
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
