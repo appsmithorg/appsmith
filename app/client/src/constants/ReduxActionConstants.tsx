@@ -464,10 +464,6 @@ export type OrganizationDetails = {
   applications: any[];
 };
 
-// export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
-
-// export interface LoadQueryResponsePayload extends ExecuteActionResponse {}
-
 export interface LoadWidgetEditorPayload {
   widgets: WidgetProps[];
 }
@@ -475,10 +471,6 @@ export interface LoadWidgetEditorPayload {
 export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
-
-export type SavePagePayload = Record<string, unknown>;
-export type SavePageErrorPayload = Record<string, unknown>;
-export type SavePageSuccessPayload = unknown;
 
 export type InitializeEditorPayload = {
   applicationId: string;

@@ -220,22 +220,6 @@ export interface ApplicationsReduxState {
   userOrgs: Organization[];
 }
 
-// export interface Organization {
-//   id: string;
-//   name: string;
-//   userPermissions: string[];
-//   plugins: Array<{
-//     userPermissions: string[];
-//     pluginId: string;
-//     status: string;
-//     new: boolean;
-//   }>;
-//   organizationSettings: {
-//     slug: string;
-//     logoUrl: string;
-//     new: boolean;
-//   };
-// }
 export interface Application {
   id: string;
   name: string;

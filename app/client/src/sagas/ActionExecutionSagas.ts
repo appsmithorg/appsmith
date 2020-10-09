@@ -140,7 +140,7 @@ function* storeValueLocally(
   }
 }
 
-function* downloadSaga(
+async function downloadSaga(
   action: { data: any; name: string; type: string },
   event: ExecuteActionPayloadEvent,
 ) {
@@ -163,7 +163,6 @@ function* downloadSaga(
       downloadjs(data, name, type);
     }
     if (event.callback) event.callback({ success: true });
-    yield;
   } catch (err) {
     AppToaster.show({
       message: `Download failed. ${err}`,
