@@ -40,7 +40,9 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   config: Partial<ActionConfig>;
   pluginType: PluginType;
   name: string;
-  run: any; // Figure out a proper type for this.
+  run:
+    | ActionDispatcher<RunActionPayload, [string, string, string]>
+    | Record<string, any>;
   dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
