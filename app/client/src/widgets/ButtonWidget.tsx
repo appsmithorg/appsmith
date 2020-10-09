@@ -62,10 +62,16 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 
   clickWithRecaptcha(token: string) {
+    if (this.props.onClick) {
+      this.setState({
+        isLoading: true,
+      });
+    }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
       dynamicString: this.props.onClick,
       event: {
         type: EventType.ON_CLICK,
+        callback: this.handleActionComplete,
       },
     });
   }
