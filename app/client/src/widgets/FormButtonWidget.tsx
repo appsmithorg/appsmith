@@ -19,11 +19,12 @@ class FormButtonWidget extends BaseWidget<
   FormButtonWidgetState
 > {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
+  clickWithRecaptchaBound: (token: string) => void;
 
   constructor(props: FormButtonWidgetProps) {
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
-    this.clickWithRecaptcha = this.clickWithRecaptcha.bind(this);
+    this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
     this.state = {
       isLoading: false,
     };
@@ -112,7 +113,7 @@ class FormButtonWidget extends BaseWidget<
         isLoading={this.props.isLoading || this.state.isLoading}
         type={this.props.buttonType || ButtonType.BUTTON}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
-        clickWithRecaptcha={this.clickWithRecaptcha}
+        clickWithRecaptcha={this.clickWithRecaptchaBound}
       />
     );
   }

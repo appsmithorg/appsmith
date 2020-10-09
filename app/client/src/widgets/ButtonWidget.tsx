@@ -16,11 +16,11 @@ import withMeta, { WithMeta } from "./MetaHOC";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
-
+  clickWithRecaptchaBound: (token: string) => void;
   constructor(props: ButtonWidgetProps) {
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
-    this.clickWithRecaptcha = this.clickWithRecaptcha.bind(this);
+    this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
     this.state = {
       isLoading: false,
     };
@@ -95,7 +95,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isLoading={this.props.isLoading || this.state.isLoading}
         type={this.props.buttonType || ButtonType.BUTTON}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
-        clickWithRecaptcha={this.clickWithRecaptcha}
+        clickWithRecaptcha={this.clickWithRecaptchaBound}
       />
     );
   }
