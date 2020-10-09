@@ -85,6 +85,15 @@
         "code",
         "plugin"
       ]
+    },
+    {
+      "login": "aakashDesign",
+      "name": "Aakash Shrivastava",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/65771350?v=4",
+      "profile": "https://github.com/aakashDesign",
+      "contributions": [
+        "design"
+      ]
     }
   ],
   "contributorsPerLine": 7,
