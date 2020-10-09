@@ -1,4 +1,7 @@
 <div align="center">
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
   <a href="https://appsmith.com">
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
     </a>
@@ -82,3 +85,16 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
 
 ## Contributors
 
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://arpitmohan.com"><img src="https://avatars2.githubusercontent.com/u/458946?v=4" width="100px;" alt=""/><br /><sub><b>Arpit Mohan</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=mohanarpit" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
