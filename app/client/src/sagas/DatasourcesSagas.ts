@@ -32,6 +32,7 @@ import {
   testDatasource,
   setDatsourceEditorMode,
   expandDatasourceEntity,
+  fetchDatasourceStructure,
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { GenericApiResponse } from "api/ApiResponses";
@@ -174,6 +175,12 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         message: `${response.data.name} Datasource updated`,
         type: ToastType.SUCCESS,
       });
+
+      const state = yield select();
+      const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
+      const datasourceStruture =
+        state.entities.datasources.structure[response.data.id];
+
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
@@ -187,6 +194,10 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       yield put(
         setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
       );
+
+      if (expandDatasourceId === response.data.id && !datasourceStruture) {
+        yield put(fetchDatasourceStructure(response.data.id));
+      }
     }
   } catch (error) {
     yield put({
