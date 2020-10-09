@@ -89,7 +89,7 @@ export type EntityProps = {
   updateEntityName?: (id: string, name: string) => any;
   runActionOnExpand?: boolean;
   onNameEdit?: (input: string, limit?: number) => string;
-  onToggle?: () => void;
+  onToggle?: (isOpen: boolean) => void;
 };
 
 export const Entity = forwardRef(
@@ -102,7 +102,7 @@ export const Entity = forwardRef(
     useEffect(() => {
       if (!!props.isDefaultExpanded) {
         open(true);
-        props.onToggle && props.onToggle();
+        props.onToggle && props.onToggle(true);
       }
     }, [props.isDefaultExpanded]);
     useEffect(() => {
@@ -119,8 +119,8 @@ export const Entity = forwardRef(
         props.action && props.action();
       }
 
-      if (props.onToggle && !isOpen) {
-        props.onToggle();
+      if (props.onToggle) {
+        props.onToggle(!isOpen);
       }
     };
 
