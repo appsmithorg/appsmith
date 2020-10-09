@@ -20,7 +20,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   constructor(props: ButtonWidgetProps) {
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
-    this.setRecaptchaToken = this.setRecaptchaToken.bind(this);
+    this.clickWithRecaptcha = this.clickWithRecaptcha.bind(this);
     this.state = {
       isLoading: false,
     };
@@ -61,7 +61,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   }
 
-  setRecaptchaToken(token: string) {
+  clickWithRecaptcha(token: string) {
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
       dynamicString: this.props.onClick,
       event: {
@@ -89,7 +89,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isLoading={this.props.isLoading || this.state.isLoading}
         type={this.props.buttonType || ButtonType.BUTTON}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
-        setRecaptchaToken={this.setRecaptchaToken}
+        clickWithRecaptcha={this.clickWithRecaptcha}
       />
     );
   }

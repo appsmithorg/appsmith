@@ -128,7 +128,7 @@ export enum ButtonType {
 
 interface RecaptchaProps {
   googleRecaptchaKey?: string;
-  setRecaptchaToken: (token: string) => void;
+  clickWithRecaptcha: (token: string) => void;
 }
 
 interface ButtonContainerProps extends ComponentProps {
@@ -173,7 +173,7 @@ const RecaptchaComponent = (
               (window as any).grecaptcha
                 .execute(props.googleRecaptchaKey, { action: "submit" })
                 .then((token: any) => {
-                  props.setRecaptchaToken(token);
+                  props.clickWithRecaptcha(token);
                 });
             } catch (ex) {
               AppToaster.show({
@@ -211,7 +211,7 @@ const ButtonContainer = (
   return (
     <BtnWrapper
       googleRecaptchaKey={props.googleRecaptchaKey}
-      setRecaptchaToken={props.setRecaptchaToken}
+      clickWithRecaptcha={props.clickWithRecaptcha}
       onClick={props.onClick}
     >
       <BaseButton
