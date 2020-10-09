@@ -34,6 +34,17 @@
         "ideas",
         "design"
       ]
+    },
+    {
+      "login": "trishaanand",
+      "name": "Trisha Anand",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/8403079?v=4",
+      "profile": "https://github.com/trishaanand",
+      "contributions": [
+        "code",
+        "infra",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
