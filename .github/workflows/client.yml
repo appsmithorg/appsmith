@@ -191,9 +191,6 @@ jobs:
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
-        # Recommended: pass the GitHub token lets this action correctly
-        # determine the unique run id necessary to re-run the checks
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         browser: chrome
         headless: true
