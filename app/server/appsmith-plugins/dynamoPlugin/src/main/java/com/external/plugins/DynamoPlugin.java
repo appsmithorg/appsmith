@@ -20,13 +20,12 @@ import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.awscore.client.handler.AwsSyncClientHandler;
 import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.awssdk.core.client.config.SdkClientConfiguration;
+import software.amazon.awssdk.core.SdkField;
+import software.amazon.awssdk.core.SdkPojo;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.ListTablesRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbResponse;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -34,9 +33,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public class DynamoPlugin extends BasePlugin {
@@ -81,23 +80,24 @@ public class DynamoPlugin extends BasePlugin {
             final String action = command.getAction();
             final Map<String, Object> parameters = command.getParameters();
 
-            new AwsSyncClientHandler(SdkClientConfiguration.builder().build());
+            // new AwsSyncClientHandler(SdkClientConfiguration.builder().build());
 
             try {
-                if ("ListTables".equals(action)) {
-                    ListTablesRequest request = convertValue(parameters, ListTablesRequest.class);
-                    result.setBody(ddb.listTables(request));
-                } else if ("PutItem".equals(action)) {
-                    PutItemRequest request = convertValue(parameters, PutItemRequest.class);
-                    result.setBody(ddb.putItem(request));
-                } else {
-                    result.setBody("Unknown action " + action);
-                }
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
+                final Class<?> requestClass = Class.forName("software.amazon.awssdk.services.dynamodb.model." + action + "Request");
+                final Method actionExecuteMethod = DynamoDbClient.class.getMethod(action.substring(0, 1).toLowerCase() + action.substring(1), requestClass);
+                final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, convertValue(parameters, requestClass));
+                System.out.println("Response: " + response);
+                result.setBody(response.toString());
+                // final Map<String, Object> plainResponse = responseToPlain(response);
+                // System.out.println("Plain Response: " + plainResponse);
+                // result.setBody(plainResponse);
+            } catch (InvocationTargetException e) {
+                return Mono.error(e.getCause());
+            } catch (IllegalAccessException | NoSuchMethodException | InstantiationException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
 
-            // Get the class implementing this DynamoDB action.
+            /*/ Get the class implementing this DynamoDB action.
             final Class<?> actionClass;
             try {
                 actionClass = Class.forName("com.external.plugins.dynamodb.actions." + action);
@@ -116,7 +116,7 @@ public class DynamoPlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Missing execute method on action class for action `" + action + "`."));
             }
-/*
+
             try {
                 result.setBody(executeMethod.get().invoke(
                         null,
@@ -129,7 +129,8 @@ public class DynamoPlugin extends BasePlugin {
             } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
                 return Mono.error(e);
             }
-*/
+            // */
+
             log.debug("In the DynamoPlugin, got action execution result: " + result.toString());
             result.setIsExecutionSuccess(true);
             return Mono.just(result);
@@ -208,7 +209,12 @@ public class DynamoPlugin extends BasePlugin {
             final String setterName = setterName1;
 
             if (value instanceof String) {
-                final Method setterMethod = Arrays.stream(builderType.getMethods()).filter(m -> m.getName().equals(setterName))
+                final Method setterMethod = Arrays.stream(builderType.getMethods())
+                        .filter(m -> {
+                            final Class<?> parameterType = m.getParameterTypes()[0];
+                            return m.getName().equals(setterName)
+                                    && (SdkBytes.class.isAssignableFrom(parameterType) || String.class.isAssignableFrom(parameterType));
+                        })
                         .findFirst()
                         .orElse(null);
                 if (SdkBytes.class.isAssignableFrom(setterMethod.getParameterTypes()[0])) {
@@ -269,6 +275,29 @@ public class DynamoPlugin extends BasePlugin {
         final T out = (T) builderType.getMethod("build").invoke(builder);
         System.out.println("out " + out);
         return out;
+    }
+
+    private static Map<String, Object> responseToPlain(SdkPojo response) {
+        final Map<String, Object> plain = new HashMap<>();
+
+        for (final SdkField field : response.sdkFields()) {
+            Object value = field.getValueOrDefault(response);
+            if (value instanceof SdkPojo) {
+                value = responseToPlain((SdkPojo) value);
+            } else if (value instanceof Map) {
+                final Map valueAsMap = (Map) value;
+                for (final Object key : valueAsMap.keySet()) {
+                    Object innerValue = valueAsMap.get(key);
+                    if (innerValue instanceof SdkPojo) {
+                        innerValue = responseToPlain((SdkPojo) innerValue);
+                    }
+                    valueAsMap.put(key, innerValue);
+                }
+            }
+            plain.put(field.memberName(), value);
+        }
+
+        return plain;
     }
 
     private static boolean isUpperCase(String s) {
