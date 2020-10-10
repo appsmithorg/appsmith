@@ -54,7 +54,7 @@ Labels: `Low`
 | [mohanarpit](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3ALow+assignee%3Amohanarpit) | 10 |
 | [trishaanand](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3ALow+assignee%3Atrishaanand) | 5 |
 | [vicky-primathon](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3ALow+assignee%3Avicky-primathon) | 2 |
-### 💚🥳 Good First Issue [(query)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good%20First%20Issue%22)
+### 🥳 Good First Issue [(query)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good%20First%20Issue%22)
 Total: 49
 
 Threshold: 100
