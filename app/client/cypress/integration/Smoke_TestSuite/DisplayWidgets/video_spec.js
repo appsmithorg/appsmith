@@ -3,6 +3,7 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/videoWidgetDsl.json");
 const pages = require("../../../locators/Pages.json");
+const testdata = require("../../../fixtures/testdata.json");
 
 describe("Video Widget Functionality", function() {
   before(() => {
@@ -38,6 +39,29 @@ describe("Video Widget Functionality", function() {
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Pause success");
   });
+
+  it("Update video url and check play and pause functionality validation", function() {
+    cy.testCodeMirror(testdata.videoUrl);
+    cy.get(widgetsPage.autoPlay).click();
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(commonlocators.toastMsg).should("be.visible");
+    cy.get(commonlocators.toastMsg).contains("Play success");
+    cy.wait(2000);
+    cy.get(widgetsPage.autoPlay).click();
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait(500);
+    cy.get(commonlocators.toastMsg).should("be.visible");
+    cy.get(commonlocators.toastMsg).contains("Pause success");
+  });
+
   afterEach(() => {
     // put your clean up code if any
   });
