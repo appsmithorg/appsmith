@@ -128,7 +128,7 @@ public class UserServiceTest {
 
         StepVerifier.create(userMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_CREDENTIALS.getMessage()))
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage("password")))
                 .verify();
     }
 
@@ -137,7 +137,7 @@ public class UserServiceTest {
     public void createNewUserValid() {
         User newUser = new User();
         newUser.setEmail("new-user-email@email.com");
-        newUser.setPassword("new-user-test-password");
+        newUser.setPassword("6dpU5N7mWy");
 
         Policy manageUserPolicy = Policy.builder()
                 .permission(MANAGE_USERS.getValue())
@@ -171,6 +171,21 @@ public class UserServiceTest {
                     assertThat(user.getOrganizationIds()).isNullOrEmpty();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void createNewUserWithInvalidPassword() {
+        User newUser = new User();
+        newUser.setEmail("new-user-email@email.com");
+        newUser.setPassword("12345678");
+
+        Mono<User> userMono = userService.create(newUser);
+
+        StepVerifier.create(userMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage("password")))
+                .verify();
     }
 
     @Test
@@ -267,7 +282,7 @@ public class UserServiceTest {
 
         userRepository.save(newUser).block();
 
-        newUser.setPassword("newPassword");
+        newUser.setPassword("6dpU5N7mWy");
 
         Mono<User> afterConfirmationUserMono = userService.confirmInviteUser(newUser, "http://localhost:8080")
                 .then(userRepository.findByEmail("newEmail@newEmail.com"));
@@ -292,7 +307,7 @@ public class UserServiceTest {
 
         User signupUser = new User();
         signupUser.setEmail(newUser.getEmail());
-        signupUser.setPassword("password");
+        signupUser.setPassword("6dpU5N7mWy");
         signupUser.setSource(LoginSource.FORM);
 
         Mono<User> userMono = userService.create(signupUser);
@@ -317,7 +332,7 @@ public class UserServiceTest {
 
         User signupUser = new User();
         signupUser.setEmail(newUser.getEmail());
-        signupUser.setPassword("password");
+        signupUser.setPassword("6dpU5N7mWy");
         signupUser.setSource(LoginSource.GOOGLE);
 
         Mono<User> userMono = userService.create(signupUser);
@@ -362,7 +377,7 @@ public class UserServiceTest {
         // Now Sign Up as the new user
         User signUpUser = new User();
         signUpUser.setEmail(newUserEmail);
-        signUpUser.setPassword("123456");
+        signUpUser.setPassword("6dpU5N7mWy");
 
         Mono<User> invitedUserSignUpMono =
                 userService.createUserAndSendEmail(signUpUser, "http://localhost:8080");
@@ -370,7 +385,7 @@ public class UserServiceTest {
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {
                     assertThat(user.getIsEnabled().equals(true));
-                    assertThat(passwordEncoder.matches("123456", user.getPassword())).isTrue();
+                    assertThat(passwordEncoder.matches("6dpU5N7mWy", user.getPassword())).isTrue();
                 })
                 .verifyComplete();
 
