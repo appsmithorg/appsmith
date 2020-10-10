@@ -4,12 +4,12 @@ const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/videoWidgetDsl.json");
 const pages = require("../../../locators/Pages.json");
 
-describe("Table Widget Functionality", function() {
+describe("Video Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Table Widget Functionality", function() {
+  it("Video Widget play functionality validation", function() {
     cy.openPropertyPane("videowidget");
     cy.widgetText("Video1", widgetsPage.videoWidget, commonlocators.videoInner);
     cy.get(commonlocators.onPlay).click();
@@ -23,6 +23,20 @@ describe("Table Widget Functionality", function() {
     );
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Play success");
+  });
+
+  it("Video widget pause functionality validation", function() {
+    cy.get(commonlocators.onPause).click();
+    cy.selectShowMsg();
+    cy.addSuccessMessage("Pause success");
+    cy.get(widgetsPage.autoPlay).click();
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(commonlocators.toastMsg).should("be.visible");
+    cy.get(commonlocators.toastMsg).contains("Pause success");
   });
   afterEach(() => {
     // put your clean up code if any
