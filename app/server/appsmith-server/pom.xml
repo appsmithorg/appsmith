@@ -196,6 +196,11 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.10</version>
         </dependency>
+        <dependency>
+            <groupId>org.passay</groupId>
+            <artifactId>passay</artifactId>
+            <version>1.6.0</version>
+        </dependency>
 
         <!-- MongoDB Migrations: https://github.com/cloudyrock/mongock -->
         <dependency>

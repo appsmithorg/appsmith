@@ -17,6 +17,7 @@ import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BeanCopyUtils;
+import com.appsmith.server.helpers.PasswordUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -68,6 +69,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final UserOrganizationService userOrganizationService;
     private final RoleGraph roleGraph;
     private final ConfigService configService;
+    private final PasswordUtils passwordUtils;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -95,7 +97,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            OrganizationRepository organizationRepository,
                            UserOrganizationService userOrganizationService,
                            RoleGraph roleGraph,
-                           ConfigService configService) {
+                           ConfigService configService,
+                           PasswordUtils passwordUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
@@ -109,6 +112,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.userOrganizationService = userOrganizationService;
         this.roleGraph = roleGraph;
         this.configService = configService;
+        this.passwordUtils = passwordUtils;
     }
 
     @Override
@@ -281,6 +285,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                     //User has verified via the forgot password token verfication route. Allow the user to set new password.
                     userFromDb.setPasswordResetInitiated(false);
+
+                    if (!passwordUtils.isValidPassword(user.getPassword())) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "password"));
+                    }
+
                     userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
 
                     // If the user has been invited but has not signed up yet, and is following the route of reset
@@ -391,7 +400,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "email"));
         }
 
-        if (inviteUser.getPassword() == null || inviteUser.getPassword().isEmpty()) {
+        if (!passwordUtils.isValidPassword(inviteUser.getPassword())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "password"));
         }
 
@@ -435,8 +444,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (user.isEnabled() && LoginSource.FORM.equals(user.getSource())) {
-            if (user.getPassword() == null || user.getPassword().isBlank()) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
+            if (!passwordUtils.isValidPassword(user.getPassword())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "password"));
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
@@ -499,8 +508,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                         // In case of form login, store the password
                         if (LoginSource.FORM.equals(user.getSource())) {
-                            if (user.getPassword() == null || user.getPassword().isBlank()) {
-                                return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
+                            if (!passwordUtils.isValidPassword(user.getPassword())) {
+                                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "password"));
                             }
 
                             /**
@@ -544,6 +553,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         if (userUpdate.getPassword() != null) {
+            if (!passwordUtils.isValidPassword(userUpdate.getPassword())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "password"));
+            }
+
             // The password is being updated. Hash it first and then store it
             userUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
         }
