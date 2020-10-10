@@ -191,6 +191,7 @@ jobs:
         CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+        COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
       with:
         browser: chrome
         headless: true
@@ -201,6 +202,8 @@ jobs:
         ci-build-id: '${{ github.sha }}-${{ github.workflow }}-${{ github.event_name }}'
         spec: 'cypress/integration/Smoke_TestSuite/*/*'
         working-directory: app/client
+        # tag will be either "push" or "pull_request_target"
+        tag: ${{ github.event_name }}
 
     # Upload the screenshots as artifacts if there's a failure
     - uses: actions/upload-artifact@v1
