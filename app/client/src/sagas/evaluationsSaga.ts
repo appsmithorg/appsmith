@@ -10,11 +10,14 @@ import {
 } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import Worker from "worker-loader!../workers/evaluation.worker";
-import { EVAL_WORKER_ACTIONS } from "./SagaUtils";
 import {
-  ActionDescription,
-  ActionDispatcher,
-} from "../entities/DataTree/dataTreeFactory";
+  EVAL_WORKER_ACTIONS,
+  EvalError,
+  EvalErrorTypes,
+} from "../utils/DynamicBindingUtils";
+import { ToastType } from "react-toastify";
+import { AppToaster } from "../components/editorComponents/ToastComponent";
+import log from "loglevel";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
@@ -32,6 +35,18 @@ const initEvaluationWorkers = () => {
   });
 };
 
+const evalErrorHandler = (errors: EvalError[]) => {
+  errors.forEach(error => {
+    if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
+      AppToaster.show({
+        message: error.error.message,
+        type: ToastType.ERROR,
+      });
+    }
+    log.debug(error);
+  });
+};
+
 function* evaluateTreeSaga() {
   const unEvalTree = yield select(getUnevaluatedDataTree);
   evaluationWorker.postMessage({
@@ -40,10 +55,11 @@ function* evaluateTreeSaga() {
     widgetTypeConfigMap,
   });
   const workerResponse = yield take(workerChannel);
-  const evalTree = workerResponse.data;
+  const { errors, dataTree } = workerResponse.data;
+  evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: evalTree,
+    payload: dataTree,
   });
 }
 
@@ -56,7 +72,9 @@ export function* evaluateSingleValue(binding: string) {
       binding,
     });
     const workerResponse = yield take(workerChannel);
-    return workerResponse.data;
+    const { errors, value } = workerResponse.data;
+    evalErrorHandler(errors);
+    return value;
   }
 }
 
@@ -73,8 +91,9 @@ export function* evaluateDynamicTrigger(
       callbackData,
     });
     const workerResponse = yield take(workerChannel);
-    console.log({ workerResponse });
-    return workerResponse.data;
+    const { errors, triggers } = workerResponse.data;
+    evalErrorHandler(errors);
+    return triggers;
   }
   return [];
 }

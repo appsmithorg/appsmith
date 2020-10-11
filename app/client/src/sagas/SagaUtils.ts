@@ -1,4 +1,5 @@
 import { ApplicationPagePayload } from "api/ApplicationApi";
+
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
@@ -11,11 +12,3 @@ export const getDefaultPageId = (
   }
   return defaultPage ? defaultPage.id : undefined;
 };
-
-export enum EVAL_WORKER_ACTIONS {
-  EVAL_TREE = "EVAL_TREE",
-  EVAL_SINGLE = "EVAL_SINGLE",
-  EVAL_TRIGGER = "EVAL_TRIGGER",
-  CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
-  CLEAR_CACHE = "CLEAR_CACHE",
-}

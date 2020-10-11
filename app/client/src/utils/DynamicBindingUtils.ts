@@ -3,11 +3,6 @@ import {
   DATA_BIND_REGEX,
   DATA_BIND_REGEX_GLOBAL,
 } from "constants/BindingsConstants";
-import JSExecutionManagerSingleton, {
-  JSExecutorResult,
-} from "jsExecution/JSExecutionManagerSingleton";
-import unescapeJS from "unescape-js";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Action } from "entities/Action";
 
 type StringTuple = [string, string];
@@ -85,17 +80,24 @@ export const getDynamicBindings = (
   return { stringSegments: stringSegments, jsSnippets: paths };
 };
 
-// Paths are expected to have "{name}.{path}" signature
-// Also returns any action triggers found after evaluating value
-export const evaluateDynamicBoundValue = (
-  data: DataTree,
-  path: string,
-  callbackData?: any,
-): JSExecutorResult => {
-  const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
-  return JSExecutionManagerSingleton.evaluateSync(
-    unescapedJS,
-    data,
-    callbackData,
-  );
+export enum EvalErrorTypes {
+  DEPENDENCY_ERROR = "DEPENDENCY_ERROR",
+  EVAL_PROPERTY_ERROR = "EVAL_PROPERTY_ERROR",
+  EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
+  UNESCAPE_STRING_ERROR = "UNESCAPE_STRING_ERROR",
+  EVAL_ERROR = "EVAL_ERROR",
+}
+
+export type EvalError = {
+  type: EvalErrorTypes;
+  error: Error;
+  context?: Record<string, any>;
 };
+
+export enum EVAL_WORKER_ACTIONS {
+  EVAL_TREE = "EVAL_TREE",
+  EVAL_SINGLE = "EVAL_SINGLE",
+  EVAL_TRIGGER = "EVAL_TRIGGER",
+  CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
+  CLEAR_CACHE = "CLEAR_CACHE",
+}
