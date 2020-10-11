@@ -46,6 +46,9 @@ import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -53,6 +56,7 @@ const OrgDropDown = styled.div`
     ${props => props.theme.spaces[4]}px;
   font-size: ${props => props.theme.fontSizes[1]}px;
   justify-content: space-between;
+  align-items: center;
 `;
 
 const ApplicationCardsWrapper = styled.div`
@@ -174,8 +178,8 @@ const textIconStyles = (props: { color: string; hover: string }) => {
 const NewWorkspaceWrapper = styled.div`
   ${props => {
     return `${textIconStyles({
-      color: props.theme.colors.blackShades[7],
-      hover: props.theme.colors.blackShades[8],
+      color: props.theme.colors.applications.textColor,
+      hover: props.theme.colors.applications.hover.textColor,
     })}`;
   }}
 `;
@@ -183,8 +187,8 @@ const NewWorkspaceWrapper = styled.div`
 const ApplicationAddCardWrapper = styled(Card)`
   display: flex;
   flex-direction: column;
-  // justify-content: center;
-  background: ${props => props.theme.colors.blackShades[2]};
+  justify-content: center;
+  background: ${props => props.theme.colors.applications.bg};
   align-items: center;
   width: ${props => props.theme.card.minWidth}px;
   height: ${props => props.theme.card.minHeight}px;
@@ -192,8 +196,7 @@ const ApplicationAddCardWrapper = styled(Card)`
   box-shadow: none;
   border-radius: 0;
   padding: 0;
-  padding-top: 52px;
-  margin: ${props => props.theme.spaces[11]}px
+  margin: ${props => props.theme.spaces[11] - 2}px
     ${props => props.theme.spaces[5]}px;
   a {
     display: block;
@@ -205,12 +208,12 @@ const ApplicationAddCardWrapper = styled(Card)`
   }
   cursor: pointer;
   &:hover {
-    background: ${props => props.theme.colors.blackShades[4]};
+    background: ${props => props.theme.colors.applications.hover.bg};
   }
   ${props => {
     return `${textIconStyles({
-      color: props.theme.colors.blackShades[7],
-      hover: props.theme.colors.blackShades[8],
+      color: props.theme.colors.applications.textColor,
+      hover: props.theme.colors.applications.hover.textColor,
     })}`;
   }}
 `;
@@ -243,6 +246,7 @@ function LeftPane() {
                 key={org.organization.name}
                 href={`${window.location.pathname}#${org.organization.name}`}
                 text={org.organization.name}
+                ellipsize={20}
               />
             ))}
         </WorkpsacesNavigator>
@@ -256,12 +260,34 @@ const CreateNewLabel = styled(Text)`
   margin-top: 18px;
 `;
 
+const OrgNameElement = styled(Text)`
+  max-width: 500px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+`;
+
+const OrgNameHolder = styled(Text)`
+  display: flex;
+  align-items: center;
+`;
+
+const OrgNameInMenu = styled(Text)`
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+  padding: 9px ${props => props.theme.spaces[6]}px;
+`;
+
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
 cursor: ${props => (!props.disabled ? "pointer" : "inherit")};
 ${props => {
   const color = props.disabled
-    ? props.theme.colors.blackShades[7]
-    : props.theme.colors.blackShades[9];
+    ? props.theme.colors.applications.orgColor
+    : props.theme.colors.applications.hover.orgColor[9];
   return `${textIconStyles({
     color: color,
     hover: color,
@@ -271,6 +297,7 @@ ${props => {
 .${Classes.ICON} {
   display: ${props => (!props.disabled ? "inline" : "none")};;
   margin-left: 8px;
+  color: ${props => props.theme.colors.applications.iconColor};
 }
 `;
 
@@ -312,10 +339,10 @@ const ApplicationsSection = () => {
     const OrgName = (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
         <StyledAnchor id={orgName}></StyledAnchor>
-        <Text type={TextType.H1}>
-          {orgName}
+        <OrgNameHolder type={TextType.H1}>
+          <OrgNameElement type={TextType.H1}>{orgName}</OrgNameElement>
           <Icon name="downArrow" size={IconSize.XXS}></Icon>
-        </Text>
+        </OrgNameHolder>
       </OrgNameWrapper>
     );
     return disabled ? (
@@ -326,7 +353,7 @@ const ApplicationsSection = () => {
         position={Position.BOTTOM_RIGHT}
         className="t--org-name"
       >
-        <MenuItem text={orgName} disabled />
+        <OrgNameInMenu type={TextType.H5}>{orgName}</OrgNameInMenu>
         <MenuItem
           icon="general"
           text="Organization Settings"
@@ -405,41 +432,48 @@ const ApplicationsSection = () => {
                 )}
               </OrgDropDown>
               <ApplicationCardsWrapper key={organization.id}>
-                <FormDialogComponent
-                  permissions={organization.userPermissions}
-                  permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
-                  trigger={
-                    <PaddingWrapper>
-                      <ApplicationAddCardWrapper>
-                        <Icon
-                          className="t--create-app-popup"
-                          name={"plus"}
-                          size={IconSize.LARGE}
-                        ></Icon>
-                        <CreateNewLabel
-                          type={TextType.H4}
-                          className="createnew"
-                          // cypressSelector={"t--create-new-app"}
-                        >
-                          Create New
-                        </CreateNewLabel>
-                      </ApplicationAddCardWrapper>
-                    </PaddingWrapper>
-                  }
-                  Form={CreateApplicationForm}
-                  orgId={organization.id}
-                  title={"Create Application"}
-                />
+                {isPermitted(
+                  organization.userPermissions,
+                  PERMISSION_TYPE.CREATE_APPLICATION,
+                ) && (
+                  <PaddingWrapper>
+                    <FormDialogComponent
+                      permissions={organization.userPermissions}
+                      permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
+                      trigger={
+                        <ApplicationAddCardWrapper>
+                          <Icon
+                            className="t--create-app-popup"
+                            name={"plus"}
+                            size={IconSize.LARGE}
+                          ></Icon>
+                          <CreateNewLabel
+                            type={TextType.H4}
+                            className="createnew"
+                            // cypressSelector={"t--create-new-app"}
+                          >
+                            Create New
+                          </CreateNewLabel>
+                        </ApplicationAddCardWrapper>
+                      }
+                      Form={CreateApplicationForm}
+                      orgId={organization.id}
+                      title={"Create Application"}
+                    />
+                  </PaddingWrapper>
+                )}
                 {applications.map((application: any) => {
                   return (
                     application.pages?.length > 0 && (
-                      <ApplicationCard
-                        key={application.id}
-                        application={application}
-                        delete={deleteApplication}
-                        update={updateApplicationDispatch}
-                        duplicate={duplicateApplicationDispatch}
-                      />
+                      <PaddingWrapper>
+                        <ApplicationCard
+                          key={application.id}
+                          application={application}
+                          delete={deleteApplication}
+                          update={updateApplicationDispatch}
+                          duplicate={duplicateApplicationDispatch}
+                        />
+                      </PaddingWrapper>
                     )
                   );
                 })}
@@ -479,6 +513,8 @@ class Applications extends Component<
   }
 
   componentDidMount() {
+    PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
+    PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
   }
   public render() {

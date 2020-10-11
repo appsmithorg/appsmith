@@ -275,12 +275,18 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     private Flux<Application> setTransientFields(Flux<Application> applicationsFlux) {
-        return configService.getTemplateOrganizationId()
+        return configService.getTemplateApplications()
+                .map(application -> application.getId())
                 .defaultIfEmpty("")
+                .collectList()
                 .cache()
                 .repeat()
-                .zipWith(applicationsFlux, (templateOrganizationId, application) -> {
-                    application.setAppIsExample(templateOrganizationId.equals(application.getOrganizationId()));
+                .zipWith(applicationsFlux)
+                .map(tuple -> {
+                    List<String> templateApplicationIds = tuple.getT1();
+                    Application application = tuple.getT2();
+
+                    application.setAppIsExample(templateApplicationIds.contains(application.getId()));
                     return application;
                 });
     }

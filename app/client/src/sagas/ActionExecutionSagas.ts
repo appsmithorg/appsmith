@@ -38,6 +38,7 @@ import { AppToaster } from "components/editorComponents/ToastComponent";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPageList,
 } from "selectors/editorSelectors";
 import _ from "lodash";
@@ -77,6 +78,9 @@ import { updateAppStore } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -147,6 +151,8 @@ function* downloadSaga(
         message: "Download failed. File name was not provided",
         type: "error",
       });
+
+      if (event.callback) event.callback({ success: false });
       return;
     }
     const dataType = getType(data);
@@ -283,9 +289,21 @@ export function* executeActionSaga(
   event: ExecuteActionPayloadEvent,
 ) {
   const { actionId, onSuccess, onError, params } = apiAction;
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.EXECUTE_ACTION,
+    {
+      actionId: actionId,
+    },
+    actionId,
+  );
   try {
     const api: RestAction = yield select(getAction, actionId);
 
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: api.pluginType,
+      name: api.name,
+      pageId: api.pageId,
+    });
     if (api.confirmBeforeExecute) {
       const confirmed = yield call(confirmRunActionSaga);
       if (!confirmed) {
@@ -326,6 +344,11 @@ export function* executeActionSaga(
       }),
     );
     if (isErrorResponse(response)) {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        { failed: true },
+        actionId,
+      );
       if (onError) {
         yield put(
           executeAction({
@@ -348,6 +371,11 @@ export function* executeActionSaga(
         type: "error",
       });
     } else {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        undefined,
+        actionId,
+      );
       if (onSuccess) {
         yield put(
           executeAction({
@@ -579,6 +607,15 @@ function* confirmRunActionSaga() {
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.EXECUTE_ACTION,
+    {
+      actionId: pageAction.id,
+    },
+    pageAction.id,
+    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+  );
+  const pageId = yield select(getCurrentPageId);
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
@@ -588,24 +625,43 @@ function* executePageLoadAction(pageAction: PageAction) {
     action: { id: pageAction.id },
     params,
   };
+  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+    type: pageAction.pluginType,
+    name: pageAction.name,
+    pageId: pageId,
+    onPageLoad: true,
+  });
   const response: ActionApiResponse = yield ActionAPI.executeAction(
     executeActionRequest,
     pageAction.timeoutInMillisecond,
   );
-
   if (isErrorResponse(response)) {
     yield put(
       executeActionError({
         actionId: pageAction.id,
         error: response.responseMeta.error,
+        isPageLoad: true,
       }),
+    );
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.EXECUTE_ACTION,
+      {
+        failed: true,
+      },
+      pageAction.id,
     );
   } else {
     const payload = createActionExecutionResponse(response);
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.EXECUTE_ACTION,
+      undefined,
+      pageAction.id,
+    );
     yield put(
       executeApiActionSuccess({
         id: pageAction.id,
         response: payload,
+        isPageLoad: true,
       }),
     );
   }
@@ -613,10 +669,20 @@ function* executePageLoadAction(pageAction: PageAction) {
 
 function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
+  const actionCount = _.flatten(pageActions).length;
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+    { numActions: actionCount },
+  );
   for (const actionSet of pageActions) {
     // Load all sets in parallel
-    yield* yield all(actionSet.map(a => call(executePageLoadAction, a)));
+    yield* yield all(
+      actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
+    );
   }
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+  );
 }
 
 export function* watchActionExecutionSagas() {

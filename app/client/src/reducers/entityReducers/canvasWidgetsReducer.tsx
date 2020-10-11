@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   UpdateCanvasPayload,
@@ -13,31 +13,25 @@ export type FlattenedWidgetProps = WidgetProps & {
   children?: string[];
 };
 
-const canvasWidgetsReducer = createReducer(initialState, {
+const canvasWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.UPDATE_CANVAS]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
-    return { ...action.payload.widgets };
+    return action.payload.widgets;
   },
   [ReduxActionTypes.UPDATE_LAYOUT]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
-    return { ...action.payload.widgets };
+    return action.payload.widgets;
   },
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateWidgetPropertyPayload>,
   ) => {
-    const widget = state[action.payload.widgetId];
-    return {
-      ...state,
-      [action.payload.widgetId]: {
-        ...widget,
-        [action.payload.propertyName]: action.payload.propertyValue,
-      },
-    };
+    state[action.payload.widgetId][action.payload.propertyName] =
+      action.payload.propertyValue;
   },
 });
 

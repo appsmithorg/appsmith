@@ -29,8 +29,8 @@ const StyledToggle = styled.label<{
     left: 0;
     background-color: ${props =>
       props.isLoading
-        ? props.theme.colors.blackShades[3]
-        : props.theme.colors.blackShades[4]};
+        ? props.theme.colors.toggle.disable.off
+        : props.theme.colors.toggle.bg};
     transition: 0.4s;
     width: 46px;
     height: 23px;
@@ -56,8 +56,8 @@ const StyledToggle = styled.label<{
       left: 2px;
       background-color: ${
         props.disabled && !props.value
-          ? lighten(props.theme.colors.tertiary.dark, 16)
-          : props.theme.colors.blackShades[9]
+          ? props.theme.colors.toggle.disabledSlider.off
+          : props.theme.colors.toggle.disabledSlider.on
       };
       box-shadow: ${
         props.value
@@ -93,21 +93,21 @@ const StyledToggle = styled.label<{
   input:focus + .slider {
     background-color: ${props =>
       props.value
-        ? lighten(props.theme.colors.info.main, 12)
-        : lighten(props.theme.colors.blackShades[3], 16)};
+        ? props.theme.colors.toggle.hover.on
+        : props.theme.colors.toggle.hover.off};
   }
 
   input:disabled + .slider {
     cursor: not-allowed;
     background-color: ${props =>
       props.value && !props.isLoading
-        ? darken(props.theme.colors.info.darker, 20)
-        : props.theme.colors.tertiary.dark};
+        ? props.theme.colors.toggle.disable.on
+        : props.theme.colors.toggle.disable.off};
   }
 
   .${Classes.SPINNER} {
     circle {
-      stroke: ${props => props.theme.colors.blackShades[6]};
+      stroke: ${props => props.theme.colors.toggle.spinner};
     }
   }
 `;

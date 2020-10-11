@@ -159,6 +159,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
               name="password"
               type="password"
               placeholder={RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+              disabled={submitSucceeded}
             />
           </FormGroup>
           <Field type="hidden" name="email" component="input" />
@@ -170,7 +171,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
               type="submit"
               text={RESET_PASSWORD_SUBMIT_BUTTON_TEXT}
               intent="primary"
-              disabled={pristine}
+              disabled={pristine || submitSucceeded}
               loading={submitting}
             />
           </FormActions>

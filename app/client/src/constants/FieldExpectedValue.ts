@@ -33,6 +33,11 @@ const FIELD_VALUES: Record<
     // onRowSelected: "Function Call",
     // onPageChange: "Function Call",
   },
+  VIDEO_WIDGET: {
+    url: "string",
+    autoPlay: "boolean",
+    isVisible: "boolean",
+  },
   IMAGE_WIDGET: {
     image: "string",
     defaultImage: "string",

@@ -49,7 +49,6 @@ describe("Create a query with a postgres datasource, run, save and then delete t
   });
   it("Deletes a datasource", () => {
     cy.NavigateToDatasourceEditor();
-    cy.get(".t--entity-name:contains(PostgreSQL)").click();
     cy.get(`.t--entity-name:contains(${datasourceName})`).click();
 
     cy.get(".t--delete-datasource").click();
