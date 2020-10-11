@@ -98,7 +98,6 @@ export default class RealmExecutor implements JSExecutor {
       const data = callbackData
         ? { ...safeData, CALLBACK_DATA: safeCallbackData }
         : safeData;
-
       const { result, triggers } = this.rootRealm.evaluate(script, data);
       return {
         result: this.convertToMainScope(result),
