@@ -21,4 +21,6 @@ public interface ActionRepository extends BaseRepository<Action, String>, Custom
     Flux<Action> findByPageId(String pageId);
 
     Flux<Action> findByOrganizationId(String organizationId);
+
+    Mono<Void> deleteAllByOrganizationId(String organizationId);
 }

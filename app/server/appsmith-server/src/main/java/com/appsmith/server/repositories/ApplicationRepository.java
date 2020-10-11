@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.domains.Application;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface ApplicationRepository extends BaseRepository<Application, Strin
 
     Flux<Application> findByOrganizationId(String organizationId);
 
+    Mono<Void> deleteAllByOrganizationId(String organizationId);
 }
