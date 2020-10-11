@@ -12,4 +12,5 @@ For details on setting up your development machine, please refer to the [Setup G
 * This is purely a test. NOT to be merged into the branch
 * One more edit, just for kicks
 * Without explicit build-id
+* Rebase then commit
 For the win!
