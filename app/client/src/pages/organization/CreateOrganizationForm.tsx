@@ -25,7 +25,7 @@ export const CreateApplicationForm = (
     <Form onSubmit={handleSubmit(createOrganizationSubmitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}
       <FormGroup intent={error ? "danger" : "none"} helperText={error}>
-        <TextField name="name" placeholder="Name"  validate={noSpaces}/>
+        <TextField name="name" placeholder="Name" validate={noSpaces} />
       </FormGroup>
       <FormFooter
         onCancel={props.onCancel}
