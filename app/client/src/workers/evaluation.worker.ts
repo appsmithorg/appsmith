@@ -601,7 +601,6 @@ ctx.addEventListener("message", e => {
     }
     case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
       const { dynamicTrigger, callbackData, dataTree } = rest;
-      debugger;
       const evalTree = getEvaluatedDataTree(dataTree);
       const withFunctions = addFunctions(evalTree);
       const triggers = getDynamicValue(
@@ -1405,6 +1404,9 @@ const evaluate = (
   const script = callbackData ? scriptWithCallback : scriptToEvaluate;
   try {
     const { result, triggers } = (function() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      self["CALLBACK_DATA"] = callbackData;
       Object.keys(data).forEach(datum => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore

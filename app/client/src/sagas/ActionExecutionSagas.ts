@@ -473,13 +473,15 @@ function* executeActionTriggers(
 
 function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
-  log.debug({ dynamicString });
+  log.debug({ dynamicString, responseData });
 
   const triggers = yield call(
     evaluateDynamicTrigger,
     dynamicString,
     responseData,
   );
+
+  log.debug({ triggers });
   if (triggers && triggers.length) {
     yield all(
       triggers.map((trigger: ActionDescription<any>) =>
