@@ -462,9 +462,6 @@ function dependencySortedEvaluateDataTree(
               error: e,
               context: {
                 propertyPath,
-                unEvalPropertyValue,
-                currentDependencyValues,
-                cachedDependencyValues,
               },
             });
             evalPropertyValue = undefined;
@@ -515,7 +512,6 @@ function dependencySortedEvaluateDataTree(
     ERRORS.push({
       type: EvalErrorTypes.EVAL_TREE_ERROR,
       error: e,
-      context: { tree },
     });
     return tree;
   }
@@ -932,8 +928,6 @@ const evaluate = (
       error: e,
       context: {
         binding: js,
-        data,
-        callbackData,
       },
     });
     return { result: undefined, triggers: [] };
