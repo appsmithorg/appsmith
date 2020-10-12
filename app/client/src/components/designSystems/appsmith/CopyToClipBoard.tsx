@@ -8,10 +8,10 @@ const Wrapper = styled.div`
   display: flex;
 
   div {
-    flex-basis: 82%;
+    flex-basis: calc(100% - 110px);
   }
   a {
-    flex-basis: 18%;
+    flex-basis: 110px;
   }
 `;
 

@@ -57,10 +57,15 @@ const boxStyles = (
   let color = theme.colors.textInput.normal.text;
   let borderColor = theme.colors.textInput.normal.border;
 
-  if (props.disabled || props.readOnly) {
+  if (props.disabled) {
     bgColor = theme.colors.textInput.disable.bg;
     color = theme.colors.textInput.disable.text;
     borderColor = theme.colors.textInput.disable.border;
+  }
+  if (props.readOnly) {
+    bgColor = theme.colors.textInput.readOnly.bg;
+    color = theme.colors.textInput.readOnly.text;
+    borderColor = theme.colors.textInput.readOnly.border;
   }
   if (!isValid) {
     bgColor = hexToRgba(theme.colors.danger.main, 0.1);

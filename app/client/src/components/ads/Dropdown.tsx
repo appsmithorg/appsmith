@@ -9,16 +9,13 @@ type DropdownOption = {
   value?: string;
   id?: string;
   icon?: IconName;
+  onSelect?: (value?: string) => void;
 };
 
 type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
-  selected?: DropdownOption;
-  placeholder?: string;
-  input?: {
-    value?: string;
-    onChange?: (value?: string) => void;
-  };
+  selected: DropdownOption;
+  onSelect?: (value?: string) => void;
 };
 
 const DropdownContainer = styled.div`
@@ -128,24 +125,22 @@ const LabelWrapper = styled.div<{ label?: string }>`
 `;
 
 export default function Dropdown(props: DropdownProps) {
+  const { onSelect } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<string>(props.placeholder || "");
+  const [selected, setSelected] = useState<DropdownOption>(props.selected);
 
   useEffect(() => {
-    if (props.input && props.input.value) {
-      setSelected(props.input.value);
-    }
-  }, [props.input]);
+    setSelected(props.selected);
+  }, [props.selected]);
 
   const optionClickHandler = useCallback(
     (option: DropdownOption) => {
-      if (option.value) {
-        setSelected(option.value);
-      }
+      setSelected(option);
       setIsOpen(false);
-      props.input && props.input.onChange && props.input.onChange(option.id);
+      onSelect && onSelect(option.value);
+      option.onSelect && option.onSelect(option.value);
     },
-    [props.input],
+    [onSelect],
   );
 
   return (
@@ -159,7 +154,7 @@ export default function Dropdown(props: DropdownProps) {
         disabled={props.disabled}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Text type={TextType.P1}>{selected}</Text>
+        <Text type={TextType.P1}>{selected.value}</Text>
         <Icon name="downArrow" size={IconSize.XXS} />
       </Selected>
 
@@ -169,7 +164,7 @@ export default function Dropdown(props: DropdownProps) {
             return (
               <OptionWrapper
                 key={index}
-                selected={selected === option.value}
+                selected={selected.value === option.value}
                 onClick={() => optionClickHandler(option)}
               >
                 {option.icon ? (
@@ -177,7 +172,9 @@ export default function Dropdown(props: DropdownProps) {
                 ) : null}
                 <LabelWrapper label={option.label}>
                   {option.label ? (
-                    <Text type={TextType.H5}>{option.value}</Text>
+                    <div className="label-title">
+                      <Text type={TextType.H5}>{option.value}</Text>
+                    </div>
                   ) : (
                     <Text type={TextType.P1}>{option.value}</Text>
                   )}
