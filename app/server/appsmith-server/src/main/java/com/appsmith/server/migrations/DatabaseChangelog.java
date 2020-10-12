@@ -924,17 +924,8 @@ public class DatabaseChangelog {
         ));
     }
 
-    @ChangeSet(order = "026", id = "fix-token-expiration", author = "")
+    @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
     public void fixTokenExpiration(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, InviteUser.class, FieldName.CREATED_AT);
-        dropIndexIfExists(mongoTemplate, InviteUser.class, "token");
-
-        ensureIndexes(mongoTemplate, InviteUser.class,
-                makeIndex(FieldName.CREATED_AT)
-                    .expire(1, TimeUnit.HOURS),
-                makeIndex("token").unique()
-        );
-
         dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
         dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
 
