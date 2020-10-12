@@ -29,6 +29,8 @@ import {
   selectPlugin,
   createDatasource,
   changeDatasource,
+  testDatasource,
+  setDatsourceEditorMode,
   expandDatasourceEntity,
   fetchDatasourceStructure,
 } from "actions/datasourceActions";
@@ -149,13 +151,9 @@ export function* deleteDatasourceSaga(
       });
     }
   } catch (error) {
-    AppToaster.show({
-      message: error.message,
-      type: ToastType.ERROR,
-    });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
-      payload: { error, id: actionPayload.payload.id },
+      payload: { error, id: actionPayload.payload.id, show: false },
     });
   }
 }
@@ -193,6 +191,9 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           id: response.data.id,
         },
       });
+      yield put(
+        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
+      );
 
       if (expandDatasourceId === response.data.id && !datasourceStruture) {
         yield put(fetchDatasourceStructure(response.data.id));
@@ -270,6 +271,10 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           message: responseData.invalids[0],
           type: ToastType.ERROR,
         });
+        yield put({
+          type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
+          payload: { show: false },
+        });
       } else {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
           datasource: payload.name,
@@ -278,11 +283,11 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           message: `${payload.name} is valid`,
           type: ToastType.SUCCESS,
         });
+        yield put({
+          type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
+          payload: datasource,
+        });
       }
-      yield put({
-        type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
-        payload: datasource,
-      });
     }
   } catch (error) {
     yield put({
@@ -370,6 +375,9 @@ function* createDatasourceFromFormSaga(
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
+      yield put(
+        setDatsourceEditorMode({ id: response.data.id, viewMode: false }),
+      );
 
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);

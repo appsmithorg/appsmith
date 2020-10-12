@@ -13,6 +13,7 @@ import {
   testDatasource,
   deleteDatasource,
   switchDatasource,
+  setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DatasourceHome from "./DatasourceHome";
@@ -31,6 +32,7 @@ interface ReduxStateProps {
   newDatasource: string;
   pluginImages: Record<string, string>;
   pluginId: string;
+  viewMode: boolean;
 }
 
 type Props = ReduxStateProps &
@@ -80,6 +82,8 @@ class DataSourceEditor extends React.Component<Props> {
       newDatasource,
       pluginImages,
       pluginId,
+      viewMode,
+      setDatasourceEditorMode,
     } = this.props;
 
     return (
@@ -102,6 +106,8 @@ class DataSourceEditor extends React.Component<Props> {
             loadingFormConfigs={loadingFormConfigs}
             formConfig={formConfig}
             handleDelete={deleteDatasource}
+            viewMode={viewMode}
+            setDatasourceEditorMode={setDatasourceEditorMode}
           />
         ) : (
           <DatasourceHome
@@ -138,6 +144,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[datasourcePane.selectedPlugin] || [],
     loadingFormConfigs,
     newDatasource: datasourcePane.newDatasource,
+    viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
   };
 };
 
@@ -149,6 +156,8 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
   deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
   switchDatasource: (id: string) => dispatch(switchDatasource(id)),
+  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
+    dispatch(setDatsourceEditorMode({ id, viewMode })),
 });
 
 export interface DatasourcePaneFunctions {
@@ -157,6 +166,7 @@ export interface DatasourcePaneFunctions {
   testDatasource: (data: Datasource) => void;
   deleteDatasource: (id: string) => void;
   switchDatasource: (id: string) => void;
+  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataSourceEditor);
