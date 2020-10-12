@@ -421,7 +421,7 @@ const calculateSubDependencies = (
   const subDeps: Array<string> = [];
   const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.]*/g) || [path];
   identifiers.forEach((identifier: string) => {
-    if (identifier in all) {
+    if (all.hasOwnProperty(identifier)) {
       subDeps.push(identifier);
     } else {
       const subIdentifiers =

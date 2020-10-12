@@ -22,7 +22,6 @@ describe("Form reset functionality", function() {
 
     cy.get(".tr")
       .eq(2)
-      .click()
       .should("not.have.class", "selected-row");
 
     cy.get(widgetsPage.inputWidget + " " + "input")

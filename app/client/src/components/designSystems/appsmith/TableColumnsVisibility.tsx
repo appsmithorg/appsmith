@@ -22,6 +22,9 @@ const DropDownWrapper = styled.div`
   z-index: 1;
   border-radius: 4px;
   border: 1px solid ${Colors.ATHENS_GRAY};
+  max-height: 500px;
+  max-width: 400px;
+  overflow: hidden scroll;
 `;
 
 const OptionWrapper = styled.div<{ selected: boolean }>`
@@ -43,6 +46,13 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
     font-size: 14px;
     line-height: 24px;
   }
+`;
+
+const StyledOption = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 90%;
 `;
 
 const ButtonWrapper = styled.div`
@@ -132,7 +142,9 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
             }}
             className="t--table-column-visibility-column-toggle"
           >
-            <div className="option-title">{option.Header}</div>
+            <StyledOption className="option-title">
+              {option.Header}
+            </StyledOption>
             <VisibilityIcon visible={!option.isHidden} />
           </OptionWrapper>
         ))}

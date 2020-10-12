@@ -88,6 +88,48 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     .click();
 });
 
+Cypress.Commands.add("shareApp", (email, role) => {
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.get(homePage.closeBtn).click();
+});
+
+Cypress.Commands.add("shareAndPublic", (email, role) => {
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.enablePublicAccess();
+});
+
+Cypress.Commands.add("enablePublicAccess", () => {
+  cy.get(homePage.enablePublicAccess).click();
+  cy.wait("@changeAccess").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(homePage.closeBtn).click();
+});
+
 Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
@@ -930,6 +972,43 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
   cy.wait(200);
 });
 
+Cypress.Commands.add("selectShowMsg", value => {
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+});
+
+Cypress.Commands.add("addSuccessMessage", value => {
+  cy.get(commonlocators.chooseMsgType).click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Success")
+    .click();
+  cy.get(".CodeMirror textarea")
+    .last()
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then($cm => {
+      if ($cm.val() !== "") {
+        cy.get(".CodeMirror textarea")
+          .last()
+          .clear({
+            force: true,
+          });
+      }
+      cy.get(".CodeMirror textarea")
+        .last()
+        .type(value, {
+          force: true,
+          parseSpecialCharSequences: false,
+        });
+      cy.wait(200);
+      cy.get(".CodeMirror textarea")
+        .last()
+        .should("have.value", value);
+    });
+});
 Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
@@ -1280,8 +1359,8 @@ Cypress.Commands.add("saveDatasource", () => {
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
-  cy.testDatasource();
   cy.saveDatasource();
+  cy.testDatasource();
 });
 
 Cypress.Commands.add("fillMongoDatasourceForm", () => {
@@ -1340,7 +1419,6 @@ Cypress.Commands.add("createPostgresDatasource", () => {
 
 Cypress.Commands.add("deletePostgresDatasource", datasourceName => {
   cy.NavigateToDatasourceEditor();
-  cy.get(".t--entity-name:contains(PostgreSQL)").click();
   cy.get(`.t--entity-name:contains(${datasourceName})`).click();
 
   cy.get(".t--delete-datasource").click();
@@ -1415,6 +1493,20 @@ Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
   cy.get(explorer.dropHere)
     .click()
     .trigger("mouseup", { force: true });
+});
+
+Cypress.Commands.add("executeDbQuery", queryName => {
+  cy.get(widgetsPage.buttonOnClick)
+    .get(commonlocators.dropdownSelectButton)
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains("Execute a DB Query")
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains(queryName)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("openPropertyPane", widgetType => {
@@ -1586,6 +1678,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/users/me").as("getUser");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
+  cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 });
 
 Cypress.Commands.add("alertValidate", text => {
