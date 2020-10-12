@@ -217,7 +217,20 @@ export interface ApplicationsReduxState {
   deletingApplication: boolean;
   duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
-  userOrgs: any;
+  userOrgs: Organization[];
+}
+
+export interface Application {
+  id: string;
+  name: string;
+  organizationId: string;
+  isPublic: boolean;
+  appIsExample: boolean;
+  new: boolean;
+  pageCount: number;
+  defaultPageId: string;
+  pages: Array<{ id: string; isDefault: boolean; default: boolean }>;
+  userPermissions: string[];
 }
 
 export default applicationsReducer;

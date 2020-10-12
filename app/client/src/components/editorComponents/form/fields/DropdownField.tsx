@@ -22,11 +22,8 @@ interface DropdownFieldProps {
 const DropdownField = (props: DropdownFieldProps & Partial<DropdownProps>) => {
   return (
     <Field
-      name={props.name}
       className={props.className}
       component={BaseDropdown}
-      options={props.options}
-      placeholder={props.placeholder}
       format={(value: string) => _.find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
       {...props}

@@ -22,7 +22,9 @@ export const resetAuthExpiration = () => {
 };
 
 export const hasAuthExpired = async () => {
-  const expireBy: string = await store.getItem(STORAGE_KEYS.AUTH_EXPIRATION);
+  const expireBy: string | null = await store.getItem(
+    STORAGE_KEYS.AUTH_EXPIRATION,
+  );
   if (expireBy && moment().isAfter(moment(expireBy))) {
     return true;
   }
@@ -41,7 +43,9 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
 
 export const getCopiedWidgets = async () => {
   try {
-    const widget: string = await store.getItem(STORAGE_KEYS.COPIED_WIDGET);
+    const widget: string | null = await store.getItem(
+      STORAGE_KEYS.COPIED_WIDGET,
+    );
     if (widget && widget.length > 0) {
       return JSON.parse(widget);
     }
@@ -69,7 +73,7 @@ export const saveDeletedWidgets = async (widgets: any, widgetId: string) => {
 
 export const getDeletedWidgets = async (widgetId: string) => {
   try {
-    const widgets: string = await store.getItem(
+    const widgets: string | null = await store.getItem(
       `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
     );
     if (widgets && widgets.length > 0) {

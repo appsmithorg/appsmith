@@ -6,7 +6,6 @@ import _ from "lodash";
 
 const initialState: DatasourcePaneReduxState = {
   selectedPlugin: "",
-  datasourceRefs: {},
   drafts: {},
   actionRouteInfo: {},
   expandDatasourceId: "",
@@ -15,7 +14,6 @@ const initialState: DatasourcePaneReduxState = {
 
 export interface DatasourcePaneReduxState {
   selectedPlugin: string;
-  datasourceRefs: {};
   drafts: Record<string, Datasource>;
   expandDatasourceId: string;
   actionRouteInfo: Partial<{
@@ -35,27 +33,7 @@ const datasourcePaneReducer = createReducer(initialState, {
     ...state,
     selectedPlugin: action.payload.pluginId,
   }),
-  [ReduxActionTypes.STORE_DATASOURCE_REFS]: (
-    state: DatasourcePaneReduxState,
-    action: ReduxAction<{ refsList: {} }>,
-  ) => {
-    return {
-      ...state,
-      datasourceRefs: { ...state.datasourceRefs, ...action.payload.refsList },
-    };
-  },
-  [ReduxActionTypes.UPDATE_DATASOURCE_REFS]: (
-    state: DatasourcePaneReduxState,
-    action: ReduxAction<Datasource>,
-  ) => {
-    return {
-      ...state,
-      datasourceRefs: {
-        ...state.datasourceRefs,
-        [action.payload.id]: React.createRef(),
-      },
-    };
-  },
+
   [ReduxActionTypes.UPDATE_DATASOURCE_DRAFT]: (
     state: DatasourcePaneReduxState,
     action: ReduxAction<{ id: string; draft: Partial<Datasource> }>,
