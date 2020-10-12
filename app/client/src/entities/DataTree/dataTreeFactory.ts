@@ -139,7 +139,7 @@ export class DataTreeFactory {
         widget.type,
       );
       const derivedProps: any = {};
-      const dynamicBindings = widget.dynamicBindings || {};
+      const dynamicBindings = { ...widget.dynamicBindings } || {};
       Object.keys(dynamicBindings).forEach(propertyName => {
         if (_.isObject(widget[propertyName])) {
           // Stringify this because composite controls may have bindings in the sub controls

@@ -16,17 +16,14 @@ import {
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DatasourceHome from "./DatasourceHome";
-import { getCurrentApplication } from "selectors/applicationSelectors";
 import DataSourceEditorForm from "./DBForm";
 import { Datasource } from "api/DatasourcesApi";
-import { UserApplication } from "constants/userConstants";
 import { RouteComponentProps } from "react-router";
 
 interface ReduxStateProps {
   formData: Datasource;
   selectedPluginPackage: string;
   isSaving: boolean;
-  currentApplication: UserApplication;
   isTesting: boolean;
   formConfig: [];
   loadingFormConfigs: boolean;
@@ -137,7 +134,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     ),
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
-    currentApplication: getCurrentApplication(state),
     isTesting: datasources.isTesting,
     formConfig: formConfigs[datasourcePane.selectedPlugin] || [],
     loadingFormConfigs,

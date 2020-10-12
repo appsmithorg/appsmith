@@ -2,10 +2,12 @@ import React from "react";
 import { connect } from "react-redux";
 import { Form, reduxForm, InjectedFormProps, Field } from "redux-form";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
+import { ERROR_MESSAGE_NAME_EMPTY, NAME_SPACE_ERROR } from "constants/messages";
 import { AppState } from "reducers";
 import {
   CreateApplicationFormValues,
   createApplicationFormSubmitHandler,
+  CREATE_APPLICATION_FORM_NAME_FIELD,
 } from "./helpers";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormGroup from "components/editorComponents/form/FormGroup";
@@ -21,21 +23,36 @@ type Props = InjectedFormProps<
   initialValues: {};
 };
 
+const validate = (values: CreateApplicationFormValues) => {
+  if (!values[CREATE_APPLICATION_FORM_NAME_FIELD]) {
+    return { [CREATE_APPLICATION_FORM_NAME_FIELD]: ERROR_MESSAGE_NAME_EMPTY };
+  } else if (!values[CREATE_APPLICATION_FORM_NAME_FIELD].trim()) {
+    return {
+      [CREATE_APPLICATION_FORM_NAME_FIELD]: NAME_SPACE_ERROR,
+    };
+  }
+  return {};
+};
+
 // TODO(abhinav): abstract onCancel out.
 
 export const CreateApplicationForm = (props: Props) => {
-  const { error, handleSubmit, pristine, submitting } = props;
+  const { error, handleSubmit, pristine, submitting, invalid } = props;
   return (
     <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}
       <FormGroup intent={error ? "danger" : "none"}>
-        <TextField name="applicationName" placeholder="Name" />
+        <TextField
+          name={CREATE_APPLICATION_FORM_NAME_FIELD}
+          placeholder="Name"
+        />
         <Field type="hidden" name="orgId" component="input" />
       </FormGroup>
       <FormFooter
         onCancel={props.onCancel}
         onSubmit={handleSubmit(createApplicationFormSubmitHandler)}
         divider
+        canSubmit={!invalid}
         submitOnEnter
         data-cy="t--create-app-submit"
         submitText="Submit"
@@ -58,6 +75,7 @@ export default connect(mapStateToProps)(
     CreateApplicationFormValues,
     { onCancel: () => void; orgId: string; initialValues: {} }
   >({
+    validate,
     form: CREATE_APPLICATION_FORM_NAME,
     onSubmit: createApplicationFormSubmitHandler,
   })(CreateApplicationForm),
