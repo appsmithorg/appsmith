@@ -82,7 +82,7 @@ const StyledInviteFieldGroup = styled.div`
 
   .wrapper {
     display: flex;
-    width: 100%;
+    width: 85%;
     flex-direction: row;
     justify-content: space-between;
     padding-right: 5px;
