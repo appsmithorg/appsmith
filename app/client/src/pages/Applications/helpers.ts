@@ -5,6 +5,8 @@ export type CreateApplicationFormValues = {
   orgId: string;
 };
 
+export const CREATE_APPLICATION_FORM_NAME_FIELD = "applicationName";
+
 export const createApplicationFormSubmitHandler = (
   values: CreateApplicationFormValues,
   dispatch: any,

@@ -45,11 +45,10 @@ import { Classes as CsClasses } from "components/ads/common";
 type NameWrapperProps = {
   hasReadPermission: boolean;
   showOverlay: boolean;
-  isMenuOpen: boolean;
 };
 
 const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
-  <div {...omit(props, ["hasReadPermission", "showOverlay", "isMenuOpen"])} />
+  <div {...omit(props, ["hasReadPermission", "showOverlay"])} />
 ))`
   .bp3-card {
     border-radius: 0;
@@ -81,7 +80,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
           & div.image-container {
             background: ${
-              props.hasReadPermission && !props.isMenuOpen
+              props.hasReadPermission
                 ? getColorWithOpacity(
                     props.theme.colors.card.hoverBG,
                     props.theme.colors.card.hoverBGOpacity,
@@ -206,8 +205,6 @@ const ContextDropdownWrapper = styled.div`
 
   .${Classes.POPOVER_TARGET} {
     span {
-      background: ${props => props.theme.colors.card.targetBg};
-
       svg {
         path {
           fill: ${props => props.theme.colors.card.iconColor};
@@ -385,7 +382,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         !isMenuOpen && setShowOverlay(false);
       }}
       hasReadPermission={hasReadPermission}
-      isMenuOpen={isMenuOpen}
       className="t--application-card"
     >
       <Wrapper
