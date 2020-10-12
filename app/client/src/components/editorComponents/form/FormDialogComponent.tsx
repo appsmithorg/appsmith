@@ -5,12 +5,36 @@ import { isPermitted } from "pages/Applications/permissionHelpers";
 
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   && {
-    background: white;
-    & .bp3-dialog-header {
-      padding: ${props => props.theme.spaces[4]}px
-        ${props => props.theme.spaces[4]}px;
+    border-radius: 0px;
+    padding-bottom: 5px;
+    background: ${props => props.theme.colors.modal.bg};
+    width: 640px;
+
+    & .${Classes.DIALOG_HEADER} {
+      padding: ${props => props.theme.spaces[4]}px;
+      background: ${props => props.theme.colors.modal.bg};
+      box-shadow: none;
+      .${Classes.ICON} {
+        color: ${props => props.theme.colors.modal.iconColor};
+      }
+      .${Classes.HEADING} {
+        color: ${props => props.theme.colors.modal.headerText};
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        font-size: 20px;
+        line-height: 24px;
+        font-weight: 500;
+      }
+
+      .${Classes.BUTTON}.${Classes.MINIMAL}:hover {
+        background-color: ${props => props.theme.colors.modal.bg};
+      }
     }
-    & .bp3-dialog-footer-actions {
+    & .${Classes.DIALOG_BODY} {
+      margin: ${props => props.theme.spaces[9]}px;
+    }
+    & .${Classes.DIALOG_FOOTER_ACTIONS} {
       display: block;
     }
     ${props => props.setMaxWidth && `width: 100vh;`}
