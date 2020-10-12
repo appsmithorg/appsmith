@@ -16,6 +16,7 @@ describe("Postgres datasource test cases", function() {
   });
 
   it("Create a new query from the datasource editor", function() {
+    cy.saveDatasource();
     cy.get(datasource.createQuerty).click();
     cy.wait("@createNewApi").should(
       "have.nested.property",
