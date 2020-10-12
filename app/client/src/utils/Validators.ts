@@ -289,7 +289,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       (datum: { name: string; data: any }) => {
         const validatedResponse: {
           isValid: boolean;
-          parsed: object;
+          parsed: Record<string, unknown>;
           message?: string;
         } = VALIDATORS[VALIDATION_TYPES.ARRAY](datum.data, props, dataTree);
         validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
@@ -377,8 +377,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       }
     });
 
-    const validOptions = parsed.filter(isValidOption)
-    const uniqValidOptions = _.uniqBy(validOptions, 'value')
+    const validOptions = parsed.filter(isValidOption);
+    const uniqValidOptions = _.uniqBy(validOptions, "value");
 
     if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
       return {

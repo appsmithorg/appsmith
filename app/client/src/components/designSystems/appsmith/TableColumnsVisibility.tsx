@@ -49,11 +49,11 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
 `;
 
 const StyledOption = styled.div`
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 90%;
-`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 90%;
+`;
 
 const ButtonWrapper = styled.div`
   display: flex;
@@ -142,7 +142,9 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
             }}
             className="t--table-column-visibility-column-toggle"
           >
-            <StyledOption className="option-title">{option.Header}</StyledOption>
+            <StyledOption className="option-title">
+              {option.Header}
+            </StyledOption>
             <VisibilityIcon visible={!option.isHidden} />
           </OptionWrapper>
         ))}

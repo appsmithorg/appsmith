@@ -121,7 +121,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  getTableColumns = (tableData: object[]) => {
+  getTableColumns = (tableData: Array<Record<string, unknown>>) => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
     const {
@@ -207,7 +207,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return columns;
   };
 
-  transformData = (tableData: object[], columns: ReactTableColumnProps[]) => {
+  transformData = (
+    tableData: Array<Record<string, unknown>>,
+    columns: ReactTableColumnProps[],
+  ) => {
     const updatedTableData = [];
     for (let row = 0; row < tableData.length; row++) {
       const data: { [key: string]: any } = tableData[row];
@@ -339,7 +342,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  getSelectedRow = (filteredTableData: object[], selectedRowIndex?: number) => {
+  getSelectedRow = (
+    filteredTableData: Array<Record<string, unknown>>,
+    selectedRowIndex?: number,
+  ) => {
     if (selectedRowIndex === undefined || selectedRowIndex === -1) {
       const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
       const selectedRow: { [key: string]: any } = {};
@@ -386,9 +392,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       } else {
         this.props.updateWidgetMetaProperty(
           "selectedRows",
-          filteredTableData.filter((item: object, i: number) => {
-            return this.props.selectedRowIndices.includes(i);
-          }),
+          filteredTableData.filter(
+            (item: Record<string, unknown>, i: number) => {
+              return this.props.selectedRowIndices.includes(i);
+            },
+          ),
         );
       }
     }
@@ -410,9 +418,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const filteredTableData = this.filterTableData();
         this.props.updateWidgetMetaProperty(
           "selectedRows",
-          filteredTableData.filter((item: object, i: number) => {
-            return selectedRowIndices.includes(i);
-          }),
+          filteredTableData.filter(
+            (item: Record<string, unknown>, i: number) => {
+              return selectedRowIndices.includes(i);
+            },
+          ),
         );
         this.props.updateWidgetMetaProperty(
           "selectedRow",
@@ -592,7 +602,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  handleRowClick = (rowData: object, index: number) => {
+  handleRowClick = (rowData: Record<string, unknown>, index: number) => {
     const { selectedRowIndices } = this.props;
     if (this.props.multiRowSelection) {
       if (selectedRowIndices.includes(index)) {
@@ -607,9 +617,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       );
       this.props.updateWidgetMetaProperty(
         "selectedRows",
-        this.props.filteredTableData.filter((item: object, i: number) => {
-          return selectedRowIndices.includes(i);
-        }),
+        this.props.filteredTableData.filter(
+          (item: Record<string, unknown>, i: number) => {
+            return selectedRowIndices.includes(i);
+          },
+        ),
       );
     } else {
       this.props.updateWidgetMetaProperty("selectedRowIndex", index);
@@ -699,7 +711,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta {
   label: string;
   searchText: string;
   defaultSearchText: string;
-  tableData: object[];
+  tableData: Array<Record<string, unknown>>;
   onPageChange?: string;
   pageSize: number;
   onRowSelected?: string;
