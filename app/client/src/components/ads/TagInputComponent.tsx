@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { TagInput } from "@blueprintjs/core";
+import { Classes, TagInput } from "@blueprintjs/core";
 import { Intent } from "constants/DefaultTheme";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
 
   &&& {
-    .bp3-tag-input {
+    .${Classes.TAG_INPUT} {
       background-color: ${props => props.theme.colors.tagInput.bg};
       min-height: 38px;
       border: 1px solid ${props => props.theme.colors.tagInput.bg};
       border-radius: 0px;
     }
-    .bp3-tag-input.bp3-active {
+    .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
       border: 1px solid ${props => props.theme.colors.info.main};
       box-shadow: ${props => props.theme.colors.tagInput.shadow};
     }
-    .bp3-input-ghost {
+    .${Classes.INPUT_GHOST} {
       color: ${props => props.theme.colors.tagInput.text};
       &::placeholder {
         color: ${props => props.theme.colors.tagInput.placeholder};
       }
     }
-    .bp3-tag {
+    .${Classes.TAG} {
       padding: 3px 10px;
       color: ${props => props.theme.colors.tagInput.tag.text};
       background-color: ${props => props.theme.colors.info.main};

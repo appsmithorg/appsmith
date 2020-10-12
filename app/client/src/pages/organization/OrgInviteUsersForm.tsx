@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { Fragment, useEffect } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import TagListField from "components/editorComponents/form/fields/TagListField";
@@ -103,7 +103,7 @@ const StyledInviteFieldGroup = styled.div`
 
   .wrapper {
     display: flex;
-    width: 100%;
+    width: 85%;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -343,8 +343,8 @@ const OrgInviteUsersForm = (props: any) => {
                   initials: string;
                 }) => {
                   return (
-                    <React.Fragment key={user.username}>
-                      <User key={user.username}>
+                    <Fragment key={user.username}>
+                      <User>
                         <UserInfo>
                           <ProfileImage backgroundColor={user.imageBackground}>
                             <Text type={TextType.H6} highlight>
@@ -362,7 +362,7 @@ const OrgInviteUsersForm = (props: any) => {
                       </User>
 
                       <RoleDivider />
-                    </React.Fragment>
+                    </Fragment>
                   );
                 },
               )}
@@ -383,6 +383,7 @@ const OrgInviteUsersForm = (props: any) => {
         </ErrorBox>
         {!pathRegex.test(currentPath) && canManage && (
           <ManageUsers
+            className="manageUsers"
             onClick={() => {
               history.push(`/org/${props.orgId}/settings/members`);
             }}

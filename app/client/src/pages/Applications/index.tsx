@@ -284,6 +284,7 @@ function LeftPane() {
                 key={org.organization.name}
                 href={`${window.location.pathname}#${org.organization.name}`}
                 text={org.organization.name}
+                ellipsize={20}
               />
             ))}
         </WorkpsacesNavigator>
@@ -294,6 +295,28 @@ function LeftPane() {
 
 const CreateNewLabel = styled(Text)`
   margin-top: 18px;
+`;
+
+const OrgNameElement = styled(Text)`
+  max-width: 500px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+`;
+
+const OrgNameHolder = styled(Text)`
+  display: flex;
+  align-items: center;
+`;
+
+const OrgNameInMenu = styled(Text)`
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+  padding: 9px ${props => props.theme.spaces[6]}px;
 `;
 
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
@@ -355,13 +378,15 @@ const ApplicationsSection = (props: any) => {
     const OrgName = (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
         <StyledAnchor id={orgName}></StyledAnchor>
-        <Text
-          type={TextType.H1}
-          className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-        >
-          {orgName}
+        <OrgNameHolder type={TextType.H1}>
+          <OrgNameElement
+            type={TextType.H1}
+            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+          >
+            {orgName}
+          </OrgNameElement>
           <Icon name="downArrow" size={IconSize.XXS}></Icon>
-        </Text>
+        </OrgNameHolder>
       </OrgNameWrapper>
     );
     return disabled ? (
@@ -372,7 +397,7 @@ const ApplicationsSection = (props: any) => {
         position={Position.BOTTOM_RIGHT}
         className="t--org-name"
       >
-        <MenuItem text={orgName} disabled />
+        <OrgNameInMenu type={TextType.H5}>{orgName}</OrgNameInMenu>
         <MenuItem
           icon="general"
           text="Organization Settings"

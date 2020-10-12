@@ -70,12 +70,10 @@ export const BlueprintControlTransform = css`
       }
       & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
-        background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
       & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
-        background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
       &:hover .${Classes.CONTROL_INDICATOR} {
@@ -568,6 +566,11 @@ type ColorType = {
       border: ShadeColor;
     };
     placeholder: ShadeColor;
+    readOnly: {
+      bg: ShadeColor;
+      border: ShadeColor;
+      text: ShadeColor;
+    };
   };
   menuBorder: ShadeColor;
   editableText: {
@@ -829,6 +832,11 @@ export const dark: ColorType = {
       border: darkShades[0],
     },
     placeholder: darkShades[5],
+    readOnly: {
+      bg: darkShades[0],
+      border: darkShades[0],
+      text: darkShades[7],
+    },
   },
   menuBorder: darkShades[4],
   editableText: {
@@ -1090,6 +1098,11 @@ export const light: ColorType = {
       border: lightShades[2],
     },
     placeholder: lightShades[7],
+    readOnly: {
+      bg: lightShades[2],
+      border: lightShades[2],
+      text: lightShades[7],
+    },
   },
   menuBorder: lightShades[3],
   editableText: {

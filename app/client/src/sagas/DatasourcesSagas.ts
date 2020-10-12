@@ -29,6 +29,8 @@ import {
   selectPlugin,
   createDatasource,
   changeDatasource,
+  expandDatasourceEntity,
+  fetchDatasourceStructure,
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { GenericApiResponse } from "api/ApiResponses";
@@ -65,6 +67,9 @@ function* fetchDatasourcesSaga() {
         type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
         payload: response.data,
       });
+      if (response.data.length) {
+        yield put(expandDatasourceEntity(response.data[0].id));
+      }
     }
   } catch (error) {
     yield put({
@@ -165,10 +170,19 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
+        datasourceName: response.data.name,
+      });
       AppToaster.show({
         message: `${response.data.name} Datasource updated`,
         type: ToastType.SUCCESS,
       });
+
+      const state = yield select();
+      const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
+      const datasourceStruture =
+        state.entities.datasources.structure[response.data.id];
+
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
@@ -179,6 +193,10 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           id: response.data.id,
         },
       });
+
+      if (expandDatasourceId === response.data.id && !datasourceStruture) {
+        yield put(fetchDatasourceStructure(response.data.id));
+      }
     }
   } catch (error) {
     yield put({
@@ -243,13 +261,15 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const responseData = response.data;
-
       if (responseData.invalids && responseData.invalids.length) {
         AppToaster.show({
           message: responseData.invalids[0],
           type: ToastType.ERROR,
         });
       } else {
+        AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
+          datasource: payload.name,
+        });
         AppToaster.show({
           message: `${payload.name} is valid`,
           type: ToastType.SUCCESS,
@@ -257,7 +277,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       }
       yield put({
         type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
-        payload: response.data,
+        payload: datasource,
       });
     }
   } catch (error) {
@@ -338,10 +358,6 @@ function* createDatasourceFromFormSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
-        dataSourceName: actionPayload.payload.name,
-        appName: actionPayload.payload.appName,
-      });
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
         payload: response.data,
@@ -488,7 +504,7 @@ function* fetchDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse = yield validateResponse(response, false);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS,
