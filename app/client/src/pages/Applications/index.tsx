@@ -465,7 +465,7 @@ const ApplicationsSection = () => {
                 {applications.map((application: any) => {
                   return (
                     application.pages?.length > 0 && (
-                      <PaddingWrapper>
+                      <PaddingWrapper key={application.id}>
                         <ApplicationCard
                           key={application.id}
                           application={application}
