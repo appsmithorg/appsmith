@@ -12,7 +12,10 @@ import _ from "lodash";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import useScript from "utils/hooks/useScript";
 import { AppToaster } from "components/editorComponents/ToastComponent";
-import { GOOGLE_RECAPTCHA_KEY_ERROR } from "constants/messages";
+import {
+  GOOGLE_RECAPTCHA_KEY_ERROR,
+  GOOGLE_RECAPTCHA_DOMAIN_ERROR,
+} from "constants/messages";
 
 const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   if (props.filled) return props.theme.colors.textOnDarkBG;
@@ -162,9 +165,9 @@ const RecaptchaComponent = (
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
 ) => {
-  function handleError(event: React.MouseEvent<HTMLElement>) {
+  function handleError(event: React.MouseEvent<HTMLElement>, error: string) {
     AppToaster.show({
-      message: GOOGLE_RECAPTCHA_KEY_ERROR,
+      message: error,
       type: "error",
     });
     props.onClick && props.onClick(event);
@@ -184,10 +187,12 @@ const RecaptchaComponent = (
                   props.clickWithRecaptcha(token);
                 })
                 .catch(() => {
-                  handleError(event);
+                  // Handle corrent key with wrong
+                  handleError(event, GOOGLE_RECAPTCHA_KEY_ERROR);
                 });
             } catch (ex) {
-              handleError(event);
+              // Handle wrong key
+              handleError(event, GOOGLE_RECAPTCHA_DOMAIN_ERROR);
             }
           });
         }
