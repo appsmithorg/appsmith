@@ -139,6 +139,14 @@ class DatasourceDBEditor extends React.Component<
     this.configDetails = {};
   }
 
+  componentDidMount() {
+    if (this.props.isNewDatasource) {
+      this.setState({
+        viewMode: false,
+      });
+    }
+  }
+
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
       this.requiredFields = {};

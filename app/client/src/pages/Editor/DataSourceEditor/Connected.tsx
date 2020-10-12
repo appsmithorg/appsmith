@@ -18,7 +18,8 @@ import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { Datasource } from "api/DatasourcesApi";
 import { DEFAULT_API_ACTION } from "constants/ApiEditorConstants";
-import { PluginType } from "entities/Action";
+import { ApiActionConfig, PluginType } from "entities/Action";
+import { AppToaster } from "components/editorComponents/ToastComponent";
 
 const ConnectedText = styled.div`
   color: ${Colors.GREEN};
@@ -116,10 +117,25 @@ const Connected = () => {
 
   const createApiAction = useCallback(() => {
     const newApiName = createNewApiName(actions, currentPageId || "");
+    const headers = datasource?.datasourceConfiguration?.headers ?? [];
+    const defaultAction: Partial<ApiActionConfig> | undefined = {
+      ...DEFAULT_API_ACTION.actionConfiguration,
+      headers: headers.length
+        ? headers
+        : DEFAULT_API_ACTION.actionConfiguration?.headers,
+    };
+
+    if (!datasource?.datasourceConfiguration?.url) {
+      AppToaster.show({
+        message: "Unable to create API. Try adding a url to the datasource",
+        type: "error",
+      });
+
+      return;
+    }
 
     dispatch(
       createActionRequest({
-        ...DEFAULT_API_ACTION,
         name: newApiName,
         pageId: currentPageId,
         pluginId: datasource?.pluginId,
@@ -129,6 +145,9 @@ const Connected = () => {
         eventData: {
           actionType: "API",
           from: "datasource-pane",
+        },
+        actionConfiguration: {
+          ...defaultAction,
         },
       }),
     );
