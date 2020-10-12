@@ -185,9 +185,8 @@ class AnalyticsUtil {
     }
     if (windowDoc.analytics) {
       windowDoc.analytics.track(eventName, finalEventData);
-    } else {
-      log.debug("Event fired", eventName, finalEventData);
     }
+    log.debug("Event fired", eventName, finalEventData);
   }
 
   static identifyUser(userId: string, userData: User) {
