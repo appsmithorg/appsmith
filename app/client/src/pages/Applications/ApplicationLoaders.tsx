@@ -23,62 +23,230 @@ export const LoadingAnimation = createGlobalStyle<{ theme: Theme }>`
 	}
 `;
 
-const LoaderContainer = styled.div`
-  margin-top: 50px;
-  margin-left: 400px;
-`;
+export const loadingUserOrgs = [
+  {
+    organization: {
+      id: "loadingOrgId1",
+      userPermissions: ["read:organizations", "read:orgApplications"],
+      name: "loadingOrgName1",
+      organizationSettings: [],
+      plugins: [
+        {
+          userPermissions: [],
+          pluginId: "5c9f512f96c1a50004819786",
+          status: "FREE",
+          new: true,
+        },
+        {
+          userPermissions: [],
+          pluginId: "5ca385dc81b37f0004b4db85",
+          status: "FREE",
+          new: true,
+        },
+        {
+          userPermissions: [],
+          pluginId: "5e687c18fb01e64e6a3f873f",
+          status: "FREE",
+          new: true,
+        },
+        {
+          userPermissions: [],
+          pluginId: "5e75ce2b8f4b473507a4a52e",
+          status: "FREE",
+          new: true,
+        },
+        {
+          userPermissions: [],
+          pluginId: "5f16c4be93f44d4622f487e2",
+          status: "FREE",
+          new: true,
+        },
+      ],
+      slug: "d60b8e5f",
+      logoUrl: "/api/v1/assets/null",
+      new: false,
+    },
+    applications: [
+      {
+        id: "loadingAppId1",
+        userPermissions: ["read:applications"],
+        name: "loadingAppName1",
+        organizationId: "loadingOrgId1",
+        isPublic: false,
+        pages: [
+          {
+            id: "5f7c3bc3b295692137139bd7",
+            isDefault: true,
+            default: true,
+          },
+        ],
+        appIsExample: false,
+        new: false,
+        pageCount: 1,
+        defaultPageId: "5f7c3bc3b295692137139bd7",
+      },
+      {
+        id: "loadingAppId2",
+        userPermissions: [
+          "manage:applications",
+          "read:applications",
+          "publish:applications",
+          "makePublic:applications",
+        ],
+        name: "loadingAppName2",
+        organizationId: "loadingOrgId1",
+        isPublic: false,
+        pages: [
+          {
+            id: "5f7daa65349e65508a53e3c1",
+            isDefault: true,
+            default: true,
+          },
+        ],
+        appIsExample: false,
+        color: "#5CE7EF",
+        new: false,
+        pageCount: 1,
+        defaultPageId: "5f7daa65349e65508a53e3c1",
+      },
+    ],
+  },
+  {
+    organization: {
+      id: "loadingOrgId2",
+      userPermissions: [
+        "read:organizations",
+        "manage:orgApplications",
+        "inviteUsers:organization",
+        "manage:organizations",
+        "publish:orgApplications",
+        "read:orgApplications",
+      ],
+      name: "loadingOrgName2",
+      organizationSettings: [],
+      plugins: [
+        {
+          userPermissions: [],
+          pluginId: "5c9f512f96c1a50004819786",
+          status: "FREE",
+          new: true,
+        },
+        {
+          userPermissions: [],
+          pluginId: "5ca385dc81b37f0004b4db85",
+          status: "FREE",
+          new: true,
+        },
+        {
+          userPermissions: [],
+          pluginId: "5e687c18fb01e64e6a3f873f",
+          status: "FREE",
+          new: true,
+        },
+        {
+          userPermissions: [],
+          pluginId: "5e75ce2b8f4b473507a4a52e",
+          status: "FREE",
+          new: true,
+        },
+        {
+          userPermissions: [],
+          pluginId: "5f16c4be93f44d4622f487e2",
+          status: "FREE",
+          new: true,
+        },
+      ],
+      slug: "aaf8723f",
+      logoUrl: "/api/v1/assets/null",
+      new: false,
+    },
+    applications: [
+      {
+        id: "loadingAppId3",
+        userPermissions: [
+          "manage:applications",
+          "read:applications",
+          "publish:applications",
+          "makePublic:applications",
+        ],
+        name: "loadingAppName3",
+        organizationId: "loadingOrgId2",
+        isPublic: false,
+        pages: [
+          {
+            id: "5f7da6d6e71ebc07bb2699f5",
+            isDefault: true,
+            default: true,
+          },
+        ],
+        appIsExample: false,
+        new: false,
+        pageCount: 1,
+        defaultPageId: "5f7da6d6e71ebc07bb2699f5",
+      },
+      {
+        id: "loadingAppId4",
+        userPermissions: [
+          "manage:applications",
+          "read:applications",
+          "publish:applications",
+          "makePublic:applications",
+        ],
+        name: "loadingAppName4",
+        organizationId: "loadingOrgId2",
+        isPublic: false,
+        pages: [
+          {
+            id: "5f7da88ee71ebc07bb269a03",
+            isDefault: true,
+            default: true,
+          },
+        ],
+        appIsExample: false,
+        new: false,
+        pageCount: 1,
+        defaultPageId: "5f7da88ee71ebc07bb269a03",
+      },
+      {
+        id: "loadingAppId5",
+        userPermissions: [
+          "manage:applications",
+          "read:applications",
+          "publish:applications",
+          "makePublic:applications",
+        ],
+        name: "loadingAppName5",
+        organizationId: "loadingOrgId2",
+        isPublic: false,
+        pages: [
+          {
+            id: "5f7da915349e65508a53e3b6",
+            isDefault: true,
+            default: true,
+          },
+        ],
+        appIsExample: false,
+        new: false,
+        pageCount: 1,
+        defaultPageId: "5f7da915349e65508a53e3b6",
+      },
+    ],
+  },
+];
 
-const SmallAppName = styled.div`
+const AppName = styled.div`
   margin-top: 10px;
-  width: 75px;
+  width: 150px;
   height: 16px;
-`;
-
-const AppsContainer = styled.div`
-  display: flex;
-  align-items: center;
-
-  .app-box:nth-child(1) {
-    margin-left: 0px;
-  }
-  .app-box {
-    margin-top: 10px;
-  }
 `;
 
 const Container = styled.div`
   margin: 32px;
 `;
 
-const OrgLoader = styled.div`
-  margin-bottom: 50px;
-`;
-
-const OrgNameLoader = styled.div`
-  width: 76px;
-  height: 22px;
-  margin-bottom: 26px;
-`;
-
 const ContentLoader = styled.div`
   width: 150px;
   height: 150px;
-`;
-
-const PaneLoader = styled.div`
-  width: 170px;
-  margin: 50px 0px;
-`;
-
-const LoadingHeader = styled.div`
-  width: 92px;
-  height: 10px;
-`;
-
-const LoadingOrgs = styled.div`
-  width: 170px;
-  height: 16px;
-  margin-top: 20px;
 `;
 
 export const AppLoader = () => {
@@ -87,48 +255,8 @@ export const AppLoader = () => {
       <LoadingAnimation />
       <Container className="app-box">
         <ContentLoader className={Classes.SKELETON}></ContentLoader>
-        <SmallAppName className={Classes.SKELETON}></SmallAppName>
+        <AppName className={Classes.SKELETON}></AppName>
       </Container>
     </>
-  );
-};
-
-export const ApplicationLoader = () => {
-  return (
-    <LoaderContainer>
-      <LoadingAnimation />
-      {[1, 2].map((el: number) => {
-        const arr = [1, 2];
-        if (el === 2) {
-          arr.push(3);
-        }
-        return (
-          <OrgLoader key={el}>
-            <OrgNameLoader className={Classes.SKELETON}></OrgNameLoader>
-            <AppsContainer>
-              {arr.map((_, index) => (
-                <AppLoader key={index} />
-              ))}
-            </AppsContainer>
-          </OrgLoader>
-        );
-      })}
-    </LoaderContainer>
-  );
-};
-
-export const LeftPaneLoader = () => {
-  return (
-    <React.Fragment>
-      <LoadingAnimation />
-      {[1, 2].map(org => (
-        <PaneLoader key={org}>
-          <LoadingHeader className={Classes.SKELETON}></LoadingHeader>
-          {[1, 2, 3].map(el => (
-            <LoadingOrgs key={el} className={Classes.SKELETON}></LoadingOrgs>
-          ))}
-        </PaneLoader>
-      ))}
-    </React.Fragment>
   );
 };

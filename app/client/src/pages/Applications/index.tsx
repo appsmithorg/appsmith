@@ -49,11 +49,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import {
-  ApplicationLoader,
-  AppLoader,
-  LeftPaneLoader,
-} from "./ApplicationLoaders";
+import { AppLoader, loadingUserOrgs } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
 
 const OrgDropDown = styled.div`
@@ -130,19 +126,40 @@ const StyledIcon = styled(Icon)`
   margin-right: 11px;
 `;
 
-function Item(props: { label: string; textType: TextType; icon?: IconName }) {
+function Item(props: {
+  label: string;
+  textType: TextType;
+  icon?: IconName;
+  isFetchingApplications: boolean;
+}) {
   return (
     <ItemWrapper>
       {props.icon && <StyledIcon />}
-      <Text type={props.textType}> {props.label}</Text>
+      <Text
+        type={props.textType}
+        className={
+          props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
+        }
+      >
+        {" "}
+        {props.label}
+      </Text>
     </ItemWrapper>
   );
 }
-function LeftPaneSection(props: { heading: string; children?: any }) {
+function LeftPaneSection(props: {
+  heading: string;
+  children?: any;
+  isFetchingApplications: boolean;
+}) {
   return (
     <>
       {/* <MenuItem text={props.heading}/> */}
-      <Item label={props.heading} textType={TextType.H6}></Item>
+      <Item
+        label={props.heading}
+        textType={TextType.H6}
+        isFetchingApplications={props.isFetchingApplications}
+      ></Item>
       {props.children}
     </>
   );
@@ -225,42 +242,52 @@ const ApplicationAddCardWrapper = styled(Card)`
 `;
 
 function LeftPane() {
-  const userOrgs = useSelector(getUserApplicationsOrgs);
+  const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const NewWorkspaceTrigger = (
     <NewWorkspaceWrapper>
       <MenuItem
+        className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
         key={"new-workspace"}
         text={"Create Organization"}
         icon="plus"
       />
     </NewWorkspaceWrapper>
   );
+  let userOrgs;
+  if (!isFetchingApplications) {
+    userOrgs = fetchedUserOrgs;
+  } else {
+    userOrgs = loadingUserOrgs as any;
+  }
+
   return (
     <LeftPaneWrapper>
-      {isFetchingApplications ? (
-        <LeftPaneLoader />
-      ) : (
-        <LeftPaneSection heading="ORGANIZATIONS">
-          <WorkpsacesNavigator>
-            <FormDialogComponent
-              trigger={NewWorkspaceTrigger}
-              Form={CreateOrganizationForm}
-              title={CREATE_ORGANIZATION_FORM_NAME}
-            />
-            {/* {CreateOrg} */}
-            {userOrgs &&
-              userOrgs.map((org: any) => (
-                <MenuItem
-                  icon="workspace"
-                  key={org.organization.name}
-                  href={`${window.location.pathname}#${org.organization.name}`}
-                  text={org.organization.name}
-                />
-              ))}
-          </WorkpsacesNavigator>
-        </LeftPaneSection>
-      )}
+      <LeftPaneSection
+        heading="ORGANIZATIONS"
+        isFetchingApplications={isFetchingApplications}
+      >
+        <WorkpsacesNavigator>
+          <FormDialogComponent
+            trigger={NewWorkspaceTrigger}
+            Form={CreateOrganizationForm}
+            title={CREATE_ORGANIZATION_FORM_NAME}
+          />
+          {/* {CreateOrg} */}
+          {userOrgs &&
+            userOrgs.map((org: any) => (
+              <MenuItem
+                className={
+                  isFetchingApplications ? BlueprintClasses.SKELETON : ""
+                }
+                icon="workspace"
+                key={org.organization.name}
+                href={`${window.location.pathname}#${org.organization.name}`}
+                text={org.organization.name}
+              />
+            ))}
+        </WorkpsacesNavigator>
+      </LeftPaneSection>
     </LeftPaneWrapper>
   );
 }
@@ -290,6 +317,7 @@ ${props => {
 
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
@@ -327,7 +355,10 @@ const ApplicationsSection = (props: any) => {
     const OrgName = (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
         <StyledAnchor id={orgName}></StyledAnchor>
-        <Text type={TextType.H1}>
+        <Text
+          type={TextType.H1}
+          className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+        >
           {orgName}
           <Icon name="downArrow" size={IconSize.XXS}></Icon>
         </Text>
@@ -379,10 +410,17 @@ const ApplicationsSection = (props: any) => {
     });
   };
 
+  let updatedOrgs;
+  if (!isFetchingApplications) {
+    updatedOrgs = userOrgs;
+  } else {
+    updatedOrgs = loadingUserOrgs as any;
+  }
+
   return (
     <ApplicationContainer className="t--applications-container">
-      {userOrgs &&
-        userOrgs.map((organizationObject: any, index: number) => {
+      {updatedOrgs &&
+        updatedOrgs.map((organizationObject: any, index: number) => {
           const { organization, applications } = organizationObject;
           const hasManageOrgPermissions = isPermitted(
             organization.userPermissions,
@@ -391,7 +429,7 @@ const ApplicationsSection = (props: any) => {
           return (
             <OrgSection className="t--org-section" key={index}>
               <OrgDropDown>
-                {currentUser && (
+                {(currentUser || isFetchingApplications) && (
                   <OrgMenu
                     setSelectedOrgId={setSelectedOrgId}
                     orgId={organization.id}
@@ -417,50 +455,56 @@ const ApplicationsSection = (props: any) => {
                 {isPermitted(
                   organization.userPermissions,
                   PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
-                ) && (
-                  <FormDialogComponent
-                    trigger={
-                      <Button text={"Share"} icon={"share"} size={Size.small} />
-                    }
-                    canOutsideClickClose={true}
-                    Form={OrgInviteUsersForm}
-                    orgId={organization.id}
-                    title={`Invite Users to ${organization.name}`}
-                  />
-                )}
+                ) &&
+                  !isFetchingApplications && (
+                    <FormDialogComponent
+                      trigger={
+                        <Button
+                          text={"Share"}
+                          icon={"share"}
+                          size={Size.small}
+                        />
+                      }
+                      canOutsideClickClose={true}
+                      Form={OrgInviteUsersForm}
+                      orgId={organization.id}
+                      title={`Invite Users to ${organization.name}`}
+                    />
+                  )}
               </OrgDropDown>
               <ApplicationCardsWrapper key={organization.id}>
                 {isPermitted(
                   organization.userPermissions,
                   PERMISSION_TYPE.CREATE_APPLICATION,
-                ) && (
-                  <PaddingWrapper>
-                    <ApplicationAddCardWrapper
-                      onClick={() =>
-                        createNewApplication(
-                          getNextEntityName(
-                            "New App",
-                            applications.map((el: any) => el.name),
-                          ),
-                          organization.id,
-                        )
-                      }
-                    >
-                      <Icon
-                        className="t--create-app-popup"
-                        name={"plus"}
-                        size={IconSize.LARGE}
-                      ></Icon>
-                      <CreateNewLabel
-                        type={TextType.H4}
-                        className="createnew"
-                        // cypressSelector={"t--create-new-app"}
+                ) &&
+                  !isFetchingApplications && (
+                    <PaddingWrapper>
+                      <ApplicationAddCardWrapper
+                        onClick={() =>
+                          createNewApplication(
+                            getNextEntityName(
+                              "New App",
+                              applications.map((el: any) => el.name),
+                            ),
+                            organization.id,
+                          )
+                        }
                       >
-                        Create New
-                      </CreateNewLabel>
-                    </ApplicationAddCardWrapper>
-                  </PaddingWrapper>
-                )}
+                        <Icon
+                          className="t--create-app-popup"
+                          name={"plus"}
+                          size={IconSize.LARGE}
+                        ></Icon>
+                        <CreateNewLabel
+                          type={TextType.H4}
+                          className="createnew"
+                          // cypressSelector={"t--create-new-app"}
+                        >
+                          Create New
+                        </CreateNewLabel>
+                      </ApplicationAddCardWrapper>
+                    </PaddingWrapper>
+                  )}
                 {applications.map((application: any) => {
                   return (
                     application.pages?.length > 0 && (
@@ -483,7 +527,7 @@ const ApplicationsSection = (props: any) => {
                   );
                 })}
                 {creatingApplicationMap &&
-                creatingApplicationMap[organization.id]?.creating ? (
+                creatingApplicationMap[organization.id] ? (
                   <AppLoader />
                 ) : null}
                 <PageSectionDivider />
@@ -554,13 +598,9 @@ class Applications extends Component<
             queryFn: this.props.searchApplications,
           }}
         />
-        {this.props.isFetchingApplications ? (
-          <ApplicationLoader />
-        ) : (
-          <ApplicationsSection
-            newApplicationList={this.state.newApplicationList}
-          ></ApplicationsSection>
-        )}
+        <ApplicationsSection
+          newApplicationList={this.state.newApplicationList}
+        ></ApplicationsSection>
       </PageWrapper>
     );
   }

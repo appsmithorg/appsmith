@@ -61,30 +61,27 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
 
   return (
     <SubHeaderWrapper>
-      {!isFetchingApplications ? (
-        <React.Fragment>
-          <SearchContainer>
-            {props.search && (
-              <ControlGroup>
-                <SearchInput
-                  cypressSelector={"t--application-search-input"}
-                  placeholder={props.search.placeholder}
-                  variant={SearchVariant.SEAMLESS}
-                  onChange={query || noop}
-                />
-              </ControlGroup>
-            )}
-          </SearchContainer>
-
-          {props.add && (
-            <FormDialogComponent
-              trigger={createTrigger}
-              Form={props.add.form}
-              title={props.add.title}
+      <SearchContainer>
+        {props.search && (
+          <ControlGroup>
+            <SearchInput
+              cypressSelector={"t--application-search-input"}
+              placeholder={props.search.placeholder}
+              variant={SearchVariant.SEAMLESS}
+              onChange={query || noop}
+              disabled={isFetchingApplications}
             />
-          )}
-        </React.Fragment>
-      ) : null}
+          </ControlGroup>
+        )}
+      </SearchContainer>
+
+      {props.add && (
+        <FormDialogComponent
+          trigger={createTrigger}
+          Form={props.add.form}
+          title={props.add.title}
+        />
+      )}
     </SubHeaderWrapper>
   );
 };

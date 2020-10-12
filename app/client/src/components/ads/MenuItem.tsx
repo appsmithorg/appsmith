@@ -85,7 +85,7 @@ function MenuItem(props: MenuItemProps) {
       data-cy={props.cypressSelector}
       type={props.type}
     >
-      <IconContainer>
+      <IconContainer className={props.className}>
         {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
         {props.text ? (
           <Text type={TextType.H5} weight={FontWeight.NORMAL}>

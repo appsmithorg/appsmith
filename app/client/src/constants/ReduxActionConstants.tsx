@@ -488,8 +488,3 @@ export type InitializeEditorPayload = {
 export type FetchPageListPayload = {
   applicationId: string;
 };
-
-export type CreateAppPayload = {
-  applicationName: string;
-  orgId: string;
-};

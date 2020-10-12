@@ -39,7 +39,10 @@ import IconSelector from "components/ads/IconSelector";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { useSelector } from "react-redux";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
-import { getIsSavingAppName } from "selectors/applicationSelectors";
+import {
+  getIsFetchingApplications,
+  getIsSavingAppName,
+} from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
 
 type NameWrapperProps = {
@@ -183,7 +186,7 @@ const Control = styled.div<{ fixed?: boolean }>`
   }
 `;
 
-const TargetElement = styled.div`
+const MoreOptionsContainer = styled.div`
   width: 22px;
   height: 22px;
   background-color: rgba(0, 0, 0, 0.1);
@@ -227,19 +230,62 @@ const ContextDropdownWrapper = styled.div`
 `;
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
-  const [showOverlay, setShowOverlay] = useState(false);
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
   const themeDetails = useSelector(getThemeDetails);
+  const isSavingName = useSelector(getIsSavingAppName);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
     themeDetails.theme.colors.appCardColors,
   );
-  const isSavingName = useSelector(getIsSavingAppName);
   let initials = initialsAndColorCode[0];
   const colorCode = props.application?.color || initialsAndColorCode[1];
+
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>(colorCode);
+  const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNewCard, setIsNewCard] = useState(false);
+  const [lastUpdatedValue, setLastUpdatedValue] = useState("");
+  const menuIconRef = createRef<HTMLSpanElement>();
+
+  useEffect(() => {
+    setSelectedColor(colorCode);
+  }, [colorCode]);
+  useEffect(() => {
+    if (isNewCard && menuIconRef.current) {
+      menuIconRef.current.click();
+    }
+  }, [isNewCard]);
+  useEffect(() => {
+    if (props.share) {
+      moreActionItems.push({
+        onSelect: shareApp,
+        text: "Share",
+        icon: "share",
+        cypressSelector: "t--share",
+      });
+    }
+    if (props.duplicate && hasEditPermission) {
+      moreActionItems.push({
+        onSelect: duplicateApp,
+        text: "Duplicate",
+        icon: "duplicate",
+        cypressSelector: "t--duplicate",
+      });
+    }
+    setMoreActionItems(moreActionItems);
+    addDeleteOption();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (props.activeAppCard) {
+      setIsNewCard(true);
+      setShowOverlay(true);
+    }
+  }, [props.activeAppCard]);
+
   const appIcon = (props.application?.icon ||
     getApplicationIcon(props.application.id)) as AppIconName;
-  const [selectedColor, setSelectedColor] = useState<string>(colorCode);
-
   const hasEditPermission = isPermitted(
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.MANAGE_APPLICATION,
@@ -271,9 +317,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     setShowOverlay(false);
     props.delete && props.delete(props.application.id, props.orgId);
   };
-
-  const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
-
   const askForConfirmation = () => {
     const updatedActionItems = [...moreActionItems];
     updatedActionItems.pop();
@@ -286,7 +329,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     });
     setMoreActionItems(updatedActionItems);
   };
-
   const addDeleteOption = () => {
     if (props.delete && hasEditPermission) {
       const index = moreActionItems.findIndex(el => el.icon === "delete");
@@ -297,69 +339,35 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         onSelect: askForConfirmation,
         text: "Delete",
         icon: "delete",
-        cypressSelector: "t--confirmation",
+        cypressSelector: "t--delete-confirm",
       });
       setMoreActionItems(moreActionItems);
     }
   };
-
-  useEffect(() => {
-    if (props.share) {
-      moreActionItems.push({
-        onSelect: shareApp,
-        text: "Share",
-        icon: "share",
-        cypressSelector: "t--share",
-      });
-    }
-    if (props.duplicate && hasEditPermission) {
-      moreActionItems.push({
-        onSelect: duplicateApp,
-        text: "Duplicate",
-        icon: "duplicate",
-        cypressSelector: "t--duplicate",
-      });
-    }
-    setMoreActionItems(moreActionItems);
-    addDeleteOption();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isNewCard, SetIsNewCard] = useState(false);
-  const menuIconRef = createRef<HTMLSpanElement>();
-
-  useEffect(() => {
-    if (props.activeAppCard) {
-      SetIsNewCard(true);
-      setShowOverlay(true);
-    }
-  }, [props.activeAppCard]);
-
-  useEffect(() => {
-    if (isNewCard && menuIconRef.current) {
-      menuIconRef.current.click();
-    }
-  }, [isNewCard]);
-
-  useEffect(() => {
-    setSelectedColor(colorCode);
-  }, [colorCode]);
-
-  const [lastUpdatedValue, SetLastUpdatedValue] = useState("");
+  if (initials.length < 2 && props.application.name.length > 1) {
+    initials += props.application.name[1].toUpperCase() || "";
+  }
+  const viewApplicationURL = getApplicationViewerPageURL(
+    props.application.id,
+    props.application.defaultPageId,
+  );
+  const editApplicationURL = BUILDER_PAGE_URL(
+    props.application.id,
+    props.application.defaultPageId,
+  );
 
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
         position={Position.RIGHT_TOP}
         target={
-          <TargetElement>
+          <MoreOptionsContainer>
             <Icon
               name="context-menu"
               ref={menuIconRef}
               size={IconSize.XXXL}
             ></Icon>
-          </TargetElement>
+          </MoreOptionsContainer>
         }
         className="more"
         onOpening={() => {
@@ -368,7 +376,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         onClosing={() => {
           setIsMenuOpen(false);
           setShowOverlay(false);
-          SetIsNewCard(false);
+          setIsNewCard(false);
           addDeleteOption();
           if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
             props.update &&
@@ -384,7 +392,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             defaultValue={props.application.name}
             editInteractionKind={EditInteractionKind.SINGLE}
             onTextChanged={(value: string) => {
-              SetLastUpdatedValue(value);
+              setLastUpdatedValue(value);
             }}
             valueTransform={(value: any) => value.toUpperCase()}
             placeholder={"Edit text input"}
@@ -401,7 +409,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             }
             fill={true}
             onBlur={(value: string) => {
-              SetIsNewCard(false);
+              setIsNewCard(false);
               props.update &&
                 props.update(props.application.id, {
                   name: value,
@@ -438,24 +446,13 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     </ContextDropdownWrapper>
   );
 
-  if (initials.length < 2 && props.application.name.length > 1) {
-    initials += props.application.name[1].toUpperCase() || "";
-  }
-
-  const viewApplicationURL = getApplicationViewerPageURL(
-    props.application.id,
-    props.application.defaultPageId,
-  );
-  const editApplicationURL = BUILDER_PAGE_URL(
-    props.application.id,
-    props.application.defaultPageId,
-  );
-
   return (
     <NameWrapper
       isMenuOpen={isMenuOpen}
       showOverlay={showOverlay}
-      onMouseEnter={() => setShowOverlay(true)}
+      onMouseEnter={() => {
+        !isFetchingApplications && setShowOverlay(true);
+      }}
       onMouseLeave={() => {
         // If the menu is not open, then setOverlay false
         // Set overlay false on outside click.
@@ -465,6 +462,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       className="t--application-card"
     >
       <Wrapper
+        className={isFetchingApplications ? Classes.SKELETON : ""}
         key={props.application.id}
         hasReadPermission={hasReadPermission}
         backgroundColor={colorCode}
@@ -517,7 +515,12 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         )}
       </Wrapper>
       <AppNameWrapper>
-        <Text type={TextType.H3}>{props.application.name}</Text>
+        <Text
+          className={isFetchingApplications ? Classes.SKELETON : ""}
+          type={TextType.H3}
+        >
+          {props.application.name}
+        </Text>
       </AppNameWrapper>
     </NameWrapper>
   );

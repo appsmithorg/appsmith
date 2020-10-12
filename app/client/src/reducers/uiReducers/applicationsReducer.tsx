@@ -4,11 +4,11 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ApplicationPayload,
-  CreateAppPayload,
 } from "constants/ReduxActionConstants";
 import { Organization } from "constants/orgConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
 import { UpdateApplicationRequest } from "api/ApplicationApi";
+import { CreateApplicationFormValues } from "pages/Applications/helpers";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -118,10 +118,10 @@ const applicationsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.CREATE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<CreateAppPayload>,
+    action: ReduxAction<CreateApplicationFormValues>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
-    updatedCreatingApplication[action.payload.orgId] = { creating: true };
+    updatedCreatingApplication[action.payload.orgId] = true;
 
     return {
       ...state,
@@ -145,7 +145,7 @@ const applicationsReducer = createReducer(initialState, {
     });
 
     const updatedCreatingApplication = { ...state.creatingApplication };
-    updatedCreatingApplication[action.payload.orgId] = { creating: false };
+    updatedCreatingApplication[action.payload.orgId] = false;
 
     return {
       ...state,
@@ -159,7 +159,7 @@ const applicationsReducer = createReducer(initialState, {
     action: ReduxAction<{ orgId: string }>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
-    updatedCreatingApplication[action.payload.orgId] = { creating: false };
+    updatedCreatingApplication[action.payload.orgId] = false;
 
     return {
       ...state,
@@ -237,7 +237,7 @@ const applicationsReducer = createReducer(initialState, {
   },
 });
 
-export type creatingApplicationMap = Record<string, { creating: boolean }>;
+export type creatingApplicationMap = Record<string, boolean>;
 
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
