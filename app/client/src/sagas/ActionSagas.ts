@@ -81,10 +81,11 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
         response.data.id,
       );
 
-      AnalyticsUtil.logEvent("CREATE_API", {
-        apiId: response.data.id,
-        apiName: response.data.name,
+      AnalyticsUtil.logEvent("CREATE_ACTION", {
+        id: response.data.id,
+        actionName: response.data.name,
         pageName: pageName,
+        ...actionPayload.payload.eventData,
       });
       yield put(createActionSuccess(response.data));
     }

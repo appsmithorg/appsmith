@@ -110,6 +110,121 @@ describe("Table Widget Functionality", function() {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Michael Lawson");
       });
+      cy.get(publish.canvas)
+        .first()
+        .click();
+    });
+  });
+
+  it("Table Widget Functionality To Filter The Data using contains", function() {
+    cy.isSelectRow(1);
+    cy.readTabledataPublish("1", "2").then(tabData => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Lindsay Ferguson");
+      cy.log("the value is" + tabValue);
+      cy.get(publish.filterBtn).click();
+      cy.get(publish.attributeDropdown).click();
+      cy.get(publish.attributeValue)
+        .contains("userName")
+        .click();
+      cy.get(publish.conditionDropdown).click();
+      cy.get(publish.attributeValue)
+        .contains("contains")
+        .click();
+      cy.get(publish.inputValue).type("Lindsay");
+      cy.wait(500);
+      cy.get(publish.canvas)
+        .first()
+        .click();
+      cy.readTabledataPublish("0", "2").then(tabData => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Lindsay Ferguson");
+      });
+      cy.get(publish.filterBtn).click();
+      cy.get(publish.removeFilter).click();
+      cy.wait(500);
+      cy.readTabledataPublish("0", "2").then(tabData => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Michael Lawson");
+      });
+      cy.get(publish.canvas)
+        .first()
+        .click();
+    });
+  });
+
+  it("Table Widget Functionality To Filter The Data using starts with ", function() {
+    cy.isSelectRow(1);
+    cy.readTabledataPublish("1", "2").then(tabData => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Lindsay Ferguson");
+      cy.log("the value is" + tabValue);
+      cy.get(publish.filterBtn).click();
+      cy.get(publish.attributeDropdown).click();
+      cy.get(publish.attributeValue)
+        .contains("userName")
+        .click();
+      cy.get(publish.conditionDropdown).click();
+      cy.get(publish.attributeValue)
+        .contains("starts with")
+        .click();
+      cy.get(publish.inputValue).type("Lindsay");
+      cy.wait(500);
+      cy.get(publish.canvas)
+        .first()
+        .click();
+      cy.readTabledataPublish("0", "2").then(tabData => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Lindsay Ferguson");
+      });
+      cy.get(publish.filterBtn).click();
+      cy.get(publish.removeFilter).click();
+      cy.wait(500);
+      cy.readTabledataPublish("0", "2").then(tabData => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Michael Lawson");
+      });
+      cy.get(publish.canvas)
+        .first()
+        .click();
+    });
+  });
+
+  it("Table Widget Functionality To Filter The Data using ends with ", function() {
+    cy.isSelectRow(1);
+    cy.readTabledataPublish("1", "2").then(tabData => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Lindsay Ferguson");
+      cy.log("the value is" + tabValue);
+      cy.get(publish.filterBtn).click();
+      cy.get(publish.attributeDropdown).click();
+      cy.get(publish.attributeValue)
+        .contains("userName")
+        .click();
+      cy.get(publish.conditionDropdown).click();
+      cy.get(publish.attributeValue)
+        .contains("ends with")
+        .click();
+      cy.get(publish.inputValue).type("Ferguson");
+      cy.wait(500);
+      cy.get(publish.canvas)
+        .first()
+        .click();
+      cy.readTabledataPublish("0", "2").then(tabData => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Lindsay Ferguson");
+      });
+      cy.get(publish.filterBtn).click();
+      cy.get(publish.removeFilter).click();
+      cy.wait(500);
+      cy.readTabledataPublish("0", "2").then(tabData => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Michael Lawson");
+      });
+      cy.get(publish.canvas)
+        .first()
+        .click();
+        
     });
   });
 
