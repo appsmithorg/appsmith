@@ -31,6 +31,13 @@ export const fetchDatasourceStructure = (id: string) => {
   };
 };
 
+export const expandDatasourceEntity = (id: string) => {
+  return {
+    type: ReduxActionTypes.EXPAND_DATASOURCE_ENTITY,
+    payload: id,
+  };
+};
+
 export const refreshDatasourceStructure = (id: string) => {
   return {
     type: ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,

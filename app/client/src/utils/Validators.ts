@@ -363,17 +363,27 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
+    const isValidOption = (option: { label: any; value: any }) =>
+      _.isString(option.label) &&
+      _.isString(option.value) &&
+      !_.isEmpty(option.label) &&
+      !_.isEmpty(option.value);
+
     const hasOptions = _.every(parsed, (datum: { label: any; value: any }) => {
       if (_.isObject(datum)) {
-        return _.isString(datum.label) && _.isString(datum.value);
+        return isValidOption(datum);
       } else {
         return false;
       }
     });
-    if (!hasOptions) {
+
+    const validOptions = parsed.filter(isValidOption);
+    const uniqValidOptions = _.uniqBy(validOptions, "value");
+
+    if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
       return {
         isValid: false,
-        parsed: [],
+        parsed: uniqValidOptions,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }

@@ -25,10 +25,10 @@
     "inviteUserMembersPage": "[data-cy=t--invite-users]",
     "email": "//input[@type='email']",
     "selectRole": "//span[text()='Select a role']",
-    "adminRole": "//div[@class='bp3-overlay bp3-overlay-open']//div[contains(text(),'Administrator')]",
-    "viewerRole": "//div[@class='bp3-overlay bp3-overlay-open']//div[contains(text(),'Viewer')]",
-    "developerRole": "//div[@class='bp3-overlay bp3-overlay-open']//div[contains(text(),'Developer')]",
-    "inviteBtn": "//span[text()='Invite']",
+    "adminRole": "//div[@class='label-title']//span[text()='Administrator']",
+    "viewerRole": "//div[@class='label-title']//span[text()='App Viewer']",
+    "developerRole": "//div[@class='label-title']//span[text()='Developer']", 
+    "inviteBtn": "//button[text()='Invite']",
     "manageUsers": ".manageUsers",
     "DeleteBtn": "[data-cy=t--deleteUser]",
     "ShareBtn": "//a[text()='Share']",
@@ -42,5 +42,9 @@
     "orgSectionBtn": ".t--org-section .bp3-button",
     "shareOrg": ") a:contains('Share')",
     "orgSection": "a:contains(",
-    "createAppFrOrg": ") .t--create-app-popup"
+    "createAppFrOrg": ") .t--create-app-popup",
+    "shareApp": ".t--application-share-btn",
+    "enablePublicAccess": ".bp3-control-indicator",
+    "closeBtn": ".bp3-dialog-close-button"
+
 }
