@@ -12,6 +12,7 @@ import _ from "lodash";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import useScript from "utils/hooks/useScript";
 import { AppToaster } from "components/editorComponents/ToastComponent";
+import { GOOGLE_RECAPTCHA_KEY_ERROR } from "constants/messages";
 
 const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   if (props.filled) return props.theme.colors.textOnDarkBG;
@@ -161,6 +162,13 @@ const RecaptchaComponent = (
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
 ) => {
+  function handleError(event: React.MouseEvent<HTMLElement>) {
+    AppToaster.show({
+      message: GOOGLE_RECAPTCHA_KEY_ERROR,
+      type: "error",
+    });
+    props.onClick && props.onClick(event);
+  }
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${props.googleRecaptchaKey}`,
   );
@@ -174,15 +182,12 @@ const RecaptchaComponent = (
                 .execute(props.googleRecaptchaKey, { action: "submit" })
                 .then((token: any) => {
                   props.clickWithRecaptcha(token);
+                })
+                .catch(() => {
+                  handleError(event);
                 });
             } catch (ex) {
-              AppToaster.show({
-                message:
-                  "Google Re-Captcha Token Generation failed! Please check the Re-captcha Key and the allowed domains.",
-                type: "error",
-              });
-              console.error(ex);
-              props.onClick && props.onClick(event);
+              handleError(event);
             }
           });
         }
