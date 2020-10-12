@@ -233,7 +233,6 @@ export const EditableText = (props: EditableTextProps) => {
 
   return (
     <EditableTextWrapper
-      data-cy={props.cypressSelector}
       fill={props.fill}
       onMouseEnter={nonEditMode}
       onDoubleClick={
@@ -248,6 +247,7 @@ export const EditableText = (props: EditableTextProps) => {
       }
     >
       <TextContainer
+        data-cy={props.cypressSelector}
         isInvalid={!!isInvalid}
         isEditing={isEditing}
         bgColor={bgColor}

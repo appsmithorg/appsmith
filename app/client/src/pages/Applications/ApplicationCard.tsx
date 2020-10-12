@@ -415,6 +415,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                   name: value,
                 });
             }}
+            className="t--application-name"
           />
         )}
         {hasEditPermission && (
@@ -461,21 +462,22 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       hasReadPermission={hasReadPermission}
       className="t--application-card"
     >
-      <Wrapper
-        className={isFetchingApplications ? Classes.SKELETON : ""}
-        key={props.application.id}
-        hasReadPermission={hasReadPermission}
-        backgroundColor={colorCode}
-      >
-        <AppIcon size={Size.large} name={appIcon} />
-        {/* <Initials>{initials}</Initials> */}
-        {showOverlay && (
-          <div className="overlay">
-            <ApplicationImage className="image-container">
-              <Control className="control">
-                {!!moreActionItems.length && ContextMenu}
+      <>
+        <Wrapper
+          className={isFetchingApplications ? Classes.SKELETON : ""}
+          key={props.application.id}
+          hasReadPermission={hasReadPermission}
+          backgroundColor={colorCode}
+        >
+          <AppIcon size={Size.large} name={appIcon} />
+          {/* <Initials>{initials}</Initials> */}
+          {showOverlay && (
+            <div className="overlay">
+              <ApplicationImage className="image-container">
+                <Control className="control">
+                  {!!moreActionItems.length && ContextMenu}
 
-                {/* {!!moreActionItems.length && (
+                  {/* {!!moreActionItems.length && (
                   <ContextDropdown
                     options={moreActionItems}
                     toggle={{
@@ -488,40 +490,41 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                   />
                 )} */}
 
-                {hasEditPermission && !isMenuOpen && (
-                  <EditButton
-                    text="Edit"
-                    size={Size.medium}
-                    icon={"edit"}
-                    className="t--application-edit-link"
-                    fill
-                    href={editApplicationURL}
-                  />
-                )}
-                {!isMenuOpen && (
-                  <Button
-                    text="LAUNCH"
-                    size={Size.medium}
-                    category={Category.tertiary}
-                    className="t--application-view-link"
-                    icon={"rocket"}
-                    href={viewApplicationURL}
-                    fill
-                  />
-                )}
-              </Control>
-            </ApplicationImage>
-          </div>
-        )}
-      </Wrapper>
-      <AppNameWrapper>
-        <Text
-          className={isFetchingApplications ? Classes.SKELETON : ""}
-          type={TextType.H3}
-        >
-          {props.application.name}
-        </Text>
-      </AppNameWrapper>
+                  {hasEditPermission && !isMenuOpen && (
+                    <EditButton
+                      text="Edit"
+                      size={Size.medium}
+                      icon={"edit"}
+                      className="t--application-edit-link"
+                      fill
+                      href={editApplicationURL}
+                    />
+                  )}
+                  {!isMenuOpen && (
+                    <Button
+                      text="LAUNCH"
+                      size={Size.medium}
+                      category={Category.tertiary}
+                      className="t--application-view-link"
+                      icon={"rocket"}
+                      href={viewApplicationURL}
+                      fill
+                    />
+                  )}
+                </Control>
+              </ApplicationImage>
+            </div>
+          )}
+        </Wrapper>
+        <AppNameWrapper>
+          <Text
+            className={isFetchingApplications ? Classes.SKELETON : ""}
+            type={TextType.H3}
+          >
+            {props.application.name}
+          </Text>
+        </AppNameWrapper>
+      </>
     </NameWrapper>
   );
 };

@@ -7,7 +7,7 @@ describe("Create new org and share with a user", function() {
   let appid;
 
   it("create org and then share with a user from UI", function() {
-    cy.NavigateToHome();
+    // cy.NavigateToHome();
     cy.generateUUID().then(uid => {
       orgid = uid;
       appid = uid;
