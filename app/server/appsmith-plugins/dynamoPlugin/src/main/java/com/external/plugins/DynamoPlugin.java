@@ -82,19 +82,22 @@ public class DynamoPlugin extends BasePlugin {
 
             // new AwsSyncClientHandler(SdkClientConfiguration.builder().build());
 
+            final Class<?> requestClass;
             try {
-                final Class<?> requestClass = Class.forName("software.amazon.awssdk.services.dynamodb.model." + action + "Request");
+                requestClass = Class.forName("software.amazon.awssdk.services.dynamodb.model." + action + "Request");
+            } catch (ClassNotFoundException e) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Unknown action: `" + action + "`. Note that action names are case-sensitive."
+                ));
+            }
+
+            try {
                 final Method actionExecuteMethod = DynamoDbClient.class.getMethod(action.substring(0, 1).toLowerCase() + action.substring(1), requestClass);
                 final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, convertValue(parameters, requestClass));
-                System.out.println("Response: " + response);
-                result.setBody(response.toString());
-                // final Map<String, Object> plainResponse = responseToPlain(response);
-                // System.out.println("Plain Response: " + plainResponse);
-                // result.setBody(plainResponse);
-            } catch (InvocationTargetException e) {
-                return Mono.error(e.getCause());
-            } catch (IllegalAccessException | NoSuchMethodException | InstantiationException | ClassNotFoundException e) {
-                e.printStackTrace();
+                result.setBody(responseToPlain(response));
+            } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException | InstantiationException e) {
+                return Mono.error(e.getCause() == null ? e : e.getCause());
             }
 
             /*/ Get the class implementing this DynamoDB action.
@@ -272,9 +275,7 @@ public class DynamoPlugin extends BasePlugin {
             }
         }
 
-        final T out = (T) builderType.getMethod("build").invoke(builder);
-        System.out.println("out " + out);
-        return out;
+        return (T) builderType.getMethod("build").invoke(builder);
     }
 
     private static Map<String, Object> responseToPlain(SdkPojo response) {
@@ -282,18 +283,26 @@ public class DynamoPlugin extends BasePlugin {
 
         for (final SdkField field : response.sdkFields()) {
             Object value = field.getValueOrDefault(response);
+
             if (value instanceof SdkPojo) {
                 value = responseToPlain((SdkPojo) value);
+
             } else if (value instanceof Map) {
                 final Map valueAsMap = (Map) value;
+                final Map<String, Object> plainMap = new HashMap<>();
                 for (final Object key : valueAsMap.keySet()) {
                     Object innerValue = valueAsMap.get(key);
                     if (innerValue instanceof SdkPojo) {
                         innerValue = responseToPlain((SdkPojo) innerValue);
                     }
-                    valueAsMap.put(key, innerValue);
+                    if (key instanceof String) {
+                        plainMap.put((String) key, innerValue);
+                    }
                 }
+                value = plainMap;
+
             }
+
             plain.put(field.memberName(), value);
         }
 
