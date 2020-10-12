@@ -38,6 +38,7 @@ import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
+  extraLibraries,
 } from "../utils/DynamicBindingUtils";
 
 const ctx: Worker = self as any;
@@ -53,7 +54,10 @@ ctx.addEventListener("message", e => {
       const { widgetTypeConfigMap, dataTree } = rest;
       WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
       const response = getEvaluatedDataTree(dataTree);
-      ctx.postMessage({ dataTree: response, errors: ERRORS });
+      // We need to clean it to remove any possible functions inside the tree.
+      // If functions exist, it will crash the web worker
+      const cleanDataTree = JSON.stringify(response);
+      ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS });
       ERRORS = [];
       break;
     }
@@ -885,14 +889,18 @@ const evaluate = (
   const script = callbackData ? scriptWithCallback : scriptToEvaluate;
   try {
     const { result, triggers } = (function() {
+      /**** Setting the eval context ****/
+      ///// Adding callback data
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
       self["CALLBACK_DATA"] = callbackData;
+      ///// Adding Data tree
       Object.keys(data).forEach(datum => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
         self[datum] = data[datum];
       });
+      ///// Fixing action paths and capturing their execution response
       if (data.actionPaths) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
@@ -919,6 +927,12 @@ const evaluate = (
           }
         });
       }
+      ///// Adding extra libraries
+      extraLibraries.forEach(library => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        self[library.accessor] = library.lib;
+      });
       return eval(script);
     })();
     return { result, triggers };

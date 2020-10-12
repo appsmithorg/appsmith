@@ -1,9 +1,12 @@
-import _ from "lodash";
+import _, { VERSION as lodashVersion } from "lodash";
 import {
   DATA_BIND_REGEX,
   DATA_BIND_REGEX_GLOBAL,
 } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
+import moment from "moment-timezone";
+import { atob, btoa, version as BASE64LIBVERSION } from "js-base64";
+import { ExtraLibrary } from "../jsExecution/JSExecutionManagerSingleton";
 
 type StringTuple = [string, string];
 
@@ -101,3 +104,34 @@ export enum EVAL_WORKER_ACTIONS {
   CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
   CLEAR_CACHE = "CLEAR_CACHE",
 }
+
+export const extraLibraries: ExtraLibrary[] = [
+  {
+    accessor: "_",
+    lib: _,
+    version: lodashVersion,
+    docsURL: `https://lodash.com/docs/${lodashVersion}`,
+    displayName: "lodash",
+  },
+  {
+    accessor: "moment",
+    lib: moment,
+    version: moment.version,
+    docsURL: `https://momentjs.com/docs/`,
+    displayName: "moment",
+  },
+  {
+    accessor: "btoa",
+    lib: btoa,
+    version: BASE64LIBVERSION,
+    docsURL: "https://github.com/dankogai/js-base64#readme",
+    displayName: "btoa",
+  },
+  {
+    accessor: "atob",
+    lib: atob,
+    version: BASE64LIBVERSION,
+    docsURL: "https://github.com/dankogai/js-base64#readme",
+    displayName: "atob",
+  },
+];

@@ -54,12 +54,14 @@ function* evaluateTreeSaga() {
     dataTree: unEvalTree,
     widgetTypeConfigMap,
   });
+  console.log({ unEvalTree });
   const workerResponse = yield take(workerChannel);
   const { errors, dataTree } = workerResponse.data;
+  console.log({ dataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: dataTree,
+    payload: JSON.parse(dataTree),
   });
 }
 

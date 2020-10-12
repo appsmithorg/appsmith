@@ -8,7 +8,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { ActionConfig, PluginType, Property } from "entities/Action";
+import { PluginType, Property } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import _ from "lodash";
 
@@ -141,7 +141,6 @@ export class DataTreeFactory {
     });
 
     dataTree.pageList = pageList;
-    // dataTree.actionPaths = actionPaths;
     dataTree.appsmith = { ...appData } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     return dataTree;
