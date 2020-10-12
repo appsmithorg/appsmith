@@ -355,7 +355,7 @@ const calculateSubDependencies = (
   return _.uniq(subDeps);
 };
 
-export const setTreeLoading = (
+const setTreeLoading = (
   dataTree: DataTree,
   dependencyMap: Array<[string, string]>,
 ) => {
@@ -624,7 +624,7 @@ const getAllPaths = (
   }, {});
 };
 
-export const getDynamicBindings = (
+const getDynamicBindings = (
   dynamicString: string,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
@@ -647,7 +647,7 @@ export const getDynamicBindings = (
 };
 
 //{{}}{{}}}
-export function getDynamicStringSegments(dynamicString: string): string[] {
+function getDynamicStringSegments(dynamicString: string): string[] {
   let stringSegments = [];
   const indexOfDoubleParanStart = dynamicString.indexOf("{{");
   if (indexOfDoubleParanStart === -1) {
@@ -689,8 +689,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
 }
 
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
-export const isDynamicValue = (value: string): boolean =>
-  DATA_BIND_REGEX.test(value);
+const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
 
 function getCurrentDependencyValues(
   propertyDependencies: Array<string>,
@@ -735,24 +734,13 @@ const getParsedValueCache = (propertyPath: string) =>
     version: 0,
   };
 
-export const clearPropertyCache = (propertyPath: string) =>
+const clearPropertyCache = (propertyPath: string) =>
   parsedValueCache.delete(propertyPath);
 
 const dependencyCache: Map<string, any[]> = new Map();
 
 function isWidget(entity: DataTreeEntity): boolean {
   return "ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
-}
-
-function isDynamicTrigger(
-  entity: DataTreeEntity,
-  propertyPath: string,
-): boolean {
-  return (
-    "dynamicTriggers" in entity &&
-    typeof entity.dynamicTriggers === "object" &&
-    propertyPath in entity.dynamicTriggers
-  );
 }
 
 function validateAndParseWidgetProperty(
@@ -846,7 +834,7 @@ type EvalResult = {
 };
 // Paths are expected to have "{name}.{path}" signature
 // Also returns any action triggers found after evaluating value
-export const evaluateDynamicBoundValue = (
+const evaluateDynamicBoundValue = (
   data: DataTree,
   path: string,
   callbackData?: any,
@@ -949,7 +937,7 @@ const evaluate = (
 };
 
 // For creating a final value where bindings could be in a template format
-export const createDynamicValueString = (
+const createDynamicValueString = (
   binding: string,
   subBindings: string[],
   subValues: string[],
@@ -973,7 +961,7 @@ export const createDynamicValueString = (
   return finalValue;
 };
 
-export const getDynamicValue = (
+const getDynamicValue = (
   dynamicBinding: string,
   data: DataTree,
   returnTriggers: boolean,
@@ -1028,7 +1016,7 @@ const validateWidgetProperty = (
   }
 };
 
-export const clearCaches = () => {
+const clearCaches = () => {
   dynamicPropValueCache.clear();
   dependencyCache.clear();
   parsedValueCache.clear();
