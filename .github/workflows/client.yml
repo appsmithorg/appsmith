@@ -6,7 +6,7 @@ on:
     # Only trigger if files have changed in this specific path
     paths:
       - 'app/client/**'
-  pull_request_target:
+  pull_request:
     branches: [ release, master ]
     paths:
       - 'app/client/**'
@@ -150,13 +150,14 @@ jobs:
     - name: Pull server docker container and start it locally
       shell: bash
       run: |
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
         --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
         --env APPSMITH_REDIS_URL=redis://localhost:6379 \
         --env APPSMITH_ENCRYPTION_PASSWORD=password \
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
-        appsmith/appsmith-server:release
+        appsmith/appsmith-server-ee:release
 
     - name: Installing Yarn serve
       run: |
