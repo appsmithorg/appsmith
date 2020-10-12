@@ -2,6 +2,7 @@ import API from "./Api";
 import { GenericApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/ApiConstants";
+import { Property } from "entities/Action";
 
 interface DatasourceAuthentication {
   authType?: string;
@@ -45,7 +46,7 @@ export interface Datasource {
     url: string;
     authentication?: DatasourceAuthentication;
     properties?: Record<string, string>;
-    headers?: Record<string, string>;
+    headers?: Property[];
     databaseName?: string;
   };
   invalids?: string[];
