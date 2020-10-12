@@ -26,7 +26,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectionType: VALIDATION_TYPES.TEXT,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       // onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
-      selectedOptionValueArr: VALIDATION_TYPES.ARRAY,
       selectedOptionValues: VALIDATION_TYPES.ARRAY,
       defaultOptionValue: (
         value: string | string[],
@@ -71,11 +70,11 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     return {
       isValid: `{{this.isRequired ? this.selectionType === 'SINGLE_SELECT' ? !!this.selectedOption : !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
       selectedOption: `{{ this.selectionType === 'SINGLE_SELECT' ? _.find(this.options, { value:  this.selectedOptionValue }) : undefined}}`,
-      selectedOptionArr: `{{this.selectionType === "MULTI_SELECT" ? this.options.filter(opt => _.includes(this.selectedOptionValueArr, opt.value)) : undefined}}`,
+      selectedOptionArr: `{{this.selectionType === "MULTI_SELECT" ? this.options.filter(opt => _.includes(this.selectedOptionValue, opt.value)) : undefined}}`,
       selectedIndex: `{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}`,
-      selectedIndexArr: `{{ this.selectedOptionValueArr.map(o => _.findIndex(this.options, { value: o })) }}`,
-      value: `{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}`,
-      selectedOptionValues: `{{ this.selectedOptionValueArr }}`,
+      selectedIndexArr: `{{ this.selectedOptionValue.map(o => _.findIndex(this.options, { value: o })) }}`,
+      value: `{{ this.selectedOptionValue }}`,
+      selectedOptionValues: `{{ this.selectedOptionValue }}`,
     };
   }
 
@@ -88,26 +87,25 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptionValue: "defaultOptionValue",
-      selectedOptionValueArr: "defaultOptionValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedOptionValue: undefined,
-      selectedOptionValueArr: undefined,
     };
   }
 
   getPageView() {
     const options = this.props.options || [];
+    // @ts-ignore
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
     const computedSelectedIndexArr = Array.isArray(
-      this.props.selectedOptionValueArr,
+      this.props.selectedOptionValue,
     )
-      ? this.props.selectedOptionValueArr
+      ? this.props.selectedOptionValue
           .map((opt: string) =>
             _.findIndex(this.props.options, {
               value: opt,
@@ -152,11 +150,11 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         );
       }
     } else if (this.props.selectionType === "MULTI_SELECT") {
-      const isAlreadySelected = this.props.selectedOptionValueArr.includes(
+      const isAlreadySelected = this.props.selectedOptionValue.includes(
         selectedOption.value,
       );
 
-      let newSelectedValue = [...this.props.selectedOptionValueArr];
+      let newSelectedValue = [...this.props.selectedOptionValue];
       if (isAlreadySelected) {
         newSelectedValue = newSelectedValue.filter(
           v => v !== selectedOption.value,
@@ -165,7 +163,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         newSelectedValue.push(selectedOption.value);
       }
       this.props.updateWidgetMetaProperty(
-        "selectedOptionValueArr",
+        "selectedOptionValue",
         newSelectedValue,
         {
           dynamicString: this.props.onOptionChange,
@@ -178,12 +176,13 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   };
 
   onOptionRemoved = (removedIndex: number) => {
-    const newSelectedValue = this.props.selectedOptionValueArr.filter(
+    // @ts-ignore
+    const newSelectedValue = this.props.selectedOptionValue.filter(
       (v: string) =>
         _.findIndex(this.props.options, { value: v }) !== removedIndex,
     );
     this.props.updateWidgetMetaProperty(
-      "selectedOptionValueArr",
+      "selectedOptionValue",
       newSelectedValue,
       {
         dynamicString: this.props.onOptionChange,
@@ -220,8 +219,7 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   onOptionChange?: string;
   defaultOptionValue?: string | string[];
   isRequired: boolean;
-  selectedOptionValue: string;
-  selectedOptionValueArr: string[];
+  selectedOptionValue: string | string[];
 }
 
 export default DropdownWidget;
