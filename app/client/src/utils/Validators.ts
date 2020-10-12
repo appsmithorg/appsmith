@@ -377,8 +377,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       }
     });
 
-    const validOptions = parsed.filter(isValidOption)
-    const uniqValidOptions = _.uniqBy(validOptions, 'value')
+    const validOptions = parsed.filter(isValidOption);
+    const uniqValidOptions = _.uniqBy(validOptions, "value");
 
     if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
       return {
