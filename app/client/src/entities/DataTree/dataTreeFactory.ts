@@ -37,7 +37,6 @@ export type RunActionPayload = {
 export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   data: ActionResponse["body"];
   actionId: string;
-  config: Partial<ActionConfig>;
   pluginType: PluginType;
   name: string;
   run: ActionDispatcher<RunActionPayload, [string, string, string]> | {};
@@ -82,29 +81,29 @@ export class DataTreeFactory {
     appData,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
-    actions.forEach(a => {
-      const config = a.config;
+    actions.forEach(action => {
       let dynamicBindingPathList: Property[] = [];
       // update paths
       if (
-        config.dynamicBindingPathList &&
-        config.dynamicBindingPathList.length
+        action.config.dynamicBindingPathList &&
+        action.config.dynamicBindingPathList.length
       ) {
-        dynamicBindingPathList = config.dynamicBindingPathList.map(d => ({
-          ...d,
-          key: `config.${d.key}`,
-        }));
+        dynamicBindingPathList = action.config.dynamicBindingPathList.map(
+          d => ({
+            ...d,
+            key: `config.${d.key}`,
+          }),
+        );
       }
-      dataTree[config.name] = {
-        ...a,
+      dataTree[action.config.name] = {
         run: {},
-        actionId: config.id,
-        name: config.name,
-        pluginType: config.pluginType,
-        config: config.actionConfiguration,
+        actionId: action.config.id,
+        name: action.config.name,
+        pluginType: action.config.pluginType,
         dynamicBindingPathList,
-        data: a.data ? a.data.body : {},
+        data: action.data ? action.data.body : {},
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
+        isLoading: action.isLoading,
       };
     });
     Object.keys(widgets).forEach(w => {
