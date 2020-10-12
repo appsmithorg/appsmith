@@ -9,13 +9,16 @@ const initialState: DatasourcePaneReduxState = {
   datasourceRefs: {},
   drafts: {},
   actionRouteInfo: {},
+  expandDatasourceId: "",
   newDatasource: "",
+  viewMode: {},
 };
 
 export interface DatasourcePaneReduxState {
   selectedPlugin: string;
   datasourceRefs: {};
   drafts: Record<string, Datasource>;
+  expandDatasourceId: string;
   actionRouteInfo: Partial<{
     apiId: string;
     datasourceId: string;
@@ -23,6 +26,7 @@ export interface DatasourcePaneReduxState {
     applicationId: string;
   }>;
   newDatasource: string;
+  viewMode: Record<string, boolean>;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
@@ -104,10 +108,33 @@ const datasourcePaneReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
     state: DatasourcePaneReduxState,
+    action: ReduxAction<Datasource>,
   ) => {
     return {
       ...state,
       newDatasource: "",
+      expandDatasourceId: action.payload.id,
+    };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<{ id: string; viewMode: boolean }>,
+  ) => {
+    return {
+      ...state,
+      viewMode: {
+        ...state.viewMode,
+        [action.payload.id]: action.payload.viewMode,
+      },
+    };
+  },
+  [ReduxActionTypes.EXPAND_DATASOURCE_ENTITY]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      expandDatasourceId: action.payload,
     };
   },
 });

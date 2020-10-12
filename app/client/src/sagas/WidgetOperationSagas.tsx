@@ -541,7 +541,9 @@ function* updateDynamicTriggers(
     widget.type,
   );
   if (propertyName in triggerProperties) {
-    let dynamicTriggers: Record<string, true> = widget.dynamicTriggers || {};
+    let dynamicTriggers: Record<string, true> = widget.dynamicTriggers
+      ? { ...widget.dynamicTriggers }
+      : {};
     if (propertyValue && !(propertyName in dynamicTriggers)) {
       dynamicTriggers[propertyName] = true;
     }

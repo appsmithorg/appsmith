@@ -16,9 +16,6 @@ describe("Entity explorer datasource structure", function() {
 
   it("Entity explorer datasource structure", function() {
     cy.GlobalSearchEntity(datasourceName);
-    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
-      .find(explorer.collapse)
-      .click();
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -53,6 +50,7 @@ describe("Entity explorer datasource structure", function() {
       "response.body.responseMeta.status",
       200,
     );
+
     cy.deletePostgresDatasource(datasourceName);
   });
 
@@ -62,7 +60,6 @@ describe("Entity explorer datasource structure", function() {
       .find(explorer.collapse)
       .as("datasourceEntityCollapse");
 
-    cy.get("@datasourceEntityCollapse").click();
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -93,7 +90,9 @@ describe("Entity explorer datasource structure", function() {
     );
 
     cy.GlobalSearchEntity(datasourceName);
-    cy.get("@datasourceEntityCollapse").click();
+    cy.get("@datasourceEntityCollapse")
+      .first()
+      .click();
     cy.xpath(explorer.datsourceEntityPopover)
       .last()
       .click({ force: true });
