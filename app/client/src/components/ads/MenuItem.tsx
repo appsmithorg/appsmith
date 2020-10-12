@@ -35,7 +35,7 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
 
   ${props =>
     !props.disabled
-      ? ` 
+      ? `
     &:hover {
       text-decoration: none;
       cursor: pointer;
