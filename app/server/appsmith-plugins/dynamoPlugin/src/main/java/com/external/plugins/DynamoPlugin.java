@@ -9,8 +9,6 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -40,18 +38,12 @@ import java.util.Set;
 
 public class DynamoPlugin extends BasePlugin {
 
-    private static final ObjectMapper objectMapper1 = new ObjectMapper();
-
-    static {
-        objectMapper1.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
-    }
-
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     /**
-     * Dynamo plugin receives the query as json of the following format :
+     * Dynamo plugin receives the query as json of the following format:
      */
 
     @Slf4j
@@ -68,7 +60,7 @@ public class DynamoPlugin extends BasePlugin {
             final Command command;
 
             try {
-                command = objectMapper1.readValue(actionConfiguration.getBody(), Command.class);
+                command = objectMapper.readValue(actionConfiguration.getBody(), Command.class);
             } catch (MismatchedInputException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Mismatched input types. Need `action` string and `parameters` object."));
@@ -99,40 +91,6 @@ public class DynamoPlugin extends BasePlugin {
             } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException | InstantiationException e) {
                 return Mono.error(e.getCause() == null ? e : e.getCause());
             }
-
-            /*/ Get the class implementing this DynamoDB action.
-            final Class<?> actionClass;
-            try {
-                actionClass = Class.forName("com.external.plugins.dynamodb.actions." + action);
-            } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Action class not found for `" + action + "`."));
-            }
-
-            // Get the "execute" method in that action class.
-            final Optional<Method> executeMethod = Arrays
-                    .stream(actionClass.getMethods())
-                    .filter(method -> "execute".equals(method.getName()))
-                    .findFirst();
-
-            if (executeMethod.isEmpty()) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Missing execute method on action class for action `" + action + "`."));
-            }
-
-            try {
-                result.setBody(executeMethod.get().invoke(
-                        null,
-                        ddb,
-                        objectMapper1.convertValue(
-                                parameters,
-                                Class.forName(actionClass.getName() + "$Parameters")
-                        )
-                ));
-            } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
-                return Mono.error(e);
-            }
-            // */
 
             log.debug("In the DynamoPlugin, got action execution result: " + result.toString());
             result.setIsExecutionSuccess(true);
@@ -238,10 +196,13 @@ public class DynamoPlugin extends BasePlugin {
                         .findFirst()
                         .orElse(null);
                 final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
-                for (final String innerKey : valueAsMap.keySet()) {
-                    final Object innerValue = valueAsMap.get(innerKey);
+                for (final Map.Entry<String, Object> innerEntry : valueAsMap.entrySet()) {
+                    final Object innerValue = innerEntry.getValue();
                     if (innerValue instanceof Map) {
-                        valueAsMap.put(innerKey, convertValue((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1]));
+                        valueAsMap.put(
+                                innerEntry.getKey(),
+                                convertValue((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1])
+                        );
                     }
                 }
                 if (!Map.class.isAssignableFrom((Class<?>) valueType.getRawType())) {
@@ -250,14 +211,14 @@ public class DynamoPlugin extends BasePlugin {
                 setterMethod.invoke(builder, value);
 
             } else if (value instanceof Collection) {
-                final Collection valueAsCollection = (Collection) value;
+                final Collection<Object> valueAsCollection = (Collection) value;
                 final Method setterMethod = Arrays.stream(builderType.getMethods())
                         // Find method by name and exclude the varargs version of the method.
                         .filter(m -> m.getName().equals(setterName) && !m.getParameterTypes()[0].getName().startsWith("[L"))
                         .findFirst()
                         .orElse(null);
                 final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
-                final Collection reTypedList = valueAsCollection.getClass().getConstructor().newInstance();
+                final Collection<Object> reTypedList = valueAsCollection.getClass().getConstructor().newInstance();
                 for (final Object innerValue : valueAsCollection) {
                     if (innerValue instanceof Map) {
                         reTypedList.add(convertValue((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[0]));
@@ -281,23 +242,22 @@ public class DynamoPlugin extends BasePlugin {
     private static Map<String, Object> responseToPlain(SdkPojo response) {
         final Map<String, Object> plain = new HashMap<>();
 
-        for (final SdkField field : response.sdkFields()) {
+        for (final SdkField<?> field : response.sdkFields()) {
             Object value = field.getValueOrDefault(response);
 
             if (value instanceof SdkPojo) {
                 value = responseToPlain((SdkPojo) value);
 
             } else if (value instanceof Map) {
-                final Map valueAsMap = (Map) value;
+                final Map<String, Object> valueAsMap = (Map) value;
                 final Map<String, Object> plainMap = new HashMap<>();
-                for (final Object key : valueAsMap.keySet()) {
-                    Object innerValue = valueAsMap.get(key);
+                for (final Map.Entry<String, Object> entry : valueAsMap.entrySet()) {
+                    final var key = entry.getKey();
+                    Object innerValue = entry.getValue();
                     if (innerValue instanceof SdkPojo) {
                         innerValue = responseToPlain((SdkPojo) innerValue);
                     }
-                    if (key instanceof String) {
-                        plainMap.put((String) key, innerValue);
-                    }
+                    plainMap.put(key, innerValue);
                 }
                 value = plainMap;
 
