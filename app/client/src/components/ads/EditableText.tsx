@@ -207,13 +207,13 @@ export const EditableText = (props: EditableTextProps) => {
       if (!error) {
         setLastValidValue(finalVal);
         valueRef.current = finalVal;
-        props.onTextChanged(finalVal);
+        onTextChanged(finalVal);
       }
       setValue(finalVal);
       setIsInvalid(error);
       setChangeStarted(true);
     },
-    [inputValidation],
+    [inputValidation, onTextChanged],
   );
 
   const iconName =
