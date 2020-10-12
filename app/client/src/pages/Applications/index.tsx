@@ -365,13 +365,13 @@ const ApplicationsSection = (props: any) => {
     dispatch(duplicateApplication(applicationId));
   };
 
-  const [selectedOrgId, setSelectedOrgId] = useState();
+  const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
   const OrgMenu = (props: {
     orgName: string;
     orgId: string;
     disabled?: boolean;
-    setSelectedOrgId: Function;
+    setSelectedOrgId: (orgId: string) => void;
   }) => {
     const { orgName, orgId, disabled } = props;
 

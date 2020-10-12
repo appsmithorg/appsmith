@@ -50,6 +50,7 @@ describe("Entity explorer datasource structure", function() {
       "response.body.responseMeta.status",
       200,
     );
+
     cy.deletePostgresDatasource(datasourceName);
   });
 
