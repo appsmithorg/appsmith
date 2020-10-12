@@ -190,6 +190,7 @@ class AnalyticsUtil {
   }
 
   static identifyUser(userId: string, userData: User) {
+    log.debug("Identify User " + userId);
     const windowDoc: any = window;
     AnalyticsUtil.user = userData;
     FeatureFlag.identify(userData);

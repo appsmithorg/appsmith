@@ -127,9 +127,8 @@ type QueryHomeScreenProps = {
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   handleCreateNewQuery = (dataSource: Datasource, params: string) => {
-    const { actions, pages } = this.props;
+    const { actions } = this.props;
     const pageId = new URLSearchParams(params).get("importTo");
-    const page = pages.find(page => page.pageId === pageId);
     if (pageId) {
       const newQueryName = createNewQueryName(actions, pageId);
 

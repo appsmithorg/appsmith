@@ -36,7 +36,6 @@ import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
