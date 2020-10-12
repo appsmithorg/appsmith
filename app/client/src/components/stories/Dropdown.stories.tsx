@@ -32,6 +32,7 @@ export const Text = () => (
           onSelect: action("selected-option"),
         },
       ]}
+      onSelect={action("selected-option")}
       selected={{
         id: select("Selected id", ["111abc", "222abc", "333abc"], "111abc"),
         value: text("Selected value", "First option"),
@@ -64,6 +65,7 @@ export const IconAndText = () => (
           onSelect: action("selected-option"),
         },
       ]}
+      onSelect={action("selected-option")}
       selected={{
         id: select("Selected id", ["111abc", "222abc", "333abc"], "111abc"),
         value: text("Selected value", "Delete"),
@@ -102,6 +104,7 @@ export const LabelAndText = () => (
           onSelect: action("selected-option"),
         },
       ]}
+      onSelect={action("selected-option")}
       selected={{
         id: select("Selected id", ["111abc", "222abc", "333abc"], "111abc"),
         value: text("Selected value", "Developer"),
