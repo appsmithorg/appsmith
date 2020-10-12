@@ -116,15 +116,6 @@ const datasourcePaneReducer = createReducer(initialState, {
       expandDatasourceId: action.payload.id,
     };
   },
-  [ReduxActionTypes.TEST_DATASOURCE_SUCCESS]: (
-    state: DatasourcePaneReduxState,
-    action: ReduxAction<Datasource>,
-  ) => {
-    return {
-      ...state,
-      expandDatasourceId: action.payload.id,
-    };
-  },
   [ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE]: (
     state: DatasourcePaneReduxState,
     action: ReduxAction<{ id: string; viewMode: boolean }>,
