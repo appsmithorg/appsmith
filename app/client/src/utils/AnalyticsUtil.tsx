@@ -200,7 +200,6 @@ class AnalyticsUtil {
         name: userData.name,
         userId: userId,
       });
-      windowDoc.analytics.alias(userId);
     }
     Sentry.configureScope(function(scope) {
       scope.setUser({
