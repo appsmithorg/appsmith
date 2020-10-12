@@ -12,6 +12,7 @@ import {
   getUserApplicationsOrgsList,
   getUserApplicationsOrgs,
   getIsDuplicatingApplication,
+  getApplicationSearchKeyword,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -49,6 +50,8 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
+import NoSearchResult from "../../assets/images/NoSearchResult.svg";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -282,6 +285,10 @@ const OrgNameInMenu = styled(Text)`
   padding: 9px ${props => props.theme.spaces[6]}px;
 `;
 
+const NoSearchResultImg = styled.img`
+  margin: 1em;
+`;
+
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
 cursor: ${props => (!props.disabled ? "pointer" : "inherit")};
 ${props => {
@@ -301,7 +308,7 @@ ${props => {
 }
 `;
 
-const ApplicationsSection = () => {
+const ApplicationsSection = (props: { searchKeyword: string | undefined }) => {
   const dispatch = useDispatch();
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const currentUser = useSelector(getCurrentUser);
@@ -380,18 +387,31 @@ const ApplicationsSection = () => {
       </Menu>
     );
   };
-
-  return (
-    <ApplicationContainer className="t--applications-container">
-      {userOrgs &&
-        userOrgs.map((organizationObject: any, index: number) => {
+  let organizationsListComponent = null;
+  if (userOrgs) {
+    if (
+      props.searchKeyword &&
+      props.searchKeyword.trim().length > 0 &&
+      userOrgs.length === 0
+    ) {
+      organizationsListComponent = (
+        <CenteredWrapper style={{ flexDirection: "column" }}>
+          <CreateNewLabel type={TextType.H4}>
+            Whale! Whale! this name doesn&apos;t ring a bell!
+          </CreateNewLabel>
+          <NoSearchResultImg src={NoSearchResult} alt="No result found" />
+        </CenteredWrapper>
+      );
+    } else {
+      organizationsListComponent = userOrgs.map(
+        (organizationObject: any, index: number) => {
           const { organization, applications } = organizationObject;
           const hasManageOrgPermissions = isPermitted(
             organization.userPermissions,
             PERMISSION_TYPE.MANAGE_ORGANIZATION,
           );
           return (
-            <OrgSection className="t--org-section" key={index}>
+            <OrgSection className="t--org-section" key={organization.id}>
               <OrgDropDown>
                 {currentUser && (
                   <OrgMenu
@@ -481,7 +501,14 @@ const ApplicationsSection = () => {
               </ApplicationCardsWrapper>
             </OrgSection>
           );
-        })}
+        },
+      );
+    }
+  }
+
+  return (
+    <ApplicationContainer className="t--applications-container">
+      {organizationsListComponent}
       <HelpModal page={"Applications"} />
     </ApplicationContainer>
   );
@@ -499,6 +526,7 @@ type ApplicationProps = {
   getAllApplication: () => void;
   userOrgs: any;
   currentUser?: User;
+  searchKeyword: string | undefined;
 };
 class Applications extends Component<
   ApplicationProps,
@@ -527,7 +555,9 @@ class Applications extends Component<
             queryFn: this.props.searchApplications,
           }}
         />
-        <ApplicationsSection></ApplicationsSection>
+        <ApplicationsSection
+          searchKeyword={this.props.searchKeyword}
+        ></ApplicationsSection>
       </PageWrapper>
     );
   }
@@ -542,6 +572,7 @@ const mapStateToProps = (state: AppState) => ({
   duplicatingApplication: getIsDuplicatingApplication(state),
   userOrgs: getUserApplicationsOrgsList(state),
   currentUser: getCurrentUser(state),
+  searchKeyword: getApplicationSearchKeyword(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
