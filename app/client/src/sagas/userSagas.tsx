@@ -36,6 +36,7 @@ import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -83,7 +84,7 @@ export function* getCurrentUserSaga() {
     const response: ApiResponse = yield call(UserApi.getCurrentUser);
 
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response.data.username !== ANONYMOUS_USERNAME) {
       AnalyticsUtil.identifyUser(response.data.username, response.data);
       if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {

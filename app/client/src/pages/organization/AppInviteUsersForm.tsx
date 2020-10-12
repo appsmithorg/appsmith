@@ -15,6 +15,7 @@ import OrgInviteUsersForm from "./OrgInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
 import Toggle from "components/ads/Toggle";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 const Title = styled.div`
   padding: 10px 0px;
@@ -65,7 +66,7 @@ const AppInviteUsersForm = (props: any) => {
   };
 
   useEffect(() => {
-    if (currentUser.name !== "anonymousUser") {
+    if (currentUser.name !== ANONYMOUS_USERNAME) {
       fetchCurrentOrg(props.orgId);
     }
   }, [props.orgId, fetchCurrentOrg, currentUser.name]);
