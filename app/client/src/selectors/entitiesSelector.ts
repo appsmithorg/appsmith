@@ -203,6 +203,10 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const getPlugin = (state: AppState, pluginId: string) => {
+  return state.entities.plugins.list.find(plugin => plugin.id === pluginId);
+};
+
 export const getActionResponses = createSelector(getActions, actions => {
   const responses: Record<string, ActionResponse | undefined> = {};
 
