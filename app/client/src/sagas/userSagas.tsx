@@ -84,8 +84,10 @@ export function* getCurrentUserSaga() {
     const response: ApiResponse = yield call(UserApi.getCurrentUser);
 
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse && response.data.username !== ANONYMOUS_USERNAME) {
-      AnalyticsUtil.identifyUser(response.data.username, response.data);
+    if (isValidResponse) {
+      if (!response.data.isAnonymous) {
+        AnalyticsUtil.identifyUser(response.data.username, response.data);
+      }
       if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
