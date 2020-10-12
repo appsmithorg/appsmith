@@ -378,7 +378,10 @@ const ApplicationsSection = (props: any) => {
     const OrgName = (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
         <StyledAnchor id={orgName}></StyledAnchor>
-        <OrgNameHolder type={TextType.H1}>
+        <OrgNameHolder
+          type={TextType.H1}
+          className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+        >
           <OrgNameElement
             type={TextType.H1}
             className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
