@@ -296,11 +296,12 @@ export function* executeActionSaga(
   );
   try {
     const api: RestAction = yield select(getAction, actionId);
-
+    const currentAppId = yield select(getCurrentApplicationId);
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: api.pluginType,
       name: api.name,
       pageId: api.pageId,
+      appId: currentAppId,
     });
     if (api.confirmBeforeExecute) {
       const confirmed = yield call(confirmRunActionSaga);
@@ -614,6 +615,7 @@ function* executePageLoadAction(pageAction: PageAction) {
     PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
   );
   const pageId = yield select(getCurrentPageId);
+  const appId = yield select(getCurrentApplicationId);
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
@@ -627,6 +629,7 @@ function* executePageLoadAction(pageAction: PageAction) {
     type: pageAction.pluginType,
     name: pageAction.name,
     pageId: pageId,
+    appId: appId,
     onPageLoad: true,
   });
   const response: ActionApiResponse = yield ActionAPI.executeAction(
