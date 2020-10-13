@@ -8,7 +8,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { PluginType, Property } from "entities/Action";
+import { ActionConfig, PluginType, Property } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import _ from "lodash";
 
@@ -37,9 +37,12 @@ export type RunActionPayload = {
 export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   data: ActionResponse["body"];
   actionId: string;
+  config: Partial<ActionConfig>;
   pluginType: PluginType;
   name: string;
-  run: ActionDispatcher<RunActionPayload, [string, string, string]> | {};
+  run:
+    | ActionDispatcher<RunActionPayload, [string, string, string]>
+    | Record<string, any>;
   dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
@@ -100,6 +103,7 @@ export class DataTreeFactory {
         actionId: action.config.id,
         name: action.config.name,
         pluginType: action.config.pluginType,
+        config: action.config.actionConfiguration,
         dynamicBindingPathList,
         data: action.data ? action.data.body : {},
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
