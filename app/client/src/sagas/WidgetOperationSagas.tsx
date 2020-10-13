@@ -37,6 +37,7 @@ import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
+  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -1003,6 +1004,18 @@ function* addWidgetSaga(action: ReduxAction<AddWidgetPayload>) {
       payload: { widgetId: widgetProps.newWidgetId },
     });
     yield put(forceOpenPropertyPane(widgetProps.newWidgetId));
+
+    if (widgetProps.evaluateProperty) {
+      const value = widgetProps.props[widgetProps.evaluateProperty];
+      yield put(
+        updateWidgetPropertyRequest(
+          widgetProps.newWidgetId,
+          widgetProps.evaluateProperty,
+          value,
+          RenderModes.CANVAS,
+        ),
+      );
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.ADD_WIDGET_ERROR,

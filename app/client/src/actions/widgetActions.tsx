@@ -25,6 +25,7 @@ export type AddWidgetPayload = {
   columns: number;
   rows: number;
   props?: Record<string, any>;
+  evaluateProperty?: string;
 };
 
 export const executeAction = (

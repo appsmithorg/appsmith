@@ -328,6 +328,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       props: {
         tableData: `{{${actionName}.data}}`,
       },
+      evaluateProperty: "tableData",
     };
 
     addWidget(widgetConfig);
