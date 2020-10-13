@@ -105,7 +105,7 @@ export interface ModalWidgetProps extends WidgetProps, WithMeta {
   canOutsideClickClose?: boolean;
   width?: number;
   height?: number;
-  showPropertyPane: Function;
+  showPropertyPane: (widgetId?: string) => void;
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
   size: string;

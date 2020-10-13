@@ -53,8 +53,8 @@ type RenderComponentProps = {
   length: number;
   isValid: boolean;
   validationMessage: string;
-  deleteOption: Function;
-  updateOption: Function;
+  deleteOption: (index: number) => void;
+  updateOption: (index: number, key: string, value: string) => void;
   evaluated: {
     seriesName: string;
     data: Array<{ x: string; y: string }> | any;
@@ -81,7 +81,7 @@ function DataControlComponent(props: RenderComponentProps) {
             onChange: (
               event: React.ChangeEvent<HTMLTextAreaElement> | string,
             ) => {
-              let value = event;
+              let value: string = event as string;
               if (typeof event !== "string") {
                 value = event.target.value;
               }
@@ -115,7 +115,7 @@ function DataControlComponent(props: RenderComponentProps) {
             onChange: (
               event: React.ChangeEvent<HTMLTextAreaElement> | string,
             ) => {
-              let value = event;
+              let value: string = event as string;
               if (typeof event !== "string") {
                 value = event.target.value;
               }

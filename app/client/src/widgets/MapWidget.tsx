@@ -68,7 +68,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   };
 
   updateMarker = (lat: number, long: number, index: number) => {
-    const markers: Array<MarkerProps> = [...this.props.markers].map(
+    const markers: Array<MarkerProps> = [...(this.props.markers || [])].map(
       (marker, i) => {
         if (index === i) {
           marker.lat = lat;

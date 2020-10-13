@@ -6,16 +6,15 @@ import _ from "lodash";
 
 const initialState: DatasourcePaneReduxState = {
   selectedPlugin: "",
-  datasourceRefs: {},
   drafts: {},
   actionRouteInfo: {},
   expandDatasourceId: "",
   newDatasource: "",
+  viewMode: {},
 };
 
 export interface DatasourcePaneReduxState {
   selectedPlugin: string;
-  datasourceRefs: {};
   drafts: Record<string, Datasource>;
   expandDatasourceId: string;
   actionRouteInfo: Partial<{
@@ -25,6 +24,7 @@ export interface DatasourcePaneReduxState {
     applicationId: string;
   }>;
   newDatasource: string;
+  viewMode: Record<string, boolean>;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
@@ -35,27 +35,7 @@ const datasourcePaneReducer = createReducer(initialState, {
     ...state,
     selectedPlugin: action.payload.pluginId,
   }),
-  [ReduxActionTypes.STORE_DATASOURCE_REFS]: (
-    state: DatasourcePaneReduxState,
-    action: ReduxAction<{ refsList: {} }>,
-  ) => {
-    return {
-      ...state,
-      datasourceRefs: { ...state.datasourceRefs, ...action.payload.refsList },
-    };
-  },
-  [ReduxActionTypes.UPDATE_DATASOURCE_REFS]: (
-    state: DatasourcePaneReduxState,
-    action: ReduxAction<Datasource>,
-  ) => {
-    return {
-      ...state,
-      datasourceRefs: {
-        ...state.datasourceRefs,
-        [action.payload.id]: React.createRef(),
-      },
-    };
-  },
+
   [ReduxActionTypes.UPDATE_DATASOURCE_DRAFT]: (
     state: DatasourcePaneReduxState,
     action: ReduxAction<{ id: string; draft: Partial<Datasource> }>,
@@ -114,13 +94,16 @@ const datasourcePaneReducer = createReducer(initialState, {
       expandDatasourceId: action.payload.id,
     };
   },
-  [ReduxActionTypes.TEST_DATASOURCE_SUCCESS]: (
+  [ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE]: (
     state: DatasourcePaneReduxState,
-    action: ReduxAction<Datasource>,
+    action: ReduxAction<{ id: string; viewMode: boolean }>,
   ) => {
     return {
       ...state,
-      expandDatasourceId: action.payload.id,
+      viewMode: {
+        ...state.viewMode,
+        [action.payload.id]: action.payload.viewMode,
+      },
     };
   },
   [ReduxActionTypes.EXPAND_DATASOURCE_ENTITY]: (
