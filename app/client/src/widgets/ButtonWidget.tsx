@@ -12,13 +12,15 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
-
+  clickWithRecaptchaBound: (token: string) => void;
   constructor(props: ButtonWidgetProps) {
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
+    this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
     this.state = {
       isLoading: false,
     };
@@ -101,6 +103,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       onClick: true,
     };
   }
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      recaptchaToken: undefined,
+    };
+  }
 
   onButtonClick() {
     if (this.props.onClick) {
@@ -115,6 +122,21 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         },
       });
     }
+  }
+
+  clickWithRecaptcha(token: string) {
+    if (this.props.onClick) {
+      this.setState({
+        isLoading: true,
+      });
+    }
+    this.props.updateWidgetMetaProperty("recaptchaToken", token, {
+      dynamicString: this.props.onClick,
+      event: {
+        type: EventType.ON_CLICK,
+        callback: this.handleActionComplete,
+      },
+    });
   }
 
   handleActionComplete = () => {
@@ -135,6 +157,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         onClick={this.onButtonClickBound}
         isLoading={this.props.isLoading || this.state.isLoading}
         type={this.props.buttonType || ButtonType.BUTTON}
+        googleRecaptchaKey={this.props.googleRecaptchaKey}
+        clickWithRecaptcha={this.clickWithRecaptchaBound}
       />
     );
   }
@@ -150,13 +174,14 @@ export type ButtonStyle =
   | "SUCCESS_BUTTON"
   | "DANGER_BUTTON";
 
-export interface ButtonWidgetProps extends WidgetProps {
+export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   text?: string;
   buttonStyle?: ButtonStyle;
   onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   buttonType?: ButtonType;
+  googleRecaptchaKey?: string;
 }
 
 interface ButtonWidgetState extends WidgetState {
@@ -164,4 +189,4 @@ interface ButtonWidgetState extends WidgetState {
 }
 
 export default ButtonWidget;
-export const ProfiledButtonWidget = Sentry.withProfiler(ButtonWidget);
+export const ProfiledButtonWidget = Sentry.withProfiler(withMeta(ButtonWidget));

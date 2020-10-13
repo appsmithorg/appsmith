@@ -159,6 +159,20 @@
                             "propertyName": "exportCsv",
                             "label": "CSV Export",
                             "controlType": "SWITCH"
+                        },
+                        {
+                            "id": "7.1.7",
+                            "helpText": "Existing Columns",
+                            "propertyName": "columns",
+                            "label": "Existing Columns",
+                            "controlType": "PRIMARY_COLUMNS"
+                        },
+                        {
+                            "id": "7.1.7",
+                            "helpText": "Created Columns",
+                            "propertyName": "derivedColumns",
+                            "label": "Created Columns",
+                            "controlType": "DERIVED_COLUMNS"
                         }
                     ]
                 },

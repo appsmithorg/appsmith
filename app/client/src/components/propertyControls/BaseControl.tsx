@@ -33,6 +33,7 @@ export interface ControlData extends PropertyPaneControlConfig {
 }
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
+  // openNextPanel: (childProperties: ChildProperties) => void;
 }
 
 export default BaseControl;

@@ -77,7 +77,6 @@ describe("Entity explorer tests related to copy query", function() {
     cy.deleteQuery();
     cy.get(commonlocators.entityExplorersearch).clear();
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgresEntity).click();
     cy.GlobalSearchEntity(`${datasourceName}`);
     cy.get(`.t--entity-name:contains(${datasourceName})`).click();
     cy.generateUUID().then(uid => {
@@ -87,6 +86,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("sliced id :" + updatedName);
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.SearchEntityandOpen(updatedName);
+      cy.get(datasource.editDatasource).click();
       cy.testSaveDatasource();
       cy.hoverAndClick();
       cy.get(apiwidget.delete).click({ force: true });

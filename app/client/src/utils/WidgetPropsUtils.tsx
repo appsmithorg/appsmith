@@ -461,7 +461,6 @@ export const updateWidgetPosition = (
   };
 
   return {
-    ...widget,
     ...newPositions,
   };
 };

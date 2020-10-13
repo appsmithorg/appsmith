@@ -21,6 +21,7 @@ import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -240,7 +241,7 @@ class FilePickerWidget extends BaseWidget<
             return file.id !== dslFile.id;
           })
         : [];
-      this.updateWidgetMetaProperty("files", updatedFiles);
+      this.props.updateWidgetMetaProperty("files", updatedFiles);
     });
     this.uppy.on("file-added", (file: any) => {
       const dslFiles = this.props.files || [];
@@ -254,7 +255,7 @@ class FilePickerWidget extends BaseWidget<
           blob: file.data,
         };
         dslFiles.push(newFile);
-        this.updateWidgetMetaProperty("files", dslFiles);
+        this.props.updateWidgetMetaProperty("files", dslFiles);
       };
     });
     this.uppy.on("upload", () => {
@@ -283,7 +284,7 @@ class FilePickerWidget extends BaseWidget<
 
   handleFileUploaded = (result: ExecutionResult) => {
     if (result.success) {
-      this.updateWidgetMetaProperty(
+      this.props.updateWidgetMetaProperty(
         "uploadedFileUrls",
         this.props.uploadedFileUrlPaths,
       );
@@ -339,7 +340,7 @@ export interface FilePickerWidgetState extends WidgetState {
   version: number;
 }
 
-export interface FilePickerWidgetProps extends WidgetProps {
+export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;
@@ -351,4 +352,6 @@ export interface FilePickerWidgetProps extends WidgetProps {
 }
 
 export default FilePickerWidget;
-export const ProfiledFilePickerWidget = Sentry.withProfiler(FilePickerWidget);
+export const ProfiledFilePickerWidget = Sentry.withProfiler(
+  withMeta(FilePickerWidget),
+);

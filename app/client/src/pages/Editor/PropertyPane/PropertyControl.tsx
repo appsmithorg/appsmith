@@ -104,7 +104,7 @@ const PropertyControl = (props: Props) => {
   const { propertyName, label } = propertyConfig;
   if (widgetProperties) {
     const propertyValue = widgetProperties[propertyName];
-    const dataTreePath = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
     const evaluatedValue = _.get(
       widgetProperties,
       `evaluatedValues.${propertyName}`,
@@ -117,9 +117,14 @@ const PropertyControl = (props: Props) => {
       validationMessage,
       dataTreePath,
       evaluatedValue,
-      widgetProperties: widgetProperties,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type][propertyName],
+      widgetProperties,
+      parentPropertyName: propertyName,
+      parentPropertyValue: propertyValue,
+      expected: FIELD_EXPECTED_VALUE[widgetProperties.type][
+        propertyName
+      ] as any,
     };
+    // console.log({ config });
     if (
       widgetProperties.dynamicTriggers &&
       widgetProperties.dynamicTriggers[propertyName]
@@ -170,6 +175,7 @@ const PropertyControl = (props: Props) => {
             config,
             {
               onPropertyChange: onPropertyChange,
+              openNextPanel: openNextPanel,
             },
             isDynamic,
           )}

@@ -18,6 +18,7 @@ type RenderComponentProps = {
   };
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
+  onEdit?: (index: number) => void;
 };
 
 interface DroppableComponentProps {
@@ -26,6 +27,7 @@ interface DroppableComponentProps {
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
   updateItems: (items: object[]) => void;
+  onEdit?: (index: number) => void;
 }
 
 interface DroppableComponentState {
@@ -80,7 +82,7 @@ export class DroppableComponent extends React.Component<
   };
 
   render() {
-    const { renderComponent, deleteOption, updateOption } = this.props;
+    const { renderComponent, deleteOption, updateOption, onEdit } = this.props;
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <Droppable droppableId="droppable">
@@ -111,6 +113,7 @@ export class DroppableComponent extends React.Component<
                           {renderComponent({
                             deleteOption,
                             updateOption,
+                            onEdit,
                             item,
                             index,
                           })}

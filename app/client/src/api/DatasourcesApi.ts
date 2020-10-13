@@ -2,6 +2,7 @@ import API from "./Api";
 import { GenericApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/ApiConstants";
+import { Property } from "entities/Action";
 
 interface DatasourceAuthentication {
   authType?: string;
@@ -45,7 +46,7 @@ export interface Datasource {
     url: string;
     authentication?: DatasourceAuthentication;
     properties?: Record<string, string>;
-    headers?: Record<string, string>;
+    headers?: Property[];
     databaseName?: string;
   };
   invalids?: string[];
@@ -74,31 +75,25 @@ class DatasourcesApi extends API {
     return API.get(DatasourcesApi.url + `?organizationId=${orgId}`);
   }
 
-  static createDatasource(datasourceConfig: Partial<Datasource>): Promise<{}> {
+  static createDatasource(datasourceConfig: Partial<Datasource>) {
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
-  static testDatasource(datasourceConfig: Partial<Datasource>): Promise<{}> {
+  static testDatasource(datasourceConfig: Partial<Datasource>) {
     return API.post(`${DatasourcesApi.url}/test`, datasourceConfig, undefined, {
       timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
     });
   }
 
-  static updateDatasource(
-    datasourceConfig: Partial<Datasource>,
-    id: string,
-  ): Promise<{}> {
+  static updateDatasource(datasourceConfig: Partial<Datasource>, id: string) {
     return API.put(DatasourcesApi.url + `/${id}`, datasourceConfig);
   }
 
-  static deleteDatasource(id: string): Promise<{}> {
+  static deleteDatasource(id: string) {
     return API.delete(DatasourcesApi.url + `/${id}`);
   }
 
-  static fetchDatasourceStructure(
-    id: string,
-    ignoreCache = false,
-  ): Promise<{}> {
+  static fetchDatasourceStructure(id: string, ignoreCache = false) {
     return API.get(
       DatasourcesApi.url + `/${id}/structure?ignoreCache=${ignoreCache}`,
     );

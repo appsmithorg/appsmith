@@ -13,6 +13,7 @@ import {
   DerivedPropertiesMap,
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -120,15 +121,12 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   onCheckChange = (isChecked: boolean) => {
-    this.updateWidgetMetaProperty("isChecked", isChecked);
-    if (this.props.onCheckChange) {
-      super.executeAction({
-        dynamicString: this.props.onCheckChange,
-        event: {
-          type: EventType.ON_CHECK_CHANGE,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("isChecked", isChecked, {
+      dynamicString: this.props.onCheckChange,
+      event: {
+        type: EventType.ON_CHECK_CHANGE,
+      },
+    });
   };
 
   getWidgetType(): WidgetType {
@@ -136,7 +134,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 }
 
-export interface CheckboxWidgetProps extends WidgetProps {
+export interface CheckboxWidgetProps extends WidgetProps, WithMeta {
   label: string;
   defaultCheckedState: boolean;
   isChecked?: boolean;
@@ -145,4 +143,6 @@ export interface CheckboxWidgetProps extends WidgetProps {
 }
 
 export default CheckboxWidget;
-export const ProfiledCheckboxWidget = Sentry.withProfiler(CheckboxWidget);
+export const ProfiledCheckboxWidget = Sentry.withProfiler(
+  withMeta(CheckboxWidget),
+);

@@ -14,6 +14,8 @@ import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
+import { AnyStyledComponent } from "styled-components";
+import { ControlIcons } from "icons/ControlIcons";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -316,4 +318,70 @@ export const StyledPropertyPaneButton = styled(Button)`
 export const FieldWrapper = styled.div`
   position: relative;
   width: 100%;
+`;
+
+export const StyledEditIcon = styled(
+  ControlIcons.EDIT_CONTROL as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 15px;
+  cursor: pointer;
+  right: 22.5px;
+  & svg {
+    circle {
+      fill: none;
+    }
+    path {
+      fill: ${Colors.SLATE_GRAY};
+    }
+  }
+`;
+
+export const StyledDragIcon = styled(
+  ControlIcons.DRAG_CONTROL as AnyStyledComponent,
+)`
+  padding: 0;
+  position: relative;
+  margin-right: 15px;
+  cursor: move;
+  svg {
+    path {
+      fill: ${props => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledDeleteIcon = styled(
+  ControlIcons.DELETE_COLUMN as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-right: 15px;
+  cursor: pointer;
+  right: 25px;
+  svg {
+    path {
+      fill: ${props => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const FlexWrapper = styled.div`
+  display: flex;
+`;
+
+export const StyledVisibleIcon = styled(
+  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-right: 15px;
+  cursor: pointer;
+  right: 25px;
+  svg {
+    path {
+      fill: ${props => props.theme.colors.paneSectionLabel};
+    }
+  }
 `;

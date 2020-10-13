@@ -13,6 +13,12 @@ import {
   ReactTableColumnProps,
   ColumnTypes,
   Condition,
+  CellAlignmentTypes,
+  VerticalAlignmentTypes,
+  FontStyleTypes,
+  ColumnProperties,
+  CellLayoutProperties,
+  TextSizes,
 } from "widgets/TableWidget";
 import { isString } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
@@ -458,6 +464,7 @@ export const renderCell = (
   value: any,
   columnType: string,
   isHidden: boolean,
+  cellProperties: CellLayoutProperties,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -515,7 +522,11 @@ export const renderCell = (
       }
     default:
       return (
-        <AutoToolTipComponent title={value.toString()} isHidden={isHidden}>
+        <AutoToolTipComponent
+          title={value.toString()}
+          isHidden={isHidden}
+          cellProperties={cellProperties}
+        >
           {value.toString()}
         </AutoToolTipComponent>
       );
@@ -952,4 +963,26 @@ export function compare(a: any, b: any, condition: Condition) {
     console.error(e);
   }
   return result;
+}
+
+export function getDefaultColumnProperties(
+  accessor: string,
+  index: number,
+): ColumnProperties {
+  return {
+    index: index,
+    width: 150,
+    id: accessor,
+    horizontalAlignment: CellAlignmentTypes.LEFT,
+    verticalAlignment: VerticalAlignmentTypes.CENTER,
+    type: ColumnTypes.TEXT,
+    textColor: Colors.BLUE_BAYOUX,
+    textSize: TextSizes.PARAGRAPH,
+    fontStyle: FontStyleTypes.NORMAL,
+    enableFilter: true,
+    enableSort: true,
+    isVisible: true,
+    isDerived: false,
+    label: accessor,
+  };
 }

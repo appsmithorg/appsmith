@@ -30,7 +30,6 @@ const Wrapper = styled.div`
   justify-items: center;
   align-items: center;
   justify-content: stretch;
-  padding-bottom: 10px;
   position: sticky;
   top: 0;
   z-index: 3;

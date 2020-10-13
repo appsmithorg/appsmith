@@ -63,6 +63,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_ACTION_INIT: "UPDATE_ACTION_INIT",
   UPDATE_ACTION_SUCCESS: "UPDATE_ACTION_SUCCESS",
   DELETE_ACTION_INIT: "DELETE_ACTION_INIT",
+  SET_DATASOURCE_EDITOR_MODE: "SET_DATASOURCE_EDITOR_MODE",
   DELETE_ACTION_SUCCESS: "DELETE_ACTION_SUCCESS",
   SHOW_RUN_ACTION_CONFIRM_MODAL: "SHOW_RUN_ACTION_CONFIRM_MODAL",
   CANCEL_RUN_ACTION_CONFIRM_MODAL: "CANCEL_RUN_ACTION_CONFIRM_MODAL",
@@ -82,6 +83,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_DATASOURCE_STRUCTURE_SUCCESS: "FETCH_DATASOURCE_STRUCTURE_SUCCESS",
   REFRESH_DATASOURCE_STRUCTURE_INIT: "REFRESH_DATASOURCE_STRUCTURE_INIT",
   REFRESH_DATASOURCE_STRUCTURE_SUCCESS: "REFRESH_DATASOURCE_STRUCTURE_SUCCESS",
+  EXPAND_DATASOURCE_ENTITY: "EXPAND_DATASOURCE_ENTITY",
   SELECT_PLUGIN: "SELECT_PLUGIN",
   TEST_DATASOURCE_INIT: "TEST_DATASOURCE_INIT",
   TEST_DATASOURCE_SUCCESS: "TEST_DATASOURCE_SUCCESS",
@@ -280,6 +282,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UNDO_DELETE_WIDGET: "UNDO_DELETE_WIDGET",
   CUT_SELECTED_WIDGET: "CUT_SELECTED_WIDGET",
   WIDGET_ADD_CHILDREN: "WIDGET_ADD_CHILDREN",
+  OPEN_SUB_PANE: "OPEN_SUB_PANE",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -461,12 +464,8 @@ export type ApplicationPayload = {
 
 export type OrganizationDetails = {
   organization: Org;
-  applications: [];
+  applications: any[];
 };
-
-// export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
-
-// export interface LoadQueryResponsePayload extends ExecuteActionResponse {}
 
 export interface LoadWidgetEditorPayload {
   widgets: WidgetProps[];
@@ -475,10 +474,6 @@ export interface LoadWidgetEditorPayload {
 export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
-
-export type SavePagePayload = {};
-export type SavePageErrorPayload = {};
-export type SavePageSuccessPayload = {};
 
 export type InitializeEditorPayload = {
   applicationId: string;

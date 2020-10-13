@@ -38,6 +38,7 @@ import { AppToaster } from "components/editorComponents/ToastComponent";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPageList,
 } from "selectors/editorSelectors";
 import _ from "lodash";
@@ -139,7 +140,7 @@ function* storeValueLocally(
   }
 }
 
-function* downloadSaga(
+async function downloadSaga(
   action: { data: any; name: string; type: string },
   event: ExecuteActionPayloadEvent,
 ) {
@@ -150,6 +151,8 @@ function* downloadSaga(
         message: "Download failed. File name was not provided",
         type: "error",
       });
+
+      if (event.callback) event.callback({ success: false });
       return;
     }
     const dataType = getType(data);
@@ -296,7 +299,13 @@ export function* executeActionSaga(
   );
   try {
     const api: RestAction = yield select(getAction, actionId);
-
+    const currentAppId = yield select(getCurrentApplicationId);
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: api.pluginType,
+      name: api.name,
+      pageId: api.pageId,
+      appId: currentAppId,
+    });
     if (api.confirmBeforeExecute) {
       const confirmed = yield call(confirmRunActionSaga);
       if (!confirmed) {
@@ -608,6 +617,8 @@ function* executePageLoadAction(pageAction: PageAction) {
     pageAction.id,
     PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
   );
+  const pageId = yield select(getCurrentPageId);
+  const appId = yield select(getCurrentApplicationId);
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
@@ -617,6 +628,13 @@ function* executePageLoadAction(pageAction: PageAction) {
     action: { id: pageAction.id },
     params,
   };
+  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+    type: pageAction.pluginType,
+    name: pageAction.name,
+    pageId: pageId,
+    appId: appId,
+    onPageLoad: true,
+  });
   const response: ActionApiResponse = yield ActionAPI.executeAction(
     executeActionRequest,
     pageAction.timeoutInMillisecond,

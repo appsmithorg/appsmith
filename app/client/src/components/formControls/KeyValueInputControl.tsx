@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { JSXElementConstructor, useEffect } from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
@@ -76,7 +76,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
 type Props = {
   name: string;
   label: string;
-  rightIcon?: Function;
+  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
   description?: string;
   actionConfig?: any;
   extraData?: ControlData[];
@@ -87,10 +87,10 @@ class KeyValueFieldInput extends BaseControl<KeyValueInputProps> {
   render() {
     return (
       <FieldArray
-        name={this.props.configProperty}
         component={KeyValueRow}
         rerenderOnEveryChange={false}
         {...this.props}
+        name={this.props.configProperty}
       />
     );
   }
@@ -103,7 +103,7 @@ class KeyValueFieldInput extends BaseControl<KeyValueInputProps> {
 export interface KeyValueInputProps extends ControlProps {
   name: string;
   label: string;
-  rightIcon?: Function;
+  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
   description?: string;
   actionConfig?: any;
 }

@@ -6,6 +6,7 @@ import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
+import { PanelStack, IPanel } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
@@ -15,7 +16,6 @@ import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
-import PaneWrapper from "pages/common/PaneWrapper";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -37,9 +37,38 @@ const PropertyPaneWrapper = styled(PaneWrapper)`
   ${scrollbarDark};
 `;
 
-class PropertyPane extends Component<
-  PropertyPaneProps & PropertyPaneFunctions
-> {
+import PropertiesEditor from "pages/Editor/PropertyPane/PropertiesEditor";
+
+const StyledPanelStack = styled(PanelStack)`
+  height: ${props => props.theme.propertyPane.height}px;
+  width: ${props => props.theme.propertyPane.width}px;
+  margin: ${props => props.theme.spaces[2]}px;
+  &&& .bp3-panel-stack-view {
+    margin: 0;
+    border: none;
+    background: transparent;
+  }
+  &&& .bp3-panel-stack-header {
+    display: none;
+  }
+`;
+
+interface PropertyPaneState {
+  currentPanelStack: IPanel[];
+}
+
+class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
+  constructor(props: PropertyPaneProps) {
+    super(props);
+    const initialPanel: IPanel = {
+      props: {},
+      component: PropertiesEditor,
+      title: "",
+    };
+    this.state = {
+      currentPanelStack: [initialPanel],
+    };
+  }
   render() {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
@@ -61,6 +90,18 @@ class PropertyPane extends Component<
       return null;
     }
   }
+
+  addToPanelStack = (newPanel: IPanel) => {
+    this.setState(state => ({
+      currentPanelStack: [newPanel, ...state.currentPanelStack],
+    }));
+  };
+
+  removeFromPanelStack = () => {
+    this.setState(state => ({
+      currentPanelStack: state.currentPanelStack.slice(1),
+    }));
+  };
 
   renderPropertyPane() {
     const { widgetProperties } = this.props;
@@ -89,7 +130,7 @@ class PropertyPane extends Component<
     );
   }
 
-  componentDidUpdate(prevProps: PropertyPaneProps & PropertyPaneFunctions) {
+  componentDidUpdate(prevProps: PropertyPaneProps) {
     if (
       this.props.widgetProperties?.widgetId !==
         prevProps.widgetProperties?.widgetId &&
@@ -129,12 +170,11 @@ class PropertyPane extends Component<
   }
 }
 
-const mapStateToProps = (state: AppState): PropertyPaneProps => {
-  const props = {
+const mapStateToProps = (state: AppState) => {
+  return {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
   };
-  return props;
 };
 
 const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
@@ -146,7 +186,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
   };
 };
 
-export interface PropertyPaneProps {
+export interface PropertyPaneProps extends PropertyPaneFunctions {
   widgetProperties?: WidgetProps;
   isVisible: boolean;
 }
