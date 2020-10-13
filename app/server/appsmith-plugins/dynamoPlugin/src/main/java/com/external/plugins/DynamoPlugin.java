@@ -33,6 +33,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -167,7 +168,7 @@ public class DynamoPlugin extends BasePlugin {
      * @throws NoSuchMethodException Thrown if any of the SDK methods' contracts change.
      * @throws InstantiationException Thrown if any of the SDK methods' contracts change.
      */
-    private static <T> T plainToSdk(Map<String, Object> mapping, Class<T> type)
+    public static <T> T plainToSdk(Map<String, Object> mapping, Class<T> type)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException,
             AppsmithPluginException {
         final Class<?> builderType;
@@ -190,10 +191,16 @@ public class DynamoPlugin extends BasePlugin {
                     // We look at the parameter types for the setter method to decide which it should be, and then set
                     // convert the value if needed before calling the setter.
                     final Method setterMethod = findMethod(builderType, method -> {
-                        final Class<?> parameterType = method.getParameterTypes()[0];
+                        final Class<?>[] parameterTypes = method.getParameterTypes();
                         return method.getName().equals(setterName)
-                                && (SdkBytes.class.isAssignableFrom(parameterType) || String.class.isAssignableFrom(parameterType));
+                                && (SdkBytes.class.isAssignableFrom(parameterTypes[0]) || String.class.isAssignableFrom(parameterTypes[0]));
                     });
+                    if (setterMethod == null) {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Invalid attribute/value by name " + entry.getKey()
+                        );
+                    }
                     if (SdkBytes.class.isAssignableFrom(setterMethod.getParameterTypes()[0])) {
                         value = SdkBytes.fromUtf8String((String) value);
                     }
@@ -209,18 +216,17 @@ public class DynamoPlugin extends BasePlugin {
                 } else if (value instanceof Map) {
                     // For maps, we go recursive, applying this transformation to each value, and replacing with the
                     // result in the map. Generic types in the setter method's signature are used to convert the values.
-                    Map<String, Object> valueAsMap = (Map) value;
                     final Method setterMethod = findMethod(builderType, m -> m.getName().equals(setterName));
                     final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
-                    for (final Map.Entry<String, Object> innerEntry : valueAsMap.entrySet()) {
-                        final Object innerValue = innerEntry.getValue();
+                    final Map<String, Object> transformedMap = new HashMap<>();
+                    for (final Map.Entry<String, Object> innerEntry : ((Map<String, Object>) value).entrySet()) {
+                        Object innerValue = innerEntry.getValue();
                         if (innerValue instanceof Map) {
-                            valueAsMap.put(
-                                    innerEntry.getKey(),
-                                    plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1])
-                            );
+                            innerValue = plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1]);
                         }
+                        transformedMap.put(innerEntry.getKey(), innerValue);
                     }
+                    value = transformedMap;
                     if (!Map.class.isAssignableFrom((Class<?>) valueType.getRawType())) {
                         // Some setters don't take a plain map. For example, some require an `AttributeValue` instance
                         // for objects that are just maps in JSON. So, we make that conversion here.
@@ -234,7 +240,7 @@ public class DynamoPlugin extends BasePlugin {
                     // Find method by name and exclude the varargs version of the method.
                     final Method setterMethod = findMethod(builderType, m -> m.getName().equals(setterName) && !m.getParameterTypes()[0].getName().startsWith("[L"));
                     final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
-                    final Collection<Object> reTypedList = valueAsCollection.getClass().getConstructor().newInstance();
+                    final Collection<Object> reTypedList = new ArrayList<>();
                     for (final Object innerValue : valueAsCollection) {
                         if (innerValue instanceof Map) {
                             reTypedList.add(plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[0]));
