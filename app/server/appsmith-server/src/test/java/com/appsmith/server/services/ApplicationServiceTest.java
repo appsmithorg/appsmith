@@ -560,7 +560,8 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest Clone Source TestApp");
 
-        Mono<Application> testApplicationMono = applicationPageService.createApplication(testApplication, orgId);
+        Mono<Application> testApplicationMono = applicationPageService.createApplication(testApplication, orgId)
+                .cache();
 
         Mono<Application> applicationMono = testApplicationMono
                 .flatMap(application -> applicationPageService.cloneApplication(application.getId()))
