@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class DynamoPlugin extends BasePlugin {
 
@@ -61,10 +62,10 @@ public class DynamoPlugin extends BasePlugin {
 
             ActionExecutionResult result = new ActionExecutionResult();
 
-            final Command command;
+            final HashMap<String, Object> command;
 
             try {
-                command = objectMapper.readValue(actionConfiguration.getBody(), Command.class);
+                command = objectMapper.readValue(actionConfiguration.getBody(), HashMap.class);
             } catch (MismatchedInputException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Mismatched input types. Need `action` string and `parameters` object."));
@@ -73,8 +74,8 @@ public class DynamoPlugin extends BasePlugin {
                 return Mono.just(result);
             }
 
-            final String action = command.getAction();
-            final Map<String, Object> parameters = command.getParameters();
+            final String action = (String) command.get("action");
+            final Map<String, Object> parameters = (Map<String, Object>) command.get("parameters");
 
             // new AwsSyncClientHandler(SdkClientConfiguration.builder().build());
 
@@ -92,7 +93,8 @@ public class DynamoPlugin extends BasePlugin {
                 final Method actionExecuteMethod = DynamoDbClient.class.getMethod(action.substring(0, 1).toLowerCase() + action.substring(1), requestClass);
                 final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
                 result.setBody(sdkToPlain(response));
-            } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException | InstantiationException e) {
+            } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException
+                    | NoSuchMethodException | InstantiationException e) {
                 return Mono.error(e.getCause() == null ? e : e.getCause());
             }
 
@@ -153,8 +155,21 @@ public class DynamoPlugin extends BasePlugin {
 
     }
 
+    /**
+     * Given a map that conforms to what a valid DynamoDB request should look like, this function will convert into
+     * a DynamoDBRequest object from AWS SDK. This is done using Java's reflection API.
+     * @param mapping Mapping object representing the request details.
+     * @param type Request type that should be created. Eg., ListTablesRequest.class, PutItemRequest.class etc.
+     * @param <T> Type param of the request class.
+     * @return An object of the request class, containing details of the request from the mapping.
+     * @throws IllegalAccessException Thrown if any of the SDK methods' contracts change.
+     * @throws InvocationTargetException Thrown if any of the SDK methods' contracts change.
+     * @throws NoSuchMethodException Thrown if any of the SDK methods' contracts change.
+     * @throws InstantiationException Thrown if any of the SDK methods' contracts change.
+     */
     private static <T> T plainToSdk(Map<String, Object> mapping, Class<T> type)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException,
+            AppsmithPluginException {
         final Class<?> builderType;
         try {
             builderType = Class.forName(type.getName() + "$Builder");
@@ -167,47 +182,35 @@ public class DynamoPlugin extends BasePlugin {
 
         if (mapping != null) {
             for (final Map.Entry<String, Object> entry : mapping.entrySet()) {
-                final String key = entry.getKey();
+                final String setterName = getSetterMethodName(entry.getKey());
                 Object value = entry.getValue();
 
-                String setterName1 = key;
-
-                if ("NULL".equals(setterName1)) {
-                    // Since `null` is a reserved word in Java, AWS_SDK uses `nul` for this field.
-                    setterName1 = "nul";
-                } else if (isUpperCase(setterName1)) {
-                    setterName1 = setterName1.toLowerCase();
-                } else {
-                    setterName1 = setterName1.substring(0, 1).toLowerCase() + setterName1.substring(1);
-                }
-                final String setterName = setterName1;
-
                 if (value instanceof String) {
-                    final Method setterMethod = Arrays.stream(builderType.getMethods())
-                            .filter(m -> {
-                                final Class<?> parameterType = m.getParameterTypes()[0];
-                                return m.getName().equals(setterName)
-                                        && (SdkBytes.class.isAssignableFrom(parameterType) || String.class.isAssignableFrom(parameterType));
-                            })
-                            .findFirst()
-                            .orElse(null);
+                    // AWS SDK has two data types that are represented as Strings in JSON, namely strings and binary.
+                    // We look at the parameter types for the setter method to decide which it should be, and then set
+                    // convert the value if needed before calling the setter.
+                    final Method setterMethod = findMethod(builderType, method -> {
+                        final Class<?> parameterType = method.getParameterTypes()[0];
+                        return method.getName().equals(setterName)
+                                && (SdkBytes.class.isAssignableFrom(parameterType) || String.class.isAssignableFrom(parameterType));
+                    });
                     if (SdkBytes.class.isAssignableFrom(setterMethod.getParameterTypes()[0])) {
                         value = SdkBytes.fromUtf8String((String) value);
                     }
                     setterMethod.invoke(builder, value);
 
-                } else if (value instanceof Boolean) {
-                    builderType.getMethod(setterName, Boolean.class).invoke(builder, value);
-
-                } else if (value instanceof Integer) {
-                    builderType.getMethod(setterName, Integer.class).invoke(builder, value);
+                } else if (value instanceof Boolean
+                        || value instanceof Integer
+                        || value instanceof Float
+                        || value instanceof Double) {
+                    // These data types have a setter method that takes a the value as is. Nothing fancy here.
+                    builderType.getMethod(setterName, value.getClass()).invoke(builder, value);
 
                 } else if (value instanceof Map) {
+                    // For maps, we go recursive, applying this transformation to each value, and replacing with the
+                    // result in the map. Generic types in the setter method's signature are used to convert the values.
                     Map<String, Object> valueAsMap = (Map) value;
-                    final Method setterMethod = Arrays.stream(builderType.getMethods())
-                            .filter(m -> m.getName().equals(setterName))
-                            .findFirst()
-                            .orElse(null);
+                    final Method setterMethod = findMethod(builderType, m -> m.getName().equals(setterName));
                     final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
                     for (final Map.Entry<String, Object> innerEntry : valueAsMap.entrySet()) {
                         final Object innerValue = innerEntry.getValue();
@@ -219,17 +222,17 @@ public class DynamoPlugin extends BasePlugin {
                         }
                     }
                     if (!Map.class.isAssignableFrom((Class<?>) valueType.getRawType())) {
+                        // Some setters don't take a plain map. For example, some require an `AttributeValue` instance
+                        // for objects that are just maps in JSON. So, we make that conversion here.
                         value = plainToSdk((Map) value, (Class<T>) valueType.getRawType());
                     }
                     setterMethod.invoke(builder, value);
 
                 } else if (value instanceof Collection) {
+                    // For linear collections, the process is similar to that of maps.
                     final Collection<Object> valueAsCollection = (Collection) value;
-                    final Method setterMethod = Arrays.stream(builderType.getMethods())
-                            // Find method by name and exclude the varargs version of the method.
-                            .filter(m -> m.getName().equals(setterName) && !m.getParameterTypes()[0].getName().startsWith("[L"))
-                            .findFirst()
-                            .orElse(null);
+                    // Find method by name and exclude the varargs version of the method.
+                    final Method setterMethod = findMethod(builderType, m -> m.getName().equals(setterName) && !m.getParameterTypes()[0].getName().startsWith("[L"));
                     final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
                     final Collection<Object> reTypedList = valueAsCollection.getClass().getConstructor().newInstance();
                     for (final Object innerValue : valueAsCollection) {
@@ -244,13 +247,39 @@ public class DynamoPlugin extends BasePlugin {
                     setterMethod.invoke(builder, reTypedList);
 
                 } else {
-                    System.out.println("Unknown value type while deserializing: " + value.getClass().getName());
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Unknown value type while deserializing:" + value.getClass().getName()
+                    );
 
                 }
             }
         }
 
         return (T) builderType.getMethod("build").invoke(builder);
+    }
+
+    private static Method findMethod(Class<?> builderType, Predicate<Method> predicate) {
+        return Arrays.stream(builderType.getMethods())
+                .filter(predicate)
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Computes the name of the setter method in AWS SDK that will set the value of the field given by the argument.
+     * @param key Name of the field for which to compute the setter method's name.
+     * @return Name of the setter method that will set the value of the given `key` field.
+     */
+    private static String getSetterMethodName(final String key) {
+        if ("NULL".equals(key)) {
+            // Since `null` is a reserved word in Java, AWS SDK uses `nul` for this field.
+            return "nul";
+        } else if (isUpperCase(key)) {
+            return key.toLowerCase();
+        } else {
+            return key.substring(0, 1).toLowerCase() + key.substring(1);
+        }
     }
 
     private static Map<String, Object> sdkToPlain(SdkPojo response) {
