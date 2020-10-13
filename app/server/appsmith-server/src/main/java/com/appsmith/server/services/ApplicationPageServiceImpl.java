@@ -370,15 +370,20 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         .map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toSet());
 
                                 String pageName = page.getName();
-                                String newPageName = Strings.isNullOrEmpty(newPageNameSuffix) ?
-                                        pageName : pageName + newPageNameSuffix;
-                                int i = 0;
-                                String name = newPageName;
-                                while(names.contains(name)) {
-                                    i++;
-                                    name = newPageName + i;
+                                String newPageName;
+                                if (Strings.isNullOrEmpty(newPageNameSuffix)) {
+                                    newPageName = pageName;
+                                } else {
+                                    newPageName = pageName + newPageNameSuffix;
+
+                                    int i = 0;
+                                    String name = newPageName;
+                                    while (names.contains(name)) {
+                                        i++;
+                                        name = newPageName + i;
+                                    }
+                                    newPageName = name;
                                 }
-                                newPageName = name;
                                 // Proceed with creating the copy of the page
                                 page.setId(null);
                                 page.setName(newPageName);
