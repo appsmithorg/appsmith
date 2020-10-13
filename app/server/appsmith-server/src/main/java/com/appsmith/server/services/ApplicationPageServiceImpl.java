@@ -15,6 +15,7 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -23,6 +24,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -322,10 +324,15 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return pageService.findById(pageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
-                .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId()));
+                .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"));
     }
 
-    private Mono<Page> clonePageGivenApplicationId(String pageId, String applicationId) {
+    private Mono<Page> clonePage(Page page) {
+        return clonePageGivenApplicationId(page.getId(), page.getApplicationId(), " Copy");
+    }
+
+    private Mono<Page> clonePageGivenApplicationId(String pageId, String applicationId,
+                                                   @Nullable String newPageNameSuffix) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
         Mono<Page> sourcePageMono = pageService.findById(pageId, MANAGE_PAGES)
@@ -361,7 +368,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         .stream()
                                         .map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toSet());
 
-                                String newPageName = page.getName() + " Copy";
+                                String pageName = page.getName();
+                                String newPageName = Strings.isNullOrEmpty(newPageNameSuffix) ?
+                                        pageName : pageName + newPageNameSuffix;
                                 int i = 0;
                                 String name = newPageName;
                                 while(names.contains(name)) {
@@ -408,6 +417,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         .thenReturn(page);
                             });
                 });
+    }
+
+    private Mono<Page> clonePageGivenApplicationId(String pageId, String applicationId) {
+        return clonePageGivenApplicationId(pageId, applicationId, null);
     }
 
     @Override
