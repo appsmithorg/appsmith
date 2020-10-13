@@ -198,7 +198,6 @@ jobs:
         install: false
         parallel: true
         group: 'Electrons on Github Action'
-        ci-build-id: '${{ github.sha }}-${{ github.workflow }}-${{ github.event_name }}'
         spec: 'cypress/integration/Smoke_TestSuite/*/*'
         working-directory: app/client
         # tag will be either "push" or "pull_request_target"
