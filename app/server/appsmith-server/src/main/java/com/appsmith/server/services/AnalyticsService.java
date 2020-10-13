@@ -71,8 +71,9 @@ public class AnalyticsService {
                     }
 
                     HashMap<String, String> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", object instanceof User ? ((User) object).getUsername() : object.getId());
+                    analyticsProperties.put("id", (object instanceof User ? (User) object : user).getUsername());
                     analyticsProperties.put("object", object.toString());
+                    analyticsProperties.put("oid", object.getId());
 
                     analytics.enqueue(
                             TrackMessage.builder(eventTag)

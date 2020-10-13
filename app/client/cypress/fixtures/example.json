@@ -112,11 +112,11 @@
   "RichTexteditorBody": "Here is the text area to edit html",
   "userApi": "http://postgrest.appsmith.com:3000",
   "validateImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
-  "defaultdata":"TestData",
-  "label":"one",
-  "rgbValue":"rgb(255, 0, 0)",
-  "tabName":"Aditya",
-  "TableInput":[
+  "defaultdata": "TestData",
+  "label": "one",
+  "rgbValue": "rgb(255, 0, 0)",
+  "tabName": "Aditya",
+  "TableInput": [
     {
       "id": 2381224,
       "email": "michael.lawson@reqres.in",
@@ -167,7 +167,11 @@
       "y": 1000
     }
   ],
-  "Chartval":["Test1", "Test2", "Test3"],
-  "paginationUrl":"https://mock-api.appsmith.com/",
-  "paginationParam":"users?page={{Table1.pageNo}}&size={{Table1.pageSize }}"
+  "Chartval": [
+    "Test1",
+    "Test2",
+    "Test3"
+  ],
+  "paginationUrl": "https://mock-api.appsmith.com/",
+  "paginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}"
 }

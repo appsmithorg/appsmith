@@ -119,7 +119,7 @@ const TableFilters = (props: TableFilterProps) => {
   }, [props.filters]);
 
   const addFilter = () => {
-    const updatedFilters = [...props.filters];
+    const updatedFilters = props.filters ? [...props.filters] : [];
     let operator: Operator = OperatorTypes.OR;
     if (updatedFilters.length >= 2) {
       operator = updatedFilters[1].operator;

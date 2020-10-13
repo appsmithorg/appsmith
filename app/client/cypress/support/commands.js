@@ -972,6 +972,43 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
   cy.wait(200);
 });
 
+Cypress.Commands.add("selectShowMsg", value => {
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+});
+
+Cypress.Commands.add("addSuccessMessage", value => {
+  cy.get(commonlocators.chooseMsgType).click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Success")
+    .click();
+  cy.get(".CodeMirror textarea")
+    .last()
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then($cm => {
+      if ($cm.val() !== "") {
+        cy.get(".CodeMirror textarea")
+          .last()
+          .clear({
+            force: true,
+          });
+      }
+      cy.get(".CodeMirror textarea")
+        .last()
+        .type(value, {
+          force: true,
+          parseSpecialCharSequences: false,
+        });
+      cy.wait(200);
+      cy.get(".CodeMirror textarea")
+        .last()
+        .should("have.value", value);
+    });
+});
 Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
@@ -1278,6 +1315,8 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     200,
   );
 
+  cy.get(datasourceEditor.editDatasource).click();
+
   cy.get(".t--delete-datasource").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
@@ -1322,8 +1361,9 @@ Cypress.Commands.add("saveDatasource", () => {
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
-  cy.testDatasource();
   cy.saveDatasource();
+  cy.get(datasourceEditor.editDatasource).click();
+  cy.testDatasource();
 });
 
 Cypress.Commands.add("fillMongoDatasourceForm", () => {
@@ -1383,7 +1423,7 @@ Cypress.Commands.add("createPostgresDatasource", () => {
 Cypress.Commands.add("deletePostgresDatasource", datasourceName => {
   cy.NavigateToDatasourceEditor();
   cy.get(`.t--entity-name:contains(${datasourceName})`).click();
-
+  cy.get(datasourceEditor.editDatasource).click();
   cy.get(".t--delete-datasource").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
@@ -1456,6 +1496,20 @@ Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
   cy.get(explorer.dropHere)
     .click()
     .trigger("mouseup", { force: true });
+});
+
+Cypress.Commands.add("executeDbQuery", queryName => {
+  cy.get(widgetsPage.buttonOnClick)
+    .get(commonlocators.dropdownSelectButton)
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains("Execute a DB Query")
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains(queryName)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("openPropertyPane", widgetType => {
