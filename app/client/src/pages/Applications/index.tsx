@@ -387,7 +387,7 @@ const ApplicationsSection = (props: { searchKeyword: string | undefined }) => {
       </Menu>
     );
   };
-  let organizationsListComponent = null;
+  let organizationsListComponent;
   if (userOrgs) {
     if (
       props.searchKeyword &&
