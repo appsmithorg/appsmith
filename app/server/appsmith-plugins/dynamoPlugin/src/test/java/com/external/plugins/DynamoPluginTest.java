@@ -6,7 +6,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import lombok.extern.log4j.Log4j;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,36 +36,26 @@ import static org.junit.Assert.assertTrue;
 @Log4j
 public class DynamoPluginTest {
 
-    DynamoPlugin.DynamoPluginExecutor pluginExecutor = new DynamoPlugin.DynamoPluginExecutor();
+    private final static DynamoPlugin.DynamoPluginExecutor pluginExecutor = new DynamoPlugin.DynamoPluginExecutor();
 
     @SuppressWarnings("rawtypes")
     @ClassRule
-    public static GenericContainer dynaliteContainer = new GenericContainer("amazon/dynamodb-local")
+    public static GenericContainer container = new GenericContainer(CompletableFuture.completedFuture("amazon/dynamodb-local"))
             .withExposedPorts(8000);
 
-    String address;
-    Integer port;
-    String username;
-    String password;
-    String database;
+    private final static DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-    DatasourceConfiguration dsConfig;
-
-    @Before
-    public void setUp() {
-        if (address != null) {
-            return;
-        }
-
-        address = "localhost";
-        port = dynaliteContainer.getMappedPort(8000);
+    @BeforeClass
+    public static void setUp() {
+        final String host = "localhost";
+        final Integer port = container.getMappedPort(8000);
 
         final StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(
                 AwsBasicCredentials.create("dummy", "dummy")
         );
 
         DynamoDbClient ddb = DynamoDbClient.builder()
-                .endpointOverride(URI.create("http://" + address + ":" + port))
+                .endpointOverride(URI.create("http://" + host + ":" + port))
                 .credentialsProvider(credentialsProvider)
                 .build();
 
@@ -89,36 +80,33 @@ public class DynamoPluginTest {
                 .build());
 
         System.out.println(ddb.listTables());
-    }
 
-    private DatasourceConfiguration createDatasourceConfiguration() {
         Endpoint endpoint = new Endpoint();
-        endpoint.setHost(address);
+        endpoint.setHost(host);
         endpoint.setPort(port.longValue());
-
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(new AuthenticationDTO());
         dsConfig.getAuthentication().setUsername("dummy");
         dsConfig.getAuthentication().setPassword("dummy");
         dsConfig.setEndpoints(List.of(endpoint));
-        return dsConfig;
+    }
+
+    private Mono<ActionExecutionResult> execute(String jsonActionConfiguration) {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(jsonActionConfiguration);
+
+        return pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
     }
 
     @Test
     public void testListTables() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DynamoDbClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+        final String actionConfig = "{\n" +
                 "  \"action\": \"ListTables\"\n" +
-                "}\n");
+                "}\n";
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
-
-        StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
+        StepVerifier.create(execute(actionConfig))
+                .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -126,6 +114,30 @@ public class DynamoPluginTest {
                             ((Map<String, List<String>>) result.getBody()).get("TableNames").toArray(),
                             new String[]{"cities"}
                     );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPutItem() {
+        final String actionConfig = "{\n" +
+                "  \"action\": \"PutItem\",\n" +
+                "  \"parameters\": {\n" +
+                "    \"TableName\": \"cities\",\n" +
+                "    \"Item\": {\n" +
+                "      \"City\": {\n" +
+                "        \"S\": \"Mumbai\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}\n";
+
+        StepVerifier.create(execute(actionConfig))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertNotNull(((Map<String, List<String>>) result.getBody()).get("Attributes"));
                 })
                 .verifyComplete();
     }
