@@ -12,6 +12,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -361,16 +362,13 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             // If a new page name suffix is given,
                             // set a unique name for the cloned page and then create the page.
                             .flatMap(pageNames -> {
-                                Set<String> names = pageNames.getPages()
-                                        .stream()
-                                        .map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toSet());
+                                if (!Strings.isNullOrEmpty(newPageNameSuffix)) {
+                                    String newPageName = page.getName() + newPageNameSuffix;
 
-                                String pageName = page.getName();
-                                String newPageName;
-                                if (Strings.isNullOrEmpty(newPageNameSuffix)) {
-                                    newPageName = pageName;
-                                } else {
-                                    newPageName = pageName + newPageNameSuffix;
+                                    Set<String> names = pageNames.getPages()
+                                            .stream()
+                                            .map(PageNameIdDTO::getName)
+                                            .collect(Collectors.toSet());
 
                                     int i = 0;
                                     String name = newPageName;
@@ -379,10 +377,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         name = newPageName + i;
                                     }
                                     newPageName = name;
+
+                                    page.setName(newPageName);
                                 }
                                 // Proceed with creating the copy of the page
                                 page.setId(null);
-                                page.setName(newPageName);
                                 page.setApplicationId(applicationId);
                                 return pageService.createDefault(page);
                             });
