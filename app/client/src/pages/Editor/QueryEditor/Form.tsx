@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
 import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
@@ -32,11 +32,15 @@ import {
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
 
+import { Colors } from "constants/Colors";
 import FormControlFactory from "utils/FormControlFactory";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
+import { generateReactKey } from "utils/generators";
+import { AddWidgetPayload } from "actions/widgetActions";
+import { WidgetTypes } from "constants/WidgetConstants";
 
 const QueryFormContainer = styled.div`
   padding: 20px 32px;
@@ -230,9 +234,25 @@ const SettingsWrapper = styled.div`
   padding-bottom: 8px;
 `;
 
+const AddWidgetButton = styled(BaseButton)`
+  &&&& {
+    max-width: 125px;
+    border: 1px solid ${Colors.GEYSER_LIGHT};
+  }
+`;
+
+const OutputHeader = styled.div`
+  flex-direction: row;
+  justify-content: space-between;
+  display: flex;
+  margin-bottom: 10px;
+  align-items: center;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
+  addWidget: (payload: AddWidgetPayload) => void;
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
@@ -279,6 +299,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     documentationLink,
     loadingFormConfigs,
     editorConfig,
+    actionName,
+    addWidget,
   } = props;
 
   let error = runErrorMessage;
@@ -293,6 +315,24 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   }
 
   const isSQL = responseType === "TABLE";
+  const onAddWidget = useCallback(() => {
+    const widgetConfig = {
+      type: WidgetTypes.TABLE_WIDGET,
+      newWidgetId: generateReactKey(),
+      widgetId: "0",
+      topRow: 0,
+      bottomRow: 7,
+      leftColumn: 0,
+      rightColumn: 8,
+      columns: 8,
+      rows: 7,
+      props: {
+        tableData: `{{${actionName}.data}}`,
+      },
+    };
+
+    addWidget(widgetConfig);
+  }, [actionName, addWidget]);
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (
@@ -523,9 +563,18 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
       {!error && output && dataSources.length && (
         <>
-          <p className="statementTextArea">
-            {output.length ? "Query response" : "No data records to display"}
-          </p>
+          <OutputHeader>
+            <p className="statementTextArea">
+              {output.length ? "Query response" : "No data records to display"}
+            </p>
+            {!!output.length && (
+              <AddWidgetButton
+                icon={"plus"}
+                text="Add Widget"
+                onClick={onAddWidget}
+              />
+            )}
+          </OutputHeader>
           {isSQL ? <Table data={output} /> : <JSONViewer src={output} />}
         </>
       )}

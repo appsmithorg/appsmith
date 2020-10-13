@@ -12,6 +12,20 @@ import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { WidgetType } from "constants/WidgetConstants";
+
+export type AddWidgetPayload = {
+  type: WidgetType;
+  newWidgetId: string;
+  widgetId: string;
+  topRow: number;
+  bottomRow: number;
+  leftColumn: number;
+  rightColumn: number;
+  columns: number;
+  rows: number;
+  props?: Record<string, any>;
+};
 
 export const executeAction = (
   payload: ExecuteActionPayload,
@@ -125,5 +139,12 @@ export const deleteSelectedWidget = (
 export const cutWidget = () => {
   return {
     type: ReduxActionTypes.CUT_SELECTED_WIDGET,
+  };
+};
+
+export const addWidget = (payload: AddWidgetPayload) => {
+  return {
+    type: ReduxActionTypes.ADD_WIDGET,
+    payload,
   };
 };

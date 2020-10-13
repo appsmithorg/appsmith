@@ -71,6 +71,12 @@ import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { AddWidgetPayload, forceOpenPropertyPane } from "actions/widgetActions";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -941,8 +947,68 @@ function* cutWidgetSaga() {
   });
 }
 
+function* addWidgetSaga(action: ReduxAction<AddWidgetPayload>) {
+  try {
+    const widgets = yield select(getWidgets);
+    const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET");
+
+    let widgetProps: WidgetProps = {
+      ...action.payload,
+      widgetName,
+      parentId: action.payload.widgetId,
+      renderMode: RenderModes.CANVAS,
+      parentRowSpace: 1,
+      parentColumnSpace: 1,
+      isLoading: false,
+    };
+    const {
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+    } = yield calculateNewWidgetPosition(widgetProps, "0", widgets);
+
+    widgetProps = {
+      ...widgetProps,
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+    };
+
+    yield put({
+      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      payload: widgetProps,
+    });
+
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+
+    navigateToCanvas(
+      {
+        applicationId,
+        pageId,
+      },
+      window.location.pathname,
+      pageId,
+      widgetProps.newWidgetId,
+    );
+    yield put({
+      type: ReduxActionTypes.SELECT_WIDGET,
+      payload: { widgetId: widgetProps.newWidgetId },
+    });
+    yield put(forceOpenPropertyPane(widgetProps.newWidgetId));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.ADD_WIDGET_ERROR,
+      error,
+    });
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield all([
+    takeEvery(ReduxActionTypes.ADD_WIDGET, addWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
     takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSaga),
     takeLatest(ReduxActionTypes.WIDGET_MOVE, moveSaga),
