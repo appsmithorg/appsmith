@@ -100,7 +100,6 @@ public class DynamoPlugin extends BasePlugin {
                 return Mono.error(e.getCause() == null ? e : e.getCause());
             }
 
-            log.debug("In the DynamoPlugin, got action execution result: " + result.toString());
             result.setIsExecutionSuccess(true);
             return Mono.just(result);
         }
