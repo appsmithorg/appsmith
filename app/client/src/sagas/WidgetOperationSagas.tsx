@@ -185,7 +185,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     // TODO(abhinav): This won't work if dont already have an empty children: []
     const parent = {
       ...stateParent,
-      children: [...stateParent.children, childWidgetPayload.widgetId],
+      children: [...(stateParent.children || []), childWidgetPayload.widgetId],
     };
 
     widgets[parent.widgetId] = parent;
@@ -462,7 +462,10 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
     const widgets = Object.assign({}, stateWidgets);
     // Get parent from DSL/Redux Store
     const stateParent: FlattenedWidgetProps = yield select(getWidget, parentId);
-    const parent = { ...stateParent, children: [...stateParent.children] };
+    const parent = {
+      ...stateParent,
+      children: [...(stateParent.children || [])],
+    };
     // Update position of widget
     const updatedPosition = updateWidgetPosition(widget, leftColumn, topRow);
     widget = { ...widget, ...updatedPosition };
@@ -485,7 +488,7 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
       const newParent = {
         ...widgets[newParentId],
         children: widgets[newParentId].children
-          ? [...widgets[newParentId].children, widgetId]
+          ? [...(widgets[newParentId].children || []), widgetId]
           : [widgetId],
       };
       widgets[widgetId].parentId = newParentId;
@@ -547,7 +550,9 @@ function* updateDynamicTriggers(
     widget.type,
   );
   if (propertyName in triggerProperties) {
-    let dynamicTriggers: Record<string, true> = widget.dynamicTriggers || {};
+    let dynamicTriggers: Record<string, true> = widget.dynamicTriggers
+      ? { ...widget.dynamicTriggers }
+      : {};
     if (propertyValue && !(propertyName in dynamicTriggers)) {
       dynamicTriggers[propertyName] = true;
     }

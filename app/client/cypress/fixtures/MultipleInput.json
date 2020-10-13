@@ -1,0 +1,72 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1224,
+        "snapColumns": 16,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1280,
+        "containerStyle": "none",
+        "snapRows": 33,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "dynamicBindings": {},
+        "version": 6,
+        "minHeight": 1292,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "inputType": "TEXT",
+                "label": "",
+                "widgetName": "Input1",
+                "type": "INPUT_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 74,
+                "parentRowSpace": 40,
+                "leftColumn": 1,
+                "rightColumn": 6,
+                "topRow": 0,
+                "bottomRow": 1,
+                "parentId": "0",
+                "widgetId": "ftl8h620qf"
+            },
+            {
+                "isVisible": true,
+                "inputType": "TEXT",
+                "label": "",
+                "widgetName": "Input2",
+                "type": "INPUT_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 74,
+                "parentRowSpace": 40,
+                "leftColumn": 7,
+                "rightColumn": 12,
+                "topRow": 1,
+                "bottomRow": 2,
+                "parentId": "0",
+                "widgetId": "p2oen3muq5"
+            },
+            {
+                "isVisible": true,
+                "inputType": "TEXT",
+                "label": "",
+                "widgetName": "Input3",
+                "type": "INPUT_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 74,
+                "parentRowSpace": 40,
+                "leftColumn": 1,
+                "rightColumn": 6,
+                "topRow": 2,
+                "bottomRow": 3,
+                "parentId": "0",
+                "widgetId": "yjpjhnsisf"
+            }
+        ]
+    }
+}

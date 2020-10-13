@@ -292,7 +292,7 @@ export interface BaseStyle {
   widthUnit?: CSSUnit;
 }
 
-export type WidgetState = {};
+export type WidgetState = Record<string, unknown>;
 
 export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
   buildWidget(widgetProps: T): JSX.Element;

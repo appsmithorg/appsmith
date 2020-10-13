@@ -4,18 +4,17 @@ const explorer = require("../../../locators/explorerlocators.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
+const dsl = require("../../../fixtures/formWidgetdsl.json");
 
 const pageid = "MyPage";
 
+before(() => {
+  cy.addDsl(dsl);
+});
+
 describe("Test Suite to validate copy/delete/undo functionalites", function() {
   it("Drag and drop form widget and validate copy widget via toast message", function() {
-    cy.log("Login Successful");
-    cy.get(explorer.addWidget).click();
-    cy.get(commonlocators.entityExplorersearch).should("be.visible");
-    cy.get(commonlocators.entityExplorersearch)
-      .clear()
-      .type("form");
-    cy.dragAndDropToCanvas("formwidget");
+    cy.openPropertyPane("formwidget");
     cy.widgetText(
       "FormTest",
       formWidgetsPage.formWidget,
@@ -27,7 +26,6 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       .first()
       .contains("Copied");
     cy.get(commonlocators.editPropCrossButton).click();
-    cy.get(explorer.closeWidgets).click();
   });
 
   it("Delete Widget from sidebar and Undo action validation", function() {
