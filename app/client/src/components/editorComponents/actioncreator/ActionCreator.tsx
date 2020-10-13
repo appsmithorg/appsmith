@@ -26,6 +26,9 @@ import {
   createNewQueryAction,
 } from "actions/apiPaneActions";
 
+/* eslint-disable @typescript-eslint/ban-types */
+/* TODO: Function and object types need to be updated to enable the lint rule */
+
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
   { label: "Success", value: "'success'", id: "success" },
@@ -1006,7 +1009,7 @@ function useApiOptionTree() {
           value: `${apiName}`,
           type: ActionType.api,
         });
-        dispatch(createNewApiAction(pageId));
+        dispatch(createNewApiAction(pageId, "API_PANE"));
       }
     },
   });
@@ -1052,7 +1055,7 @@ function useQueryOptionTree() {
           value: `${queryName}`,
           type: ActionType.query,
         });
-        dispatch(createNewQueryAction(pageId));
+        dispatch(createNewQueryAction(pageId, "QUERY_PANE"));
       }
     },
   });

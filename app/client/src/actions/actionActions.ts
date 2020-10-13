@@ -7,7 +7,9 @@ import {
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 
-export const createActionRequest = (payload: Partial<Action>) => {
+export const createActionRequest = (
+  payload: Partial<Action> & { eventData: any },
+) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
@@ -192,6 +194,7 @@ export const executeApiActionRequest = (payload: { id: string }) => ({
 export const executeApiActionSuccess = (payload: {
   id: string;
   response: ActionResponse;
+  isPageLoad?: boolean;
 }) => ({
   type: ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   payload: payload,

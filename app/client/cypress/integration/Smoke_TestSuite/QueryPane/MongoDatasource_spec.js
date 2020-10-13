@@ -39,12 +39,13 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.runAndDeleteQuery();
 
     cy.NavigateToDatasourceEditor();
-    cy.get(".t--entity-name:contains(MongoDB)").click();
     cy.get("@createDatasource").then(httpResponse => {
       const datasourceName = httpResponse.response.body.data.name;
 
       cy.get(`.t--entity-name:contains(${datasourceName})`).click();
     });
+
+    cy.get(datasource.editDatasource).click();
     cy.get(".t--delete-datasource").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",

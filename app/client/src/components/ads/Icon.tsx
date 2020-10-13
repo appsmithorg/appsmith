@@ -16,12 +16,18 @@ import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspace.svg"
 import { ReactComponent as CreateNewIcon } from "assets/icons/ads/create-new.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
+import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
+import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
+import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
+import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
 
 export enum IconSize {
+  XXS = "extraExtraSmall",
+  XS = "extraSmall",
   SMALL = "small",
   MEDIUM = "medium",
   LARGE = "large",
@@ -33,6 +39,12 @@ export enum IconSize {
 export const sizeHandler = (size?: IconSize) => {
   let iconSize = 0;
   switch (size) {
+    case IconSize.XXS:
+      iconSize = theme.iconSizes.XXS;
+      break;
+    case IconSize.XS:
+      iconSize = theme.iconSizes.XS;
+      break;
     case IconSize.SMALL:
       iconSize = theme.iconSizes.SMALL;
       break;
@@ -76,6 +88,10 @@ export const IconCollection = [
   "view-all",
   "warning",
   "downArrow",
+  "context-menu",
+  "duplicate",
+  "logout",
+  "manage",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -85,11 +101,12 @@ const IconWrapper = styled.span<IconProps>`
     outline: none;
   }
   display: flex;
+  align-items: center;
   svg {
     width: ${props => sizeHandler(props.size)}px;
     height: ${props => sizeHandler(props.size)}px;
     path {
-      fill: ${props => props.theme.colors.blackShades[6]};
+      fill: ${props => props.theme.colors.icon.normal};
     }
   }
   visibility: ${props => (props.invisible ? "hidden" : "visible")};
@@ -97,14 +114,14 @@ const IconWrapper = styled.span<IconProps>`
   &:hover {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.blackShades[8]};
+      fill: ${props => props.theme.colors.icon.hover};
     }
   }
 
   &:active {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.icon.active};
     }
   }
 `;
@@ -170,6 +187,18 @@ const Icon = (props: IconProps & CommonComponentProps) => {
       break;
     case "view-all":
       returnIcon = <ViewAllIcon />;
+      break;
+    case "context-menu":
+      returnIcon = <ContextMenuIcon />;
+      break;
+    case "duplicate":
+      returnIcon = <DuplicateIcon />;
+      break;
+    case "logout":
+      returnIcon = <LogoutIcon />;
+      break;
+    case "manage":
+      returnIcon = <ManageIcon />;
       break;
     default:
       returnIcon = null;

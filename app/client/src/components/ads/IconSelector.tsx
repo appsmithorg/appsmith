@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import AppIcon, { AppIconName, AppIconCollection } from "./AppIcon";
 import { Size } from "./Button";
-import { CommonComponentProps } from "./common";
+import { CommonComponentProps, Classes } from "./common";
 
 type IconSelectorProps = CommonComponentProps & {
   onSelect?: (icon: AppIconName) => void;
@@ -21,7 +21,14 @@ const IconPalette = styled.div<{ fill?: boolean }>`
   width: ${props => (props.fill ? "100%" : "234px")};
 `;
 
-const IconBox = styled.div`
+const IconBox = styled.div<{ selectedColor?: string }>`
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${props =>
+    props.selectedColor || props.theme.colors.appIcon.background};
   margin: 0 ${props => props.theme.spaces[2]}px
     ${props => props.theme.spaces[2]}px 0;
   position: relative;
@@ -29,6 +36,17 @@ const IconBox = styled.div`
   &:nth-child(6n) {
     margin-right: ${props => props.theme.spaces[0]}px;
   }
+
+  ${props =>
+    props.selectedColor
+      ? `.${Classes.APP_ICON} {
+    svg {
+      path {
+        fill: #fff;
+      }
+    }
+  }`
+      : null};
 `;
 
 const IconSelector = (props: IconSelectorProps) => {
@@ -54,16 +72,13 @@ const IconSelector = (props: IconSelectorProps) => {
           return (
             <IconBox
               key={index}
+              selectedColor={selected === iconName ? props.selectedColor : ""}
               onClick={() => {
                 setSelected(iconName);
                 props.onSelect && props.onSelect(iconName);
               }}
             >
-              <AppIcon
-                name={iconName}
-                size={Size.small}
-                color={selected === iconName ? props.selectedColor : "#232324"}
-              />
+              <AppIcon name={iconName} size={Size.small} />
             </IconBox>
           );
         })}

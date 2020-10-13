@@ -27,7 +27,7 @@ const SettingWrapper = styled.div`
 `;
 
 export const SettingsHeading = styled(Text)`
-  color: white;
+  color: ${props => props.theme.colors.settingHeading};
   display: inline-block;
   margin-top: 25px;
   margin-bottom: 32px;
@@ -40,7 +40,7 @@ const Loader = styled.div`
 `;
 
 export function GeneralSettings() {
-  const { orgId } = useParams();
+  const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
   const currentOrg = useSelector(getCurrentOrg);
   function saveChanges(settings: SaveOrgRequest) {

@@ -39,6 +39,9 @@ public class AnalyticsService {
                         traitsMap.put("name", savedUser.getName());
                     }
                     traitsMap.put("email", savedUser.getEmail());
+                    if (savedUser.getSource() != null) {
+                        traitsMap.put("source", savedUser.getSource().toString());
+                    }
                     analytics.enqueue(IdentifyMessage.builder()
                             .userId(savedUser.getUsername())
                             .traits(traitsMap)
@@ -62,14 +65,15 @@ public class AnalyticsService {
         return userMono
                 .map(user -> {
 
-                    // In case the user is anonymous, return as is without raising the event.
-                    if (user.isAnonymous()) {
+                    // In case the user is anonymous, don't raise an event, unless it's a signup event.
+                    if (user.isAnonymous() && !(object instanceof User && event == AnalyticsEvents.CREATE)) {
                         return object;
                     }
 
                     HashMap<String, String> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", object.getId());
+                    analyticsProperties.put("id", (object instanceof User ? (User) object : user).getUsername());
                     analyticsProperties.put("object", object.toString());
+                    analyticsProperties.put("oid", object.getId());
 
                     analytics.enqueue(
                             TrackMessage.builder(eventTag)

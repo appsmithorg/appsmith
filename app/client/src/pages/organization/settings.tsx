@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
-import { useRouteMatch, useLocation, useParams, Link } from "react-router-dom";
-import AppRoute from "pages/common/AppRoute";
+import {
+  useRouteMatch,
+  useLocation,
+  useParams,
+  Link,
+  Route,
+} from "react-router-dom";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import { TabComponent, TabProp } from "components/ads/Tabs";
@@ -12,9 +17,13 @@ import MemberSettings from "./Members";
 import IconComponent from "components/designSystems/appsmith/IconComponent";
 import { fetchOrg } from "actions/orgActions";
 import { GeneralSettings } from "./General";
+import * as Sentry from "@sentry/react";
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const LinkToApplications = styled(Link)`
+  margin-top: 30px;
   margin-bottom: 35px;
+  display: inline-block;
   width: auto;
   &:hover {
     text-decoration: none;
@@ -23,30 +32,31 @@ const LinkToApplications = styled(Link)`
     cursor: pointer;
   }
 `;
-
+const SettingsWrapper = styled.div`
+  width: ${props => props.theme.pageContentWidth}px;
+  margin: 0 auto;
+`;
 export default function Settings() {
-  const { orgId } = useParams();
+  const { orgId } = useParams<{ orgId: string }>();
   const currentOrg = useSelector(getCurrentOrg);
   const { path } = useRouteMatch();
   const location = useLocation();
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchOrg(orgId as string));
-  }, []);
+  }, [orgId, dispatch]);
 
   const SettingsRenderer = (
     <div>
-      <AppRoute
+      <SentryRoute
         path={`${path}/general`}
         component={GeneralSettings}
         location={location}
-        name={"Settings"}
       />
-      <AppRoute
+      <SentryRoute
         path={`${path}/members`}
         component={MemberSettings}
         location={location}
-        name={"Settings"}
       />
     </div>
   );
@@ -68,7 +78,7 @@ export default function Settings() {
   const isMembersPage = location.pathname.indexOf("members") !== -1;
 
   return (
-    <>
+    <SettingsWrapper>
       <LinkToApplications to={"/applications"}>
         <IconComponent iconName="chevron-left" color="#9F9F9F"></IconComponent>
         <Text type={TextType.H1}>{currentOrg.name}</Text>
@@ -92,6 +102,6 @@ export default function Settings() {
           history.push(newUrl);
         }}
       ></TabComponent>
-    </>
+    </SettingsWrapper>
   );
 }

@@ -44,7 +44,7 @@ const Radio = styled.label<{
   font-weight: ${props => props.theme.typography.p1.fontWeight};
   line-height: ${props => props.theme.typography.p1.lineHeight}px;
   letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
-  color: ${props => props.theme.colors.blackShades[9]};
+  color: ${props => props.theme.colors.radio.text};
   ${props =>
     props.rows && props.rows > 0
       ? `flex-basis: calc(100% / ${props.rows})`
@@ -71,7 +71,7 @@ const Radio = styled.label<{
     height: ${props => props.theme.spaces[8]}px;
     background-color: transparent;
     border: ${props => props.theme.spaces[1] - 2}px solid
-      ${props => props.theme.colors.blackShades[4]};
+      ${props => props.theme.colors.radio.border};
     border-radius: 50%;
     margin-top: ${props => props.theme.spaces[0]}px;
   }

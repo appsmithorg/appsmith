@@ -6,15 +6,15 @@ import { action } from "@storybook/addon-actions";
 import MenuDivider from "components/ads/MenuDivider";
 import MenuItem from "components/ads/MenuItem";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import ColorSelector, { appColorPalette } from "components/ads/ColorSelector";
+import ColorSelector from "components/ads/ColorSelector";
 import { AppIconCollection } from "components/ads/AppIcon";
 import IconSelector from "components/ads/IconSelector";
 import EditableText, {
   SavingState,
   EditInteractionKind,
-  SavingStateHandler,
 } from "components/ads/EditableText";
 import { IconCollection, IconName } from "components/ads/Icon";
+import { theme, light, dark } from "constants/DefaultTheme";
 
 export default {
   title: "Menu",
@@ -40,7 +40,10 @@ const errorFunction = (name: string) => {
 
 export const MenuStory = () => {
   const [selectedColor, setSelectedColor] = useState<string>(
-    appColorPalette[0],
+    light.appCardColors[0],
+  );
+  const [savingState, SetSavingState] = useState<SavingState>(
+    SavingState.NOT_STARTED,
   );
 
   return (
@@ -85,14 +88,18 @@ export const MenuStory = () => {
           isInvalid={(name: any) => errorFunction(name)}
           isEditingDefault={false}
           fill={false}
-          onSubmit={(value: string, callback: SavingStateHandler) =>
-            calls(value, callback)
-          }
+          savingState={savingState}
+          onBlur={() => {
+            SetSavingState(SavingState.STARTED);
+            setTimeout(() => {
+              SetSavingState(SavingState.SUCCESS);
+            }, 2000);
+          }}
         />
         <ColorSelector
           onSelect={(value: string) => setSelectedColor(value)}
           fill={false}
-          colorPalette={appColorPalette}
+          colorPalette={light.appCardColors}
         />
         <MenuDivider />
         <IconSelector

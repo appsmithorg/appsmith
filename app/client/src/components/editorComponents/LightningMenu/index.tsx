@@ -19,7 +19,7 @@ const lightningMenuOptions = (
   queries: RestAction[],
   widgets: WidgetProps[],
   pageId: string,
-  dispatch: Function,
+  dispatch: (action: unknown) => void,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
   trigger: React.ReactNode,
   onCloseLightningMenu?: () => void,

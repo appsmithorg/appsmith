@@ -1,23 +1,35 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { TagInput } from "@blueprintjs/core";
-import {
-  Intent,
-  IntentColors,
-  getColorWithOpacity,
-} from "constants/DefaultTheme";
+import { Classes, TagInput } from "@blueprintjs/core";
+import { Intent } from "constants/DefaultTheme";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
+  margin-right: 8px;
+
   &&& {
-    .bp3-tag {
-      color: ${props => props.theme.colors.textDefault};
-      font-size: ${props => props.theme.fontSizes[3]}px;
-      background: ${props =>
-        props.intent
-          ? getColorWithOpacity(IntentColors[props.intent], 0.2)
-          : getColorWithOpacity(IntentColors.none, 0.2)};
-      border: 1px solid
-        ${props =>
-          props.intent ? IntentColors[props.intent] : IntentColors.none};
+    .${Classes.TAG_INPUT} {
+      background-color: ${props => props.theme.colors.tagInput.bg};
+      min-height: 38px;
+      border: 1px solid ${props => props.theme.colors.tagInput.bg};
+      border-radius: 0px;
+    }
+    .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
+      border: 1px solid ${props => props.theme.colors.info.main};
+      box-shadow: ${props => props.theme.colors.tagInput.shadow};
+    }
+    .${Classes.INPUT_GHOST} {
+      color: ${props => props.theme.colors.tagInput.text};
+      &::placeholder {
+        color: ${props => props.theme.colors.tagInput.placeholder};
+      }
+    }
+    .${Classes.TAG} {
+      padding: 3px 10px;
+      color: ${props => props.theme.colors.tagInput.tag.text};
+      background-color: ${props => props.theme.colors.info.main};
+      border-radius: 0px;
+      font-size: 11px;
+      line-height: 13px;
+      letter-spacing: 0.4px;
     }
   }
 `;

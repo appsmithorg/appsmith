@@ -50,6 +50,9 @@ import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 const {
   enableGithubOAuth,
   enableGoogleOAuth,
@@ -127,6 +130,7 @@ export const SignUp = (props: SignUpFormProps) => {
               name="email"
               type="email"
               placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
+              autoFocus
             />
           </FormGroup>
           <FormGroup
@@ -153,12 +157,19 @@ export const SignUp = (props: SignUpFormProps) => {
                 AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                   signupMethod: "EMAIL",
                 });
+                PerformanceTracker.startTracking(
+                  PerformanceTransactionName.SIGN_UP,
+                );
               }}
             />
           </FormActions>
         </SpacedSubmitForm>
-        {SocialLoginList.length > 0 && <Divider />}
-        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+        {SocialLoginList.length > 0 && (
+          <>
+            <Divider />
+            <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+          </>
+        )}
       </AuthCardBody>
       <AuthCardFooter>
         <TncPPLinks />

@@ -10,6 +10,7 @@ import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ActionConfig, PluginType, Property } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
+import _ from "lodash";
 
 export type ActionDescription<T> = {
   type: string;
@@ -39,7 +40,9 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   config: Partial<ActionConfig>;
   pluginType: PluginType;
   name: string;
-  run: ActionDispatcher<RunActionPayload, [string, string, string]> | {};
+  run:
+    | ActionDispatcher<RunActionPayload, [string, string, string]>
+    | Record<string, any>;
   dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
@@ -50,7 +53,7 @@ export interface DataTreeWidget extends WidgetProps {
 
 export interface DataTreeAppsmith extends AppDataState {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
-  store: object;
+  store: Record<string, unknown>;
 }
 
 export type DataTreeEntity =
@@ -129,7 +132,7 @@ export class DataTreeFactory {
       dataTree.actionPaths && dataTree.actionPaths.push();
     });
     Object.keys(widgets).forEach(w => {
-      const widget = widgets[w];
+      const widget = { ...widgets[w] };
       const widgetMetaProps = widgetsMeta[w];
       const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
         widget.type,
@@ -138,7 +141,13 @@ export class DataTreeFactory {
         widget.type,
       );
       const derivedProps: any = {};
-      const dynamicBindings = widget.dynamicBindings || {};
+      const dynamicBindings = { ...widget.dynamicBindings } || {};
+      Object.keys(dynamicBindings).forEach(propertyName => {
+        if (_.isObject(widget[propertyName])) {
+          // Stringify this because composite controls may have bindings in the sub controls
+          widget[propertyName] = JSON.stringify(widget[propertyName]);
+        }
+      });
       Object.keys(derivedPropertyMap).forEach(propertyName => {
         derivedProps[propertyName] = derivedPropertyMap[propertyName].replace(
           /this./g,
@@ -157,7 +166,10 @@ export class DataTreeFactory {
     });
 
     if (withFunctions) {
-      dataTree.navigateTo = function(pageNameOrUrl: string, params: object) {
+      dataTree.navigateTo = function(
+        pageNameOrUrl: string,
+        params: Record<string, unknown>,
+      ) {
         return {
           type: "NAVIGATE_TO",
           payload: { pageNameOrUrl, params },
@@ -209,10 +221,9 @@ export class DataTreeFactory {
 
     dataTree.pageList = pageList;
     dataTree.actionPaths = actionPaths;
-    dataTree.appsmith = {
-      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
-      ...appData,
-    };
+
+    dataTree.appsmith = { ...appData } as DataTreeAppsmith;
+    (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     return dataTree;
   }
 }

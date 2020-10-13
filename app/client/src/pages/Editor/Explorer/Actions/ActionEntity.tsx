@@ -7,6 +7,9 @@ import EntityProperties from "../Entity/EntityProperties";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { ExplorerURLParams } from "../helpers";
 import { useParams } from "react-router";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -25,6 +28,9 @@ type ExplorerActionEntityProps = {
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
   const switchToAction = useCallback(() => {
+    PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
+      url: props.url,
+    });
     props.url && history.push(props.url);
   }, [props.url]);
 

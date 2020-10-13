@@ -67,6 +67,13 @@ export const entityDefinitions = {
     isVisible: isVisible,
     searchText: "string",
   }),
+  VIDEO_WIDGET: (widget: any) => ({
+    "!doc":
+      "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
+    "!url": "https://docs.appsmith.com/widget-reference/video",
+    playState: "number",
+    autoPlay: "bool",
+  }),
   DROP_DOWN_WIDGET: {
     "!doc":
       "Dropdown is used to capture user input/s from a specified list of permitted inputs. A Dropdown can capture a single choice as well as multiple choices",
@@ -106,6 +113,8 @@ export const entityDefinitions = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
+    googleRecaptchaKey: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -169,6 +178,8 @@ export const entityDefinitions = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
+    googleRecaptchaKey: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,

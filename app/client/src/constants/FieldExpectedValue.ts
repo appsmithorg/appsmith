@@ -33,6 +33,11 @@ const FIELD_VALUES: Record<
     // onRowSelected: "Function Call",
     // onPageChange: "Function Call",
   },
+  VIDEO_WIDGET: {
+    url: "string",
+    autoPlay: "boolean",
+    isVisible: "boolean",
+  },
   IMAGE_WIDGET: {
     image: "string",
     defaultImage: "string",
@@ -46,7 +51,8 @@ const FIELD_VALUES: Record<
     // onSelectionChange: "Function Call",
   },
   TABS_WIDGET: {
-    tabs: "Array<{ label: string, id: string }>",
+    tabs:
+      "Array<{ label: string, id: string(unique), widgetId: string(unique) }>",
     selectedTab: "string",
     isVisible: "boolean",
   },

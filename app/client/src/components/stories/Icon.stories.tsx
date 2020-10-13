@@ -38,21 +38,6 @@ export const AppIconVariant = () => (
   <StoryWrapper>
     <AppIcon
       size={select("Icon size", Object.values(Size), Size.small)}
-      color={select(
-        "Icon color",
-        [
-          "#4F70FD",
-          "#54A9FB",
-          "#5ED3DA",
-          "#F56AF4",
-          "#F36380",
-          "#FE9F44",
-          "#E9C951",
-          "#A8D76C",
-          "#6C4CF1",
-        ],
-        "#4F70FD",
-      )}
       name={select("Select Icon", AppIconCollection, "bag")}
     />
   </StoryWrapper>

@@ -6,6 +6,12 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import { User } from "../constants/userConstants";
 
+export type EventLocation =
+  | "LIGHTNING_MENU"
+  | "API_PANE"
+  | "QUERY_PANE"
+  | "QUERY_TEMPLATE";
+
 export type EventName =
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
@@ -30,7 +36,7 @@ export type EventName =
   | "PUBLISH_APP"
   | "PREVIEW_APP"
   | "EDITOR_OPEN"
-  | "CREATE_API"
+  | "CREATE_ACTION"
   | "SAVE_API"
   | "SAVE_API_CLICK"
   | "RUN_API"
@@ -45,6 +51,7 @@ export type EventName =
   | "DUPLICATE_API"
   | "DUPLICATE_API_CLICK"
   | "RUN_QUERY"
+  | "RUN_QUERY_CLICK"
   | "DELETE_QUERY"
   | "SAVE_QUERY"
   | "MOVE_API"
@@ -57,6 +64,9 @@ export type EventName =
   | "CREATE_APP"
   | "CREATE_DATA_SOURCE_CLICK"
   | "SAVE_DATA_SOURCE"
+  | "SAVE_DATA_SOURCE_CLICK"
+  | "TEST_DATA_SOURCE_SUCCESS"
+  | "TEST_DATA_SOURCE_CLICK"
   | "CREATE_QUERY_CLICK"
   | "NAVIGATE"
   | "PAGE_LOAD"
@@ -64,9 +74,18 @@ export type EventName =
   | "PROPERTY_PANE_OPEN"
   | "PROPERTY_PANE_CLOSE"
   | "PROPERTY_PANE_OPEN_CLICK"
+  | "PROPERTY_PANE_CLOSE_CLICK"
+  | "WIDGET_DELETE_UNDO"
+  | "WIDGET_COPY_VIA_SHORTCUT"
+  | "WIDGET_COPY"
+  | "WIDGET_PASTE"
+  | "WIDGET_DELETE_VIA_SHORTCUT"
   | "OPEN_HELP"
   | "INVITE_USER"
-  | "PROPERTY_PANE_CLOSE_CLICK";
+  | "ROUTE_CHANGE"
+  | "PROPERTY_PANE_CLOSE_CLICK"
+  | "APPLICATIONS_PAGE_LOAD"
+  | "EXECUTE_ACTION";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -144,7 +163,7 @@ class AnalyticsUtil {
     })(window);
   }
 
-  static logEvent(eventName: EventName, eventData: any) {
+  static logEvent(eventName: EventName, eventData: any = {}) {
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
