@@ -1,7 +1,6 @@
 package com.external.plugins;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
@@ -12,12 +11,7 @@ public class ElasticSearchPluginTest {
 
     @ClassRule
     public static final ElasticsearchContainer container = new ElasticsearchContainer()
-            .withEnv("","");
-
-    @Before
-    public void setUp() {
-
-    }
+            .withEnv("discovery.type", "single-node");
 
     @Test
     public void testValidJsonApiExecution() {
