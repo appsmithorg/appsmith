@@ -559,7 +559,10 @@ public class ApplicationServiceTest {
     public void createCloneApplication() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest Clone Source TestApp");
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+
+        Mono<Application> testApplicationMono = applicationPageService.createApplication(testApplication, orgId);
+
+        Mono<Application> applicationMono = testApplicationMono
                 .flatMap(application -> applicationPageService.cloneApplication(application.getId()))
                 .cache();
 
@@ -599,6 +602,27 @@ public class ApplicationServiceTest {
                         assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
                         assertThat(page.getApplicationId()).isEqualTo(application.getId());
                     }
+                })
+                .verifyComplete();
+
+        Mono<List<String>> pageNameListMono = pageListMono
+                .flatMapMany(Flux::fromIterable)
+                .map(Page::getName)
+                .collectList();
+
+        Mono<List<String>> testPageNameListMono = testApplicationMono
+                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMap(applicationPage -> pageRepository.findById(applicationPage.getId()))
+                .map(Page::getName)
+                .collectList();
+
+        StepVerifier
+                .create(Mono.zip(pageNameListMono, testPageNameListMono))
+                .assertNext(tuple -> {
+                    List<String> pageNameList = tuple.getT1();
+                    List<String> testPageNameList = tuple.getT2();
+
+                    assertThat(pageNameList).containsExactlyInAnyOrderElementsOf(testPageNameList);
                 })
                 .verifyComplete();
     }
