@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -23,12 +25,14 @@ import software.amazon.awssdk.core.SdkField;
 import software.amazon.awssdk.core.SdkPojo;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbResponse;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -86,8 +90,8 @@ public class DynamoPlugin extends BasePlugin {
 
             try {
                 final Method actionExecuteMethod = DynamoDbClient.class.getMethod(action.substring(0, 1).toLowerCase() + action.substring(1), requestClass);
-                final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, convertValue(parameters, requestClass));
-                result.setBody(responseToPlain(response));
+                final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
+                result.setBody(sdkToPlain(response));
             } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException | InstantiationException e) {
                 return Mono.error(e.getCause() == null ? e : e.getCause());
             }
@@ -99,17 +103,25 @@ public class DynamoPlugin extends BasePlugin {
 
         @Override
         public Mono<DynamoDbClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
-            if (authentication == null) {
-                return Mono.empty();
+            final DynamoDbClientBuilder builder = DynamoDbClient.builder();
+
+            if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                final Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+                builder.endpointOverride(URI.create("http://" + endpoint.getHost() + ":" + endpoint.getPort()));
             }
 
-            DynamoDbClient ddb = DynamoDbClient.builder()
-                    .region(Region.of(authentication.getDatabaseName()))
-                    .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(authentication.getUsername(), authentication.getPassword())))
-                    .build();
+            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            if (authentication != null) {
+                if (authentication.getDatabaseName() != null) {
+                    builder.region(Region.of(authentication.getDatabaseName()));
+                }
 
-            return Mono.justOrEmpty(ddb);
+                builder.credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(authentication.getUsername(), authentication.getPassword())
+                ));
+            }
+
+            return Mono.justOrEmpty(builder.build());
         }
 
         @Override
@@ -141,7 +153,7 @@ public class DynamoPlugin extends BasePlugin {
 
     }
 
-    private static <T> T convertValue(Map<String, Object> mapping, Class<T> type)
+    private static <T> T plainToSdk(Map<String, Object> mapping, Class<T> type)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
         final Class<?> builderType;
         try {
@@ -153,100 +165,102 @@ public class DynamoPlugin extends BasePlugin {
 
         final Object builder = type.getMethod("builder").invoke(null);
 
-        for (final Map.Entry<String, Object> entry : mapping.entrySet()) {
-            final String key = entry.getKey();
-            Object value = entry.getValue();
+        if (mapping != null) {
+            for (final Map.Entry<String, Object> entry : mapping.entrySet()) {
+                final String key = entry.getKey();
+                Object value = entry.getValue();
 
-            String setterName1 = key;
+                String setterName1 = key;
 
-            if ("NULL".equals(setterName1)) {
-                // Since `null` is a reserved word in Java, AWS_SDK uses `nul` for this field.
-                setterName1 = "nul";
-            } else if (isUpperCase(setterName1)) {
-                setterName1 = setterName1.toLowerCase();
-            } else {
-                setterName1 = setterName1.substring(0, 1).toLowerCase() + setterName1.substring(1);
-            }
-            final String setterName = setterName1;
-
-            if (value instanceof String) {
-                final Method setterMethod = Arrays.stream(builderType.getMethods())
-                        .filter(m -> {
-                            final Class<?> parameterType = m.getParameterTypes()[0];
-                            return m.getName().equals(setterName)
-                                    && (SdkBytes.class.isAssignableFrom(parameterType) || String.class.isAssignableFrom(parameterType));
-                        })
-                        .findFirst()
-                        .orElse(null);
-                if (SdkBytes.class.isAssignableFrom(setterMethod.getParameterTypes()[0])) {
-                    value = SdkBytes.fromUtf8String((String) value);
+                if ("NULL".equals(setterName1)) {
+                    // Since `null` is a reserved word in Java, AWS_SDK uses `nul` for this field.
+                    setterName1 = "nul";
+                } else if (isUpperCase(setterName1)) {
+                    setterName1 = setterName1.toLowerCase();
+                } else {
+                    setterName1 = setterName1.substring(0, 1).toLowerCase() + setterName1.substring(1);
                 }
-                setterMethod.invoke(builder, value);
+                final String setterName = setterName1;
 
-            } else if (value instanceof Boolean) {
-                builderType.getMethod(setterName, Boolean.class).invoke(builder, value);
-
-            } else if (value instanceof Integer) {
-                builderType.getMethod(setterName, Integer.class).invoke(builder, value);
-
-            } else if (value instanceof Map) {
-                Map<String, Object> valueAsMap = (Map) value;
-                final Method setterMethod = Arrays.stream(builderType.getMethods())
-                        .filter(m -> m.getName().equals(setterName))
-                        .findFirst()
-                        .orElse(null);
-                final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
-                for (final Map.Entry<String, Object> innerEntry : valueAsMap.entrySet()) {
-                    final Object innerValue = innerEntry.getValue();
-                    if (innerValue instanceof Map) {
-                        valueAsMap.put(
-                                innerEntry.getKey(),
-                                convertValue((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1])
-                        );
+                if (value instanceof String) {
+                    final Method setterMethod = Arrays.stream(builderType.getMethods())
+                            .filter(m -> {
+                                final Class<?> parameterType = m.getParameterTypes()[0];
+                                return m.getName().equals(setterName)
+                                        && (SdkBytes.class.isAssignableFrom(parameterType) || String.class.isAssignableFrom(parameterType));
+                            })
+                            .findFirst()
+                            .orElse(null);
+                    if (SdkBytes.class.isAssignableFrom(setterMethod.getParameterTypes()[0])) {
+                        value = SdkBytes.fromUtf8String((String) value);
                     }
-                }
-                if (!Map.class.isAssignableFrom((Class<?>) valueType.getRawType())) {
-                    value = convertValue((Map) value, (Class<T>) valueType.getRawType());
-                }
-                setterMethod.invoke(builder, value);
+                    setterMethod.invoke(builder, value);
 
-            } else if (value instanceof Collection) {
-                final Collection<Object> valueAsCollection = (Collection) value;
-                final Method setterMethod = Arrays.stream(builderType.getMethods())
-                        // Find method by name and exclude the varargs version of the method.
-                        .filter(m -> m.getName().equals(setterName) && !m.getParameterTypes()[0].getName().startsWith("[L"))
-                        .findFirst()
-                        .orElse(null);
-                final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
-                final Collection<Object> reTypedList = valueAsCollection.getClass().getConstructor().newInstance();
-                for (final Object innerValue : valueAsCollection) {
-                    if (innerValue instanceof Map) {
-                        reTypedList.add(convertValue((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[0]));
-                    } else if (innerValue instanceof String && SdkBytes.class.isAssignableFrom((Class<?>) valueType.getActualTypeArguments()[0])) {
-                        reTypedList.add(SdkBytes.fromUtf8String((String) innerValue));
-                    } else {
-                        reTypedList.add(innerValue);
+                } else if (value instanceof Boolean) {
+                    builderType.getMethod(setterName, Boolean.class).invoke(builder, value);
+
+                } else if (value instanceof Integer) {
+                    builderType.getMethod(setterName, Integer.class).invoke(builder, value);
+
+                } else if (value instanceof Map) {
+                    Map<String, Object> valueAsMap = (Map) value;
+                    final Method setterMethod = Arrays.stream(builderType.getMethods())
+                            .filter(m -> m.getName().equals(setterName))
+                            .findFirst()
+                            .orElse(null);
+                    final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
+                    for (final Map.Entry<String, Object> innerEntry : valueAsMap.entrySet()) {
+                        final Object innerValue = innerEntry.getValue();
+                        if (innerValue instanceof Map) {
+                            valueAsMap.put(
+                                    innerEntry.getKey(),
+                                    plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1])
+                            );
+                        }
                     }
+                    if (!Map.class.isAssignableFrom((Class<?>) valueType.getRawType())) {
+                        value = plainToSdk((Map) value, (Class<T>) valueType.getRawType());
+                    }
+                    setterMethod.invoke(builder, value);
+
+                } else if (value instanceof Collection) {
+                    final Collection<Object> valueAsCollection = (Collection) value;
+                    final Method setterMethod = Arrays.stream(builderType.getMethods())
+                            // Find method by name and exclude the varargs version of the method.
+                            .filter(m -> m.getName().equals(setterName) && !m.getParameterTypes()[0].getName().startsWith("[L"))
+                            .findFirst()
+                            .orElse(null);
+                    final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
+                    final Collection<Object> reTypedList = valueAsCollection.getClass().getConstructor().newInstance();
+                    for (final Object innerValue : valueAsCollection) {
+                        if (innerValue instanceof Map) {
+                            reTypedList.add(plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[0]));
+                        } else if (innerValue instanceof String && SdkBytes.class.isAssignableFrom((Class<?>) valueType.getActualTypeArguments()[0])) {
+                            reTypedList.add(SdkBytes.fromUtf8String((String) innerValue));
+                        } else {
+                            reTypedList.add(innerValue);
+                        }
+                    }
+                    setterMethod.invoke(builder, reTypedList);
+
+                } else {
+                    System.out.println("Unknown value type while deserializing: " + value.getClass().getName());
+
                 }
-                setterMethod.invoke(builder, reTypedList);
-
-            } else {
-                System.out.println("Unknown value type while deserializing: " + value.getClass().getName());
-
             }
         }
 
         return (T) builderType.getMethod("build").invoke(builder);
     }
 
-    private static Map<String, Object> responseToPlain(SdkPojo response) {
+    private static Map<String, Object> sdkToPlain(SdkPojo response) {
         final Map<String, Object> plain = new HashMap<>();
 
         for (final SdkField<?> field : response.sdkFields()) {
             Object value = field.getValueOrDefault(response);
 
             if (value instanceof SdkPojo) {
-                value = responseToPlain((SdkPojo) value);
+                value = sdkToPlain((SdkPojo) value);
 
             } else if (value instanceof Map) {
                 final Map<String, Object> valueAsMap = (Map) value;
@@ -255,7 +269,7 @@ public class DynamoPlugin extends BasePlugin {
                     final var key = entry.getKey();
                     Object innerValue = entry.getValue();
                     if (innerValue instanceof SdkPojo) {
-                        innerValue = responseToPlain((SdkPojo) innerValue);
+                        innerValue = sdkToPlain((SdkPojo) innerValue);
                     }
                     plainMap.put(key, innerValue);
                 }
