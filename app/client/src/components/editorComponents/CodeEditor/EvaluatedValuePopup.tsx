@@ -66,7 +66,6 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   margin: 0px 0px;
   background-color: ${props => THEMES[props.colorTheme].editorBackground};
   color: ${props => THEMES[props.colorTheme].editorColor};
-  overflow: scroll;
   ::-webkit-scrollbar {
     display: none;
   }
@@ -79,7 +78,6 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
   padding: 5px;
   background-color: ${props => THEMES[props.colorTheme].editorBackground};
   color: ${props => THEMES[props.colorTheme].editorColor};
-  overflow: scroll;
   ::-webkit-scrollbar {
     display: none;
   }
