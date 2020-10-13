@@ -569,6 +569,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             </p>
             {!!output.length && (
               <AddWidgetButton
+                className="t--add-widget"
                 icon={"plus"}
                 text="Add Widget"
                 onClick={onAddWidget}
