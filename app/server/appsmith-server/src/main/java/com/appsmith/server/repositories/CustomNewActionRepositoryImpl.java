@@ -3,10 +3,10 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -219,13 +219,11 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Mono<Long> countByDatasourceId(String datasourceId) {
         Criteria unpublishedDatasourceCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
-                    + "."
-                    + fieldName(QDatasource.datasource.id))
-                .is(datasourceId);
+                    + ".datasource._id")
+                .is(new ObjectId(datasourceId));
         Criteria publishedDatasourceCriteria = where(fieldName(QNewAction.newAction.publishedAction)
-                    + "."
-                    + fieldName(QDatasource.datasource.id))
-                .is(datasourceId);
+                    + ".datasource._id")
+                .is(new ObjectId(datasourceId));
 
         Criteria datasourceCriteria = new Criteria().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
 
