@@ -1684,7 +1684,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
   cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");
-  cy.route("PUT", "api/v1/applications/*").as("updateApplicationName");
+  cy.route("PUT", "/api/v1/applications/*").as("updateApplicationName");
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
@@ -1820,4 +1820,16 @@ Cypress.Commands.add("callApi", apiname => {
 
 Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusSuccess);
+});
+
+Cypress.Commands.add("EditApp", appName => {
+  cy.get(homePage.searchInput).type(appName);
+  cy.wait(2000);
+  cy.get(homePage.applicationCard)
+    .first()
+    .trigger("mouseover");
+  cy.get(homePage.appEditIcon)
+    .first()
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
 });
