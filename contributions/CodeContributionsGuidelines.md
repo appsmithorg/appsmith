@@ -6,8 +6,8 @@ All submissions, including submissions by project members, require review. We us
 Before raising a pull request, ensure you have raised a corresponding issue and discussed a possible solution with a maintainer. This gives your pull request the highest chance of getting merged quickly.
 
 ### Good First Issues 
-- [Frontend (React / HTML / CSS / JS)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+label%3A%22Frontend%22)
-- [Backend (Java / Mongo / Springboot)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+label%3A%22Backend%22+)
+- [Frontend (React / HTML / CSS / JS)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22+label%3A%22Frontend%22+no%3Aassignee)
+- [Backend (Java / Mongo / Springboot)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22+label%3A%22Backend%22+no%3Aassignee)
 
 ### 🍴 Git Workflow
 

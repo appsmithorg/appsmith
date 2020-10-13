@@ -42,5 +42,27 @@
   "Get": "GET",
   "next": "?page=2&pageSize=10",
   "prev": "?page=1&pageSize=10",
-  "apiFormDataBodyType": "x-www-form-urlencoded"
+  "apiFormDataBodyType": "x-www-form-urlencoded",
+  "defaultMoustacheData": "{{Input1.text",
+  "defaultInputWidget": "{{Table1.selectedRow.id",
+  "deafultDropDownWidget": [
+    {
+      "label": "{{Table1.selectedRow.email}}",
+      "value": "VEG"
+    },
+    {
+      "label": "{{Table1.tableData[1].email}}",
+      "value": "NONVEG"
+    }
+  ],
+  "defaultRichtextWidget": "{{Table1.selectedRow.userName",
+  "defaultDropDownValue": "1",
+  "defaultInputQuery": "{{Query1.data[0].id",
+  "defaultTableQuery": "{{Query1.data",
+  "labelFrmQuery": "{{Query1.data[0].name",
+  "command": "{command}{A}{del}",
+  "defaultdata": "TestData",
+  "input1": "(//div[@class='bp3-input-group']//input)[0]",
+  "input2": "(//div[@class='bp3-input-group']//input)[1]",
+  "input3": "(//div[@class='bp3-input-group']//input)[2]"
 }

@@ -13,7 +13,6 @@ import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
