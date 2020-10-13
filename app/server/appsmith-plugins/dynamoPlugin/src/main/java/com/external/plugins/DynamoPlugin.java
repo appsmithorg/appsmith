@@ -17,6 +17,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -136,6 +137,24 @@ public class DynamoPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
+
+            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            if (authentication == null) {
+                invalids.add("Missing AWS Access Key ID and Secret Access Key.");
+            } else {
+                if (!StringUtils.isEmpty(authentication.getUsername())) {
+                    invalids.add("Missing AWS Access Key ID.");
+                }
+
+                if (!StringUtils.isEmpty(authentication.getPassword())) {
+                    invalids.add("Missing AWS Secret Access Key.");
+                }
+
+                if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                    invalids.add("Missing region configuration.");
+                }
+            }
+
             return invalids;
         }
 
