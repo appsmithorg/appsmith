@@ -31,6 +31,13 @@ export const fetchDatasourceStructure = (id: string) => {
   };
 };
 
+export const expandDatasourceEntity = (id: string) => {
+  return {
+    type: ReduxActionTypes.EXPAND_DATASOURCE_ENTITY,
+    payload: id,
+  };
+};
+
 export const refreshDatasourceStructure = (id: string) => {
   return {
     type: ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
@@ -73,6 +80,16 @@ export const deleteDatasource = (payload: Partial<Datasource>) => {
   };
 };
 
+export const setDatsourceEditorMode = (payload: {
+  id: string;
+  viewMode: boolean;
+}) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
+    payload,
+  };
+};
+
 export const fetchDatasources = () => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
@@ -84,15 +101,6 @@ export const selectPlugin = (pluginId: string) => {
     type: ReduxActionTypes.SELECT_PLUGIN,
     payload: {
       pluginId,
-    },
-  };
-};
-
-export const storeDatastoreRefs = (refsList: {}) => {
-  return {
-    type: ReduxActionTypes.STORE_DATASOURCE_REFS,
-    payload: {
-      refsList,
     },
   };
 };

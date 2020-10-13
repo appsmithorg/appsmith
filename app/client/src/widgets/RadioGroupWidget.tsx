@@ -66,15 +66,12 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   onRadioSelectionChange = (updatedValue: string) => {
-    this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue);
-    if (this.props.onSelectionChange) {
-      super.executeAction({
-        dynamicString: this.props.onSelectionChange,
-        event: {
-          type: EventType.ON_OPTION_CHANGE,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue, {
+      dynamicString: this.props.onSelectionChange,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
   };
 
   getWidgetType(): WidgetType {

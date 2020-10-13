@@ -50,7 +50,7 @@ const PropertyControl = (props: Props) => {
   const { propertyName, label } = propertyConfig;
   if (widgetProperties) {
     const propertyValue = widgetProperties[propertyName];
-    const dataTreePath = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
     const evaluatedValue = _.get(
       widgetProperties,
       `evaluatedValues.${propertyName}`,
@@ -66,7 +66,9 @@ const PropertyControl = (props: Props) => {
       widgetProperties,
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type]?.[propertyName],
+      expected: FIELD_EXPECTED_VALUE[widgetProperties.type][
+        propertyName
+      ] as any,
     };
     // console.log({ config });
     if (

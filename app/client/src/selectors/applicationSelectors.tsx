@@ -6,7 +6,7 @@ import {
   OrganizationDetails,
 } from "constants/ReduxActionConstants";
 import Fuse from "fuse.js";
-import { UserApplication } from "constants/userConstants";
+import { Organization } from "constants/orgConstants";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "organization.name"],
@@ -19,19 +19,10 @@ const fuzzySearchOptions = {
 const getApplicationsState = (state: AppState) => state.ui.applications;
 const getApplications = (state: AppState) =>
   state.ui.applications.applicationList;
-export const getCurrentApplication = (state: AppState): UserApplication => {
-  const appId = state.entities.pageList.applicationId;
-  const apps = state.ui.users.current
-    ? state.ui.users.current.applications
-    : [];
-  const app = apps.find(app => app.id === appId);
-
-  return (
-    app || {
-      id: "",
-      name: "",
-    }
-  );
+export const getCurrentApplication = (
+  state: AppState,
+): ApplicationPayload | undefined => {
+  return state.ui.applications.currentApplication;
 };
 const getApplicationSearchKeyword = (state: AppState) =>
   state.ui.applications.searchKeyword;
@@ -84,7 +75,10 @@ export const getApplicationList = createSelector(
 export const getUserApplicationsOrgsList = createSelector(
   getUserApplicationsOrgs,
   getApplicationSearchKeyword,
-  (applicationsOrgs?: [], keyword?: string): OrganizationDetails[] => {
+  (
+    applicationsOrgs?: Organization[],
+    keyword?: string,
+  ): OrganizationDetails[] => {
     if (
       applicationsOrgs &&
       applicationsOrgs.length > 0 &&
@@ -98,7 +92,7 @@ export const getUserApplicationsOrgsList = createSelector(
           ...fuzzySearchOptions,
           keys: ["name"],
         });
-        const applications = applicationFuzzy.search(keyword) as [];
+        const applications = applicationFuzzy.search(keyword) as any[];
 
         return {
           ...org,

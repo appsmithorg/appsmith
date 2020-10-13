@@ -11,6 +11,7 @@ import FormTitle from "./FormTitle";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
+import Connected from "./Connected";
 
 import FormControlFactory from "utils/FormControlFactory";
 import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
@@ -20,12 +21,14 @@ import { reduxForm, InjectedFormProps } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { APPSMITH_IP_ADDRESS } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "configs";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps {
   onSave: (formValues: Datasource) => void;
   onTest: (formValus: Datasource) => void;
   handleDelete: (id: string) => void;
+  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   selectedPluginPackage: string;
   isSaving: boolean;
   isDeleting: boolean;
@@ -35,13 +38,14 @@ interface DatasourceDBEditorProps {
   formData: Datasource;
   isTesting: boolean;
   loadingFormConfigs: boolean;
-  formConfig: [];
+  formConfig: any[];
   isNewDatasource: boolean;
   pluginImage: string;
+  viewMode: boolean;
 }
 
 interface DatasourceDBEditorState {
-  isNameEditable: boolean;
+  viewMode: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -73,6 +77,13 @@ export const FormTitleContainer = styled.div`
   flex-direction: row;
   display: flex;
   align-items: center;
+`;
+
+export const Header = styled.div`
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 16px;
 `;
 
@@ -122,16 +133,32 @@ class DatasourceDBEditor extends React.Component<
     super(props);
 
     this.state = {
-      isNameEditable: true,
+      viewMode: true,
     };
     this.requiredFields = {};
     this.configDetails = {};
+  }
+
+  componentDidMount() {
+    if (this.props.isNewDatasource) {
+      this.setState({
+        viewMode: false,
+      });
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
       this.requiredFields = {};
       this.configDetails = {};
+      this.setState({
+        viewMode: true,
+      });
+    }
+    if (!this.state.viewMode && this.props.viewMode) {
+      this.setState({
+        viewMode: true,
+      });
     }
   }
 
@@ -237,7 +264,7 @@ class DatasourceDBEditor extends React.Component<
         if (newValues.length) {
           formData = _.set(formData, properties[0], newValues);
         } else {
-          _.unset(formData, properties[0]);
+          formData = _.set(formData, properties[0], []);
         }
       } else if (controlType === "KEY_VAL_INPUT") {
         if (checked[configProperty]) continue;
@@ -258,7 +285,7 @@ class DatasourceDBEditor extends React.Component<
         if (newValues.length) {
           formData = _.set(formData, configProperty, newValues);
         } else {
-          _.unset(formData, configProperty);
+          formData = _.set(formData, configProperty, []);
         }
       }
     }
@@ -268,13 +295,19 @@ class DatasourceDBEditor extends React.Component<
 
   save = () => {
     const normalizedValues = this.normalizeValues();
-
+    AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
+      pageId: this.props.pageId,
+      appId: this.props.applicationId,
+    });
     this.props.onSave(normalizedValues);
   };
 
   test = () => {
     const normalizedValues = this.normalizeValues();
-
+    AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
+      pageId: this.props.pageId,
+      appId: this.props.applicationId,
+    });
     this.props.onTest(normalizedValues);
   };
 
@@ -288,6 +321,7 @@ class DatasourceDBEditor extends React.Component<
       datasourceId,
       handleDelete,
     } = this.props;
+    const { viewMode } = this.state;
 
     return (
       <form
@@ -312,10 +346,28 @@ class DatasourceDBEditor extends React.Component<
           {" Back"}
         </span>
         <br />
-        <FormTitleContainer>
-          <PluginImage src={this.props.pluginImage} alt="Datasource" />
-          <FormTitle focusOnMount={this.props.isNewDatasource} />
-        </FormTitleContainer>
+        <Header>
+          <FormTitleContainer>
+            <PluginImage src={this.props.pluginImage} alt="Datasource" />
+            <FormTitle focusOnMount={this.props.isNewDatasource} />
+          </FormTitleContainer>
+          {viewMode && (
+            <ActionButton
+              className="t--edit-datasource"
+              text="EDIT"
+              accent="secondary"
+              onClick={() => {
+                this.setState({
+                  viewMode: false,
+                });
+                this.props.setDatasourceEditorMode(
+                  this.props.datasourceId,
+                  false,
+                );
+              }}
+            />
+          )}
+        </Header>
         {cloudHosting && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
@@ -331,36 +383,42 @@ class DatasourceDBEditor extends React.Component<
             </CollapsibleHelp>
           </CollapsibleWrapper>
         )}
-        {!_.isNil(sections)
-          ? _.map(sections, this.renderMainSection)
-          : undefined}
-        <SaveButtonContainer>
-          <ActionButton
-            className="t--delete-datasource"
-            text="Delete"
-            accent="error"
-            loading={isDeleting}
-            onClick={() => handleDelete(datasourceId)}
-          />
+        {!viewMode ? (
+          <>
+            {!_.isNil(sections)
+              ? _.map(sections, this.renderMainSection)
+              : undefined}
+            <SaveButtonContainer>
+              <ActionButton
+                className="t--delete-datasource"
+                text="Delete"
+                accent="error"
+                loading={isDeleting}
+                onClick={() => handleDelete(datasourceId)}
+              />
 
-          <ActionButton
-            className="t--test-datasource"
-            text="Test"
-            loading={isTesting}
-            accent="secondary"
-            onClick={this.test}
-          />
-          <StyledButton
-            className="t--save-datasource"
-            onClick={this.save}
-            text="Save"
-            disabled={this.validate()}
-            loading={isSaving}
-            intent="primary"
-            filled
-            size="small"
-          />
-        </SaveButtonContainer>
+              <ActionButton
+                className="t--test-datasource"
+                text="Test"
+                loading={isTesting}
+                accent="secondary"
+                onClick={this.test}
+              />
+              <StyledButton
+                className="t--save-datasource"
+                onClick={this.save}
+                text="Save"
+                disabled={this.validate()}
+                loading={isSaving}
+                intent="primary"
+                filled
+                size="small"
+              />
+            </SaveButtonContainer>
+          </>
+        ) : (
+          <Connected />
+        )}
       </form>
     );
   };

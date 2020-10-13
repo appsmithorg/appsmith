@@ -143,6 +143,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty(
           "selectedOptionValue",
           selectedOption.value,
+          {
+            dynamicString: this.props.onOptionChange,
+            event: {
+              type: EventType.ON_OPTION_CHANGE,
+            },
+          },
         );
       }
     } else if (this.props.selectionType === "MULTI_SELECT") {
@@ -161,16 +167,13 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty(
         "selectedOptionValueArr",
         newSelectedValue,
-      );
-    }
-
-    if (this.props.onOptionChange && isChanged) {
-      super.executeAction({
-        dynamicString: this.props.onOptionChange,
-        event: {
-          type: EventType.ON_OPTION_CHANGE,
+        {
+          dynamicString: this.props.onOptionChange,
+          event: {
+            type: EventType.ON_OPTION_CHANGE,
+          },
         },
-      });
+      );
     }
   };
 
@@ -182,15 +185,13 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty(
       "selectedOptionValueArr",
       newSelectedValue,
-    );
-    if (this.props.onOptionChange) {
-      super.executeAction({
+      {
         dynamicString: this.props.onOptionChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,
         },
-      });
-    }
+      },
+    );
   };
 
   getWidgetType(): WidgetType {

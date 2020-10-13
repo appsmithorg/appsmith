@@ -7,6 +7,8 @@ import JSONFn from "json-fn";
 import log from "loglevel";
 declare let Realm: any;
 
+/* eslint-disable @typescript-eslint/ban-types */
+// TODO fix types to enable the lint above
 export default class RealmExecutor implements JSExecutor {
   rootRealm: any;
   createSafeObject: any;
@@ -98,7 +100,6 @@ export default class RealmExecutor implements JSExecutor {
       const data = callbackData
         ? { ...safeData, CALLBACK_DATA: safeCallbackData }
         : safeData;
-
       const { result, triggers } = this.rootRealm.evaluate(script, data);
       return {
         result: this.convertToMainScope(result),
