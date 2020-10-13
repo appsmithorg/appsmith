@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -62,10 +63,10 @@ public class DynamoPluginTest {
         ddb.createTable(CreateTableRequest.builder()
                 .tableName("cities")
                 .attributeDefinitions(
-                        AttributeDefinition.builder().attributeName("City").attributeType(ScalarAttributeType.S).build()
+                        AttributeDefinition.builder().attributeName("Id").attributeType(ScalarAttributeType.S).build()
                 )
                 .keySchema(
-                        KeySchemaElement.builder().attributeName("City").keyType(KeyType.HASH).build()
+                        KeySchemaElement.builder().attributeName("Id").keyType(KeyType.HASH).build()
                 )
                 .provisionedThroughput(
                         ProvisionedThroughput.builder().readCapacityUnits(5L).writeCapacityUnits(5L).build()
@@ -75,7 +76,16 @@ public class DynamoPluginTest {
         ddb.putItem(PutItemRequest.builder()
                 .tableName("cities")
                 .item(Map.of(
+                        "Id", AttributeValue.builder().s("1").build(),
                         "City", AttributeValue.builder().s("New Delhi").build()
+                ))
+                .build());
+
+        ddb.putItem(PutItemRequest.builder()
+                .tableName("cities")
+                .item(Map.of(
+                        "Id", AttributeValue.builder().s("2").build(),
+                        "City", AttributeValue.builder().s("Bangalore").build()
                 ))
                 .build());
 
@@ -119,12 +129,40 @@ public class DynamoPluginTest {
     }
 
     @Test
+    public void testGetItem() {
+        final String actionConfig = "{\n" +
+                "  \"action\": \"GetItem\",\n" +
+                "  \"parameters\": {\n" +
+                "    \"TableName\": \"cities\",\n" +
+                "    \"Key\": {\n" +
+                "      \"Id\": {\n" +
+                "        \"S\": \"1\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}\n";
+
+        StepVerifier.create(execute(actionConfig))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final Map<String, Map<String, Object>> item = ((Map<String, Map<String, Map<String, Object>>>) result.getBody()).get("Item");
+                    assertEquals("New Delhi", item.get("City").get("S"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testPutItem() {
         final String actionConfig = "{\n" +
                 "  \"action\": \"PutItem\",\n" +
                 "  \"parameters\": {\n" +
                 "    \"TableName\": \"cities\",\n" +
                 "    \"Item\": {\n" +
+                "      \"Id\": {\n" +
+                "        \"S\": \"9\"\n" +
+                "      },\n" +
                 "      \"City\": {\n" +
                 "        \"S\": \"Mumbai\"\n" +
                 "      }\n" +
@@ -138,6 +176,38 @@ public class DynamoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertNotNull(((Map<String, List<String>>) result.getBody()).get("Attributes"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testUpdateItem() {
+        final String actionConfig = "{\n" +
+                "  \"action\": \"UpdateItem\",\n" +
+                "  \"parameters\": {\n" +
+                "    \"TableName\": \"cities\",\n" +
+                "    \"Key\": {\n" +
+                "      \"Id\": {\n" +
+                "        \"S\": \"2\"\n" +
+                "      }\n" +
+                "    },\n" +
+                "    \"UpdateExpression\": \"set City = :new_city\",\n" +
+                "    \"ExpressionAttributeValues\": {\n" +
+                "      \":new_city\": {\n" +
+                "        \"S\": \"Bengaluru\"\n" +
+                "      }\n" +
+                "    },\n" +
+                "    \"ReturnValues\": \"ALL_NEW\"\n" +
+                "  }\n" +
+                "}\n";
+
+        StepVerifier.create(execute(actionConfig))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final Map<String, Map<String, Object>> attributes = ((Map<String, Map<String, Map<String, Object>>>) result.getBody()).get("Attributes");
+                    assertEquals("Bengaluru", attributes.get("City").get("S"));
                 })
                 .verifyComplete();
     }
