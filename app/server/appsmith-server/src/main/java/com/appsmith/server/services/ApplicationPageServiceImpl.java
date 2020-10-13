@@ -327,10 +327,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"));
     }
 
-    private Mono<Page> clonePage(Page page) {
-        return clonePageGivenApplicationId(page.getId(), page.getApplicationId(), " Copy");
-    }
-
     private Mono<Page> clonePageGivenApplicationId(String pageId, String applicationId,
                                                    @Nullable String newPageNameSuffix) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
