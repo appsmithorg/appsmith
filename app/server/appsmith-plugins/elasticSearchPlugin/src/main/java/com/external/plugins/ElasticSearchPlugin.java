@@ -9,14 +9,11 @@ import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-public class  ElasticSearchPlugin extends BasePlugin {
+public class ElasticSearchPlugin extends BasePlugin {
 
     public ElasticSearchPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -24,21 +21,7 @@ public class  ElasticSearchPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class ElasticSearchPluginExecutor implements PluginExecutor{
-
-        public void esTest(String elasticSearchUrl){
-            final String HTTP = "http://";
-            WebClient wb = WebClient.builder()
-                    .baseUrl(HTTP + elasticSearchUrl)
-                    .defaultHeader(
-                            HttpHeaders.CONTENT_TYPE,
-                            MediaType.APPLICATION_JSON_VALUE)
-                    .build();
-            String res = wb.get().uri("/_cluster/health").retrieve().bodyToMono(String.class).block();
-            System.out.println("-=-=-=-=-=-=-=-=--=-=   response -=-=-=-=-=-=-=-=-=-=-=-=");
-            System.out.println(res);
-            System.out.println("-=-=-=-=-=-=-=-=--=-=   response -=-=-=-=-=-=-=-=-=-=-=-=");
-        }
+    public static class ElasticSearchPluginExecutor implements PluginExecutor {
 
         @Override
         public Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {

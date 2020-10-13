@@ -63,6 +63,11 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>7.9.2</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
