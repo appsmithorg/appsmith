@@ -18,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -66,6 +67,7 @@ public class ExampleApplicationsAreMarked {
                     assert organization.getId() != null;
                     Mockito.when(configService.getTemplateOrganizationId()).thenReturn(Mono.just(organization.getId()));
 
+                    // Create 4 applications inside the example organization but only mark three applications as example
                     final Application app1 = new Application();
                     app1.setName("first application");
                     app1.setOrganizationId(organization.getId());
@@ -81,11 +83,19 @@ public class ExampleApplicationsAreMarked {
                     app3.setOrganizationId(organization.getId());
                     app3.setIsPublic(false);
 
+                    final Application app4 = new Application();
+                    app4.setName("fourth application");
+                    app4.setOrganizationId(organization.getId());
+                    app4.setIsPublic(false);
+
+                    Mockito.when(configService.getTemplateApplications()).thenReturn(Flux.fromIterable(List.of(app1, app2, app3)));
+
                     return Mono
                             .when(
                                     applicationPageService.createApplication(app1),
                                     applicationPageService.createApplication(app2),
-                                    applicationPageService.createApplication(app3)
+                                    applicationPageService.createApplication(app3),
+                                    applicationPageService.createApplication(app4)
                             )
                             .thenReturn(organization.getId());
                 })
@@ -94,8 +104,8 @@ public class ExampleApplicationsAreMarked {
 
         StepVerifier.create(resultMono)
                 .assertNext(applications -> {
-                    assertThat(applications).hasSize(3);
-                    assertThat(applications.stream().allMatch(Application::isAppIsExample)).isTrue();
+                    assertThat(applications).hasSize(4);
+                    assertThat(applications.stream().filter(Application::isAppIsExample)).hasSize(3);
                 })
                 .verifyComplete();
     }

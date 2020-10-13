@@ -2,13 +2,10 @@ import React from "react";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
 import styled from "styled-components";
-
-export type Variant = "note" | "warning";
-export type Background = "dark" | "light";
+import { Variant } from "./Button";
 
 type CalloutProps = CommonComponentProps & {
   variant?: Variant;
-  background?: Background;
   text: string;
   fill?: boolean;
 };
@@ -16,14 +13,11 @@ type CalloutProps = CommonComponentProps & {
 const CalloutContainer = styled.div<{
   variant?: Variant;
   fill?: boolean;
-  background?: Background;
 }>`
   padding: ${props => props.theme.spaces[5]}px
     ${props => props.theme.spaces[11] + 1}px;
   background: ${props =>
-    props.variant && props.background
-      ? props.theme.colors.callout[props.variant][props.background].bgColor
-      : null};
+    props.variant ? props.theme.colors.callout[props.variant].bgColor : null};
   height: 42px;
 
   ${props =>
@@ -37,25 +31,18 @@ const CalloutContainer = styled.div<{
 
   .${Classes.TEXT} {
     color: ${props =>
-      props.variant && props.background
-        ? props.theme.colors.callout[props.variant][props.background].color
-        : null};
+      props.variant ? props.theme.colors.callout[props.variant].color : null};
   }
 `;
 
 Callout.defaultProps = {
   fill: false,
   variant: "note",
-  background: "dark",
 };
 
 function Callout(props: CalloutProps) {
   return (
-    <CalloutContainer
-      variant={props.variant}
-      background={props.background}
-      fill={props.fill}
-    >
+    <CalloutContainer variant={props.variant} fill={props.fill}>
       <Text type={TextType.P2}>{props.text}</Text>
     </CalloutContainer>
   );

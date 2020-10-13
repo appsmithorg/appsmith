@@ -1,11 +1,10 @@
-import { FetchPageRequest } from "api/PageApi";
+import { FetchPageRequest, SavePageResponse } from "api/PageApi";
 import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   ReduxActionTypes,
   ReduxAction,
   UpdateCanvasPayload,
-  SavePageSuccessPayload,
   FetchPageListPayload,
 } from "constants/ReduxActionConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -66,7 +65,7 @@ export const updateCanvas = (
   };
 };
 
-export const savePageSuccess = (payload: SavePageSuccessPayload) => {
+export const savePageSuccess = (payload: SavePageResponse) => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_SUCCESS,
     payload,
@@ -232,7 +231,9 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   };
 };
 
-export const updateAppStore = (payload: object): ReduxAction<object> => {
+export const updateAppStore = (
+  payload: Record<string, unknown>,
+): ReduxAction<Record<string, unknown>> => {
   return {
     type: ReduxActionTypes.UPDATE_APP_STORE,
     payload,
