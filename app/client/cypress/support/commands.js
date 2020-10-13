@@ -335,6 +335,7 @@ Cypress.Commands.add("LogOut", () => {
 
 Cypress.Commands.add("NavigateToHome", () => {
   cy.get(commonlocators.homeIcon).click({ force: true });
+  cy.wait(1000);
   cy.wait("@applications").should(
     "have.nested.property",
     "response.body.responseMeta.status",
