@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
@@ -80,11 +81,11 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriteria = where(fieldName(QNewAction.newAction.publishedAction.pageId)).is(pageId);
+            pageCriteria = where(fieldName(QNewAction.newAction.publishedAction)+"."+fieldName(QNewAction.newAction.publishedAction.pageId)).is(pageId);
         }
         // Fetch unpublished actions
         else {
-            pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+            pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
         }
         return queryAll(List.of(pageCriteria), aclPermission);
     }
@@ -96,12 +97,27 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
             String httpMethod,
             Boolean userSetOnLoad,
             AclPermission aclPermission) {
-        Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
-        Criteria userSetOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.userSetOnLoad)).is(userSetOnLoad);
-        String httpMethodQueryKey = fieldName(QNewAction.newAction.unpublishedAction.actionConfiguration)
+        Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
+                        + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.name))
+                .in(names);
+
+        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
+                        + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
+                .is(pageId);
+
+        Criteria userSetOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
+                        + "."
+                        +fieldName(QNewAction.newAction.unpublishedAction.userSetOnLoad))
+                .is(userSetOnLoad);
+
+        String httpMethodQueryKey = fieldName(QNewAction.newAction.unpublishedAction)
+                + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.actionConfiguration)
                 + "."
                 + fieldName(QActionConfiguration.actionConfiguration.httpMethod);
+
         Criteria httpMethodCriteria = where(httpMethodQueryKey).is(httpMethod);
         List<Criteria> criterias = List.of(namesCriteria, pageCriteria, httpMethodCriteria, userSetOnLoadCriteria);
 
@@ -126,12 +142,12 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.publishedAction.name)).is(name);
+                Criteria nameCriteria = where(fieldName(QNewAction.newAction.publishedAction)+"."+fieldName(QNewAction.newAction.publishedAction.name)).is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.publishedAction.pageId)).in(pageIds);
+                Criteria pageCriteria = where(fieldName(QNewAction.newAction.publishedAction)+"."+fieldName(QNewAction.newAction.publishedAction.pageId)).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
         }
@@ -139,12 +155,12 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
         else {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
+                Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+                Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
         }
@@ -158,13 +174,13 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
                                                                                        AclPermission permission) {
         List<Criteria> criteriaList = new ArrayList<>();
         if (names != null) {
-            Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
+            Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
             criteriaList.add(namesCriteria);
         }
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
         criteriaList.add(pageCriteria);
 
-        Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad)).is(Boolean.TRUE);
+        Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad)).is(Boolean.TRUE);
         criteriaList.add(executeOnLoadCriteria);
 
         return queryAll(criteriaList, permission);
@@ -190,11 +206,11 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
-            nameCriterion = where(fieldName(QNewAction.newAction.publishedAction.name)).in(names);
+            nameCriterion = where(fieldName(QNewAction.newAction.publishedAction)+"."+fieldName(QNewAction.newAction.publishedAction.name)).in(names);
         }
         // Fetch unpublished actions
         else {
-            nameCriterion = where(fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
+            nameCriterion = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
         }
 
         return queryAll(List.of(applicationCriteria, nameCriterion), aclPermission);
@@ -202,8 +218,14 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<Long> countByDatasourceId(String datasourceId) {
-        Criteria unpublishedDatasourceCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.datasource.id)).is(datasourceId);
-        Criteria publishedDatasourceCriteria = where(fieldName(QNewAction.newAction.publishedAction.datasource.id)).is(datasourceId);
+        Criteria unpublishedDatasourceCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
+                    + "."
+                    + fieldName(QDatasource.datasource.id))
+                .is(datasourceId);
+        Criteria publishedDatasourceCriteria = where(fieldName(QNewAction.newAction.publishedAction)
+                    + "."
+                    + fieldName(QDatasource.datasource.id))
+                .is(datasourceId);
 
         Criteria datasourceCriteria = new Criteria().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
 

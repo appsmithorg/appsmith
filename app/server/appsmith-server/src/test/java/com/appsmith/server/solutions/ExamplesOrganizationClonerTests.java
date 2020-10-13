@@ -10,6 +10,8 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
@@ -620,10 +622,11 @@ public class ExamplesOrganizationClonerTests {
                     final Application firstApplication = data.applications.stream().filter(app -> app.getName().equals("first application")).findFirst().orElse(null);
                     assert firstApplication != null;
                     assertThat(firstApplication.getPages().stream().filter(ApplicationPage::isDefault).count()).isEqualTo(1);
-                    final Page newPage = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("name").is("A New Page")), Page.class);
+                    final NewPage newPage = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("unpublishedPage.name").is("A New Page")), NewPage.class);
                     assert newPage != null;
-                    final String actionId = newPage.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
-                    final Action newPageAction = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), Action.class);
+                    log.debug("new page is : {}", newPage.toString());
+                    final String actionId = newPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
+                    final NewAction newPageAction = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), NewAction.class);
                     assert newPageAction != null;
                     assertThat(newPageAction.getOrganizationId()).isEqualTo(data.organization.getId());
 
@@ -634,7 +637,7 @@ public class ExamplesOrganizationClonerTests {
                     );
 
                     assertThat(data.actions).hasSize(5);
-                    assertThat(map(data.actions, Action::getName)).containsExactlyInAnyOrder(
+                    assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "newPageAction",
                             "action1",
                             "action2",
@@ -643,6 +646,14 @@ public class ExamplesOrganizationClonerTests {
                     );
                 })
                 .verifyComplete();
+    }
+
+    private List<String> getUnpublishedActionName(List<Action> actions) {
+        List<String> names = new ArrayList<>();
+        for (Action action : actions) {
+            names.add(action.getName());
+        }
+        return names;
     }
 
     private <InType, OutType> List<OutType> map(List<InType> list, Function<InType, OutType> fn) {
