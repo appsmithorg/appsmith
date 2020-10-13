@@ -32,7 +32,6 @@ import {
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
 
-import { Colors } from "constants/Colors";
 import FormControlFactory from "utils/FormControlFactory";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
