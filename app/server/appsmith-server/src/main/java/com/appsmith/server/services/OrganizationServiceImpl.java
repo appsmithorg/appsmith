@@ -258,7 +258,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Flux<Organization> findByIdsIn(Set<String> ids, AclPermission permission) {
-        Sort sort = Sort.by(FieldName.CREATED_AT);
+        Sort sort = Sort.by(FieldName.NAME);
 
         return repository.findByIdsIn(ids, permission, sort);
     }
