@@ -525,8 +525,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
 
-                    DatasourceConfiguration datasourceConfiguration = null;
-                    ActionConfiguration actionConfiguration = null;
+                    DatasourceConfiguration datasourceConfiguration = action.getDatasource().getDatasourceConfiguration();
+                    ActionConfiguration actionConfiguration = action.getActionConfiguration();
 
                     prepareConfigurationsForExecution(action, datasource, executeActionDTO, actionConfiguration, datasourceConfiguration);
 
