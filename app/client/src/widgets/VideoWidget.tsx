@@ -13,7 +13,6 @@ import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
 import withMeta, { WithMeta } from "./MetaHOC";
-import { ActionDescription } from "../entities/DataTree/dataTreeFactory";
 
 const VideoComponent = lazy(() =>
   retryPromise(() =>
@@ -73,7 +72,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
               "playState",
               PlayState.PLAYING,
               {
-                triggers: onPlay,
+                dynamicString: onPlay,
                 event: {
                   type: EventType.ON_VIDEO_PLAY,
                 },
@@ -83,7 +82,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
             this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
-              triggers: onPause,
+              dynamicString: onPause,
               event: {
                 type: EventType.ON_VIDEO_PAUSE,
               },
@@ -91,7 +90,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           }}
           onEnded={() => {
             this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
-              triggers: onEnd,
+              dynamicString: onEnd,
               event: {
                 type: EventType.ON_VIDEO_END,
               },
@@ -110,9 +109,9 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 export interface VideoWidgetProps extends WidgetProps, WithMeta {
   url: string;
   autoPlay: boolean;
-  onPause?: ActionDescription<any>[];
-  onPlay?: ActionDescription<any>[];
-  onEnd?: ActionDescription<any>[];
+  onPause?: string;
+  onPlay?: string;
+  onEnd?: string;
 }
 
 export default VideoWidget;

@@ -136,6 +136,7 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.RUN_ACTION_REQUEST,
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
+  ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
   ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
   // App Data
