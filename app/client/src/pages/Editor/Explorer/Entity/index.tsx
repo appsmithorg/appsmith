@@ -1,4 +1,10 @@
-import React, { ReactNode, useState, useEffect } from "react";
+import React, {
+  ReactNode,
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+} from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import CollapseToggle from "./CollapseToggle";
@@ -8,6 +14,8 @@ import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
 import { Classes } from "@blueprintjs/core";
+import { noop } from "lodash";
+import useClick from "utils/hooks/useClick";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -22,7 +30,7 @@ const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${props => props.theme.lineHeights[2]}px;
 `;
 
-const EntityItem = styled.div<{
+export const EntityItem = styled.div<{
   active: boolean;
   step: number;
   spaced: boolean;
@@ -74,88 +82,105 @@ export type EntityProps = {
   action?: () => void;
   active?: boolean;
   isDefaultExpanded?: boolean;
-  createFn?: () => void;
+  onCreate?: () => void;
   contextMenu?: ReactNode;
   searchKeyword?: string;
   step: number;
   updateEntityName?: (id: string, name: string) => any;
   runActionOnExpand?: boolean;
+  onNameEdit?: (input: string, limit?: number) => string;
+  onToggle?: (isOpen: boolean) => void;
 };
 
-export const Entity = (props: EntityProps) => {
-  const [isOpen, open] = useState(!props.disabled && !!props.isDefaultExpanded);
-  const isUpdating = useEntityUpdateState(props.entityId);
-  const isEditing = useEntityEditState(props.entityId);
+export const Entity = forwardRef(
+  (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
+    const [isOpen, open] = useState(!!props.isDefaultExpanded);
+    const isUpdating = useEntityUpdateState(props.entityId);
+    const isEditing = useEntityEditState(props.entityId);
 
-  useEffect(() => {
-    // If the default state must be expanded, expand to show children
-    if (props.isDefaultExpanded) {
-      open(true);
-    }
-    if (!props.searchKeyword && !props.isDefaultExpanded) {
-      open(false);
-    }
-  }, [props.isDefaultExpanded, open, props.searchKeyword]);
+    /* eslint-disable react-hooks/exhaustive-deps */
+    useEffect(() => {
+      if (!!props.isDefaultExpanded) {
+        open(true);
+        props.onToggle && props.onToggle(true);
+      }
+    }, [props.isDefaultExpanded]);
+    useEffect(() => {
+      if (!props.searchKeyword && !props.isDefaultExpanded) {
+        open(false);
+      }
+    }, [props.searchKeyword]);
+    /* eslint-enable react-hooks/exhaustive-deps */
 
-  const toggleChildren = () => {
-    // Make sure this entity is enabled before toggling the collpse of children.
-    !props.disabled && open(!isOpen);
-    if (props.runActionOnExpand && !isOpen) {
-      props.action && props.action();
-    }
-  };
+    const toggleChildren = () => {
+      // Make sure this entity is enabled before toggling the collpse of children.
+      !props.disabled && open(!isOpen);
+      if (props.runActionOnExpand && !isOpen) {
+        props.action && props.action();
+      }
 
-  const updateNameCallback = (name: string) => {
+      if (props.onToggle) {
+        props.onToggle(!isOpen);
+      }
+    };
+
+    const updateNameCallback = (name: string) => {
+      return (
+        props.updateEntityName && props.updateEntityName(props.entityId, name)
+      );
+    };
+
+    const handleClick = () => {
+      if (props.action) props.action();
+      else toggleChildren();
+    };
+
+    const itemRef = useRef<HTMLDivElement | null>(null);
+    useClick(itemRef, handleClick, noop);
+
     return (
-      props.updateEntityName && props.updateEntityName(props.entityId, name)
-    );
-  };
-
-  const handleClick = () => {
-    if (props.action) props.action();
-    else toggleChildren();
-  };
-
-  return (
-    <Wrapper
-      active={!!props.active}
-      className={`${EntityClassNames.WRAPPER} ${props.className}`}
-    >
-      <EntityItem
+      <Wrapper
         active={!!props.active}
-        onClick={handleClick}
-        step={props.step}
-        spaced={!!props.children}
+        className={`${EntityClassNames.WRAPPER} ${props.className}`}
+        ref={ref}
       >
-        <CollapseToggle
-          isOpen={isOpen}
-          isVisible={!!props.children}
-          onClick={toggleChildren}
-          disabled={!!props.disabled}
-          className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
-        />
-        {props.icon}
-        <EntityName
-          entityId={props.entityId}
-          className={`${EntityClassNames.NAME}`}
-          name={props.name}
-          isEditing={!!props.updateEntityName && isEditing}
-          updateEntityName={updateNameCallback}
-          searchKeyword={props.searchKeyword}
-        />
-        <AddButton
-          onClick={props.createFn}
-          className={`${EntityClassNames.ADD_BUTTON}`}
-        />
-        {props.contextMenu}
-        <Loader isVisible={isUpdating} />
-      </EntityItem>
-      <Collapse step={props.step} isOpen={isOpen} active={props.active}>
-        {props.children}
-      </Collapse>
-    </Wrapper>
-  );
-};
+        <EntityItem
+          active={!!props.active}
+          step={props.step}
+          spaced={!!props.children}
+        >
+          <CollapseToggle
+            isOpen={isOpen}
+            isVisible={!!props.children}
+            onClick={toggleChildren}
+            disabled={!!props.disabled}
+            className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
+          />
+          <span onClick={handleClick}>{props.icon}</span>
+          <EntityName
+            entityId={props.entityId}
+            className={`${EntityClassNames.NAME}`}
+            ref={itemRef}
+            name={props.name}
+            nameTransformFn={props.onNameEdit}
+            isEditing={!!props.updateEntityName && isEditing}
+            updateEntityName={updateNameCallback}
+            searchKeyword={props.searchKeyword}
+          />
+          <AddButton
+            onClick={props.onCreate}
+            className={`${EntityClassNames.ADD_BUTTON}`}
+          />
+          {props.contextMenu}
+          <Loader isVisible={isUpdating} />
+        </EntityItem>
+        <Collapse step={props.step} isOpen={isOpen} active={props.active}>
+          {props.children}
+        </Collapse>
+      </Wrapper>
+    );
+  },
+);
 
 Entity.displayName = "Entity";
 

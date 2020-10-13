@@ -1,8 +1,10 @@
 import React from "react";
-import { Icon } from "../ads/Icon";
+import Icon, { IconSize, IconCollection } from "components/ads/Icon";
 import Button, { Size, Category, Variant } from "components/ads/Button";
 import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
+import AppIcon, { AppIconCollection } from "components/ads/AppIcon";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Icon",
@@ -11,29 +13,32 @@ export default {
 };
 
 export const ButtonIcon = () => (
-  <Button
-    size={select("size", [Size.small, Size.medium, Size.large], Size.large)}
-    category={select(
-      "category",
-      [Category.primary, Category.secondary, Category.tertiary],
-      Category.primary,
-    )}
-    variant={select(
-      "variant",
-      [Variant.info, Variant.success, Variant.danger, Variant.warning],
-      Variant.info,
-    )}
-    icon={select("iconName", ["delete", "user"], "delete")}
-    isLoading={boolean("Loading", false)}
-    disabled={boolean("Disabled", false)}
-  ></Button>
+  <StoryWrapper>
+    <Button
+      size={select("size", Object.values(Size), Size.large)}
+      category={select("category", Object.values(Category), Category.primary)}
+      variant={select("variant", Object.values(Variant), Variant.info)}
+      icon={select("Icon name", IconCollection, "delete")}
+      isLoading={boolean("Loading", false)}
+      disabled={boolean("Disabled", false)}
+    ></Button>
+  </StoryWrapper>
 );
 
 export const BordelessIcon = () => (
-  <div>
+  <StoryWrapper>
     <Icon
-      size={select("size", [Size.small, Size.medium, Size.large], Size.large)}
-      name={select("iconName", ["delete", "user"], "delete")}
+      size={select("Icon size", Object.values(IconSize), IconSize.LARGE)}
+      name={select("Icon name", IconCollection, "delete")}
     />
-  </div>
+  </StoryWrapper>
+);
+
+export const AppIconVariant = () => (
+  <StoryWrapper>
+    <AppIcon
+      size={select("Icon size", Object.values(Size), Size.small)}
+      name={select("Select Icon", AppIconCollection, "bag")}
+    />
+  </StoryWrapper>
 );

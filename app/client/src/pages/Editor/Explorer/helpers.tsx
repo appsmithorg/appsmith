@@ -40,6 +40,15 @@ export const getActionIdFromURL = () => {
   }
 };
 
+export const getQueryIdFromURL = () => {
+  const match = matchPath<{ queryId: string }>(window.location.pathname, {
+    path: QUERIES_EDITOR_ID_URL(),
+  });
+  if (match?.params?.queryId) {
+    return match.params.queryId;
+  }
+};
+
 export const getDatasourceIdFromURL = () => {
   const match = matchPath<{ datasourceId: string }>(window.location.pathname, {
     path: DATA_SOURCES_EDITOR_ID_URL(),

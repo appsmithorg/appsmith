@@ -9,7 +9,6 @@ describe("Radio Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Radio Widget Functionality", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("radiogroupwidget");
     /**
      * @param{Text} Random Text
@@ -34,13 +33,10 @@ describe("Radio Widget Functionality", function() {
     cy.radioInput(2, this.data.radio2);
     cy.get(formWidgetsPage.labelradio)
       .eq(1)
-      .should("have.text", "test2");
+      .should("have.text", this.data.radio2);
     cy.radioInput(3, "2");
     cy.get(formWidgetsPage.radioAddButton).click({ force: true });
     cy.radioInput(4, this.data.radio4);
-    cy.get(formWidgetsPage.labelradio)
-      .eq(2)
-      .should("have.text", "test4");
     cy.get(formWidgetsPage.deleteradiovalue)
       .eq(2)
       .click({ force: true });
@@ -59,7 +55,6 @@ describe("Radio Widget Functionality", function() {
   });
   it("Radio Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("radiogroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -67,7 +62,6 @@ describe("Radio Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Radio Functionality To Check Visible Widget", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("radiogroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();

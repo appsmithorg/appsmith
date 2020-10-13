@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
@@ -149,7 +150,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
         Set<String> bindingNames = new HashSet<>();
         return actionService.findOnLoadActionsInPage(dynamicBindingNames, pageId)
-                .map(action -> {
+                .flatMap(action -> {
                     if (!CollectionUtils.isEmpty(action.getJsonPathKeys())) {
                         for (String mustacheKey : action.getJsonPathKeys()) {
                             extractWordsAndAddToSet(bindingNames, mustacheKey);
@@ -164,7 +165,18 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     if (action.getActionConfiguration() != null) {
                         newAction.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
                     }
-                    return newAction;
+
+                    // If the executeOnLoad field isn't true, set it to true
+                    if (!Boolean.TRUE.equals(action.getExecuteOnLoad())) {
+                        Action updateAction = new Action();
+                        updateAction.setExecuteOnLoad(true);
+
+                        return actionService.update(action.getId(), updateAction)
+                                .thenReturn(newAction);
+                    }
+
+                    return Mono.just(newAction);
+
                 })
                 .collect(toSet())
                 .flatMap(actions -> {
@@ -506,19 +518,33 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return dbAction;
                 })
                 .flatMap(actionService::validateAndSaveActionToRepository)
-                .flatMap(savedAction ->
-                    // Now that the action has been saved, update the page layout as well
-                    Mono.justOrEmpty(savedAction.getPageId())
-                            .flatMap(pageId -> pageService.findById(pageId, MANAGE_PAGES))
-                            .flatMapMany(page -> {
-                                if (page.getLayouts() == null) {
-                                    return Mono.empty();
-                                }
-                                return Flux.fromIterable(page.getLayouts())
-                                        .flatMap(layout -> updateLayout(page.getId(), layout.getId(), layout));
-                            })
-                            .then(Mono.just(savedAction))
-                )
+                .flatMap(this::updatePageLayoutsGivenAction)
                 .flatMap(analyticsService::sendUpdateEvent);
+    }
+
+    @Override
+    public Mono<Action> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
+        return actionService.findById(id, MANAGE_ACTIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
+                .flatMap(action -> {
+                    action.setUserSetOnLoad(true);
+                    action.setExecuteOnLoad(isExecuteOnLoad);
+                    return actionService.save(action);
+                })
+                .flatMap(this::updatePageLayoutsGivenAction);
+    }
+
+    private Mono<Action> updatePageLayoutsGivenAction(Action action) {
+        return Mono.justOrEmpty(action.getPageId())
+                .flatMap(pageId -> pageService.findById(pageId, MANAGE_PAGES))
+                .flatMapMany(page -> {
+                    if (page.getLayouts() == null) {
+                        return Mono.empty();
+                    }
+                    return Flux.fromIterable(page.getLayouts())
+                            .flatMap(layout -> updateLayout(page.getId(), layout.getId(), layout));
+                })
+                .collectList()
+                .then(Mono.just(action));
     }
 }

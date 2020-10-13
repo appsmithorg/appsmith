@@ -131,10 +131,12 @@ class TabControl extends BaseControl<ControlProps> {
   }
 
   deleteOption = (index: number) => {
-    const tabs: object[] = _.isString(this.props.propertyValue)
+    let tabs: object[] = _.isString(this.props.propertyValue)
       ? JSON.parse(this.props.propertyValue).slice()
       : this.props.propertyValue.slice();
-    tabs.splice(index, 1);
+    if (tabs.length === 1) return;
+    delete tabs[index];
+    tabs = tabs.filter(Boolean);
     this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
   };
 
@@ -158,6 +160,7 @@ class TabControl extends BaseControl<ControlProps> {
     const tabs: Array<{
       id: string;
       label: string;
+      widgetId: string;
     }> = _.isString(this.props.propertyValue)
       ? JSON.parse(this.props.propertyValue)
       : this.props.propertyValue;
@@ -166,7 +169,11 @@ class TabControl extends BaseControl<ControlProps> {
       "Tab ",
       tabs.map(tab => tab.label),
     );
-    tabs.push({ id: newTabId, label: newTabLabel });
+    tabs.push({
+      id: newTabId,
+      label: newTabLabel,
+      widgetId: generateReactKey(),
+    });
     this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
   };
 

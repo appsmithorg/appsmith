@@ -521,7 +521,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
      */
     public Flux<Action> findOnLoadActionsInPage(Set<String> names, String pageId) {
         final Flux<Action> getApiActions = repository
-                .findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, "GET");
+                .findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(names, pageId, "GET", false);
 
         final Flux<Action> explicitOnLoadActions = repository
                 .findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId);
@@ -571,6 +571,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     actionViewDTO.setId(action.getId());
                     actionViewDTO.setName(action.getName());
                     actionViewDTO.setPageId(action.getPageId());
+                    actionViewDTO.setConfirmBeforeExecute(action.getConfirmBeforeExecute());
                     if (action.getJsonPathKeys() != null && !action.getJsonPathKeys().isEmpty()) {
                         Set<String> jsonPathKeys;
                         jsonPathKeys = new HashSet<>();
@@ -585,9 +586,14 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
+    public Mono<Action> findById(String id, AclPermission aclPermission) {
+        return repository.findById(id, aclPermission);
+    }
+
+    @Override
     public Mono<Action> delete(String id) {
         Mono<Action> actionMono = repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
                 .flatMap(toDelete -> repository.delete(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);

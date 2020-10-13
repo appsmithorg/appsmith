@@ -5,11 +5,13 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoClient;
@@ -21,6 +23,8 @@ import com.mongodb.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.Decimal128;
+import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pf4j.Extension;
@@ -37,8 +41,12 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,40 +74,31 @@ public class MongoPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class MongoPluginExecutor implements PluginExecutor {
+    public static class MongoPluginExecutor implements PluginExecutor<MongoClient> {
 
         /**
          * For reference on creating the json queries for Mongo please head to
          * https://docs.huihoo.com/mongodb/3.4/reference/command/index.html
          *
-         * @param connection              : This is the connection that is established to the data source. This connection is according
+         * @param mongoClient             : This is the connection that is established to the data source. This connection is according
          *                                to the parameters in Datasource Configuration
          * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
          * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
          * @return Result data from executing the action's query.
          */
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection,
+        public Mono<ActionExecutionResult> execute(MongoClient mongoClient,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            MongoClient mongoClient = (MongoClient) connection;
             if (mongoClient == null) {
-                return Mono.error(new AppsmithPluginException("Mongo Client is null."));
+                log.info("Encountered null connection in MongoDB plugin. Reporting back.");
+                throw new StaleConnectionException();
             }
 
             ActionExecutionResult result = new ActionExecutionResult();
 
-            // Explicitly set default database.
-            String databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
-
-            // If that's not available, pick the authentication database.
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
-            if (StringUtils.isEmpty(databaseName) && authentication != null) {
-                databaseName = authentication.getDatabaseName();
-            }
-
-            MongoDatabase database = mongoClient.getDatabase(databaseName);
+            MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
             Bson command = Document.parse(actionConfiguration.getBody());
 
@@ -118,8 +117,10 @@ public class MongoPlugin extends BasePlugin {
                     // For the `findAndModify` command, we don't get the count of modifications made. Instead, we either
                     // get the modified new value or the pre-modified old value (depending on the `new` field in the
                     // command. Let's return that value to the user.
-                    if (mongoOutput.containsKey(VALUE_STR)) {
-                        result.setBody(new JSONObject().put(VALUE_STR, mongoOutput.get(VALUE_STR)));
+                    if (outputJson.has(VALUE_STR)) {
+                        result.setBody(objectMapper.readTree(
+                                cleanUp(new JSONObject().put(VALUE_STR, outputJson.get(VALUE_STR))).toString()
+                        ));
                     }
 
                     //The json contains key "cursor" when find command was issued and there are 1 or more results. In case
@@ -162,8 +163,21 @@ public class MongoPlugin extends BasePlugin {
             return Mono.just(result);
         }
 
+        private String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
+            // Explicitly set default database.
+            String databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+
+            // If that's not available, pick the authentication database.
+            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            if (StringUtils.isEmpty(databaseName) && authentication != null) {
+                databaseName = authentication.getDatabaseName();
+            }
+
+            return databaseName;
+        }
+
         @Override
-        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<MongoClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             // TODO: ReadOnly seems to be not supported at the driver level. The recommendation is to connect with a
             //   user that doesn't have write permissions on the database.
             //   Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
@@ -244,8 +258,7 @@ public class MongoPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(Object connection) {
-            MongoClient mongoClient = (MongoClient) connection;
+        public void datasourceDestroy(MongoClient mongoClient) {
             if (mongoClient != null) {
                 mongoClient.close();
             }
@@ -302,8 +315,7 @@ public class MongoPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             final Connection.Type connectionType = datasourceConfiguration.getConnection().getType();
             return datasourceCreate(datasourceConfiguration)
-                    .map(mongoClientObj -> {
-                        final MongoClient mongoClient = (MongoClient) mongoClientObj;
+                    .map(mongoClient -> {
                         ClientSession clientSession = null;
 
                         try {
@@ -327,7 +339,7 @@ public class MongoPlugin extends BasePlugin {
                             log.warn("Timeout connecting to MongoDB from MongoPlugin.", e);
                             return new DatasourceTestResult("Timed out trying to connect to MongoDB host.");
 
-                        } catch(MongoCommandException e) {
+                        } catch (MongoCommandException e) {
                             // The fact that we got a response saying "Unauthorized" means that the connection to the
                             // MongoDB instance is valid. It also means we don't have access to the admin database, but
                             // that's okay for our purposes here.
@@ -353,10 +365,175 @@ public class MongoPlugin extends BasePlugin {
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
-        private static String urlEncode(String text) {
-            return URLEncoder.encode(text, StandardCharsets.UTF_8);
+        @Override
+        public Mono<DatasourceStructure> getStructure(MongoClient mongoClient, DatasourceConfiguration datasourceConfiguration) {
+            final DatasourceStructure structure = new DatasourceStructure();
+            List<DatasourceStructure.Table> tables = new ArrayList<>();
+            structure.setTables(tables);
+
+            final MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
+
+            for (Document collection : database.listCollections()) {
+                final String collectionName = collection.getString("name");
+
+                final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
+                final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
+                tables.add(new DatasourceStructure.Table(
+                        DatasourceStructure.TableType.COLLECTION,
+                        collectionName,
+                        columns,
+                        new ArrayList<>(),
+                        templates
+                ));
+
+                final Document first = database.getCollection(collectionName).find().limit(1).first();
+                if (first == null) {
+                    continue;
+                }
+
+                String filterFieldName = null;
+                String filterFieldValue = null;
+                Map<String, String> sampleInsertValues = new LinkedHashMap<>();
+
+                for (Map.Entry<String, Object> entry : first.entrySet()) {
+                    final String name = entry.getKey();
+                    final Object value = entry.getValue();
+                    String type;
+
+                    if (value instanceof Integer) {
+                        type = "Integer";
+                        sampleInsertValues.put(name, "1");
+                    } else if (value instanceof Long) {
+                        type = "Long";
+                        sampleInsertValues.put(name, "NumberLong(\"1\")");
+                    } else if (value instanceof Double) {
+                        type = "Double";
+                        sampleInsertValues.put(name, "1");
+                    } else if (value instanceof Decimal128) {
+                        type = "BigDecimal";
+                        sampleInsertValues.put(name, "NumberDecimal(\"1\")");
+                    } else if (value instanceof String) {
+                        type = "String";
+                        sampleInsertValues.put(name, "\"new value\"");
+                        if (filterFieldName == null || filterFieldName.compareTo(name) > 0) {
+                            filterFieldName = name;
+                            filterFieldValue = (String) value;
+                        }
+                    } else if (value instanceof ObjectId) {
+                        type = "ObjectId";
+                        if (!value.equals("_id")) {
+                            sampleInsertValues.put(name, "ObjectId(\"a_valid_object_id_hex\")");
+                        }
+                    } else if (value instanceof Collection) {
+                        type = "Array";
+                        sampleInsertValues.put(name, "[1, 2, 3]");
+                    } else if (value instanceof Date) {
+                        type = "Date";
+                        sampleInsertValues.put(name, "new Date(\"2019-07-01\")");
+                    } else {
+                        type = "Object";
+                        sampleInsertValues.put(name, "{}");
+                    }
+
+                    columns.add(new DatasourceStructure.Column(name, type, null));
+                }
+
+                columns.sort(Comparator.naturalOrder());
+
+                templates.add(
+                        new DatasourceStructure.Template(
+                                "Find",
+                                "{\n" +
+                                        "  \"find\": \"" + collectionName + "\",\n" +
+                                        (
+                                                filterFieldName == null ? "" :
+                                                        "  \"filter\": {\n" +
+                                                        "    \"" + filterFieldName + "\": \"" + filterFieldValue + "\"\n" +
+                                                        "  },\n"
+                                        ) +
+                                        "  \"sort\": {\n" +
+                                        "    \"_id\": 1\n" +
+                                        "  },\n" +
+                                        "  \"limit\": 10\n" +
+                                        "}\n"
+                        )
+                );
+
+                templates.add(
+                        new DatasourceStructure.Template(
+                                "Find by ID",
+                                "{\n" +
+                                        "  \"find\": \"" + collectionName + "\",\n" +
+                                        "  \"filter\": {\n" +
+                                        "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
+                                        "  }\n" +
+                                        "}\n"
+                        )
+                );
+
+                sampleInsertValues.entrySet().stream()
+                        .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
+                        .collect(Collectors.joining(""));
+                templates.add(
+                        new DatasourceStructure.Template(
+                                "Insert",
+                                "{\n" +
+                                        "  \"insert\": \"" + collectionName + "\",\n" +
+                                        "  \"documents\": [\n" +
+                                        "    {\n" +
+                                        sampleInsertValues.entrySet().stream()
+                                                .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
+                                                .sorted()
+                                                .collect(Collectors.joining("")) +
+                                        "    }\n" +
+                                        "  ]\n" +
+                                        "}\n"
+                        )
+                );
+
+                templates.add(
+                        new DatasourceStructure.Template(
+                                "Update",
+                                "{\n" +
+                                        "  \"update\": \"" + collectionName + "\",\n" +
+                                        "  \"updates\": [\n" +
+                                        "    {\n" +
+                                        "      \"q\": {\n" +
+                                        "        \"_id\": ObjectId(\"id_of_document_to_update\")\n" +
+                                        "      },\n" +
+                                        "      \"u\": { \"$set\": { \"" + filterFieldName + "\": \"new value\" } }\n" +
+                                        "    }\n" +
+                                        "  ]\n" +
+                                        "}\n"
+                        )
+                );
+
+                templates.add(
+                        new DatasourceStructure.Template(
+                                "Delete",
+                                "{\n" +
+                                        "  \"delete\": \"" + collectionName + "\",\n" +
+                                        "  \"deletes\": [\n" +
+                                        "    {\n" +
+                                        "      \"q\": {\n" +
+                                        "        \"_id\": \"id_of_document_to_delete\"\n" +
+                                        "      },\n" +
+                                        "      \"limit\": 1\n" +
+                                        "    }\n" +
+                                        "  ]\n" +
+                                        "}\n"
+                        )
+                );
+            }
+
+            tables.sort(Comparator.comparing(DatasourceStructure.Table::getName));
+            return Mono.just(structure);
         }
 
+    }
+
+    private static String urlEncode(String text) {
+        return URLEncoder.encode(text, StandardCharsets.UTF_8);
     }
 
     private static Object cleanUp(Object object) {

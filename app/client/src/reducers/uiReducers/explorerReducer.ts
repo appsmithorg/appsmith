@@ -20,7 +20,7 @@ const setUpdatingEntity = (
 };
 
 const setEntityUpdateError = (state: ExplorerReduxState) => {
-  return { updatingEntity: undefined };
+  return { updatingEntity: undefined, updateEntityError: state.updatingEntity };
 };
 
 const setEntityUpdateSuccess = () => {
@@ -55,6 +55,14 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
+
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: setUpdatingEntity,
+  [ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR]: setEntityUpdateError,
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS]: setEntityUpdateSuccess,
+
+  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]: setUpdatingEntity,
+  [ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR]: setEntityUpdateError,
+  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_SUCCESS]: setEntityUpdateSuccess,
 
   [ReduxActionTypes.UPDATE_PAGE_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.UPDATE_PAGE_ERROR]: setEntityUpdateError,

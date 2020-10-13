@@ -16,8 +16,8 @@ import {
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { UserApplication } from "constants/userConstants";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 const DatasourceHomePage = styled.div`
   font-size: 20px;
@@ -113,18 +113,19 @@ interface ReduxDispatchProps {
 
 interface ReduxStateProps {
   plugins: Plugin[];
-  currentApplication: UserApplication;
+  currentApplication?: ApplicationPayload;
   pluginImages: Record<string, string>;
 }
 
 type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
 
 class DatasourceHomeScreen extends React.Component<Props> {
-  goToCreateDatasource = (pluginId: string) => {
+  goToCreateDatasource = (pluginId: string, pluginName: string) => {
     const { currentApplication } = this.props;
 
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-      appName: currentApplication.name,
+      appName: currentApplication?.name,
+      plugin: pluginName,
     });
 
     this.props.selectPlugin(pluginId);
@@ -154,7 +155,9 @@ class DatasourceHomeScreen extends React.Component<Props> {
                     interactive={false}
                     className="eachDatasourceCard"
                     key={plugin.id}
-                    onClick={() => this.goToCreateDatasource(plugin.id)}
+                    onClick={() =>
+                      this.goToCreateDatasource(plugin.id, plugin.name)
+                    }
                   >
                     <img
                       src={pluginImages[plugin.id]}

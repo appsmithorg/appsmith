@@ -1,13 +1,9 @@
 import React from "react";
-import { CommonComponentProps, hexToRgba, ThemeProp } from "./common";
-import styled from "styled-components";
-import { IconName, Icon } from "./Icon";
+import { CommonComponentProps, hexToRgba, ThemeProp, Classes } from "./common";
+import styled, { css } from "styled-components";
+import Icon, { IconName, IconSize } from "./Icon";
 import Spinner from "./Spinner";
-import {
-  mediumButton,
-  smallButton,
-  largeButton,
-} from "../../constants/DefaultTheme";
+import { mediumButton, smallButton, largeButton } from "constants/DefaultTheme";
 
 export enum Category {
   primary = "primary",
@@ -49,6 +45,7 @@ type BtnColorType = {
 type BtnFontType = {
   buttonFont: any;
   padding: string;
+  height: number;
 };
 
 type ButtonProps = CommonComponentProps & {
@@ -56,8 +53,12 @@ type ButtonProps = CommonComponentProps & {
   text?: string;
   category?: Category;
   variant?: Variant;
+  className?: string;
   icon?: IconName;
   size?: Size;
+  fill?: boolean;
+  href?: string;
+  tag?: "a" | "button";
 };
 
 const stateStyles = (
@@ -81,19 +82,19 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].darkest;
           borderColorPrimary = props.theme.colors[props.variant].darkest;
         }
-        txtColorPrimary = props.theme.colors.blackShades[6];
+        txtColorPrimary = props.theme.colors.button.disabledText;
         break;
       case Category.secondary:
         if (props.variant) {
           bgColorSecondary = props.theme.colors[props.variant].darkest;
           borderColorSecondary = props.theme.colors[props.variant].darker;
         }
-        txtColorSecondary = props.theme.colors.blackShades[6];
+        txtColorSecondary = props.theme.colors.button.disabledText;
         break;
       case Category.tertiary:
         bgColorTertiary = props.theme.colors.tertiary.darker;
         borderColorTertiary = props.theme.colors.tertiary.dark;
-        txtColorTertiary = props.theme.colors.blackShades[6];
+        txtColorTertiary = props.theme.colors.button.disabledText;
         break;
     }
   } else if (state === "main") {
@@ -103,7 +104,7 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].main;
           borderColorPrimary = props.theme.colors[props.variant].main;
         }
-        txtColorPrimary = props.theme.colors.blackShades[9];
+        txtColorPrimary = "#fff";
         break;
       case Category.secondary:
         if (props.variant) {
@@ -125,7 +126,7 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].dark;
           borderColorPrimary = props.theme.colors[props.variant].dark;
         }
-        txtColorPrimary = props.theme.colors.blackShades[9];
+        txtColorPrimary = "#fff";
         break;
       case Category.secondary:
         if (props.variant) {
@@ -150,7 +151,7 @@ const stateStyles = (
           bgColorPrimary = props.theme.colors[props.variant].dark;
           borderColorPrimary = props.theme.colors[props.variant].main;
         }
-        txtColorPrimary = props.theme.colors.blackShades[9];
+        txtColorPrimary = "#fff";
         break;
       case Category.secondary:
         if (props.variant) {
@@ -212,36 +213,42 @@ const btnColorStyles = (
 
 const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
   let buttonFont,
-    padding = "";
+    padding = "",
+    height = 0;
   switch (props.size) {
     case Size.small:
       buttonFont = smallButton;
+      height = 20;
       padding =
         !props.text && props.icon
-          ? `${props.theme.spaces[1]}px ${props.theme.spaces[1]}px`
-          : `${props.theme.spaces[1]}px ${props.theme.spaces[6]}px ${props.theme
-              .spaces[1] - 1}px`;
+          ? `0px ${props.theme.spaces[1]}px`
+          : `0px ${props.theme.spaces[3]}px`;
       break;
     case Size.medium:
       buttonFont = mediumButton;
+      height = 30;
       padding =
         !props.text && props.icon
-          ? `${props.theme.spaces[2]}px ${props.theme.spaces[2]}px`
-          : `${props.theme.spaces[3] - 1}px ${props.theme.spaces[7]}px`;
+          ? `0px ${props.theme.spaces[2]}px`
+          : `0px ${props.theme.spaces[7]}px`;
       break;
     case Size.large:
       buttonFont = largeButton;
+      height = 38;
       padding =
         !props.text && props.icon
-          ? `${props.theme.spaces[5] - 1}px ${props.theme.spaces[5] - 1}px`
-          : `${props.theme.spaces[5] - 1}px ${props.theme.spaces[12] - 4}px`;
+          ? `0px ${props.theme.spaces[3]}px`
+          : `0px ${props.theme.spaces[12] - 4}px`;
       break;
   }
-  return { buttonFont, padding };
+  return { buttonFont, padding, height };
 };
 
-const StyledButton = styled("button")<ThemeProp & ButtonProps>`
+const ButtonStyles = css<ThemeProp & ButtonProps>`
+  width: ${props => (props.fill ? "100%" : "auto")};
+  height: ${props => btnFontStyles(props).height}px;
   border: none;
+  text-decoration: none;
   outline: none;
   text-transform: uppercase;
   background-color: ${props => btnColorStyles(props, "main").bgColor};
@@ -250,23 +257,24 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   border-radius: ${props => props.theme.radii[0]};
   ${props => btnFontStyles(props).buttonFont};
   padding: ${props => btnFontStyles(props).padding};
-  .ads-icon {
+  .${Classes.ICON} {
     margin-right: ${props =>
-        props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
-      path {
+      props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
+    path {
       fill: ${props => btnColorStyles(props, "main").txtColor};
     }
   }
   &:hover {
+    text-decoration: none;
     background-color: ${props => btnColorStyles(props, "hover").bgColor};
     color: ${props => btnColorStyles(props, "hover").txtColor};
     border: ${props => btnColorStyles(props, "hover").border};
     cursor: ${props =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
-    .ads-icon {
+    .${Classes.ICON} {
       margin-right: ${props =>
-          props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`}
-        path {
+        props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
+      path {
         fill: ${props => btnColorStyles(props, "hover").txtColor};
       }
     }
@@ -278,15 +286,17 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
     border: ${props => btnColorStyles(props, "active").border};
     cursor: ${props =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
-    .ads-icon {
+    .${Classes.ICON} {
       path {
         fill: ${props => btnColorStyles(props, "active").txtColor};
       }
     }
   }
   display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  .new-spinner {
+  .${Classes.SPINNER} {
     position: absolute;
     left: 0;
     right: 0;
@@ -295,46 +305,91 @@ const StyledButton = styled("button")<ThemeProp & ButtonProps>`
   }
 `;
 
-Button.defaultProps = {
-  category: Category.primary,
-  variant: Variant.success,
-  size: Size.small,
-  isLoading: false,
-  disabled: false,
-};
+const StyledButton = styled("button")`
+  ${ButtonStyles}
+`;
+
+const StyledLinkButton = styled("a")`
+  ${ButtonStyles}
+`;
 
 export const VisibilityWrapper = styled.div`
   visibility: hidden;
 `;
 
+const IconSizeProp = (size?: Size) => {
+  if (size === Size.small) {
+    return IconSize.SMALL;
+  } else if (size === Size.medium) {
+    return IconSize.MEDIUM;
+  } else if (size === Size.large) {
+    return IconSize.LARGE;
+  } else {
+    return IconSize.SMALL;
+  }
+};
+
+Button.defaultProps = {
+  category: Category.primary,
+  variant: Variant.info,
+  size: Size.small,
+  isLoading: false,
+  disabled: false,
+  fill: false,
+  tag: "a",
+};
+
 function Button(props: ButtonProps) {
   const IconLoadingState = (
-    <Icon name={props.icon} size={props.size} invisible={true} />
+    <Icon name={props.icon} size={IconSizeProp(props.size)} invisible={true} />
   );
 
   const TextLoadingState = <VisibilityWrapper>{props.text}</VisibilityWrapper>;
 
-  return (
-    <StyledButton
-      data-cy={props.cypressSelector}
-      {...props}
-      onClick={(e: React.MouseEvent<HTMLElement>) =>
-        props.onClick && props.onClick(e)
-      }
-    >
+  const buttonContent = (
+    <>
       {props.icon ? (
         props.isLoading ? (
           IconLoadingState
         ) : (
-          <Icon name={props.icon} size={props.size} />
+          <Icon name={props.icon} size={IconSizeProp(props.size)} />
         )
       ) : null}
 
       {props.text ? (props.isLoading ? TextLoadingState : props.text) : null}
 
-      {props.isLoading ? <Spinner size={props.size} /> : null}
-    </StyledButton>
+      {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
+    </>
   );
+
+  if (props.tag === "button") {
+    return (
+      <StyledButton
+        className={props.className}
+        data-cy={props.cypressSelector}
+        {...props}
+        onClick={(e: React.MouseEvent<HTMLElement>) =>
+          props.onClick && props.onClick(e)
+        }
+      >
+        {buttonContent}
+      </StyledButton>
+    );
+  } else {
+    return (
+      <StyledLinkButton
+        href={props.href}
+        className={props.className}
+        data-cy={props.cypressSelector}
+        {...props}
+        onClick={(e: React.MouseEvent<HTMLElement>) =>
+          props.onClick && props.onClick(e)
+        }
+      >
+        {buttonContent}
+      </StyledLinkButton>
+    );
+  }
 }
 
 export default Button;

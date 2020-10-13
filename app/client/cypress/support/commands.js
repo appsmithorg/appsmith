@@ -34,18 +34,31 @@ Cypress.Commands.add("createOrg", orgName => {
   );
 });
 
+Cypress.Commands.add(
+  "dragTo",
+  { prevSubject: "element" },
+  (subject, targetEl) => {
+    cy.wrap(subject).trigger("dragstart");
+    cy.get(targetEl).trigger("drop");
+  },
+);
+
 Cypress.Commands.add("navigateToOrgSettings", orgName => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name").click({ force: true });
-  cy.xpath(homePage.OrgSettings).click({ force: true });
+  cy.get(".t--org-name span")
+    .contains(orgName)
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.MemberSettings).click({ force: true });
+  cy.wait("@getOrganisation");
   cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
-  cy.xpath(homePage.inviteUser).should("be.visible");
+  cy.get(homePage.inviteUserMembersPage).should("be.visible");
 });
 
 Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
@@ -70,23 +83,71 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.contains(email);
   cy.get(homePage.manageUsers).click({ force: true });
   cy.xpath(homePage.appHome)
+    .first()
     .should("be.visible")
     .click();
+});
+
+Cypress.Commands.add("shareApp", (email, role) => {
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.get(homePage.closeBtn).click();
+});
+
+Cypress.Commands.add("shareAndPublic", (email, role) => {
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.enablePublicAccess();
+});
+
+Cypress.Commands.add("enablePublicAccess", () => {
+  cy.get(homePage.enablePublicAccess).click();
+  cy.wait("@changeAccess").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(homePage.closeBtn).click();
 });
 
 Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name").click({ force: true });
-  cy.xpath(homePage.OrgSettings).click({ force: true });
+  cy.get(".t--org-name span")
+    .contains(orgName)
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.MemberSettings).click({ force: true });
+  cy.wait("@getOrganisation");
   cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
-  cy.xpath(homePage.DeleteBtn).click({ force: true });
+  cy.get(homePage.DeleteBtn).click({ force: true });
   cy.xpath(homePage.appHome)
+    .first()
     .should("be.visible")
     .click();
   cy.wait("@applications").should(
@@ -100,14 +161,17 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name").click({ force: true });
-  cy.xpath(homePage.OrgSettings).click({ force: true });
+  cy.get(".t--org-name span")
+    .contains(orgName)
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
-  cy.xpath(homePage.inviteUser).click({ force: true });
+  cy.get(homePage.inviteUserMembersPage).click({ force: true });
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
@@ -122,6 +186,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.contains(email);
   cy.get(".bp3-icon-small-cross").click({ force: true });
   cy.xpath(homePage.appHome)
+    .first()
     .should("be.visible")
     .click();
   cy.wait("@applications").should(
@@ -192,7 +257,7 @@ Cypress.Commands.add("DeleteApp", appName => {
     .should("have.length", 1)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton)
+  cy.get(homePage.deleteApp)
     .should("be.visible")
     .click({ force: true });
 });
@@ -237,7 +302,9 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
-  cy.get(homePage.deleteButton).click({ force: true });
+  cy.get(homePage.deleteApp)
+    .contains("Delete")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("DeletepageFromSideBar", () => {
@@ -277,7 +344,9 @@ Cypress.Commands.add("NavigateToWidgets", pageName => {
 Cypress.Commands.add("SearchApp", appname => {
   cy.get(homePage.searchInput).type(appname);
   cy.wait(2000);
-  cy.get(homePage.applicationCard).trigger("mouseover");
+  cy.get(homePage.applicationCard)
+    .first()
+    .trigger("mouseover", { force: true });
   cy.get(homePage.appEditIcon)
     .first()
     .click({ force: true });
@@ -381,9 +450,28 @@ Cypress.Commands.add("EditApiNameFromExplorer", apiname => {
   cy.get(explorer.editNameField)
     .clear()
     .type(apiname, { force: true })
-    .should("have.value", apiname);
+    .should("have.value", apiname)
+    .blur();
   cy.wait(3000);
 });
+
+Cypress.Commands.add(
+  "EditEntityNameByDoubleClick",
+  (entityName, updatedName) => {
+    cy.get(explorer.entity)
+      .contains(entityName)
+      .dblclick({ force: true });
+    cy.log(updatedName);
+    cy.get(explorer.editEntityField)
+      .clear()
+      .type(updatedName + "{enter}", { force: true });
+    cy.wait("@saveDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  },
+);
 
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
@@ -635,6 +723,21 @@ Cypress.Commands.add("MoveAPIToPage", pageName => {
   );
 });
 
+Cypress.Commands.add("copyEntityToPage", pageName => {
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.copyTo).click({ force: true });
+  cy.get(apiwidget.page)
+    .contains(pageName)
+    .click();
+  cy.wait("@createNewApi").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+});
+
 Cypress.Commands.add("CopyAPIToHome", () => {
   cy.xpath(apiwidget.popover)
     .last()
@@ -869,6 +972,43 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
   cy.wait(200);
 });
 
+Cypress.Commands.add("selectShowMsg", value => {
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+});
+
+Cypress.Commands.add("addSuccessMessage", value => {
+  cy.get(commonlocators.chooseMsgType).click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Success")
+    .click();
+  cy.get(".CodeMirror textarea")
+    .last()
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then($cm => {
+      if ($cm.val() !== "") {
+        cy.get(".CodeMirror textarea")
+          .last()
+          .clear({
+            force: true,
+          });
+      }
+      cy.get(".CodeMirror textarea")
+        .last()
+        .type(value, {
+          force: true,
+          parseSpecialCharSequences: false,
+        });
+      cy.wait(200);
+      cy.get(".CodeMirror textarea")
+        .last()
+        .should("have.value", value);
+    });
+});
 Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
@@ -929,7 +1069,7 @@ Cypress.Commands.add("Deletepage", Pagename => {
 Cypress.Commands.add("generateUUID", () => {
   const uuid = require("uuid");
   const id = uuid.v4();
-  return id;
+  return id.split("-")[0];
 });
 
 Cypress.Commands.add("addDsl", dsl => {
@@ -1175,6 +1315,8 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     200,
   );
 
+  cy.get(datasourceEditor.editDatasource).click();
+
   cy.get(".t--delete-datasource").click();
   cy.wait("@deleteDatasource").should(
     "have.nested.property",
@@ -1200,20 +1342,28 @@ Cypress.Commands.add("NavigateToQueryEditor", () => {
   cy.xpath(queryEditor.addQueryEntity).click({ force: true });
 });
 
-Cypress.Commands.add("testSaveDatasource", () => {
+Cypress.Commands.add("testDatasource", () => {
   cy.get(".t--test-datasource").click();
   cy.wait("@testDatasource").should(
     "have.nested.property",
     "response.body.data.success",
     true,
   );
+});
 
+Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click();
   cy.wait("@saveDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add("testSaveDatasource", () => {
+  cy.saveDatasource();
+  cy.get(datasourceEditor.editDatasource).click();
+  cy.testDatasource();
 });
 
 Cypress.Commands.add("fillMongoDatasourceForm", () => {
@@ -1256,6 +1406,29 @@ Cypress.Commands.add("fillPostgresDatasourceForm", () => {
   );
   cy.get(datasourceEditor.password).type(
     datasourceFormData["postgres-password"],
+  );
+});
+
+Cypress.Commands.add("createPostgresDatasource", () => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(datasourceEditor.PostgreSQL).click();
+
+  cy.getPluginFormsAndCreateDatasource();
+
+  cy.fillPostgresDatasourceForm();
+
+  cy.testSaveDatasource();
+});
+
+Cypress.Commands.add("deletePostgresDatasource", datasourceName => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(`.t--entity-name:contains(${datasourceName})`).click();
+  cy.get(datasourceEditor.editDatasource).click();
+  cy.get(".t--delete-datasource").click();
+  cy.wait("@deleteDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
   );
 });
 
@@ -1315,6 +1488,30 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
   );
 });
 
+Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
+  const selector = `.t--widget-card-draggable-${widgetType}`;
+  cy.get(selector)
+    .trigger("mousedown", { button: 0 }, { force: true })
+    .trigger("mousemove", 300, -300, { force: true });
+  cy.get(explorer.dropHere)
+    .click()
+    .trigger("mouseup", { force: true });
+});
+
+Cypress.Commands.add("executeDbQuery", queryName => {
+  cy.get(widgetsPage.buttonOnClick)
+    .get(commonlocators.dropdownSelectButton)
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains("Execute a DB Query")
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains(queryName)
+    .click({ force: true });
+});
+
 Cypress.Commands.add("openPropertyPane", widgetType => {
   const selector = `.t--draggable-${widgetType}`;
   cy.get(selector)
@@ -1368,7 +1565,7 @@ Cypress.Commands.add("isSelectRow", index => {
 
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-  const selector = `.t--draggable-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
@@ -1442,8 +1639,13 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
+  cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+    "getDatasourceStructure",
+  );
 
   cy.route("GET", "/api/v1/organizations").as("organizations");
+  cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
+
   cy.route("POST", "/api/v1/actions/execute").as("executeAction");
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
@@ -1479,6 +1681,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/users/me").as("getUser");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
+  cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 });
 
 Cypress.Commands.add("alertValidate", text => {
@@ -1499,6 +1702,15 @@ Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
   // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
   const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
   const tabVal = cy.get(selector).invoke("text");
+  return tabVal;
+});
+
+Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const tabVal = cy
+    .get(selector)
+    .scrollIntoView()
+    .invoke("text");
   return tabVal;
 });
 
@@ -1528,10 +1740,10 @@ Cypress.Commands.add("NavigateToPaginationTab", () => {
 });
 
 Cypress.Commands.add("ValidateTableData", value => {
-  cy.isSelectRow(0);
+  // cy.isSelectRow(0);
   cy.readTabledata("0", "0").then(tabData => {
     const tableData = tabData;
-    expect(tableData).to.equal(value);
+    expect(tableData).to.equal(value.toString());
   });
 });
 
@@ -1544,8 +1756,6 @@ Cypress.Commands.add("ValidatePublishTableData", value => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
-  cy.NavigateToEntityExplorer();
-  cy.NavigateToApiEditor();
   cy.SearchEntityandOpen("Api2");
   cy.NavigateToPaginationTab();
   cy.RunAPI();
@@ -1563,7 +1773,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
       const respBody = tabData.match(/"(.*)"/)[0];
       localStorage.setItem("respBody", respBody);
       cy.log(respBody);
-      cy.get(pages.widgetsEditor).click({ force: true });
+      cy.SearchEntityandOpen("Table1");
       // cy.openPropertyPane("tablewidget");
       // cy.testJsontext("tabledata", "{{Api2.data.results}}");
       cy.isSelectRow(0);

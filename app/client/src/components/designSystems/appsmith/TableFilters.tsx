@@ -12,6 +12,7 @@ import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.s
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import Button from "components/editorComponents/Button";
 import CascadeFields from "components/designSystems/appsmith/CascadeFields";
+import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
 import {
   ReactTableColumnProps,
   Condition,
@@ -118,7 +119,7 @@ const TableFilters = (props: TableFilterProps) => {
   }, [props.filters]);
 
   const addFilter = () => {
-    const updatedFilters = [...props.filters];
+    const updatedFilters = props.filters ? [...props.filters] : [];
     let operator: Operator = OperatorTypes.OR;
     if (updatedFilters.length >= 2) {
       operator = updatedFilters[1].operator;
@@ -164,24 +165,21 @@ const TableFilters = (props: TableFilterProps) => {
       }}
       isOpen={selected}
     >
-      <TableIconWrapper
+      <TableActionIcon
+        tooltip="Filters"
+        className="t--table-filter-toggle-btn"
         selected={selected}
-        onClick={e => {
-          selectMenu(true);
-          e.stopPropagation();
+        icon={
+          showAddFilter ? (
+            <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
+          ) : null
+        }
+        selectMenu={(selected: boolean) => {
+          selectMenu(selected);
         }}
       >
-        <IconWrapper
-          width={20}
-          height={20}
-          color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
-        >
-          <FilterIcon />
-        </IconWrapper>
-        {showAddFilter ? (
-          <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
-        ) : null}
-      </TableIconWrapper>
+        <FilterIcon />
+      </TableActionIcon>
       <TableFilterOuterWrapper>
         <TableFilerWrapper onClick={e => e.stopPropagation()}>
           {filters.map((filter: ReactTableFilter, index: number) => {
@@ -225,6 +223,7 @@ const TableFilters = (props: TableFilterProps) => {
                 size="small"
                 onClick={addFilter}
                 icon="plus"
+                className="t--add-filter-btn"
               />
             </ButtonWrapper>
           ) : null}

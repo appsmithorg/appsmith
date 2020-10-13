@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -19,6 +20,19 @@ export const fetchApplications = () => {
   };
 };
 
+export const updateApplication = (
+  id: string,
+  data: UpdateApplicationPayload,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_APPLICATION,
+    payload: {
+      id,
+      ...data,
+    },
+  };
+};
+
 export const fetchApplication = (applicationId: string) => {
   return {
     type: ReduxActionTypes.FETCH_APPLICATION_INIT,
@@ -31,6 +45,15 @@ export const fetchApplication = (applicationId: string) => {
 export const publishApplication = (applicationId: string) => {
   return {
     type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
+    payload: {
+      applicationId,
+    },
+  };
+};
+
+export const duplicateApplication = (applicationId: string) => {
+  return {
+    type: ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
     payload: {
       applicationId,
     },

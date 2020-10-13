@@ -71,10 +71,12 @@ export interface Action {
   providerId?: string;
   provider?: ActionProvider;
   documentation?: { text: string };
+  confirmBeforeExecute?: boolean;
 }
 
 export interface RestAction extends Action {
   actionConfiguration: Partial<ApiActionConfig>;
+  eventData?: any;
 }
 
 export interface RapidApiAction extends Action {
@@ -88,4 +90,5 @@ export interface RapidApiAction extends Action {
 
 export interface QueryAction extends Action {
   actionConfiguration: Partial<QueryActionConfig>;
+  eventData?: any;
 }

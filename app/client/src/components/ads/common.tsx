@@ -1,14 +1,26 @@
-import { Theme } from "../../constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
+import tinycolor from "tinycolor2";
+import styled from "styled-components";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
   cypressSelector?: string;
+  className?: string;
   disabled?: boolean; //default false
 }
 
 export type ThemeProp = {
   theme: Theme;
 };
+
+export enum Classes {
+  ICON = "cs-icon",
+  APP_ICON = "cs-app-icon",
+  TEXT = "cs-text",
+  BP3_POPOVER_ARROW_BORDER = "bp3-popover-arrow-border",
+  BP3_POPOVER_ARROW_FILL = "bp3-popover-arrow-fill",
+  SPINNER = "cs-spinner",
+}
 
 export const hexToRgb = (
   hex: string,
@@ -35,3 +47,20 @@ export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
 };
+
+export const lighten = (color: string, amount: number) => {
+  return tinycolor(color)
+    .lighten(amount)
+    .toString();
+};
+
+export const darken = (color: string, amount: number) => {
+  return tinycolor(color)
+    .darken(amount)
+    .toString();
+};
+export const StoryWrapper = styled.div`
+  background: #ffffff;
+  height: 700px;
+  padding: 50px 100px;
+`;

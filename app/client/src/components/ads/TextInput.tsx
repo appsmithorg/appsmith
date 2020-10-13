@@ -1,8 +1,37 @@
 import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
-import { CommonComponentProps, hexToRgba } from "./common";
+import { CommonComponentProps, hexToRgba, Classes } from "./common";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
-import { theme } from "constants/DefaultTheme";
+import {
+  FORM_VALIDATION_INVALID_EMAIL,
+  ERROR_MESSAGE_NAME_EMPTY,
+} from "constants/messages";
+import { isEmail } from "utils/formhelpers";
+import { useSelector } from "react-redux";
+import { getThemeDetails } from "selectors/themeSelectors";
+
+export type Validator = (
+  value: string,
+) => {
+  isValid: boolean;
+  message: string;
+};
+
+export function emailValidator(email: string) {
+  const isValid = isEmail(email);
+  return {
+    isValid: isValid,
+    message: !isValid ? FORM_VALIDATION_INVALID_EMAIL : "",
+  };
+}
+
+export function notEmptyValidator(value: string) {
+  const isValid = !!value;
+  return {
+    isValid: isValid,
+    message: !isValid ? ERROR_MESSAGE_NAME_EMPTY : "",
+  };
+}
 
 export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
@@ -10,6 +39,7 @@ export type TextInputProps = CommonComponentProps & {
   defaultValue?: string;
   validator?: (value: string) => { isValid: boolean; message: string };
   onChange?: (value: string) => void;
+  readOnly?: boolean;
 };
 
 type boxReturnType = {
@@ -18,15 +48,24 @@ type boxReturnType = {
   borderColor: string;
 };
 
-const boxStyles = (props: TextInputProps, isValid: boolean): boxReturnType => {
-  let bgColor = theme.colors.blackShades[0];
-  let color = theme.colors.blackShades[9];
-  let borderColor = theme.colors.blackShades[0];
+const boxStyles = (
+  props: TextInputProps,
+  isValid: boolean,
+  theme: any,
+): boxReturnType => {
+  let bgColor = theme.colors.textInput.normal.bg;
+  let color = theme.colors.textInput.normal.text;
+  let borderColor = theme.colors.textInput.normal.border;
 
   if (props.disabled) {
-    bgColor = theme.colors.blackShades[2];
-    color = theme.colors.blackShades[6];
-    borderColor = theme.colors.blackShades[2];
+    bgColor = theme.colors.textInput.disable.bg;
+    color = theme.colors.textInput.disable.text;
+    borderColor = theme.colors.textInput.disable.border;
+  }
+  if (props.readOnly) {
+    bgColor = theme.colors.textInput.readOnly.bg;
+    color = theme.colors.textInput.readOnly.text;
+    borderColor = theme.colors.textInput.readOnly.border;
   }
   if (!isValid) {
     bgColor = hexToRgba(theme.colors.danger.main, 0.1);
@@ -43,42 +82,53 @@ const StyledInput = styled.input<
   border-radius: 0;
   outline: 0;
   box-shadow: none;
-  margin-bottom: ${props => props.theme.spaces[1]}px;
   border: 1px solid ${props => props.inputStyle.borderColor};
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[6]}px;
+  padding: 0px ${props => props.theme.spaces[6]}px;
+  height: 38px;
   background-color: ${props => props.inputStyle.bgColor};
   color: ${props => props.inputStyle.color};
 
   &::placeholder {
-    color: ${props => props.theme.colors.blackShades[5]};
-  }
-  &:focus {
-    border: 1px solid
-      ${props =>
-        props.isValid
-          ? props.theme.colors.info.main
-          : props.theme.colors.danger.main};
-    box-shadow: ${props =>
-      props.isValid
-        ? "0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
-        : "0px 0px 4px 4px rgba(226, 44, 44, 0.18)"};
+    color: ${props => props.theme.colors.textInput.placeholder};
   }
   &:disabled {
     cursor: not-allowed;
   }
+  ${props =>
+    !props.readOnly
+      ? `
+  &:focus {
+    border: 1px solid
+      ${
+        props.isValid
+          ? props.theme.colors.info.main
+          : props.theme.colors.danger.main
+      };
+    box-shadow: ${
+      props.isValid
+        ? "0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
+        : "0px 0px 4px 4px rgba(226, 44, 44, 0.18)"
+    };
+  }
+  `
+      : null};
 `;
 
 const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  position: relative;
 
-  span {
+  .${Classes.TEXT} {
     color: ${props => props.theme.colors.danger.main};
   }
 `;
 
+const ErrorWrapper = styled.div`
+  position: absolute;
+  bottom: -17px;
+`;
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
     const initialValidation = () => {
@@ -94,23 +144,38 @@ const TextInput = forwardRef(
       message: string;
     }>(initialValidation());
 
-    const inputStyle = useMemo(() => boxStyles(props, validation.isValid), [
-      props.disabled,
-      validation,
-    ]);
+    const theme = useSelector(getThemeDetails).theme;
+
+    const inputStyle = useMemo(
+      () => boxStyles(props, validation.isValid, theme),
+      [props, validation.isValid, theme],
+    );
 
     const memoizedChangeHandler = useCallback(
       el => {
-        props.validator && setValidation(props.validator(el.target.value));
-        return props.onChange && props.onChange(el.target.value);
+        const validation = props.validator && props.validator(el.target.value);
+        if (validation) {
+          props.validator && setValidation(validation);
+          return (
+            validation.isValid &&
+            props.onChange &&
+            props.onChange(el.target.value)
+          );
+        } else {
+          return props.onChange && props.onChange(el.target.value);
+        }
       },
       [props],
     );
 
-    const ErrorMessage = <Text type={TextType.P3}>{validation.message}</Text>;
+    const ErrorMessage = (
+      <ErrorWrapper>
+        <Text type={TextType.P3}>{validation.message}</Text>
+      </ErrorWrapper>
+    );
 
     return (
-      <InputWrapper>
+      <InputWrapper data-cy={props.cypressSelector}>
         <StyledInput
           type="text"
           ref={ref}
@@ -118,18 +183,15 @@ const TextInput = forwardRef(
           isValid={validation.isValid}
           defaultValue={props.defaultValue}
           {...props}
-          placeholder={props.placeholder ? props.placeholder : ""}
+          placeholder={props.placeholder}
           onChange={memoizedChangeHandler}
+          readOnly={props.readOnly}
         />
-        {validation.isValid ? null : ErrorMessage}
+        {ErrorMessage}
       </InputWrapper>
     );
   },
 );
-
-TextInput.defaultProps = {
-  fill: false,
-};
 
 TextInput.displayName = "TextInput";
 

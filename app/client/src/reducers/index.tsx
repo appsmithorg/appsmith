@@ -21,6 +21,7 @@ import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
 import { OrgReduxState } from "reducers/uiReducers/orgReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
+import { ThemeState } from "reducers/uiReducers/themeReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
 import { ImportedCollectionsReduxState } from "reducers/uiReducers/importedCollectionsReducer";
 import { ProvidersReduxState } from "reducers/uiReducers/providerReducer";
@@ -30,7 +31,9 @@ import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
 import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
-import { AppDataState } from "@appsmith/reducers/entityReducers/appReducer";
+import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
+import { AppDataState } from "reducers/entityReducers/appReducer";
+import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -62,6 +65,9 @@ export interface AppState {
     apiName: ApiNameReduxState;
     explorer: ExplorerReduxState;
     pageDSLs: PageDSLsReduxState;
+    confirmRunAction: ConfirmRunActionReduxState;
+    datasourceName: DatasourceNameReduxState;
+    theme: ThemeState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

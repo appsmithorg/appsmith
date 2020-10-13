@@ -6,6 +6,8 @@ import {
 import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
 import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
+import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
+import { getType, Types } from "utils/TypeHelpers";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -30,6 +32,38 @@ const StyledTableWrapped = styled(TableWrapper)`
   }
 `;
 
+const renderCell = (props: any) => {
+  const value = props.cell.value;
+  let displayValue;
+  switch (getType(value)) {
+    case Types.NUMBER:
+    case Types.BOOLEAN:
+      displayValue = value.toString();
+      break;
+    case Types.ARRAY:
+    case Types.FUNCTION:
+    case Types.OBJECT:
+      displayValue = JSON.stringify(value);
+      break;
+    case Types.STRING:
+      displayValue = value;
+      break;
+    case Types.NULL:
+    case Types.UNDEFINED:
+    case Types.UNKNOWN:
+      displayValue = "";
+      break;
+    default:
+      displayValue = "";
+  }
+
+  return (
+    <AutoToolTipComponent title={displayValue}>
+      {displayValue}
+    </AutoToolTipComponent>
+  );
+};
+
 const Table = (props: TableProps) => {
   const data = React.useMemo(() => props.data, [props.data]);
   const columns = React.useMemo(() => {
@@ -38,6 +72,7 @@ const Table = (props: TableProps) => {
         return {
           Header: key,
           accessor: key,
+          Cell: renderCell,
         };
       });
     }
@@ -59,6 +94,8 @@ const Table = (props: TableProps) => {
     },
     useFlexLayout,
   );
+
+  if (rows.length === 0 || headerGroups.length === 0) return null;
 
   return (
     <StyledTableWrapped
@@ -91,7 +128,6 @@ const Table = (props: TableProps) => {
               ))}
             </div>
           ))}
-          {headerGroups.length === 0 && renderEmptyRows(1, 2)}
           <div {...getTableBodyProps()} className="tbody">
             {rows.map((row: any, index: number) => {
               prepareRow(row);
@@ -115,45 +151,10 @@ const Table = (props: TableProps) => {
                 </div>
               );
             })}
-            {rows.length === 0 && renderEmptyRows(1, 2)}
           </div>
         </div>
       </div>
     </StyledTableWrapped>
-  );
-};
-
-const renderEmptyRows = (rowCount: number, columns: number) => {
-  const rows: string[] = new Array(rowCount).fill("");
-  const tableColumns = new Array(columns).fill("");
-  return (
-    <React.Fragment>
-      {rows.map((row: string, index: number) => {
-        return (
-          <div
-            className="tr"
-            key={index}
-            style={{
-              display: "flex",
-              flex: "1 0 auto",
-            }}
-          >
-            {tableColumns.map((column: any, colIndex: number) => {
-              return (
-                <div
-                  key={colIndex}
-                  className="td"
-                  style={{
-                    boxSizing: "border-box",
-                    flex: "1 0 auto",
-                  }}
-                />
-              );
-            })}
-          </div>
-        );
-      })}
-    </React.Fragment>
   );
 };
 

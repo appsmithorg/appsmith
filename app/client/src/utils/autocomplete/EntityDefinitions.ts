@@ -59,12 +59,20 @@ export const entityDefinitions = {
       "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
     "!url": "https://docs.appsmith.com/widget-reference/table",
     selectedRow: generateTypeDef(widget.selectedRow),
+    selectedRows: generateTypeDef(widget.selectedRows),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
     pageNo: "number",
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+  }),
+  VIDEO_WIDGET: (widget: any) => ({
+    "!doc":
+      "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
+    "!url": "https://docs.appsmith.com/widget-reference/video",
+    playState: "number",
+    autoPlay: "bool",
   }),
   DROP_DOWN_WIDGET: {
     "!doc":
@@ -76,7 +84,7 @@ export const entityDefinitions = {
       "!doc": "The value selected in a single select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
-    selectedOptionValueArr: {
+    selectedOptionValues: {
       "!type": "[string]",
       "!doc": "The array of values selected in a multi select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
@@ -105,6 +113,8 @@ export const entityDefinitions = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
+    googleRecaptchaKey: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -168,6 +178,8 @@ export const entityDefinitions = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
+    googleRecaptchaKey: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
@@ -236,5 +248,9 @@ export const GLOBAL_FUNCTIONS = {
   storeValue: {
     "!doc": "Store key value data locally",
     "!type": "fn(key: string, value: any) -> void",
+  },
+  download: {
+    "!doc": "Download anything as a file",
+    "!type": "fn(data: any, fileName: string, fileType?: string) -> void",
   },
 };

@@ -43,9 +43,10 @@ import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction, setCurrentCategory } from "actions/apiPaneActions";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/ApiConstants";
 import { getAppsmithConfigs } from "configs";
+import { getThemeDetails } from "selectors/themeSelectors";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
@@ -334,10 +335,11 @@ type ApiHomeScreenProps = {
   isFetchingProviders: boolean;
   providersTotal: number;
   isSwitchingCategory: boolean;
-  createNewApiAction: (pageId: string) => void;
+  createNewApiAction: (pageId: string, from: EventLocation) => void;
   setCurrentCategory: (category: string) => void;
   previouslySetCategory: string;
   fetchProvidersError: boolean;
+  themeDetails: any;
 };
 
 type ApiHomeScreenState = {
@@ -400,7 +402,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       "importTo",
     );
     if (pageId) {
-      this.props.createNewApiAction(pageId);
+      this.props.createNewApiAction(pageId, "API_PANE");
     }
   };
 
@@ -520,6 +522,8 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                 style={{
                                   backgroundColor: getInitialsAndColorCode(
                                     providerSearchResult.name,
+                                    this.props.themeDetails.theme.colors
+                                      .appCardColors,
                                   )[1],
                                   padding: 11,
                                   width: 60,
@@ -534,6 +538,8 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                   {
                                     getInitialsAndColorCode(
                                       providerSearchResult.name,
+                                      this.props.themeDetails.theme.colors
+                                        .appCardColors,
                                     )[0]
                                   }
                                 </span>
@@ -719,6 +725,8 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                       style={{
                                         backgroundColor: getInitialsAndColorCode(
                                           provider.name,
+                                          this.props.themeDetails.colors
+                                            .appCardColors,
                                         )[1],
                                       }}
                                     >
@@ -726,6 +734,8 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                         {
                                           getInitialsAndColorCode(
                                             provider.name,
+                                            this.props.themeDetails.colors
+                                              .appCardColors,
                                           )[0]
                                         }
                                       </span>
@@ -796,6 +806,7 @@ const mapStateToProps = (state: AppState) => {
     previouslySetCategory: state.ui.apiPane.currentCategory,
     initialValues: { category: initialCategoryValue },
     fetchProvidersError,
+    themeDetails: getThemeDetails,
   };
 };
 
@@ -808,7 +819,8 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchProvidersWithCategory(request)),
   searchApiOrProvider: (searchKey: string) =>
     dispatch(searchApiOrProvider({ searchKey })),
-  createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
+  createNewApiAction: (pageId: string, from: EventLocation) =>
+    dispatch(createNewApiAction(pageId, from)),
   setCurrentCategory: (category: string) =>
     dispatch(setCurrentCategory(category)),
 });
