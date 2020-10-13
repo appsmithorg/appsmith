@@ -73,8 +73,9 @@ const OrgSection = styled.div``;
 
 const PaddingWrapper = styled.div`
   width: ${props => props.theme.card.minWidth + props.theme.spaces[5] * 2}px;
-  margin: ${props => props.theme.spaces[5]}px
-    ${props => props.theme.spaces[5]}px;
+  margin: ${props => props.theme.spaces[6] + 1}px
+    ${props => props.theme.spaces[12] + 2}px
+    ${props => props.theme.spaces[6] + 1}px 0px;
 `;
 
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
@@ -219,8 +220,7 @@ const ApplicationAddCardWrapper = styled(Card)`
   box-shadow: none;
   border-radius: 0;
   padding: 0;
-  margin: ${props => props.theme.spaces[11] - 2}px
-    ${props => props.theme.spaces[5]}px;
+  margin: ${props => props.theme.spaces[4]}px;
   a {
     display: block;
     position: absolute;

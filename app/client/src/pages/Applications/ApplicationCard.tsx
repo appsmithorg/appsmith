@@ -95,9 +95,6 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
         }
       }
    `}
-  width: ${props => props.theme.card.minWidth + props.theme.spaces[4] * 2}px;
-  margin: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[4]}px;
   overflow: hidden;
 `;
 
@@ -116,8 +113,7 @@ const Wrapper = styled(
   height: ${props => props.theme.card.minHeight}px;
   position: relative;
   background-color: ${props => props.backgroundColor};
-  margin: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[4]}px;
+  margin: ${props => props.theme.spaces[4]}px;
   .overlay {
     display: block;
     position: absolute;
@@ -195,9 +191,17 @@ const MoreOptionsContainer = styled.div`
   justify-content: center;
 `;
 
-const AppNameWrapper = styled.div`
+const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   padding: 12px;
   padding-top: 0;
+  ${props =>
+    props.isFetching
+      ? `
+    width: 119px;
+    height: 16px;
+    margin-left: 10px;
+  `
+      : null};
 `;
 type ApplicationCardProps = {
   activeAppCard?: boolean;
@@ -516,13 +520,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             </div>
           )}
         </Wrapper>
-        <AppNameWrapper>
-          <Text
-            className={isFetchingApplications ? Classes.SKELETON : ""}
-            type={TextType.H3}
-          >
-            {props.application.name}
-          </Text>
+        <AppNameWrapper
+          isFetching={isFetchingApplications}
+          className={isFetchingApplications ? Classes.SKELETON : ""}
+        >
+          <Text type={TextType.H3}>{props.application.name}</Text>
         </AppNameWrapper>
       </>
     </NameWrapper>
