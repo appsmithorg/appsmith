@@ -1,8 +1,7 @@
 import React from "react";
-import { CommonComponentProps, Classes } from "./common";
+import { CommonComponentProps, Classes, Variant } from "./common";
 import Text, { TextType } from "./Text";
 import styled from "styled-components";
-import { Variant } from "./Button";
 
 type CalloutProps = CommonComponentProps & {
   variant?: Variant;
