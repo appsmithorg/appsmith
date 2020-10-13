@@ -142,15 +142,15 @@ public class DynamoPlugin extends BasePlugin {
             if (authentication == null) {
                 invalids.add("Missing AWS Access Key ID and Secret Access Key.");
             } else {
-                if (!StringUtils.isEmpty(authentication.getUsername())) {
+                if (StringUtils.isEmpty(authentication.getUsername())) {
                     invalids.add("Missing AWS Access Key ID.");
                 }
 
-                if (!StringUtils.isEmpty(authentication.getPassword())) {
+                if (StringUtils.isEmpty(authentication.getPassword())) {
                     invalids.add("Missing AWS Secret Access Key.");
                 }
 
-                if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing region configuration.");
                 }
             }
