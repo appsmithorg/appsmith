@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -56,6 +57,7 @@ public class DynamoPluginTest {
         );
 
         DynamoDbClient ddb = DynamoDbClient.builder()
+                .region(Region.AP_SOUTH_1)
                 .endpointOverride(URI.create("http://" + host + ":" + port))
                 .credentialsProvider(credentialsProvider)
                 .build();

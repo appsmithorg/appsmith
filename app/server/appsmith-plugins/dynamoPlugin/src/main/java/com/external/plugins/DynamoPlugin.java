@@ -115,9 +115,8 @@ public class DynamoPlugin extends BasePlugin {
 
             final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
             if (authentication != null) {
-                if (authentication.getDatabaseName() != null) {
-                    builder.region(Region.of(authentication.getDatabaseName()));
-                }
+                builder.region(authentication.getDatabaseName() != null
+                        ? Region.of(authentication.getDatabaseName()) : Region.AP_SOUTH_1);
 
                 builder.credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(authentication.getUsername(), authentication.getPassword())
