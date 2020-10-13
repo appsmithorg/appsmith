@@ -14,7 +14,7 @@
     "deletePage": ".single-select >div:contains('Delete')",
     "refreshStructure": ".single-select >div:contains('Refresh')",
     "entityQuery": ".t--entity-name:contains('Queries')",
-    "datasourceStructure": ".t--entity.datasourceStructure",
+    "datasourceStructure": ".t--entity.datasource",
     "datasourceColumn": ".t--datasource-column",
     "templateMenuIcon": ".t--template-menu-trigger",
     "collapse": ".t--entity-collapse-toggle",
