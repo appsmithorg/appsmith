@@ -362,7 +362,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Mono<ApplicationPagesDTO> pageNamesMono = pageService
                             .findNamesByApplicationId(page.getApplicationId());
                     return pageNamesMono
-                            // Set a unique name for the cloned page and then create the page.
+                            // If a new page name suffix is given,
+                            // set a unique name for the cloned page and then create the page.
                             .flatMap(pageNames -> {
                                 Set<String> names = pageNames.getPages()
                                         .stream()
@@ -378,7 +379,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                     name = newPageName + i;
                                 }
                                 newPageName = name;
-                                // Now we have a unique name. Proceed with creating the copy of the page
+                                // Proceed with creating the copy of the page
                                 page.setId(null);
                                 page.setName(newPageName);
                                 page.setApplicationId(applicationId);
