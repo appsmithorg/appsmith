@@ -606,14 +606,42 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
 
+        // verify that Pages are cloned
+
+        Mono<List<Page>> testPageListMono = testApplicationMono
+                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMap(applicationPage -> pageRepository.findById(applicationPage.getId()))
+                .collectList();
+
+        Mono<List<String>> pageIdListMono = pageListMono
+                .flatMapMany(Flux::fromIterable)
+                .map(Page::getId)
+                .collectList();
+
+        Mono<List<String>> testPageIdListMono = testPageListMono
+                .flatMapMany(Flux::fromIterable)
+                .map(Page::getId)
+                .collectList();
+
+        StepVerifier
+                .create(Mono.zip(pageIdListMono, testPageIdListMono))
+                .assertNext(tuple -> {
+                    List<String> pageIdList = tuple.getT1();
+                    List<String> testPageIdList = tuple.getT2();
+
+                    assertThat(pageIdList).doesNotContainAnyElementsOf(testPageIdList);
+                })
+                .verifyComplete();
+
+        // verify that cloned Pages are not renamed
+
         Mono<List<String>> pageNameListMono = pageListMono
                 .flatMapMany(Flux::fromIterable)
                 .map(Page::getName)
                 .collectList();
 
-        Mono<List<String>> testPageNameListMono = testApplicationMono
-                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> pageRepository.findById(applicationPage.getId()))
+        Mono<List<String>> testPageNameListMono = testPageListMono
+                .flatMapMany(Flux::fromIterable)
                 .map(Page::getName)
                 .collectList();
 
