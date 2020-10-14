@@ -167,6 +167,25 @@ const applicationsReducer = createReducer(initialState, {
       createApplicationError: ERROR_MESSAGE_CREATE_APPLICATION,
     };
   },
+  [ReduxActionTypes.SAVE_ORG_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ id: string; name: string }>,
+  ) => {
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.id) {
+        org.organization.name = action.payload.name;
+        return {
+          ...org,
+        };
+      }
+      return org;
+    });
+
+    return {
+      ...state,
+      userOrgs: _organizations,
+    };
+  },
   [ReduxActionTypes.SEARCH_APPLICATIONS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ keyword?: string }>,

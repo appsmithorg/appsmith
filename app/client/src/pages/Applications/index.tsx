@@ -51,6 +51,15 @@ import PerformanceTracker, {
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { AppLoader, loadingUserOrgs } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
+import EditableText, {
+  EditInteractionKind,
+  SavingState,
+} from "components/ads/EditableText";
+import { notEmptyValidator } from "components/ads/TextInput";
+import { throttle } from "lodash";
+import { getCurrentOrg } from "selectors/organizationSelectors";
+import { SaveOrgRequest } from "api/OrgApi";
+import { saveOrg } from "actions/orgActions";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -281,7 +290,7 @@ function LeftPane() {
                   isFetchingApplications ? BlueprintClasses.SKELETON : ""
                 }
                 icon="workspace"
-                key={org.organization.name}
+                key={org.organization.id}
                 href={`${window.location.pathname}#${org.organization.name}`}
                 text={org.organization.name}
                 ellipsize={20}
@@ -338,13 +347,17 @@ ${props => {
 }
 `;
 
+const OrgRename = styled(EditableText)`
+  padding: 0 2px;
+`;
+
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
-  const deleteApplication = (applicationId: string, orgId: string) => {
+  const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
@@ -367,6 +380,16 @@ const ApplicationsSection = (props: any) => {
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
+
+  const ApplicationNameChange = (newName: string, orgId: string) => {
+    dispatch(
+      saveOrg({
+        id: orgId as string,
+        name: newName,
+      }),
+    );
+  };
+
   const OrgMenu = (props: {
     orgName: string;
     orgId: string;
@@ -400,7 +423,20 @@ const ApplicationsSection = (props: any) => {
         position={Position.BOTTOM_RIGHT}
         className="t--org-name"
       >
-        <OrgNameInMenu type={TextType.H5}>{orgName}</OrgNameInMenu>
+        <OrgRename
+          defaultValue={orgName}
+          editInteractionKind={EditInteractionKind.SINGLE}
+          valueTransform={(value: any) => value.toUpperCase()}
+          placeholder="Workspace name"
+          hideEditIcon={false}
+          isInvalid={(value: string) => {
+            return notEmptyValidator(value).message;
+          }}
+          savingState={SavingState.NOT_STARTED}
+          isEditingDefault={false}
+          fill={true}
+          onBlur={(value: string) => ApplicationNameChange(value, orgId)}
+        />
         <MenuItem
           icon="general"
           text="Organization Settings"
@@ -540,7 +576,6 @@ const ApplicationsSection = (props: any) => {
                         <ApplicationCard
                           key={application.id}
                           application={application}
-                          orgId={organization.id}
                           activeAppCard={
                             props.newApplicationList[
                               props.newApplicationList.length - 1

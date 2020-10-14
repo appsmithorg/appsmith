@@ -23,7 +23,7 @@ export enum SavingState {
 
 type EditableTextProps = CommonComponentProps & {
   defaultValue: string;
-  onTextChanged: (value: string) => void;
+  onTextChanged?: (value: string) => void;
   placeholder: string;
   className?: string;
   valueTransform?: (value: string) => string;
@@ -183,7 +183,7 @@ export const EditableText = (props: EditableTextProps) => {
         onBlur(lastValidValue);
         setSavingState(SavingState.NOT_STARTED);
       } else if (changeStarted) {
-        onTextChanged(_value);
+        onTextChanged && onTextChanged(_value);
         onBlur(_value);
       }
       setIsEditing(false);
@@ -207,7 +207,7 @@ export const EditableText = (props: EditableTextProps) => {
       if (!error) {
         setLastValidValue(finalVal);
         valueRef.current = finalVal;
-        onTextChanged(finalVal);
+        onTextChanged && onTextChanged(finalVal);
       }
       setValue(finalVal);
       setIsInvalid(error);
