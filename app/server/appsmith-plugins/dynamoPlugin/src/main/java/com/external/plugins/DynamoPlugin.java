@@ -132,14 +132,18 @@ public class DynamoPlugin extends BasePlugin {
             }
 
             final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
-            if (authentication != null) {
-                builder.region(authentication.getDatabaseName() != null
-                        ? Region.of(authentication.getDatabaseName()) : Region.AP_SOUTH_1);
-
-                builder.credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(authentication.getUsername(), authentication.getPassword())
+            if (authentication == null || StringUtils.isEmpty(authentication.getDatabaseName())) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Missing region in datasource"
                 ));
             }
+
+            builder.region(Region.of(authentication.getDatabaseName()));
+
+            builder.credentialsProvider(StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(authentication.getUsername(), authentication.getPassword())
+            ));
 
             return Mono.justOrEmpty(builder.build());
         }
