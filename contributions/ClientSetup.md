@@ -40,6 +40,11 @@ Because Docker Desktop for Windows does not support `host` network mode (https:/
 
 In `app/client/docker/templates/nginx-linux.conf.template`, replace all occurrences of `http://localhost:3000` to  `http://host.docker.internal:3000`.
 
+If you are accessing `dev.appsmith.com` from a browser in Windows, you will need to add `dev.appsmith.com` to Windows' `C:\Windows\System32\drivers\etc\hosts` instead of `/etc/hosts`.
+```
+127.0.0.1	dev.appsmith.com
+```
+
 ### Steps to build & run the code:
 1. Run `yarn`
 2. Run `yarn start`
