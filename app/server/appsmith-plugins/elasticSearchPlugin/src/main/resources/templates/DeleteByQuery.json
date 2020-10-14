@@ -1,0 +1,11 @@
+{
+  "method": "POST",
+  "path": "/users/_delete_by_query",
+  "body": {
+    "query": {
+      "match": {
+        "user.id": "elkbee"
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "method": "PUT",
+  "path": "/users/doc/idForObject",
+  "body": {
+    "name": "{{ nameInput.text }}",
+    "email": "{{ emailInput.text }}",
+    "gender": "{{ genderDropdown.selectedOptionValue }}"
+  }
+}

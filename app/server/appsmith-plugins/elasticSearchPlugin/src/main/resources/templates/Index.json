@@ -1,0 +1,9 @@
+{
+  "method": "POST",
+  "path": "/users/doc",
+  "body": {
+    "name": "{{ nameInput.text }}",
+    "email": "{{ emailInput.text }}",
+    "gender": "{{ genderDropdown.selectedOptionValue }}"
+  }
+}

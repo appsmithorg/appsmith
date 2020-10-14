@@ -52,14 +52,18 @@ public class ElasticSearchPluginTest {
         request.setJsonEntity("{\"name\": \"Venus\"}");
         client.performRequest(request);
 
+        request = new Request("PUT", "/planets/doc/id3");
+        request.setJsonEntity("{\"name\": \"Earth\"}");
+        client.performRequest(request);
+
         client.close();
 
         dsConfig.setEndpoints(List.of(new Endpoint("localhost", port.longValue())));
     }
 
-    private Mono<ActionExecutionResult> execute(String body) {
+    private Mono<ActionExecutionResult> execute(String contentJson) {
         final ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody(body);
+        actionConfiguration.setBody(contentJson);
 
         return pluginExecutor
                 .datasourceCreate(dsConfig)
@@ -67,7 +71,7 @@ public class ElasticSearchPluginTest {
     }
 
     @Test
-    public void testValidJsonApiExecution() {
+    public void testGet() {
         StepVerifier.create(execute("{\"method\": \"GET\", \"path\": \"/planets/doc/id1\"}"))
                 .assertNext(result -> {
                     assertNotNull(result);
@@ -75,6 +79,80 @@ public class ElasticSearchPluginTest {
                     assertNotNull(result.getBody());
                     final Map<String, Object> resultBody = (Map) result.getBody();
                     assertEquals("Mercury", ((Map<String, String>) resultBody.get("_source")).get("name"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testMultiGet() {
+        final String contentJson = "{\n" +
+                "  \"method\": \"GET\",\n" +
+                "  \"path\": \"/planets/_mget\",\n" +
+                "  \"body\": {\n" +
+                "    \"docs\": [\n" +
+                "      {\n" +
+                "        \"_index\": \"planets\",\n" +
+                "        \"_id\": \"id1\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"_index\": \"planets\",\n" +
+                "        \"_id\": \"id2\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        StepVerifier.create(execute(contentJson))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final List<Map> docs = ((Map<String, List<Map>>) result.getBody()).get("docs");
+                    assertEquals(2, docs.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPutCreate() {
+        final String contentJson = "{\n\"method\": \"PUT\", \"path\": \"/planets/doc/id9\", \"body\": {\"name\": \"Pluto\"}}";
+        StepVerifier.create(execute(contentJson))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    assertEquals("created", resultBody.get("result"));
+                    assertEquals("id9", resultBody.get("_id"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPutUpdate() {
+        final String contentJson = "{\n\"method\": \"PUT\", \"path\": \"/planets/doc/id2\", \"body\": {\"name\": \"New Venus\"}}";
+        StepVerifier.create(execute(contentJson))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    assertEquals("updated", resultBody.get("result"));
+                    assertEquals("id2", resultBody.get("_id"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDelete() {
+        final String contentJson = "{\n\"method\": \"DELETE\", \"path\": \"/planets/doc/id3\"}";
+        StepVerifier.create(execute(contentJson))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    assertEquals("deleted", resultBody.get("result"));
+                    assertEquals("id3", resultBody.get("_id"));
                 })
                 .verifyComplete();
     }

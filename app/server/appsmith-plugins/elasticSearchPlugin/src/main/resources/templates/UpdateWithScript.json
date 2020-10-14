@@ -1,0 +1,13 @@
+{
+  "method": "POST",
+  "path": "/users/doc/idForObject",
+  "body": {
+    "script" : {
+      "source": "ctx._source.counter += params.count",
+      "lang": "painless",
+      "params" : {
+        "count" : 4
+      }
+    }
+  }
+}
