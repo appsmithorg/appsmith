@@ -106,7 +106,11 @@ public class DynamoPlugin extends BasePlugin {
             }
 
             try {
-                final Method actionExecuteMethod = DynamoDbClient.class.getMethod(action.substring(0, 1).toLowerCase() + action.substring(1), requestClass);
+                final Method actionExecuteMethod = DynamoDbClient.class.getMethod(
+                        // Convert `ListTables` to `listTables`, which is the name of the method to execute this action.
+                        toLowerCamelCase(action),
+                        requestClass
+                );
                 final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
                 result.setBody(sdkToPlain(response));
             } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException
@@ -185,6 +189,10 @@ public class DynamoPlugin extends BasePlugin {
                     );
         }
 
+    }
+
+    private static String toLowerCamelCase(String action) {
+        return action.substring(0, 1).toLowerCase() + action.substring(1);
     }
 
     /**
@@ -315,7 +323,7 @@ public class DynamoPlugin extends BasePlugin {
         } else if (isUpperCase(key)) {
             return key.toLowerCase();
         } else {
-            return key.substring(0, 1).toLowerCase() + key.substring(1);
+            return toLowerCamelCase(key);
         }
     }
 
