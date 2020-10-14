@@ -14,7 +14,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { WidgetType } from "constants/WidgetConstants";
 
-export type AddWidgetPayload = {
+export type AddTableWidgetFromQueryPayload = {
   type: WidgetType;
   newWidgetId: string;
   widgetId: string;
@@ -143,9 +143,11 @@ export const cutWidget = () => {
   };
 };
 
-export const addWidget = (payload: AddWidgetPayload) => {
+export const addTableWidgetFromQuery = (
+  payload: AddTableWidgetFromQueryPayload,
+) => {
   return {
-    type: ReduxActionTypes.ADD_WIDGET,
+    type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
     payload,
   };
 };

@@ -38,7 +38,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { generateReactKey } from "utils/generators";
-import { AddWidgetPayload } from "actions/widgetActions";
+import { AddTableWidgetFromQueryPayload } from "actions/widgetActions";
 import { WidgetTypes } from "constants/WidgetConstants";
 
 const QueryFormContainer = styled.div`
@@ -251,7 +251,7 @@ const OutputHeader = styled.div`
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
-  addWidget: (payload: AddWidgetPayload) => void;
+  addTableWidget: (payload: AddTableWidgetFromQueryPayload) => void;
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
@@ -299,7 +299,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     loadingFormConfigs,
     editorConfig,
     actionName,
-    addWidget,
+    addTableWidget,
   } = props;
 
   let error = runErrorMessage;
@@ -331,8 +331,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       evaluateProperty: "tableData",
     };
 
-    addWidget(widgetConfig);
-  }, [actionName, addWidget]);
+    addTableWidget(widgetConfig);
+  }, [actionName, addTableWidget]);
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (

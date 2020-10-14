@@ -77,7 +77,10 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { AddWidgetPayload, forceOpenPropertyPane } from "actions/widgetActions";
+import {
+  AddTableWidgetFromQueryPayload,
+  forceOpenPropertyPane,
+} from "actions/widgetActions";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -953,7 +956,9 @@ function* cutWidgetSaga() {
   });
 }
 
-function* addWidgetSaga(action: ReduxAction<AddWidgetPayload>) {
+function* addTableWidgetFromQuerySaga(
+  action: ReduxAction<AddTableWidgetFromQueryPayload>,
+) {
   try {
     const widgets = yield select(getWidgets);
     const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET");
@@ -1026,7 +1031,10 @@ function* addWidgetSaga(action: ReduxAction<AddWidgetPayload>) {
 
 export default function* widgetOperationSagas() {
   yield all([
-    takeEvery(ReduxActionTypes.ADD_WIDGET, addWidgetSaga),
+    takeEvery(
+      ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
+      addTableWidgetFromQuerySaga,
+    ),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
     takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSaga),
     takeLatest(ReduxActionTypes.WIDGET_MOVE, moveSaga),
