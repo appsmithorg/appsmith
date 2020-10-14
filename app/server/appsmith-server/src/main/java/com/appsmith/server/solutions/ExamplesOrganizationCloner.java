@@ -71,6 +71,11 @@ public class ExamplesOrganizationCloner {
      * @return Empty Mono.
      */
     private Mono<Organization> cloneExamplesOrganization(User user) {
+        if (user.getExamplesOrganizationId() != null) {
+            // This user already has an examples organization, don't have to do anything.
+            return Mono.empty();
+        }
+
         return configService.getTemplateOrganizationId()
                 .doOnSuccess(id -> {
                     if (id == null) {
