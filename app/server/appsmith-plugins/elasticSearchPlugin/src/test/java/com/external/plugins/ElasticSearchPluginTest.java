@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -153,6 +154,34 @@ public class ElasticSearchPluginTest {
                     final Map<String, Object> resultBody = (Map) result.getBody();
                     assertEquals("deleted", resultBody.get("result"));
                     assertEquals("id3", resultBody.get("_id"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBulk() {
+        final String contentJson = "{\n" +
+                "  \"method\": \"POST\",\n" +
+                "  \"path\": \"_bulk\",\n" +
+                "  \"body\": [\n" +
+                "    { \"index\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"1\" } },\n" +
+                "    { \"field1\" : \"value1\" },\n" +
+                "    { \"delete\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"2\" } },\n" +
+                "    { \"create\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"3\" } },\n" +
+                "    { \"field1\" : \"value3\" },\n" +
+                "    { \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test\"} },\n" +
+                "    { \"doc\" : {\"field2\" : \"value2\"} }\n" +
+                "  ]\n" +
+                "}";
+
+        StepVerifier.create(execute(contentJson))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    assertFalse((Boolean) resultBody.get("errors"));
+                    assertEquals(4, ((List) resultBody.get("items")).size());
                 })
                 .verifyComplete();
     }
