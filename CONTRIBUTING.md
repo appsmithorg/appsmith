@@ -25,9 +25,3 @@ In the process of shipping features quickly, we often forget to keep our docs up
 
 #### ⚙️ Close a Bug / Feature issue
 We welcome contributions that help make appsmith bug free & improve the experience of our users. Check out our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) to begin.
-
-
-#### 🏡 Setup for local development
-
-- [Running the Client](contributions/ClientSetup.md)
-- [Running the Server](contributions/ServerSetup.md)
