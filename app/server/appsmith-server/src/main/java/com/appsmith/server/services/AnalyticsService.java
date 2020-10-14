@@ -70,16 +70,19 @@ public class AnalyticsService {
                         return object;
                     }
 
+                    final String username = (object instanceof User ? (User) object : user).getUsername();
+
                     HashMap<String, String> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", (object instanceof User ? (User) object : user).getUsername());
+                    analyticsProperties.put("id", username);
                     analyticsProperties.put("object", object.toString());
                     analyticsProperties.put("oid", object.getId());
 
                     analytics.enqueue(
                             TrackMessage.builder(eventTag)
-                                    .userId(user.getUsername())
+                                    .userId(username)
                                     .properties(analyticsProperties)
                     );
+
                     return object;
                 });
     }
