@@ -325,6 +325,16 @@ export interface WidgetPositionProps extends WidgetRowCols {
   detachFromLayout?: boolean;
 }
 
+export const WIDGET_POSITION_PROPS = {
+  leftColumn: true,
+  rightColumn: true,
+  topRow: true,
+  bottomRow: true,
+  minHeight: true,
+  parentColumnSpace: true,
+  parentRowSpace: true,
+};
+
 export interface WidgetDisplayProps {
   //TODO(abhinav): Some of these props are mandatory
   isVisible?: boolean;

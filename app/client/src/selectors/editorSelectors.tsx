@@ -2,10 +2,13 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import {
+  WIDGET_POSITION_PROPS,
+  WidgetCardProps,
+  WidgetProps,
+} from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { getEntities } from "./entitiesSelector";
 import {
   FlattenedWidgetProps,
   CanvasWidgetsReduxState,
@@ -23,6 +26,7 @@ import * as log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getCanvasWidgets } from "./entitiesSelector";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
@@ -104,10 +108,10 @@ export const getWidgetCards = createSelector(
 );
 
 export const getCanvasWidgetDsl = createSelector(
-  getEntities,
+  getCanvasWidgets,
   getDataTree,
   (
-    entities: AppState["entities"],
+    canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
   ): ContainerWidgetProps<WidgetProps> => {
     PerformanceTracker.startTracking(
@@ -116,12 +120,16 @@ export const getCanvasWidgetDsl = createSelector(
     log.debug("Evaluating data tree to get canvas widgets");
     log.debug({ evaluatedDataTree });
     const widgets: Record<string, DataTreeWidget> = {};
-    Object.keys(entities.canvasWidgets).forEach(widgetKey => {
+    Object.keys(canvasWidgets).forEach(widgetKey => {
       const evaluatedWidget = _.find(evaluatedDataTree, {
         widgetId: widgetKey,
       });
+      const canvasWidget = canvasWidgets[widgetKey];
       if (evaluatedWidget) {
-        widgets[widgetKey] = evaluatedWidget as DataTreeWidget;
+        widgets[widgetKey] = addEvaluatedPropertiesOfWidget(
+          canvasWidget,
+          evaluatedWidget,
+        );
       }
     });
     const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
@@ -197,3 +205,17 @@ export const getActionById = createSelector(
     }
   },
 );
+
+const addEvaluatedPropertiesOfWidget = (
+  canvasWidget: FlattenedWidgetProps,
+  evaluatedWidget: DataTreeWidget,
+) => {
+  const widgetPositionProps = _.pick(
+    canvasWidget,
+    Object.keys(WIDGET_POSITION_PROPS),
+  );
+  return {
+    ...evaluatedWidget,
+    ...widgetPositionProps,
+  };
+};
