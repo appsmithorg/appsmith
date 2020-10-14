@@ -51,6 +51,13 @@ public class DynamoPlugin extends BasePlugin {
 
     /**
      * Dynamo plugin receives the query as json of the following format:
+     * {
+     *     "action": "GetItem",
+     *     "parameters": {...}  // Depends on the action above.
+     * }
+     *
+     * DynamoDB actions and parameters reference:
+     * https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations_Amazon_DynamoDB.html
      */
 
     @Slf4j
@@ -78,8 +85,6 @@ public class DynamoPlugin extends BasePlugin {
 
             final String action = (String) command.get("action");
             final Map<String, Object> parameters = (Map<String, Object>) command.get("parameters");
-
-            // new AwsSyncClientHandler(SdkClientConfiguration.builder().build());
 
             final Class<?> requestClass;
             try {
