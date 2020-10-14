@@ -64,6 +64,7 @@ const orgReducer = createImmerReducer(initialState, {
     draftState.orgUsers.forEach((user: OrgUser) => {
       if (user.username === action.payload.username) {
         user.roleName = action.payload.roleName;
+        user.isChangingRole = false;
       }
     });
   },

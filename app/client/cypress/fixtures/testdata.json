@@ -64,5 +64,6 @@
   "defaultdata": "TestData",
   "input1": "(//div[@class='bp3-input-group']//input)[0]",
   "input2": "(//div[@class='bp3-input-group']//input)[1]",
-  "input3": "(//div[@class='bp3-input-group']//input)[2]"
+  "input3": "(//div[@class='bp3-input-group']//input)[2]",
+  "videoUrl": "https://www.youtube.com/watch?v=S5musXykVs0"
 }
