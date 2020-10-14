@@ -22,7 +22,7 @@ describe("Video Widget Functionality", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(3000);
+    cy.wait(4000);
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Play success");
   });
@@ -37,7 +37,7 @@ describe("Video Widget Functionality", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(3000);
+    cy.wait(4000);
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Pause success");
   });
@@ -50,7 +50,7 @@ describe("Video Widget Functionality", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(3000);
+    cy.wait(4000);
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Play success");
     cy.get(widgetsPage.autoPlay).click();
@@ -59,7 +59,7 @@ describe("Video Widget Functionality", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(2000);
+    cy.wait(4000);
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Pause success");
   });
