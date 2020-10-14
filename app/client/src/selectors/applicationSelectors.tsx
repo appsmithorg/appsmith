@@ -1,6 +1,9 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
-import { ApplicationsReduxState } from "reducers/uiReducers/applicationsReducer";
+import {
+  ApplicationsReduxState,
+  creatingApplicationMap,
+} from "reducers/uiReducers/applicationsReducer";
 import {
   ApplicationPayload,
   OrganizationDetails,
@@ -119,7 +122,7 @@ export const getIsFetchingApplications = createSelector(
 
 export const getIsCreatingApplication = createSelector(
   getApplicationsState,
-  (applications: ApplicationsReduxState): boolean =>
+  (applications: ApplicationsReduxState): creatingApplicationMap =>
     applications.creatingApplication,
 );
 
@@ -127,4 +130,10 @@ export const getCreateApplicationError = createSelector(
   getApplicationsState,
   (applications: ApplicationsReduxState): string | undefined =>
     applications.createApplicationError,
+);
+
+export const getIsDeletingApplications = createSelector(
+  getApplicationsState,
+  (applications: ApplicationsReduxState): boolean =>
+    applications.deletingApplication,
 );

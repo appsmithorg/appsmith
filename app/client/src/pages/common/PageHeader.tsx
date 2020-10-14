@@ -52,7 +52,7 @@ export const PageHeader = (props: PageHeaderProps) => {
   return (
     <StyledPageHeader>
       <HeaderSection>
-        <Link to={APPLICATIONS_URL}>
+        <Link to={APPLICATIONS_URL} className="t--appsmith-logo">
           <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
         </Link>
       </HeaderSection>
