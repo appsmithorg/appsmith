@@ -10,6 +10,8 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -47,16 +49,30 @@ public class ElasticSearchPlugin extends BasePlugin {
                 return Mono.error(e);
             }
 
+            final String path = configBody.get("path").toString();
+
             Request request = new Request(
                     configBody.get("method").toString().toUpperCase(),
-                    configBody.get("path").toString()
+                    path
             );
 
             if (configBody.get("body") != null) {
-                try {
-                    request.setJsonEntity(objectMapper.writeValueAsString(configBody.get("body")));
-                } catch (JsonProcessingException e) {
-                    return Mono.error(e);
+                if (isBulkQuery(path)) {
+                    try {
+                        StringBuilder ndJsonBuilder = new StringBuilder();
+                        for (Object object : (List<Object>) configBody.get("body")) {
+                            ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
+                        }
+                        request.setEntity(new NStringEntity(ndJsonBuilder.toString(), ContentType.create("application/x-ndjson")));
+                    } catch (JsonProcessingException e) {
+                        return Mono.error(e);
+                    }
+                } else {
+                    try {
+                        request.setJsonEntity(objectMapper.writeValueAsString(configBody.get("body")));
+                    } catch (JsonProcessingException e) {
+                        return Mono.error(e);
+                    }
                 }
             }
 
@@ -82,6 +98,10 @@ public class ElasticSearchPlugin extends BasePlugin {
 
             result.setIsExecutionSuccess(true);
             return Mono.just(result);
+        }
+
+        private static boolean isBulkQuery(String path) {
+            return path.split("\\?", 1)[0].matches("\\b_bulk$");
         }
 
         @Override
