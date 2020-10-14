@@ -10,6 +10,7 @@
     "duplicateApp": "[data-cy=t--duplicate]",
     "selectAction": "#Base",
     "deleteApp": "[data-cy=t--delete]",
+    "deleteAppConfirm": "[data-cy=t--delete-confirm]",
     "homeIcon": ".t--appsmith-logo",
     "inputAppName": "input[name=applicationName]",
     "createNew": ".createnew",
@@ -42,9 +43,9 @@
     "orgSectionBtn": ".t--org-section .bp3-button",
     "shareOrg": ") a:contains('Share')",
     "orgSection": "a:contains(",
-    "createAppFrOrg": ") .t--create-app-popup",
+    "createAppFrOrg": ") .t--create-app-popup", 
     "shareApp": ".t--application-share-btn",
     "enablePublicAccess": ".bp3-control-indicator",
-    "closeBtn": ".bp3-dialog-close-button"
-
-}
+    "closeBtn": ".bp3-dialog-close-button",
+    "applicationName": ".t--application-name"
+} 
