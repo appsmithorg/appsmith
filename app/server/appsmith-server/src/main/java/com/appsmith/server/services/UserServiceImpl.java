@@ -72,7 +72,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s&email=%s";
-    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?token=%s&email=%s";
+    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
     // We default the origin header to the production deployment of the client's URL
@@ -691,15 +691,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // Call user service's userCreate function so that the personal organization, etc are also created along with assigning basic permissions.
         return userCreate(newUser)
                 .flatMap(createdUser -> {
-                    log.debug("Going to send email for invite user to {} with token {}", createdUser.getEmail(), createdUser.getInviteToken());
+                    log.debug("Going to send email for invite user to {}", createdUser.getEmail());
                     String inviteUrl = String.format(
                             INVITE_USER_CLIENT_URL_FORMAT,
                             originHeader,
-                            URLEncoder.encode(createdUser.getInviteToken(), StandardCharsets.UTF_8),
                             URLEncoder.encode(createdUser.getEmail(), StandardCharsets.UTF_8)
                     );
 
-                    params.put("token", createdUser.getInviteToken());
                     params.put("inviteUrl", inviteUrl);
                     Mono<String> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
 
