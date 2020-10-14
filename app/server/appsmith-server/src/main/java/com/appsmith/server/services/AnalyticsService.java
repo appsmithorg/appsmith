@@ -74,7 +74,6 @@ public class AnalyticsService {
 
                     HashMap<String, String> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);
-                    analyticsProperties.put("object", object.toString());
                     analyticsProperties.put("oid", object.getId());
 
                     analytics.enqueue(
