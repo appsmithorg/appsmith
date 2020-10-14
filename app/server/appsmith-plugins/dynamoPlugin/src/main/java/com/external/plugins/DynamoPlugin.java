@@ -10,7 +10,6 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
@@ -75,16 +74,26 @@ public class DynamoPlugin extends BasePlugin {
 
             try {
                 command = objectMapper.readValue(actionConfiguration.getBody(), HashMap.class);
-            } catch (MismatchedInputException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Mismatched input types. Need `action` string and `parameters` object."));
             } catch (IOException e) {
                 e.printStackTrace();
                 return Mono.just(result);
             }
 
             final String action = (String) command.get("action");
+            if (action == null) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Missing action in request body."
+                ));
+            }
+
             final Map<String, Object> parameters = (Map<String, Object>) command.get("parameters");
+            if (parameters == null) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Missing parameters in request body."
+                ));
+            }
 
             final Class<?> requestClass;
             try {
