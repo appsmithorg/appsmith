@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
 import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
@@ -23,7 +23,7 @@ import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
 import Table from "./Table";
 import { RestAction } from "entities/Action";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
@@ -37,9 +37,7 @@ import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
-import { generateReactKey } from "utils/generators";
-import { AddTableWidgetFromQueryPayload } from "actions/widgetActions";
-import { WidgetTypes } from "constants/WidgetConstants";
+import { addTableWidgetFromQuery } from "actions/widgetActions";
 
 const QueryFormContainer = styled.div`
   padding: 20px 32px;
@@ -251,7 +249,6 @@ const OutputHeader = styled.div`
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
-  addTableWidget: (payload: AddTableWidgetFromQueryPayload) => void;
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
@@ -299,7 +296,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     loadingFormConfigs,
     editorConfig,
     actionName,
-    addTableWidget,
   } = props;
 
   let error = runErrorMessage;
@@ -314,25 +310,11 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   }
 
   const isSQL = responseType === "TABLE";
-  const onAddWidget = useCallback(() => {
-    const widgetConfig = {
-      type: WidgetTypes.TABLE_WIDGET,
-      newWidgetId: generateReactKey(),
-      widgetId: "0",
-      topRow: 0,
-      bottomRow: 7,
-      leftColumn: 0,
-      rightColumn: 8,
-      columns: 8,
-      rows: 7,
-      props: {
-        tableData: `{{${actionName}.data}}`,
-      },
-      evaluateProperty: "tableData",
-    };
 
-    addTableWidget(widgetConfig);
-  }, [actionName, addTableWidget]);
+  const dispatch = useDispatch();
+  const onAddWidget = () => {
+    dispatch(addTableWidgetFromQuery(actionName));
+  };
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (

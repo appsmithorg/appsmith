@@ -77,10 +77,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import {
-  AddTableWidgetFromQueryPayload,
-  forceOpenPropertyPane,
-} from "actions/widgetActions";
+import { forceOpenPropertyPane } from "actions/widgetActions";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -956,17 +953,26 @@ function* cutWidgetSaga() {
   });
 }
 
-function* addTableWidgetFromQuerySaga(
-  action: ReduxAction<AddTableWidgetFromQueryPayload>,
-) {
+function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
   try {
+    const columns = 8;
+    const rows = 7;
+    const queryName = action.payload;
     const widgets = yield select(getWidgets);
     const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET");
 
-    let widgetProps: WidgetProps = {
-      ...action.payload,
+    let newWidget = {
+      type: WidgetTypes.TABLE_WIDGET,
+      newWidgetId: generateReactKey(),
+      widgetId: "0",
+      topRow: 0,
+      bottomRow: rows,
+      leftColumn: 0,
+      rightColumn: columns,
+      columns,
+      rows,
+      parentId: "0",
       widgetName,
-      parentId: action.payload.widgetId,
       renderMode: RenderModes.CANVAS,
       parentRowSpace: 1,
       parentColumnSpace: 1,
@@ -977,10 +983,10 @@ function* addTableWidgetFromQuerySaga(
       topRow,
       rightColumn,
       bottomRow,
-    } = yield calculateNewWidgetPosition(widgetProps, "0", widgets);
+    } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
 
-    widgetProps = {
-      ...widgetProps,
+    newWidget = {
+      ...newWidget,
       leftColumn,
       topRow,
       rightColumn,
@@ -989,7 +995,7 @@ function* addTableWidgetFromQuerySaga(
 
     yield put({
       type: ReduxActionTypes.WIDGET_ADD_CHILD,
-      payload: widgetProps,
+      payload: newWidget,
     });
 
     const applicationId = yield select(getCurrentApplicationId);
@@ -1002,31 +1008,22 @@ function* addTableWidgetFromQuerySaga(
       },
       window.location.pathname,
       pageId,
-      widgetProps.newWidgetId,
+      newWidget.newWidgetId,
     );
     yield put({
       type: ReduxActionTypes.SELECT_WIDGET,
-      payload: { widgetId: widgetProps.newWidgetId },
+      payload: { widgetId: newWidget.newWidgetId },
     });
-    yield put(forceOpenPropertyPane(widgetProps.newWidgetId));
-
-    if (widgetProps.evaluateProperty) {
-      const value = widgetProps.props[widgetProps.evaluateProperty];
-      yield put(
-        updateWidgetPropertyRequest(
-          widgetProps.newWidgetId,
-          widgetProps.evaluateProperty,
-          value,
-          RenderModes.CANVAS,
-        ),
-      );
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.ADD_WIDGET_ERROR,
-      error,
-    });
-  }
+    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
+    yield put(
+      updateWidgetPropertyRequest(
+        newWidget.newWidgetId,
+        "tableData",
+        `{{${queryName}.data}}`,
+        RenderModes.CANVAS,
+      ),
+    );
+  } catch (error) {}
 }
 
 export default function* widgetOperationSagas() {

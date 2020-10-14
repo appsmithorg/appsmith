@@ -29,10 +29,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  addTableWidgetFromQuery,
-  AddTableWidgetFromQueryPayload,
-} from "actions/widgetActions";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -48,7 +44,6 @@ type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   changeQueryPage: (queryId: string) => void;
-  addTableWidget: (payload: AddTableWidgetFromQueryPayload) => void;
 };
 
 type ReduxStateProps = {
@@ -163,7 +158,6 @@ class QueryEditor extends React.Component<Props> {
             DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
             executedQueryData={responses[queryId]}
             runErrorMessage={runErrorMessage[queryId]}
-            addTableWidget={this.props.addTableWidget}
           />
         ) : (
           <QueryHomeScreen
@@ -217,9 +211,6 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   runAction: (actionId: string) => dispatch(runActionInit(actionId)),
   changeQueryPage: (queryId: string) => {
     dispatch(changeQuery(queryId));
-  },
-  addTableWidget: (payload: AddTableWidgetFromQueryPayload) => {
-    dispatch(addTableWidgetFromQuery(payload));
   },
 });
 
