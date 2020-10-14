@@ -4,7 +4,7 @@ import FeatureFlag from "./featureFlags";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
-import { User } from "../constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
 
 export type EventLocation =
   | "LIGHTNING_MENU"
@@ -172,15 +172,16 @@ class AnalyticsUtil {
       const app = (userData.applications || []).find(
         (app: any) => app.id === appId,
       );
+      const user = {
+        userId: userData.username,
+        email: userData.email,
+        currentOrgId: userData.currentOrganizationId,
+        appId: appId,
+        appName: app ? app.name : undefined,
+      };
       finalEventData = {
-        ...finalEventData,
-        userData: {
-          userId: userData.username,
-          email: userData.email,
-          currentOrgId: userData.currentOrganizationId,
-          appId: appId,
-          appName: app ? app.name : undefined,
-        },
+        ...eventData,
+        userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
     if (windowDoc.analytics) {
