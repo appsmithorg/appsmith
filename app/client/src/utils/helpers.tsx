@@ -102,11 +102,7 @@ export const flashElementById = (id: string) => {
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
-  const separatorRegex = /[\W_]+/;
-  return value
-    .split(separatorRegex)
-    .join(" ")
-    .slice(0, limit || 30);
+  return value.slice(0, limit || 30);
 };
 
 export const isMac = () => {
