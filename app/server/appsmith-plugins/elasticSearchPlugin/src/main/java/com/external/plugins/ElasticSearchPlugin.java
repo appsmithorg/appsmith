@@ -10,6 +10,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
+import org.apache.http.StatusLine;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.client.Request;
@@ -131,7 +132,39 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            return datasourceCreate(datasourceConfiguration)
+                    .map(client -> {
+                        if (client == null) {
+                            return new DatasourceTestResult("Null client object to ElasticSearch.");
+                        }
+
+                        // This HEAD request is to check if an index exists. It response with 200 if the index exists,
+                        // 404 if it doesn't. We just check for either of these two.
+                        Request request = new Request("HEAD", "/potentially-missing-index?local=true");
+
+                        final Response response;
+                        try {
+                            response = client.performRequest(request);
+                        } catch (IOException e) {
+                            return new DatasourceTestResult("Error running HEAD request: " + e.getMessage());
+                        }
+
+                        final StatusLine statusLine = response.getStatusLine();
+
+                        try {
+                            client.close();
+                        } catch (IOException e) {
+                            log.warn("Error closing ElasticSearch client that was made for testing.", e);
+                        }
+
+                        if (statusLine.getStatusCode() != 404 && statusLine.getStatusCode() != 200) {
+                            return new DatasourceTestResult(
+                                    "Unexpected response from ElasticSearch: " + statusLine);
+                        }
+
+                        return new DatasourceTestResult();
+                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
     }
 }
