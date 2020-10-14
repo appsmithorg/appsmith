@@ -49,12 +49,12 @@ const evalErrorHandler = (errors: EvalError[]) => {
 
 function* evaluateTreeSaga() {
   const unEvalTree = yield select(getUnevaluatedDataTree);
+  log.debug({ unEvalTree });
   evaluationWorker.postMessage({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     dataTree: unEvalTree,
     widgetTypeConfigMap,
   });
-  console.log({ unEvalTree });
   const workerResponse = yield take(workerChannel);
   const { errors, dataTree } = workerResponse.data;
   console.log({ dataTree });
