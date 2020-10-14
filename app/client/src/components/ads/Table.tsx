@@ -26,6 +26,7 @@ const Styles = styled.div`
           font-size: ${props => props.theme.typography.h6.fontSize}px;
           line-height: ${props => props.theme.typography.h6.lineHeight}px;
           letter-spacing: ${props => props.theme.typography.h6.letterSpacing}px;
+          width: calc(90% / 3);
 
           svg {
             margin-left: ${props => props.theme.spaces[2]}px;
@@ -41,6 +42,10 @@ const Styles = styled.div`
               }
             }
           }
+        }
+
+        th:last-child {
+          width: 10%;
         }
       }
     }
