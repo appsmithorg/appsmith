@@ -189,6 +189,10 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
       }
       yield put({
         type: ReduxActionTypes.SAVE_ORG_SUCCESS,
+        payload: {
+          id: request.id,
+          name: request.name,
+        },
       });
     }
   } catch (error) {
