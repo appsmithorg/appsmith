@@ -20,13 +20,14 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { getActions } from "sagas/selectors";
+import { getActions, getWidgetsMeta } from "sagas/selectors";
 
 import * as log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getCanvasWidgets } from "./entitiesSelector";
+import { MetaState } from "../reducers/entityReducers/metaReducer";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
@@ -109,9 +110,11 @@ export const getWidgetCards = createSelector(
 
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
+  getWidgetsMeta,
   getDataTree,
   (
     canvasWidgets: CanvasWidgetsReduxState,
+    metaProps: MetaState,
     evaluatedDataTree,
   ): ContainerWidgetProps<WidgetProps> => {
     PerformanceTracker.startTracking(
@@ -125,10 +128,12 @@ export const getCanvasWidgetDsl = createSelector(
         widgetId: widgetKey,
       });
       const canvasWidget = canvasWidgets[widgetKey];
+      const widgetMetaProps = metaProps[widgetKey];
       if (evaluatedWidget) {
-        widgets[widgetKey] = addEvaluatedPropertiesOfWidget(
+        widgets[widgetKey] = createCanvasWidget(
           canvasWidget,
           evaluatedWidget,
+          widgetMetaProps,
         );
       }
     });
@@ -206,9 +211,10 @@ export const getActionById = createSelector(
   },
 );
 
-const addEvaluatedPropertiesOfWidget = (
+const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   evaluatedWidget: DataTreeWidget,
+  widgetMeta: Record<string, unknown>,
 ) => {
   const widgetPositionProps = _.pick(
     canvasWidget,
@@ -217,5 +223,6 @@ const addEvaluatedPropertiesOfWidget = (
   return {
     ...evaluatedWidget,
     ...widgetPositionProps,
+    ...widgetMeta,
   };
 };

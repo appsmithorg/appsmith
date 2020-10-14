@@ -2,7 +2,7 @@ import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 
-export type MetaState = Record<string, object>;
+export type MetaState = Record<string, unknown>;
 
 const initialState: MetaState = {};
 
