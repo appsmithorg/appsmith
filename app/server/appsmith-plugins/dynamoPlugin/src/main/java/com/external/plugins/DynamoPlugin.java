@@ -113,8 +113,7 @@ public class DynamoPlugin extends BasePlugin {
                 );
                 final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
                 result.setBody(sdkToPlain(response));
-            } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException
-                    | NoSuchMethodException | InstantiationException e) {
+            } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
                 return Mono.error(e.getCause() == null ? e : e.getCause());
             }
 
@@ -212,7 +211,7 @@ public class DynamoPlugin extends BasePlugin {
      * @throws InstantiationException Thrown if any of the SDK methods' contracts change.
      */
     public static <T> T plainToSdk(Map<String, Object> mapping, Class<T> type)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException,
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
             AppsmithPluginException {
         final Class<?> builderType;
         try {
