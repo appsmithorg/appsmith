@@ -238,7 +238,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         if (datasource.getOrganizationId() == null) {
                             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
                         }
-                        action.setOrganizationId(datasource.getOrganizationId());
+                        newAction.setOrganizationId(datasource.getOrganizationId());
                     }
 
                     newAction.setUnpublishedAction(generateDTOFromAction(action));

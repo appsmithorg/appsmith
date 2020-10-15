@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
@@ -162,7 +163,7 @@ public class ExamplesOrganizationCloner {
      */
     private Mono<Void> cloneApplications(String fromOrganizationId, String toOrganizationId, Flux<Application> applicationsFlux) {
         final Mono<Map<String, Datasource>> cloneDatasourcesMono = cloneDatasources(fromOrganizationId, toOrganizationId).cache();
-        final List<Page> clonedPages = new ArrayList<>();
+        final List<NewPage> clonedPages = new ArrayList<>();
 
         return applicationsFlux
                 .flatMap(application -> {
@@ -200,6 +201,7 @@ public class ExamplesOrganizationCloner {
                                     isDefault
                                             ? applicationPageService.makePageDefault(savedPage).thenReturn(savedPage)
                                             : Mono.just(savedPage))
+                            .flatMap(savedPage -> newPageRepository.findById(savedPage.getId()))
                             .flatMapMany(savedPage -> {
                                 clonedPages.add(savedPage);
                                 return newActionService
@@ -240,16 +242,16 @@ public class ExamplesOrganizationCloner {
                 // `clonedPages` list will also contain all pages cloned.
                 .collectMap(Tuple2::getT2, Tuple2::getT1)
                 .flatMapMany(actionIdsMap -> {
-                    final List<Mono<Page>> pageSaveMonos = new ArrayList<>();
+                    final List<Mono<NewPage>> pageSaveMonos = new ArrayList<>();
 
-                    for (final Page page : clonedPages) {
-                        if (page.getLayouts() == null) {
+                    for (final NewPage page : clonedPages) {
+                        if (page.getUnpublishedPage().getLayouts() == null) {
                             continue;
                         }
 
                         boolean shouldSave = false;
 
-                        for (final Layout layout : page.getLayouts()) {
+                        for (final Layout layout : page.getUnpublishedPage().getLayouts()) {
                             if (layout.getLayoutOnLoadActions() != null) {
                                 for (final Set<DslActionDTO> actionSet : layout.getLayoutOnLoadActions()) {
                                     for (final DslActionDTO actionDTO : actionSet) {
@@ -285,7 +287,7 @@ public class ExamplesOrganizationCloner {
                         }
 
                         if (shouldSave) {
-                            pageSaveMonos.add(pageRepository.save(page));
+                            pageSaveMonos.add(newPageRepository.save(page));
                         }
                     }
 
