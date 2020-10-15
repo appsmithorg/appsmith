@@ -189,6 +189,15 @@
         "code",
         "doc"
       ]
+    },
+    {
+      "login": "pc9795",
+      "name": "Prashant Chaubey",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/14848874?v=4",
+      "profile": "http://prashantchaubey.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
