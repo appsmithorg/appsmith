@@ -11,13 +11,11 @@ import withMeta from "./MetaHOC";
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
     return _.some(children, child => {
-      if (child) {
-        if ("children" in child) {
-          return this.checkInvalidChildren(child.children);
-        }
-        if ("isValid" in child) {
-          return !child.isValid;
-        }
+      if ("children" in child) {
+        return this.checkInvalidChildren(child.children);
+      }
+      if ("isValid" in child) {
+        return !child.isValid;
       }
       return false;
     });
@@ -61,11 +59,9 @@ class FormWidget extends ContainerWidget {
     if (childWidgetData.children) {
       const isInvalid = this.checkInvalidChildren(childWidgetData.children);
       childWidgetData.children.forEach((grandChild: WidgetProps) => {
-        if (grandChild) {
-          if (isInvalid) grandChild.isFormValid = false;
-          // Add submit and reset handlers
-          grandChild.onReset = this.handleResetInputs;
-        }
+        if (isInvalid) grandChild.isFormValid = false;
+        // Add submit and reset handlers
+        grandChild.onReset = this.handleResetInputs;
       });
     }
     return super.renderChildWidget(childWidgetData);

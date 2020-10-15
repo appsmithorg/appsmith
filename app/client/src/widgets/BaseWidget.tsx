@@ -325,7 +325,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   detachFromLayout?: boolean;
 }
 
-export const WIDGET_POSITION_PROPS = {
+export const WIDGET_STATIC_PROPS = {
   leftColumn: true,
   rightColumn: true,
   topRow: true,
@@ -333,6 +333,13 @@ export const WIDGET_POSITION_PROPS = {
   minHeight: true,
   parentColumnSpace: true,
   parentRowSpace: true,
+  children: true,
+  type: true,
+  widgetId: true,
+  widgetName: true,
+  parentId: true,
+  renderMode: true,
+  detachFromLayout: true,
 };
 
 export interface WidgetDisplayProps {
