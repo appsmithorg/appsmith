@@ -128,13 +128,8 @@ export const getCanvasWidgetDsl = createSelector(
         widgetId: widgetKey,
       }) as DataTreeWidget;
       const canvasWidget = canvasWidgets[widgetKey];
-      const widgetMetaProps = metaProps[widgetKey];
       if (evaluatedWidget) {
-        widgets[widgetKey] = createCanvasWidget(
-          canvasWidget,
-          evaluatedWidget,
-          widgetMetaProps,
-        );
+        widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
       }
     });
     const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
@@ -214,7 +209,6 @@ export const getActionById = createSelector(
 const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   evaluatedWidget: DataTreeWidget,
-  widgetMeta: Record<string, unknown>,
 ) => {
   const widgetPositionProps = _.pick(
     canvasWidget,
@@ -223,6 +217,5 @@ const createCanvasWidget = (
   return {
     ...evaluatedWidget,
     ...widgetPositionProps,
-    ...widgetMeta,
   };
 };
