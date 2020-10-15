@@ -2,7 +2,7 @@ import Api from "./Api";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetProps } from "widgets/BaseWidget";
-import { AxiosPromise } from "axios";
+import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { PageAction } from "constants/ActionConstants";
 
 export interface FetchPageRequest {
@@ -100,6 +100,7 @@ export interface UpdateWidgetNameResponse extends ApiResponse {
 class PageApi extends Api {
   static url = "v1/pages";
   static refactorLayoutURL = "v1/layouts/refactor";
+  static pageUpdateCancelTokenSource?: CancelTokenSource = undefined;
   static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
     return `v1/layouts/${layoutId}/pages/${pageId}`;
   };
@@ -119,14 +120,20 @@ class PageApi extends Api {
 
   static savePage(
     savePageRequest: SavePageRequest,
-  ): AxiosPromise<SavePageResponse> {
+  ): AxiosPromise<SavePageResponse> | undefined {
+    if (PageApi.pageUpdateCancelTokenSource) {
+      PageApi.pageUpdateCancelTokenSource.cancel();
+    }
     const body = { dsl: savePageRequest.dsl };
+    PageApi.pageUpdateCancelTokenSource = axios.CancelToken.source();
     return Api.put(
       PageApi.getLayoutUpdateURL(
         savePageRequest.pageId,
         savePageRequest.layoutId,
       ),
       body,
+      undefined,
+      { cancelToken: PageApi.pageUpdateCancelTokenSource.token },
     );
   }
 
