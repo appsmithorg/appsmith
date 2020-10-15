@@ -1668,6 +1668,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/track/*").as("postTrack");
   cy.route("POST", "/api/v1/actions/execute").as("postExecute");
+  cy.route("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
 
   cy.route("POST", "/api/v1/actions").as("createNewApi");
   cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
