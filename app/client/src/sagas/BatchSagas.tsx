@@ -56,7 +56,7 @@ function* executeBatchSaga() {
       const canBatch = batch.filter(b => !BATCH_PRIORITY[b.type].needsSaga);
       batches[priority] = [];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-ignore: Batching needs an array
       yield put(canBatch);
       if (needsSaga.length) {
         for (const sagaAction of needsSaga) {
