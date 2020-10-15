@@ -73,7 +73,7 @@ export const EntityProperties = (props: {
     case ENTITY_TYPE.WIDGET:
       const type: Exclude<
         Partial<WidgetType>,
-        "CANVAS_WIDGET" | "ICON_WIDGET"
+        "CANVAS_WIDGET" | "ICON_WIDGET" | "SKELETON_WIDGET"
       > = entity.type;
       config = entityDefinitions[type];
 

@@ -28,6 +28,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { MetaState } from "../reducers/entityReducers/metaReducer";
+import { WidgetTypes } from "../constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
@@ -231,10 +232,10 @@ const createLoadingWidget = (
   const widgetStaticProps = _.pick(
     canvasWidget,
     Object.keys(WIDGET_STATIC_PROPS),
-  );
+  ) as WidgetProps;
   return {
     ...widgetStaticProps,
-    type: "TEXT_WIDGET", // TODO add a LOADER_WIDGET
+    type: WidgetTypes.SKELETON_WIDGET,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     isLoading: true,
   };
