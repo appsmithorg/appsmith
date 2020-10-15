@@ -20,15 +20,7 @@ module.exports = {
     "react-hooks/rules-of-hooks": "error",
     "@typescript-eslint/no-use-before-define": 0,
     "@typescript-eslint/no-var-requires": 0,
-    "import/no-webpack-loader-syntax": 0,
-    "@typescript-eslint/ban-ts-ignore": 0,
-    "@typescript-eslint/ban-ts-comment": {
-      "ts-expect-error": "allow-with-description",
-      "ts-ignore": true,
-      "ts-nocheck": true,
-      "ts-check": false,
-      minimumDescriptionLength: 5,
-    },
+    "import/no-webpack-loader-syntax": 0
   },
   settings: {
     react: {
