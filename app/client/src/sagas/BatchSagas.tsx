@@ -39,10 +39,10 @@ const batchPriorityMap: Map<number, ReduxAction<any>[]> = new Map();
 function* storeUpdatesSaga(action: ReduxAction<ReduxAction<any>>) {
   try {
     const priority = BATCH_PRIORITY[action.payload.type].priority;
-    const currentPriorityBatchs = batchPriorityMap.get(priority) || [];
-    currentPriorityBatchs.push(action.payload);
-    batchPriorityMap.set(priority, currentPriorityBatchs);
-    if (currentPriorityBatchs.length === 1) {
+    const currentPriorityBatches = batchPriorityMap.get(priority) || [];
+    currentPriorityBatches.push(action.payload);
+    batchPriorityMap.set(priority, currentPriorityBatches);
+    if (currentPriorityBatches.length === 1) {
       yield put({ type: ReduxActionTypes.EXECUTE_BATCH });
     }
   } catch (e) {
@@ -58,6 +58,7 @@ function* executeBatchSaga() {
       const canBatch = batch.filter(b => !BATCH_PRIORITY[b.type].needsSaga);
       batchPriorityMap.set(priority, []);
       // @ts-ignore
+
       yield put(canBatch);
       if (needsSaga.length) {
         for (const sagaAction of needsSaga) {
@@ -70,7 +71,7 @@ function* executeBatchSaga() {
 
 export default function* root() {
   yield all([
-    debounce(60, ReduxActionTypes.EXECUTE_BATCH, executeBatchSaga),
+    debounce(20, ReduxActionTypes.EXECUTE_BATCH, executeBatchSaga),
     takeEvery(ReduxActionTypes.BATCHED_UPDATE, storeUpdatesSaga),
   ]);
 }
