@@ -16,7 +16,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
-import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
@@ -47,7 +46,6 @@ public class ExamplesOrganizationCloner {
     private final OrganizationService organizationService;
     private final OrganizationRepository organizationRepository;
     private final DatasourceService datasourceService;
-    private final PageRepository pageRepository;
     private final DatasourceRepository datasourceRepository;
     private final ConfigService configService;
     private final SessionUserService sessionUserService;

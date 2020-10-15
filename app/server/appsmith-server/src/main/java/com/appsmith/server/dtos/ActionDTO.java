@@ -66,6 +66,7 @@ public class ActionDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> jsonPathKeys;
 
+    @JsonIgnore
     String cacheResponse;
 
     @Transient

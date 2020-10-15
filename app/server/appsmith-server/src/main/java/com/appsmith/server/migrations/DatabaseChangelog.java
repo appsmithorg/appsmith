@@ -923,7 +923,27 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "025", id = "createNewPageIndex", author = "")
+    @ChangeSet(order = "025", id = "generate-unique-id-for-instance", author = "")
+    public void generateUniqueIdForInstance(MongoTemplate mongoTemplate) {
+        mongoTemplate.insert(new Config(
+                new JSONObject(Map.of("value", new ObjectId().toHexString())),
+                "instance-id"
+        ));
+    }
+
+    @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
+    public void fixTokenExpiration(MongoTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
+
+        ensureIndexes(mongoTemplate, PasswordResetToken.class,
+                makeIndex(FieldName.CREATED_AT)
+                    .expire(2, TimeUnit.DAYS),
+                makeIndex(FieldName.EMAIL).unique()
+        );
+    }
+
+    @ChangeSet(order = "027", id = "createNewPageIndex", author = "")
     public void addNewPageIndex(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
@@ -933,7 +953,7 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "026", id = "migrate-page", author = "")
+    @ChangeSet(order = "028", id = "migrate-page", author = "")
     public void migratePage(MongoTemplate mongoTemplate) {
         final List<Page> pages = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
@@ -985,7 +1005,7 @@ public class DatabaseChangelog {
 
     }
 
-    @ChangeSet(order = "027", id = "update-new-page", author = "")
+    @ChangeSet(order = "029", id = "update-new-page", author = "")
     public void updateNewPage(MongoTemplate mongoTemplate) {
         final List<NewPage> pages = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
@@ -1004,7 +1024,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "028", id = "createNewActionIndex", author = "")
+    @ChangeSet(order = "030", id = "createNewActionIndex", author = "")
     public void addNewActionIndex(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
@@ -1032,7 +1052,7 @@ public class DatabaseChangelog {
         return actionDTO;
     }
 
-    @ChangeSet(order = "029", id = "migrate-action", author = "")
+    @ChangeSet(order = "031", id = "migrate-action", author = "")
     public void migrateAction(MongoTemplate mongoTemplate) {
         final List<Action> actions = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
@@ -1078,26 +1098,6 @@ public class DatabaseChangelog {
 
             mongoTemplate.insert(newAction, "newAction");
         }
-    }
-
-    @ChangeSet(order = "025", id = "generate-unique-id-for-instance", author = "")
-    public void generateUniqueIdForInstance(MongoTemplate mongoTemplate) {
-        mongoTemplate.insert(new Config(
-                new JSONObject(Map.of("value", new ObjectId().toHexString())),
-                "instance-id"
-        ));
-    }
-
-    @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
-    public void fixTokenExpiration(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
-        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
-
-        ensureIndexes(mongoTemplate, PasswordResetToken.class,
-                makeIndex(FieldName.CREATED_AT)
-                    .expire(2, TimeUnit.DAYS),
-                makeIndex(FieldName.EMAIL).unique()
-        );
     }
 
 }
