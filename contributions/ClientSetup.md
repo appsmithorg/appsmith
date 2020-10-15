@@ -52,6 +52,12 @@ cd app/client
 
 Your client is pointing to the cloud staging server https://release-api.appsmith.com
 
+#### If yarn start throws mismatch node version error
+This error occurs because the node version is not compatible with the app environment. In this case Node version manager can be used which allows multiple
+node versions to be used in different projects. Check below for installation and usage details:
+1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
+2. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
+
 #### If you would like to hit a different Appsmith server:
 - Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). 
 - Run `start-https.sh` script again.
