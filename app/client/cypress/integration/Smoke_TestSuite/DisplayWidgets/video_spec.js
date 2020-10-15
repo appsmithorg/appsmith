@@ -22,8 +22,11 @@ describe("Video Widget Functionality", function() {
       "response.body.responseMeta.status",
       200,
     );
+    /*
+    cy.wait(4000);
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Play success");
+    */
   });
 
   it("Video widget pause functionality validation", function() {
@@ -36,8 +39,11 @@ describe("Video Widget Functionality", function() {
       "response.body.responseMeta.status",
       200,
     );
+    /*
+    cy.wait(4000);
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Pause success");
+    */
   });
 
   it("Update video url and check play and pause functionality validation", function() {
@@ -48,18 +54,22 @@ describe("Video Widget Functionality", function() {
       "response.body.responseMeta.status",
       200,
     );
+    /*
+    cy.wait(4000);
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Play success");
-    cy.wait(2000);
+    */
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(500);
+    /*
+    cy.wait(4000);
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Pause success");
+    */
   });
 
   afterEach(() => {

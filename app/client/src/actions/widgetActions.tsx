@@ -127,3 +127,10 @@ export const cutWidget = () => {
     type: ReduxActionTypes.CUT_SELECTED_WIDGET,
   };
 };
+
+export const addTableWidgetFromQuery = (queryName: string) => {
+  return {
+    type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
+    payload: queryName,
+  };
+};
