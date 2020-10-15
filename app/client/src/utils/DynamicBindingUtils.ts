@@ -24,6 +24,8 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
+type StringTuple = [string, string];
+
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
   const withBindings = string.replace(DATA_BIND_REGEX_GLOBAL, "{{ }}");
@@ -330,7 +332,7 @@ export const createDependencyTree = (
   dataTree: DataTree,
 ): {
   sortedDependencies: Array<string>;
-  dependencyTree: Array<[string, string]>;
+  dependencyTree: Array<StringTuple>;
   dependencyMap: DynamicDependencyMap;
 } => {
   const dependencyMap: DynamicDependencyMap = {};
@@ -387,7 +389,7 @@ export const createDependencyTree = (
       dependencyMap[key].map(path => calculateSubDependencies(path, allKeys)),
     );
   });
-  const dependencyTree: Array<[string, string]> = [];
+  const dependencyTree: Array<StringTuple> = [];
   Object.keys(dependencyMap).forEach((key: string) => {
     if (dependencyMap[key].length) {
       dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
@@ -443,7 +445,7 @@ const calculateSubDependencies = (
 
 export const setTreeLoading = (
   dataTree: DataTree,
-  dependencyMap: Array<[string, string]>,
+  dependencyMap: Array<StringTuple>,
 ) => {
   const widgets: string[] = [];
   const isLoadingActions: string[] = [];
@@ -479,7 +481,7 @@ export const setTreeLoading = (
 };
 
 export const getEntityDependencies = (
-  dependencyMap: Array<[string, string]>,
+  dependencyMap: Array<StringTuple>,
   entity: string,
   entities: string[],
 ): Array<string> => {

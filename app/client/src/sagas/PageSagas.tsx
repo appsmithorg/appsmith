@@ -326,6 +326,7 @@ function* savePageSaga() {
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {
         error,
+        show: false,
       },
     });
   }

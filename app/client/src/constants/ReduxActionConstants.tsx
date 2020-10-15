@@ -63,6 +63,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_ACTION_INIT: "UPDATE_ACTION_INIT",
   UPDATE_ACTION_SUCCESS: "UPDATE_ACTION_SUCCESS",
   DELETE_ACTION_INIT: "DELETE_ACTION_INIT",
+  SET_DATASOURCE_EDITOR_MODE: "SET_DATASOURCE_EDITOR_MODE",
   DELETE_ACTION_SUCCESS: "DELETE_ACTION_SUCCESS",
   SHOW_RUN_ACTION_CONFIRM_MODAL: "SHOW_RUN_ACTION_CONFIRM_MODAL",
   CANCEL_RUN_ACTION_CONFIRM_MODAL: "CANCEL_RUN_ACTION_CONFIRM_MODAL",
@@ -167,6 +168,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FOCUS_WIDGET: "FOCUS_WIDGET",
   SET_WIDGET_DRAGGING: "SET_WIDGET_DRAGGING",
   SET_WIDGET_RESIZING: "SET_WIDGET_RESIZING",
+  ADD_TABLE_WIDGET_FROM_QUERY: "ADD_TABLE_WIDGET_FROM_QUERY",
   SEARCH_APPLICATIONS: "SEARCH_APPLICATIONS",
   UPDATE_PAGE_INIT: "UPDATE_PAGE_INIT",
   UPDATE_PAGE_SUCCESS: "UPDATE_PAGE_SUCCESS",
@@ -462,12 +464,8 @@ export type ApplicationPayload = {
 
 export type OrganizationDetails = {
   organization: Org;
-  applications: [];
+  applications: any[];
 };
-
-// export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
-
-// export interface LoadQueryResponsePayload extends ExecuteActionResponse {}
 
 export interface LoadWidgetEditorPayload {
   widgets: WidgetProps[];
@@ -476,10 +474,6 @@ export interface LoadWidgetEditorPayload {
 export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
-
-export type SavePagePayload = {};
-export type SavePageErrorPayload = {};
-export type SavePageSuccessPayload = {};
 
 export type InitializeEditorPayload = {
   applicationId: string;

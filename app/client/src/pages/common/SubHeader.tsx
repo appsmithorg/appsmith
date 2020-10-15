@@ -5,6 +5,8 @@ import styled from "styled-components";
 import _, { noop } from "lodash";
 import SearchInput, { SearchVariant } from "components/ads/SearchInput";
 import Button, { Size } from "components/ads/Button";
+import { useSelector } from "react-redux";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
 const SubHeaderWrapper = styled.div`
   width: 100%;
@@ -48,6 +50,7 @@ type SubHeaderProps = {
 };
 
 export const ApplicationsSubHeader = (props: SubHeaderProps) => {
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
   const query =
     props.search &&
     props.search.queryFn &&
@@ -66,6 +69,7 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
               placeholder={props.search.placeholder}
               variant={SearchVariant.SEAMLESS}
               onChange={query || noop}
+              disabled={isFetchingApplications}
             />
           </ControlGroup>
         )}
