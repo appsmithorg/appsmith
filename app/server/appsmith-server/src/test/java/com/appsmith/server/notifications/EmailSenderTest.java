@@ -4,7 +4,6 @@ import com.appsmith.server.configurations.EmailConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -56,7 +56,7 @@ public class EmailSenderTest {
             try {
                 emailSender.sendMail(invalidAddress, "test-subject", "email/welcomeUserTemplate.html", Collections.emptyMap()).block();
 
-                Mockito.verifyNoInteractions(javaMailSender);
+                verifyNoInteractions(javaMailSender);
             } catch (Throwable exc) {
                 System.out.println("******************************");
                 System.out.println(String.format("Failed for >>> %s", invalidAddress));
