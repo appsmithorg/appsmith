@@ -127,16 +127,23 @@ class FilePickerWidget extends BaseWidget<
     this.uppy.on("file-added", (file: any) => {
       const dslFiles = this.props.files || [];
       const reader = new FileReader();
+
       reader.readAsDataURL(file.data);
       reader.onloadend = () => {
         const base64data = reader.result;
-        const newFile = {
-          id: file.id,
-          base64: base64data,
-          blob: file.data,
+        const binaryReader = new FileReader();
+        binaryReader.readAsBinaryString(file.data);
+        binaryReader.onloadend = () => {
+          const rawData = binaryReader.result;
+          const newFile = {
+            id: file.id,
+            base64: base64data,
+            blob: file.data,
+            raw: rawData,
+          };
+          dslFiles.push(newFile);
+          this.props.updateWidgetMetaProperty("files", dslFiles);
         };
-        dslFiles.push(newFile);
-        this.props.updateWidgetMetaProperty("files", dslFiles);
       };
     });
     this.uppy.on("upload", () => {
