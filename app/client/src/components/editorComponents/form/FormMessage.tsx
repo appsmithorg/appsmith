@@ -118,7 +118,7 @@ export const FormMessage = (props: FormMessageProps) => {
     <StyledMessage>
       <MessageContainer iconbgcolor={iconbgcolor}>
         <Icon color={IntentColors[props.intent]} width={20} height={20} />
-        <p>{props.message}</p>
+        <p dangerouslySetInnerHTML={{ __html: props.message }} />
       </MessageContainer>
       {actions && <ActionsContainer>{actions}</ActionsContainer>}
     </StyledMessage>
