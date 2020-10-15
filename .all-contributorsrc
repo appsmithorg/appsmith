@@ -179,6 +179,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "daniel-shuy",
+      "name": "Daniel Shuy",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/17351764?v=4",
+      "profile": "https://github.com/daniel-shuy",
+      "contributions": [
+        "code",
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
