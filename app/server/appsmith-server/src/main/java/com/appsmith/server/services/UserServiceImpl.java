@@ -159,7 +159,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     /**
      * This function creates a one-time token for resetting the user's password. This token is stored in the `passwordResetToken`
-     * collection with an expiry time of 1 hour. The user must provide this one-time token when updating with the new password.
+     * collection with an expiry time of 48 hours. The user must provide this one-time token when updating with the new password.
      *
      * @param resetUserPasswordDTO
      * @return
@@ -432,6 +432,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> userCreate(User user) {
+        final boolean isFromInvite = user.getInviteToken() != null;
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (user.isEnabled() && LoginSource.FORM.equals(user.getSource())) {
@@ -467,7 +468,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 })
                 .then(repository.findByEmail(user.getUsername()))
                 .flatMap(analyticsService::trackNewUser)
-                .flatMap(analyticsService::sendCreateEvent);
+                .flatMap(user1 -> analyticsService.sendCreateEvent(user1, Map.of("isFromInvite", isFromInvite)));
     }
 
     /**

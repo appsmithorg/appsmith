@@ -33,6 +33,9 @@ export const ProfileImage = styled.div<{ backgroundColor?: string }>`
 `;
 
 const ProfileMenuStyle = createGlobalStyle`
+  .bp3-popover {
+    box-shadow: none;
+  }
   .profile-menu {
     .bp3-popover .bp3-popover-content{
       margin-top: 2px;
