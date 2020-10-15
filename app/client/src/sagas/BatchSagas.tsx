@@ -1,4 +1,3 @@
-/* eslint-disable  @typescript-eslint/ban-ts-ignore */
 import _ from "lodash";
 import { put, debounce, takeEvery, all } from "redux-saga/effects";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -56,6 +55,7 @@ function* executeBatchSaga() {
       const needsSaga = batch.filter(b => BATCH_PRIORITY[b.type].needsSaga);
       const canBatch = batch.filter(b => !BATCH_PRIORITY[b.type].needsSaga);
       batches[priority] = [];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       yield put(canBatch);
       if (needsSaga.length) {
@@ -63,7 +63,7 @@ function* executeBatchSaga() {
           yield put(sagaAction);
         }
       }
-      yield put(batchActionSuccess());
+      yield put(batchActionSuccess(batch));
     }
   }
 }

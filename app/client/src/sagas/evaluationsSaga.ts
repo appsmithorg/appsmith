@@ -1,6 +1,15 @@
-import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import { eventChannel, EventChannel } from "redux-saga";
 import {
+  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
@@ -18,6 +27,7 @@ import {
 import { ToastType } from "react-toastify";
 import { AppToaster } from "../components/editorComponents/ToastComponent";
 import log from "loglevel";
+import _ from "lodash";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
@@ -129,7 +139,7 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
   ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS,
   ReduxActionTypes.CREATE_ACTION_SUCCESS,
-  // ReduxActionTypes.UPDATE_ACTION_PROPERTY,
+  ReduxActionTypes.UPDATE_ACTION_PROPERTY,
   ReduxActionTypes.DELETE_ACTION_SUCCESS,
   ReduxActionTypes.COPY_ACTION_SUCCESS,
   ReduxActionTypes.MOVE_ACTION_SUCCESS,
@@ -146,9 +156,9 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_APP_STORE,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
-  // ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+  ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   // Widget Meta
-  // ReduxActionTypes.SET_META_PROP,
+  ReduxActionTypes.SET_META_PROP,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
 ];
@@ -157,7 +167,17 @@ function* evaluationChangeListenerSaga() {
   initEvaluationWorkers();
   yield call(evaluateTreeSaga);
   while (true) {
-    yield take(EVALUATE_REDUX_ACTIONS);
+    const action: ReduxAction<any> = yield take(EVALUATE_REDUX_ACTIONS);
+    if (action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS) {
+      const batchedActionTypes = action.payload.map(
+        (batchedAction: ReduxAction<any>) => batchedAction.type,
+      );
+      if (
+        _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length === 0
+      ) {
+        continue;
+      }
+    }
     yield call(evaluateTreeSaga);
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit editor)

@@ -186,10 +186,13 @@ export const copyActionError = (payload: {
   };
 };
 
-export const executeApiActionRequest = (payload: { id: string }) => ({
-  type: ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
-  payload: payload,
-});
+export const executeApiActionRequest = (payload: { id: string }) => {
+  console.log("Call isLoading");
+  return {
+    type: ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
+    payload: payload,
+  };
+};
 
 export const executeApiActionSuccess = (payload: {
   id: string;
