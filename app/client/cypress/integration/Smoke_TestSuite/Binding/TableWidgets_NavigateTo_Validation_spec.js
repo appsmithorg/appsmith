@@ -5,20 +5,19 @@ const dsl = require("../../../fixtures/tableWidgetDsl.json");
 const pages = require("../../../locators/Pages.json");
 const testdata = require("../../../fixtures/testdata.json");
 const dsl2 = require("../../../fixtures/displayWidgetDsl.json");
+const explorer = require("../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
-describe("Table Widget Functionality", function() {
+describe("Table Widget and Navigate to functionality validation", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Table Widget Functionality", function() {
+  it("Table Widget Functionality with multiple page", function() {
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TablePagination));
-    cy.get(
-      ".t--property-control-onsearchtextchanged .t--open-dropdown-Select-Action",
-    ).click();
+    cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
+    cy.get(widgetsPage.tableActionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Navigate To")
@@ -30,7 +29,7 @@ describe("Table Widget Functionality", function() {
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
-    cy.get(".t--entity-name:contains(MyPage)");
+    cy.get(explorer.entity).contains(pageid);
   });
 
   it("Validate NavigateTo Page functionality ", function() {
@@ -41,14 +40,15 @@ describe("Table Widget Functionality", function() {
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
       cy.wait(500);
-      cy.get(".t--widget-chartwidget").should("not.be.visible");
+      cy.get(widgetsPage.chartWidget).should("not.be.visible");
+      //Below test to be enabled once the bug related to change of page in table in fixed
       //cy.get('.t--table-widget-next-page')
       //  .click();
       cy.PublishtheApp();
       cy.get(publish.searchInput)
         .first()
         .type(tabData);
-      cy.get(".t--widget-chartwidget").should("be.visible");
+      cy.get(widgetsPage.chartWidget).should("be.visible");
     });
   });
 });

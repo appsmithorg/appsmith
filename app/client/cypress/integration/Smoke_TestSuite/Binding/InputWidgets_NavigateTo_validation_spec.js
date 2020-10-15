@@ -6,6 +6,7 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const testdata = require("../../../fixtures/testdata.json");
 const dsl2 = require("../../../fixtures/displayWidgetDsl.json");
+const explorer = require("../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function() {
@@ -16,7 +17,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   it("Input widget test with default value from table widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    cy.get(".t--open-dropdown-Select-Action").click();
+    cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Navigate To")
@@ -28,7 +29,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
-    cy.get(".t--entity-name:contains(MyPage)");
+    cy.get(explorer.entity).contains(pageid);
   });
 
   it("Validate NavigateTo Page functionality ", function() {
@@ -38,17 +39,16 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       const tabValue = tabData;
       expect(tabValue).to.be.equal("2736212");
       cy.log("the value is" + tabValue);
-
       cy.get(publish.inputWidget + " " + "input")
         .first()
         .invoke("attr", "value")
         .should("contain", tabValue);
-      cy.get(".t--widget-chartwidget").should("not.be.visible");
+      cy.get(widgetsPage.chartWidget).should("not.be.visible");
 
-      cy.get(".bp3-input-group input")
+      cy.get(publish.inputGrp)
         .first()
         .clear();
-      cy.get(".t--widget-chartwidget").should("be.visible");
+      cy.get(widgetsPage.chartWidget).should("be.visible");
     });
   });
 });
