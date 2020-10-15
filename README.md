@@ -15,7 +15,7 @@
 
 </p>
   <p>
-    <sub>Built with empathy, not just ❤︎ </sub>
+    <sub>Built with empathy, not just Love </sub>
   </p>
 </div>
 
