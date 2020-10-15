@@ -234,6 +234,7 @@ const createLoadingWidget = (
   );
   return {
     ...widgetStaticProps,
+    type: "TEXT_WIDGET", // TODO add a LOADER_WIDGET
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     isLoading: true,
   };
