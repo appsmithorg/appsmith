@@ -87,10 +87,6 @@ interface TableProps {
   columns: any[];
 }
 
-const HiddenArrow = styled(DownArrow)`
-  visibility: hidden;
-`;
-
 function Table(props: TableProps) {
   const { data, columns } = props;
 
@@ -121,7 +117,7 @@ function Table(props: TableProps) {
                       <DownArrow />
                     )
                   ) : (
-                    <HiddenArrow />
+                    ""
                   )}
                 </th>
               ))}
