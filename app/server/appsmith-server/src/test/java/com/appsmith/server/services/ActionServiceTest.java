@@ -633,9 +633,9 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<Action> createActionMono = actionService.create(action);
+        Mono<Action> createActionMono = newActionService.createAction(action);
         Mono<List<ActionViewDTO>> actionViewModeListMono = createActionMono
-                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
+                .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier.create(actionViewModeListMono)
                 .assertNext(actions -> {
