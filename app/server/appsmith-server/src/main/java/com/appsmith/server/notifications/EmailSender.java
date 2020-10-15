@@ -5,6 +5,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -20,23 +21,18 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
 @Slf4j
 public class EmailSender {
 
-    final JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
-    final EmailConfig emailConfig;
+    private final EmailConfig emailConfig;
 
     private final InternetAddress MAIL_FROM;
 
     private final InternetAddress REPLY_TO;
-
-    public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
-            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     public EmailSender(JavaMailSender javaMailSender, EmailConfig emailConfig) {
         this.javaMailSender = javaMailSender;
@@ -47,8 +43,7 @@ public class EmailSender {
     }
 
     private static boolean validateEmail(String emailStr) {
-        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
-        return matcher.find();
+        return EmailValidator.getInstance().isValid(emailStr);
     }
 
     public Mono<String> sendMail(String to, String subject, String text, Map<String, String> params) {
@@ -64,9 +59,7 @@ public class EmailSender {
                 // to implement a fire-and-forget strategy.
                 // CAUTION : We may run into scenarios where too many tasks have been created and queued and the master tasks have already exited with success.
                 .doOnNext(emailBody ->
-                        Mono.fromRunnable(() -> {
-                            sendMailSync(to, subject, emailBody);
-                        })
+                        Mono.fromRunnable(() -> sendMailSync(to, subject, emailBody))
                         // Scheduling using boundedElastic because the number of active tasks are capped
                         // and hence not allowing the background threads to grow indefinitely
                         .subscribeOn(Schedulers.boundedElastic())
