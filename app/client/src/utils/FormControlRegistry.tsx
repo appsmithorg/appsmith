@@ -1,5 +1,8 @@
 import React from "react";
 import FormControlFactory from "./FormControlFactory";
+import FixedKeyInputControl, {
+  FixedKeyInputControlProps,
+} from "components/formControls/FixedKeyInputControl";
 import InputTextControl, {
   InputControlProps,
 } from "components/formControls/InputTextControl";
@@ -30,6 +33,13 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder("INPUT_TEXT", {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
         return <InputTextControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("FIXED_KEY_INPUT", {
+      buildPropertyControl(
+        controlProps: FixedKeyInputControlProps,
+      ): JSX.Element {
+        return <FixedKeyInputControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("DROP_DOWN", {

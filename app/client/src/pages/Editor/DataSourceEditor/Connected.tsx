@@ -217,6 +217,15 @@ const renderSection = (
               }
             }
 
+            if (controlType === "FIXED_KEY_INPUT") {
+              return (
+                <div style={{ marginTop: 9 }}>
+                  <Key>{configProperty.key}: </Key>{" "}
+                  <Value>{configProperty.value}</Value>
+                </div>
+              );
+            }
+
             if (controlType === "KEY_VAL_INPUT") {
               return (
                 <div style={{ marginTop: 9 }}>
