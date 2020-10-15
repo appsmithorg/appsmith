@@ -787,6 +787,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     actionViewDTO.setId(action.getId());
                     actionViewDTO.setName(action.getPublishedAction().getName());
                     actionViewDTO.setPageId(action.getPublishedAction().getPageId());
+                    actionViewDTO.setConfirmBeforeExecute(action.getPublishedAction().getConfirmBeforeExecute());
                     if (action.getPublishedAction().getJsonPathKeys() != null && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
                         Set<String> jsonPathKeys;
                         jsonPathKeys = new HashSet<>();

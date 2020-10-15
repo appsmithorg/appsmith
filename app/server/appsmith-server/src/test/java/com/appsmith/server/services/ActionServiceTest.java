@@ -635,6 +635,8 @@ public class ActionServiceTest {
 
         Mono<Action> createActionMono = newActionService.createAction(action);
         Mono<List<ActionViewDTO>> actionViewModeListMono = createActionMono
+                // Publish the application before fetching the action in view mode
+                .then(applicationPageService.publish(testApp.getId()))
                 .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier.create(actionViewModeListMono)
