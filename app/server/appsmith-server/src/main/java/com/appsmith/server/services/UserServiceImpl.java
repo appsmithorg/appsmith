@@ -432,6 +432,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> userCreate(User user) {
+        final boolean isFromInvite = user.getInviteToken() != null;
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (user.isEnabled() && LoginSource.FORM.equals(user.getSource())) {
@@ -467,7 +468,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 })
                 .then(repository.findByEmail(user.getUsername()))
                 .flatMap(analyticsService::trackNewUser)
-                .flatMap(analyticsService::sendCreateEvent);
+                .flatMap(user1 -> analyticsService.sendCreateEvent(user1, Map.of("isFromInvite", isFromInvite)));
     }
 
     /**
