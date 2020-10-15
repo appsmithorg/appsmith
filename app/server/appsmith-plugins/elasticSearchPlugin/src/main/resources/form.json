@@ -20,42 +20,31 @@
               "controlType": "KEYVALUE_ARRAY"
             }
           ]
-        },
-        {
-          "label": "Default Database Name",
-          "placeholder": "(Optional)",
-          "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
-          "controlType": "INPUT_TEXT"
         }
       ]
     },
     {
       "sectionName": "Authentication",
-      "children": [
+       "children": [
         {
-          "label": "Database Name",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "label": "Username for Basic Auth",
+          "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
-          "placeholderText": "Database name",
-          "initialValue": "admin"
+          "placeholderText": "Username"
         },
         {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Username",
-              "configProperty": "datasourceConfiguration.authentication.username",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Username"
-            },
-            {
-              "label": "Password",
-              "configProperty": "datasourceConfiguration.authentication.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Password"
-            }
-          ]
+          "label": "Password for Basic Auth",
+          "configProperty": "datasourceConfiguration.authentication.password",
+          "dataType": "PASSWORD",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Password"
+        },
+        {
+          "label": "Authorization Header (if username, password are not set)",
+          "configProperty": "datasourceConfiguration.properties[0].Authorization",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Authorization Header",
+          "initialValue": "admin"
         }
       ]
     }

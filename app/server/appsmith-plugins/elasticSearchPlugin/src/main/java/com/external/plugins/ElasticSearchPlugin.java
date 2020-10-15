@@ -2,22 +2,28 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -40,53 +46,35 @@ public class ElasticSearchPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(RestClient client,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            ActionExecutionResult result = new ActionExecutionResult();
+            final ActionExecutionResult result = new ActionExecutionResult();
 
             final String body = actionConfiguration.getBody();
-            final HashMap<String, Object> configBody;
-            try {
-                configBody = objectMapper.readValue(body, HashMap.class);
-            } catch (IOException e) {
-                return Mono.error(e);
-            }
 
-            final String path = configBody.get("path").toString();
+            final String path = actionConfiguration.getPath();
+            final Request request = new Request(actionConfiguration.getHttpMethod().toString(), path);
 
-            Request request = new Request(
-                    configBody.get("method").toString().toUpperCase(),
-                    path
-            );
-
-            if (configBody.get("body") != null) {
-                if (isBulkQuery(path)) {
-                    try {
-                        StringBuilder ndJsonBuilder = new StringBuilder();
-                        for (Object object : (List<Object>) configBody.get("body")) {
-                            ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
-                        }
-                        request.setEntity(new NStringEntity(ndJsonBuilder.toString(), ContentType.create("application/x-ndjson")));
-                    } catch (JsonProcessingException e) {
-                        return Mono.error(e);
+            if (isBulkQuery(path) && body.startsWith("[")) {
+                final StringBuilder ndJsonBuilder = new StringBuilder();
+                try {
+                    List<Object> commands = objectMapper.readValue(body, ArrayList.class);
+                    for (Object object : commands) {
+                        ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
                     }
-                } else {
-                    try {
-                        request.setJsonEntity(objectMapper.writeValueAsString(configBody.get("body")));
-                    } catch (JsonProcessingException e) {
-                        return Mono.error(e);
-                    }
+                } catch (IOException e) {
+                    return Mono.error(e);
                 }
-            }
+                request.setEntity(
+                        new NStringEntity(ndJsonBuilder.toString(), ContentType.create("application/x-ndjson"))
+                );
 
-            final Response response;
-            try {
-                response = client.performRequest(request);
-            } catch (IOException e) {
-                return Mono.error(e);
+            } else {
+                request.setJsonEntity(body);
+
             }
 
             final String responseBody;
             try {
-                responseBody = new String(response.getEntity().getContent().readAllBytes());
+                responseBody = new String(client.performRequest(request).getEntity().getContent().readAllBytes());
             } catch (IOException e) {
                 return Mono.error(e);
             }
@@ -113,7 +101,26 @@ public class ElasticSearchPlugin extends BasePlugin {
                 hosts.add(new HttpHost(endpoint.getHost(), endpoint.getPort().intValue(), "http"));
             }
 
-            return Mono.just(RestClient.builder(hosts.toArray(new HttpHost[]{})).build());
+            final RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[]{}));
+
+            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            if (authentication != null
+                    && !StringUtils.isEmpty(authentication.getUsername())
+                    && !StringUtils.isEmpty(authentication.getPassword())) {
+                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(
+                        AuthScope.ANY,
+                        new UsernamePasswordCredentials(authentication.getUsername(), authentication.getPassword())
+                );
+
+                clientBuilder
+                        .setHttpClientConfigCallback(
+                                httpClientBuilder -> httpClientBuilder
+                                        .setDefaultCredentialsProvider(credentialsProvider)
+                        );
+            }
+
+            return Mono.just(clientBuilder.build());
         }
 
         @Override
@@ -140,6 +147,7 @@ public class ElasticSearchPlugin extends BasePlugin {
 
                         // This HEAD request is to check if an index exists. It response with 200 if the index exists,
                         // 404 if it doesn't. We just check for either of these two.
+                        // Ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
                         Request request = new Request("HEAD", "/potentially-missing-index?local=true");
 
                         final Response response;
