@@ -7,12 +7,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -73,6 +78,26 @@ public class GlobalExceptionHandler {
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
                 appsmithError.getMessage())));
     }
+
+    @ExceptionHandler(WebExchangeBindException.class)
+    @ResponseBody
+    public Mono<ResponseDTO<ErrorDTO>> catchWebExchangeBindException(
+            WebExchangeBindException exc, ServerWebExchange exchange) {
+        AppsmithError appsmithError = AppsmithError.VALIDATION_FAILURE;
+        exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
+        Map<String, String> errors = new HashMap<>();
+        exc.getBindingResult()
+                .getAllErrors()
+                .forEach(
+                        (error) -> {
+                            String fieldName = ((FieldError) error).getField();
+                            String errorMessage = error.getDefaultMessage();
+                            errors.put(fieldName, errorMessage);
+                        });
+        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                appsmithError.getMessage(errors.toString()))));
+    }
+
 
     @ExceptionHandler
     @ResponseBody
