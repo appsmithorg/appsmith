@@ -24,9 +24,9 @@ import {
   AnchorButton,
   Hotkey,
   Hotkeys,
-  HotkeysTarget,
   Spinner,
 } from "@blueprintjs/core";
+import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
 import {
@@ -49,7 +49,7 @@ import { isMac } from "utils/helpers";
 type EditorProps = {
   currentApplicationId?: string;
   currentPageId?: string;
-  initEditor: Function;
+  initEditor: (applicationId: string, pageId: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;

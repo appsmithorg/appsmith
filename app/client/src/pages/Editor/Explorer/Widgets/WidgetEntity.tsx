@@ -28,7 +28,7 @@ export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
 const UNREGISTERED_WIDGETS: WidgetType[] = [WidgetTypes.ICON_WIDGET];
 
-const navigateToCanvas = (
+export const navigateToCanvas = (
   params: ExplorerURLParams,
   currentPath: string,
   widgetPageId: string,

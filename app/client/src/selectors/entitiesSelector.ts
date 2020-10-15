@@ -88,15 +88,12 @@ export const getPluginNameFromId = (state: AppState, pluginId: string) => {
   return plugin.name;
 };
 
-export const getPluginForm = (state: AppState, pluginId: string): [] => {
+export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
 
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
-
-export const getDatasourceRefs = (state: AppState): any =>
-  state.ui.datasourcePane.datasourceRefs;
 
 export const getDatasource = (
   state: AppState,
@@ -205,6 +202,10 @@ export const getActionsForCurrentPage = createSelector(
     return actions.filter(a => a.config.pageId === pageId);
   },
 );
+
+export const getPlugin = (state: AppState, pluginId: string) => {
+  return state.entities.plugins.list.find(plugin => plugin.id === pluginId);
+};
 
 export const getActionResponses = createSelector(getActions, actions => {
   const responses: Record<string, ActionResponse | undefined> = {};

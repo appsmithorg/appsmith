@@ -47,6 +47,12 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
   }
   .CodeMirror-Tern-completion {
     padding-left: 22px !important;
+    &:hover{
+      background: ${props =>
+        props.editorTheme === EditorTheme.DARK
+          ? "rgba(244,244,244,0.2)"
+          : "rgba(128,136,141,0.2)"};
+    }
   }
   .CodeMirror-Tern-completion:before {
     left: 4px !important;

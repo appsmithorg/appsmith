@@ -34,6 +34,7 @@ import { setThemeMode } from "actions/themeActions";
 import { connect } from "react-redux";
 
 import * as Sentry from "@sentry/react";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const loadingIndicator = <PageLoadingBar />;
@@ -51,15 +52,25 @@ function changeAppBackground(currentTheme: any) {
 }
 
 class AppRouter extends React.Component<any, any> {
+  unlisten: any;
+
+  componentDidMount() {
+    // This is needed for the route switch.
+    AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
+    this.unlisten = history.listen((location: any) => {
+      AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: location.pathname });
+      changeAppBackground(this.props.currentTheme);
+    });
+  }
+
+  componentWillUnmount() {
+    this.unlisten();
+  }
+
   render() {
     const { currentTheme } = this.props;
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);
-    // This is needed for the route switch.
-    history.listen(() => {
-      changeAppBackground(currentTheme);
-    });
-
     return (
       <Router history={history}>
         <Suspense fallback={loadingIndicator}>

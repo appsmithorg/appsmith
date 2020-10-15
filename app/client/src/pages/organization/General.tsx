@@ -40,7 +40,7 @@ const Loader = styled.div`
 `;
 
 export function GeneralSettings() {
-  const { orgId } = useParams();
+  const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
   const currentOrg = useSelector(getCurrentOrg);
   function saveChanges(settings: SaveOrgRequest) {

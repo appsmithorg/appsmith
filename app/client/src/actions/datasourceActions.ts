@@ -80,6 +80,16 @@ export const deleteDatasource = (payload: Partial<Datasource>) => {
   };
 };
 
+export const setDatsourceEditorMode = (payload: {
+  id: string;
+  viewMode: boolean;
+}) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
+    payload,
+  };
+};
+
 export const fetchDatasources = () => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
