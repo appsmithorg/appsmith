@@ -16,17 +16,19 @@ import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "actions/controlActions";
-import { RenderModes } from "constants/WidgetConstants";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import { IPanelProps } from "@blueprintjs/core";
 
-type Props = {
-  widgetProperties: WidgetProps;
-  propertyConfig: PropertyPaneControlConfig;
+type Props = PropertyPaneControlConfig & {
+  panel: IPanelProps;
+  widgetProperties: any;
 };
 
 const PropertyControl = (props: Props) => {
+  console.log({ props });
   const dispatch = useDispatch();
-  const { widgetProperties, propertyConfig } = props;
+  const { widgetProperties } = props;
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -75,11 +77,23 @@ const PropertyControl = (props: Props) => {
       widgetProperties.widgetName,
     ],
   );
+  const openPanel = useCallback(
+    (panelProps: any) => {
+      if (props.panelConfig) {
+        props.panel.openPanel({
+          component: props.panelConfig.component,
+          props: {
+            panelProps,
+            panelConfig: props.panelConfig,
+            widgetProperties,
+          },
+        });
+      }
+    },
+    [props.panelConfig, widgetProperties],
+  );
   // Do not render the control if it needs to be hidden
-  if (
-    props.propertyConfig.hidden &&
-    props.propertyConfig.hidden(props.widgetProperties)
-  ) {
+  if (props.hidden && props.hidden(props.widgetProperties)) {
     return null;
   }
 
@@ -101,7 +115,7 @@ const PropertyControl = (props: Props) => {
     return { isValid, validationMessage };
   };
 
-  const { propertyName, label } = propertyConfig;
+  const { propertyName, label } = props;
   if (widgetProperties) {
     const propertyValue = widgetProperties[propertyName];
     const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
@@ -111,7 +125,7 @@ const PropertyControl = (props: Props) => {
     );
     const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const config = {
-      ...propertyConfig,
+      ...props,
       isValid,
       propertyValue,
       validationMessage,
@@ -120,7 +134,7 @@ const PropertyControl = (props: Props) => {
       widgetProperties,
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type][
+      expected: FIELD_EXPECTED_VALUE[props.widgetProperties.type as WidgetType][
         propertyName
       ] as any,
     };
@@ -141,11 +155,12 @@ const PropertyControl = (props: Props) => {
       ["dynamicProperties", propertyName],
       false,
     );
-    const isConvertible = !!propertyConfig.isJSConvertible;
-    const className = propertyConfig.label
+    const isConvertible = !!props.isJSConvertible;
+    const className = props.label
       .split(" ")
       .join("")
       .toLowerCase();
+
     try {
       return (
         <ControlWrapper
@@ -158,10 +173,7 @@ const PropertyControl = (props: Props) => {
           }
         >
           <ControlPropertyLabelContainer>
-            <PropertyHelpLabel
-              tooltip={propertyConfig.helpText}
-              label={label}
-            />
+            <PropertyHelpLabel tooltip={props.helpText} label={label} />
             {isConvertible && (
               <JSToggleButton
                 active={isDynamic}
@@ -175,7 +187,7 @@ const PropertyControl = (props: Props) => {
             config,
             {
               onPropertyChange: onPropertyChange,
-              openNextPanel: openNextPanel,
+              openNextPanel: openPanel,
             },
             isDynamic,
           )}

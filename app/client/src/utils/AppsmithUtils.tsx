@@ -16,7 +16,7 @@ import { SERVER_ERROR_URL } from "../constants/routes";
 
 export const createReducer = (
   initialState: any,
-  handlers: { [type: string]: Function },
+  handlers: { [type: string]: any },
 ) => {
   return function reducer(state = initialState, action: ReduxAction<any>) {
     if (handlers.hasOwnProperty(action.type)) {
@@ -135,8 +135,10 @@ export const convertToString = (value: any): string => {
 
 const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   let logLevel = configLevel;
-  const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
-  if (localStorageLevel) logLevel = localStorageLevel;
+  if (localStorage && localStorage.getItem) {
+    const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
+    if (localStorageLevel) logLevel = localStorageLevel;
+  }
   return logLevel;
 };
 
@@ -227,7 +229,7 @@ export function convertObjectToQueryParams(object: any): string {
 }
 
 export const retryPromise = (
-  fn: Function,
+  fn: () => Promise<any>,
   retriesLeft = 5,
   interval = 1000,
 ): Promise<any> => {

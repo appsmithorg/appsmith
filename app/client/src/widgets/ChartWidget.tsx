@@ -176,7 +176,7 @@ export interface ChartDataPoint {
 
 export interface ChartData {
   seriesName?: string;
-  data: ChartDataPoint[];
+  data: string;
 }
 
 export interface ChartWidgetProps extends WidgetProps {

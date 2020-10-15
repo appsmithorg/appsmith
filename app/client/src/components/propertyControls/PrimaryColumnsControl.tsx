@@ -7,7 +7,7 @@ import {
   StyledVisibleIcon,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
+import { DroppableComponent } from "components/designSystems/appsmith/DraggableListComponent";
 import { ColumnProperties } from "widgets/TableWidget";
 import EmptyDataState from "components/utils/EmptyDataState";
 
@@ -104,16 +104,10 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   onEdit = (index: number) => {
     const columns = this.props.propertyValue || [];
     const column: ColumnProperties = columns[index];
-    this.props.childrenProperties &&
-      this.props.openNextPanel({
-        parentPropertyName: this.props.parentPropertyName || "",
-        parentPropertyValue: this.props.parentPropertyValue,
-        propertySections: this.props.childrenProperties,
-        ...column,
-      });
+    this.props.openNextPanel(column);
   };
 
-  updateItems = (items: object[]) => {
+  updateItems = (items: Array<Record<string, unknown>>) => {
     this.updateProperty(this.props.propertyName, items);
   };
 

@@ -3,11 +3,9 @@ import styled, { AnyStyledComponent } from "styled-components";
 import _ from "lodash";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { Divider, IPanel, IPanelProps } from "@blueprintjs/core";
 import {
   getCurrentWidgetId,
-  getPropertyConfig,
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
   getWidgetChildPropertiesForPropertyPane,
@@ -28,6 +26,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import PaneWrapper from "pages/common/PaneWrapper";
 import { ControlIcons } from "icons/ControlIcons";
 import CollapseComponent from "components/utils/CollapseComponent";
+import {
+  PanelConfig,
+  PropertyPaneConfig,
+} from "constants/PropertyControlConstants";
+import { generatePropertyControl } from "./Generator";
 
 const PropertySectionLabel = styled.div`
   color: ${props => props.theme.colors.paneSectionLabel};
@@ -78,56 +81,53 @@ const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
   }
 `;
 
-const PropertySectionComponent = (props: PropertySectionComponentProps) => {
-  const { propertySection, id, widgetProperties } = props;
-  // <CollapseComponent title={propertySection.sectionName} />
-  return (
-    <div key={id}>
-      <CollapseComponent
-        title={
-          !_.isNil(propertySection) ? propertySection.sectionName : undefined
-        }
-      >
-        {_.map(
-          propertySection.children,
-          (propertyControlOrSection: ControlProps | PropertySection) => {
-            if ("children" in propertyControlOrSection) {
-              return (
-                <PropertySectionComponent
-                  propertySection={propertyControlOrSection}
-                  id={propertyControlOrSection.id}
-                  widgetProperties={widgetProperties}
-                  onPropertyChange={props.onPropertyChange}
-                  toggleDynamicProperty={props.toggleDynamicProperty}
-                  openNextPanel={props.openNextPanel}
-                  childProperties={props.childProperties}
-                />
-              );
-            } else if (widgetProperties) {
-              try {
-                return (
-                  <PropertyControl
-                    key={propertyControlOrSection.id}
-                    propertyConfig={propertyControlOrSection}
-                    widgetProperties={_.merge(
-                      widgetProperties,
-                      props.childProperties,
-                    )}
-                    onPropertyChange={props.onPropertyChange}
-                    toggleDynamicProperty={props.toggleDynamicProperty}
-                    openNextPanel={props.openNextPanel}
-                  />
-                );
-              } catch (e) {
-                console.log(e);
-              }
-            }
-          },
-        )}
-      </CollapseComponent>
-    </div>
-  );
-};
+// const PropertySectionComponent = (props: PropertySectionComponentProps) => {
+//   const { id, widgetProperties } = props;
+//   // <CollapseComponent title={propertySection.sectionName} />
+//   return (
+//     <div key={id}>
+//       <CollapseComponent
+//         title={
+//           !_.isNil(propertySection) ? propertySection.sectionName : undefined
+//         }
+//       >
+//         {_.map(
+//           propertySection.children,
+//           (propertyControlOrSection: ControlProps) => {
+//             if ("children" in propertyControlOrSection) {
+//               return (
+//                 <PropertySectionComponent
+//                   id={propertyControlOrSection.id}
+//                   widgetProperties={widgetProperties}
+//                   onPropertyChange={props.onPropertyChange}
+//                   toggleDynamicProperty={props.toggleDynamicProperty}
+//                   openNextPanel={props.openNextPanel}
+//                   childProperties={props.childProperties}
+//                 />
+//               );
+//             } else if (widgetProperties) {
+//               try {
+//                 return (
+//                   <PropertyControl
+//                     key={propertyControlOrSection.id}
+//                     widgetProperties={_.merge(
+//                       widgetProperties,
+//                       props.childProperties,
+//                     )}
+//                     toggleDynamicProperty={props.toggleDynamicProperty}
+//                     openNextPanel={props.openNextPanel}
+//                   />
+//                 );
+//               } catch (e) {
+//                 console.log(e);
+//               }
+//             }
+//           },
+//         )}
+//       </CollapseComponent>
+//     </div>
+//   );
+// };
 
 const PropertyPaneHeader = (
   props: PropertyPaneHeaderProps & PropertiesEditorPanelProps,
@@ -139,7 +139,7 @@ const PropertyPaneHeader = (
         e.stopPropagation();
       }}
     >
-      {props.childProperties && props.updatePropertyTitle && (
+      {/* {props.childProperties && props.updatePropertyTitle && (
         <StyledBackIcon onClick={props.closePanel} />
       )}
       {props.childProperties && props.updatePropertyTitle ? (
@@ -158,198 +158,187 @@ const PropertyPaneHeader = (
           widgetType={props.widgetProperties?.type}
           onClose={props.hidePropertyPane}
         />
-      )}
+      )} */}
     </PaneTitleWrapper>
   );
 };
 
-class PropertiesEditor extends React.Component<
-  IPanelProps &
-    PropertiesEditorProps &
-    PropertiesEditorFunctions &
-    PropertiesEditorPanelProps
+export class PropertiesEditor extends React.Component<
+  PropertiesEditorProps & PropertiesEditorPanelProps
 > {
-  constructor(
-    props: IPanelProps &
-      PropertiesEditorProps &
-      PropertiesEditorFunctions &
-      PropertiesEditorPanelProps,
-  ) {
-    super(props);
-    this.onPropertyChange = this.onPropertyChange.bind(this);
-  }
+  // constructor(
+  //   props: IPanelProps &
+  //     PropertiesEditorProps &
+  //     PropertiesEditorFunctions &
+  //     PropertiesEditorPanelProps,
+  // ) {
+  //   super(props);
+  //   // this.onPropertyChange = this.onPropertyChange.bind(this);
+  // }
 
-  componentDidUpdate(
-    prevProps: PropertiesEditorProps & PropertiesEditorFunctions,
-  ) {
-    console.log("props", prevProps, this.props);
-    if (
-      this.props.widgetId !== prevProps.widgetId &&
-      this.props.widgetId !== undefined
-    ) {
-      if (prevProps.widgetId && prevProps.widgetProperties) {
-        AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
-          widgetType: prevProps.widgetProperties.type,
-          widgetId: prevProps.widgetId,
-        });
-      }
-      if (this.props.widgetProperties) {
-        AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
-          widgetType: this.props.widgetProperties.type,
-          widgetId: this.props.widgetId,
-        });
-      }
-    }
+  componentDidUpdate(prevProps: PropertiesEditorProps) {
+    // console.log("props", prevProps, this.props);
+    // if (
+    //   this.props.widgetProperties.widgetId !==
+    //     prevProps.widgetProperties.widgetId &&
+    //   this.props.widgetProperties.widgetId !== undefined
+    // ) {
+    //   if (prevProps.widgetProperties.widgetId && prevProps.widgetProperties) {
+    //     AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
+    //       widgetType: prevProps.widgetProperties.type,
+    //       widgetId: prevProps.widgetProperties.widgetId,
+    //     });
+    //   }
+    //   if (this.props.widgetProperties) {
+    //     AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
+    //       widgetType: this.props.widgetProperties.type,
+    //       widgetId: this.props.widgetProperties.widgetId,
+    //     });
+    //   }
+    // }
 
-    if (
-      this.props.widgetId === prevProps.widgetId &&
-      this.props.isVisible &&
-      !prevProps.isVisible &&
-      this.props.widgetProperties !== undefined
-    ) {
-      AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
-        widgetType: this.props.widgetProperties.type,
-        widgetId: this.props.widgetId,
-      });
-    }
+    // if (
+    //   this.props.widgetProperties.widgetId === prevProps.widgetProperties.widgetId &&
+    //   this.props.isVisible &&
+    //   !prevProps.isVisible &&
+    //   this.props.widgetProperties !== undefined
+    // ) {
+    //   AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
+    //     widgetType: this.props.widgetProperties.type,
+    //     widgetId: this.props.widgetId,
+    //   });
+    // }
 
     return true;
   }
-  onPropertyChange(propertyName: string, propertyValue: any) {
-    console.log(propertyName, propertyValue, this.props.childProperties);
-    if (this.props.childProperties) {
-      const {
-        parentPropertyName,
-        parentPropertyValue,
-        id,
-      } = this.props.childProperties;
-      let updatedParentPropertyValue = [...parentPropertyValue];
-      updatedParentPropertyValue = updatedParentPropertyValue.map(
-        (item: any) => {
-          if (item.id === id) {
-            // item[propertyName] = propertyValue;
-            return {
-              ...item,
-              [propertyName]: propertyValue,
-            };
-          }
-          return item;
-        },
-      );
-      console.log("updatedParentPropertyValue", updatedParentPropertyValue);
-      this.props.updateWidgetProperty(
-        this.props.widgetId,
-        parentPropertyName,
-        updatedParentPropertyValue,
-      );
-    } else {
-      this.props.updateWidgetProperty(
-        this.props.widgetId,
-        propertyName,
-        propertyValue,
-      );
-      if (this.props.widgetProperties) {
-        AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
-          widgetType: this.props.widgetProperties.type,
-          widgetName: this.props.widgetProperties.widgetName,
-          propertyName: propertyName,
-          updatedValue: propertyValue,
-        });
-      }
-    }
-  }
-  toggleDynamicProperty = (propertyName: string, isDynamic: boolean) => {
-    const { widgetId } = this.props;
-    this.props.setWidgetDynamicProperty(
-      widgetId as string,
-      propertyName,
-      !isDynamic,
-    );
-    if (this.props.widgetProperties) {
-      AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
-        widgetType: this.props.widgetProperties.type,
-        widgetName: this.props.widgetProperties.widgetName,
-        propertyName: propertyName,
-        propertyState: !isDynamic ? "JS" : "NORMAL",
-      });
-    }
-  };
-  closePropertyPane = (e: any) => {
-    AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-      widgetType: this.props.widgetProperties?.type || "",
-      widgetId: this.props.widgetId,
-    });
-    this.props.hidePropertyPane();
-    e.preventDefault();
-    e.stopPropagation();
-  };
-  openNextPanel = (childProperties: ChildProperties) => {
-    console.log("childProperties", childProperties);
-    const { propertySections } = childProperties;
-    if (propertySections) {
-      const nextPanel: IPanel<PropertiesEditorProps &
-        PropertiesEditorFunctions &
-        PropertiesEditorPanelProps> = {
-        props: {
-          isVisible: true,
-          widgetProperties: this.props.widgetProperties,
-          widgetId: this.props.widgetId,
-          propertySections: propertySections,
-          setWidgetDynamicProperty: this.props.setWidgetDynamicProperty,
-          updateWidgetProperty: this.props.updateWidgetProperty,
-          hidePropertyPane: this.props.hidePropertyPane,
-          updatePropertyTitle: this.updatePropertyTitle,
-          openChildPaneProperties: this.props.openChildPaneProperties,
-          childProperties: {
-            parentPropertyName: childProperties.parentPropertyName,
-            parentPropertyValue: childProperties.parentPropertyValue,
-            id: childProperties.id,
-            label: childProperties.label,
-          },
-        },
-        component: ConnectedPropertiesEditor,
-      };
-      this.props.openChildPaneProperties(
-        this.props.widgetId || "",
-        childProperties.parentPropertyName,
-        childProperties.id,
-      );
-      this.props.openPanel(nextPanel);
-    }
-  };
+  // onPropertyChange(propertyName: string, propertyValue: any) {
+  //   console.log(propertyName, propertyValue, this.props.childProperties);
+  //   if (this.props.childProperties) {
+  //     const {
+  //       parentPropertyName,
+  //       parentPropertyValue,
+  //       id,
+  //     } = this.props.childProperties;
+  //     let updatedParentPropertyValue = [...parentPropertyValue];
+  //     updatedParentPropertyValue = updatedParentPropertyValue.map(
+  //       (item: any) => {
+  //         if (item.id === id) {
+  //           // item[propertyName] = propertyValue;
+  //           return {
+  //             ...item,
+  //             [propertyName]: propertyValue,
+  //           };
+  //         }
+  //         return item;
+  //       },
+  //     );
+  //     console.log("updatedParentPropertyValue", updatedParentPropertyValue);
+  //     this.props.updateWidgetProperty(
+  //       this.props.widgetId,
+  //       parentPropertyName,
+  //       updatedParentPropertyValue,
+  //     );
+  //   } else {
+  //     this.props.updateWidgetProperty(
+  //       this.props.widgetId,
+  //       propertyName,
+  //       propertyValue,
+  //     );
+  //     if (this.props.widgetProperties) {
+  //       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
+  //         widgetType: this.props.widgetProperties.type,
+  //         widgetName: this.props.widgetProperties.widgetName,
+  //         propertyName: propertyName,
+  //         updatedValue: propertyValue,
+  //       });
+  //     }
+  //   }
+  // }
+  // toggleDynamicProperty = (propertyName: string, isDynamic: boolean) => {
+  //   const { widgetId } = this.props.widgetProperties;
+  //   this.props.setWidgetDynamicProperty(
+  //     widgetId as string,
+  //     propertyName,
+  //     !isDynamic,
+  //   );
+  //   if (this.props.widgetProperties) {
+  //     AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
+  //       widgetType: this.props.widgetProperties.type,
+  //       widgetName: this.props.widgetProperties.widgetName,
+  //       propertyName: propertyName,
+  //       propertyState: !isDynamic ? "JS" : "NORMAL",
+  //     });
+  //   }
+  // };
+  // closePropertyPane = (e: any) => {
+  //   AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+  //     widgetType: this.props.widgetProperties?.type || "",
+  //     widgetId: this.props.widgetProperties.widgetId,
+  //   });
+  //   this.props.hidePropertyPane();
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  // };
+  // openNextPanel = (childProperties: ChildProperties) => {
+  //   console.log("childProperties", childProperties);
+  //   const { propertySections } = childProperties;
+  //   if (propertySections) {
+  //     const nextPanel: IPanel<PropertiesEditorProps &
+  //       PropertiesEditorFunctions &
+  //       PropertiesEditorPanelProps> = {
+  //       props: {
+  //         isVisible: true,
+  //         widgetProperties: this.props.widgetProperties,
+  //         widgetId: this.props.widgetId,
+  //         propertySections: propertySections,
+  //         setWidgetDynamicProperty: this.props.setWidgetDynamicProperty,
+  //         updateWidgetProperty: this.props.updateWidgetProperty,
+  //         hidePropertyPane: this.props.hidePropertyPane,
+  //         updatePropertyTitle: this.updatePropertyTitle,
+  //         openChildPaneProperties: this.props.openChildPaneProperties,
+  //         childProperties: {
+  //           parentPropertyName: childProperties.parentPropertyName,
+  //           parentPropertyValue: childProperties.parentPropertyValue,
+  //           id: childProperties.id,
+  //           label: childProperties.label,
+  //         },
+  //       },
+  //       component: ConnectedPropertiesEditor,
+  //     };
+  //     this.props.openChildPaneProperties(
+  //       this.props.widgetId || "",
+  //       childProperties.parentPropertyName,
+  //       childProperties.id,
+  //     );
+  //     this.props.openPanel(nextPanel);
+  //   }
+  // };
 
   updatePropertyTitle = (title: string) => {
-    if (this.props.childProperties) {
-      const {
-        parentPropertyName,
-        parentPropertyValue,
-        id,
-      } = this.props.childProperties;
-      const updatedParentPropertyValue = parentPropertyValue.map(
-        (item: any) => {
-          if (item.id === id) {
-            item.label = title;
-          }
-          return item;
-        },
-      );
-      this.props.updateWidgetProperty(
-        this.props.widgetId,
-        parentPropertyName,
-        updatedParentPropertyValue,
-      );
-    }
-  };
-
-  closePanel = () => {
-    if (this.props.childProperties) {
-      this.props.openChildPaneProperties(this.props.widgetId || "", "", "");
-    }
-    this.props.closePanel();
+    // if (this.props.childProperties) {
+    //   const {
+    //     parentPropertyName,
+    //     parentPropertyValue,
+    //     id,
+    //   } = this.props.childProperties;
+    //   const updatedParentPropertyValue = parentPropertyValue.map(
+    //     (item: any) => {
+    //       if (item.id === id) {
+    //         item.label = title;
+    //       }
+    //       return item;
+    //     },
+    //   );
+    //   this.props.updateWidgetProperty(
+    //     this.props.widgetId,
+    //     parentPropertyName,
+    //     updatedParentPropertyValue,
+    //   );
+    // }
   };
 
   render() {
-    const { widgetProperties, propertySections, widgetId } = this.props;
+    const { panelConfig, widgetProperties, panelProps } = this.props;
     if (!widgetProperties) return <PropertyPaneWrapper />;
     return (
       <PropertyPaneWrapper
@@ -357,46 +346,30 @@ class PropertiesEditor extends React.Component<
           e.stopPropagation();
         }}
       >
-        <PropertyPaneHeader
+        {/* <PropertyPaneHeader
           widgetProperties={widgetProperties}
           hidePropertyPane={this.props.hidePropertyPane}
           widgetId={widgetId}
           openPanel={this.props.openPanel}
-          closePanel={this.closePanel}
-          childProperties={this.props.childProperties}
+          closePanel={this.props.closePanel}
           onPropertyChange={this.onPropertyChange}
-          updatePropertyTitle={this.updatePropertyTitle}
-        />
-        {!_.isNil(propertySections)
-          ? _.map(propertySections, (propertySection: PropertySection) => {
-              return (
-                <PropertySectionComponent
-                  propertySection={propertySection}
-                  id={widgetId + propertySection.id}
-                  key={widgetId + propertySection.id}
-                  widgetProperties={_.merge(
-                    widgetProperties,
-                    this.props.nextPaneWidgetProperties,
-                  )}
-                  onPropertyChange={this.onPropertyChange}
-                  toggleDynamicProperty={this.toggleDynamicProperty}
-                  openNextPanel={this.openNextPanel}
-                  childProperties={this.props.childProperties}
-                />
-              );
-            })
-          : undefined}
+        /> */}
+        {generatePropertyControl(panelConfig.children as PropertyPaneConfig[], {
+          ...panelProps,
+          ...widgetProperties,
+        })}
       </PropertyPaneWrapper>
     );
   }
 }
 
 interface PropertiesEditorProps {
-  propertySections?: PropertySection[];
-  widgetId?: string;
-  widgetProperties?: WidgetProps;
-  isVisible: boolean;
-  nextPaneWidgetProperties?: ChildProperties;
+  widgetProperties: WidgetProps;
+  panelProps: any;
+}
+
+interface PropertiesEditorPanelProps {
+  panelConfig: PanelConfig;
 }
 
 interface PropertyPaneHeaderProps extends IPanelProps {
@@ -407,96 +380,64 @@ interface PropertyPaneHeaderProps extends IPanelProps {
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
 }
 
-interface PropertySectionComponentProps {
-  propertySection: PropertySection;
-  id: string;
-  widgetProperties: WidgetProps;
-  childProperties?: ChildProperties;
-  onPropertyChange: (propertyName: string, propertyValue: any) => void;
-  toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
-  openNextPanel: (childProperties: ChildProperties) => void;
-}
+// interface PropertiesEditorFunctions {
+//   setWidgetDynamicProperty: (
+//     widgetId: string,
+//     propertyName: string,
+//     isDynamic: boolean,
+//   ) => void;
+//   updateWidgetProperty: Function;
+//   hidePropertyPane: () => void;
+//   openChildPaneProperties: (
+//     widgetId: string,
+//     propertyControlId: string,
+//     widgetChildProperty: string,
+//   ) => void;
+// }
 
-export interface ChildProperties {
-  parentPropertyName: string;
-  parentPropertyValue: any;
-  propertySections?: PropertySection[];
-  [key: string]: any;
-}
+// const mapDispatchToProps = (dispatch: any): PropertiesEditorFunctions => {
+//   return {
+//     updateWidgetProperty: (
+//       widgetId: string,
+//       propertyName: string,
+//       propertyValue: any,
+//     ) =>
+//       dispatch(
+//         updateWidgetPropertyRequest(
+//           widgetId,
+//           propertyName,
+//           propertyValue,
+//           RenderModes.CANVAS,
+//         ),
+//       ),
+//     hidePropertyPane: () =>
+//       dispatch({
+//         type: ReduxActionTypes.HIDE_PROPERTY_PANE,
+//       }),
+//     setWidgetDynamicProperty: (
+//       widgetId: string,
+//       propertyName: string,
+//       isDynamic: boolean,
+//     ) => dispatch(setWidgetDynamicProperty(widgetId, propertyName, isDynamic)),
+//     openChildPaneProperties: (
+//       widgetId: string,
+//       propertyControlId: string,
+//       widgetChildProperty: string,
+//     ) =>
+//       dispatch({
+//         type: ReduxActionTypes.OPEN_SUB_PANE,
+//         payload: {
+//           widgetId,
+//           propertyControlId,
+//           widgetChildProperty,
+//         },
+//       }),
+//   };
+// };
 
-interface PropertiesEditorPanelProps {
-  childProperties?: ChildProperties;
-  updatePropertyTitle?: (title: string) => void;
-}
+// const ConnectedPropertiesEditor = connect(
+//   mapStateToProps,
+//   mapDispatchToProps,
+// )(PropertiesEditor);
 
-interface PropertiesEditorFunctions {
-  setWidgetDynamicProperty: (
-    widgetId: string,
-    propertyName: string,
-    isDynamic: boolean,
-  ) => void;
-  updateWidgetProperty: Function;
-  hidePropertyPane: () => void;
-  openChildPaneProperties: (
-    widgetId: string,
-    propertyControlId: string,
-    widgetChildProperty: string,
-  ) => void;
-}
-
-const mapStateToProps = (state: AppState): PropertiesEditorProps => {
-  return {
-    propertySections: getPropertyConfig(state),
-    widgetId: getCurrentWidgetId(state),
-    widgetProperties: getWidgetPropsForPropertyPane(state),
-    isVisible: getIsPropertyPaneVisible(state),
-    nextPaneWidgetProperties: getWidgetChildPropertiesForPropertyPane(state),
-  };
-};
-
-const mapDispatchToProps = (dispatch: any): PropertiesEditorFunctions => {
-  return {
-    updateWidgetProperty: (
-      widgetId: string,
-      propertyName: string,
-      propertyValue: any,
-    ) =>
-      dispatch(
-        updateWidgetPropertyRequest(
-          widgetId,
-          propertyName,
-          propertyValue,
-          RenderModes.CANVAS,
-        ),
-      ),
-    hidePropertyPane: () =>
-      dispatch({
-        type: ReduxActionTypes.HIDE_PROPERTY_PANE,
-      }),
-    setWidgetDynamicProperty: (
-      widgetId: string,
-      propertyName: string,
-      isDynamic: boolean,
-    ) => dispatch(setWidgetDynamicProperty(widgetId, propertyName, isDynamic)),
-    openChildPaneProperties: (
-      widgetId: string,
-      propertyControlId: string,
-      widgetChildProperty: string,
-    ) =>
-      dispatch({
-        type: ReduxActionTypes.OPEN_SUB_PANE,
-        payload: {
-          widgetId,
-          propertyControlId,
-          widgetChildProperty,
-        },
-      }),
-  };
-};
-
-const ConnectedPropertiesEditor = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PropertiesEditor);
-
-export default ConnectedPropertiesEditor;
+export default PropertiesEditor;

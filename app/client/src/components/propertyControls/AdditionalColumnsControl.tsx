@@ -95,7 +95,7 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
     return (
       <TabsWrapper>
         <DroppableComponent
-          items={columns}
+          items={columns as any}
           renderComponent={ColumnControlComponent}
           updateOption={this.updateOption}
           updateItems={this.updateItems}
@@ -116,13 +116,13 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
   onEdit = (index: number) => {
     const columns = this.props.propertyValue || [];
     const column: ColumnProperties = columns[index];
-    this.props.childrenProperties &&
-      this.props.openNextPanel({
-        parentPropertyName: this.props.parentPropertyName || "",
-        parentPropertyValue: this.props.parentPropertyValue,
-        propertySections: this.props.childrenProperties,
-        ...column,
-      });
+    // this.props.childrenProperties &&
+    //   this.props.openNextPanel({
+    //     parentPropertyName: this.props.parentPropertyName || "",
+    //     parentPropertyValue: this.props.parentPropertyValue,
+    //     propertySections: this.props.childrenProperties,
+    //     ...column,
+    //   });
   };
 
   addNewColumn = () => {
@@ -140,19 +140,19 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
       ...columnProps,
       isDerived: true,
     };
-    this.props.childrenProperties &&
-      this.props.openNextPanel({
-        parentPropertyName: this.props.parentPropertyName || "",
-        parentPropertyValue: this.props.parentPropertyValue,
-        propertySections: this.props.childrenProperties,
-        ...column,
-      });
+    // this.props.childrenProperties &&
+    //   this.props.openNextPanel({
+    //     parentPropertyName: this.props.parentPropertyName || "",
+    //     parentPropertyValue: this.props.parentPropertyValue,
+    //     propertySections: this.props.childrenProperties,
+    //     ...column,
+    //   });
     const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
     updatedDerivedColumns.push(column);
     this.updateProperty(this.props.propertyName, updatedDerivedColumns);
   };
 
-  updateItems = (items: object[]) => {
+  updateItems = (items: Array<Record<string, unknown>>) => {
     this.updateProperty(this.props.propertyName, items);
   };
 

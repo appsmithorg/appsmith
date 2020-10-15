@@ -6,7 +6,7 @@ import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import { PanelStack, IPanel } from "@blueprintjs/core";
+import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
@@ -20,6 +20,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import PropertyControlsGenerator from "./Generator";
+import PaneWrapper from "components/editorComponents/PaneWrapper";
 
 const PropertyPaneWrapper = styled(PaneWrapper)`
   width: 100%;
@@ -37,19 +38,19 @@ const PropertyPaneWrapper = styled(PaneWrapper)`
   ${scrollbarDark};
 `;
 
-import PropertiesEditor from "pages/Editor/PropertyPane/PropertiesEditor";
-
 const StyledPanelStack = styled(PanelStack)`
-  height: ${props => props.theme.propertyPane.height}px;
-  width: ${props => props.theme.propertyPane.width}px;
-  margin: ${props => props.theme.spaces[2]}px;
+  height: auto;
+  width: 100%;
+  margin: 0;
   &&& .bp3-panel-stack-view {
     margin: 0;
     border: none;
     background: transparent;
   }
-  &&& .bp3-panel-stack-header {
-    display: none;
+  overflow: visible;
+  position: static;
+  &&& .${Classes.PANEL_STACK_VIEW} {
+    position: static;
   }
 `;
 
@@ -57,17 +58,38 @@ interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
 
+const PropertyPaneView = (
+  props: {
+    widgetProperties: any;
+    hidePropertyPane: () => void;
+  } & IPanelProps,
+) => {
+  const { widgetProperties, hidePropertyPane, ...panel } = props;
+  console.log("here in view", widgetProperties);
+  return (
+    <>
+      <PropertyPaneTitle
+        key={widgetProperties.widgetId}
+        title={widgetProperties.widgetName}
+        widgetId={widgetProperties.widgetId}
+        widgetType={widgetProperties?.type}
+        onClose={props.hidePropertyPane}
+      />
+      <PropertyControlsGenerator {...widgetProperties} panel={panel} />
+    </>
+  );
+};
+
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   constructor(props: PropertyPaneProps) {
     super(props);
-    const initialPanel: IPanel = {
-      props: {},
-      component: PropertiesEditor,
-      title: "",
-    };
-    this.state = {
-      currentPanelStack: [initialPanel],
-    };
+    // const initialPanel: IPanel = {
+    //   props: {},
+    //   title: "",
+    // };
+    // this.state = {
+    //   currentPanelStack: [initialPanel],
+    // };
   }
   render() {
     if (this.props.isVisible) {
@@ -105,6 +127,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
   renderPropertyPane() {
     const { widgetProperties } = this.props;
+    console.log({ widgetProperties });
     if (!widgetProperties) return <PropertyPaneWrapper />;
     return (
       <PropertyPaneWrapper
@@ -112,14 +135,20 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           e.stopPropagation();
         }}
       >
-        <PropertyPaneTitle
-          key={widgetProperties.widgetId}
-          title={widgetProperties.widgetName}
-          widgetId={widgetProperties.widgetId}
-          widgetType={widgetProperties?.type}
-          onClose={this.props.hidePropertyPane}
+        {/* <PropertyPaneView
+          widgetProperties={widgetProperties}
+          hidePropertyPane={this.props.hidePropertyPane}
+        /> */}
+        <StyledPanelStack
+          initialPanel={{
+            component: PropertyPaneView,
+            props: {
+              widgetProperties,
+              hidePropertyPane: this.props.hidePropertyPane,
+            },
+          }}
+          showPanelHeader={false}
         />
-        <PropertyControlsGenerator {...widgetProperties} />
       </PropertyPaneWrapper>
     );
   }

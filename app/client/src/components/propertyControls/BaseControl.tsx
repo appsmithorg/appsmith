@@ -6,10 +6,10 @@ import { Component } from "react";
 import _ from "lodash";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 
-abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
-  P,
-  S
-> {
+abstract class BaseControl<
+  P extends ControlProps,
+  S = Record<string, unknown>
+> extends Component<P, S> {
   updateProperty(propertyName: string, propertyValue: any) {
     if (!_.isNil(this.props.onPropertyChange))
       this.props.onPropertyChange(propertyName, propertyValue);
@@ -30,10 +30,11 @@ export interface ControlData extends PropertyPaneControlConfig {
   expected: string;
   evaluatedValue: any;
   validationMessage?: string;
+  widgetProperties: any;
 }
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
-  // openNextPanel: (childProperties: ChildProperties) => void;
+  openNextPanel: (props: any) => void;
 }
 
 export default BaseControl;

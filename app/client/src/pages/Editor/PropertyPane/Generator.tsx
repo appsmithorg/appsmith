@@ -1,3 +1,4 @@
+import { IPanelProps } from "@blueprintjs/core";
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
@@ -17,9 +18,10 @@ const getPropertyPaneConfig = (
 
 export type PropertyControlsGeneratorProps = {
   type: WidgetType;
+  panel: IPanelProps;
 };
 
-const generatePropertyControl = (
+export const generatePropertyControl = (
   propertyPaneConfig: PropertyPaneConfig[],
   props: any,
 ) => {
@@ -39,8 +41,9 @@ const generatePropertyControl = (
       return (
         <PropertyControl
           key={config.id}
-          propertyConfig={config as PropertyPaneControlConfig}
+          {...(config as PropertyPaneControlConfig)}
           widgetProperties={props}
+          panel={props.panel}
         />
       );
     }

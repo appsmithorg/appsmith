@@ -1,4 +1,4 @@
-import { all, spawn } from "redux-saga/effects";
+import { all, call, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
@@ -21,26 +21,40 @@ import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 
 export function* rootSaga() {
-  yield all([
-    spawn(initSagas),
-    spawn(pageSagas),
-    spawn(fetchWidgetCardsSaga),
-    spawn(watchActionSagas),
-    spawn(watchActionExecutionSagas),
-    spawn(widgetOperationSagas),
-    spawn(errorSagas),
-    spawn(watchDatasourcesSagas),
-    spawn(applicationSagas),
-    spawn(apiPaneSagas),
-    spawn(userSagas),
-    spawn(pluginSagas),
-    spawn(orgSagas),
-    spawn(importedCollectionsSagas),
-    spawn(providersSagas),
-    spawn(curlImportSagas),
-    spawn(queryPaneSagas),
-    spawn(modalSagas),
-    spawn(batchSagas),
-    spawn(themeSagas),
-  ]);
+  const sagas = [
+    initSagas,
+    pageSagas,
+    fetchWidgetCardsSaga,
+    watchActionSagas,
+    watchActionExecutionSagas,
+    widgetOperationSagas,
+    errorSagas,
+    watchDatasourcesSagas,
+    applicationSagas,
+    apiPaneSagas,
+    userSagas,
+    pluginSagas,
+    orgSagas,
+    importedCollectionsSagas,
+    providersSagas,
+    curlImportSagas,
+    queryPaneSagas,
+    modalSagas,
+    batchSagas,
+    themeSagas,
+  ];
+  yield all(
+    sagas.map(saga =>
+      spawn(function*() {
+        while (true) {
+          try {
+            yield call(saga);
+            break;
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      }),
+    ),
+  );
 }

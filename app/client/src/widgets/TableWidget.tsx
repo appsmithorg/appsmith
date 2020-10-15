@@ -25,6 +25,7 @@ import { isNumber, isString, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
+import PropertiesEditor from "pages/Editor/PropertyPane/PropertiesEditor";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -127,11 +128,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
       {
-        id: "7.1",
         sectionName: "General",
         children: [
           {
-            id: "7.1.1",
             helpText:
               "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
             propertyName: "tableData",
@@ -141,14 +140,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             inputType: "ARRAY",
           },
           {
-            id: "7.1.2",
+            helpText: "Columns",
+            propertyName: "primaryColumns",
+            controlType: "PRIMARY_COLUMNS",
+            label: "Columns",
+            panelConfig: {
+              editableTitle: true,
+              titlePropertyName: "label",
+              component: PropertiesEditor,
+              children: [
+                {
+                  propertyName: "defaultSearchText",
+                  label: "Default Search Text",
+                  controlType: "INPUT_TEXT",
+                  placeholderText: "Enter default search text",
+                },
+              ],
+            },
+          },
+          {
             propertyName: "defaultSearchText",
             label: "Default Search Text",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter default search text",
           },
           {
-            id: "7.1.3",
             helpText:
               "Bind the Table.pageNo property in your API and call it onPageChange",
             propertyName: "serverSidePaginationEnabled",
@@ -156,7 +172,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             controlType: "SWITCH",
           },
           {
-            id: "7.1.4",
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             isJSConvertible: true,
@@ -164,7 +179,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             controlType: "SWITCH",
           },
           {
-            id: "7.1.5",
             propertyName: "multiRowSelection",
             label: "Enable multi row selection",
             controlType: "SWITCH",
@@ -172,11 +186,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ],
       },
       {
-        id: "7.2",
         sectionName: "Actions",
         children: [
           {
-            id: "7.2.1",
             helpText:
               "Adds a button action for every row. Reference the Table.selectedRow property in the action",
             propertyName: "columnActions",
@@ -184,7 +196,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             controlType: "COLUMN_ACTION_SELECTOR",
           },
           {
-            id: "7.2.2",
             helpText: "Triggers an action when a table row is selected",
             propertyName: "onRowSelected",
             label: "onRowSelected",
@@ -192,7 +203,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isJSConvertible: true,
           },
           {
-            id: "7.2.3",
             helpText: "Triggers an action when a table page is changed",
             propertyName: "onPageChange",
             label: "onPageChange",
@@ -200,7 +210,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isJSConvertible: true,
           },
           {
-            id: "7.2.4",
             propertyName: "onSearchTextChanged",
             label: "onSearchTextChanged",
             controlType: "ACTION_SELECTOR",

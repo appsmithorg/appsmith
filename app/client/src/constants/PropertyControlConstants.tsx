@@ -1,10 +1,18 @@
 import { getPropertyControlTypes } from "components/propertyControls";
+import { JSXElementConstructor } from "react";
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
 export type PropertyPaneSectionConfig = {
   sectionName: string;
   id?: string;
+  children: PropertyPaneConfig[];
+};
+
+export type PanelConfig = {
+  editableTitle: boolean;
+  titlePropertyName: string;
+  component: JSXElementConstructor<any>;
   children: PropertyPaneConfig[];
 };
 
@@ -18,7 +26,7 @@ export type PropertyPaneControlConfig = {
   validationMessage?: string;
   dataTreePath?: string;
   children?: PropertyPaneConfig[];
-  panelProps?: boolean;
+  panelConfig?: PanelConfig;
   hidden?: (props: any) => boolean;
 };
 

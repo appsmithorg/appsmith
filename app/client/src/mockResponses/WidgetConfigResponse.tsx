@@ -323,7 +323,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       chartData: [
         {
           seriesName: "Sales",
-          data: [
+          data: JSON.stringify([
             {
               x: "Mon",
               y: 10000,
@@ -352,7 +352,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               x: "Sun",
               y: 36000,
             },
-          ],
+          ]),
         },
       ],
       xAxisName: "Last Week",
