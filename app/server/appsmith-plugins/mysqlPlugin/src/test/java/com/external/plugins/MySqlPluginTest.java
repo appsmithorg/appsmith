@@ -4,12 +4,15 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.log4j.Log4j;
-import org.junit.Before;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MySQLContainer;
@@ -38,27 +41,34 @@ public class MySqlPluginTest {
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
-    public static MySQLContainer mySQLContainer = new MySQLContainer()
+    public static MySQLContainer mySQLContainer = new MySQLContainer("mysql:5.7")
             .withUsername("mysql")
             .withPassword("password")
-            .withDatabaseName("mysql");
+            .withDatabaseName("test_db");
 
-    String address;
-    Integer port;
-    String username, password;
+    @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
+    @ClassRule
+    public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer()
+            .withUsername("mysql")
+            .withPassword("password")
+            .withDatabaseName("test_db")
+            .withEnv("TZ", "PDT");
 
-    DatasourceConfiguration dsConfig;
+    private static String address;
+    private static Integer port;
+    private static String username;
+    private static String password;
+    private static String database;
 
-    @Before
-    public void setUp() {
-        if (address != null) {
-            return;
-        }
+    private static DatasourceConfiguration dsConfig;
 
+    @BeforeClass
+    public static void setUp() {
         address = mySQLContainer.getContainerIpAddress();
         port = mySQLContainer.getFirstMappedPort();
         username = mySQLContainer.getUsername();
         password = mySQLContainer.getPassword();
+        database = mySQLContainer.getDatabaseName();
         createDatasourceConfiguration();
 
         Properties properties = new Properties();
@@ -68,7 +78,7 @@ public class MySqlPluginTest {
         ));
 
         try (Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://" + address + ":" + port + "/" + username,
+                "jdbc:mysql://" + address + ":" + port + "/" + database,
                 properties
         )) {
 
@@ -77,18 +87,30 @@ public class MySqlPluginTest {
             }
 
             try (Statement statement = connection.createStatement()) {
-                statement.execute("CREATE TABLE users (\n" +
-                        "    id serial PRIMARY KEY,\n" +
-                        "    username VARCHAR (50) UNIQUE NOT NULL,\n" +
-                        "    password VARCHAR (50) NOT NULL,\n" +
-                        "    email VARCHAR (355) UNIQUE NOT NULL,\n" +
-                        "    spouse_dob DATE,\n" +
-                        "    dob DATE NOT NULL,\n" +
-                        "    yob YEAR NOT NULL,\n" +
-                        "    time1 TIME NOT NULL,\n" +
-                        "    created_on TIMESTAMP NOT NULL,\n" +
-                        "    updated_on DATETIME NOT NULL\n" +
+                statement.execute("create table users (\n" +
+                        "    id int primary key,\n" +
+                        "    username varchar (250) unique not null,\n" +
+                        "    password varchar (250) not null,\n" +
+                        "    email varchar (250) unique not null,\n" +
+                        "    spouse_dob date,\n" +
+                        "    dob date not null,\n" +
+                        "    yob year not null,\n" +
+                        "    time1 time not null,\n" +
+                        "    created_on timestamp not null,\n" +
+                        "    updated_on datetime not null,\n" +
+                        "    constraint unique index (username, email)\n" +
                         ")");
+
+                statement.execute("create table possessions (\n" +
+                        "    id int primary key,\n" +
+                        "    title varchar (250) not null,\n" +
+                        "    user_id int not null,\n" +
+                        "    username varchar (250) not null,\n" +
+                        "    email varchar (250) not null\n" +
+                        ")");
+
+                statement.execute("alter table possessions add foreign key (username, email) references users (username, email)");
+                statement.execute("SET SESSION sql_mode = '';\n");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -96,7 +118,7 @@ public class MySqlPluginTest {
                         "INSERT INTO users VALUES (" +
                                 "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018," +
                                 " '18:32:45'," +
-                                " '2018-11-30 20:45:15', '2018-11-30 20:45:15'" +
+                                " '2018-11-30 20:45:15', '0000-00-00 00:00:00'" +
                                 ")");
             }
 
@@ -114,12 +136,12 @@ public class MySqlPluginTest {
         }
     }
 
-    private DatasourceConfiguration createDatasourceConfiguration() {
+    private static DatasourceConfiguration createDatasourceConfiguration() {
         AuthenticationDTO authDTO = new AuthenticationDTO();
         authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
-        authDTO.setDatabaseName("mysql");
+        authDTO.setDatabaseName(database);
 
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(address);
@@ -137,10 +159,33 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(connection -> {
-                    java.sql.Connection conn = (Connection) connection;
-                    assertNotNull(conn);
-                })
+                .assertNext(Assert::assertNotNull)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testConnectMySQLContainerWithInvalidTimezone() {
+        AuthenticationDTO authDTO = new AuthenticationDTO();
+        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
+        authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
+        authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(mySQLContainerWithInvalidTimezone.getContainerIpAddress());
+        endpoint.setPort(mySQLContainerWithInvalidTimezone.getFirstMappedPort().longValue());
+
+        final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(authDTO);
+        dsConfig.setEndpoints(List.of(endpoint));
+        dsConfig.setProperties(List.of(
+                new Property("serverTimezone", "UTC")
+        ));
+
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(Assert::assertNotNull)
                 .verifyComplete();
     }
 
@@ -201,10 +246,9 @@ public class MySqlPluginTest {
 
         StepVerifier.create(connectionMono)
                 .assertNext(connection -> {
-                    java.sql.Connection conn = (Connection) connection;
-                    pluginExecutor.datasourceDestroy(conn);
+                    pluginExecutor.datasourceDestroy(connection);
                     try {
-                        assertEquals(conn.isClosed(), true);
+                        assertTrue(connection.isClosed());
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -261,7 +305,7 @@ public class MySqlPluginTest {
                     assertEquals("2018", node.get("yob").asText());
                     assertTrue(node.get("time1").asText().matches("\\d{2}:\\d{2}:\\d{2}"));
                     assertTrue(node.get("created_on").asText().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
-                    assertTrue(node.get("updated_on").asText().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
+                    assertTrue(node.get("updated_on").isNull());
 
                     assertArrayEquals(
                             new String[]{
@@ -280,6 +324,112 @@ public class MySqlPluginTest {
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    assertEquals(2, structure.getTables().size());
+
+                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(0);
+                    assertEquals("possessions", possessionsTable.getName());
+                    assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[]{
+                                    new DatasourceStructure.Column("id", "int", null),
+                                    new DatasourceStructure.Column("title", "varchar", null),
+                                    new DatasourceStructure.Column("user_id", "int", null),
+                                    new DatasourceStructure.Column("username", "varchar", null),
+                                    new DatasourceStructure.Column("email", "varchar", null),
+                            },
+                            possessionsTable.getColumns().toArray()
+                    );
+
+                    final DatasourceStructure.PrimaryKey possessionsPrimaryKey =
+                            new DatasourceStructure.PrimaryKey("PRIMARY", List.of("id"));
+                    final DatasourceStructure.ForeignKey possessionsUserForeignKey = new DatasourceStructure.ForeignKey(
+                            "possessions_ibfk_1",
+                            List.of("username", "email"),
+                            List.of("users.username", "users.email")
+                    );
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[]{possessionsPrimaryKey, possessionsUserForeignKey},
+                            possessionsTable.getKeys().toArray()
+                    );
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[]{
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM possessions LIMIT 10;"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO possessions (id, title, user_id, username, email)\n" +
+                                            "  VALUES (1, '', 1, '', '');"),
+                                    new DatasourceStructure.Template("UPDATE", "UPDATE possessions SET\n" +
+                                            "    id = 1\n" +
+                                            "    title = ''\n" +
+                                            "    user_id = 1\n" +
+                                            "    username = ''\n" +
+                                            "    email = ''\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                    new DatasourceStructure.Template("DELETE", "DELETE FROM possessions\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                            },
+                            possessionsTable.getTemplates().toArray()
+                    );
+
+                    final DatasourceStructure.Table usersTable = structure.getTables().get(1);
+                    assertEquals("users", usersTable.getName());
+                    assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[]{
+                                    new DatasourceStructure.Column("id", "int", null),
+                                    new DatasourceStructure.Column("username", "varchar", null),
+                                    new DatasourceStructure.Column("password", "varchar", null),
+                                    new DatasourceStructure.Column("email", "varchar", null),
+                                    new DatasourceStructure.Column("spouse_dob", "date", null),
+                                    new DatasourceStructure.Column("dob", "date", null),
+                                    new DatasourceStructure.Column("yob", "year", null),
+                                    new DatasourceStructure.Column("time1", "time", null),
+                                    new DatasourceStructure.Column("created_on", "timestamp", null),
+                                    new DatasourceStructure.Column("updated_on", "datetime", null),
+                            },
+                            usersTable.getColumns().toArray()
+                    );
+
+                    final DatasourceStructure.PrimaryKey usersPrimaryKey = new DatasourceStructure.PrimaryKey("PRIMARY", List.of("id"));
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[]{usersPrimaryKey},
+                            usersTable.getKeys().toArray()
+                    );
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[]{
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM users LIMIT 10;"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO users (id, username, password, email, spouse_dob, dob, yob, time1, created_on, updated_on)\n" +
+                                            "  VALUES (1, '', '', '', '2019-07-01', '2019-07-01', '', '', '2019-07-01 10:00:00', '2019-07-01 10:00:00');"),
+                                    new DatasourceStructure.Template("UPDATE", "UPDATE users SET\n" +
+                                            "    id = 1\n" +
+                                            "    username = ''\n" +
+                                            "    password = ''\n" +
+                                            "    email = ''\n" +
+                                            "    spouse_dob = '2019-07-01'\n" +
+                                            "    dob = '2019-07-01'\n" +
+                                            "    yob = ''\n" +
+                                            "    time1 = ''\n" +
+                                            "    created_on = '2019-07-01 10:00:00'\n" +
+                                            "    updated_on = '2019-07-01 10:00:00'\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                    new DatasourceStructure.Template("DELETE", "DELETE FROM users\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                            },
+                            usersTable.getTemplates().toArray()
                     );
                 })
                 .verifyComplete();

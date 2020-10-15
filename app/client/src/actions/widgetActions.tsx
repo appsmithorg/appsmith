@@ -9,6 +9,9 @@ import {
   PageAction,
 } from "constants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 export const executeAction = (
   payload: ExecuteActionPayload,
@@ -79,11 +82,55 @@ export const closeAllModals = () => {
 };
 
 export const forceOpenPropertyPane = (id: string) => {
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.OPEN_PROPERTY_PANE,
+  );
   return {
     type: ReduxActionTypes.SHOW_PROPERTY_PANE,
     payload: {
       widgetId: id,
       force: true,
     },
+  };
+};
+
+export const copyWidget = (isShortcut: boolean) => {
+  return {
+    type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
+    payload: {
+      isShortcut: !!isShortcut,
+    },
+  };
+};
+
+export const pasteWidget = () => {
+  return {
+    type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+  };
+};
+
+export const deleteSelectedWidget = (
+  isShortcut: boolean,
+  disallowUndo = false,
+) => {
+  return {
+    type: ReduxActionTypes.WIDGET_DELETE,
+    payload: {
+      isShortcut,
+      disallowUndo,
+    },
+  };
+};
+
+export const cutWidget = () => {
+  return {
+    type: ReduxActionTypes.CUT_SELECTED_WIDGET,
+  };
+};
+
+export const addTableWidgetFromQuery = (queryName: string) => {
+  return {
+    type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
+    payload: queryName,
   };
 };

@@ -6,38 +6,42 @@ import Text, { TextType } from "./Text";
 
 type DropdownOption = {
   label?: string;
-  value: string;
+  value?: string;
   id?: string;
   icon?: IconName;
-  onSelect?: (option: DropdownOption) => void;
-  children?: DropdownOption[];
+  onSelect?: (value?: string) => void;
 };
 
 type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
+  onSelect?: (value?: string) => void;
 };
 
 const DropdownContainer = styled.div`
   width: 260px;
+  position: relative;
 `;
 
 const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
+  height: 38px;
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[6]}px;
   background: ${props =>
     props.disabled
-      ? props.theme.colors.blackShades[2]
-      : props.theme.colors.blackShades[0]};
+      ? props.theme.colors.dropdown.header.disabledBg
+      : props.theme.colors.dropdown.header.bg};
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   cursor: pointer;
   ${props =>
-    props.isOpen && !props.disabled
-      ? `border: 1.2px solid ${props.theme.colors.info.main}`
-      : null};
+    props.isOpen
+      ? `border: 1px solid ${props.theme.colors.info.main}`
+      : props.disabled
+      ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
+      : `border: 1px solid ${props.theme.colors.dropdown.header.bg}`};
   ${props =>
     props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
   ${props =>
@@ -47,15 +51,19 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   .${Classes.TEXT} {
     ${props =>
       props.disabled
-        ? `color: ${props.theme.colors.blackShades[6]}`
-        : `color: ${props.theme.colors.blackShades[7]}`};
+        ? `color: ${props.theme.colors.dropdown.header.disabledText}`
+        : `color: ${props.theme.colors.dropdown.header.text}`};
   }
 `;
 
 const DropdownWrapper = styled.div`
+  position: absolute;
+  top: 38px;
+  left: 0px;
+  z-index: 1;
   margin-top: ${props => props.theme.spaces[2] - 1}px;
-  background: ${props => props.theme.colors.blackShades[3]};
-  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.6);
+  background: ${props => props.theme.colors.dropdown.menuBg};
+  box-shadow: 0px 12px 28px ${props => props.theme.colors.dropdown.menuShadow};
   width: 100%;
 `;
 
@@ -66,10 +74,14 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
   ${props =>
-    props.selected ? `background: ${props.theme.colors.blackShades[4]}` : null};
+    props.selected
+      ? `background: ${props.theme.colors.dropdown.selected.bg}`
+      : null};
   .${Classes.TEXT} {
     ${props =>
-      props.selected ? `color: ${props.theme.colors.blackShades[9]}` : null};
+      props.selected
+        ? `color: ${props.theme.colors.dropdown.selected.text}`
+        : null};
   }
   .${Classes.ICON} {
     margin-right: ${props => props.theme.spaces[5]}px;
@@ -77,20 +89,20 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
       path {
         ${props =>
           props.selected
-            ? `fill: ${props.theme.colors.blackShades[8]}`
-            : `fill: ${props.theme.colors.blackShades[6]}`};
+            ? `fill: ${props.theme.colors.dropdown.selected.icon}`
+            : `fill: ${props.theme.colors.dropdown.icon}`};
       }
     }
   }
 
   &:hover {
     .${Classes.TEXT} {
-      color: ${props => props.theme.colors.blackShades[9]};
+      color: ${props => props.theme.colors.dropdown.selected.text};
     }
     .${Classes.ICON} {
       svg {
         path {
-          fill: ${props => props.theme.colors.blackShades[8]};
+          fill: ${props => props.theme.colors.dropdown.selected.icon};
         }
       }
     }
@@ -100,7 +112,7 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
 const LabelWrapper = styled.div<{ label?: string }>`
   display: flex;
   flex-direction: column;
-  align-item: flex-start;
+  align-items: flex-start;
 
   ${props =>
     props.label
@@ -113,6 +125,7 @@ const LabelWrapper = styled.div<{ label?: string }>`
 `;
 
 export default function Dropdown(props: DropdownProps) {
+  const { onSelect } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
 
@@ -120,11 +133,15 @@ export default function Dropdown(props: DropdownProps) {
     setSelected(props.selected);
   }, [props.selected]);
 
-  const optionClickHandler = useCallback((option: DropdownOption) => {
-    setSelected(option);
-    setIsOpen(false);
-    option.onSelect && option.onSelect(option);
-  }, []);
+  const optionClickHandler = useCallback(
+    (option: DropdownOption) => {
+      setSelected(option);
+      setIsOpen(false);
+      onSelect && onSelect(option.value);
+      option.onSelect && option.onSelect(option.value);
+    },
+    [onSelect],
+  );
 
   return (
     <DropdownContainer
@@ -138,7 +155,7 @@ export default function Dropdown(props: DropdownProps) {
         onClick={() => setIsOpen(!isOpen)}
       >
         <Text type={TextType.P1}>{selected.value}</Text>
-        <Icon name="downArrow" size={IconSize.SMALL} />
+        <Icon name="downArrow" size={IconSize.XXS} />
       </Selected>
 
       {isOpen && !props.disabled ? (
@@ -155,7 +172,9 @@ export default function Dropdown(props: DropdownProps) {
                 ) : null}
                 <LabelWrapper label={option.label}>
                   {option.label ? (
-                    <Text type={TextType.H5}>{option.value}</Text>
+                    <div className="label-title">
+                      <Text type={TextType.H5}>{option.value}</Text>
+                    </div>
                   ) : (
                     <Text type={TextType.P1}>{option.value}</Text>
                   )}

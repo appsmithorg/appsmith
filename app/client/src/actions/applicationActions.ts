@@ -1,6 +1,7 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EditorModes } from "../components/editorComponents/CodeEditor/EditorConfig";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -35,6 +36,19 @@ export const fetchApplication = (
     payload: {
       applicationId,
       mode,
+    },
+  };
+};
+
+export const updateApplication = (
+  id: string,
+  data: UpdateApplicationPayload,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_APPLICATION,
+    payload: {
+      id,
+      ...data,
     },
   };
 };

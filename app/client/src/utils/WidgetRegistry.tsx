@@ -38,6 +38,10 @@ import TableWidget, {
   TableWidgetProps,
   ProfiledTableWidget,
 } from "widgets/TableWidget";
+import VideoWidget, {
+  VideoWidgetProps,
+  ProfiledVideoWidget,
+} from "widgets/VideoWidget";
 import TabsWidget, {
   TabsWidgetProps,
   TabContainerWidgetProps,
@@ -204,6 +208,21 @@ export default class WidgetBuilderRegistry {
       TableWidget.getDefaultPropertiesMap(),
       TableWidget.getMetaPropertiesMap(),
     );
+
+    WidgetFactory.registerWidgetBuilder(
+      "VIDEO_WIDGET",
+      {
+        buildWidget(widgetData: VideoWidgetProps): JSX.Element {
+          return <ProfiledVideoWidget {...widgetData} />;
+        },
+      },
+      VideoWidget.getPropertyValidationMap(),
+      VideoWidget.getDerivedPropertiesMap(),
+      VideoWidget.getTriggerPropertyMap(),
+      VideoWidget.getDefaultPropertiesMap(),
+      VideoWidget.getMetaPropertiesMap(),
+    );
+
     WidgetFactory.registerWidgetBuilder(
       "FILE_PICKER_WIDGET",
       {

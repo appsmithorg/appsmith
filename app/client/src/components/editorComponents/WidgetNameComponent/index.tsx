@@ -1,19 +1,19 @@
-import React, { useContext } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
-import DeleteControl from "./DeleteControl";
 import SettingsControl, { Activities } from "./SettingsControl";
 import {
   useShowPropertyPane,
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetOperations } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import HelpControl from "./HelpControl";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const PositionStyle = styled.div`
   position: absolute;
@@ -45,7 +45,6 @@ type WidgetNameComponentProps = {
 };
 
 export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
-  const { updateWidget } = useContext(EditorContext);
   const showPropertyPane = useShowPropertyPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
@@ -66,24 +65,15 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
-  const deleteWidget = () => {
-    AnalyticsUtil.logEvent("WIDGET_DELETE", {
-      widgetName: props.widgetName,
-      widgetType: props.type,
-    });
-    showPropertyPane && showPropertyPane();
-    updateWidget &&
-      updateWidget(WidgetOperations.DELETE, props.widgetId, {
-        parentId: props.parentId,
-      });
-  };
-
   const togglePropertyEditor = (e: any) => {
     if (
       (!propertyPaneState.isVisible &&
         props.widgetId === propertyPaneState.widgetId) ||
       props.widgetId !== propertyPaneState.widgetId
     ) {
+      PerformanceTracker.startTracking(
+        PerformanceTransactionName.OPEN_PROPERTY_PANE,
+      );
       AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN_CLICK", {
         widgetType: props.type,
         widgetId: props.widgetId,
@@ -119,10 +109,6 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
 
   return showWidgetName ? (
     <PositionStyle>
-      <DeleteControl
-        deleteWidget={deleteWidget}
-        show={selectedWidget === props.widgetId}
-      />
       <ControlGroup>
         <HelpControl
           type={props.type}

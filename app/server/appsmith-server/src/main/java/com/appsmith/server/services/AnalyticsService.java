@@ -39,6 +39,9 @@ public class AnalyticsService {
                         traitsMap.put("name", savedUser.getName());
                     }
                     traitsMap.put("email", savedUser.getEmail());
+                    if (savedUser.getSource() != null) {
+                        traitsMap.put("source", savedUser.getSource().toString());
+                    }
                     analytics.enqueue(IdentifyMessage.builder()
                             .userId(savedUser.getUsername())
                             .traits(traitsMap)
@@ -49,6 +52,10 @@ public class AnalyticsService {
     }
 
     public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object) {
+        return sendEvent(event, object, null);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
         if (analytics == null) {
             return Mono.just(object);
         }
@@ -62,33 +69,51 @@ public class AnalyticsService {
         return userMono
                 .map(user -> {
 
-                    // In case the user is anonymous, return as is without raising the event.
-                    if (user.isAnonymous()) {
+                    // In case the user is anonymous, don't raise an event, unless it's a signup event.
+                    if (user.isAnonymous() && !(object instanceof User && event == AnalyticsEvents.CREATE)) {
                         return object;
                     }
 
-                    HashMap<String, String> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", object.getId());
-                    analyticsProperties.put("object", object.toString());
+                    final String username = (object instanceof User ? (User) object : user).getUsername();
+
+                    HashMap<String, Object> analyticsProperties = new HashMap<>();
+                    analyticsProperties.put("id", username);
+                    analyticsProperties.put("oid", object.getId());
+                    if (extraProperties != null) {
+                        analyticsProperties.putAll(extraProperties);
+                    }
 
                     analytics.enqueue(
                             TrackMessage.builder(eventTag)
-                                    .userId(user.getUsername())
+                                    .userId(username)
                                     .properties(analyticsProperties)
                     );
+
                     return object;
                 });
     }
 
+    public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {
+        return sendEvent(AnalyticsEvents.CREATE, object, extraProperties);
+    }
+
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object) {
-        return sendEvent(AnalyticsEvents.CREATE, object);
+        return sendCreateEvent(object, null);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object, Map<String, Object> extraProperties) {
+        return sendEvent(AnalyticsEvents.UPDATE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object) {
-        return sendEvent(AnalyticsEvents.UPDATE, object);
+        return sendUpdateEvent(object, null);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object, Map<String, Object> extraProperties) {
+        return sendEvent(AnalyticsEvents.DELETE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
-        return sendEvent(AnalyticsEvents.DELETE, object);
+        return sendDeleteEvent(object, null);
     }
 }

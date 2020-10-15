@@ -33,13 +33,15 @@ public enum AppsmithError {
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}"),
     INVALID_CREDENTIALS(200, 4023, "Invalid credentials provided. Did you input the credentials correctly?"),
     DUPLICATE_KEY(409, 4024, "Duplicate key error"),
-    USER_ALREADY_EXISTS_SIGNUP(409, 4025, "There is already an account registered with this username {0}. Please sign in."),
+    USER_ALREADY_EXISTS_SIGNUP(409, 4025, "There is already an account registered with this email {0}. Please sign in."),
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access"),
     ACTION_IS_NOT_AUTHORIZED(403, 4026, "Sorry. You do not have permissions to perform this action"),
     INVALID_DATASOURCE_NAME(400, 4026, "Invalid datasource name. Check again."),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} with id {1}"),
+    USER_NOT_FOUND(404, 4027, "Unable to find user with email {0}"),
     ACL_NO_RESOURCE_FOUND(404, 4028, "Unable to find {0} with id {1}. Either the asset doesn't exist or you don't have required permissions"),
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}"),
+    VALIDATION_FAILURE(400, 4028, "Validation Failure(s): {0}"),
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import."),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again."),
@@ -57,9 +59,9 @@ public enum AppsmithError {
     ;
 
 
-    private Integer httpErrorCode;
-    private Integer appErrorCode;
-    private String message;
+    private final Integer httpErrorCode;
+    private final Integer appErrorCode;
+    private final String message;
 
     AppsmithError(Integer httpErrorCode, Integer appErrorCode, String message, Object... args) {
         this.httpErrorCode = httpErrorCode;

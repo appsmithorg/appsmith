@@ -240,12 +240,19 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
     }
   };
 
-  const handleFocus = () => {
-    if (!props.parentId && !isResizing && !isDragging) {
-      selectWidget && selectWidget(props.widgetId);
-      focusWidget && focusWidget(props.widgetId);
+  const handleFocus = (e: any) => {
+    if (!isResizing && !isDragging) {
+      if (!props.parentId) {
+        selectWidget && selectWidget(props.widgetId);
+        focusWidget && focusWidget(props.widgetId);
+      } else {
+        selectWidget && selectWidget(props.parentId);
+        focusWidget && focusWidget(props.parentId);
+      }
       showPropertyPane && showPropertyPane();
     }
+    e.stopPropagation();
+    e.preventDefault();
   };
   const height = canDropTargetExtend
     ? `${Math.max(rows * props.snapRowSpace, props.minHeight)}px`

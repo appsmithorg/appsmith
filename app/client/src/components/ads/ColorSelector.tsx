@@ -1,23 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
 
-export const appColorPalette = [
-  "#4F70FD",
-  "#54A9FB",
-  "#5ED3DA",
-  "#F56AF4",
-  "#F36380",
-  "#FE9F44",
-  "#E9C951",
-  "#A8D76C",
-  "#6C4CF1",
-];
-
 type ColorSelectorProps = CommonComponentProps & {
   onSelect?: (hex: string) => void;
-  colorPalette?: string[];
+  colorPalette: string[];
   fill?: boolean;
+  defaultValue?: string;
 };
 
 const Palette = styled.div<{ fill?: boolean }>`
@@ -39,7 +28,8 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
   position: relative;
 
   &:hover {
-    box-shadow: 0px 0px 0px ${props => props.theme.spaces[1] - 1}px #353535;
+    box-shadow: 0px 0px 0px ${props => props.theme.spaces[1] - 1}px
+      ${props => props.theme.colors.colorSelector.shadow};
   }
 
   &:last-child {
@@ -55,8 +45,8 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
     top: ${props.theme.spaces[1] - 1}px
     width: ${props.theme.spaces[2] - 1}px
     height: ${props.theme.spaces[4] - 1}px
-    border: 1.5px solid ${props.theme.colors.blackShades[9]};
-    border-width: 0 1.5px 1.5px 0;
+    border: 2px solid ${props.theme.colors.colorSelector.checkmark};
+    border-width: 0 2px 2px 0;
     transform: rotate(45deg); 
   }`
       : `
@@ -67,31 +57,37 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
 `;
 
 const ColorSelector = (props: ColorSelectorProps) => {
-  const [selected, setSelected] = useState<string>(appColorPalette[0]);
+  const [selected, setSelected] = useState<string>(
+    props.defaultValue || props.colorPalette[0],
+  );
+
+  useEffect(() => {
+    if (props.defaultValue) {
+      setSelected(props.defaultValue);
+    }
+  }, [props.defaultValue]);
 
   return (
     <Palette fill={props.fill} data-cy={props.cypressSelector}>
-      {props.colorPalette &&
-        props.colorPalette.map((hex: string, index: number) => {
-          return (
-            <ColorBox
-              key={index}
-              selected={selected}
-              color={hex}
-              onClick={() => {
-                setSelected(hex);
-                props.onSelect && props.onSelect(hex);
-              }}
-            />
-          );
-        })}
+      {props.colorPalette.map((hex: string, index: number) => {
+        return (
+          <ColorBox
+            key={index}
+            selected={selected}
+            color={hex}
+            onClick={() => {
+              setSelected(hex);
+              props.onSelect && props.onSelect(hex);
+            }}
+          />
+        );
+      })}
     </Palette>
   );
 };
 
 ColorSelector.defaultProps = {
   fill: false,
-  colorPalette: appColorPalette,
 };
 
 export default ColorSelector;

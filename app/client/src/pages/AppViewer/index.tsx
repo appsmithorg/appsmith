@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router";
+import { withRouter, RouteComponentProps, Route } from "react-router";
 import { Switch } from "react-router-dom";
 import { AppState } from "reducers";
 import {
@@ -21,9 +21,9 @@ import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
 } from "actions/metaActions";
-import AppRoute from "pages/common/AppRoute";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppViewerBody = styled.section`
   display: flex;
@@ -84,12 +84,10 @@ class AppViewer extends Component<
         <AppViewerBody>
           {isInitialized && this.state.registered && (
             <Switch>
-              <AppRoute
+              <SentryRoute
                 path={getApplicationViewerPageURL()}
                 exact
                 component={AppViewerPageContainer}
-                name={"AppViewerPageContainer"}
-                logDisable
               />
             </Switch>
           )}

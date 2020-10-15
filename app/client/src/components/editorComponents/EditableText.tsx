@@ -74,14 +74,15 @@ const EditableTextWrapper = styled.div<{
 
 const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
   display: flex;
-  &&&& .bp3-editable-text {
+  &&&& .${Classes.EDITABLE_TEXT} {
     ${props => (!props.minimal ? "border-radius: 3px;" : "")}
     ${props =>
       !props.minimal
         ? `border-color: ${props.isValid ? Colors.HIT_GRAY : "red"}`
         : ""};
-    ${props =>
-      props.minimal ? `border-bottom: 1px solid ${Colors.HIT_GRAY}` : ""}
+    & .${Classes.EDITABLE_TEXT_CONTENT} {
+      text-decoration: ${props => (props.minimal ? "underline" : "none")};
+    }
   }
 `;
 

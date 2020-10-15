@@ -19,12 +19,13 @@ import ApplicationApi, {
   PublishApplicationRequest,
   PublishApplicationResponse,
   SetDefaultPageRequest,
+  UpdateApplicationRequest,
 } from "api/ApplicationApi";
 import { getDefaultPageId } from "./SagaUtils";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
-import { getApplicationList } from "selectors/applicationSelectors";
+import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -40,6 +41,7 @@ import {
   DUPLICATING_APPLICATION,
 } from "constants/messages";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
+import { Organization } from "constants/orgConstants";
 
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
@@ -79,11 +81,7 @@ export function* getAllApplicationSaga() {
             ? []
             : userOrgs.applications.map((application: ApplicationObject) => {
                 return {
-                  name: application.name,
-                  organizationId: application.organizationId,
-                  id: application.id,
-                  pages: application.pages,
-                  userPermissions: application.userPermissions,
+                  ...application,
                   pageCount: application.pages ? application.pages.length : 0,
                   defaultPageId: getDefaultPageId(application.pages),
                 };
@@ -119,12 +117,9 @@ export function* fetchApplicationListSaga() {
             pages: ApplicationPagePayload[];
           },
         ) => ({
-          name: application.name,
-          organizationId: application.organizationId,
-          id: application.id,
+          ...application,
           pageCount: application.pages ? application.pages.length : 0,
           defaultPageId: getDefaultPageId(application.pages),
-          appIsExample: application.appIsExample,
         }),
       );
       yield put({
@@ -202,6 +197,32 @@ export function* setDefaultApplicationPageSaga(
   }
 }
 
+export function* updateApplicationSaga(
+  action: ReduxAction<UpdateApplicationRequest>,
+) {
+  try {
+    const request: UpdateApplicationRequest = action.payload;
+    const response: ApiResponse = yield call(
+      ApplicationApi.updateApplication,
+      request,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
@@ -242,12 +263,9 @@ export function* duplicateApplicationSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
-        id: response.data.id,
-        name: response.data.name,
-        organizationId: response.data.organizationId,
+        ...response.data,
         pageCount: response.data.pages ? response.data.pages.length : 0,
         defaultPageId: getDefaultPageId(response.data.pages),
-        appIsExample: response.data.appIsExample,
       };
       yield put({
         type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
@@ -302,23 +320,21 @@ export function* createApplicationSaga(
   action: ReduxAction<{
     applicationName: string;
     orgId: string;
-    resolve: any;
-    reject: any;
   }>,
 ) {
-  const { applicationName, orgId, resolve, reject } = action.payload;
+  const { applicationName, orgId } = action.payload;
   try {
-    const applicationList: ApplicationPayload[] = yield select(
-      getApplicationList,
-    );
-    const existingApplication = applicationList.find(application => {
-      return application.name === applicationName;
-    });
-
+    const userOrgs = yield select(getUserApplicationsOrgsList);
+    const existingOrgs = userOrgs.filter(
+      (org: Organization) => org.organization.id === orgId,
+    )[0];
+    const existingApplication = existingOrgs
+      ? existingOrgs.applications.find(
+          (application: ApplicationPayload) =>
+            application.name === applicationName,
+        )
+      : null;
     if (existingApplication) {
-      yield call(reject, {
-        _error: "An application with this name already exists",
-      });
       yield put({
         type: ReduxActionErrorTypes.CREATE_APPLICATION_ERROR,
         payload: {
@@ -338,37 +354,29 @@ export function* createApplicationSaga(
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
         const application: ApplicationPayload = {
-          id: response.data.id,
-          name: response.data.name,
-          organizationId: response.data.organizationId,
+          ...response.data,
           pageCount: response.data.pages ? response.data.pages.length : 0,
           defaultPageId: getDefaultPageId(response.data.pages),
-          appIsExample: response.data.appIsExample,
         };
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
         });
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
-          payload: application,
+          payload: {
+            orgId,
+            application,
+          },
         });
-        yield call(resolve);
-        const pageURL = BUILDER_PAGE_URL(
-          application.id,
-          application.defaultPageId,
-        );
-        history.push(pageURL);
-      } else {
-        yield call(reject);
       }
     }
   } catch (error) {
-    yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.CREATE_APPLICATION_ERROR,
       payload: {
         error,
         show: false,
+        orgId,
       },
     });
   }
@@ -384,6 +392,7 @@ export default function* applicationSagas() {
       ReduxActionTypes.FETCH_APPLICATION_LIST_INIT,
       fetchApplicationListSaga,
     ),
+    takeLatest(ReduxActionTypes.UPDATE_APPLICATION, updateApplicationSaga),
     takeLatest(
       ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,
       changeAppViewAccessSaga,

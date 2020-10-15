@@ -1080,4 +1080,24 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "025", id = "generate-unique-id-for-instance", author = "")
+    public void generateUniqueIdForInstance(MongoTemplate mongoTemplate) {
+        mongoTemplate.insert(new Config(
+                new JSONObject(Map.of("value", new ObjectId().toHexString())),
+                "instance-id"
+        ));
+    }
+
+    @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
+    public void fixTokenExpiration(MongoTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
+
+        ensureIndexes(mongoTemplate, PasswordResetToken.class,
+                makeIndex(FieldName.CREATED_AT)
+                    .expire(2, TimeUnit.DAYS),
+                makeIndex(FieldName.EMAIL).unique()
+        );
+    }
+
 }

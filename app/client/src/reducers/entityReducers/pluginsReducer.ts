@@ -8,15 +8,15 @@ import { Plugin } from "api/PluginApi";
 
 export interface PluginFormPayload {
   id: string;
-  form: [];
-  editor: [];
+  form: any[];
+  editor: any[];
 }
 
 export interface PluginDataState {
   list: Plugin[];
   loading: boolean;
-  formConfigs: Record<string, []>;
-  editorConfigs: Record<string, []>;
+  formConfigs: Record<string, any[]>;
+  editorConfigs: Record<string, any[]>;
   loadingFormConfigs: boolean;
 }
 
