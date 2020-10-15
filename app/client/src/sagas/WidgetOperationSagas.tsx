@@ -1023,7 +1023,12 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
         RenderModes.CANVAS,
       ),
     );
-  } catch (error) {}
+  } catch (error) {
+    AppToaster.show({
+      message: "Failed to add the widget",
+      type: "error",
+    });
+  }
 }
 
 export default function* widgetOperationSagas() {
