@@ -117,24 +117,27 @@ class Api {
   static get(
     url: string,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
-    return axiosInstance.get(
-      url + convertObjectToQueryParams(queryParams),
-      _.merge(apiRequestConfig, config),
-    );
+    return axiosInstance.get(url + convertObjectToQueryParams(queryParams), {
+      ...apiRequestConfig,
+      ...config,
+    });
   }
 
   static post(
     url: string,
     body?: any,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
     return axiosInstance.post(
       url + convertObjectToQueryParams(queryParams),
       body,
-      _.merge(apiRequestConfig, config),
+      {
+        ...apiRequestConfig,
+        ...config,
+      },
     );
   }
 
@@ -142,24 +145,27 @@ class Api {
     url: string,
     body?: any,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
     return axiosInstance.put(
       url + convertObjectToQueryParams(queryParams),
       body,
-      _.merge(apiRequestConfig, config),
+      {
+        ...apiRequestConfig,
+        ...config,
+      },
     );
   }
 
   static delete(
     url: string,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
-    return axiosInstance.delete(
-      url + convertObjectToQueryParams(queryParams),
-      _.merge(apiRequestConfig, config),
-    );
+    return axiosInstance.delete(url + convertObjectToQueryParams(queryParams), {
+      ...apiRequestConfig,
+      ...config,
+    });
   }
 }
 
