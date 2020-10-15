@@ -47,7 +47,6 @@ const Content = styled.div`
   flex-direction: row;
   min-width: 0;
   display: flex;
-  padding-right: 10px;
   justify-content: space-between;
 `;
 
