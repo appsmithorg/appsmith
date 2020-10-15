@@ -37,6 +37,7 @@ import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
+  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -71,6 +72,12 @@ import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { forceOpenPropertyPane } from "actions/widgetActions";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -946,8 +953,90 @@ function* cutWidgetSaga() {
   });
 }
 
+function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
+  try {
+    const columns = 8;
+    const rows = 7;
+    const queryName = action.payload;
+    const widgets = yield select(getWidgets);
+    const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET");
+
+    let newWidget = {
+      type: WidgetTypes.TABLE_WIDGET,
+      newWidgetId: generateReactKey(),
+      widgetId: "0",
+      topRow: 0,
+      bottomRow: rows,
+      leftColumn: 0,
+      rightColumn: columns,
+      columns,
+      rows,
+      parentId: "0",
+      widgetName,
+      renderMode: RenderModes.CANVAS,
+      parentRowSpace: 1,
+      parentColumnSpace: 1,
+      isLoading: false,
+    };
+    const {
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+    } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
+
+    newWidget = {
+      ...newWidget,
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+    };
+
+    yield put({
+      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      payload: newWidget,
+    });
+
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+
+    navigateToCanvas(
+      {
+        applicationId,
+        pageId,
+      },
+      window.location.pathname,
+      pageId,
+      newWidget.newWidgetId,
+    );
+    yield put({
+      type: ReduxActionTypes.SELECT_WIDGET,
+      payload: { widgetId: newWidget.newWidgetId },
+    });
+    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
+    yield put(
+      updateWidgetPropertyRequest(
+        newWidget.newWidgetId,
+        "tableData",
+        `{{${queryName}.data}}`,
+        RenderModes.CANVAS,
+      ),
+    );
+  } catch (error) {
+    AppToaster.show({
+      message: "Failed to add the widget",
+      type: "error",
+    });
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield all([
+    takeEvery(
+      ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
+      addTableWidgetFromQuerySaga,
+    ),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
     takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSaga),
     takeLatest(ReduxActionTypes.WIDGET_MOVE, moveSaga),
