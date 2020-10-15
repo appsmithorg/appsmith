@@ -34,6 +34,12 @@ cd app/client
 ./start-https.sh
 ```
 
+#### WSL (Windows Subsystem for Linux)
+
+Because Docker Desktop for Windows does not support `host` network mode (https://docs.docker.com/network/host/), to run `start-https.sh` in WSL, in `start-https.sh`, remove the `--network host` option from the call to the `docker` command.
+
+In `app/client/docker/templates/nginx-linux.conf.template`, replace all occurrences of `http://localhost:3000` to  `http://host.docker.internal:3000`.
+
 ### Steps to build & run the code:
 1. Run `yarn`
 2. Run `yarn start`

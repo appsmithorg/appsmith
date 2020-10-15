@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -35,16 +36,19 @@ import static org.junit.Assert.assertTrue;
 public class MongoPluginTest {
 
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
-    String address;
-    Integer port;
 
+    private static String address;
+    private static Integer port;
+
+    @SuppressWarnings("rawtypes")
     @ClassRule
-    public static GenericContainer mongoContainer = new GenericContainer("mongo:4.2.0")
+    public static GenericContainer mongoContainer = new GenericContainer(CompletableFuture.completedFuture("mongo:4.4"))
             .withExposedPorts(27017);
+
     private JsonNode value;
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
 

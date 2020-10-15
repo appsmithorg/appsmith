@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.log4j.Log4j;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MySQLContainer;
@@ -41,7 +41,7 @@ public class MySqlPluginTest {
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
-    public static MySQLContainer mySQLContainer = new MySQLContainer()
+    public static MySQLContainer mySQLContainer = new MySQLContainer("mysql:5.7")
             .withUsername("mysql")
             .withPassword("password")
             .withDatabaseName("test_db");
@@ -54,20 +54,16 @@ public class MySqlPluginTest {
             .withDatabaseName("test_db")
             .withEnv("TZ", "PDT");
 
-    String address;
-    Integer port;
-    String username;
-    String password;
-    String database;
+    private static String address;
+    private static Integer port;
+    private static String username;
+    private static String password;
+    private static String database;
 
-    DatasourceConfiguration dsConfig;
+    private static DatasourceConfiguration dsConfig;
 
-    @Before
-    public void setUp() {
-        if (address != null) {
-            return;
-        }
-
+    @BeforeClass
+    public static void setUp() {
         address = mySQLContainer.getContainerIpAddress();
         port = mySQLContainer.getFirstMappedPort();
         username = mySQLContainer.getUsername();
@@ -140,7 +136,7 @@ public class MySqlPluginTest {
         }
     }
 
-    private DatasourceConfiguration createDatasourceConfiguration() {
+    private static DatasourceConfiguration createDatasourceConfiguration() {
         AuthenticationDTO authDTO = new AuthenticationDTO();
         authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);

@@ -74,5 +74,6 @@
   "videoInner": ".t--draggable-videowidget span.t--widget-name",
   "onPlay": ".t--property-control-onplay .t--open-dropdown-Select-Action",
   "chooseAction": ".single-select",
-  "chooseMsgType": ".t--open-dropdown-Select-type"
+  "chooseMsgType": ".t--open-dropdown-Select-type",
+  "onPause": ".t--property-control-onpause .t--open-dropdown-Select-Action"
 }
