@@ -42,7 +42,7 @@ function* storeUpdatesSaga(action: ReduxAction<ReduxAction<any>>) {
     const currentPriorityBatchs = batchPriorityMap.get(priority) || [];
     currentPriorityBatchs.push(action.payload);
     batchPriorityMap.set(priority, currentPriorityBatchs);
-    if (currentPriorityBatchs.length === 0) {
+    if (currentPriorityBatchs.length === 1) {
       yield put({ type: ReduxActionTypes.EXECUTE_BATCH });
     }
   } catch (e) {
