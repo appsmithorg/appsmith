@@ -1,6 +1,6 @@
 import React from "react";
-import styled, { css } from "styled-components";
-import { Icon, Card, Spinner, Button } from "@blueprintjs/core";
+import styled from "styled-components";
+import { Spinner, Button } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
