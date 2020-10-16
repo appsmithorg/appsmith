@@ -1000,6 +1000,16 @@ Cypress.Commands.add("addSuccessMessage", value => {
     .children()
     .contains("Success")
     .click();
+  cy.enterActionValue(value);
+});
+Cypress.Commands.add("SetDateToToday", () => {
+  cy.get(formWidgetsPage.datepickerFooter)
+    .contains("Today")
+    .click();
+  cy.assertPageSave();
+});
+
+Cypress.Commands.add("enterActionValue", value => {
   cy.get(".CodeMirror textarea")
     .last()
     .focus()
@@ -1012,6 +1022,7 @@ Cypress.Commands.add("addSuccessMessage", value => {
             force: true,
           });
       }
+
       cy.get(".CodeMirror textarea")
         .last()
         .type(value, {
@@ -1023,12 +1034,6 @@ Cypress.Commands.add("addSuccessMessage", value => {
         .last()
         .should("have.value", value);
     });
-});
-Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.datepickerFooter)
-    .contains("Today")
-    .click();
-  cy.assertPageSave();
 });
 
 Cypress.Commands.add("ClearDate", () => {
