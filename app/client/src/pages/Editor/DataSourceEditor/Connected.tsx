@@ -72,6 +72,10 @@ const ValueWrapper = styled.div`
   margin-left: 10px;
 `;
 
+const FieldWrapper = styled.div`
+  margin-top: 9px;
+`;
+
 const Connected = () => {
   const params = useParams<{ datasourceId: string; applicationId: string }>();
   const datasource = useSelector((state: AppState) =>
@@ -217,9 +221,18 @@ const renderSection = (
               }
             }
 
+            if (controlType === "FIXED_KEY_INPUT") {
+              return (
+                <FieldWrapper>
+                  <Key>{configProperty.key}: </Key>{" "}
+                  <Value>{configProperty.value}</Value>
+                </FieldWrapper>
+              );
+            }
+
             if (controlType === "KEY_VAL_INPUT") {
               return (
-                <div style={{ marginTop: 9 }}>
+                <FieldWrapper>
                   <Key>{label}</Key>
                   {value.map((val: { key: string; value: string }) => {
                     return (
@@ -235,14 +248,14 @@ const renderSection = (
                       </div>
                     );
                   })}
-                </div>
+                </FieldWrapper>
               );
             }
 
             return (
-              <div style={{ marginTop: 9 }}>
+              <FieldWrapper>
                 <Key>{label}: </Key> <Value>{value}</Value>
-              </div>
+              </FieldWrapper>
             );
           } catch (e) {}
         }
