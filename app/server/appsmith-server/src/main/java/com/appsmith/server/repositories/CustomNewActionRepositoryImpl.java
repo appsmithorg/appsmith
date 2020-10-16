@@ -195,25 +195,13 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewAction> findByApplicationIdAndNamesAndViewMode(String applicationId,
-                                                                  Set<String> names,
-                                                                  Boolean viewMode,
-                                                                  AclPermission aclPermission) {
+    public Flux<NewAction> findByApplicationIdAndViewMode(String applicationId,
+                                                          Boolean viewMode,
+                                                          AclPermission aclPermission) {
 
         Criteria applicationCriteria = where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
 
-        Criteria nameCriterion;
-
-        // Fetch published actions
-        if (Boolean.TRUE.equals(viewMode)) {
-            nameCriterion = where(fieldName(QNewAction.newAction.publishedAction)+"."+fieldName(QNewAction.newAction.publishedAction.name)).in(names);
-        }
-        // Fetch unpublished actions
-        else {
-            nameCriterion = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
-        }
-
-        return queryAll(List.of(applicationCriteria, nameCriterion), aclPermission);
+        return queryAll(List.of(applicationCriteria), aclPermission);
     }
 
     @Override

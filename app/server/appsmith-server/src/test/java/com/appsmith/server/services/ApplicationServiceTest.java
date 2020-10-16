@@ -22,6 +22,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -70,9 +71,6 @@ public class ApplicationServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PageService pageService;
-
-    @Autowired
     UserService userService;
 
     @Autowired
@@ -95,6 +93,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     NewPageService newPageService;
+
+    @Autowired
+    NewPageRepository newPageRepository;
 
     String orgId;
 
@@ -613,9 +614,9 @@ public class ApplicationServiceTest {
 
         // verify that Pages are cloned
 
-        Mono<List<Page>> testPageListMono = testApplicationMono
+        Mono<List<NewPage>> testPageListMono = testApplicationMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> pageRepository.findById(applicationPage.getId()))
+                .flatMap(applicationPage -> newPageRepository.findById(applicationPage.getId()))
                 .collectList();
 
         Mono<List<String>> pageIdListMono = pageListMono
@@ -625,7 +626,7 @@ public class ApplicationServiceTest {
 
         Mono<List<String>> testPageIdListMono = testPageListMono
                 .flatMapMany(Flux::fromIterable)
-                .map(Page::getId)
+                .map(NewPage::getId)
                 .collectList();
 
         StepVerifier
@@ -647,7 +648,7 @@ public class ApplicationServiceTest {
 
         Mono<List<String>> testPageNameListMono = testPageListMono
                 .flatMapMany(Flux::fromIterable)
-                .map(Page::getName)
+                .map(newPage -> newPage.getUnpublishedPage().getName())
                 .collectList();
 
         StepVerifier

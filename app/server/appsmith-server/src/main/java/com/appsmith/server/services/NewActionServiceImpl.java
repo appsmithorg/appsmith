@@ -837,11 +837,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
-            String finalName = name;
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return repository
-                    .findByApplicationIdAndNamesAndViewMode(params.getFirst(FieldName.APPLICATION_ID), Set.of(finalName), false, READ_ACTIONS)
+                    .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, READ_ACTIONS)
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)

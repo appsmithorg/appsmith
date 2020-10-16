@@ -4,9 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import {
   ReduxAction,
   ReduxActionTypes,
-  SavePageSuccessPayload,
   UpdateCanvasPayload,
-  FetchPageListPayload,
 } from "constants/ReduxActionConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
