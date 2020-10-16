@@ -77,7 +77,7 @@ const DatasourceCard = (props: DatasourceCardProps) => {
 
   return (
     <Wrapper>
-      <DatasourceCardHeader>
+      <DatasourceCardHeader className="t--datasource-name">
         <div>
           <DatasourceNameWrapper>
             <DatasourceImage
@@ -94,6 +94,7 @@ const DatasourceCard = (props: DatasourceCardProps) => {
           </Queries>
         </div>
         <ActionButton
+          className="t--create-query"
           icon={"plus"}
           text="New Query"
           filled
