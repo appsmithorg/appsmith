@@ -137,7 +137,6 @@ overwrite_file() {
         echo ""
     else
         mv -f "$template_file" "$full_path"
-        echo "File $full_path moved successfully!"
     fi
 }
 
@@ -327,8 +326,8 @@ bye() {  # Prints a friendly good bye message and exits the script.
             "os": "'"$os"'",
             "email": "'"$email"'"
         }
-    }'
-    echo -e "\nExiting for now. Bye! \U1F44B\n"
+    }' > /dev/null
+    echo -e "\nExiting for now. Bye! 👋 \n"
     exit 1
 }
 
@@ -339,14 +338,15 @@ echo ""
 # Checking OS and assigning package manager
 desired_os=0
 os=""
-echo -e "🕵️ Detecting your OS"
+echo -e "🕵️  Detecting your OS"
 check_os
+
 APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
 
 # Run bye if failure happens
 trap bye EXIT
 
-curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -354,7 +354,7 @@ curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi
   "data": {
       "os": "'"$os"'"
    }
-}'
+}' > /dev/null
 
 if [[ $desired_os -eq 0 ]];then
     echo ""
@@ -362,7 +362,7 @@ if [[ $desired_os -eq 0 ]];then
     echo_contact_support " if you wish to extend this support."
     bye
 else
-    echo "You're on an OS that is supported by this installation script."
+    echo "🙌 You're on an OS that is supported by this installation script."
     echo ""
 fi
 
@@ -491,7 +491,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
       "data": {
           "os": "'"$os"'"
        }
-    }'
+    }' > /dev/null
     echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
@@ -586,7 +586,7 @@ if [[ $status_code -ne 401 ]]; then
           "os": "'"$os"'",
           "email": "'"$email"'"
        }
-    }'
+    }' > /dev/null
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
@@ -596,7 +596,8 @@ else
       "data": {
           "os": "'"$os"'"
        }
-    }'
+    }' > /dev/null
+
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
@@ -621,7 +622,7 @@ else
           "os": "'"$os"'",
           "email": "'"$email"'"
        }
-    }'
+    }' > /dev/null
 fi
 
 echo -e "\nPeace out ✌️\n"
