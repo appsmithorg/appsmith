@@ -19,6 +19,7 @@ import {
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
+import PropertiesEditor from "./PropertiesEditor";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -26,7 +27,6 @@ type Props = PropertyPaneControlConfig & {
 };
 
 const PropertyControl = (props: Props) => {
-  console.log({ props });
   const dispatch = useDispatch();
   const { widgetProperties } = props;
 
@@ -81,7 +81,7 @@ const PropertyControl = (props: Props) => {
     (panelProps: any) => {
       if (props.panelConfig) {
         props.panel.openPanel({
-          component: props.panelConfig.component,
+          component: PropertiesEditor,
           props: {
             panelProps,
             panelConfig: props.panelConfig,
@@ -138,7 +138,6 @@ const PropertyControl = (props: Props) => {
         propertyName
       ] as any,
     };
-    // console.log({ config });
     if (
       widgetProperties.dynamicTriggers &&
       widgetProperties.dynamicTriggers[propertyName]

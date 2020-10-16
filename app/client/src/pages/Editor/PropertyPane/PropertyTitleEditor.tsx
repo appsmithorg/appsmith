@@ -11,13 +11,10 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   justify-content: center;
-  align-items: center;
   display: grid;
   width: 100%;
-  grid-template-columns: 171px 25px 25px 25px;
-  justify-items: center;
+  grid-template-columns: 1fr 20px 20px;
   align-items: center;
-  justify-content: stretch;
   position: sticky;
   top: 0;
   z-index: 3;
@@ -28,17 +25,18 @@ const Wrapper = styled.div`
     align-items: center;
     justify-content: center;
   }
+
+  & span.${Classes.ICON} {
+    padding: 7px;
+  }
 `;
 
 export type PropertyTitleEditorProps = {
   title: string;
-  widgetId?: string;
   updatePropertyTitle: (title: string) => void;
-  widgetType?: WidgetType;
   onClose: () => void;
 };
 
-/* eslint-disable react/display-name */
 const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
   const { title, updatePropertyTitle } = props;
   const [name, setName] = useState(props.title);
@@ -81,23 +79,11 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
         position={Position.TOP}
         hoverOpenDelay={200}
       >
-        <Icon
-          style={{
-            // position: "absolute",
-            // right: 35,
-            padding: 7,
-          }}
-          color={theme.colors.paneSectionLabel}
-          icon="help"
-        />
+        <Icon color={theme.colors.paneSectionLabel} icon="help" iconSize={14} />
       </Tooltip>
       <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
         <Icon
           onClick={(e: any) => {
-            AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-              widgetType: props.widgetType || "",
-              widgetId: props.widgetId,
-            });
             props.onClose();
             e.preventDefault();
             e.stopPropagation();
@@ -111,5 +97,7 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
     </Wrapper>
   );
 };
+
+PropertyTitleEditor.displayName = "PanelTitleEditor";
 
 export default PropertyTitleEditor;

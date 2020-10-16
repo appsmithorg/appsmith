@@ -12,7 +12,6 @@ export type PropertyPaneSectionConfig = {
 export type PanelConfig = {
   editableTitle: boolean;
   titlePropertyName: string;
-  component: JSXElementConstructor<any>;
   children: PropertyPaneConfig[];
 };
 

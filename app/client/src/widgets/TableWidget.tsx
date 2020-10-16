@@ -147,13 +147,197 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
-              component: PropertiesEditor,
               children: [
                 {
-                  propertyName: "defaultSearchText",
-                  label: "Default Search Text",
-                  controlType: "INPUT_TEXT",
-                  placeholderText: "Enter default search text",
+                  id: "7.1.6.1",
+                  sectionName: "Column Control",
+                  children: [
+                    {
+                      id: "7.1.6.1.0",
+                      propertyName: "type",
+                      label: "Column Type",
+                      controlType: "DROP_DOWN",
+                      isJSConvertible: true,
+                      options: [
+                        {
+                          label: "Plain Text",
+                          value: "text",
+                        },
+                        {
+                          label: "Number",
+                          value: "number",
+                        },
+                        {
+                          label: "Image",
+                          value: "image",
+                        },
+                        {
+                          label: "Video",
+                          value: "video",
+                        },
+                        {
+                          label: "Date",
+                          value: "date",
+                        },
+                        {
+                          label: "Time",
+                          value: "time",
+                        },
+                        {
+                          label: "Currency",
+                          value: "currencys",
+                        },
+                      ],
+                    },
+                    {
+                      id: "7.1.6.1.2",
+                      propertyName: "computedValue",
+                      label: "Computed Value",
+                      controlType: "INPUT_TEXT",
+                    },
+                    {
+                      id: "7.1.6.1.3",
+                      propertyName: "enableFilter",
+                      label: "Filtering",
+                      controlType: "SWITCH",
+                      isJSConvertible: true,
+                    },
+                    {
+                      id: "7.1.6.1.4",
+                      propertyName: "enableSort",
+                      label: "Sorting",
+                      controlType: "SWITCH",
+                      isJSConvertible: true,
+                    },
+                  ],
+                },
+                {
+                  id: "7.1.6.2",
+                  sectionName: "Text",
+                  children: [
+                    {
+                      id: "7.1.6.2.1",
+                      propertyName: "horizontalAlignment",
+                      label: "Text Align",
+                      controlType: "ICON_TABS",
+                      options: [
+                        {
+                          icon: "LEFT_ALIGN",
+                          value: "LEFT",
+                        },
+                        {
+                          icon: "CENTER_ALIGN",
+                          value: "CENTER",
+                        },
+                        {
+                          icon: "RIGHT_ALIGN",
+                          value: "RIGHT",
+                        },
+                      ],
+                      defaultValue: "LEFT",
+                      isJSConvertible: true,
+                    },
+                    {
+                      id: "7.1.6.2.2",
+                      propertyName: "textSize",
+                      label: "Text Size",
+                      controlType: "DROP_DOWN",
+                      isJSConvertible: true,
+                      options: [
+                        {
+                          label: "Heading 1",
+                          value: "HEADING1",
+                          subText: "24px",
+                          icon: "HEADING_ONE",
+                        },
+                        {
+                          label: "Heading 2",
+                          value: "HEADING2",
+                          subText: "18px",
+                          icon: "HEADING_TWO",
+                        },
+                        {
+                          label: "Heading 3",
+                          value: "HEADING3",
+                          subText: "16px",
+                          icon: "HEADING_THREE",
+                        },
+                        {
+                          label: "Paragraph",
+                          value: "PARAGRAPH",
+                          subText: "14px",
+                          icon: "PARAGRAPH",
+                        },
+                        {
+                          label: "Bullet Points",
+                          value: "BULLETPOINTS",
+                          subText: "14px",
+                          icon: "BULLETS",
+                        },
+                      ],
+                    },
+                    {
+                      id: "7.1.6.2.3",
+                      propertyName: "fontStyle",
+                      label: "Font Style",
+                      controlType: "BUTTON_TABS",
+                      options: [
+                        {
+                          icon: "BOLD_FONT",
+                          value: "BOLD",
+                        },
+                        {
+                          icon: "ITALICS_FONT",
+                          value: "ITALIC",
+                        },
+                      ],
+                      defaultValue: "NORMAL",
+                      isJSConvertible: true,
+                    },
+                    {
+                      id: "7.1.6.2.4",
+                      propertyName: "verticalAlignment",
+                      label: "Vertical Alignment",
+                      controlType: "ICON_TABS",
+                      options: [
+                        {
+                          icon: "VERTICAL_TOP",
+                          value: "TOP",
+                        },
+                        {
+                          icon: "VERTICAL_CENTER",
+                          value: "CENTER",
+                        },
+                        {
+                          icon: "VERTICAL_BOTTOM",
+                          value: "BOTTOM",
+                        },
+                      ],
+                      defaultValue: "LEFT",
+                      isJSConvertible: true,
+                    },
+                    {
+                      id: "7.1.6.2.5",
+                      propertyName: "textColor",
+                      label: "Text Color",
+                      controlType: "COLOR_PICKER",
+                      isJSConvertible: true,
+                    },
+                  ],
+                },
+                {
+                  id: "7.1.6.3",
+                  sectionName: "Actions",
+                  children: [
+                    {
+                      id: "7.1.6.3.1",
+                      helpText:
+                        "Adds a button action for every row. Reference the Table.selectedRow property in the action",
+                      propertyName: "columnActions",
+                      label: "Row Button",
+                      controlType: "COLUMN_ACTION_SELECTOR",
+                    },
+                  ],
                 },
               ],
             },
