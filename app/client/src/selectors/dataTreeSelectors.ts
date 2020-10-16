@@ -42,7 +42,6 @@ export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
   getActionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
-    log.debug("Evaluating data tree to get autocomplete values");
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
       actions.forEach(action => {

@@ -42,7 +42,6 @@ export const getWidgetPropsForPropertyPane = createSelector(
     widget: WidgetProps | undefined,
     evaluatedTree: DataTree,
   ): WidgetProps | undefined => {
-    log.debug("Evaluating data tree to get property pane validations");
     if (!widget) return undefined;
     const evaluatedWidget = _.find(evaluatedTree, {
       widgetId: widget.widgetId,

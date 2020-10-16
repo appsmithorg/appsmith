@@ -121,9 +121,7 @@ export const getCanvasWidgetDsl = createSelector(
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CONSTRUCT_CANVAS_DSL,
     );
-    log.debug("Evaluating data tree to get canvas widgets");
     const widgets: Record<string, DataTreeWidget> = {};
-    console.log({ evaluatedDataTree, canvasWidgets });
     Object.keys(canvasWidgets).forEach(widgetKey => {
       const evaluatedWidget = _.find(evaluatedDataTree, {
         widgetId: widgetKey,
@@ -132,7 +130,6 @@ export const getCanvasWidgetDsl = createSelector(
       if (evaluatedWidget) {
         widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
       } else {
-        console.log("not found", { canvasWidget });
         widgets[widgetKey] = createLoadingWidget(canvasWidget);
       }
     });
@@ -141,7 +138,6 @@ export const getCanvasWidgetDsl = createSelector(
       canvasWidgets: widgets,
     });
     PerformanceTracker.stopTracking();
-    console.log({ denormalizedWidgets });
     return denormalizedWidgets;
   },
 );

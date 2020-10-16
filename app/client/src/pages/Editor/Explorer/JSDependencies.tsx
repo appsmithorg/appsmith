@@ -4,7 +4,7 @@ import { Collapse, Icon, IconName, Tooltip } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import { BindingText } from "pages/Editor/APIEditor/Form";
-import { extraLibraries } from "../../../utils/DynamicBindingUtils";
+import { extraLibraries } from "utils/DynamicBindingUtils";
 
 const Wrapper = styled.div`
   font-size: 13px;

@@ -67,7 +67,7 @@ function* evaluateTreeSaga() {
   });
   const workerResponse = yield take(workerChannel);
   const { errors, dataTree } = workerResponse.data;
-  console.log({ dataTree });
+  log.debug({ dataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
@@ -169,6 +169,8 @@ function* evaluationChangeListenerSaga() {
   yield call(evaluateTreeSaga);
   while (true) {
     const action: ReduxAction<any> = yield take(EVALUATE_REDUX_ACTIONS);
+    // When batching success action happens, we need to only evaluate
+    // if the batch had any action we need to evaluate properties for
     if (action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS) {
       const batchedActionTypes = action.payload.map(
         (batchedAction: ReduxAction<any>) => batchedAction.type,
@@ -181,7 +183,7 @@ function* evaluationChangeListenerSaga() {
     }
     yield call(evaluateTreeSaga);
   }
-  // TODO(hetu) need an action to stop listening and evaluate (exit editor)
+  // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
 
 export default function* evaluationSagaListeners() {
