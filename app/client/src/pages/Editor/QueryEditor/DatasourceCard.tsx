@@ -1,7 +1,7 @@
 import { Datasource } from "api/DatasourcesApi";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import React from "react";
-import { isNil, map, get } from "lodash";
+import { isNil } from "lodash";
 import { useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import {
@@ -10,6 +10,8 @@ import {
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import { AppState } from "reducers";
+
+import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
@@ -27,25 +29,6 @@ const ActionButton = styled(BaseButton)`
 const DatasourceImage = styled.img`
   height: 24px;
   width: auto;
-`;
-
-const Key = styled.div`
-  color: ${Colors.DOVE_GRAY};
-  font-size: 14px;
-  display: inline-block;
-`;
-
-const Value = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  display: inline-block;
-  text-transform: uppercase;
-  margin-left: 5px;
-`;
-
-const ValueWrapper = styled.div`
-  display: inline-block;
-  margin-left: 10px;
 `;
 
 const DatasourceName = styled.span`
@@ -90,6 +73,7 @@ const DatasourceCard = (props: DatasourceCardProps) => {
 
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
+  const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
 
   return (
     <Wrapper>
@@ -105,8 +89,8 @@ const DatasourceCard = (props: DatasourceCardProps) => {
           </DatasourceNameWrapper>
           <Queries>
             {queriesWithThisDatasource
-              ? `${queriesWithThisDatasource} query on this page`
-              : ""}
+              ? `${queriesWithThisDatasource} ${QUERY} on this page`
+              : "No query is using this datasource"}
           </Queries>
         </div>
         <ActionButton
@@ -118,69 +102,9 @@ const DatasourceCard = (props: DatasourceCardProps) => {
         />
       </DatasourceCardHeader>
       {!isNil(currentFormConfig)
-        ? renderSection(currentFormConfig[0], datasource)
+        ? renderDatasourceSection(currentFormConfig[0], datasource)
         : undefined}
     </Wrapper>
-  );
-};
-
-const renderSection = (
-  section: any,
-  datasource: Datasource | undefined,
-): any => {
-  return (
-    <>
-      {map(section.children, subSection => {
-        if ("children" in subSection) {
-          return renderSection(subSection, datasource);
-        } else {
-          try {
-            const { label, configProperty, controlType } = subSection;
-            let value = get(datasource, configProperty);
-
-            if (controlType === "KEYVALUE_ARRAY") {
-              const configPropertyInfo = configProperty.split("[*].");
-              const values = get(datasource, configPropertyInfo[0], null);
-
-              if (values) {
-                const keyValuePair = values[0];
-                value = keyValuePair[configPropertyInfo[1]];
-              } else {
-                value = "";
-              }
-            }
-
-            if (controlType === "KEY_VAL_INPUT") {
-              return (
-                <div style={{ marginTop: 9 }}>
-                  <Key>{label}</Key>
-                  {value.map((val: { key: string; value: string }) => {
-                    return (
-                      <div key={val.key}>
-                        <div style={{ display: "inline-block" }}>
-                          <Key>Key: </Key>
-                          <Value>{val.key}</Value>
-                        </div>
-                        <ValueWrapper>
-                          <Key>Value: </Key>
-                          <Value>{val.value}</Value>
-                        </ValueWrapper>
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            }
-
-            return (
-              <div style={{ marginTop: 9 }}>
-                <Key>{label}: </Key> <Value>{value}</Value>
-              </div>
-            );
-          } catch (e) {}
-        }
-      })}
-    </>
   );
 };
 
