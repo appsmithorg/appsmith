@@ -42,10 +42,10 @@ install_docker() {
     if [[ $package_manager == apt-get ]]; then
         apt_cmd="sudo apt-get --yes --quiet"
         $apt_cmd update
-        $apt_cmd install gnupg-agent
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        $apt_cmd install software-properties-common gnupg-agent
+        curl -fsSL "https://download.docker.com/linux/$os/gpg" | sudo apt-key add -
         sudo add-apt-repository \
-            "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            "deb [arch=amd64] https://download.docker.com/linux/$os $(lsb_release -cs) stable"
         $apt_cmd update
         echo "Installing docker"
         $apt_cmd install docker-ce docker-ce-cli containerd.io
@@ -53,7 +53,7 @@ install_docker() {
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
-        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/$os/docker-ce.repo
         echo "Installing docker"
         $yum_cmd install docker-ce docker-ce-cli containerd.io
 
@@ -64,7 +64,8 @@ install_docker() {
 install_docker_compose() {
     if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
         if [[ ! -f /usr/bin/docker-compose ]];then
-            echo "Installing docker-compose..."
+            echo "++++++++++++++++++++++++"
+            echo "Installing docker-compose"
             sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
             sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
@@ -100,17 +101,22 @@ check_os() {
     case "$os_name" in
         Ubuntu*)
             desired_os=1
-            os="Ubuntu"
+            os="ubuntu"
+            package_manager="apt-get"
+            ;;
+        Debian*)
+            desired_os=1
+            os="debian"
             package_manager="apt-get"
             ;;
         Red\ Hat*)
             desired_os=1
-            os="Red Hat"
+            os="red hat"
             package_manager="yum"
             ;;
         CentOS*)
             desired_os=1
-            os="CentOS"
+            os="centos"
             package_manager="yum"
             ;;
         *)
@@ -131,7 +137,6 @@ overwrite_file() {
         echo ""
     else
         mv -f "$template_file" "$full_path"
-        echo "File $full_path moved successfully!"
     fi
 }
 
@@ -311,35 +316,37 @@ bye() {  # Prints a friendly good bye message and exits the script.
     set +o errexit
     echo "Please share your email to receive support with the installation"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
-      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
-      "event": "Installation Support",
-      "data": {
-          "os": "'"$os"'",
-          "email": "'"$email"'"
-       }
-    }'
-    echo -e "\nExiting for now. Bye! \U1F44B\n"
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Support",
+        "data": {
+            "os": "'"$os"'",
+            "email": "'"$email"'"
+        }
+    }' > /dev/null
+    echo -e "\nExiting for now. Bye! 👋 \n"
     exit 1
 }
 
-echo -e "\U1F44B  Thank you for trying out Appsmith! "
+echo -e "👋 Thank you for trying out Appsmith! "
 echo ""
 
 
 # Checking OS and assigning package manager
 desired_os=0
 os=""
-echo -e "\U1F575  Detecting your OS"
+echo -e "🕵️  Detecting your OS"
 check_os
+
 APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
 
 # Run bye if failure happens
 trap bye EXIT
 
-curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -347,7 +354,7 @@ curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi
   "data": {
       "os": "'"$os"'"
    }
-}'
+}' > /dev/null
 
 if [[ $desired_os -eq 0 ]];then
     echo ""
@@ -355,7 +362,7 @@ if [[ $desired_os -eq 0 ]];then
     echo_contact_support " if you wish to extend this support."
     bye
 else
-    echo "You're on an OS that is supported by this installation script."
+    echo "🙌 You're on an OS that is supported by this installation script."
     echo ""
 fi
 
@@ -476,7 +483,7 @@ fi
 echo ""
 
 if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -484,7 +491,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
       "data": {
           "os": "'"$os"'"
        }
-    }'
+    }' > /dev/null
     echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
@@ -570,7 +577,7 @@ if [[ $status_code -ne 401 ]]; then
     echo ""
     echo "Please share your email to receive help with the installation"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -579,9 +586,9 @@ if [[ $status_code -ne 401 ]]; then
           "os": "'"$os"'",
           "email": "'"$email"'"
        }
-    }'
+    }' > /dev/null
 else
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -589,7 +596,8 @@ else
       "data": {
           "os": "'"$os"'"
        }
-    }'
+    }' > /dev/null
+
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
@@ -605,7 +613,7 @@ else
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
     echo "Please share your email to receive support & updates about appsmith!"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -614,7 +622,7 @@ else
           "os": "'"$os"'",
           "email": "'"$email"'"
        }
-    }'
+    }' > /dev/null
 fi
 
-echo -e "\nPeace out \U1F596\n"
+echo -e "\nPeace out ✌️\n"

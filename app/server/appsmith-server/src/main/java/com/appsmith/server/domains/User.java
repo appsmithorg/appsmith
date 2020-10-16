@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.Email;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     private String name;
 
+    @Email
     private String email;
 
     //TODO: This is deprecated in favour of groups

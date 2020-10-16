@@ -150,13 +150,6 @@ export const EditableText = (props: EditableTextProps) => {
   }, [props.savingState]);
 
   useEffect(() => {
-    return () => {
-      onBlur(valueRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     setValue(defaultValue);
     setIsEditing(!!isEditingDefault);
   }, [defaultValue, isEditingDefault]);
@@ -214,12 +207,13 @@ export const EditableText = (props: EditableTextProps) => {
       if (!error) {
         setLastValidValue(finalVal);
         valueRef.current = finalVal;
+        onTextChanged(finalVal);
       }
       setValue(finalVal);
       setIsInvalid(error);
       setChangeStarted(true);
     },
-    [inputValidation],
+    [inputValidation, onTextChanged],
   );
 
   const iconName =
@@ -239,7 +233,6 @@ export const EditableText = (props: EditableTextProps) => {
 
   return (
     <EditableTextWrapper
-      data-cy={props.cypressSelector}
       fill={props.fill}
       onMouseEnter={nonEditMode}
       onDoubleClick={
@@ -254,6 +247,7 @@ export const EditableText = (props: EditableTextProps) => {
       }
     >
       <TextContainer
+        data-cy={props.cypressSelector}
         isInvalid={!!isInvalid}
         isEditing={isEditing}
         bgColor={bgColor}

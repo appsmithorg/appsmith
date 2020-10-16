@@ -51,10 +51,12 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 : handleRedirect(webFilterExchange);
 
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> user.getExamplesOrganizationId() == null
-                        ? analyticsService.sendEvent(AnalyticsEvents.FIRST_LOGIN, user)
-                        : Mono.empty())
-                .then(examplesOrganizationCloner.cloneExamplesOrganization())
+                // TODO: Need a better way to identify if this is the user's first-login.
+                .filter(user -> user.getExamplesOrganizationId() == null)
+                .flatMap(user -> Mono.whenDelayError(
+                        analyticsService.sendEvent(AnalyticsEvents.FIRST_LOGIN, user),
+                        examplesOrganizationCloner.cloneExamplesOrganization()
+                ))
                 .then(redirectionMono);
     }
 

@@ -27,7 +27,6 @@ const ResponseWrapper = styled.div`
   position: relative;
   flex: 1;
   height: 100%;
-  overflow-y: scroll;
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;

@@ -23,7 +23,7 @@ import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
 import Table from "./Table";
 import { RestAction } from "entities/Action";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
@@ -37,6 +37,7 @@ import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
+import { addTableWidgetFromQuery } from "actions/widgetActions";
 
 const QueryFormContainer = styled.div`
   padding: 20px 32px;
@@ -230,6 +231,21 @@ const SettingsWrapper = styled.div`
   padding-bottom: 8px;
 `;
 
+const AddWidgetButton = styled(BaseButton)`
+  &&&& {
+    max-width: 125px;
+    border: 1px solid ${Colors.GEYSER_LIGHT};
+  }
+`;
+
+const OutputHeader = styled.div`
+  flex-direction: row;
+  justify-content: space-between;
+  display: flex;
+  margin-bottom: 10px;
+  align-items: center;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -279,6 +295,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     documentationLink,
     loadingFormConfigs,
     editorConfig,
+    actionName,
   } = props;
 
   let error = runErrorMessage;
@@ -293,6 +310,11 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   }
 
   const isSQL = responseType === "TABLE";
+
+  const dispatch = useDispatch();
+  const onAddWidget = () => {
+    dispatch(addTableWidgetFromQuery(actionName));
+  };
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (
@@ -523,9 +545,19 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
       {!error && output && dataSources.length && (
         <>
-          <p className="statementTextArea">
-            {output.length ? "Query response" : "No data records to display"}
-          </p>
+          <OutputHeader>
+            <p className="statementTextArea">
+              {output.length ? "Query response" : "No data records to display"}
+            </p>
+            {!!output.length && (
+              <AddWidgetButton
+                className="t--add-widget"
+                icon={"plus"}
+                text="Add Widget"
+                onClick={onAddWidget}
+              />
+            )}
+          </OutputHeader>
           {isSQL ? <Table data={output} /> : <JSONViewer src={output} />}
         </>
       )}
