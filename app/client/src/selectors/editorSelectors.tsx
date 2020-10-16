@@ -111,11 +111,9 @@ export const getWidgetCards = createSelector(
 
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
-  getWidgetsMeta,
   getDataTree,
   (
     canvasWidgets: CanvasWidgetsReduxState,
-    metaProps: MetaState,
     evaluatedDataTree,
   ): ContainerWidgetProps<WidgetProps> => {
     PerformanceTracker.startTracking(
@@ -123,10 +121,10 @@ export const getCanvasWidgetDsl = createSelector(
     );
     const widgets: Record<string, DataTreeWidget> = {};
     Object.keys(canvasWidgets).forEach(widgetKey => {
-      const evaluatedWidget = _.find(evaluatedDataTree, {
-        widgetId: widgetKey,
-      }) as DataTreeWidget;
       const canvasWidget = canvasWidgets[widgetKey];
+      const evaluatedWidget = evaluatedDataTree[
+        canvasWidget.widgetName
+      ] as DataTreeWidget;
       if (evaluatedWidget) {
         widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
       } else {

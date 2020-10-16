@@ -24,8 +24,6 @@ export const EntityProperties = (props: {
 }) => {
   PerformanceTracker.startTracking(
     PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
-    undefined,
-    true,
   );
   useEffect(() => {
     PerformanceTracker.stopTracking(

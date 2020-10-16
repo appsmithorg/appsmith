@@ -634,6 +634,7 @@ function* setWidgetDynamicPropertySaga(
     yield put(updateWidgetProperty(widgetId, propertyName, value));
   } else {
     delete dynamicProperties[propertyName];
+    // TODO (hetu) can we eliminate this use of validation
     const { parsed } = ValidationFactory.validateWidgetProperty(
       widget.type,
       propertyName,

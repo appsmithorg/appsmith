@@ -6,7 +6,6 @@ import {
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { atob, btoa, version as BASE64LIBVERSION } from "js-base64";
-import { ExtraLibrary } from "../jsExecution/JSExecutionManagerSingleton";
 
 type StringTuple = [string, string];
 
@@ -104,6 +103,14 @@ export enum EVAL_WORKER_ACTIONS {
   CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
   CLEAR_CACHE = "CLEAR_CACHE",
 }
+
+export type ExtraLibrary = {
+  version: string;
+  docsURL: string;
+  displayName: string;
+  accessor: string;
+  lib: any;
+};
 
 export const extraLibraries: ExtraLibrary[] = [
   {

@@ -55,14 +55,6 @@ class ValidationFactory {
       return { isValid: true, parsed: value };
     }
   }
-
-  static getAllValidators(): Record<ValidationType, Validator> {
-    const validators: Record<ValidationType, Validator> = {};
-    Array.from(this.validationMap.entries()).forEach(validator => {
-      validators[validator[0]] = validator[1];
-    });
-    return validators;
-  }
 }
 
 export default ValidationFactory;

@@ -121,10 +121,10 @@
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "REACT_APP_BASE_URL=https://release-api.appsmith.com REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start",
+    "start": "EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start",
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
-    "build-staging": " REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
+    "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
     "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
     "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
     "eject": "react-scripts eject",
