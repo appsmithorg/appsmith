@@ -4,6 +4,11 @@ import { InputType } from "widgets/InputWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormLabel from "components/editorComponents/FormLabel";
+import styled from "styled-components";
+
+const Wrapper = styled.div`
+  width: 50vh;
+`;
 
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
   render() {
@@ -17,7 +22,7 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
     } = this.props;
 
     return (
-      <div style={{ width: "50vh" }}>
+      <Wrapper>
         <FormLabel>
           {label} {isRequired && "*"}
         </FormLabel>
@@ -42,21 +47,8 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
             };
           }}
         />
-      </div>
+      </Wrapper>
     );
-  }
-
-  isNumberType(): boolean {
-    const { inputType } = this.props;
-    switch (inputType) {
-      case "CURRENCY":
-      case "INTEGER":
-      case "NUMBER":
-      case "PHONE_NUMBER":
-        return true;
-      default:
-        return false;
-    }
   }
 
   getType(dataType: InputType | undefined) {
