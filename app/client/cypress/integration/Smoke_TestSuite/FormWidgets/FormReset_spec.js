@@ -20,7 +20,7 @@ describe("Form reset functionality", function() {
       .contains("Reset")
       .click();
 
-    cy.wait(1000);
+    cy.wait(500);
 
     cy.get(".tr")
       .eq(2)
