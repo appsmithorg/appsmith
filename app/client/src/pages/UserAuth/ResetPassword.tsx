@@ -42,6 +42,7 @@ import {
   RESET_PASSWORD_INVALID_TOKEN,
   RESET_PASSWORD_RESET_SUCCESS,
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
+  FORM_VALIDATION_PASSWORD_RULE
 } from "constants/messages";
 import { TncPPLinks } from "./SignUp";
 
@@ -51,6 +52,8 @@ const validate = (values: ResetPasswordFormValues) => {
     errors.password = FORM_VALIDATION_EMPTY_PASSWORD;
   } else if (!isStrongPassword(values.password)) {
     errors.password = FORM_VALIDATION_INVALID_PASSWORD;
+  } else if(values.password.length<6){
+    errors.password = FORM_VALIDATION_PASSWORD_RULE;
   }
   return errors;
 };
@@ -148,6 +151,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
       <AuthCardHeader>
         <h1>{RESET_PASSWORD_PAGE_TITLE}</h1>
         <h5>{RESET_PASSWORD_PAGE_SUBTITLE}</h5>
+        <h5>{FORM_VALIDATION_PASSWORD_RULE}</h5>
       </AuthCardHeader>
       <AuthCardBody>
         <StyledForm onSubmit={handleSubmit(resetPasswordSubmitHandler)}>
