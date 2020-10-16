@@ -128,27 +128,35 @@ const IconWrapper = styled.div`
 `;
 
 export const EditableText = (props: EditableTextProps) => {
-  const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
-  const [value, setValue] = useState(props.defaultValue);
-  const [lastValidValue, setLastValidValue] = useState(props.defaultValue);
+  const {
+    onBlur,
+    onTextChanged,
+    isInvalid: inputValidation,
+    defaultValue,
+    isEditingDefault,
+  } = props;
+  const [isEditing, setIsEditing] = useState(!!isEditingDefault);
+  const [value, setValue] = useState(defaultValue);
+  const [lastValidValue, setLastValidValue] = useState(defaultValue);
   const [isInvalid, setIsInvalid] = useState<string | boolean>(false);
   const [changeStarted, setChangeStarted] = useState<boolean>(false);
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
+  const valueRef = React.useRef(defaultValue);
 
   useEffect(() => {
     setSavingState(props.savingState);
   }, [props.savingState]);
 
   useEffect(() => {
-    setValue(props.defaultValue);
-    setIsEditing(!!props.isEditingDefault);
-  }, [props.defaultValue, props.isEditingDefault]);
+    setValue(defaultValue);
+    setIsEditing(!!isEditingDefault);
+  }, [defaultValue, isEditingDefault]);
 
   useEffect(() => {
-    if (props.forceDefault === true) setValue(props.defaultValue);
-  }, [props.forceDefault, props.defaultValue]);
+    if (props.forceDefault === true) setValue(defaultValue);
+  }, [props.forceDefault, defaultValue]);
 
   const themeDetails = useSelector(getThemeDetails);
   const bgColor = useMemo(
@@ -160,41 +168,52 @@ export const EditableText = (props: EditableTextProps) => {
   const editMode = useCallback(
     (e: React.MouseEvent) => {
       setIsEditing(true);
-      const errorMessage =
-        props.isInvalid && props.isInvalid(props.defaultValue);
+      const errorMessage = inputValidation && inputValidation(defaultValue);
       setIsInvalid(errorMessage ? errorMessage : false);
       e.preventDefault();
       e.stopPropagation();
     },
-    [props],
+    [inputValidation, defaultValue],
   );
 
-  const onConfirm = (_value: string) => {
-    if (savingState === SavingState.ERROR || isInvalid) {
-      setValue(lastValidValue);
-      props.onBlur(lastValidValue);
-      setSavingState(SavingState.NOT_STARTED);
-    } else if (changeStarted) {
-      props.onTextChanged(_value);
-      props.onBlur(_value);
-    }
-    setIsEditing(false);
-    setChangeStarted(false);
-  };
+  const onConfirm = useCallback(
+    (_value: string) => {
+      if (savingState === SavingState.ERROR || isInvalid) {
+        setValue(lastValidValue);
+        onBlur(lastValidValue);
+        setSavingState(SavingState.NOT_STARTED);
+      } else if (changeStarted) {
+        onTextChanged(_value);
+        onBlur(_value);
+      }
+      setIsEditing(false);
+      setChangeStarted(false);
+    },
+    [
+      changeStarted,
+      savingState,
+      isInvalid,
+      lastValidValue,
+      onBlur,
+      onTextChanged,
+    ],
+  );
 
   const onInputchange = useCallback(
     (_value: string) => {
       const finalVal: string = _value;
-      const errorMessage = props.isInvalid && props.isInvalid(finalVal);
+      const errorMessage = inputValidation && inputValidation(finalVal);
       const error = errorMessage ? errorMessage : false;
       if (!error) {
         setLastValidValue(finalVal);
+        valueRef.current = finalVal;
+        onTextChanged(finalVal);
       }
       setValue(finalVal);
       setIsInvalid(error);
       setChangeStarted(true);
     },
-    [props],
+    [inputValidation, onTextChanged],
   );
 
   const iconName =
@@ -214,7 +233,6 @@ export const EditableText = (props: EditableTextProps) => {
 
   return (
     <EditableTextWrapper
-      data-cy={props.cypressSelector}
       fill={props.fill}
       onMouseEnter={nonEditMode}
       onDoubleClick={
@@ -229,6 +247,7 @@ export const EditableText = (props: EditableTextProps) => {
       }
     >
       <TextContainer
+        data-cy={props.cypressSelector}
         isInvalid={!!isInvalid}
         isEditing={isEditing}
         bgColor={bgColor}

@@ -10,6 +10,7 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -65,15 +66,12 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   onRadioSelectionChange = (updatedValue: string) => {
-    super.updateWidgetMetaProperty("selectedOptionValue", updatedValue);
-    if (this.props.onSelectionChange) {
-      super.executeAction({
-        dynamicString: this.props.onSelectionChange,
-        event: {
-          type: EventType.ON_OPTION_CHANGE,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue, {
+      dynamicString: this.props.onSelectionChange,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
   };
 
   getWidgetType(): WidgetType {
@@ -84,10 +82,9 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 export interface RadioOption {
   label: string;
   value: string;
-  id: string;
 }
 
-export interface RadioGroupWidgetProps extends WidgetProps {
+export interface RadioGroupWidgetProps extends WidgetProps, WithMeta {
   label: string;
   options: RadioOption[];
   selectedOptionValue: string;
@@ -97,4 +94,6 @@ export interface RadioGroupWidgetProps extends WidgetProps {
 }
 
 export default RadioGroupWidget;
-export const ProfiledRadioGroupWidget = Sentry.withProfiler(RadioGroupWidget);
+export const ProfiledRadioGroupWidget = Sentry.withProfiler(
+  withMeta(RadioGroupWidget),
+);

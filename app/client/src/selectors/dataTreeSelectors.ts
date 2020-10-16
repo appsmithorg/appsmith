@@ -7,39 +7,50 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import * as log from "loglevel";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
-export const getUnevaluatedDataTree = (withFunctions?: boolean) =>
-  createSelector(
-    getActionsForCurrentPage,
-    getWidgets,
-    getWidgetsMeta,
-    getPageList,
-    getAppData,
-    (actions, widgets, widgetsMeta, pageListPayload, appData) => {
-      const pageList = pageListPayload || [];
-      return DataTreeFactory.create(
-        {
-          actions,
-          widgets,
-          widgetsMeta,
-          pageList,
-          appData,
-        },
-        withFunctions,
-      );
-    },
-  );
+export const getUnevaluatedDataTree = createSelector(
+  getActionsForCurrentPage,
+  getWidgets,
+  getWidgetsMeta,
+  getPageList,
+  getAppData,
+  (actions, widgets, widgetsMeta, pageListPayload, appData) => {
+    PerformanceTracker.startTracking(
+      PerformanceTransactionName.CONSTRUCT_UNEVAL_TREE,
+    );
+    const pageList = pageListPayload || [];
+    const unevalTree = DataTreeFactory.create(
+      {
+        actions,
+        widgets,
+        widgetsMeta,
+        pageList,
+        appData,
+      },
+      true,
+    );
+    PerformanceTracker.stopTracking();
+    return unevalTree;
+  },
+);
 
-export const evaluateDataTree = (withFunctions?: boolean) =>
-  createSelector(
-    getUnevaluatedDataTree(withFunctions),
-    (dataTree: DataTree): DataTree => {
-      return getEvaluatedDataTree(dataTree);
-    },
-  );
+export const evaluateDataTree = createSelector(
+  getUnevaluatedDataTree,
+  (dataTree: DataTree): DataTree => {
+    PerformanceTracker.startTracking(
+      PerformanceTransactionName.DATA_TREE_EVALUATION,
+    );
+    const evalDataTree = getEvaluatedDataTree(dataTree);
+    PerformanceTracker.stopTracking();
+    return evalDataTree;
+  },
+);
 
-export const evaluateDataTreeWithFunctions = evaluateDataTree(true);
-export const evaluateDataTreeWithoutFunctions = evaluateDataTree(true);
+export const evaluateDataTreeWithFunctions = evaluateDataTree;
+export const evaluateDataTreeWithoutFunctions = evaluateDataTree;
 
 // For autocomplete. Use actions cached responses if
 // there isn't a response already

@@ -72,7 +72,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s&email=%s";
-    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?token=%s&email=%s";
+    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
     // We default the origin header to the production deployment of the client's URL
@@ -159,7 +159,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     /**
      * This function creates a one-time token for resetting the user's password. This token is stored in the `passwordResetToken`
-     * collection with an expiry time of 1 hour. The user must provide this one-time token when updating with the new password.
+     * collection with an expiry time of 48 hours. The user must provide this one-time token when updating with the new password.
      *
      * @param resetUserPasswordDTO
      * @return
@@ -183,7 +183,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
         Mono<User> userMono = repository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, email)));
 
         // Generate the password reset link for the user
         Mono<PasswordResetToken> passwordResetTokenMono = passwordResetTokenRepository.findByEmail(email)
@@ -432,6 +432,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> userCreate(User user) {
+        final boolean isFromInvite = user.getInviteToken() != null;
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (user.isEnabled() && LoginSource.FORM.equals(user.getSource())) {
@@ -466,7 +467,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return Mono.empty();
                 })
                 .then(repository.findByEmail(user.getUsername()))
-                .flatMap(analyticsService::trackNewUser);
+                .flatMap(analyticsService::trackNewUser)
+                .flatMap(user1 -> analyticsService.sendCreateEvent(user1, Map.of("isFromInvite", isFromInvite)));
     }
 
     /**
@@ -690,15 +692,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // Call user service's userCreate function so that the personal organization, etc are also created along with assigning basic permissions.
         return userCreate(newUser)
                 .flatMap(createdUser -> {
-                    log.debug("Going to send email for invite user to {} with token {}", createdUser.getEmail(), createdUser.getInviteToken());
+                    log.debug("Going to send email for invite user to {}", createdUser.getEmail());
                     String inviteUrl = String.format(
                             INVITE_USER_CLIENT_URL_FORMAT,
                             originHeader,
-                            URLEncoder.encode(createdUser.getInviteToken(), StandardCharsets.UTF_8),
                             URLEncoder.encode(createdUser.getEmail(), StandardCharsets.UTF_8)
                     );
 
-                    params.put("token", createdUser.getInviteToken());
                     params.put("inviteUrl", inviteUrl);
                     Mono<String> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
 

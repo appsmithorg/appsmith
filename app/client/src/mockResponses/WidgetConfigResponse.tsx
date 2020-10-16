@@ -92,6 +92,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "DatePicker",
       defaultDate: moment().format("DD/MM/YYYY HH:mm"),
     },
+
+    VIDEO_WIDGET: {
+      rows: 7,
+      columns: 7,
+      widgetName: "Video",
+      url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+      autoPlay: false,
+    },
     TABLE_WIDGET: {
       rows: 7,
       columns: 8,
@@ -147,8 +155,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 3,
       label: "",
       options: [
-        { id: "1", label: "Male", value: "M" },
-        { id: "2", label: "Female", value: "F" },
+        { label: "Male", value: "M" },
+        { label: "Female", value: "F" },
       ],
       defaultOptionValue: "M",
       widgetName: "RadioGroup",
@@ -187,10 +195,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         operations: [
           {
             type: "MODIFY_PROPS",
-            fn: (
-              widget: WidgetProps & { children?: WidgetProps[] },
-              parent?: WidgetProps & { children?: WidgetProps[] },
-            ) => {
+            fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
               const tabs = widget.tabs;
 
               const newTabs = tabs.map((tab: any) => {

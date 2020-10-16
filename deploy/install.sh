@@ -341,7 +341,7 @@ desired_os=0
 os=""
 echo -e "🕵️ Detecting your OS"
 check_os
-APPSMITH_INSTALLATION_ID=$(curl -s 'https://api6.ipify.org')
+APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
 
 # Run bye if failure happens
 trap bye EXIT

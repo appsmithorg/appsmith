@@ -1,4 +1,4 @@
-import BaseTable, { Column } from "react-base-table";
+import BaseTable from "react-base-table";
 import styled from "styled-components";
 import React from "react";
 import { noop } from "utils/AppsmithUtils";
@@ -37,13 +37,13 @@ export interface ReactBaseTableProps {
   width: number;
   height: number;
   columns: Column[];
-  data: object[];
+  data: Array<Record<string, unknown>>;
   maxHeight: number;
   selectedRowIndex?: number;
 }
 
 export interface SelectableTableProps extends ReactBaseTableProps {
-  onRowClick: (rowData: object, rowIndex: number) => void;
+  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   isLoading: boolean;
 }
 
@@ -52,7 +52,13 @@ export default class SelectableTable extends React.PureComponent<
 > {
   static defaultProps = {};
 
-  _onClick = ({ rowData, rowIndex }: { rowData: object; rowIndex: number }) => {
+  _onClick = ({
+    rowData,
+    rowIndex,
+  }: {
+    rowData: Record<string, unknown>;
+    rowIndex: number;
+  }) => {
     if (this.props.selectedRowIndex !== rowIndex) {
       this.props.onRowClick(rowData, rowIndex);
     }

@@ -70,12 +70,10 @@ export const BlueprintControlTransform = css`
       }
       & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
-        background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
       & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
-        background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
       &:hover .${Classes.CONTROL_INDICATOR} {
@@ -457,7 +455,7 @@ const lightShades = [
   "#FFFFFF",
 ] as const;
 
-type ColorPalette = typeof darkShades[number] | typeof lightShades[number];
+type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
 
 type buttonVariant = {
   main: string;
@@ -469,7 +467,7 @@ type buttonVariant = {
 
 type ColorType = {
   button: {
-    disabledText: ColorPalette;
+    disabledText: ShadeColor;
   };
   tertiary: buttonVariant;
   info: buttonVariant;
@@ -480,162 +478,216 @@ type ColorType = {
   card: {
     hoverBG: Color;
     hoverBGOpacity: number;
-    hoverBorder: ColorPalette;
-    targetBg: string;
-    iconColor: ColorPalette;
+    hoverBorder: ShadeColor;
+    iconColor: ShadeColor;
   };
   appCardColors: string[];
   text: {
-    normal: ColorPalette;
-    heading: ColorPalette;
-    hightlight: ColorPalette;
+    normal: ShadeColor;
+    heading: ShadeColor;
+    hightlight: ShadeColor;
   };
   icon: {
-    normal: ColorPalette;
-    hover: ColorPalette;
-    active: ColorPalette;
+    normal: ShadeColor;
+    hover: ShadeColor;
+    active: ShadeColor;
   };
   appIcon: {
-    normal: ColorPalette;
-    background: ColorPalette;
+    normal: ShadeColor;
+    background: ShadeColor;
   };
   menu: {
-    background: ColorPalette;
+    background: ShadeColor;
     shadow: string;
   };
   menuItem: {
-    normalText: ColorPalette;
-    normalIcon: ColorPalette;
-    hoverIcon: ColorPalette;
-    hoverText: ColorPalette;
-    hoverBg: ColorPalette;
+    normalText: ShadeColor;
+    normalIcon: ShadeColor;
+    hoverIcon: ShadeColor;
+    hoverText: ShadeColor;
+    hoverBg: ShadeColor;
+    warning: {
+      color: string;
+      bg: string;
+    };
   };
   colorSelector: {
-    shadow: string;
-    checkmark: ColorPalette;
+    shadow: ShadeColor;
+    checkmark: ShadeColor;
   };
   checkbox: {
-    disabled: ColorPalette;
-    unchecked: ColorPalette;
-    disabledCheck: string;
-    normalCheck: ColorPalette;
-    labelColor: ColorPalette;
+    disabled: ShadeColor;
+    unchecked: ShadeColor;
+    disabledCheck: ShadeColor;
+    normalCheck: ShadeColor;
+    labelColor: ShadeColor;
   };
   dropdown: {
     header: {
-      text: ColorPalette;
-      disabled: ColorPalette;
-      bg: ColorPalette;
-      disabledBg: ColorPalette;
+      text: ShadeColor;
+      disabledText: ShadeColor;
+      bg: ShadeColor;
+      disabledBg: ShadeColor;
     };
-    menuBg: ColorPalette;
+    menuBg: ShadeColor;
     menuShadow: string;
     selected: {
-      text: ColorPalette;
-      bg: ColorPalette;
-      icon: ColorPalette;
+      text: ShadeColor;
+      bg: ShadeColor;
+      icon: ShadeColor;
     };
-    icon: ColorPalette;
+    icon: ShadeColor;
   };
   toggle: {
-    bg: ColorPalette;
+    bg: ShadeColor;
     hover: {
       on: string;
       off: string;
     };
     disable: {
       on: string;
-      off: ColorPalette;
+      off: ShadeColor;
     };
     disabledSlider: {
-      on: ColorPalette;
-      off: string;
+      on: ShadeColor;
+      off: ShadeColor;
     };
-    spinner: ColorPalette;
+    spinner: ShadeColor;
   };
   textInput: {
     disable: {
-      bg: ColorPalette;
-      text: ColorPalette;
-      border: ColorPalette;
+      bg: ShadeColor;
+      text: ShadeColor;
+      border: ShadeColor;
     };
     normal: {
-      bg: ColorPalette;
-      text: ColorPalette;
-      border: ColorPalette;
+      bg: ShadeColor;
+      text: ShadeColor;
+      border: ShadeColor;
     };
-    placeholder: ColorPalette;
+    placeholder: ShadeColor;
+    readOnly: {
+      bg: ShadeColor;
+      border: ShadeColor;
+      text: ShadeColor;
+    };
   };
-  menuBorder: ColorPalette;
+  menuBorder: ShadeColor;
   editableText: {
-    color: ColorPalette;
-    bg: string;
+    color: ShadeColor;
+    bg: ShadeColor;
     dangerBg: string;
   };
   radio: {
-    disable: string;
-    border: ColorPalette;
+    disable: ShadeColor;
+    border: ShadeColor;
   };
   searchInput: {
-    placeholder: ColorPalette;
-    text: ColorPalette;
-    border: ColorPalette;
-    bg: ColorPalette;
+    placeholder: ShadeColor;
+    text: ShadeColor;
+    border: ShadeColor;
+    bg: ShadeColor;
     icon: {
-      focused: ColorPalette;
-      normal: ColorPalette;
+      focused: ShadeColor;
+      normal: ShadeColor;
     };
   };
-  spinner: ColorPalette;
+  spinner: ShadeColor;
   tableDropdown: {
-    bg: ColorPalette;
-    selectedBg: ColorPalette;
-    selectedText: ColorPalette;
+    bg: ShadeColor;
+    selectedBg: ShadeColor;
+    selectedText: ShadeColor;
     shadow: string;
   };
   tabs: {
-    normal: ColorPalette;
-    hover: ColorPalette;
-    border: ColorPalette;
+    normal: ShadeColor;
+    hover: ShadeColor;
+    border: ShadeColor;
   };
-  settingHeading: ColorPalette;
+  settingHeading: ShadeColor;
   table: {
-    headerBg: ColorPalette;
-    headerText: ColorPalette;
-    rowData: ColorPalette;
-    rowTitle: ColorPalette;
-    border: ColorPalette;
+    headerBg: ShadeColor;
+    headerText: ShadeColor;
+    rowData: ShadeColor;
+    rowTitle: ShadeColor;
+    border: ShadeColor;
     hover: {
-      headerColor: ColorPalette;
-      rowBg: ColorPalette;
-      rowTitle: ColorPalette;
-      rowData: ColorPalette;
+      headerColor: ShadeColor;
+      rowBg: ShadeColor;
+      rowTitle: ShadeColor;
+      rowData: ShadeColor;
     };
   };
   applications: {
-    bg: ColorPalette;
-    textColor: ColorPalette;
-    orgColor: ColorPalette;
-    iconColor: ColorPalette;
+    bg: ShadeColor;
+    textColor: ShadeColor;
+    orgColor: ShadeColor;
+    iconColor: ShadeColor;
     hover: {
-      bg: ColorPalette;
-      textColor: ColorPalette;
-      orgColor: ColorPalette;
+      bg: ShadeColor;
+      textColor: ShadeColor;
+      orgColor: ShadeColor;
     };
   };
   switch: {
-    border: ColorPalette;
-    bg: ColorPalette;
+    border: ShadeColor;
+    bg: ShadeColor;
     hover: {
-      border: ColorPalette;
-      bg: ColorPalette;
+      bg: ShadeColor;
     };
-    lightText: ColorPalette;
-    darkText: ColorPalette;
+    lightText: ShadeColor;
+    darkText: ShadeColor;
   };
   queryTemplate: {
-    bg: ColorPalette;
-    color: ColorPalette;
+    bg: ShadeColor;
+    color: ShadeColor;
+  };
+  profileDropdown: {
+    userName: ShadeColor;
+  };
+  modal: {
+    bg: ShadeColor;
+    headerText: ShadeColor;
+    iconColor: string;
+    user: {
+      textColor: ShadeColor;
+    };
+    email: {
+      message: ShadeColor;
+      desc: ShadeColor;
+    };
+    manageUser: ShadeColor;
+  };
+  tagInput: {
+    bg: ShadeColor;
+    tag: {
+      text: ShadeColor;
+    };
+    text: ShadeColor;
+    placeholder: ShadeColor;
+    shadow: string;
+  };
+  callout: {
+    info: {
+      color: string;
+      bgColor: string;
+    };
+    success: {
+      color: string;
+      bgColor: string;
+    };
+    danger: {
+      color: string;
+      bgColor: string;
+    };
+    warning: {
+      color: string;
+      bgColor: string;
+    };
+  };
+  loader: {
+    light: ShadeColor;
+    dark: ShadeColor;
   };
 };
 
@@ -683,7 +735,6 @@ export const dark: ColorType = {
     hoverBG: Colors.BLACK,
     hoverBGOpacity: 0.5,
     hoverBorder: darkShades[4],
-    targetBg: "rgba(0, 0, 0, 0.1)",
     iconColor: darkShades[9],
   },
   appCardColors: [
@@ -721,24 +772,28 @@ export const dark: ColorType = {
     hoverIcon: darkShades[8],
     hoverText: darkShades[9],
     hoverBg: darkShades[4],
+    warning: {
+      color: "#EABB0C",
+      bg: "#3A3628",
+    },
   },
   colorSelector: {
-    shadow: "#353535",
+    shadow: darkShades[4],
     checkmark: darkShades[9],
   },
   checkbox: {
     disabled: darkShades[3],
     unchecked: darkShades[4],
-    disabledCheck: "#565656",
+    disabledCheck: darkShades[5],
     normalCheck: darkShades[9],
     labelColor: darkShades[7],
   },
   dropdown: {
     header: {
       text: darkShades[7],
-      disabled: darkShades[6],
-      bg: darkShades[2],
-      disabledBg: darkShades[0],
+      disabledText: darkShades[6],
+      bg: darkShades[0],
+      disabledBg: darkShades[2],
     },
     menuBg: darkShades[3],
     menuShadow: "rgba(0, 0, 0, 0.6)",
@@ -761,7 +816,7 @@ export const dark: ColorType = {
     },
     disabledSlider: {
       on: darkShades[9],
-      off: "#565656",
+      off: darkShades[5],
     },
     spinner: darkShades[6],
   },
@@ -777,6 +832,11 @@ export const dark: ColorType = {
       border: darkShades[0],
     },
     placeholder: darkShades[5],
+    readOnly: {
+      bg: darkShades[0],
+      border: darkShades[0],
+      text: darkShades[7],
+    },
   },
   menuBorder: darkShades[4],
   editableText: {
@@ -785,7 +845,7 @@ export const dark: ColorType = {
     dangerBg: "rgba(226, 44, 44, 0.08)",
   },
   radio: {
-    disable: "#565656",
+    disable: darkShades[5],
     border: darkShades[4],
   },
   searchInput: {
@@ -839,7 +899,6 @@ export const dark: ColorType = {
     border: darkShades[5],
     bg: darkShades[0],
     hover: {
-      border: darkShades[7],
       bg: darkShades[0],
     },
     lightText: darkShades[9],
@@ -848,6 +907,53 @@ export const dark: ColorType = {
   queryTemplate: {
     bg: darkShades[3],
     color: darkShades[7],
+  },
+  profileDropdown: {
+    userName: darkShades[9],
+  },
+  modal: {
+    bg: darkShades[1],
+    headerText: darkShades[9],
+    iconColor: "#6D6D6D",
+    user: {
+      textColor: darkShades[7],
+    },
+    email: {
+      message: darkShades[8],
+      desc: darkShades[6],
+    },
+    manageUser: darkShades[6],
+  },
+  tagInput: {
+    bg: darkShades[0],
+    tag: {
+      text: darkShades[9],
+    },
+    text: darkShades[9],
+    placeholder: darkShades[5],
+    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+  },
+  callout: {
+    info: {
+      color: "#EE5A1A",
+      bgColor: "#241C1B",
+    },
+    success: {
+      color: "#30CF89",
+      bgColor: "#17211E",
+    },
+    danger: {
+      color: "#FF4D4D",
+      bgColor: "#2B1A1D",
+    },
+    warning: {
+      color: "#E0B30E",
+      bgColor: "#29251A",
+    },
+  },
+  loader: {
+    light: darkShades[2],
+    dark: darkShades[4],
   },
 };
 
@@ -895,7 +1001,6 @@ export const light: ColorType = {
     hoverBG: Colors.WHITE,
     hoverBGOpacity: 0.7,
     hoverBorder: lightShades[2],
-    targetBg: "rgba(0, 0, 0, 0.1)",
     iconColor: lightShades[11],
   },
   appCardColors: [
@@ -933,6 +1038,10 @@ export const light: ColorType = {
     hoverIcon: lightShades[8],
     hoverText: lightShades[10],
     hoverBg: lightShades[2],
+    warning: {
+      color: "#D2A500",
+      bg: "#FDFAF2",
+    },
   },
   colorSelector: {
     shadow: lightShades[3],
@@ -948,7 +1057,7 @@ export const light: ColorType = {
   dropdown: {
     header: {
       text: lightShades[9],
-      disabled: darkShades[6],
+      disabledText: darkShades[6],
       bg: lightShades[2],
       disabledBg: lightShades[1],
     },
@@ -988,12 +1097,17 @@ export const light: ColorType = {
       text: lightShades[9],
       border: lightShades[2],
     },
-    placeholder: lightShades[6],
+    placeholder: lightShades[7],
+    readOnly: {
+      bg: lightShades[2],
+      border: lightShades[2],
+      text: lightShades[7],
+    },
   },
   menuBorder: lightShades[3],
   editableText: {
     color: lightShades[10],
-    bg: "rgba(247, 247, 247, 0.8)",
+    bg: lightShades[2],
     dangerBg: "rgba(242, 43, 43, 0.06)",
   },
   radio: {
@@ -1051,7 +1165,6 @@ export const light: ColorType = {
     border: lightShades[5],
     bg: lightShades[11],
     hover: {
-      border: lightShades[7],
       bg: lightShades[11],
     },
     lightText: lightShades[11],
@@ -1060,6 +1173,53 @@ export const light: ColorType = {
   queryTemplate: {
     bg: lightShades[3],
     color: lightShades[7],
+  },
+  profileDropdown: {
+    userName: lightShades[9],
+  },
+  modal: {
+    bg: lightShades[11],
+    headerText: lightShades[10],
+    iconColor: "#A9A7A7",
+    user: {
+      textColor: lightShades[9],
+    },
+    email: {
+      message: lightShades[9],
+      desc: lightShades[7],
+    },
+    manageUser: lightShades[6],
+  },
+  tagInput: {
+    bg: lightShades[2],
+    tag: {
+      text: lightShades[11],
+    },
+    text: lightShades[9],
+    placeholder: darkShades[7],
+    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+  },
+  callout: {
+    info: {
+      color: "#D44100",
+      bgColor: "#F8F3F0",
+    },
+    success: {
+      color: "#007340",
+      bgColor: "#D9FDED",
+    },
+    danger: {
+      color: "#C60707",
+      bgColor: "#FFE9E9",
+    },
+    warning: {
+      color: "#DCAD00",
+      bgColor: "#FAF6E6",
+    },
+  },
+  loader: {
+    light: lightShades[2],
+    dark: lightShades[4],
   },
 };
 
@@ -1166,28 +1326,6 @@ export const theme: Theme = {
     tooltip: {
       lightBg: lightShades[0],
       darkBg: lightShades[10],
-    },
-    callout: {
-      note: {
-        dark: {
-          color: "#EE5A1A",
-          bgColor: "#241C1B",
-        },
-        light: {
-          color: "#D44100",
-          bgColor: "#F8F3F0",
-        },
-      },
-      warning: {
-        light: {
-          color: "#DCAD00",
-          bgColor: "#FAF6E6",
-        },
-        dark: {
-          color: "#E0B30E",
-          bgColor: "#29251A",
-        },
-      },
     },
     appBackground: "#EFEFEF",
     primaryOld: Colors.GREEN,

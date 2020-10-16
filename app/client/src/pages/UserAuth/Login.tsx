@@ -48,6 +48,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { TncPPLinks } from "./SignUp";
 import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
@@ -103,7 +106,7 @@ export const Login = (props: LoginFormProps) => {
     <AuthCardContainer>
       {showError && (
         <FormMessage
-          intent="danger"
+          intent="warning"
           message={LOGIN_PAGE_INVALID_CREDS_ERROR}
           actions={[
             {
@@ -128,6 +131,7 @@ export const Login = (props: LoginFormProps) => {
               name={LOGIN_FORM_EMAIL_FIELD_NAME}
               type="email"
               placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
+              autoFocus
             />
           </FormGroup>
           <FormGroup
@@ -151,6 +155,9 @@ export const Login = (props: LoginFormProps) => {
               filled
               size="large"
               onClick={() => {
+                PerformanceTracker.startTracking(
+                  PerformanceTransactionName.LOGIN_CLICK,
+                );
                 AnalyticsUtil.logEvent("LOGIN_CLICK", {
                   loginMethod: "EMAIL",
                 });
@@ -158,8 +165,12 @@ export const Login = (props: LoginFormProps) => {
             />
           </FormActions>
         </SpacedSubmitForm>
-        {SocialLoginList.length > 0 && <Divider />}
-        <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
+        {SocialLoginList.length > 0 && (
+          <>
+            <Divider />
+            <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
+          </>
+        )}
       </AuthCardBody>
       <AuthCardNavLink to={signupURL}>
         {LOGIN_PAGE_SIGN_UP_LINK_TEXT}

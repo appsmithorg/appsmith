@@ -1,4 +1,5 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 export const changeApi = (
   id: string,
@@ -46,14 +47,16 @@ export const setLastSelectedPage = (
 
 export const createNewApiAction = (
   pageId: string,
-): ReduxAction<{ pageId: string }> => ({
+  from: EventLocation,
+): ReduxAction<{ pageId: string; from: EventLocation }> => ({
   type: ReduxActionTypes.CREATE_NEW_API_ACTION,
-  payload: { pageId },
+  payload: { pageId, from },
 });
 
 export const createNewQueryAction = (
   pageId: string,
-): ReduxAction<{ pageId: string }> => ({
+  from: EventLocation,
+): ReduxAction<{ pageId: string; from: EventLocation }> => ({
   type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
-  payload: { pageId },
+  payload: { pageId, from },
 });

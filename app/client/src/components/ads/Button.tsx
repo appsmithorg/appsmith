@@ -1,6 +1,6 @@
 import React from "react";
 import { CommonComponentProps, hexToRgba, ThemeProp, Classes } from "./common";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Spinner from "./Spinner";
 import { mediumButton, smallButton, largeButton } from "constants/DefaultTheme";
@@ -58,6 +58,7 @@ type ButtonProps = CommonComponentProps & {
   size?: Size;
   fill?: boolean;
   href?: string;
+  tag?: "a" | "button";
 };
 
 const stateStyles = (
@@ -221,7 +222,7 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
       padding =
         !props.text && props.icon
           ? `0px ${props.theme.spaces[1]}px`
-          : `0px ${props.theme.spaces[6]}px`;
+          : `0px ${props.theme.spaces[3]}px`;
       break;
     case Size.medium:
       buttonFont = mediumButton;
@@ -243,7 +244,7 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
   return { buttonFont, padding, height };
 };
 
-const StyledButton = styled("a")<ThemeProp & ButtonProps>`
+const ButtonStyles = css<ThemeProp & ButtonProps>`
   width: ${props => (props.fill ? "100%" : "auto")};
   height: ${props => btnFontStyles(props).height}px;
   border: none;
@@ -258,7 +259,7 @@ const StyledButton = styled("a")<ThemeProp & ButtonProps>`
   padding: ${props => btnFontStyles(props).padding};
   .${Classes.ICON} {
     margin-right: ${props =>
-      props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`};
+      props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
     path {
       fill: ${props => btnColorStyles(props, "main").txtColor};
     }
@@ -272,7 +273,7 @@ const StyledButton = styled("a")<ThemeProp & ButtonProps>`
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .${Classes.ICON} {
       margin-right: ${props =>
-        props.text && props.icon ? `${props.theme.spaces[4]}px` : `0`};
+        props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
       path {
         fill: ${props => btnColorStyles(props, "hover").txtColor};
       }
@@ -295,13 +296,21 @@ const StyledButton = styled("a")<ThemeProp & ButtonProps>`
   align-items: center;
   justify-content: center;
   position: relative;
-  .new-spinner {
+  .${Classes.SPINNER} {
     position: absolute;
     left: 0;
     right: 0;
     margin-left: auto;
     margin-right: auto;
   }
+`;
+
+const StyledButton = styled("button")`
+  ${ButtonStyles}
+`;
+
+const StyledLinkButton = styled("a")`
+  ${ButtonStyles}
 `;
 
 export const VisibilityWrapper = styled.div`
@@ -327,6 +336,7 @@ Button.defaultProps = {
   isLoading: false,
   disabled: false,
   fill: false,
+  tag: "a",
 };
 
 function Button(props: ButtonProps) {
@@ -336,16 +346,8 @@ function Button(props: ButtonProps) {
 
   const TextLoadingState = <VisibilityWrapper>{props.text}</VisibilityWrapper>;
 
-  return (
-    <StyledButton
-      href={props.href}
-      className={props.className}
-      data-cy={props.cypressSelector}
-      {...props}
-      onClick={(e: React.MouseEvent<HTMLElement>) =>
-        props.onClick && props.onClick(e)
-      }
-    >
+  const buttonContent = (
+    <>
       {props.icon ? (
         props.isLoading ? (
           IconLoadingState
@@ -357,8 +359,37 @@ function Button(props: ButtonProps) {
       {props.text ? (props.isLoading ? TextLoadingState : props.text) : null}
 
       {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
-    </StyledButton>
+    </>
   );
+
+  if (props.tag === "button") {
+    return (
+      <StyledButton
+        className={props.className}
+        data-cy={props.cypressSelector}
+        {...props}
+        onClick={(e: React.MouseEvent<HTMLElement>) =>
+          props.onClick && props.onClick(e)
+        }
+      >
+        {buttonContent}
+      </StyledButton>
+    );
+  } else {
+    return (
+      <StyledLinkButton
+        href={props.href}
+        className={props.className}
+        data-cy={props.cypressSelector}
+        {...props}
+        onClick={(e: React.MouseEvent<HTMLElement>) =>
+          props.onClick && props.onClick(e)
+        }
+      >
+        {buttonContent}
+      </StyledLinkButton>
+    );
+  }
 }
 
 export default Button;
