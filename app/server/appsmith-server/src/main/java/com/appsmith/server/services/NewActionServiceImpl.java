@@ -862,4 +862,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return repository.findByPageId(pageId);
     }
 
+    @Override
+    public Mono<NewAction> delete(String id) {
+        Mono<NewAction> actionMono = repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
+        return actionMono
+                .flatMap(toDelete -> repository.delete(toDelete).thenReturn(toDelete))
+                .flatMap(analyticsService::sendDeleteEvent);
+    }
+
 }
