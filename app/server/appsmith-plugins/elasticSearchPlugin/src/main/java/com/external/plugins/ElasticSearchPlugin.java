@@ -51,28 +51,30 @@ public class ElasticSearchPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
             final ActionExecutionResult result = new ActionExecutionResult();
 
-            final String body = actionConfiguration.getBody();
+            String body = actionConfiguration.getBody();
 
             final String path = actionConfiguration.getPath();
             final Request request = new Request(actionConfiguration.getHttpMethod().toString(), path);
+            ContentType contentType = ContentType.APPLICATION_JSON;
 
-            if (isBulkQuery(path) && body.startsWith("[")) {
-                final StringBuilder ndJsonBuilder = new StringBuilder();
-                try {
-                    List<Object> commands = objectMapper.readValue(body, ArrayList.class);
-                    for (Object object : commands) {
-                        ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
+            if (isBulkQuery(path)) {
+                if (body.startsWith("[")) {
+                    final StringBuilder ndJsonBuilder = new StringBuilder();
+                    try {
+                        List<Object> commands = objectMapper.readValue(body, ArrayList.class);
+                        for (Object object : commands) {
+                            ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
+                        }
+                    } catch (IOException e) {
+                        return Mono.error(e);
                     }
-                } catch (IOException e) {
-                    return Mono.error(e);
+                    body = ndJsonBuilder.toString();
                 }
-                request.setEntity(
-                        new NStringEntity(ndJsonBuilder.toString(), ContentType.create("application/x-ndjson"))
-                );
+                contentType = ContentType.create("application/x-ndjson");
+            }
 
-            } else {
-                request.setJsonEntity(body);
-
+            if (body != null) {
+                request.setEntity(new NStringEntity(body, contentType));
             }
 
             final String responseBody;
@@ -93,7 +95,7 @@ public class ElasticSearchPlugin extends BasePlugin {
         }
 
         private static boolean isBulkQuery(String path) {
-            return path.split("\\?", 1)[0].matches("\\b_bulk$");
+            return path.split("\\?", 1)[0].matches(".*\\b_bulk$");
         }
 
         @Override

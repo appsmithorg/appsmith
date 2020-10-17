@@ -11,6 +11,7 @@ import org.elasticsearch.client.RestClient;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.springframework.http.HttpMethod;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -62,9 +63,11 @@ public class ElasticSearchPluginTest {
         dsConfig.setEndpoints(List.of(new Endpoint("localhost", port.longValue())));
     }
 
-    private Mono<ActionExecutionResult> execute(String contentJson) {
+    private Mono<ActionExecutionResult> execute(HttpMethod method, String path, String body) {
         final ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody(contentJson);
+        actionConfiguration.setHttpMethod(method);
+        actionConfiguration.setPath(path);
+        actionConfiguration.setBody(body);
 
         return pluginExecutor
                 .datasourceCreate(dsConfig)
@@ -73,7 +76,7 @@ public class ElasticSearchPluginTest {
 
     @Test
     public void testGet() {
-        StepVerifier.create(execute("{\"method\": \"GET\", \"path\": \"/planets/doc/id1\"}"))
+        StepVerifier.create(execute(HttpMethod.GET, "/planets/doc/id1", null))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -87,22 +90,18 @@ public class ElasticSearchPluginTest {
     @Test
     public void testMultiGet() {
         final String contentJson = "{\n" +
-                "  \"method\": \"GET\",\n" +
-                "  \"path\": \"/planets/_mget\",\n" +
-                "  \"body\": {\n" +
-                "    \"docs\": [\n" +
-                "      {\n" +
-                "        \"_index\": \"planets\",\n" +
-                "        \"_id\": \"id1\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"_index\": \"planets\",\n" +
-                "        \"_id\": \"id2\"\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
+                "  \"docs\": [\n" +
+                "    {\n" +
+                "      \"_index\": \"planets\",\n" +
+                "      \"_id\": \"id1\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"_index\": \"planets\",\n" +
+                "      \"_id\": \"id2\"\n" +
+                "    }\n" +
+                "  ]\n" +
                 "}";
-        StepVerifier.create(execute(contentJson))
+        StepVerifier.create(execute(HttpMethod.GET, "/planets/_mget", contentJson))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -115,8 +114,8 @@ public class ElasticSearchPluginTest {
 
     @Test
     public void testPutCreate() {
-        final String contentJson = "{\n\"method\": \"PUT\", \"path\": \"/planets/doc/id9\", \"body\": {\"name\": \"Pluto\"}}";
-        StepVerifier.create(execute(contentJson))
+        final String contentJson = "{\"name\": \"Pluto\"}";
+        StepVerifier.create(execute(HttpMethod.PUT, "/planets/doc/id9", contentJson))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -130,8 +129,8 @@ public class ElasticSearchPluginTest {
 
     @Test
     public void testPutUpdate() {
-        final String contentJson = "{\n\"method\": \"PUT\", \"path\": \"/planets/doc/id2\", \"body\": {\"name\": \"New Venus\"}}";
-        StepVerifier.create(execute(contentJson))
+        final String contentJson = "{\"name\": \"New Venus\"}";
+        StepVerifier.create(execute(HttpMethod.PUT, "/planets/doc/id2", contentJson))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -145,8 +144,7 @@ public class ElasticSearchPluginTest {
 
     @Test
     public void testDelete() {
-        final String contentJson = "{\n\"method\": \"DELETE\", \"path\": \"/planets/doc/id3\"}";
-        StepVerifier.create(execute(contentJson))
+        StepVerifier.create(execute(HttpMethod.DELETE, "/planets/doc/id3", null))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -160,21 +158,17 @@ public class ElasticSearchPluginTest {
 
     @Test
     public void testBulk() {
-        final String contentJson = "{\n" +
-                "  \"method\": \"POST\",\n" +
-                "  \"path\": \"_bulk\",\n" +
-                "  \"body\": [\n" +
-                "    { \"index\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"1\" } },\n" +
-                "    { \"field1\" : \"value1\" },\n" +
-                "    { \"delete\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"2\" } },\n" +
-                "    { \"create\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"3\" } },\n" +
-                "    { \"field1\" : \"value3\" },\n" +
-                "    { \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test\"} },\n" +
-                "    { \"doc\" : {\"field2\" : \"value2\"} }\n" +
-                "  ]\n" +
-                "}";
+        final String contentJson = "[\n" +
+                "  { \"index\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"1\" } },\n" +
+                "  { \"field1\" : \"value1\" },\n" +
+                "  { \"delete\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"2\" } },\n" +
+                "  { \"create\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"3\" } },\n" +
+                "  { \"field1\" : \"value3\" },\n" +
+                "  { \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test\"} },\n" +
+                "  { \"doc\" : {\"field2\" : \"value2\"} }\n" +
+                "]";
 
-        StepVerifier.create(execute(contentJson))
+        StepVerifier.create(execute(HttpMethod.POST, "/_bulk", contentJson))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
