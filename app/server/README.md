@@ -24,7 +24,7 @@ $ java -jar -Dspring.profiles.active=$env server-1.0-SNAPSHOT.jar
 ```
 
 ### How to test
-In order to test the code, you can run the following command
+In order to test the code, you can run the following command:
 
 ```
 mvn -B clean package

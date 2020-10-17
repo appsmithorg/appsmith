@@ -35,5 +35,6 @@
   "visibilityMode": ".t--table-column-visibility-toggle-btn",
   "visibilityOpt": ".option-title",
   "containerWidget": ".t--widget-containerwidget",
-  "pageInfo": ".bp3-heading"
+  "pageInfo": ".bp3-heading",
+  "inputGrp": ".bp3-input-group input"
 }

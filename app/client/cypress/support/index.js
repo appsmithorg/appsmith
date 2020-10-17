@@ -46,6 +46,7 @@ before(function() {
   cy.generateUUID().then(id => {
     appId = id;
     cy.CreateApp(id);
+    cy.EditApp(id);
     localStorage.setItem("AppName", appId);
   });
 

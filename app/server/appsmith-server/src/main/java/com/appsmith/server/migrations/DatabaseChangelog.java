@@ -924,6 +924,18 @@ public class DatabaseChangelog {
         ));
     }
 
+    @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
+    public void fixTokenExpiration(MongoTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
+
+        ensureIndexes(mongoTemplate, PasswordResetToken.class,
+                makeIndex(FieldName.CREATED_AT)
+                    .expire(2, TimeUnit.DAYS),
+                makeIndex(FieldName.EMAIL).unique()
+        );
+    }
+
     @ChangeSet(order = "027", id = "add-elastic-search-plugin", author = "")
     public void addElasticSearchPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
