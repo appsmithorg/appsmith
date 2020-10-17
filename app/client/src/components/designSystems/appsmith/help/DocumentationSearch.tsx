@@ -104,7 +104,7 @@ const Hit = (props: { hit: { path: string } }) => {
 
 const DefaultHelpMenuItem = (props: {
   item: { label: string; link?: string; id?: string; icon: React.ReactNode };
-  onSelect: Function;
+  onSelect: () => void;
 }) => {
   return (
     <li className="ais-Hits-item">
@@ -343,7 +343,7 @@ class DocumentationSearch extends React.Component<Props, State> {
     };
   }
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const value = event.target.value;
     if (value === "" && this.state.showResults) {

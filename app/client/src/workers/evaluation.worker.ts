@@ -184,7 +184,10 @@ const addFunctions = (dataTree: DataTree): DataTree => {
       dataTree.actionPaths && dataTree.actionPaths.push(`${entityName}.run`);
     }
   });
-  dataTree.navigateTo = function(pageNameOrUrl: string, params: object) {
+  dataTree.navigateTo = function(
+    pageNameOrUrl: string,
+    params: Record<string, string>,
+  ) {
     return {
       type: "NAVIGATE_TO",
       payload: { pageNameOrUrl, params },
@@ -880,18 +883,18 @@ const evaluate = (
     const { result, triggers } = (function() {
       /**** Setting the eval context ****/
       ///// Adding callback data
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       self["CALLBACK_DATA"] = callbackData;
       ///// Adding Data tree
       Object.keys(data).forEach(datum => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         self[datum] = data[datum];
       });
       ///// Fixing action paths and capturing their execution response
       if (data.actionPaths) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         self.triggers = [];
         const pusher = function(
@@ -900,17 +903,17 @@ const evaluate = (
           ...payload: any[]
         ) {
           const actionPayload = action(...payload);
-          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           self.triggers.push(actionPayload);
         };
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         self.actionPaths.forEach(path => {
           const action = _.get(self, path);
           const entity = _.get(self, path.split(".")[0]);
           if (action) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             _.set(self, path, pusher.bind(data, action.bind(entity)));
           }
@@ -918,7 +921,7 @@ const evaluate = (
       }
       ///// Adding extra libraries
       extraLibraries.forEach(library => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         self[library.accessor] = library.lib;
       });
@@ -1305,7 +1308,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       (datum: { name: string; data: any }) => {
         const validatedResponse: {
           isValid: boolean;
-          parsed: object;
+          parsed: Array<unknown>;
           message?: string;
         } = VALIDATORS[VALIDATION_TYPES.ARRAY](datum.data, props, dataTree);
         validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
