@@ -35,8 +35,8 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
+        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
 
         return queryOne(List.of(nameCriteria, pageCriteria), aclPermission);
     }

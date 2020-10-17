@@ -6,10 +6,13 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -34,6 +37,7 @@ import reactor.test.StepVerifier;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -156,5 +160,54 @@ public class LayoutActionServiceTest {
                     assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getName()).isEqualTo("query1");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void refactorActionName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Action action = new Action();
+        action.setName("beforeNameChange");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject(Map.of("widgetName", "firstWidget", "mustacheProp", "{{ beforeNameChange.data }}"));
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+        layout.setPublishedDsl(dsl);
+
+        Action createdAction = newActionService.createAction(action).block();
+
+        Layout firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(firstLayout.getId());
+        refactorNameDTO.setOldName("beforeNameChange");
+        refactorNameDTO.setNewName("PostNameChange");
+
+        Layout postNameChangeLayout = layoutActionService.refactorActionName(refactorNameDTO).block();
+
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+
+        StepVerifier
+               .create(postNameChangeActionMono)
+               .assertNext(updatedAction -> {
+
+                   assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
+
+                   DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                   assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
+
+                   JSONObject newDsl = new JSONObject(Map.of("widgetName", "firstWidget", "mustacheProp", "{{ PostNameChange.data }}"));
+                   assertThat(postNameChangeLayout.getDsl()).isEqualTo(newDsl);
+               })
+               .verifyComplete();
+
     }
 }
