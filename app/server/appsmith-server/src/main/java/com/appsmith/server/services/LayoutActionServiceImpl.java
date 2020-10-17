@@ -448,8 +448,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         Mono<Set<String>> actionNamesInPageMono = newActionService
-                .get(params)
-                .map(action -> action.getUnpublishedAction().getName())
+                .getUnpublishedActions(params)
+                .map(action -> action.getName())
                 .collect(toSet());
 
         /*
