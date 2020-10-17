@@ -41,10 +41,10 @@
         },
         {
           "label": "Authorization Header (if username, password are not set)",
-          "configProperty": "datasourceConfiguration.properties[0].Authorization",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "Authorization Header",
-          "initialValue": "admin"
+          "configProperty": "datasourceConfiguration.headers[0]",
+          "controlType": "FIXED_KEY_INPUT",
+          "fixedKey": "Authorization",
+          "placeholderText": "Authorization Header"
         }
       ]
     }

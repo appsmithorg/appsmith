@@ -9,6 +9,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
@@ -16,6 +17,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
@@ -23,6 +25,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -118,6 +121,15 @@ public class ElasticSearchPlugin extends BasePlugin {
                                 httpClientBuilder -> httpClientBuilder
                                         .setDefaultCredentialsProvider(credentialsProvider)
                         );
+            }
+
+            if (!CollectionUtils.isEmpty(datasourceConfiguration.getHeaders())) {
+                clientBuilder.setDefaultHeaders(
+                        (Header[]) datasourceConfiguration.getHeaders()
+                                .stream()
+                                .map(h -> new BasicHeader(h.getKey(), h.getValue()))
+                                .toArray()
+                );
             }
 
             return Mono.just(clientBuilder.build());
