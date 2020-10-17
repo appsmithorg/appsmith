@@ -19,4 +19,14 @@ describe("Login from UI and check the functionality", function() {
     cy.wait("@deleteApplication");
     cy.get("@deleteApplication").should("have.property", "status", 200);
   });
+
+  it("Login/Logout click Appsmith logo should route to login page", function() {
+    const appname = localStorage.getItem("AppName");
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.LogOut();
+    cy.wait(500);
+    cy.get(homePage.headerAppSmithLogo).click();
+    cy.wait(500);
+    cy.url().should("include", "user/login");
+  });
 });

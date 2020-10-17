@@ -20,3 +20,24 @@ export interface UserApplication {
 export const CurrentUserDetailsRequestPayload = {
   id: "profile",
 };
+
+export const DefaultCurrentUserDetails = {
+  userPermissions: [],
+  name: "anonymousUser",
+  email: "anonymousUser",
+  source: "FORM",
+  isEnabled: true,
+  currentOrganizationId: "",
+  organizationIds: [],
+  groupIds: [],
+  permissions: [],
+  isAnonymous: true,
+  enabled: true,
+  username: "anonymousUser",
+  accountNonExpired: true,
+  accountNonLocked: true,
+  credentialsNonExpired: true,
+  claims: {},
+  address: {},
+  new: true,
+};
