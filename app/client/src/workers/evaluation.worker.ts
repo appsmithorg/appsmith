@@ -137,7 +137,7 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   // Validate Widgets
   const validated = getValidatedTree(treeWithLoading);
 
-  const withoutFunctions = removeFunctions(validated);
+  const withoutFunctions = removeFunctionsFromDataTree(validated);
 
   // End counting total time
   const endStart = performance.now();
@@ -237,12 +237,24 @@ const addFunctions = (dataTree: DataTree): DataTree => {
   return dataTree;
 };
 
-const removeFunctions = (dataTree: DataTree) => {
+const removeFunctionsFromDataTree = (dataTree: DataTree) => {
   dataTree.actionPaths?.forEach(functionPath => {
-    _.set(dataTree, functionPath, {});
+    _.set(dataTree, functionPath, "Function call");
   });
   delete dataTree.actionPaths;
   return dataTree;
+};
+
+// We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
+// Check issue https://github.com/appsmithorg/appsmith/issues/719
+const removeFunctions = (value: any) => {
+  if (_.isFunction(value)) {
+    return "Function call";
+  } else if (_.isObject(value) && _.some(value, _.isFunction)) {
+    return JSON.parse(JSON.stringify(value));
+  } else {
+    return value;
+  }
 };
 
 type DynamicDependencyMap = Record<string, Array<string>>;
@@ -339,7 +351,7 @@ const calculateSubDependencies = (
   const subDeps: Array<string> = [];
   const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.]*/g) || [path];
   identifiers.forEach((identifier: string) => {
-    if (identifier in all) {
+    if (all.hasOwnProperty(identifier)) {
       subDeps.push(identifier);
     } else {
       const subIdentifiers =
@@ -588,10 +600,17 @@ const getValidatedTree = (tree: any) => {
           );
           parsedEntity[property] = parsed;
           if (!hasEvaluatedValue) {
-            const evaluatedValue = _.isUndefined(transformed)
+            const evaluatedValue = isValid
+              ? parsed
+              : _.isUndefined(transformed)
               ? value
               : transformed;
-            _.set(parsedEntity, `evaluatedValues.${property}`, evaluatedValue);
+            const safeEvaluatedValue = removeFunctions(evaluatedValue);
+            _.set(
+              parsedEntity,
+              `evaluatedValues.${property}`,
+              safeEvaluatedValue,
+            );
           }
 
           const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
@@ -774,10 +793,13 @@ function validateAndParseWidgetProperty(
     widget,
     currentTree,
   );
-  const evaluatedValue = _.isUndefined(transformed)
+  const evaluatedValue = isValid
+    ? parsed
+    : _.isUndefined(transformed)
     ? evalPropertyValue
     : transformed;
-  _.set(widget, `evaluatedValues.${propertyName}`, evaluatedValue);
+  const safeEvaluatedValue = removeFunctions(evaluatedValue);
+  _.set(widget, `evaluatedValues.${propertyName}`, safeEvaluatedValue);
   if (!isValid) {
     _.set(widget, `invalidProps.${propertyName}`, true);
     _.set(widget, `validationMessages.${propertyName}`, message);
@@ -1284,10 +1306,6 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    if (isString(value)) {
-      value = value.replace(/\s/g, "");
-      value = `${value}`;
-    }
     const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
       value,
       props,
@@ -1382,17 +1400,27 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
+
+    const isValidOption = (option: { label: any; value: any }) =>
+      _.isString(option.label) &&
+      _.isString(option.value) &&
+      !_.isEmpty(option.label) &&
+      !_.isEmpty(option.value);
+
     const hasOptions = every(parsed, (datum: { label: any; value: any }) => {
       if (isObject(datum)) {
-        return isString(datum.label) && isString(datum.value);
+        return isValidOption(datum);
       } else {
         return false;
       }
     });
-    if (!hasOptions) {
+    const validOptions = parsed.filter(isValidOption);
+    const uniqValidOptions = _.uniqBy(validOptions, "value");
+
+    if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
       return {
         isValid: false,
-        parsed: [],
+        parsed: uniqValidOptions,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
