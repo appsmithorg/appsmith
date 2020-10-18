@@ -239,7 +239,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
 
 const removeFunctionsFromDataTree = (dataTree: DataTree) => {
   dataTree.actionPaths?.forEach(functionPath => {
-    _.set(dataTree, functionPath, "Function call");
+    _.set(dataTree, functionPath, {});
   });
   delete dataTree.actionPaths;
   return dataTree;
