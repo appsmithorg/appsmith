@@ -42,7 +42,7 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Mono<NewAction> findById(String id, AclPermission aclPermission);
 
-    abstract Flux<NewAction> findByPageId(String pageId, AclPermission permission);
+    Flux<NewAction> findByPageId(String pageId, AclPermission permission);
 
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission);
 

@@ -30,11 +30,6 @@ public class Application extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Boolean isPublic = false;
 
-    /**
-     * TODO : Introduce published pages and unpublished pages in this structure. This ensures that when the application
-     * is fetched for edit and view mode, different pages list can be returned. This would take care of both delete of
-     * pages in edit mode and setting default in edit mode not changing the view mode before deploy.
-     */
     List<ApplicationPage> pages;
 
     @JsonIgnore
