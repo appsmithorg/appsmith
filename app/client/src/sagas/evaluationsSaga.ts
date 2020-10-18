@@ -181,7 +181,7 @@ function* evaluationChangeListenerSaga() {
         continue;
       }
     }
-    yield call(evaluateTreeSaga);
+    yield fork(evaluateTreeSaga);
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
