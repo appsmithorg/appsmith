@@ -33,6 +33,7 @@ class FilePickerWidget extends BaseWidget<
     super(props);
     this.state = {
       version: 0,
+      isLoading: false,
     };
   }
 
@@ -160,6 +161,9 @@ class FilePickerWidget extends BaseWidget<
 
   onFilesSelected() {
     if (this.props.onFilesSelected) {
+      this.setState({
+      isLoading: true,
+    });
       this.executeAction({
         dynamicString: this.props.onFilesSelected,
         event: {
@@ -172,6 +176,9 @@ class FilePickerWidget extends BaseWidget<
 
   handleFileUploaded = (result: ExecutionResult) => {
     if (result.success) {
+    this.setState({
+      isLoading: false,
+    });
       this.props.updateWidgetMetaProperty(
         "uploadedFileUrls",
         this.props.uploadedFileUrlPaths,
@@ -213,7 +220,7 @@ class FilePickerWidget extends BaseWidget<
         key={this.props.widgetId}
         label={this.props.label}
         files={this.props.files || []}
-        isLoading={this.props.isLoading}
+        isLoading={this.props.isLoading || this.state.isLoading}
         isDisabled={this.props.isDisabled}
       />
     );
