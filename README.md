@@ -73,7 +73,7 @@ The fastest and easiest way to try Appsmith out is via [Appsmith Cloud](https://
 ### Other deployment options
 * [Deploy with Docker](https://bit.ly/appsmith-docker-github)
 
-## 📕 Troubleshooting
+## Troubleshooting
 
 If you have encountered a bug or need to get in touch with us, you can contact us using one of the following channels:
 
@@ -89,11 +89,11 @@ If you're interested in contributing to Appsmith:
 * Learn how to set up your local environment, in our [developer-guide](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)
 * Explore our [open issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
 
-## 📑 License
+## License
 
 The Appsmith platform is available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) (Apache-2.0).
 
-## 🧑‍🤝‍🧑 Contributors
+## Contributors
 
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
