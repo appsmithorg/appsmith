@@ -1,83 +1,93 @@
 <div align="center">
   <a href="https://appsmith.com">
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
-    </a>
-    <h3>A plug and play web framework to build internal tools.</h3>
-<p>
+  </a>
+  <h3>Build sophisticated internal tools faster</h3>
 
-[![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
-[![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
-[![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/contributors-50+-orange.svg?style=flat-square)](#-contributors)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-
-</p>
   <p>
-    <sub>Built with empathy, not just ❤︎ </sub>
+  [![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
+  [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
+  [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
+  [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
+  <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+  [![All Contributors](https://img.shields.io/badge/contributors-50+-orange.svg?style=flat-square)](#-contributors)
+  <!-- ALL-CONTRIBUTORS-BADGE:END -->
   </p>
 </div>
 
 -----------------
-<div align="center"><h3>Build apps by connecting UI widgets to database queries or APIs. Write any logic in JS.</h3>
 
-![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/master/static/demo.gif)
-</div>
+Appsmith is a drag-and-drop tool to build sophisticated internal tools without having to wrestle with ever-upcoming new frontend technologies, or the cumbersome HTML/CSS. 
 
-### Here's how you build something:
-1. Compose a page using pre-built UI components like table, charts, map viewers and forms.	
-2. Connect the UI components to any REST API or databases like MySQL, Postgres, and MongoDB. Write any logic in JS.	
-3. Deploy the internal tool to a custom URL and invite users to sign in with their Google accounts. 
+You can build dashboards, forms, workflows by connecting to any API or Database, and deploy them with one click, ready to be shared with your users, with built-in support for Role-based Access control.
+
+API Support: REST & GraphQL APIs
+Database Support: PostgreSQL, MongoDB & MySQL
+Hosting: Cloud-hosted & On-premise
 
 -------------------
 
-## 📺 Demo Video
+## Features
 
-* [Build a tool in 5 minutes!](http://bit.ly/appsmith-demo-github)
+* **5-minute setup**: Deploy Appsmith your server, or use it on cloud to start building in 5 minutes.
+* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Transform data with JavaScript anywhere. [Read more here.](https://docs.appsmith.com/core-concepts/building-the-ui)
+* **Intellisense**: Write JavaScript faster with Appsmith’s IDE-quality intellisense.
+* **One-click deployment**: Deploy your app with a click of a button.
+* **Database CRUD**: Query & update your database directly by hooking it up with the UI. Connect to **PostgreSQL, MongoDB & MySQL**.
+* **Trigger APIs**: Connect to any internal or external REST and GraphQL APIs to build dashboards, forms, and workflows.
+* **Security**: 
+* **Access-control**: Control who can edit / view your applications. [Read more here.](https://docs.appsmith.com/core-concepts/access-control)
+* **OAuth**: Allow users to authenticate via Google Auth or GitHub Auth.
 
-## 🗂 Example Applications
+Read more at [Appsmith.com](https://www.appsmith.com/), or jump start with the [docs](https://docs.appsmith.com/).
 
-* [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
-* [Job Application Tracker](https://bit.ly/3hbYtTi)
+## Demo
 
-## 🏃‍♀️ Getting Started
-You can try our online sandbox or deploy a Docker image on a server.
-* [Online sandbox](https://bit.ly/appsmith-signup-github)
+Unsure if Appsmith is for you? [Watch it in action here](http://bit.ly/appsmith-demo-github) 
+
+But if you’d rather check out some real applications that can be built with Appsmith, check below:
+* Customer Support Dashboard
+  * [Try it out](https://bit.ly/cs-dashboard-appsmith)
+  * [Tutorial](https://www.youtube.com/watch?v=-O_6OLREEzo) (5:33 mins)
+
+* Job Application Tracker
+  * [Try it out](https://bit.ly/3hbYtTi)
+  * Tutorial
+
+* Recommendation Manager
+  * Try it out
+  * [Tutorial](https://www.youtube.com/watch?v=GGe_5C0eqAo) (5:38 mins)
+
+Or, [go exploring on your own](https://docs.appsmith.com/).
+
+## Quickstart
+
+### One-click deployment on Appsmith Cloud
+
+The fastest and easiest way to try Appsmith out is via [Appsmith Cloud](https://bit.ly/appsmith-signup-github) 
+1. [Sign up](https://bit.ly/appsmith-signup-github)
+2. Create an Organization
+3. Create a new App within your organization
+4. Create your first dashboard by following this simple guide
+
+### Other deployment options
 * [Deploy with Docker](https://bit.ly/appsmith-docker-github)
 
-## 😇 Why Appsmith?
-
-When we build internal tools today, we turn to admin panels, UI frameworks or use a bootstrap theme. We took inspirations from the best admin panels, bootstrap themes, and brought back the easy UI builder of Visual Basic.
-
-Appsmith is a quicker way of building internal tools by visualising them as modular blocks (**Widgets, APIs, Queries, JS**) and giving developers a simple user interface to configure them. Building new features, creating UI, changing dataflows, and modifying business logic becomes simpler because you no longer have to trudge through large undocumented code bases or wrestle with HTML/CSS. 
-Appsmith doesn't take the fun out of coding, because it treats every block as an object and exposes it via javascript so that you can read, transform and manipulate it. Whether it's a widget, API or query, you get to decide where you need to configure using UI and where you need to code.
-
-## 🏭 Features
-
-* **5 minute setup**: Deploy Appsmith on your servers in 5 minutes.
-* **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**.
-* **Query data**: Query & update your database directly from the UI. Connect to **PostgreSQL, MongoDB, MySQL, REST & GraphQL APIs**.
-* **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows. Use popular libraries like lodash & moment anywhere in the app
-* **Data Workflows**: Simple configuration to create flows when users interact with the UI.
-* **Realtime Editor**: Changes in your application reflect instantly with every edit. No need to compile!
-* **Works with existing, live databases**: Connect directly to any PostgreSQL, MySQL & MongoDB
-* **Fine-grained access control**: Control who can edit / view your applications from a single control panel
-* **App management**: Build and organise multiple applications on a single platform
-
-## 📕 Documentation & Support
+## 📕 Troubleshooting
 
 If you have encountered a bug or need to get in touch with us, you can contact us using one of the following channels:
 
 * Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
-* Community & Support: [Discord](https://discord.gg/rBTTVJp)
-* Documentation: [Documentation](https://docs.appsmith.com)
+* Support & feedback: [Discord](https://discord.gg/rBTTVJp)
 
 We are committed to fostering an open and welcoming environment in the community. Please see the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## ∞ Contributing to Appsmith
+## Contributing
 
-Read our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) and join our community of contributors!
+If you're interested in contributing to Appsmith:
+* Start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) 
+* Learn how to set up your local environment, in our [developer-guide](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)
+* Explore our [open issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
 
 ## 📑 License
 
