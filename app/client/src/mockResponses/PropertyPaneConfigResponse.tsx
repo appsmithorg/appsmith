@@ -1,7 +1,7 @@
 import { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 
 const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   config: {
     CONTAINER_WIDGET: [

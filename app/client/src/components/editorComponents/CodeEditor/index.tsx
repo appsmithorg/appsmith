@@ -91,7 +91,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   textArea = React.createRef<HTMLTextAreaElement>();
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   editor: CodeMirror.Editor;
   hinters: Hinter[] = [];
