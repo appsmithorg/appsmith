@@ -219,17 +219,6 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
-  // cy.wait("@createNewApplication").should(
-  //   "have.nested.property",
-  //   "response.body.responseMeta.status",
-  //   201,
-  // );
-  // cy.get(homePage.applicationName).type(appname + "{enter}");
-  // cy.wait("@updateApplicationName").should(
-  //   "have.nested.property",
-  //   "response.body.responseMeta.status",
-  //   200,
-  // );
 });
 
 Cypress.Commands.add("CreateApp", appname => {
@@ -247,17 +236,6 @@ Cypress.Commands.add("CreateApp", appname => {
     200,
   );
   cy.get("h2").contains("Drag and drop a widget here");
-  // cy.wait("@createNewApplication").should(
-  //   "have.nested.property",
-  //   "response.body.responseMeta.status",
-  //   201,
-  // );
-  // cy.get(homePage.applicationName).type(appname + "{enter}");
-  // cy.wait("@updateApplicationName").should(
-  //   "have.nested.property",
-  //   "response.body.responseMeta.status",
-  //   200,
-  // );
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
