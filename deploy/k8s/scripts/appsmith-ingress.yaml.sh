@@ -32,11 +32,6 @@ spec:
         backend:
           serviceName: appsmith-backend-service
           servicePort: 8080
-      - path: /f
-        pathType: Prefix
-        backend:
-          serviceName: f-service
-          servicePort: 80
       - path: /static
         pathType: Prefix
         backend:
