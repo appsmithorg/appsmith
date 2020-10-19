@@ -27,7 +27,10 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
-import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
+import {
+  CREATE_ORGANIZATION_FORM_NAME,
+  CREATE_APPLICATION_FORM_NAME,
+} from "constants/forms";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
@@ -48,8 +51,9 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { AppLoader, loadingUserOrgs } from "./ApplicationLoaders";
+// import { getNextEntityName } from "utils/AppsmithUtils";
+import { loadingUserOrgs } from "./ApplicationLoaders";
+import CreateApplicationForm from "./CreateApplicationForm";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
 
 const OrgDropDown = styled.div`
@@ -507,30 +511,29 @@ const ApplicationsSection = (props: any) => {
                 ) &&
                   !isFetchingApplications && (
                     <PaddingWrapper>
-                      <ApplicationAddCardWrapper
-                        onClick={() =>
-                          createNewApplication(
-                            getNextEntityName(
-                              "New App",
-                              applications.map((el: any) => el.name),
-                            ),
-                            organization.id,
-                          )
+                      <FormDialogComponent
+                        permissions={organization.userPermissions}
+                        permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
+                        trigger={
+                          <ApplicationAddCardWrapper>
+                            <Icon
+                              className="t--create-app-popup"
+                              name={"plus"}
+                              size={IconSize.LARGE}
+                            ></Icon>
+                            <CreateNewLabel
+                              type={TextType.H4}
+                              className="createnew"
+                              // cypressSelector={"t--create-new-app"}
+                            >
+                              Create New
+                            </CreateNewLabel>
+                          </ApplicationAddCardWrapper>
                         }
-                      >
-                        <Icon
-                          className="t--create-app-popup"
-                          name={"plus"}
-                          size={IconSize.LARGE}
-                        ></Icon>
-                        <CreateNewLabel
-                          type={TextType.H4}
-                          className="createnew"
-                          // cypressSelector={"t--create-new-app"}
-                        >
-                          Create New
-                        </CreateNewLabel>
-                      </ApplicationAddCardWrapper>
+                        Form={CreateApplicationForm}
+                        orgId={organization.id}
+                        title={CREATE_APPLICATION_FORM_NAME}
+                      />
                     </PaddingWrapper>
                   )}
                 {applications.map((application: any) => {
@@ -554,10 +557,10 @@ const ApplicationsSection = (props: any) => {
                     )
                   );
                 })}
-                {creatingApplicationMap &&
+                {/* {creatingApplicationMap &&
                 creatingApplicationMap[organization.id] ? (
                   <AppLoader />
-                ) : null}
+                ) : null} */}
                 <PageSectionDivider />
               </ApplicationCardsWrapper>
             </OrgSection>
@@ -571,7 +574,7 @@ type ApplicationProps = {
   applicationList: ApplicationPayload[];
   createApplication: (appName: string) => void;
   searchApplications: (keyword: string) => void;
-  isCreatingApplication: creatingApplicationMap;
+  // isCreatingApplication: creatingApplicationMap;
   isFetchingApplications: boolean;
   createApplicationError?: string;
   deleteApplication: (id: string) => void;

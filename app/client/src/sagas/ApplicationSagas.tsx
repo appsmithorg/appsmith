@@ -360,6 +360,11 @@ export function* createApplicationSaga(
             application,
           },
         });
+        const pageURL = BUILDER_PAGE_URL(
+          application.id,
+          application.defaultPageId,
+        );
+        history.push(pageURL);
       }
     }
   } catch (error) {
