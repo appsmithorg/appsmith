@@ -162,7 +162,7 @@ jobs:
     - name: Installing Yarn serve
       run: |
         yarn global add serve
-        echo "::add-path::$(yarn global bin)"
+        echo "$(yarn global bin)" >> $GITHUB_PATH 
 
     - name: Setting up the cypress tests
       shell: bash
