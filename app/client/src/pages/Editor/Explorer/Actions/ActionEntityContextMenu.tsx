@@ -109,14 +109,14 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
           onSelect: noop,
           label: "Move to page",
           children: menuPages.length > 1 ?
-          menuPages
-            .filter(page => page.id !== props.pageId) // Remove current page from the list
-            .map(page => {
-              return {
-                ...page,
-                onSelect: () => moveActionToPage(props.id, props.name, page.id),
-              };
-            }) : [{ value: "No Pages", onSelect: noop, label: "No Pages"}]
+            menuPages
+              .filter(page => page.id !== props.pageId) // Remove current page from the list
+              .map(page => {
+                return {
+                  ...page,
+                  onSelect: () => moveActionToPage(props.id, props.name, page.id),
+                };
+              }) : [{ value: "No Pages", onSelect: noop, label: "No Pages" }]
         },
         {
           value: "delete",
