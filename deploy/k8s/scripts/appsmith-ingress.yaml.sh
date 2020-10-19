@@ -1,0 +1,50 @@
+set -o nounset
+
+custom_domain="$1"
+
+cat << EOF
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: appsmith-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  backend:
+    serviceName: "appsmith-editor"
+    servicePort: 80
+  rules:
+  - host: $custom_domain
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          serviceName: appsmith-backend-service
+          servicePort: 8080
+      - path: /oauth
+        pathType: Prefix
+        backend:
+          serviceName: appsmith-backend-service
+          servicePort: 8080
+      - path: /login
+        pathType: Prefix
+        backend:
+          serviceName: appsmith-backend-service
+          servicePort: 8080
+      - path: /f
+        pathType: Prefix
+        backend:
+          serviceName: f-service
+          servicePort: 80
+      - path: /static
+        pathType: Prefix
+        backend:
+          serviceName: appsmith-editor
+          servicePort: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          serviceName: appsmith-editor
+          servicePort: 80
+EOF
