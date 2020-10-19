@@ -468,8 +468,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return Mono.empty();
                 })
                 .then(repository.findByEmail(user.getUsername()))
-                .flatMap(analyticsService::trackNewUser)
-                .flatMap(user1 -> analyticsService.sendCreateEvent(user1, Map.of("isFromInvite", isFromInvite)));
+                .flatMap(analyticsService::trackNewUser);
     }
 
     /**
