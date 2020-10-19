@@ -58,7 +58,7 @@ Appsmith doesn't take the fun out of coding, because it treats every block as an
 * **5 minute setup**: Deploy Appsmith on your servers in 5 minutes.
 * **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**.
 * **Query data**: Query & update your database directly from the UI. Connect to **PostgreSQL, MongoDB, MySQL, REST & GraphQL APIs**.
-* **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows. Use popular libraries like lodash & moment anywhere in the app
+* **JS Logic**: Write snippets of business logic using JS to transform data, manipulate UI or trigger workflows. Use popular libraries like lodash & moment anywhere in the app
 * **Data Workflows**: Simple configuration to create flows when users interact with the UI.
 * **Realtime Editor**: Changes in your application reflect instantly with every edit. No need to compile!
 * **Works with existing, live databases**: Connect directly to any PostgreSQL, MySQL & MongoDB
