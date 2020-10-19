@@ -51,7 +51,6 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-// import { getNextEntityName } from "utils/AppsmithUtils";
 import { loadingUserOrgs } from "./ApplicationLoaders";
 import CreateApplicationForm from "./CreateApplicationForm";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
@@ -342,6 +341,19 @@ ${props => {
 }
 `;
 
+const AddApplicationCard = (
+  <ApplicationAddCardWrapper>
+    <Icon
+      className="t--create-app-popup"
+      name={"plus"}
+      size={IconSize.LARGE}
+    ></Icon>
+    <CreateNewLabel type={TextType.H4} className="createnew">
+      Create New
+    </CreateNewLabel>
+  </ApplicationAddCardWrapper>
+);
+
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
   const isFetchingApplications = useSelector(getIsFetchingApplications);
@@ -514,22 +526,7 @@ const ApplicationsSection = (props: any) => {
                       <FormDialogComponent
                         permissions={organization.userPermissions}
                         permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
-                        trigger={
-                          <ApplicationAddCardWrapper>
-                            <Icon
-                              className="t--create-app-popup"
-                              name={"plus"}
-                              size={IconSize.LARGE}
-                            ></Icon>
-                            <CreateNewLabel
-                              type={TextType.H4}
-                              className="createnew"
-                              // cypressSelector={"t--create-new-app"}
-                            >
-                              Create New
-                            </CreateNewLabel>
-                          </ApplicationAddCardWrapper>
-                        }
+                        trigger={AddApplicationCard}
                         Form={CreateApplicationForm}
                         orgId={organization.id}
                         title={CREATE_APPLICATION_FORM_NAME}
@@ -557,10 +554,6 @@ const ApplicationsSection = (props: any) => {
                     )
                   );
                 })}
-                {/* {creatingApplicationMap &&
-                creatingApplicationMap[organization.id] ? (
-                  <AppLoader />
-                ) : null} */}
                 <PageSectionDivider />
               </ApplicationCardsWrapper>
             </OrgSection>
@@ -574,7 +567,7 @@ type ApplicationProps = {
   applicationList: ApplicationPayload[];
   createApplication: (appName: string) => void;
   searchApplications: (keyword: string) => void;
-  // isCreatingApplication: creatingApplicationMap;
+  isCreatingApplication: creatingApplicationMap;
   isFetchingApplications: boolean;
   createApplicationError?: string;
   deleteApplication: (id: string) => void;
