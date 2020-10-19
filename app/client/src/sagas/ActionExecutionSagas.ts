@@ -332,7 +332,7 @@ export function* executeActionSaga(
     const appMode = yield select(getAppMode);
 
     const executeActionRequest: ExecuteActionRequest = {
-      action: { id: actionId },
+      actionId: actionId,
       params: actionParams,
       paginationField: pagination,
       viewMode: appMode === APP_MODE.PUBLISHED,
@@ -535,7 +535,6 @@ function* runActionSaga(
       yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
     const actionObject = yield select(getAction, actionId);
-    const action: ExecuteActionRequest["action"] = { id: actionId };
     const jsonPathKeys = actionObject.jsonPathKeys;
 
     const { paginationField } = reduxAction.payload;
@@ -546,7 +545,7 @@ function* runActionSaga(
     const viewMode = appMode === APP_MODE.PUBLISHED;
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       {
-        action,
+        actionId,
         params,
         paginationField,
         viewMode,
@@ -634,7 +633,7 @@ function* executePageLoadAction(pageAction: PageAction) {
   const appMode = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
   const executeActionRequest: ExecuteActionRequest = {
-    action: { id: pageAction.id },
+    actionId: pageAction.id,
     params,
     viewMode,
   };

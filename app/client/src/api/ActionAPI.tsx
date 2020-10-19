@@ -44,14 +44,10 @@ export interface ActionCreateUpdateResponse extends ApiResponse {
 export type PaginationField = "PREV" | "NEXT";
 
 export interface ExecuteActionRequest extends APIRequest {
-  action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
+  actionId: string;
   params?: Property[];
   paginationField?: PaginationField;
   viewMode: boolean;
-}
-
-export interface ExecuteQueryRequest extends APIRequest {
-  action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
 }
 
 export interface ExecuteActionResponse extends ApiResponse {
