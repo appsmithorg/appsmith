@@ -68,8 +68,8 @@ The fastest and easiest way to try Appsmith out is via [Appsmith Cloud](https://
 1. [Sign up](https://bit.ly/appsmith-signup-github).
 2. Create a new App within the organization that has already been create for you.
 3. Navigate to `Pages -> Queries -> Mock Database` and follow these steps to create a new query -
-  3.2 Write query `select * from users limit 5;`.
-  3.3 Name the query as `usersQuery`.
+    1. Write query `select * from users limit 5;`.
+    2. Name the query as `usersQuery`.
 4. Navigate to `Pages -> Widgets` and create a table `UsersTable` by dragging-and-droping the table-widget.
 5. Navigate to `Table Data` property of `UsersTable`, and fill in `{{usersQuery.data}}` to display thq query's results in this table. 
 6. Hit the Deploy button.
@@ -92,9 +92,9 @@ We are committed to fostering an open and welcoming environment in the community
 ## ∞ Contributing
 
 If you're interested in contributing to Appsmith:
-* Start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) 
-* Learn how to set up your local environment, in our [developer-guide](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)
-* Explore our [open issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
+1. Start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) 
+2. Learn how to set up your local environment, in our [developer-guide](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)
+3. Explore our [open issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
 
 ## 📑 License
 
