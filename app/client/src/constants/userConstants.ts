@@ -21,23 +21,12 @@ export const CurrentUserDetailsRequestPayload = {
   id: "profile",
 };
 
-export const DefaultCurrentUserDetails = {
-  userPermissions: [],
-  name: "anonymousUser",
-  email: "anonymousUser",
-  source: "FORM",
-  isEnabled: true,
+export const DefaultCurrentUserDetails: User = {
+  name: ANONYMOUS_USERNAME,
+  email: ANONYMOUS_USERNAME,
   currentOrganizationId: "",
   organizationIds: [],
-  groupIds: [],
-  permissions: [],
-  isAnonymous: true,
-  enabled: true,
-  username: "anonymousUser",
-  accountNonExpired: true,
-  accountNonLocked: true,
-  credentialsNonExpired: true,
-  claims: {},
-  address: {},
-  new: true,
+  username: ANONYMOUS_USERNAME,
+  applications: [],
+  gender: "MALE",
 };
