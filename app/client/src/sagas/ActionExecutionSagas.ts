@@ -1,4 +1,5 @@
 import {
+  ApplicationPayload,
   Page,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -81,6 +82,7 @@ import { getType, Types } from "utils/TypeHelpers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -298,12 +300,14 @@ export function* executeActionSaga(
   );
   try {
     const api: RestAction = yield select(getAction, actionId);
-    const currentAppId = yield select(getCurrentApplicationId);
+    const currentApp: ApplicationPayload = yield select(getCurrentApplication);
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: api.pluginType,
       name: api.name,
       pageId: api.pageId,
-      appId: currentAppId,
+      appId: currentApp.id,
+      appName: currentApp.name,
+      isExampleApp: currentApp.appIsExample,
     });
     if (api.confirmBeforeExecute) {
       const confirmed = yield call(confirmRunActionSaga);
@@ -617,7 +621,7 @@ function* executePageLoadAction(pageAction: PageAction) {
     PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
   );
   const pageId = yield select(getCurrentPageId);
-  const appId = yield select(getCurrentApplicationId);
+  const currentApp: ApplicationPayload = yield select(getCurrentApplication);
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
@@ -631,8 +635,10 @@ function* executePageLoadAction(pageAction: PageAction) {
     type: pageAction.pluginType,
     name: pageAction.name,
     pageId: pageId,
-    appId: appId,
+    appId: currentApp.id,
     onPageLoad: true,
+    appName: currentApp.name,
+    isExampleApp: currentApp.appIsExample,
   });
   const response: ActionApiResponse = yield ActionAPI.executeAction(
     executeActionRequest,
