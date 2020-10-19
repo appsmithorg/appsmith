@@ -69,6 +69,12 @@ public class RedisPlugin extends BasePlugin {
 
             Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
             Integer port = (Integer) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
+            Jedis jedis = new Jedis(endpoint.getHost(), port);
+
+            AuthenticationDTO auth = datasourceConfiguration.getAuthentication();
+            if (auth != null && AuthenticationDTO.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
+                jedis.auth(auth.getUsername(), auth.getPassword());
+            }
 
             return Mono.just(new Jedis(endpoint.getHost(), port));
         }
