@@ -364,7 +364,7 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         private String addHttpToUrlWhenPrefixNotPresent(String url) {
-            if (url.toLowerCase().startsWith("http") || url.contains("://")) {
+            if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
                 return url;
             }
             return "http://" + url;
