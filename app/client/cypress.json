@@ -12,12 +12,5 @@
     "json": false
   },
   "viewportHeight": 900,
-  "viewportWidth": 1400,
-  "env": {
-    "USERNAME": "asdf@asdf.com",
-    "PASSWORD": "asdf@asdf123",
-    "TESTUSERNAME1": "satbir121@gmail.com",
-    "TESTPASSWORD1": "qweriop[",
-    "TESTUSERNAME2": "satbir@appsmith.com"
-  }
+  "viewportWidth": 1400
 }
