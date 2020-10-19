@@ -160,6 +160,9 @@ const EVALUATE_REDUX_ACTIONS = [
   // Widget Meta
   ReduxActionTypes.SET_META_PROP,
   ReduxActionTypes.RESET_WIDGET_META,
+  // Pages
+  ReduxActionTypes.FETCH_PAGE_SUCCESS,
+  ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
 ];
