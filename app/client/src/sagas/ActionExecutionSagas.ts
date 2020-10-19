@@ -81,6 +81,8 @@ import { getType, Types } from "utils/TypeHelpers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -327,10 +329,13 @@ export function* executeActionSaga(
         : event.type === EventType.ON_PREV_PAGE
         ? "PREV"
         : undefined;
+    const appMode = yield select(getAppMode);
+
     const executeActionRequest: ExecuteActionRequest = {
       action: { id: actionId },
       params: actionParams,
       paginationField: pagination,
+      viewMode: appMode === APP_MODE.PUBLISHED,
     };
     const timeout = yield select(getActionTimeout, actionId);
     const response: ActionApiResponse = yield ActionAPI.executeAction(
@@ -537,11 +542,14 @@ function* runActionSaga(
 
     const params = yield call(getActionParams, jsonPathKeys);
     const timeout = yield select(getActionTimeout, actionId);
+    const appMode = yield select(getAppMode);
+    const viewMode = appMode === APP_MODE.PUBLISHED;
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       {
         action,
         params,
         paginationField,
+        viewMode,
       },
       timeout,
     );
@@ -623,9 +631,12 @@ function* executePageLoadAction(pageAction: PageAction) {
     getActionParams,
     pageAction.jsonPathKeys,
   );
+  const appMode = yield select(getAppMode);
+  const viewMode = appMode === APP_MODE.PUBLISHED;
   const executeActionRequest: ExecuteActionRequest = {
     action: { id: pageAction.id },
     params,
+    viewMode,
   };
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: pageAction.pluginType,

@@ -43,7 +43,8 @@ function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   const { applicationId, pageId } = initializeEditorAction.payload;
-  // Step 1: Start getting all the data needed by the
+  // Step 1: Set App Mode. Start getting all the data needed by the
+  yield put(setAppMode(APP_MODE.EDIT));
   yield all([
     put(fetchPageList(applicationId, APP_MODE.EDIT)),
     put(fetchEditorConfigs()),
@@ -68,8 +69,7 @@ function* initializeEditorSaga(
     take(ReduxActionTypes.FETCH_DATASOURCES_SUCCESS),
   ]);
 
-  // Step 5: Set app mode
-  yield put(setAppMode(APP_MODE.EDIT));
+  // Step 5: Set app store
   yield put(updateAppStore(getAppStore(applicationId)));
 
   const currentApplication = yield select(getCurrentApplication);
@@ -149,6 +149,7 @@ export function* initializeAppViewerSaga(
   action: ReduxAction<{ pageId: string; applicationId: string }>,
 ) {
   const { applicationId } = action.payload;
+  yield put(setAppMode(APP_MODE.PUBLISHED));
   yield all([
     // TODO (hetu) Remove spl view call for fetch actions
     put(fetchActionsForView(applicationId)),
@@ -162,7 +163,6 @@ export function* initializeAppViewerSaga(
     take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
   ]);
 
-  yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(updateAppStore(getAppStore(applicationId)));
 
   yield put({

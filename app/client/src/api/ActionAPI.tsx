@@ -47,6 +47,7 @@ export interface ExecuteActionRequest extends APIRequest {
   action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
   params?: Property[];
   paginationField?: PaginationField;
+  viewMode: boolean;
 }
 
 export interface ExecuteQueryRequest extends APIRequest {
