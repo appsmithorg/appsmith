@@ -13,6 +13,7 @@ import {
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerActionsGroup from "./ActionsGroup";
 import { ExplorerURLParams } from "../helpers";
+import QueryActionsGroup from "../DBQuery/QueryActionsGroup";
 
 export type ActionGroupConfig = {
   groupName: string;
@@ -30,17 +31,15 @@ export type ActionGroupConfig = {
   isGroupExpanded: (params: ExplorerURLParams, pageId: string) => boolean;
 };
 
-// When we have new action plugins, we can just add it to this map
-// There should be no other place where we refer to the PluginType in entity explorer.
 /*eslint-disable react/display-name */
-export const ACTION_PLUGIN_MAP: Array<
-  ActionGroupConfig | undefined
-> = Object.keys(PluginType).map((type: string) => {
-  switch (type) {
+export const getActionConfig = (
+  pluginType: string,
+): ActionGroupConfig | undefined => {
+  switch (pluginType) {
     case PluginType.API:
       return {
         groupName: "APIs",
-        type,
+        type: pluginType,
         icon: apiIcon,
         key: generateReactKey(),
         getURL: (applicationId: string, pageId: string, id: string) => {
@@ -62,7 +61,7 @@ export const ACTION_PLUGIN_MAP: Array<
     case PluginType.DB:
       return {
         groupName: "Queries",
-        type,
+        type: pluginType,
         icon: queryIcon,
         key: generateReactKey(),
         getURL: (applicationId: string, pageId: string, id: string) =>
@@ -82,7 +81,13 @@ export const ACTION_PLUGIN_MAP: Array<
     default:
       return undefined;
   }
-});
+};
+
+// When we have new action plugins, we can just add it to this map
+// There should be no other place where we refer to the PluginType in entity explorer.
+export const ACTION_PLUGIN_MAP: Array<
+  ActionGroupConfig | undefined
+> = Object.keys(PluginType).map(getActionConfig);
 
 // Gets the Actions groups in the entity explorer
 // ACTION_PLUGIN_MAP specifies the number of groups
@@ -94,7 +99,7 @@ export const getActionGroups = (
   searchKeyword?: string,
 ) => {
   return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
-    if (!config) return null;
+    if (!config || config.type === PluginType.DB) return null;
     const entries = actions?.filter(
       (entry: any) => entry.config.pluginType === config?.type,
     );
@@ -111,4 +116,29 @@ export const getActionGroups = (
       />
     );
   });
+};
+
+export const getQueryActionsGroup = (
+  page: Page,
+  step: number,
+  actions?: any[],
+  searchKeyword?: string,
+) => {
+  const config = getActionConfig(PluginType.DB);
+  if (!config) return null;
+  const entries = actions?.filter(
+    (entry: any) => entry.config.pluginType === config?.type,
+  );
+
+  if (!entries || (entries.length === 0 && !!searchKeyword)) return null;
+
+  return (
+    <QueryActionsGroup
+      actions={entries}
+      step={step}
+      searchKeyword={searchKeyword}
+      page={page}
+      config={config}
+    />
+  );
 };

@@ -15,11 +15,14 @@ import { homePageIcon, pageIcon } from "../ExplorerIcons";
 import { getActionGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
+import DBQuery from "../DBQuery/DBQueryGroup";
+import { Datasource } from "api/DatasourcesApi";
 
 type ExplorerPageEntityProps = {
   page: Page;
   widgets?: WidgetProps;
   actions: any[];
+  datasources: Datasource[];
   step: number;
   searchKeyword?: string;
   showWidgetsSidebar: () => void;
@@ -82,6 +85,14 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
         props.actions as DataTreeAction[],
         props.searchKeyword,
       )}
+
+      <DBQuery
+        step={props.step + 1}
+        searchKeyword={props.searchKeyword}
+        actions={props.actions as DataTreeAction[]}
+        datasources={props.datasources}
+        page={props.page}
+      />
     </Entity>
   );
 };

@@ -112,7 +112,6 @@ export const getWidgetIcon = (type: WidgetType) => {
 const PluginIcon = styled.img`
   height: ${ENTITY_ICON_SIZE}px;
   width: ${ENTITY_ICON_SIZE}px;
-  margin-right: 4px;
 `;
 
 export const getPluginIcon = (plugin?: Plugin) => {

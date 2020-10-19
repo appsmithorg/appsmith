@@ -9,7 +9,6 @@ import {
 } from "./hooks";
 import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
-import ExplorerDatasourcesGroup from "./Datasources/DatasourcesGroup";
 import { scrollbarDark } from "constants/DefaultTheme";
 import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
@@ -77,6 +76,7 @@ const EntityExplorer = (props: IPanelProps) => {
         step={0}
         widgets={widgets}
         actions={actions}
+        datasources={datasources}
         showWidgetsSidebar={showWidgetsSidebar}
       />
       {noResults && (
@@ -87,12 +87,6 @@ const EntityExplorer = (props: IPanelProps) => {
           icon="search"
         />
       )}
-      <StyledDivider />
-      <ExplorerDatasourcesGroup
-        searchKeyword={searchKeyword}
-        step={0}
-        datasources={datasources}
-      />
       <StyledDivider />
       <JSDependencies />
     </Wrapper>
