@@ -70,29 +70,22 @@ public class DynamoPlugin extends BasePlugin {
 
             ActionExecutionResult result = new ActionExecutionResult();
 
-            final HashMap<String, Object> command;
+            final String action = actionConfiguration.getPath();
+            if (StringUtils.isEmpty(action)) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Missing action name (like `ListTables`, `GetItem` etc.)."
+                ));
+            }
 
+            final String body = actionConfiguration.getBody();
+            Map<String, Object> parameters = null;
             try {
-                command = objectMapper.readValue(actionConfiguration.getBody(), HashMap.class);
+                if (!StringUtils.isEmpty(body)) {
+                    parameters = objectMapper.readValue(body, HashMap.class);
+                }
             } catch (IOException e) {
-                e.printStackTrace();
-                return Mono.just(result);
-            }
-
-            final String action = (String) command.get("action");
-            if (action == null) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Missing action in request body."
-                ));
-            }
-
-            final Map<String, Object> parameters = (Map<String, Object>) command.get("parameters");
-            if (parameters == null) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Missing parameters in request body."
-                ));
+                return Mono.error(e);
             }
 
             final Class<?> requestClass;

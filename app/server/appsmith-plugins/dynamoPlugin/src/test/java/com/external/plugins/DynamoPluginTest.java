@@ -99,11 +99,13 @@ public class DynamoPluginTest {
         dsConfig.setAuthentication(new AuthenticationDTO());
         dsConfig.getAuthentication().setUsername("dummy");
         dsConfig.getAuthentication().setPassword("dummy");
+        dsConfig.getAuthentication().setDatabaseName(Region.AP_SOUTH_1.toString());
         dsConfig.setEndpoints(List.of(endpoint));
     }
 
-    private Mono<ActionExecutionResult> execute(String jsonActionConfiguration) {
+    private Mono<ActionExecutionResult> execute(String action, String jsonActionConfiguration) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath(action);
         actionConfiguration.setBody(jsonActionConfiguration);
 
         return pluginExecutor
@@ -113,18 +115,14 @@ public class DynamoPluginTest {
 
     @Test
     public void testListTables() {
-        final String actionConfig = "{\n" +
-                "  \"action\": \"ListTables\"\n" +
-                "}\n";
-
-        StepVerifier.create(execute(actionConfig))
+        StepVerifier.create(execute("ListTables", null))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertArrayEquals(
-                            ((Map<String, List<String>>) result.getBody()).get("TableNames").toArray(),
-                            new String[]{"cities"}
+                            new String[]{"cities"},
+                            ((Map<String, List<String>>) result.getBody()).get("TableNames").toArray()
                     );
                 })
                 .verifyComplete();
@@ -132,19 +130,16 @@ public class DynamoPluginTest {
 
     @Test
     public void testGetItem() {
-        final String actionConfig = "{\n" +
-                "  \"action\": \"GetItem\",\n" +
-                "  \"parameters\": {\n" +
-                "    \"TableName\": \"cities\",\n" +
-                "    \"Key\": {\n" +
-                "      \"Id\": {\n" +
-                "        \"S\": \"1\"\n" +
-                "      }\n" +
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\",\n" +
+                "  \"Key\": {\n" +
+                "    \"Id\": {\n" +
+                "      \"S\": \"1\"\n" +
                 "    }\n" +
                 "  }\n" +
                 "}\n";
 
-        StepVerifier.create(execute(actionConfig))
+        StepVerifier.create(execute("GetItem", body))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -157,22 +152,19 @@ public class DynamoPluginTest {
 
     @Test
     public void testPutItem() {
-        final String actionConfig = "{\n" +
-                "  \"action\": \"PutItem\",\n" +
-                "  \"parameters\": {\n" +
-                "    \"TableName\": \"cities\",\n" +
-                "    \"Item\": {\n" +
-                "      \"Id\": {\n" +
-                "        \"S\": \"9\"\n" +
-                "      },\n" +
-                "      \"City\": {\n" +
-                "        \"S\": \"Mumbai\"\n" +
-                "      }\n" +
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\",\n" +
+                "  \"Item\": {\n" +
+                "    \"Id\": {\n" +
+                "      \"S\": \"9\"\n" +
+                "    },\n" +
+                "    \"City\": {\n" +
+                "      \"S\": \"Mumbai\"\n" +
                 "    }\n" +
                 "  }\n" +
                 "}\n";
 
-        StepVerifier.create(execute(actionConfig))
+        StepVerifier.create(execute("PutItem", body))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -184,26 +176,23 @@ public class DynamoPluginTest {
 
     @Test
     public void testUpdateItem() {
-        final String actionConfig = "{\n" +
-                "  \"action\": \"UpdateItem\",\n" +
-                "  \"parameters\": {\n" +
-                "    \"TableName\": \"cities\",\n" +
-                "    \"Key\": {\n" +
-                "      \"Id\": {\n" +
-                "        \"S\": \"2\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    \"UpdateExpression\": \"set City = :new_city\",\n" +
-                "    \"ExpressionAttributeValues\": {\n" +
-                "      \":new_city\": {\n" +
-                "        \"S\": \"Bengaluru\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    \"ReturnValues\": \"ALL_NEW\"\n" +
-                "  }\n" +
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\",\n" +
+                "  \"Key\": {\n" +
+                "    \"Id\": {\n" +
+                "      \"S\": \"2\"\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"UpdateExpression\": \"set City = :new_city\",\n" +
+                "  \"ExpressionAttributeValues\": {\n" +
+                "    \":new_city\": {\n" +
+                "      \"S\": \"Bengaluru\"\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"ReturnValues\": \"ALL_NEW\"\n" +
                 "}\n";
 
-        StepVerifier.create(execute(actionConfig))
+        StepVerifier.create(execute("UpdateItem", body))
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());

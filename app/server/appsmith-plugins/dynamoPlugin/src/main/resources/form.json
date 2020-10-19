@@ -141,7 +141,7 @@
           "sectionName": "Endpoint Override (Overrides above region)",
           "children": [
             {
-              "label": "Host Address",
+              "label": "Host Address (for overriding endpoint only)",
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
