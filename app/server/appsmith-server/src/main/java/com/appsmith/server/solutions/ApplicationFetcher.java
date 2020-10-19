@@ -73,7 +73,7 @@ public class ApplicationFetcher {
 
                     // Collect all the applications as a map with organization id as a key
 
-                    Mono<Map<Object, Collection<Application>>> applicationsMapMono = applicationRepository
+                    Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             .collectMultimap(Application::getOrganizationId, Function.identity());
 
@@ -86,7 +86,7 @@ public class ApplicationFetcher {
                             .zipWith(applicationsMapMono)
                             .map(tuple -> {
                                 List<Organization> organizations = tuple.getT1();
-                                Map<Object, Collection<Application>> applicationsCollectionByOrgId = tuple.getT2();
+                                Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT2();
 
                                 List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
 
