@@ -413,20 +413,20 @@ public class OrganizationServiceTest {
                     assertThat(org.getName()).isEqualTo("Another Test Organization");
                     assertThat(org.getUserRoles().stream()
                             .map(role -> role.getUsername())
-                            .filter(username -> username.equals("newEmailWhichShouldntExist@usertest.com"))
+                            .filter(username -> username.equals("newemailwhichshouldntexist@usertest.com"))
                             .collect(Collectors.toSet())
                     ).hasSize(1);
 
                     Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
-                            .users(Set.of("api_user", "newEmailWhichShouldntExist@usertest.com"))
+                            .users(Set.of("api_user", "newemailwhichshouldntexist@usertest.com"))
                             .build();
 
                     Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
-                            .users(Set.of("api_user", "newEmailWhichShouldntExist@usertest.com"))
+                            .users(Set.of("api_user", "newemailwhichshouldntexist@usertest.com"))
                             .build();
 
                     Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
-                            .users(Set.of("api_user", "newEmailWhichShouldntExist@usertest.com"))
+                            .users(Set.of("api_user", "newemailwhichshouldntexist@usertest.com"))
                             .build();
 
                     assertThat(org.getPolicies()).isNotEmpty();
@@ -486,16 +486,16 @@ public class OrganizationServiceTest {
                     assertThat(org).isNotNull();
                     assertThat(org.getName()).isEqualTo("Add Viewer to Test Organization");
                     assertThat(org.getUserRoles().stream()
-                            .filter(role -> role.getUsername().equals("newEmailWhichShouldntExistAsViewer@usertest.com"))
+                            .filter(role -> role.getUsername().equals("newemailwhichshouldntexistasviewer@usertest.com"))
                             .collect(Collectors.toSet())
                     ).hasSize(1);
 
                     Policy readOrgAppsPolicy = Policy.builder().permission(ORGANIZATION_READ_APPLICATIONS.getValue())
-                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer@usertest.com"))
+                            .users(Set.of("api_user", "newemailwhichshouldntexistasviewer@usertest.com"))
                             .build();
 
                     Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
-                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer@usertest.com"))
+                            .users(Set.of("api_user", "newemailwhichshouldntexistasviewer@usertest.com"))
                             .build();
 
                     assertThat(org.getPolicies()).isNotEmpty();
@@ -878,19 +878,19 @@ public class OrganizationServiceTest {
                             .map(userRole -> userRole.getUsername())
                             .filter(username -> !username.equals("api_user"))
                             .collect(Collectors.toSet())
-                    ).containsAll(Set.of("newEmailWhichShouldntExistAsViewer1@usertest.com", "newEmailWhichShouldntExistAsViewer2@usertest.com",
-                            "newEmailWhichShouldntExistAsViewer3@usertest.com"));
+                    ).containsAll(Set.of("newemailwhichshouldntexistasviewer1@usertest.com", "newemailwhichshouldntexistasviewer2@usertest.com",
+                            "newemailwhichshouldntexistasviewer3@usertest.com"));
 
                     Policy readOrgAppsPolicy = Policy.builder().permission(ORGANIZATION_READ_APPLICATIONS.getValue())
-                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer1@usertest.com",
-                                    "newEmailWhichShouldntExistAsViewer2@usertest.com",
-                                    "newEmailWhichShouldntExistAsViewer3@usertest.com"))
+                            .users(Set.of("api_user", "newemailwhichshouldntexistasviewer1@usertest.com",
+                                    "newemailwhichshouldntexistasviewer2@usertest.com",
+                                    "newemailwhichshouldntexistasviewer3@usertest.com"))
                             .build();
 
                     Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
-                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer1@usertest.com",
-                                    "newEmailWhichShouldntExistAsViewer2@usertest.com",
-                                    "newEmailWhichShouldntExistAsViewer3@usertest.com"))
+                            .users(Set.of("api_user", "newemailwhichshouldntexistasviewer1@usertest.com",
+                                    "newemailwhichshouldntexistasviewer2@usertest.com",
+                                    "newemailwhichshouldntexistasviewer3@usertest.com"))
                             .build();
 
                     assertThat(org.getPolicies()).isNotEmpty();
