@@ -1,13 +1,15 @@
 package com.external.plugins;
 
 import com.appsmith.external.models.*;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.CollectionUtils;
+import org.pf4j.util.StringUtils;
 import reactor.core.publisher.Mono;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
@@ -17,6 +19,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class RedisPlugin extends BasePlugin {
+    private static final Integer DEFAULT_PORT = 6379;
+
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -25,13 +29,48 @@ public class RedisPlugin extends BasePlugin {
     @Extension
     public static class RedisPluginExecutor implements PluginExecutor<Jedis> {
         @Override
-        public Mono<ActionExecutionResult> execute(Jedis jedis, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
-            return null;
+        public Mono<ActionExecutionResult> execute(Jedis jedis,
+                                                   DatasourceConfiguration datasourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
+            String body = actionConfiguration.getBody().trim();
+            if (StringUtils.isNullOrEmpty(body)) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        String.format("Body is null or empty [%s]", body)));
+            }
+
+            String[] bodySplitted = body.split("\\s+");
+            Protocol.Command command;
+            try {
+                command = Protocol.Command.valueOf(bodySplitted[0]);
+            } catch (IllegalArgumentException exc) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        String.format("Not a valid Redis command:%s", bodySplitted[0])));
+            }
+
+            Object commandOutput;
+            if (bodySplitted.length > 1) {
+                String args[] = new String[bodySplitted.length - 1];
+                System.arraycopy(bodySplitted, 1, args, 0, bodySplitted.length - 1);
+                commandOutput = jedis.sendCommand(command, args);
+            } else {
+                commandOutput = jedis.sendCommand(command);
+            }
+
+            ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
+            actionExecutionResult.setBody(String.valueOf(commandOutput));
+            return Mono.just(actionExecutionResult);
         }
 
         @Override
         public Mono<Jedis> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            if (datasourceConfiguration.getEndpoints().isEmpty()) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "No endpoint(s) configured"));
+            }
+
+            Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+            Integer port = (Integer) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
+
+            return Mono.just(new Jedis(endpoint.getHost(), port));
         }
 
         @Override
@@ -49,8 +88,8 @@ public class RedisPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
 
-            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add("Missing endpoint(s)");
+            if (datasourceConfiguration.getEndpoints().size() == 1) {
+                invalids.add(String.format("Should have 1 endpoint found [%s]", datasourceConfiguration.getEndpoints().size()));
             }
 
             return invalids;
@@ -81,15 +120,5 @@ public class RedisPlugin extends BasePlugin {
                     onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
-
-        @Override
-        public Mono<DatasourceStructure> getStructure(Jedis jedis, DatasourceConfiguration datasourceConfiguration) {
-            verifyPing(jedis).doOnError(error -> {
-                throw new StaleConnectionException(error.getMessage());
-            }).block();
-
-            jedis.sendCommand(Protocol.Command.INFO, "keyspace");
-            return Mono.empty();
-        }
     }
 }
