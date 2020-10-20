@@ -24,6 +24,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .click();
     cy.enterActionValue(pageid);
     cy.get(commonlocators.editPropCrossButton).click();
+    cy.wait(300);
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {
