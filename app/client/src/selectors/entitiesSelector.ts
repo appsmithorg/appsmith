@@ -138,12 +138,6 @@ export const getQueryName = (state: AppState, actionId: string): string => {
   return action?.config.name ?? "";
 };
 
-export const getQueryActions = (state: AppState): ActionDataState => {
-  return state.entities.actions.filter((action: ActionData) => {
-    return action.config.pluginType === QUERY_CONSTANT;
-  });
-};
-
 const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
@@ -200,6 +194,15 @@ export const getActionsForCurrentPage = createSelector(
   (pageId, actions) => {
     if (!pageId) return [];
     return actions.filter(a => a.config.pageId === pageId);
+  },
+);
+
+export const getQueryActionsForCurrentPage = createSelector(
+  getActionsForCurrentPage,
+  actions => {
+    return actions.filter((action: ActionData) => {
+      return action.config.pluginType === QUERY_CONSTANT;
+    });
   },
 );
 
