@@ -882,7 +882,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(commonlocators.editWidgetName)
-    .dblclick({ force: true })
+    .click({ force: true })
     .type(text)
     .type("{enter}");
   cy.get(inputcss)
