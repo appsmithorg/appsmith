@@ -52,6 +52,10 @@ public class AnalyticsService {
     }
 
     public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object) {
+        return sendEvent(event, object, null);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
         if (analytics == null) {
             return Mono.just(object);
         }
@@ -70,29 +74,46 @@ public class AnalyticsService {
                         return object;
                     }
 
-                    HashMap<String, String> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", (object instanceof User ? (User) object : user).getUsername());
-                    analyticsProperties.put("object", object.toString());
+                    final String username = (object instanceof User ? (User) object : user).getUsername();
+
+                    HashMap<String, Object> analyticsProperties = new HashMap<>();
+                    analyticsProperties.put("id", username);
                     analyticsProperties.put("oid", object.getId());
+                    if (extraProperties != null) {
+                        analyticsProperties.putAll(extraProperties);
+                    }
 
                     analytics.enqueue(
                             TrackMessage.builder(eventTag)
-                                    .userId(user.getUsername())
+                                    .userId(username)
                                     .properties(analyticsProperties)
                     );
+
                     return object;
                 });
     }
 
+    public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {
+        return sendEvent(AnalyticsEvents.CREATE, object, extraProperties);
+    }
+
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object) {
-        return sendEvent(AnalyticsEvents.CREATE, object);
+        return sendCreateEvent(object, null);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object, Map<String, Object> extraProperties) {
+        return sendEvent(AnalyticsEvents.UPDATE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object) {
-        return sendEvent(AnalyticsEvents.UPDATE, object);
+        return sendUpdateEvent(object, null);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object, Map<String, Object> extraProperties) {
+        return sendEvent(AnalyticsEvents.DELETE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
-        return sendEvent(AnalyticsEvents.DELETE, object);
+        return sendDeleteEvent(object, null);
     }
 }

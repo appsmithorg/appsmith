@@ -20,3 +20,13 @@ export interface UserApplication {
 export const CurrentUserDetailsRequestPayload = {
   id: "profile",
 };
+
+export const DefaultCurrentUserDetails: User = {
+  name: ANONYMOUS_USERNAME,
+  email: ANONYMOUS_USERNAME,
+  currentOrganizationId: "",
+  organizationIds: [],
+  username: ANONYMOUS_USERNAME,
+  applications: [],
+  gender: "MALE",
+};

@@ -924,4 +924,56 @@ public class DatabaseChangelog {
         ));
     }
 
+    @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
+    public void fixTokenExpiration(MongoTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
+
+        ensureIndexes(mongoTemplate, PasswordResetToken.class,
+                makeIndex(FieldName.CREATED_AT)
+                    .expire(2, TimeUnit.DAYS),
+                makeIndex(FieldName.EMAIL).unique()
+        );
+    }
+
+    @ChangeSet(order = "027", id = "add-mssql-plugin", author = "")
+    public void addMssqlPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("MsSQL");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("mssql-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.TABLE);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MsSQL.jpg");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mssql");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin1.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
+    private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
+        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+                organization.setPlugins(new ArrayList<>());
+            }
+
+            final Set<String> installedPlugins = organization.getPlugins()
+                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+
+            if (!installedPlugins.contains(pluginId)) {
+                organization.getPlugins()
+                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
+            }
+
+            mongoTemplate.save(organization);
+        }
+    }
+
+
+
 }
