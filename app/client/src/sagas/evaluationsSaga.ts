@@ -28,6 +28,8 @@ import { ToastType } from "react-toastify";
 import { AppToaster } from "../components/editorComponents/ToastComponent";
 import log from "loglevel";
 import _ from "lodash";
+import { WidgetType } from "../constants/WidgetConstants";
+import { WidgetProps } from "../widgets/BaseWidget";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
@@ -128,6 +130,25 @@ export function* clearEvalPropertyCache(propertyPath: string) {
     });
     yield take(workerChannel);
   }
+}
+
+export function* validateProperty(
+  widgetType: WidgetType,
+  property: string,
+  value: any,
+  props: WidgetProps,
+) {
+  if (evaluationWorker) {
+    evaluationWorker.postMessage({
+      action: EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
+      widgetType,
+      property,
+      value,
+      props,
+    });
+    return yield take(workerChannel);
+  }
+  return { isValid: true, parsed: value };
 }
 
 const EVALUATE_REDUX_ACTIONS = [

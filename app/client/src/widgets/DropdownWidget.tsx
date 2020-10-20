@@ -7,7 +7,7 @@ import _ from "lodash";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";

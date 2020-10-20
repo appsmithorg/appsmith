@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import MapComponent from "components/designSystems/appsmith/MapComponent";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/ActionConstants";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";

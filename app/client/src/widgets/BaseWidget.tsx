@@ -28,7 +28,7 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,

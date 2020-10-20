@@ -8,7 +8,7 @@ import {
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
-} from "./ValidationFactory";
+} from "./WidgetValidation";
 import React from "react";
 
 type WidgetDerivedPropertyType = any;

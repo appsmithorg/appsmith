@@ -57,7 +57,6 @@ import {
   RenderModes,
   WidgetType,
 } from "constants/WidgetConstants";
-import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import {
   saveCopiedWidgets,
@@ -80,6 +79,7 @@ import {
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { validateProperty } from "./evaluationsSaga";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -635,7 +635,8 @@ function* setWidgetDynamicPropertySaga(
   } else {
     delete dynamicProperties[propertyName];
     // TODO (hetu) can we eliminate this use of validation
-    const { parsed } = ValidationFactory.validateWidgetProperty(
+    const { parsed } = yield call(
+      validateProperty,
       widget.type,
       propertyName,
       propertyValue,
