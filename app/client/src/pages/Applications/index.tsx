@@ -28,7 +28,10 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
-import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
+import {
+  CREATE_ORGANIZATION_FORM_NAME,
+  CREATE_APPLICATION_FORM_NAME,
+} from "constants/forms";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
@@ -49,8 +52,8 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { AppLoader, loadingUserOrgs } from "./ApplicationLoaders";
+import { loadingUserOrgs } from "./ApplicationLoaders";
+import CreateApplicationForm from "./CreateApplicationForm";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
@@ -342,6 +345,18 @@ ${props => {
 }
 `;
 
+const AddApplicationCard = (
+  <ApplicationAddCardWrapper>
+    <Icon
+      className="t--create-app-popup"
+      name={"plus"}
+      size={IconSize.LARGE}
+    ></Icon>
+    <CreateNewLabel type={TextType.H4} className="createnew">
+      Create New
+    </CreateNewLabel>
+  </ApplicationAddCardWrapper>
+);
 const NoSearchResultImg = styled.img`
   margin: 1em;
 `;
@@ -525,30 +540,14 @@ const ApplicationsSection = (props: any) => {
               ) &&
                 !isFetchingApplications && (
                   <PaddingWrapper>
-                    <ApplicationAddCardWrapper
-                      onClick={() =>
-                        createNewApplication(
-                          getNextEntityName(
-                            "New App",
-                            applications.map((el: any) => el.name),
-                          ),
-                          organization.id,
-                        )
-                      }
-                    >
-                      <Icon
-                        className="t--create-app-popup"
-                        name={"plus"}
-                        size={IconSize.LARGE}
-                      ></Icon>
-                      <CreateNewLabel
-                        type={TextType.H4}
-                        className="createnew"
-                        // cypressSelector={"t--create-new-app"}
-                      >
-                        Create New
-                      </CreateNewLabel>
-                    </ApplicationAddCardWrapper>
+                    <FormDialogComponent
+                      permissions={organization.userPermissions}
+                      permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
+                      trigger={AddApplicationCard}
+                      Form={CreateApplicationForm}
+                      orgId={organization.id}
+                      title={CREATE_APPLICATION_FORM_NAME}
+                    />
                   </PaddingWrapper>
                 )}
               {applications.map((application: any) => {
@@ -572,10 +571,6 @@ const ApplicationsSection = (props: any) => {
                   )
                 );
               })}
-              {creatingApplicationMap &&
-              creatingApplicationMap[organization.id] ? (
-                <AppLoader />
-              ) : null}
               <PageSectionDivider />
             </ApplicationCardsWrapper>
           </OrgSection>

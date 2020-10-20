@@ -621,7 +621,8 @@ function* executePageLoadAction(pageAction: PageAction) {
     PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
   );
   const pageId = yield select(getCurrentPageId);
-  const currentApp: ApplicationPayload = yield select(getCurrentApplication);
+  const currentApp: ApplicationPayload = yield select(getCurrentApplication) ||
+    {};
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
