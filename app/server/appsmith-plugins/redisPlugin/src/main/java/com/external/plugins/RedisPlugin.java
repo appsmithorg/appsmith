@@ -10,11 +10,14 @@ import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.pf4j.util.StringUtils;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.util.SafeEncoder;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,16 +35,19 @@ public class RedisPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Jedis jedis,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            String body = actionConfiguration.getBody().trim();
+            String body = actionConfiguration.getBody();
             if (StringUtils.isNullOrEmpty(body)) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         String.format("Body is null or empty [%s]", body)));
             }
 
-            String[] bodySplitted = body.split("\\s+");
+            // First value will be the redis command and others are arguments for that command
+            String[] bodySplitted = body.trim().split("\\s+");
+
             Protocol.Command command;
             try {
-                command = Protocol.Command.valueOf(bodySplitted[0]);
+                // Commands are in upper case
+                command = Protocol.Command.valueOf(bodySplitted[0].toUpperCase());
             } catch (IllegalArgumentException exc) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         String.format("Not a valid Redis command:%s", bodySplitted[0])));
@@ -49,16 +55,26 @@ public class RedisPlugin extends BasePlugin {
 
             Object commandOutput;
             if (bodySplitted.length > 1) {
-                String args[] = new String[bodySplitted.length - 1];
-                System.arraycopy(bodySplitted, 1, args, 0, bodySplitted.length - 1);
-                commandOutput = jedis.sendCommand(command, args);
+                commandOutput = jedis.sendCommand(command, Arrays.copyOfRange(bodySplitted, 1, bodySplitted.length));
             } else {
                 commandOutput = jedis.sendCommand(command);
             }
 
             ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
-            actionExecutionResult.setBody(String.valueOf(commandOutput));
+            actionExecutionResult.setBody(processCommandOutput(commandOutput));
+
             return Mono.just(actionExecutionResult);
+        }
+
+        // This will be updated as we encounter different outputs.
+        private String processCommandOutput(Object commandOutput) {
+            if (commandOutput == null) {
+                return "null";
+            } else if (commandOutput instanceof byte[]) {
+                return SafeEncoder.encode((byte[]) commandOutput);
+            } else {
+                return String.valueOf(commandOutput);
+            }
         }
 
         @Override
@@ -68,7 +84,7 @@ public class RedisPlugin extends BasePlugin {
             }
 
             Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-            Integer port = (Integer) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
+            Integer port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
             Jedis jedis = new Jedis(endpoint.getHost(), port);
 
             AuthenticationDTO auth = datasourceConfiguration.getAuthentication();
@@ -76,7 +92,7 @@ public class RedisPlugin extends BasePlugin {
                 jedis.auth(auth.getUsername(), auth.getPassword());
             }
 
-            return Mono.just(new Jedis(endpoint.getHost(), port));
+            return Mono.just(jedis);
         }
 
         @Override
@@ -94,8 +110,24 @@ public class RedisPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
 
-            if (datasourceConfiguration.getEndpoints().size() == 1) {
-                invalids.add(String.format("Should have 1 endpoint found [%s]", datasourceConfiguration.getEndpoints().size()));
+            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                invalids.add("Missing endpoint(s)");
+            } else {
+                Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+                if (StringUtils.isNullOrEmpty(endpoint.getHost())) {
+                    invalids.add("Missing host for endpoint");
+                }
+            }
+
+            AuthenticationDTO auth = datasourceConfiguration.getAuthentication();
+            if (auth != null && AuthenticationDTO.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
+                if (StringUtils.isNullOrEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+                    invalids.add("Missing username for authentication.");
+                }
+
+                if (StringUtils.isNullOrEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                    invalids.add("Missing password for authentication.");
+                }
             }
 
             return invalids;
@@ -110,7 +142,8 @@ public class RedisPlugin extends BasePlugin {
             }
 
             if (!"PONG".equals(pingResponse)) {
-                return Mono.error(new RuntimeException(String.format("Expected PONG in response of PING but got %s", pingResponse)));
+                return Mono.error(new RuntimeException(
+                        String.format("Expected PONG in response of PING but got %s", pingResponse)));
             }
 
             return Mono.empty();
@@ -121,6 +154,7 @@ public class RedisPlugin extends BasePlugin {
             return datasourceCreate(datasourceConfiguration).
                     map(jedis -> {
                         verifyPing(jedis).block();
+                        datasourceDestroy(jedis);
                         return new DatasourceTestResult();
                     }).
                     onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
