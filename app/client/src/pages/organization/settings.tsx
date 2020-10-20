@@ -37,7 +37,7 @@ const SettingsWrapper = styled.div`
   margin: 0 auto;
 `;
 export default function Settings() {
-  const { orgId } = useParams();
+  const { orgId } = useParams<{ orgId: string }>();
   const currentOrg = useSelector(getCurrentOrg);
   const { path } = useRouteMatch();
   const location = useLocation();

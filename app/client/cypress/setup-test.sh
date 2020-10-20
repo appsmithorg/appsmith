@@ -11,6 +11,7 @@ serve -s build -p 3000 &
 # Substitute all the env variables in nginx
 vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
 cat ./docker/templates/nginx-linux.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf
+cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
 touch ./docker/dev.appsmith.com.pem ./docker/dev.appsmith.com-key.pem
@@ -21,6 +22,7 @@ echo "Going to run the nginx server"
 sudo docker pull nginx:latest
 
 sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
+	-v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf \
     -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf \
     -v `pwd`/docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
     -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \

@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
-// import { appCardColors } from "constants/AppConstants";
 
 type ColorSelectorProps = CommonComponentProps & {
   onSelect?: (hex: string) => void;
@@ -61,6 +60,13 @@ const ColorSelector = (props: ColorSelectorProps) => {
   const [selected, setSelected] = useState<string>(
     props.defaultValue || props.colorPalette[0],
   );
+
+  useEffect(() => {
+    if (props.defaultValue) {
+      setSelected(props.defaultValue);
+    }
+  }, [props.defaultValue]);
+
   return (
     <Palette fill={props.fill} data-cy={props.cypressSelector}>
       {props.colorPalette.map((hex: string, index: number) => {

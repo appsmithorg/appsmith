@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef, Ref } from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
@@ -18,10 +18,12 @@ import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
 import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
 import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
 import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
+import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
+import Spinner from "./Spinner";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -88,6 +90,7 @@ export const IconCollection = [
   "context-menu",
   "duplicate",
   "logout",
+  "manage",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -97,6 +100,7 @@ const IconWrapper = styled.span<IconProps>`
     outline: none;
   }
   display: flex;
+  align-items: center;
   svg {
     width: ${props => sizeHandler(props.size)}px;
     height: ${props => sizeHandler(props.size)}px;
@@ -104,7 +108,7 @@ const IconWrapper = styled.span<IconProps>`
       fill: ${props => props.theme.colors.icon.normal};
     }
   }
-  visibility: ${props => (props.invisible ? "hidden" : "visible")};
+  ${props => (props.invisible ? `visibility: hidden;` : null)};
 
   &:hover {
     cursor: pointer;
@@ -129,80 +133,90 @@ export type IconProps = {
   onClick?: () => void;
 };
 
-const Icon = (props: IconProps & CommonComponentProps) => {
-  let returnIcon;
-  switch (props.name) {
-    case "delete":
-      returnIcon = <DeleteIcon />;
-      break;
-    case "user":
-      returnIcon = <UserIcon />;
-      break;
-    case "general":
-      returnIcon = <GeneralIcon />;
-      break;
-    case "billing":
-      returnIcon = <BillingIcon />;
-      break;
-    case "edit":
-      returnIcon = <EditIcon />;
-      break;
-    case "error":
-      returnIcon = <ErrorIcon />;
-      break;
-    case "success":
-      returnIcon = <SuccessIcon />;
-      break;
-    case "search":
-      returnIcon = <SearchIcon />;
-      break;
-    case "close":
-      returnIcon = <CloseIcon />;
-      break;
-    case "downArrow":
-      returnIcon = <DownArrow />;
-      break;
-    case "share":
-      returnIcon = <ShareIcon />;
-      break;
-    case "rocket":
-      returnIcon = <RocketIcon />;
-      break;
-    case "workspace":
-      returnIcon = <WorkspaceIcon />;
-      break;
-    case "plus":
-      returnIcon = <CreateNewIcon />;
-      break;
-    case "invite-user":
-      returnIcon = <InviteUserIcon />;
-      break;
-    case "view-all":
-      returnIcon = <ViewAllIcon />;
-      break;
-    case "context-menu":
-      returnIcon = <ContextMenuIcon />;
-      break;
-    case "duplicate":
-      returnIcon = <DuplicateIcon />;
-      break;
-    case "logout":
-      returnIcon = <LogoutIcon />;
-      break;
-    default:
-      returnIcon = null;
-      break;
-  }
-  return returnIcon ? (
-    <IconWrapper
-      className={Classes.ICON}
-      data-cy={props.cypressSelector}
-      {...props}
-      onClick={props.onClick || noop}
-    >
-      {returnIcon}
-    </IconWrapper>
-  ) : null;
-};
+const Icon = forwardRef(
+  (props: IconProps & CommonComponentProps, ref: Ref<HTMLSpanElement>) => {
+    let returnIcon;
+    switch (props.name) {
+      case "delete":
+        returnIcon = <DeleteIcon />;
+        break;
+      case "user":
+        returnIcon = <UserIcon />;
+        break;
+      case "general":
+        returnIcon = <GeneralIcon />;
+        break;
+      case "billing":
+        returnIcon = <BillingIcon />;
+        break;
+      case "edit":
+        returnIcon = <EditIcon />;
+        break;
+      case "error":
+        returnIcon = <ErrorIcon />;
+        break;
+      case "success":
+        returnIcon = <SuccessIcon />;
+        break;
+      case "search":
+        returnIcon = <SearchIcon />;
+        break;
+      case "close":
+        returnIcon = <CloseIcon />;
+        break;
+      case "downArrow":
+        returnIcon = <DownArrow />;
+        break;
+      case "share":
+        returnIcon = <ShareIcon />;
+        break;
+      case "rocket":
+        returnIcon = <RocketIcon />;
+        break;
+      case "workspace":
+        returnIcon = <WorkspaceIcon />;
+        break;
+      case "plus":
+        returnIcon = <CreateNewIcon />;
+        break;
+      case "invite-user":
+        returnIcon = <InviteUserIcon />;
+        break;
+      case "view-all":
+        returnIcon = <ViewAllIcon />;
+        break;
+      case "context-menu":
+        returnIcon = <ContextMenuIcon />;
+        break;
+      case "duplicate":
+        returnIcon = <DuplicateIcon />;
+        break;
+      case "logout":
+        returnIcon = <LogoutIcon />;
+        break;
+      case "manage":
+        returnIcon = <ManageIcon />;
+        break;
+      default:
+        returnIcon = null;
+        break;
+    }
+    return returnIcon && !props.isLoading ? (
+      <IconWrapper
+        className={Classes.ICON}
+        data-cy={props.cypressSelector}
+        ref={ref}
+        {...props}
+        onClick={props.onClick || noop}
+      >
+        {returnIcon}
+      </IconWrapper>
+    ) : props.isLoading ? (
+      <Spinner size={props.size} />
+    ) : null;
+  },
+);
+
+Icon.displayName = "Icon";
 
 export default Icon;

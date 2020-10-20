@@ -80,6 +80,7 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
       currentPageId,
       params.applicationId,
       props.datasourceId,
+      dataSource,
     ],
   );
 

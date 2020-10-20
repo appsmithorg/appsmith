@@ -49,9 +49,10 @@ export const RichtextEditorComponent = (
       editorContent.current = content;
       props.onValueChange(content);
     }, 200);
+    const selector = `textarea#rte-${props.widgetId}`;
     (window as any).tinyMCE.init({
       height: "100%",
-      selector: `textarea#rte-${props.widgetId}`,
+      selector: selector,
       menubar: false,
       branding: false,
       resize: false,
@@ -86,7 +87,8 @@ export const RichtextEditorComponent = (
     });
 
     return () => {
-      editorInstance !== null && editorInstance.destroy();
+      (window as any).tinyMCE.EditorManager.remove(selector);
+      editorInstance !== null && editorInstance.remove();
     };
   }, []);
   return (

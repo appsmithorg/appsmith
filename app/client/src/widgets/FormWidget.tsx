@@ -70,7 +70,7 @@ class FormWidget extends ContainerWidget {
 
 export interface FormWidgetProps extends ContainerComponentProps {
   name: string;
-  data: object;
+  data: Record<string, unknown>;
 }
 
 export default FormWidget;

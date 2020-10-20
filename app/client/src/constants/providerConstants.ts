@@ -46,8 +46,8 @@ export type ApiTemplates = {
     paginationType: string;
     path: string;
     httpMethod: string;
-    headers: [];
-    routeParameters: [];
+    headers: any[];
+    routeParameters: any[];
   };
   datasourceConfiguration: {
     url: string;
@@ -74,8 +74,8 @@ export type ProviderTemplateArray = ApiResponse & {
       paginationType: string;
       path: string;
       httpMethod: string;
-      headers: [];
-      routeParameters: [];
+      headers: any[];
+      routeParameters: any[];
     };
     datasourceConfiguration: {
       url: string;

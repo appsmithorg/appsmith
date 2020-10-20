@@ -20,6 +20,6 @@
         <module>rapidApiPlugin</module>
         <module>mysqlPlugin</module>
         <module>redisPlugin</module>
+        <module>mssqlPlugin</module>
     </modules>
-
 </project>
