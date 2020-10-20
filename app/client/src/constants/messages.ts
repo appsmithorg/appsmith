@@ -142,6 +142,7 @@ export const ENABLE_TIME = "Enable Time";
 
 export const EDIT_APP = "Edit App";
 export const FORK_APP = "Fork App";
+export const SIGN_IN = "Sign In";
 
 export const LIGHTNING_MENU_DATA_API = "Use data from an API";
 export const LIGHTNING_MENU_DATA_QUERY = "Use data from a Query";
