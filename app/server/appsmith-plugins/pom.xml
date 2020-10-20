@@ -20,7 +20,6 @@
         <module>mongoPlugin</module>
         <module>rapidApiPlugin</module>
         <module>mysqlPlugin</module>
-        <module>mssqlPlugin</module>
     </modules>
 
 </project>

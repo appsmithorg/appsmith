@@ -246,7 +246,7 @@ jobs:
 
     # Build release Docker image and push to Docker Hub
     - name: Push release image to Docker Hub
-      if: success() && github.ref == 'refs/heads/release'
+      if: success() && github.ref == 'refs/heads/release' && github.event_name == 'push'
       run: |
         docker build -t appsmith/appsmith-editor:${{steps.branch_name.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -254,7 +254,7 @@ jobs:
     
     # Build master Docker image and push to Docker Hub
     - name: Push production image to Docker Hub with commit tag
-      if: success() && github.ref == 'refs/heads/master'
+      if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: |
         docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
         docker build -t appsmith/appsmith-editor:nightly .

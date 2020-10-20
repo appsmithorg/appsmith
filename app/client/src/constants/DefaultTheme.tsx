@@ -885,12 +885,12 @@ export const dark: ColorType = {
     },
   },
   applications: {
-    bg: darkShades[1],
+    bg: darkShades[4],
     textColor: darkShades[7],
     orgColor: darkShades[7],
     iconColor: darkShades[7],
     hover: {
-      bg: darkShades[4],
+      bg: darkShades[5],
       textColor: darkShades[8],
       orgColor: darkShades[9],
     },
@@ -1151,12 +1151,12 @@ export const light: ColorType = {
     },
   },
   applications: {
-    bg: lightShades[2],
+    bg: lightShades[3],
     textColor: lightShades[7],
     orgColor: lightShades[7],
     iconColor: lightShades[7],
     hover: {
-      bg: lightShades[3],
+      bg: lightShades[5],
       textColor: lightShades[8],
       orgColor: lightShades[9],
     },
