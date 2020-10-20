@@ -178,6 +178,7 @@ const EVALUATE_REDUX_ACTIONS = [
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+  ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
   // Widget Meta
   ReduxActionTypes.SET_META_PROP,
   ReduxActionTypes.RESET_WIDGET_META,
