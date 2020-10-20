@@ -58,9 +58,7 @@ public class RedisPluginTest {
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
 
-        assert pluginExecutor.validateDatasource(invalidDatasourceConfiguration).equals(
-                Set.of("Missing endpoint(s)")
-        );
+        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of("Missing endpoint(s)"));
     }
 
     @Test
@@ -70,9 +68,7 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assert pluginExecutor.validateDatasource(invalidDatasourceConfiguration).equals(
-                Set.of("Missing host for endpoint")
-        );
+        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of("Missing host for endpoint"));
     }
 
     @Test
@@ -88,7 +84,7 @@ public class RedisPluginTest {
         invalidDatasourceConfiguration.setAuthentication(invalidAuth);
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assert pluginExecutor.validateDatasource(invalidDatasourceConfiguration).equals(
+        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration),
                 Set.of("Missing username for authentication.", "Missing password for authentication.")
         );
     }
@@ -108,7 +104,7 @@ public class RedisPluginTest {
         datasourceConfiguration.setAuthentication(auth);
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assert pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty();
+        Assert.assertTrue(pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty());
     }
 
     @Test
