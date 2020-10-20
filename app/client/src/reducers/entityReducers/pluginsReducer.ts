@@ -67,7 +67,49 @@ const pluginsReducer = createReducer(initialState, {
       },
       editorConfigs: {
         ...state.editorConfigs,
-        [action.payload.id]: action.payload.editor,
+        [action.payload.id]: [
+          {
+            sectionName: "",
+            id: 1,
+            children: [
+              {
+                label: "Method",
+                configProperty: "actionConfiguration.httpMethod",
+                controlType: "DROP_DOWN",
+                isRequired: true,
+                initialValue: "GET",
+                options: [
+                  {
+                    label: "GET",
+                    value: "GET",
+                  },
+                  {
+                    label: "POST",
+                    value: "POST",
+                  },
+                  {
+                    label: "PUT",
+                    value: "PUT",
+                  },
+                  {
+                    label: "DELETE",
+                    value: "DELETE",
+                  },
+                ],
+              },
+              {
+                label: "Path",
+                configProperty: "actionConfiguration.path",
+                controlType: "INPUT_TEXT",
+              },
+              {
+                label: "",
+                configProperty: "actionConfiguration.body",
+                controlType: "QUERY_DYNAMIC_TEXT",
+              },
+            ],
+          },
+        ],
       },
     };
   },
