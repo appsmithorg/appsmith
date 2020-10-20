@@ -312,9 +312,11 @@ export function* createApplicationSaga(
   action: ReduxAction<{
     applicationName: string;
     orgId: string;
+    resolve: any;
+    reject: any;
   }>,
 ) {
-  const { applicationName, orgId } = action.payload;
+  const { applicationName, orgId, resolve, reject } = action.payload;
   try {
     const userOrgs = yield select(getUserApplicationsOrgsList);
     const existingOrgs = userOrgs.filter(
@@ -327,6 +329,9 @@ export function* createApplicationSaga(
         )
       : null;
     if (existingApplication) {
+      yield call(reject, {
+        _error: "An application with this name already exists",
+      });
       yield put({
         type: ReduxActionErrorTypes.CREATE_APPLICATION_ERROR,
         payload: {
@@ -360,6 +365,11 @@ export function* createApplicationSaga(
             application,
           },
         });
+        const pageURL = BUILDER_PAGE_URL(
+          application.id,
+          application.defaultPageId,
+        );
+        history.push(pageURL);
       }
     }
   } catch (error) {
