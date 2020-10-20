@@ -195,8 +195,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       indexName: algoliaIndex.value || "test_appsmith",
     },
     google: {
-      enabled: google.enabled,
-      apiKey: google.value,
+      enabled: true, // google.enabled,
+      apiKey: "AIzaSyCcTFsUpbNqqfwmdaIeCuhKJ7g-pXjQo88", // google.value,
     },
     enableRapidAPI:
       ENV_CONFIG.enableRapidAPI || APPSMITH_FEATURE_CONFIGS.enableRapidAPI,
