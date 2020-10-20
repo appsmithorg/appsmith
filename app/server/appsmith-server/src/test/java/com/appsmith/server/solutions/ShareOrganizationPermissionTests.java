@@ -72,7 +72,7 @@ public class ShareOrganizationPermissionTests {
         ArrayList<String> emails = new ArrayList<>();
 
         // Invite Admin
-        emails.add("admin@solutionTest.com");
+        emails.add("admin@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
         inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
         userService.inviteUser(inviteUsersDTO, "http://localhost:8080").blockLast();
@@ -80,21 +80,21 @@ public class ShareOrganizationPermissionTests {
         emails.clear();
 
         // Invite Developer
-        emails.add("developer@solutionTest.com");
+        emails.add("developer@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
         inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_DEVELOPER.getName());
         userService.inviteUser(inviteUsersDTO, "http://localhost:8080").blockLast();
     }
 
     @Test
-    @WithUserDetails(value = "admin@solutionTest.com")
+    @WithUserDetails(value = "admin@solutiontest.com")
     public void testAdminPermissionsForInviteAndMakePublic() {
         Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
-                .users(Set.of("admin@solutionTest.com", "developer@solutionTest.com"))
+                .users(Set.of("admin@solutiontest.com", "developer@solutiontest.com"))
                 .build();
 
         Policy makePublicApp = Policy.builder().permission(MAKE_PUBLIC_APPLICATIONS.getValue())
-                .users(Set.of("admin@solutionTest.com"))
+                .users(Set.of("admin@solutiontest.com"))
                 .build();
 
         Mono<Application> applicationMono = applicationService.findById(savedApplication.getId());
@@ -113,7 +113,7 @@ public class ShareOrganizationPermissionTests {
     }
 
     @Test
-    @WithUserDetails(value = "admin@solutionTest.com")
+    @WithUserDetails(value = "admin@solutiontest.com")
     public void testAdminInviteRoles() {
 
         Set<String> roles = Set.of("Administrator", "Developer", "App Viewer");
@@ -128,10 +128,10 @@ public class ShareOrganizationPermissionTests {
     }
 
     @Test
-    @WithUserDetails(value = "developer@solutionTest.com")
+    @WithUserDetails(value = "developer@solutiontest.com")
     public void testDevPermissionsForInvite() {
         Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
-                .users(Set.of("admin@solutionTest.com", "developer@solutionTest.com"))
+                .users(Set.of("admin@solutiontest.com", "developer@solutiontest.com"))
                 .build();
 
         Mono<Organization> organizationMono = organizationService.findById(organizationId, READ_ORGANIZATIONS);
@@ -145,7 +145,7 @@ public class ShareOrganizationPermissionTests {
     }
 
     @Test
-    @WithUserDetails(value = "developer@solutionTest.com")
+    @WithUserDetails(value = "developer@solutiontest.com")
     public void testDeveloperInviteRoles() {
 
         Set<String> roles = Set.of("Developer", "App Viewer");

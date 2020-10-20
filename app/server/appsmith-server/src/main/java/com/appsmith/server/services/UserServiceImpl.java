@@ -39,6 +39,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,7 +73,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s&email=%s";
-    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?token=%s&email=%s";
+    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
     // We default the origin header to the production deployment of the client's URL
@@ -159,7 +160,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     /**
      * This function creates a one-time token for resetting the user's password. This token is stored in the `passwordResetToken`
-     * collection with an expiry time of 1 hour. The user must provide this one-time token when updating with the new password.
+     * collection with an expiry time of 48 hours. The user must provide this one-time token when updating with the new password.
      *
      * @param resetUserPasswordDTO
      * @return
@@ -573,14 +574,19 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        List<String> usernames = inviteUsersDTO.getUsernames();
+        List<String> originalUsernames = inviteUsersDTO.getUsernames();
 
-        if (usernames == null || usernames.isEmpty()) {
+        if (originalUsernames == null || originalUsernames.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
         }
 
         if (inviteUsersDTO.getRoleName() == null || inviteUsersDTO.getRoleName().isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
+        }
+
+        List<String> usernames = new ArrayList<>();
+        for (String username : originalUsernames) {
+             usernames.add(username.toLowerCase());
         }
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
@@ -679,7 +685,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Map<String, String> params) {
         User newUser = new User();
-        newUser.setEmail(email);
+        newUser.setEmail(email.toLowerCase());
+
         // This is a new user. Till the user signs up, this user would be disabled.
         newUser.setIsEnabled(false);
 
@@ -690,15 +697,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // Call user service's userCreate function so that the personal organization, etc are also created along with assigning basic permissions.
         return userCreate(newUser)
                 .flatMap(createdUser -> {
-                    log.debug("Going to send email for invite user to {} with token {}", createdUser.getEmail(), createdUser.getInviteToken());
+                    log.debug("Going to send email for invite user to {}", createdUser.getEmail());
                     String inviteUrl = String.format(
                             INVITE_USER_CLIENT_URL_FORMAT,
                             originHeader,
-                            URLEncoder.encode(createdUser.getInviteToken(), StandardCharsets.UTF_8),
                             URLEncoder.encode(createdUser.getEmail(), StandardCharsets.UTF_8)
                     );
 
-                    params.put("token", createdUser.getInviteToken());
                     params.put("inviteUrl", inviteUrl);
                     Mono<String> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
 

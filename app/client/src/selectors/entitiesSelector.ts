@@ -88,15 +88,12 @@ export const getPluginNameFromId = (state: AppState, pluginId: string) => {
   return plugin.name;
 };
 
-export const getPluginForm = (state: AppState, pluginId: string): [] => {
+export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
 
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
-
-export const getDatasourceRefs = (state: AppState): any =>
-  state.ui.datasourcePane.datasourceRefs;
 
 export const getDatasource = (
   state: AppState,
@@ -139,12 +136,6 @@ export const getQueryName = (state: AppState, actionId: string): string => {
   });
 
   return action?.config.name ?? "";
-};
-
-export const getQueryActions = (state: AppState): ActionDataState => {
-  return state.entities.actions.filter((action: ActionData) => {
-    return action.config.pluginType === QUERY_CONSTANT;
-  });
 };
 
 const getCurrentPageId = (state: AppState) =>
@@ -203,6 +194,15 @@ export const getActionsForCurrentPage = createSelector(
   (pageId, actions) => {
     if (!pageId) return [];
     return actions.filter(a => a.config.pageId === pageId);
+  },
+);
+
+export const getQueryActionsForCurrentPage = createSelector(
+  getActionsForCurrentPage,
+  actions => {
+    return actions.filter((action: ActionData) => {
+      return action.config.pluginType === QUERY_CONSTANT;
+    });
   },
 );
 

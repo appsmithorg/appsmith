@@ -16,7 +16,7 @@ export interface Plugin {
 }
 
 export interface DatasourceForm {
-  form: [];
+  form: Array<any>;
 }
 
 class PluginsApi extends Api {

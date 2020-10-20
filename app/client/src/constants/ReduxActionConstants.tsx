@@ -131,6 +131,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_PLUGINS_SUCCESS: "FETCH_PLUGINS_SUCCESS",
   FETCH_PLUGIN_FORM_INIT: "FETCH_PLUGIN_FORM_INIT",
   FETCH_PLUGIN_FORM_SUCCESS: "FETCH_PLUGIN_FORM_SUCCESS",
+  FETCH_DB_PLUGIN_FORMS_INIT: "FETCH_DB_PLUGIN_FORMS_INIT",
+  FETCH_DB_PLUGIN_FORMS_SUCCESS: "FFETCH_DB_PLUGIN_FORMS_SUCCESS",
   INVITE_USERS_TO_ORG_INIT: "INVITE_USERS_TO_ORG_INIT",
   INVITE_USERS_TO_ORG_SUCCESS: "INVITE_USERS_TO_ORG_SUCCESS",
   FORGOT_PASSWORD_INIT: "FORGOT_PASSWORD_INIT",
@@ -168,6 +170,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FOCUS_WIDGET: "FOCUS_WIDGET",
   SET_WIDGET_DRAGGING: "SET_WIDGET_DRAGGING",
   SET_WIDGET_RESIZING: "SET_WIDGET_RESIZING",
+  ADD_TABLE_WIDGET_FROM_QUERY: "ADD_TABLE_WIDGET_FROM_QUERY",
   SEARCH_APPLICATIONS: "SEARCH_APPLICATIONS",
   UPDATE_PAGE_INIT: "UPDATE_PAGE_INIT",
   UPDATE_PAGE_SUCCESS: "UPDATE_PAGE_SUCCESS",
@@ -336,6 +339,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   SWITCH_ORGANIZATION_ERROR: "SWITCH_ORGANIZATION_ERROR",
   TEST_DATASOURCE_ERROR: "TEST_DATASOURCE_ERROR",
   FETCH_PLUGIN_FORM_ERROR: "FETCH_PLUGIN_FORM_ERROR",
+  FETCH_DB_PLUGIN_FORMS_ERROR: "FETCH_DB_PLUGIN_FORMS_ERROR",
   FORGOT_PASSWORD_ERROR: "FORGOT_PASSWORD_ERROR",
   RESET_PASSWORD_VERIFY_TOKEN_ERROR: "RESET_PASSWORD_VERIFY_TOKEN_ERROR",
   FETCH_ORG_ROLES_ERROR: "FETCH_ORG_ROLES_ERROR",
@@ -463,12 +467,8 @@ export type ApplicationPayload = {
 
 export type OrganizationDetails = {
   organization: Org;
-  applications: [];
+  applications: any[];
 };
-
-// export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
-
-// export interface LoadQueryResponsePayload extends ExecuteActionResponse {}
 
 export interface LoadWidgetEditorPayload {
   widgets: WidgetProps[];
@@ -477,10 +477,6 @@ export interface LoadWidgetEditorPayload {
 export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
-
-export type SavePagePayload = {};
-export type SavePageErrorPayload = {};
-export type SavePageSuccessPayload = {};
 
 export type InitializeEditorPayload = {
   applicationId: string;

@@ -142,7 +142,7 @@ function* storeValueLocally(
   }
 }
 
-function* downloadSaga(
+async function downloadSaga(
   action: { data: any; name: string; type: string },
   event: ExecuteActionPayloadEvent,
 ) {
@@ -621,7 +621,8 @@ function* executePageLoadAction(pageAction: PageAction) {
     PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
   );
   const pageId = yield select(getCurrentPageId);
-  const currentApp: ApplicationPayload = yield select(getCurrentApplication);
+  let currentApp: ApplicationPayload = yield select(getCurrentApplication);
+  currentApp = currentApp || {};
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
@@ -677,21 +678,29 @@ function* executePageLoadAction(pageAction: PageAction) {
 }
 
 function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
-  const pageActions = action.payload;
-  const actionCount = _.flatten(pageActions).length;
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-    { numActions: actionCount },
-  );
-  for (const actionSet of pageActions) {
-    // Load all sets in parallel
-    yield* yield all(
-      actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
+  try {
+    const pageActions = action.payload;
+    const actionCount = _.flatten(pageActions).length;
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+      { numActions: actionCount },
     );
+    for (const actionSet of pageActions) {
+      // Load all sets in parallel
+      yield* yield all(
+        actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
+      );
+    }
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+    );
+  } catch (e) {
+    log.error(e);
+    AppToaster.show({
+      message: "Failed to load onPageLoad actions",
+      type: ToastType.ERROR,
+    });
   }
-  PerformanceTracker.stopAsyncTracking(
-    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-  );
 }
 
 export function* watchActionExecutionSagas() {
