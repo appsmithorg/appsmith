@@ -27,7 +27,7 @@ export const getCurrentApplication = (
 ): ApplicationPayload | undefined => {
   return state.ui.applications.currentApplication;
 };
-const getApplicationSearchKeyword = (state: AppState) =>
+export const getApplicationSearchKeyword = (state: AppState) =>
   state.ui.applications.searchKeyword;
 export const getIsDeletingApplication = (state: AppState) =>
   state.ui.applications.deletingApplication;

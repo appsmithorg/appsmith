@@ -12,6 +12,7 @@ import {
   getUserApplicationsOrgsList,
   getUserApplicationsOrgs,
   getIsDuplicatingApplication,
+  getApplicationSearchKeyword,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -54,6 +55,9 @@ import PerformanceTracker, {
 import { loadingUserOrgs } from "./ApplicationLoaders";
 import CreateApplicationForm from "./CreateApplicationForm";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
+import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
+import NoSearchImage from "../../assets/images/NoSearchResult.svg";
+import organizationList from "../../mockResponses/OrganisationListResponse";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -353,6 +357,9 @@ const AddApplicationCard = (
     </CreateNewLabel>
   </ApplicationAddCardWrapper>
 );
+const NoSearchResultImg = styled.img`
+  margin: 1em;
+`;
 
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
@@ -461,104 +468,120 @@ const ApplicationsSection = (props: any) => {
     updatedOrgs = loadingUserOrgs as any;
   }
 
-  return (
-    <ApplicationContainer className="t--applications-container">
-      {updatedOrgs &&
-        updatedOrgs.map((organizationObject: any, index: number) => {
-          const { organization, applications } = organizationObject;
-          const hasManageOrgPermissions = isPermitted(
-            organization.userPermissions,
-            PERMISSION_TYPE.MANAGE_ORGANIZATION,
-          );
-          return (
-            <OrgSection className="t--org-section" key={index}>
-              <OrgDropDown>
-                {(currentUser || isFetchingApplications) && (
-                  <OrgMenu
-                    setSelectedOrgId={setSelectedOrgId}
-                    orgId={organization.id}
-                    orgName={organization.name}
-                    disabled={!hasManageOrgPermissions}
-                  ></OrgMenu>
-                )}
+  let organizationsListComponent;
+  if (
+    !isFetchingApplications &&
+    props.searchKeyword &&
+    props.searchKeyword.trim().length > 0 &&
+    updatedOrgs.length === 0
+  ) {
+    organizationsListComponent = (
+      <CenteredWrapper style={{ flexDirection: "column", marginTop: "-150px" }}>
+        <CreateNewLabel type={TextType.H4}>
+          Whale! Whale! this name doesn&apos;t ring a bell!
+        </CreateNewLabel>
+        <NoSearchResultImg src={NoSearchImage} alt="No result found" />
+      </CenteredWrapper>
+    );
+  } else {
+    organizationsListComponent = updatedOrgs.map(
+      (organizationObject: any, index: number) => {
+        const { organization, applications } = organizationObject;
+        const hasManageOrgPermissions = isPermitted(
+          organization.userPermissions,
+          PERMISSION_TYPE.MANAGE_ORGANIZATION,
+        );
+        return (
+          <OrgSection className="t--org-section" key={index}>
+            <OrgDropDown>
+              {(currentUser || isFetchingApplications) && (
+                <OrgMenu
+                  setSelectedOrgId={setSelectedOrgId}
+                  orgId={organization.id}
+                  orgName={organization.name}
+                  disabled={!hasManageOrgPermissions}
+                ></OrgMenu>
+              )}
 
-                {hasManageOrgPermissions && (
-                  <StyledDialog
-                    canOutsideClickClose={false}
-                    canEscapeKeyClose={false}
+              {hasManageOrgPermissions && (
+                <StyledDialog
+                  canOutsideClickClose={false}
+                  canEscapeKeyClose={false}
+                  title={`Invite Users to ${organization.name}`}
+                  onClose={() => setSelectedOrgId("")}
+                  isOpen={selectedOrgId === organization.id}
+                  setMaxWidth
+                >
+                  <div className={BlueprintClasses.DIALOG_BODY}>
+                    <Form orgId={organization.id} />
+                  </div>
+                </StyledDialog>
+              )}
+              {isPermitted(
+                organization.userPermissions,
+                PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
+              ) &&
+                !isFetchingApplications && (
+                  <FormDialogComponent
+                    trigger={
+                      <Button text={"Share"} icon={"share"} size={Size.small} />
+                    }
+                    canOutsideClickClose={true}
+                    Form={OrgInviteUsersForm}
+                    orgId={organization.id}
                     title={`Invite Users to ${organization.name}`}
-                    onClose={() => setSelectedOrgId("")}
-                    isOpen={selectedOrgId === organization.id}
-                    setMaxWidth
-                  >
-                    <div className={BlueprintClasses.DIALOG_BODY}>
-                      <Form orgId={organization.id} />
-                    </div>
-                  </StyledDialog>
+                  />
                 )}
-                {isPermitted(
-                  organization.userPermissions,
-                  PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
-                ) &&
-                  !isFetchingApplications && (
+            </OrgDropDown>
+            <ApplicationCardsWrapper key={organization.id}>
+              {isPermitted(
+                organization.userPermissions,
+                PERMISSION_TYPE.CREATE_APPLICATION,
+              ) &&
+                !isFetchingApplications && (
+                  <PaddingWrapper>
                     <FormDialogComponent
-                      trigger={
-                        <Button
-                          text={"Share"}
-                          icon={"share"}
-                          size={Size.small}
-                        />
-                      }
-                      canOutsideClickClose={true}
-                      Form={OrgInviteUsersForm}
+                      permissions={organization.userPermissions}
+                      permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
+                      trigger={AddApplicationCard}
+                      Form={CreateApplicationForm}
                       orgId={organization.id}
-                      title={`Invite Users to ${organization.name}`}
+                      title={CREATE_APPLICATION_FORM_NAME}
                     />
-                  )}
-              </OrgDropDown>
-              <ApplicationCardsWrapper key={organization.id}>
-                {isPermitted(
-                  organization.userPermissions,
-                  PERMISSION_TYPE.CREATE_APPLICATION,
-                ) &&
-                  !isFetchingApplications && (
-                    <PaddingWrapper>
-                      <FormDialogComponent
-                        permissions={organization.userPermissions}
-                        permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
-                        trigger={AddApplicationCard}
-                        Form={CreateApplicationForm}
+                  </PaddingWrapper>
+                )}
+              {applications.map((application: any) => {
+                return (
+                  application.pages?.length > 0 && (
+                    <PaddingWrapper key={application.id}>
+                      <ApplicationCard
+                        key={application.id}
+                        application={application}
                         orgId={organization.id}
-                        title={CREATE_APPLICATION_FORM_NAME}
+                        activeAppCard={
+                          props.newApplicationList[
+                            props.newApplicationList.length - 1
+                          ] === application.id
+                        }
+                        delete={deleteApplication}
+                        update={updateApplicationDispatch}
+                        duplicate={duplicateApplicationDispatch}
                       />
                     </PaddingWrapper>
-                  )}
-                {applications.map((application: any) => {
-                  return (
-                    application.pages?.length > 0 && (
-                      <PaddingWrapper key={application.id}>
-                        <ApplicationCard
-                          key={application.id}
-                          application={application}
-                          orgId={organization.id}
-                          activeAppCard={
-                            props.newApplicationList[
-                              props.newApplicationList.length - 1
-                            ] === application.id
-                          }
-                          delete={deleteApplication}
-                          update={updateApplicationDispatch}
-                          duplicate={duplicateApplicationDispatch}
-                        />
-                      </PaddingWrapper>
-                    )
-                  );
-                })}
-                <PageSectionDivider />
-              </ApplicationCardsWrapper>
-            </OrgSection>
-          );
-        })}
+                  )
+                );
+              })}
+              <PageSectionDivider />
+            </ApplicationCardsWrapper>
+          </OrgSection>
+        );
+      },
+    );
+  }
+
+  return (
+    <ApplicationContainer className="t--applications-container">
+      {organizationsListComponent}
       <HelpModal page={"Applications"} />
     </ApplicationContainer>
   );
@@ -576,6 +599,7 @@ type ApplicationProps = {
   getAllApplication: () => void;
   userOrgs: any;
   currentUser?: User;
+  searchKeyword: string | undefined;
 };
 class Applications extends Component<
   ApplicationProps,
@@ -624,6 +648,7 @@ class Applications extends Component<
         />
         <ApplicationsSection
           newApplicationList={this.state.newApplicationList}
+          searchKeyword={this.props.searchKeyword}
         ></ApplicationsSection>
       </PageWrapper>
     );
@@ -639,6 +664,7 @@ const mapStateToProps = (state: AppState) => ({
   duplicatingApplication: getIsDuplicatingApplication(state),
   userOrgs: getUserApplicationsOrgsList(state),
   currentUser: getCurrentUser(state),
+  searchKeyword: getApplicationSearchKeyword(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

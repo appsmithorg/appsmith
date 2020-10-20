@@ -5,7 +5,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -21,6 +20,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+
+import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
 
 @Component
 @Slf4j
@@ -40,10 +41,6 @@ public class EmailSender {
 
         MAIL_FROM = makeFromAddress();
         REPLY_TO = makeReplyTo();
-    }
-
-    private static boolean validateEmail(String emailStr) {
-        return EmailValidator.getInstance().isValid(emailStr);
     }
 
     public Mono<String> sendMail(String to, String subject, String text, Map<String, String> params) {
