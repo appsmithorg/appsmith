@@ -40,6 +40,9 @@ export const RichtextEditorComponent = (
       props.defaultValue !== editorContent.current
     ) {
       setTimeout(() => {
+        const content = props.defaultValue
+          ? props.defaultValue.replace(/\n/g, "<br/>")
+          : props.defaultValue;
         editorInstance.setContent(props.defaultValue, { format: "html" });
       }, 200);
     }
@@ -60,7 +63,10 @@ export const RichtextEditorComponent = (
         editor.mode.set(props.isDisabled === true ? "readonly" : "design");
         // Without timeout default value is not set on browser refresh.
         setTimeout(() => {
-          editor.setContent(props.defaultValue, { format: "html" });
+          const content = props.defaultValue
+            ? props.defaultValue.replace(/\n/g, "<br/>")
+            : props.defaultValue;
+          editor.setContent(content, { format: "html" });
         }, 300);
         editor
           .on("Change", () => {

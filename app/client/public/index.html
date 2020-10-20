@@ -55,13 +55,14 @@
     // 1. First reload will not fetch the new index.html, if the server isn't yet ready to serve it.
     //    this can happen when the server is still deploying.
 
-    // TODO(abhinav): A comprehensive solution is involve the user when repeated 
+    // TODO(abhinav): A comprehensive solution is involve the user when repeated
     // reloads are necessary.
     // 1. Delay reloads in increasing durations
     // 2. Allow the user to pre-emptively reload or cancel reloads altogether.
     window.onerror = function(message, url) {
       const regex = /\/static\/js\/(\w.+).js$/;
-      if(regex.test(url) && url.indexOf(window.location.host) > -1) {
+      const chunkLoadErrorMessage = "Unexpected token '<'"
+      if(regex.test(url) && url.indexOf(window.location.host) > -1 && message.includes(chunkLoadErrorMessage)) {
         console.log("chunk load failed!", url);
         // First check if we've set the flag to not reload on chunk load fail
         const donotReload = window.localStorage.getItem("donotReloadOnChunkLoadFail");
