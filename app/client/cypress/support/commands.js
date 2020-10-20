@@ -214,34 +214,28 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .scrollIntoView()
     .should("be.visible")
     .click();
-  cy.wait("@createNewApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplicationName").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.get(homePage.inputAppName).type(appname);
+  cy.get(homePage.CreateApp)
+    .contains("Submit")
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
 });
 
 Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
-  cy.wait("@createNewApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplicationName").should(
+  cy.get(homePage.inputAppName).type(appname);
+  cy.get(homePage.CreateApp)
+    .contains("Submit")
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
+  cy.wait("@getPagesForApp").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+  cy.get("h2").contains("Drag and drop a widget here");
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
