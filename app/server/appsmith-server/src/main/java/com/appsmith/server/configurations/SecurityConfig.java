@@ -143,7 +143,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute")
                 )
                 .permitAll()
-                .pathMatchers("/public/**").permitAll()
+                .pathMatchers("/public/**", "/oauth2/**").permitAll()
                 .anyExchange()
                 .authenticated()
                 .and().formLogin()
