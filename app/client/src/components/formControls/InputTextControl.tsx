@@ -18,7 +18,7 @@ export function InputText(props: {
   const { name, placeholder, dataType, label, isRequired } = props;
 
   return (
-    <div style={{ width: "50vh" }}>
+    <div style={{ width: "50vh" }} data-cy={name}>
       <FormLabel>
         {label} {isRequired && "*"}
       </FormLabel>

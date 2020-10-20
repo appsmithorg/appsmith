@@ -24,9 +24,9 @@ import {
   AnchorButton,
   Hotkey,
   Hotkeys,
-  HotkeysTarget,
   Spinner,
 } from "@blueprintjs/core";
+import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
 import {
@@ -49,7 +49,7 @@ import { isMac } from "utils/helpers";
 type EditorProps = {
   currentApplicationId?: string;
   currentPageId?: string;
-  initEditor: Function;
+  initEditor: (applicationId: string, pageId: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
@@ -69,7 +69,7 @@ class Editor extends Component<Props> {
       <Hotkeys>
         <Hotkey
           global={true}
-          combo="meta + f"
+          combo="mod + f"
           label="Search entities"
           onKeyDown={(e: any) => {
             const entitySearchInput = document.getElementById(
@@ -86,7 +86,7 @@ class Editor extends Component<Props> {
         />
         <Hotkey
           global={true}
-          combo="meta + c"
+          combo="mod + c"
           label="Copy Widget"
           group="Canvas"
           onKeyDown={(e: any) => {
@@ -97,7 +97,7 @@ class Editor extends Component<Props> {
         />
         <Hotkey
           global={true}
-          combo="meta + v"
+          combo="mod + v"
           label="Paste Widget"
           group="Canvas"
           onKeyDown={(e: any) => {
@@ -141,7 +141,7 @@ class Editor extends Component<Props> {
         />
         <Hotkey
           global={true}
-          combo="meta + x"
+          combo="mod + x"
           label="Cut Widget"
           group="Canvas"
           onKeyDown={(e: any) => {

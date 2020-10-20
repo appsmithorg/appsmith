@@ -168,6 +168,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FOCUS_WIDGET: "FOCUS_WIDGET",
   SET_WIDGET_DRAGGING: "SET_WIDGET_DRAGGING",
   SET_WIDGET_RESIZING: "SET_WIDGET_RESIZING",
+  ADD_TABLE_WIDGET_FROM_QUERY: "ADD_TABLE_WIDGET_FROM_QUERY",
   SEARCH_APPLICATIONS: "SEARCH_APPLICATIONS",
   UPDATE_PAGE_INIT: "UPDATE_PAGE_INIT",
   UPDATE_PAGE_SUCCESS: "UPDATE_PAGE_SUCCESS",
@@ -463,12 +464,8 @@ export type ApplicationPayload = {
 
 export type OrganizationDetails = {
   organization: Org;
-  applications: [];
+  applications: any[];
 };
-
-// export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
-
-// export interface LoadQueryResponsePayload extends ExecuteActionResponse {}
 
 export interface LoadWidgetEditorPayload {
   widgets: WidgetProps[];
@@ -477,10 +474,6 @@ export interface LoadWidgetEditorPayload {
 export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
-
-export type SavePagePayload = {};
-export type SavePageErrorPayload = {};
-export type SavePageSuccessPayload = {};
 
 export type InitializeEditorPayload = {
   applicationId: string;

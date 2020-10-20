@@ -4,7 +4,7 @@ import {
   APIRequest,
   DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
 } from "constants/ApiConstants";
-import { AxiosPromise } from "axios";
+import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { RestAction } from "entities/Action";
 
 export interface CreateActionRequest<T> extends APIRequest {
@@ -109,6 +109,8 @@ export interface UpdateActionNameRequest {
 
 class ActionAPI extends API {
   static url = "v1/actions";
+  static apiUpdateCancelTokenSource: CancelTokenSource;
+  static queryUpdateCancelTokenSource: CancelTokenSource;
 
   static fetchAPI(id: string): AxiosPromise<GenericApiResponse<RestAction>> {
     return API.get(`${ActionAPI.url}/${id}`);
@@ -141,7 +143,13 @@ class ActionAPI extends API {
   static updateAPI(
     apiConfig: Partial<RestAction>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
-    return API.put(`${ActionAPI.url}/${apiConfig.id}`, apiConfig);
+    if (ActionAPI.apiUpdateCancelTokenSource) {
+      ActionAPI.apiUpdateCancelTokenSource.cancel();
+    }
+    ActionAPI.apiUpdateCancelTokenSource = axios.CancelToken.source();
+    return API.put(`${ActionAPI.url}/${apiConfig.id}`, apiConfig, undefined, {
+      cancelToken: ActionAPI.apiUpdateCancelTokenSource.token,
+    });
   }
 
   static updateActionName(updateActionNameRequest: UpdateActionNameRequest) {
@@ -161,7 +169,13 @@ class ActionAPI extends API {
   static updateQuery(
     updateQuery: UpdateActionRequest<QueryConfig>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
-    return API.post(ActionAPI.url, updateQuery);
+    if (ActionAPI.queryUpdateCancelTokenSource) {
+      ActionAPI.queryUpdateCancelTokenSource.cancel();
+    }
+    ActionAPI.queryUpdateCancelTokenSource = axios.CancelToken.source();
+    return API.post(ActionAPI.url, updateQuery, undefined, {
+      cancelToken: ActionAPI.queryUpdateCancelTokenSource.token,
+    });
   }
 
   static executeAction(

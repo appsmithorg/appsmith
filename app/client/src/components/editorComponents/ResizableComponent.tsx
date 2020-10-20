@@ -1,6 +1,5 @@
 import React, { useContext, useRef, memo } from "react";
 import { XYCoord } from "react-dnd";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 
 import {
   WidgetOperations,
@@ -40,7 +39,7 @@ import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 
-export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
+export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
 };
 

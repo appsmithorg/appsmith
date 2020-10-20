@@ -26,6 +26,9 @@ import {
   createNewQueryAction,
 } from "actions/apiPaneActions";
 
+/* eslint-disable @typescript-eslint/ban-types */
+/* TODO: Function and object types need to be updated to enable the lint rule */
+
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
   { label: "Success", value: "'success'", id: "success" },
