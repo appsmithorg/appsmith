@@ -4,5 +4,6 @@
     "runQuery": ".t--run-query",
     "saveQuery": ".t--save-query",
     "deleteQuery": ".t--delete-query",
+    "createQuery": ".t--create-query",
     "addQueryEntity": ".//div[contains(@class,'t--entity group queries')]//div[contains(@class,'t--entity-add-btn')]"
 }

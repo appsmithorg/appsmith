@@ -21,8 +21,8 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.get("@createDatasource").then(httpResponse => {
       const datasourceName = httpResponse.response.body.data.name;
 
-      cy.get(".t--datasource-name")
-        .contains(datasourceName)
+      cy.contains(".t--datasource-name", datasourceName)
+        .find(queryLocators.createQuery)
         .click();
     });
 
