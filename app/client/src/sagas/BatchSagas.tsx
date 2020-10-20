@@ -42,9 +42,7 @@ function* storeUpdatesSaga(action: ReduxAction<ReduxAction<any>>) {
     const currentPriorityBatches = batchPriorityMap.get(priority) || [];
     currentPriorityBatches.push(action.payload);
     batchPriorityMap.set(priority, currentPriorityBatches);
-    if (currentPriorityBatches.length === 1) {
-      yield put({ type: ReduxActionTypes.EXECUTE_BATCH });
-    }
+    yield put({ type: ReduxActionTypes.EXECUTE_BATCH });
   } catch (e) {
     console.error(`${action.payload.type} action priority not set`);
   }
