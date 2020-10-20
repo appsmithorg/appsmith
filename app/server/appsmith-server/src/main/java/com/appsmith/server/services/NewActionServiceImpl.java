@@ -330,6 +330,20 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     newAction.setPluginId(plugin.getId());
                     return newAction;
                 }).map(act -> extractAndSetJsonPathKeys(act))
+                .map(updatedAction -> {
+                    // In case of external datasource (not embedded) instead of storing the entire datasource
+                    // again inside the action, instead replace it with just the datasource ID. This is so that
+                    // datasource data is not duplicated across actions and datasource.
+                    ActionDTO unpublishedAction = updatedAction.getUnpublishedAction();
+                    if (unpublishedAction.getDatasource().getId() != null) {
+                        Datasource datasource = new Datasource();
+                        datasource.setId(unpublishedAction.getDatasource().getId());
+                        datasource.setPluginId(updatedAction.getPluginId());
+                        unpublishedAction.setDatasource(datasource);
+                        updatedAction.setUnpublishedAction(unpublishedAction);
+                    }
+                    return updatedAction;
+                })
                 .flatMap(super::create)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
@@ -807,12 +821,16 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
                 .flatMap(toDelete -> {
+
                     Mono<NewAction> newActionMono;
-                    if (toDelete.getPublishedAction() != null) {
+
+                    // Using the name field to determine if the action was ever published. In case of never published
+                    // action, publishedAction would exist with empty datasource and default fields.
+                    if (toDelete.getPublishedAction() != null && toDelete.getPublishedAction().getName() != null) {
                         toDelete.getUnpublishedAction().setDeletedAt(Instant.now());
                         newActionMono = repository.save(toDelete);
                     } else {
-                        // This action was never published. This can be safely deleted.
+                        // This action was never published. This can be safely deleted from the db
                         newActionMono = repository.delete(toDelete).thenReturn(toDelete);
                     }
 
