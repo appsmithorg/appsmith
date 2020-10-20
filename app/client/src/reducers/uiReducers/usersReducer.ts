@@ -6,7 +6,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 
-import { User } from "constants/userConstants";
+import { DefaultCurrentUserDetails, User } from "constants/userConstants";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -90,7 +90,8 @@ const usersReducer = createReducer(initialState, {
   [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (state: UsersReduxState) => ({
     ...state,
     current: undefined,
-    currentUser: undefined,
+    currentUser: DefaultCurrentUserDetails,
+    users: [DefaultCurrentUserDetails],
   }),
 });
 

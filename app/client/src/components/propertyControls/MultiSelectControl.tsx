@@ -50,9 +50,9 @@ class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
       });
       this.updateProperty(this.props.propertyName, optionValues);
     } else {
-      const optionValues = this.props.propertyValue || [];
-      optionValues.push(option.value);
-      this.updateProperty(this.props.propertyName, optionValues);
+      let options = this.props.propertyValue || [];
+      options = [...options, option.value];
+      this.updateProperty(this.props.propertyName, options);
     }
   };
 

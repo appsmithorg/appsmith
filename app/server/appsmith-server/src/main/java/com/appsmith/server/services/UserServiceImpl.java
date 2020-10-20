@@ -39,6 +39,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -432,7 +433,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> userCreate(User user) {
-        final boolean isFromInvite = user.getInviteToken() != null;
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (user.isEnabled() && LoginSource.FORM.equals(user.getSource())) {
@@ -467,8 +467,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return Mono.empty();
                 })
                 .then(repository.findByEmail(user.getUsername()))
-                .flatMap(analyticsService::trackNewUser)
-                .flatMap(user1 -> analyticsService.sendCreateEvent(user1, Map.of("isFromInvite", isFromInvite)));
+                .flatMap(analyticsService::trackNewUser);
     }
 
     /**
@@ -575,14 +574,19 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        List<String> usernames = inviteUsersDTO.getUsernames();
+        List<String> originalUsernames = inviteUsersDTO.getUsernames();
 
-        if (usernames == null || usernames.isEmpty()) {
+        if (originalUsernames == null || originalUsernames.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
         }
 
         if (inviteUsersDTO.getRoleName() == null || inviteUsersDTO.getRoleName().isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
+        }
+
+        List<String> usernames = new ArrayList<>();
+        for (String username : originalUsernames) {
+             usernames.add(username.toLowerCase());
         }
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
@@ -681,7 +685,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Map<String, String> params) {
         User newUser = new User();
-        newUser.setEmail(email);
+        newUser.setEmail(email.toLowerCase());
+
         // This is a new user. Till the user signs up, this user would be disabled.
         newUser.setIsEnabled(false);
 

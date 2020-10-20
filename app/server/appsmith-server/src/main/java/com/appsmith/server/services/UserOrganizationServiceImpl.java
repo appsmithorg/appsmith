@@ -16,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.notifications.EmailSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -24,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,17 +40,22 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
     private final PolicyUtils policyUtils;
+    private final EmailSender emailSender;
+
+    private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
     @Autowired
     public UserOrganizationServiceImpl(SessionUserService sessionUserService,
                                        OrganizationRepository organizationRepository,
                                        UserRepository userRepository,
-                                       PolicyUtils policyUtils
+                                       PolicyUtils policyUtils,
+                                       EmailSender emailSender
     ) {
         this.sessionUserService = sessionUserService;
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
         this.policyUtils = policyUtils;
+        this.emailSender = emailSender;
     }
 
     /**
@@ -279,8 +286,25 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                             Mono<Organization> finalUpdatedOrganizationMono = userRemovedOrganizationMono;
                             if (userRole.getRoleName() != null) {
                                 // If a userRole name has been specified, then it means that the user's role has been modified.
-                                finalUpdatedOrganizationMono = userRemovedOrganizationMono
+                                Mono<Organization> userAddedToOrganizationMono = userRemovedOrganizationMono
                                         .flatMap(organization1 -> this.addUserToOrganizationGivenUserObject(organization1, user, userRole));
+                                finalUpdatedOrganizationMono = userAddedToOrganizationMono.flatMap(addedOrganization -> {
+                                    
+                                    Map<String, String> params = new HashMap<>();
+                                    params.put("Inviter_First_Name", currentUser.getName());
+                                    params.put("inviter_org_name", organization.getName());
+                                    params.put("user_role_name", userRole.getRoleName());
+                                    
+                                    Mono<String> emailMono = emailSender.sendMail(user.getEmail(),
+                                        "Appsmith: Your Role has been changed",
+                                        UPDATE_ROLE_EXISTING_USER_TEMPLATE, params);
+                                    return emailMono
+                                           .thenReturn(addedOrganization)
+                                           .onErrorResume(error -> {
+                                                log.error("Unable to send role change email to {}. Cause: ", user.getEmail(), error);
+                                            return Mono.just(addedOrganization);
+                                            });
+                                });
                             } else {
                                 // If the roleName was not present, then it implies that the user is being removed from the org.
                                 // Since at this point we have already removed the user from the organization, we dont need to do anything else.
