@@ -8,13 +8,14 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const dsl = require("../../../fixtures/formWidgetdsl.json");
 
 const pageid = "MyPage";
-
 before(() => {
   cy.addDsl(dsl);
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function() {
   it("Drag and drop form widget and validate copy widget via toast message", function() {
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
     cy.openPropertyPane("formwidget");
     cy.widgetText(
       "FormTest",
@@ -22,12 +23,12 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       formWidgetsPage.formInner,
     );
     cy.get("body").click();
-    cy.get("body").type("{meta}c");
+    cy.get("body").type(`{${modifierKey}}c`);
     cy.wait(500);
     cy.get(commonlocators.toastBody)
       .first()
       .contains("Copied");
-    cy.get("body").type("{meta}v", { force: true });
+    cy.get("body").type(`{${modifierKey}}v`, { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

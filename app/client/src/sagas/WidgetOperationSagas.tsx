@@ -42,7 +42,7 @@ import {
 } from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _ from "lodash";
+import _, { isString } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -867,6 +867,26 @@ function* pasteWidgetSaga() {
           }
         });
       }
+
+      // Update the tabs for the tabs widget.
+      if (widget.tabs && widget.type === WidgetTypes.TABS_WIDGET) {
+        try {
+          const tabs = isString(widget.tabs)
+            ? JSON.parse(widget.tabs)
+            : widget.tabs;
+          if (Array.isArray(tabs)) {
+            widget.tabs = JSON.stringify(
+              tabs.map(tab => {
+                tab.widgetId = widgetIdMap[tab.widgetId];
+                return tab;
+              }),
+            );
+          }
+        } catch (error) {
+          log.debug("Error updating tabs", error);
+        }
+      }
+
       // If it is the copied widget, update position properties
       if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
         newWidgetId = widget.widgetId;
