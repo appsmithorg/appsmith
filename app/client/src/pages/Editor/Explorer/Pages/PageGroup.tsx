@@ -12,6 +12,7 @@ import ExplorerPageEntity from "./PageEntity";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
 import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -19,6 +20,7 @@ type ExplorerPageGroupProps = {
   widgets?: Record<string, WidgetProps>;
   actions: Record<string, any[]>;
   datasources: Datasource[];
+  plugins: Plugin[];
   showWidgetsSidebar: () => void;
 };
 
@@ -50,6 +52,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
         widgets={pageWidgets}
         actions={pageActions}
         datasources={datasources}
+        plugins={props.plugins}
         searchKeyword={props.searchKeyword}
         page={page}
         showWidgetsSidebar={props.showWidgetsSidebar}

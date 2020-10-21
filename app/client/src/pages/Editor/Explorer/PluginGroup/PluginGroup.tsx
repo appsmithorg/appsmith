@@ -1,40 +1,37 @@
 import { Datasource } from "api/DatasourcesApi";
 import { Page } from "constants/ReduxActionConstants";
-import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-import { PluginType } from "entities/Action";
-import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { keyBy } from "lodash";
-import React, { useCallback, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
 import history from "utils/history";
-import { getActionConfig, getQueryActionsGroup } from "../Actions/helpers";
+import ExplorerActionsGroup from "../Actions/ActionsGroup";
+import { ActionGroupConfig } from "../Actions/helpers";
 import ExplorerDatasourceEntity from "../Datasources/DatasourceEntity";
 import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
-import { datasourceIcon } from "../ExplorerIcons";
 import { ExplorerURLParams } from "../helpers";
 
-type ExplorerDBQueryGroupProps = {
+type ExplorerPluginGroupProps = {
   step: number;
   searchKeyword?: string;
   datasources: Datasource[];
   actions: any[];
   page: Page;
+  actionConfig: ActionGroupConfig;
 };
 
-const DBQueryGroup = (props: ExplorerDBQueryGroupProps) => {
+const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
   const params = useParams<ExplorerURLParams>();
-  const actionConfig = getActionConfig(PluginType.DB);
   const switchToCreateActionPage = useCallback(() => {
-    const path = actionConfig?.generateCreatePageURL(
+    const path = props.actionConfig?.generateCreatePageURL(
       params?.applicationId,
       props.page.pageId,
       props.page.pageId,
     );
     history.push(path);
-  }, [actionConfig, props.page.pageId, params]);
+  }, [props.actionConfig, props.page.pageId, params]);
 
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -42,35 +39,29 @@ const DBQueryGroup = (props: ExplorerDBQueryGroupProps) => {
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const disableGroup =
     !!props.searchKeyword && !props.datasources.length && !props.actions.length;
-  const queryActionsNode = getQueryActionsGroup(
-    props.page,
-    props.step + 1,
-    props.actions as DataTreeAction[],
-    props.searchKeyword,
-  );
-  const isEmpty = !props.searchKeyword && !props.datasources.length;
+
+  const isEmpty =
+    !props.searchKeyword && !props.datasources.length && !props.actions.length;
 
   const emptyNode = (
     <EntityPlaceholder step={props.step + 1}>
-      No datasources yet. Please click the <strong>+</strong> icon on
-      <strong> DB Query</strong> above, to create.
+      No {props.actionConfig?.groupName || "Plugin Groups"} yet. Please click
+      the <strong>+</strong> icon on
+      <strong> {props.actionConfig?.groupName || "Plugin Groups"}</strong>{" "}
+      above, to create.
     </EntityPlaceholder>
   );
 
   return (
     <Entity
-      entityId="DBQuery"
+      entityId={props.page.pageId + "_" + props.actionConfig?.type}
       step={props.step}
-      className="group dbquery"
-      name="DB Query"
-      icon={datasourceIcon}
-      active={
-        window.location.pathname.indexOf(
-          DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
-        ) > -1 || actionConfig?.isGroupActive(params, props.page.pageId)
-      }
+      className={`group ${props.actionConfig?.groupName.toLowerCase()}`}
+      name={props.actionConfig?.groupName || "Plugin Group"}
+      icon={props.actionConfig?.icon}
+      active={props.actionConfig?.isGroupActive(params, props.page.pageId)}
       isDefaultExpanded={
-        actionConfig?.isGroupExpanded(params, props.page.pageId) ||
+        props.actionConfig?.isGroupExpanded(params, props.page.pageId) ||
         !!props.searchKeyword ||
         !!props.datasources.length
       }
@@ -81,7 +72,13 @@ const DBQueryGroup = (props: ExplorerDBQueryGroupProps) => {
         emptyNode
       ) : (
         <>
-          {queryActionsNode}
+          <ExplorerActionsGroup
+            actions={props.actions}
+            step={props.step}
+            page={props.page}
+            searchKeyword={props.searchKeyword}
+            config={props.actionConfig}
+          />
           {props.datasources.map((datasource: Datasource) => {
             return (
               <ExplorerDatasourceEntity
@@ -97,6 +94,8 @@ const DBQueryGroup = (props: ExplorerDBQueryGroupProps) => {
       )}
     </Entity>
   );
-};
+});
 
-export default DBQueryGroup;
+ExplorerPluginGroup.displayName = "ExplorerPluginGroup";
+
+export default ExplorerPluginGroup;

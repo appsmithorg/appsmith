@@ -12,21 +12,23 @@ import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { homePageIcon, pageIcon } from "../ExplorerIcons";
-import { getActionGroups } from "../Actions/helpers";
+import { getPluginGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
-import DBQuery from "../DBQuery/DBQueryGroup";
 import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
 
 type ExplorerPageEntityProps = {
   page: Page;
   widgets?: WidgetProps;
   actions: any[];
   datasources: Datasource[];
+  plugins: Plugin[];
   step: number;
   searchKeyword?: string;
   showWidgetsSidebar: () => void;
 };
+
 export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
 
@@ -79,20 +81,14 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
         addWidgetsFn={addWidgetsFn}
       />
 
-      {getActionGroups(
+      {getPluginGroups(
         props.page,
         props.step + 1,
         props.actions as DataTreeAction[],
+        props.datasources,
+        props.plugins,
         props.searchKeyword,
       )}
-
-      <DBQuery
-        step={props.step + 1}
-        searchKeyword={props.searchKeyword}
-        actions={props.actions as DataTreeAction[]}
-        datasources={props.datasources}
-        page={props.page}
-      />
     </Entity>
   );
 };

@@ -1,5 +1,10 @@
 import React, { ReactNode } from "react";
-import { apiIcon, queryIcon, MethodTag } from "../ExplorerIcons";
+import {
+  apiIcon,
+  queryIcon,
+  MethodTag,
+  datasourceIcon,
+} from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import { QUERIES_EDITOR_URL, API_EDITOR_URL } from "constants/routes";
@@ -13,7 +18,9 @@ import {
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerActionsGroup from "./ActionsGroup";
 import { ExplorerURLParams } from "../helpers";
-import QueryActionsGroup from "../DBQuery/QueryActionsGroup";
+import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
+import PluginGroup from "../PluginGroup/PluginGroup";
 
 export type ActionGroupConfig = {
   groupName: string;
@@ -31,15 +38,17 @@ export type ActionGroupConfig = {
   isGroupExpanded: (params: ExplorerURLParams, pageId: string) => boolean;
 };
 
+// When we have new action plugins, we can just add it to this map
+// There should be no other place where we refer to the PluginType in entity explorer.
 /*eslint-disable react/display-name */
-export const getActionConfig = (
-  pluginType: string,
-): ActionGroupConfig | undefined => {
-  switch (pluginType) {
+export const ACTION_PLUGIN_MAP: Array<
+  ActionGroupConfig | undefined
+> = Object.keys(PluginType).map((type: string) => {
+  switch (type) {
     case PluginType.API:
       return {
         groupName: "APIs",
-        type: pluginType,
+        type,
         icon: apiIcon,
         key: generateReactKey(),
         getURL: (applicationId: string, pageId: string, id: string) => {
@@ -60,9 +69,9 @@ export const getActionConfig = (
       };
     case PluginType.DB:
       return {
-        groupName: "Queries",
-        type: pluginType,
-        icon: queryIcon,
+        groupName: "DBQueries",
+        type,
+        icon: datasourceIcon,
         key: generateReactKey(),
         getURL: (applicationId: string, pageId: string, id: string) =>
           `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`,
@@ -81,13 +90,7 @@ export const getActionConfig = (
     default:
       return undefined;
   }
-};
-
-// When we have new action plugins, we can just add it to this map
-// There should be no other place where we refer to the PluginType in entity explorer.
-export const ACTION_PLUGIN_MAP: Array<
-  ActionGroupConfig | undefined
-> = Object.keys(PluginType).map(getActionConfig);
+});
 
 // Gets the Actions groups in the entity explorer
 // ACTION_PLUGIN_MAP specifies the number of groups
@@ -118,27 +121,47 @@ export const getActionGroups = (
   });
 };
 
-export const getQueryActionsGroup = (
+export const getPluginGroups = (
   page: Page,
   step: number,
-  actions?: any[],
+  actions: any[],
+  datasources: Datasource[],
+  plugins: Plugin[],
   searchKeyword?: string,
 ) => {
-  const config = getActionConfig(PluginType.DB);
-  if (!config) return null;
-  const entries = actions?.filter(
-    (entry: any) => entry.config.pluginType === config?.type,
-  );
+  return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
+    if (!config) return null;
 
-  if (!entries || (entries.length === 0 && !!searchKeyword)) return null;
+    const entries = actions?.filter(
+      (entry: any) => entry.config.pluginType === config?.type,
+    );
 
-  return (
-    <QueryActionsGroup
-      actions={entries}
-      step={step}
-      searchKeyword={searchKeyword}
-      page={page}
-      config={config}
-    />
-  );
+    const filteredPlugins = plugins.filter(
+      plugin => plugin.type === config.type,
+    );
+    const filteredPluginIds = filteredPlugins.map(plugin => plugin.id);
+    const filteredDatasources = datasources.filter(datasource => {
+      return filteredPluginIds.includes(datasource.pluginId);
+    });
+
+    if (
+      (!entries && !filteredDatasources) ||
+      (entries.length === 0 &&
+        filteredDatasources.length === 0 &&
+        !!searchKeyword)
+    )
+      return null;
+
+    return (
+      <PluginGroup
+        key={page.pageId + "_" + config.type}
+        actions={entries}
+        datasources={filteredDatasources}
+        step={step}
+        searchKeyword={searchKeyword}
+        page={page}
+        actionConfig={config}
+      />
+    );
+  });
 };

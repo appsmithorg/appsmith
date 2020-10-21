@@ -20,6 +20,8 @@ import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { useSelector } from "react-redux";
+import { getPlugins } from "selectors/entitiesSelector";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -50,6 +52,8 @@ const EntityExplorer = (props: IPanelProps) => {
   const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
   const datasources = useFilteredDatasources(searchKeyword);
 
+  const plugins = useSelector(getPlugins);
+
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
 
@@ -77,6 +81,7 @@ const EntityExplorer = (props: IPanelProps) => {
         widgets={widgets}
         actions={actions}
         datasources={datasources}
+        plugins={plugins}
         showWidgetsSidebar={showWidgetsSidebar}
       />
       {noResults && (
