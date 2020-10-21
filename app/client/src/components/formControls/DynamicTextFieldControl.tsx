@@ -24,14 +24,13 @@ import {
 const Wrapper = styled.div`
   .dynamic-text-field {
     border-radius: 4px;
-    border: none;
     font-size: 14px;
     height: calc(100vh / 4);
   }
 
   && {
     .CodeMirror-lines {
-      padding: 16px 20px;
+      padding: 10px;
     }
   }
 `;

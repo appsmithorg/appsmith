@@ -121,6 +121,42 @@ public class DatabaseChangelog {
         }
     }
 
+    private ActionDTO copyActionToDTO(Action action) {
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setName(action.getName());
+        actionDTO.setDatasource(action.getDatasource());
+        actionDTO.setPageId(action.getPageId());
+        actionDTO.setActionConfiguration(action.getActionConfiguration());
+        actionDTO.setExecuteOnLoad(action.getExecuteOnLoad());
+        actionDTO.setDynamicBindingPathList(action.getDynamicBindingPathList());
+        actionDTO.setIsValid(action.getIsValid());
+        actionDTO.setInvalids(action.getInvalids());
+        actionDTO.setJsonPathKeys(action.getJsonPathKeys());
+        actionDTO.setCacheResponse(action.getCacheResponse());
+        actionDTO.setUserSetOnLoad(action.getUserSetOnLoad());
+        actionDTO.setConfirmBeforeExecute(action.getConfirmBeforeExecute());
+
+        return actionDTO;
+    }
+
+    private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
+        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+                organization.setPlugins(new ArrayList<>());
+            }
+
+            final Set<String> installedPlugins = organization.getPlugins()
+                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+
+            if (!installedPlugins.contains(pluginId)) {
+                organization.getPlugins()
+                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
+            }
+
+            mongoTemplate.save(organization);
+        }
+    }
+
     @ChangeSet(order = "001", id = "initial-plugins", author = "")
     public void initialPlugins(MongoTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
@@ -943,7 +979,7 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "027", id = "createNewPageIndex", author = "")
+    @ChangeSet(order = "028", id = "createNewPageIndex", author = "")
     public void addNewPageIndex(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
@@ -953,7 +989,7 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "028", id = "migrate-page", author = "")
+    @ChangeSet(order = "029", id = "migrate-page", author = "")
     public void migratePage(MongoTemplate mongoTemplate) {
         final List<Page> pages = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
@@ -1005,7 +1041,7 @@ public class DatabaseChangelog {
 
     }
 
-    @ChangeSet(order = "029", id = "update-new-page", author = "")
+    @ChangeSet(order = "030", id = "update-new-page", author = "")
     public void updateNewPage(MongoTemplate mongoTemplate) {
         final List<NewPage> pages = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
@@ -1024,7 +1060,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "030", id = "createNewActionIndex", author = "")
+    @ChangeSet(order = "031", id = "createNewActionIndex", author = "")
     public void addNewActionIndex(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
@@ -1034,25 +1070,7 @@ public class DatabaseChangelog {
         );
     }
 
-    private ActionDTO copyActionToDTO(Action action) {
-        ActionDTO actionDTO = new ActionDTO();
-        actionDTO.setName(action.getName());
-        actionDTO.setDatasource(action.getDatasource());
-        actionDTO.setPageId(action.getPageId());
-        actionDTO.setActionConfiguration(action.getActionConfiguration());
-        actionDTO.setExecuteOnLoad(action.getExecuteOnLoad());
-        actionDTO.setDynamicBindingPathList(action.getDynamicBindingPathList());
-        actionDTO.setIsValid(action.getIsValid());
-        actionDTO.setInvalids(action.getInvalids());
-        actionDTO.setJsonPathKeys(action.getJsonPathKeys());
-        actionDTO.setCacheResponse(action.getCacheResponse());
-        actionDTO.setUserSetOnLoad(action.getUserSetOnLoad());
-        actionDTO.setConfirmBeforeExecute(action.getConfirmBeforeExecute());
-
-        return actionDTO;
-    }
-
-    @ChangeSet(order = "031", id = "migrate-action", author = "")
+    @ChangeSet(order = "032", id = "migrate-action", author = "")
     public void migrateAction(MongoTemplate mongoTemplate) {
         final List<Action> actions = mongoTemplate.find(
                 query(where("deletedAt").is(null)),

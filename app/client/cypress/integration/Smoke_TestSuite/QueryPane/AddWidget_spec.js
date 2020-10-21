@@ -13,8 +13,8 @@ describe("Add widget", function() {
 
   it("Add widget", () => {
     cy.NavigateToQueryEditor();
-    cy.get(".t--datasource-name")
-      .contains(datasourceName)
+    cy.contains(".t--datasource-name", datasourceName)
+      .find(queryLocators.createQuery)
       .click();
 
     cy.get(queryLocators.templateMenu).click();

@@ -103,7 +103,8 @@ public class RapidApiPlugin extends BasePlugin {
 
             URI uri;
             try {
-                uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
+                String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
+                uri = createFinalUriWithQueryParams(httpUrl, actionConfiguration.getQueryParameters());
                 log.info("Final URL is : {}", uri);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
@@ -285,6 +286,13 @@ public class RapidApiPlugin extends BasePlugin {
                     webClientBuilder.defaultHeader(header.getKey(), header.getValue());
                 }
             }
+        }
+
+        private String addHttpToUrlWhenPrefixNotPresent(String url) {
+            if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
+                return url;
+            }
+            return "http://" + url;
         }
 
         private URI createFinalUriWithQueryParams(String url, List<Property> queryParams) throws URISyntaxException {

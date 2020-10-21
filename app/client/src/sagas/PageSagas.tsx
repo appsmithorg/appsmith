@@ -71,6 +71,7 @@ import {
 } from "actions/actionActions";
 import { clearCaches } from "utils/DynamicBindingUtils";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { clearEvalCache } from "./evaluationsSaga";
 import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -163,7 +164,7 @@ export function* fetchPageSaga(
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       // Clear any existing caches
-      clearCaches();
+      yield call(clearEvalCache);
       // Set url params
       yield call(setDataUrl);
       // Get Canvas payload
@@ -226,7 +227,7 @@ export function* fetchPublishedPageSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       // Clear any existing caches
-      clearCaches();
+      yield call(clearEvalCache);
       // Set url params
       yield call(setDataUrl);
       // Get Canvas payload

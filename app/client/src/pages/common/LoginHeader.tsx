@@ -30,7 +30,11 @@ export const LoginHeader = () => {
     <StyledPageHeader>
       <LogoContainer>
         <Link to={BASE_URL}>
-          <img className="logoimg" src={AppsmithLogo} alt="Appsmith Logo" />
+          <img
+            className="logoimg t--Appsmith-logo-image"
+            src={AppsmithLogo}
+            alt="Appsmith Logo"
+          />
         </Link>
       </LogoContainer>
     </StyledPageHeader>
