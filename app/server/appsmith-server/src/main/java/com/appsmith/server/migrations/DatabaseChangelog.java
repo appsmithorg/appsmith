@@ -967,12 +967,6 @@ public class DatabaseChangelog {
     @ChangeSet(order = "028", id = "use-png-logos", author = "")
     public void usePngLogos(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
-                query(where(fieldName(QPlugin.plugin.packageName)).is("mysql-plugin")),
-                update(fieldName(QPlugin.plugin.iconLocation),
-                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Mysql.png"),
-                Plugin.class
-        );
-        mongoTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
                 update(fieldName(QPlugin.plugin.iconLocation),
                         "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.png"),
