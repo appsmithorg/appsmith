@@ -245,6 +245,10 @@ const OutputHeader = styled.div`
   align-items: center;
 `;
 
+const FieldWrapper = styled.div`
+  margin-top: 15px;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -577,13 +581,13 @@ const renderEachConfig = (section: any): any => {
       try {
         const { configProperty } = propertyControlOrSection;
         return (
-          <div key={configProperty} style={{ marginTop: "15px" }}>
+          <FieldWrapper key={configProperty}>
             {FormControlFactory.createControl(
               { ...propertyControlOrSection },
               {},
               false,
             )}
-          </div>
+          </FieldWrapper>
         );
       } catch (e) {
         console.log(e);
