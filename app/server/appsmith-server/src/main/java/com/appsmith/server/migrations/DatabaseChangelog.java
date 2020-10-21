@@ -21,6 +21,7 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
@@ -532,20 +533,7 @@ public class DatabaseChangelog {
             log.warn("mysql-plugin already present in database.");
         }
 
-        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
-            if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new ArrayList<>());
-            }
-
-            final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
-
-            if (!installedPlugins.contains(plugin1.getId())) {
-                organization.getPlugins()
-                        .add(new OrganizationPlugin(plugin1.getId(), OrganizationPluginStatus.FREE));
-            }
-            mongoTemplate.save(organization);
-        }
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "019", id = "update-database-documentation-links", author = "")
@@ -954,6 +942,36 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
+    @ChangeSet(order = "028", id = "add-dynamo-plugin", author = "")
+    public void addDynamoPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("DynamoDB");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("dynamo-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.JSON);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/DynamoDB.png");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-dynamodb");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin1.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
+    @ChangeSet(order = "029", id = "use-png-logos", author = "")
+    public void usePngLogos(MongoTemplate mongoTemplate) {
+        mongoTemplate.updateFirst(
+                query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
+                update(fieldName(QPlugin.plugin.iconLocation),
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.png"),
+                Plugin.class
+        );
     }
 
     private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
