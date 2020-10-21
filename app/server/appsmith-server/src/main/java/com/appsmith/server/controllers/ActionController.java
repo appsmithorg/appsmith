@@ -114,7 +114,7 @@ public class ActionController extends BaseController<ActionService, Action, Stri
     @Override
     @GetMapping("")
     public Mono<ResponseDTO<List<Action>>> getAll(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all resources");
+        log.debug("Going to get all actions");
         return newActionService.getUnpublishedActions(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
