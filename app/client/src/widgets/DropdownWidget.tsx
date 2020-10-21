@@ -124,7 +124,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       let newSelectedValue = [...this.props.selectedOptionValueArr];
       if (isAlreadySelected) {
         newSelectedValue = newSelectedValue.filter(
-          (v) => v !== selectedOption.value,
+          v => v !== selectedOption.value,
         );
       } else {
         newSelectedValue.push(selectedOption.value);
