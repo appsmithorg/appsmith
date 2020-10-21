@@ -50,5 +50,7 @@
     "applicationName": ".t--application-name",
     "profileMenu": ".bp3-popover-wrapper.profile-menu",
     "signOutIcon": ".t--logout-icon",
-    "headerAppSmithLogo": ".t--Appsmith-logo-image"
+    "headerAppSmithLogo": ".t--Appsmith-logo-image",
+    "applicationCardName": "[data-cy=t--app-card-name]",
+    "applicationIconSelector": ".t--icon-not-selected"
 } 

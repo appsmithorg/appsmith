@@ -514,7 +514,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           isFetching={isFetchingApplications}
           className={isFetchingApplications ? Classes.SKELETON : ""}
         >
-          <Text type={TextType.H3}>{props.application.name}</Text>
+          <Text type={TextType.H3} cypressSelector="t--app-card-name">
+            {props.application.name}
+          </Text>
         </AppNameWrapper>
       </>
     </NameWrapper>
