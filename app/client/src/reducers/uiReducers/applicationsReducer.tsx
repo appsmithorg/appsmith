@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ApplicationPayload,
+  ReduxActionType,
 } from "constants/ReduxActionConstants";
 import { Organization } from "constants/orgConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
@@ -169,11 +170,23 @@ const applicationsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SAVE_ORG_SUCCESS]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ id: string; name: string }>,
+    action: ReduxAction<{
+      id: string;
+      name?: string;
+      website?: string;
+      email?: string;
+    }>,
   ) => {
     const _organizations = state.userOrgs.map((org: Organization) => {
       if (org.organization.id === action.payload.id) {
-        org.organization.name = action.payload.name;
+        if (action.payload.name) {
+          org.organization.name = action.payload.name;
+        } else if (action.payload.email) {
+          org.organization.email = action.payload.email;
+        } else if (action.payload.website) {
+          org.organization.website = action.payload.website;
+        }
+
         return {
           ...org,
         };

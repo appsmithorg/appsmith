@@ -18,6 +18,7 @@ import IconComponent from "components/designSystems/appsmith/IconComponent";
 import { fetchOrg } from "actions/orgActions";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
+import { getAllApplications } from "actions/applicationActions";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const LinkToApplications = styled(Link)`
@@ -38,12 +39,15 @@ const SettingsWrapper = styled.div`
 `;
 export default function Settings() {
   const { orgId } = useParams<{ orgId: string }>();
-  const currentOrg = useSelector(getCurrentOrg);
+  const currentOrg = useSelector(getCurrentOrg).find(el => el.id === orgId);
   const { path } = useRouteMatch();
   const location = useLocation();
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(fetchOrg(orgId as string));
+    if (!currentOrg) {
+      dispatch(getAllApplications());
+    }
+    // dispatch(fetchOrg(orgId as string));
   }, [orgId, dispatch]);
 
   const SettingsRenderer = (
@@ -81,7 +85,7 @@ export default function Settings() {
     <SettingsWrapper>
       <LinkToApplications to={"/applications"}>
         <IconComponent iconName="chevron-left" color="#9F9F9F"></IconComponent>
-        <Text type={TextType.H1}>{currentOrg.name}</Text>
+        <Text type={TextType.H1}>{currentOrg && currentOrg.name}</Text>
       </LinkToApplications>
       <TabComponent
         tabs={tabArr}

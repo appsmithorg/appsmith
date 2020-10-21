@@ -178,21 +178,15 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
     if (isValidResponse) {
       const currentOrg = yield select(getCurrentOrg);
       if (currentOrg && currentOrg.id === request.id) {
-        const updatedOrg = {
-          ...currentOrg,
-          ...request,
-        };
         yield put({
           type: ReduxActionTypes.SET_CURRENT_ORG,
-          payload: updatedOrg,
+          payload: response.data,
         });
       }
+
       yield put({
         type: ReduxActionTypes.SAVE_ORG_SUCCESS,
-        payload: {
-          id: request.id,
-          name: request.name,
-        },
+        payload: request,
       });
     }
   } catch (error) {

@@ -42,7 +42,8 @@ const Loader = styled.div`
 export function GeneralSettings() {
   const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
-  const currentOrg = useSelector(getCurrentOrg);
+  const currentOrg = useSelector(getCurrentOrg).find(el => el.id === orgId);
+
   function saveChanges(settings: SaveOrgRequest) {
     dispatch(saveOrg(settings));
   }
@@ -85,7 +86,7 @@ export function GeneralSettings() {
             validator={notEmptyValidator}
             placeholder="Workspace name"
             onChange={onWorkspaceNameChange}
-            defaultValue={currentOrg.name}
+            defaultValue={currentOrg && currentOrg.name}
           ></TextInput>
         )}
       </SettingWrapper>
@@ -99,7 +100,7 @@ export function GeneralSettings() {
           <TextInput
             placeholder="Your website"
             onChange={onWebsiteChange}
-            defaultValue={currentOrg.website || ""}
+            defaultValue={(currentOrg && currentOrg.website) || ""}
           ></TextInput>
         )}
       </SettingWrapper>
@@ -114,7 +115,7 @@ export function GeneralSettings() {
             validator={emailValidator}
             placeholder="Email"
             onChange={onEmailChange}
-            defaultValue={currentOrg.email || ""}
+            defaultValue={(currentOrg && currentOrg.email) || ""}
           ></TextInput>
         )}
       </SettingWrapper>

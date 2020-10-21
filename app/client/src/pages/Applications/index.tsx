@@ -426,7 +426,6 @@ const ApplicationsSection = (props: any) => {
         <OrgRename
           defaultValue={orgName}
           editInteractionKind={EditInteractionKind.SINGLE}
-          valueTransform={(value: any) => value.toUpperCase()}
           placeholder="Workspace name"
           hideEditIcon={false}
           isInvalid={(value: string) => {
@@ -632,7 +631,9 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.getAllApplication();
+    if (this.props.userOrgs.length === 0) {
+      this.props.getAllApplication();
+    }
     if (this.props.applicationList.length > 0) {
       this.setState({
         newApplicationList: this.props.applicationList.map(el => el.id),

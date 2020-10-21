@@ -23,7 +23,7 @@ export const getOrgs = (state: AppState) => {
   return state.ui.applications.userOrgs;
 };
 export const getCurrentOrg = (state: AppState) => {
-  return state.ui.orgs.currentOrg;
+  return state.ui.applications.userOrgs.map(el => el.organization);
 };
 export const getAllUsers = (state: AppState) => state.ui.orgs.orgUsers;
 export const getAllRoles = (state: AppState) => state.ui.orgs.orgRoles;
