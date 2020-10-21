@@ -108,8 +108,8 @@ public class DynamoPlugin extends BasePlugin {
                 );
                 final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
                 result.setBody(sdkToPlain(response));
-            } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
-                final String message = "Error parsein JSON body: " + (e.getCause() == null ? e : e.getCause()).getMessage();
+            } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
+                final String message = "Error executing the DynamoDB Action: " + (e.getCause() == null ? e : e.getCause()).getMessage();
                 log.warn(message, e);
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
             }
@@ -205,18 +205,13 @@ public class DynamoPlugin extends BasePlugin {
      * @throws IllegalAccessException Thrown if any of the SDK methods' contracts change.
      * @throws InvocationTargetException Thrown if any of the SDK methods' contracts change.
      * @throws NoSuchMethodException Thrown if any of the SDK methods' contracts change.
-     * @throws InstantiationException Thrown if any of the SDK methods' contracts change.
+     * @throws ClassNotFoundException Thrown if any of the builder class could not be found corresponding to the action class.
      */
     public static <T> T plainToSdk(Map<String, Object> mapping, Class<T> type)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-            AppsmithPluginException {
-        final Class<?> builderType;
-        try {
-            builderType = Class.forName(type.getName() + "$Builder");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
+            AppsmithPluginException, ClassNotFoundException {
+
+        final Class<?> builderType = Class.forName(type.getName() + "$Builder");
 
         final Object builder = type.getMethod("builder").invoke(null);
 
