@@ -1,4 +1,3 @@
-import React from "react";
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";

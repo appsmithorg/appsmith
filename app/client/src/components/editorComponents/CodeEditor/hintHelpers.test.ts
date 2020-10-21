@@ -1,14 +1,7 @@
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
-import RealmExecutor from "jsExecution/RealmExecutor";
-jest.mock("jsExecution/RealmExecutor");
 
 describe("hint helpers", () => {
-  beforeAll(() => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    RealmExecutor.mockClear();
-  });
   describe("binding hint helper", () => {
     it("is initialized correctly", () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

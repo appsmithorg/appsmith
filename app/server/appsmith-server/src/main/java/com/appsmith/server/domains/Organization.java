@@ -22,7 +22,7 @@ public class Organization extends BaseDomain {
 
     private String domain;
 
-    @NotNull
+    @NotNull(message = "Name is mandatory")
     private String name;
 
     private String website;
