@@ -964,7 +964,7 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
     }
 
-    @ChangeSet(order = "028", id = "use-png-logos", author = "")
+    @ChangeSet(order = "029", id = "use-png-logos", author = "")
     public void usePngLogos(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
