@@ -93,7 +93,7 @@ export const getWidgetProperies = (
     entityDefinitions[
       widgetProps.type as Exclude<
         Partial<WidgetType>,
-        "CANVAS_WIDGET" | "ICON_WIDGET"
+        "CANVAS_WIDGET" | "ICON_WIDGET" | "SKELETON_WIDGET"
       >
     ];
 

@@ -81,59 +81,6 @@
                 "widgetId": "xlrmeiioaa"
               }
             ],
-            "blueprint": {
-              "view": [
-                {
-                  "type": "TEXT_WIDGET",
-                  "size": {
-                    "rows": 1,
-                    "cols": 12
-                  },
-                  "position": {
-                    "top": 0,
-                    "left": 0
-                  },
-                  "props": {
-                    "text": "Form",
-                    "textStyle": "HEADING"
-                  }
-                },
-                {
-                  "type": "FORM_BUTTON_WIDGET",
-                  "size": {
-                    "rows": 1,
-                    "cols": 4
-                  },
-                  "position": {
-                    "top": 11,
-                    "left": 12
-                  },
-                  "props": {
-                    "text": "Submit",
-                    "buttonStyle": "PRIMARY_BUTTON",
-                    "disabledWhenInvalid": true,
-                    "resetFormOnClick": true
-                  }
-                },
-                {
-                  "type": "FORM_BUTTON_WIDGET",
-                  "size": {
-                    "rows": 1,
-                    "cols": 4
-                  },
-                  "position": {
-                    "top": 11,
-                    "left": 8
-                  },
-                  "props": {
-                    "text": "Reset",
-                    "buttonStyle": "SECONDARY_BUTTON",
-                    "disabledWhenInvalid": false,
-                    "resetFormOnClick": true
-                  }
-                }
-              ]
-            },
             "minHeight": 520,
             "type": "CANVAS_WIDGET",
             "isLoading": false,
@@ -147,76 +94,6 @@
             "widgetId": "sidaue1kdu"
           }
         ],
-        "blueprint": {
-          "view": [
-            {
-              "type": "CANVAS_WIDGET",
-              "position": {
-                "top": 0,
-                "left": 0
-              },
-              "props": {
-                "containerStyle": "none",
-                "canExtend": false,
-                "detachFromLayout": true,
-                "children": [],
-                "blueprint": {
-                  "view": [
-                    {
-                      "type": "TEXT_WIDGET",
-                      "size": {
-                        "rows": 1,
-                        "cols": 12
-                      },
-                      "position": {
-                        "top": 0,
-                        "left": 0
-                      },
-                      "props": {
-                        "text": "Form",
-                        "textStyle": "HEADING"
-                      }
-                    },
-                    {
-                      "type": "FORM_BUTTON_WIDGET",
-                      "size": {
-                        "rows": 1,
-                        "cols": 4
-                      },
-                      "position": {
-                        "top": 11,
-                        "left": 12
-                      },
-                      "props": {
-                        "text": "Submit",
-                        "buttonStyle": "PRIMARY_BUTTON",
-                        "disabledWhenInvalid": true,
-                        "resetFormOnClick": true
-                      }
-                    },
-                    {
-                      "type": "FORM_BUTTON_WIDGET",
-                      "size": {
-                        "rows": 1,
-                        "cols": 4
-                      },
-                      "position": {
-                        "top": 11,
-                        "left": 8
-                      },
-                      "props": {
-                        "text": "Reset",
-                        "buttonStyle": "SECONDARY_BUTTON",
-                        "disabledWhenInvalid": false,
-                        "resetFormOnClick": true
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          ]
-        },
         "type": "FORM_WIDGET",
         "isLoading": false,
         "parentColumnSpace": 74,
