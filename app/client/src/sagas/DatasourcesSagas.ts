@@ -245,7 +245,11 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     DATASOURCE_DB_FORM,
   );
   const datasource = yield select(getDatasource, actionPayload.payload.id);
-  const payload = { ...actionPayload.payload, name: datasource.name };
+  const payload = {
+    ...actionPayload.payload,
+    name: datasource.name,
+    id: actionPayload.payload.id as any,
+  };
 
   if (!_.isEqual(initialValues, values)) {
     delete payload.id;

@@ -10,7 +10,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -47,12 +48,12 @@ public class PostgresPluginTest {
             .withUsername("postgres")
             .withPassword("password");
 
-    String address;
-    Integer port;
-    String username, password;
+    private static String address;
+    private static Integer port;
+    private static String username, password;
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() {
         if (address != null) {
             return;
         }
@@ -154,10 +155,7 @@ public class PostgresPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(connection -> {
-                    Connection conn = (Connection) connection;
-                    assertNotNull(conn);
-                })
+                .assertNext(Assert::assertNotNull)
                 .verifyComplete();
     }
 

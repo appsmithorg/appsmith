@@ -28,7 +28,7 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
@@ -292,7 +292,7 @@ export interface BaseStyle {
   widthUnit?: CSSUnit;
 }
 
-export type WidgetState = {};
+export type WidgetState = Record<string, unknown>;
 
 export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
   buildWidget(widgetProps: T): JSX.Element;
@@ -324,6 +324,23 @@ export interface WidgetPositionProps extends WidgetRowCols {
   // MODAL_WIDGET is also detached from layout.
   detachFromLayout?: boolean;
 }
+
+export const WIDGET_STATIC_PROPS = {
+  leftColumn: true,
+  rightColumn: true,
+  topRow: true,
+  bottomRow: true,
+  minHeight: true,
+  parentColumnSpace: true,
+  parentRowSpace: true,
+  children: true,
+  type: true,
+  widgetId: true,
+  widgetName: true,
+  parentId: true,
+  renderMode: true,
+  detachFromLayout: true,
+};
 
 export interface WidgetDisplayProps {
   //TODO(abhinav): Some of these props are mandatory

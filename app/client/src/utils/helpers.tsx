@@ -102,9 +102,12 @@ export const flashElementById = (id: string) => {
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
-  const separatorRegex = /[\W_]+/;
+  const separatorRegex = /[^\w\s]/;
+  const duplicateSpaceRegex = /\s+/;
   return value
     .split(separatorRegex)
+    .join("")
+    .split(duplicateSpaceRegex)
     .join(" ")
     .slice(0, limit || 30);
 };

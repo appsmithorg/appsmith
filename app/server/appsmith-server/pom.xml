@@ -124,6 +124,12 @@
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
         </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.6</version>
+        </dependency>
+
 
         <!-- Plugin dependencies -->
         <!-- This has to be declared BEFORE the com.appsmith:interfaces dependency. -->

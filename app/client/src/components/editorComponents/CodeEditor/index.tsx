@@ -118,6 +118,8 @@ class CodeEditor extends Component<Props, State> {
         lineWrapping: this.props.size !== EditorSize.COMPACT,
         lineNumbers: this.props.showLineNumbers,
         addModeClass: true,
+        scrollbarStyle:
+          this.props.size !== EditorSize.COMPACT ? "native" : "null",
       };
 
       if (!this.props.input.onChange || this.props.disabled) {

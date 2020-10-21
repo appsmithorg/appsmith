@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -65,6 +68,9 @@ public class UserServiceTest {
     Mono<User> userMono;
 
     Mono<Organization> organizationMono;
+
+    @Autowired
+    UserSignup userSignup;
 
     @Before
     public void setup() {
@@ -386,6 +392,33 @@ public class UserServiceTest {
                         throwable.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
                 .verify();
 
+    }
+
+    @Test
+    public void createUserWithInvalidEmailAddress() {
+        List<String> invalidAddresses = Arrays.asList(
+                "plainaddress",
+                "#@%^%#$@#$@#.com",
+                "@example.com",
+                "Joe Smith <email@example.com>",
+                "email.example.com",
+                "email@example@example.com",
+                ".email@example.com",
+                "email.@example.com",
+                "email..email@example.com",
+                "email@example.com (Joe Smith)",
+                "email@-example.com",
+                "email@example..com",
+                "Abc..123@example.com"
+        );
+        for (String invalidAddress : invalidAddresses) {
+            User user = new User();
+            user.setEmail(invalidAddress);
+            user.setPassword("test-password");
+            user.setName("test-name");
+            StepVerifier.create(userSignup.signupAndLogin(user, null))
+                    .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL));
+        }
     }
 }
 
