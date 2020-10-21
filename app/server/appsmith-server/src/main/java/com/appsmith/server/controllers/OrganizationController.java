@@ -54,7 +54,7 @@ public class OrganizationController extends BaseController<OrganizationService, 
     @PutMapping("/{orgId}/role")
     public Mono<ResponseDTO<UserRole>> updateRoleForMember(@RequestBody UserRole updatedUserRole,
                                                            @PathVariable String orgId,
-                                                           @RequestHeader("Origin") String originHeader) {
+                                                           @RequestHeader(name = "Origin", required = false) String originHeader) {
         return userOrganizationService.updateRoleForMember(orgId, updatedUserRole, originHeader)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
