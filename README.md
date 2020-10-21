@@ -20,7 +20,7 @@
 
 Appsmith is a **Visual MVC** Framework to build sophisticated internal tools without having to wrestle with ever-upcoming frontend technologies, or cumbersome HTML/CSS. 
 
-You can build complex workflows using pre-built widgets (forms, tables, charts etc.), connect to any API or Database and even write conditional logic. Deploy apps with with a single-click and invite users with built-in Role-based Access control.
+You can build complex workflows using pre-built widgets (forms, tables, charts etc.), connect to any API or Database and even write conditional logic using Javascript.
 
 API Support: REST & GraphQL APIs
 Database Support: PostgreSQL, MongoDB & MySQL
@@ -37,11 +37,11 @@ Hosting: Cloud-hosted & On-premise
 ## 🏭 Features
 
 * **5-minute setup**: Deploy Appsmith your server, or use it on cloud to start building in 5 minutes.
-* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anaywhere to transform data. [Read more here.](https://docs.appsmith.com/core-concepts/building-the-ui)
-* **Database CRUD**: Query & update your database directly by hooking it up with the UI. Connect to **PostgreSQL, MongoDB & MySQL**.
-* **Trigger APIs**: Connect to any internal or external REST and GraphQL APIs to build dashboards, forms, and workflows.
-* **Security**: 
-* **One-click deployment**: Managed deployment of your app with a click of a button.
+* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anywhere to transform data. [Read more here.](https://docs.appsmith.com/core-concepts/building-the-ui)
+* **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**.
+* **Trigger APIs**: Connect to internal or external REST and GraphQL APIs to build custom apps.
+* **Security**: DB Credentials are AES 256 encrypted and no data is stored by appsmith. Deploy behind your private VPC for additional security!
+* **One-click deployment**: Managed deployment of your apps with a click of a button.
 * **Access-control**: Control who can edit / view your applications. [Read more here.](https://docs.appsmith.com/core-concepts/access-control)
 * **Authentication**: Allow users to authenticate via Google Auth or GitHub Auth.
 
