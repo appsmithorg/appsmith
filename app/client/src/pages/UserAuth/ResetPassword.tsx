@@ -119,7 +119,9 @@ export const ResetPassword = (props: ResetPasswordProps) => {
         intent: "success",
       },
     ];
+    setTimeout(() => props.history.push(AUTH_LOGIN_URL), 3000);
   }
+
   if (showFailureMessage) {
     message = error;
     if (
