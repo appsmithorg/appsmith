@@ -111,6 +111,16 @@ public class ActionController extends BaseController<ActionService, Action, Stri
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
+    /**
+     * This function fetches all actions in edit mode.
+     * To fetch the actions in view mode, check the function `getActionsForViewMode`
+     *
+     * The controller function is primarily used with param applicationId by the client to fetch the actions in edit
+     * mode.
+     *
+     * @param params
+     * @return
+     */
     @Override
     @GetMapping("")
     public Mono<ResponseDTO<List<Action>>> getAll(@RequestParam MultiValueMap<String, String> params) {

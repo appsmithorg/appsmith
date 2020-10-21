@@ -101,6 +101,14 @@ public class PageController extends BaseController<PageService, Page, String> {
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
+    /**
+     * This only deletes the unpublished version of the page.
+     * In case the page has never been published, the page gets deleted.
+     * In case the page has been published, this page would eventually get deleted whenever the application is published
+     * next.
+     * @param id
+     * @return
+     */
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Page>> delete(@PathVariable String id) {
         log.debug("Going to delete page with id: {}", id);

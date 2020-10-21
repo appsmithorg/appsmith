@@ -97,8 +97,8 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @GetMapping("/view")
-    public Mono<ResponseDTO<Application>> getApplicationInViewMode(@RequestParam String applicationId) {
+    @GetMapping("/view/{applicationId}")
+    public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String applicationId) {
         return service.getApplicationInViewMode(applicationId)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
