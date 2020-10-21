@@ -1,7 +1,7 @@
 <div align="center">
-  <a href="https://appsmith.com">
-    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
-  </a>
+  <p align="center">
+    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"/><h1>Appsmith</h1>
+  </p>
 
   <p>
 
