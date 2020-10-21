@@ -11,6 +11,7 @@ import { fetchEditorConfigs } from "actions/configsActions";
 import {
   fetchPage,
   fetchPageList,
+  fetchPublishedPage,
   setAppMode,
   updateAppStore,
 } from "actions/pageActions";
@@ -26,6 +27,7 @@ import { validateResponse } from "./ErrorSagas";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppStoreName } from "constants/AppConstants";
+import { getDefaultPageId } from "./selectors";
 
 const getAppStore = (appId: string) => {
   const appStoreName = getAppStoreName(appId);
@@ -146,7 +148,7 @@ export function* populatePageDSLsSaga() {
 }
 
 export function* initializeAppViewerSaga(
-  action: ReduxAction<{ pageId: string; applicationId: string }>,
+  action: ReduxAction<{ applicationId: string }>,
 ) {
   const { applicationId } = action.payload;
   yield all([
@@ -160,16 +162,23 @@ export function* initializeAppViewerSaga(
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
   ]);
 
-  yield put(setAppMode(APP_MODE.PUBLISHED));
-  yield put(updateAppStore(getAppStore(applicationId)));
+  const pageId = yield select(getDefaultPageId);
 
-  yield put({
-    type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
-  });
-  if ("serviceWorker" in navigator) {
+  if (pageId) {
+    yield put(fetchPublishedPage(pageId, true));
+    yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
+
+    yield put(setAppMode(APP_MODE.PUBLISHED));
+    yield put(updateAppStore(getAppStore(applicationId)));
+
     yield put({
-      type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
+      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
+    if ("serviceWorker" in navigator) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
+      });
+    }
   }
 }
 

@@ -12,5 +12,9 @@
     "json": false
   },
   "viewportHeight": 900,
-  "viewportWidth": 1400
+  "viewportWidth": 1400,
+  "retries": {
+    "runMode": 2,
+    "openMode": 0
+  }
 }
