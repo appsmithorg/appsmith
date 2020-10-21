@@ -963,6 +963,20 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
     }
 
+    @ChangeSet(order = "028", id = "use-png-logos", author = "")
+    public void usePngLogos(MongoTemplate mongoTemplate) {
+        mongoTemplate.updateFirst(
+                query(where("packageName").is("mysql-plugin")),
+                update("iconLocation", "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Mysql.png"),
+                Plugin.class
+        );
+        mongoTemplate.updateFirst(
+                query(where("packageName").is("elasticsearch-plugin")),
+                update("iconLocation", "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.png"),
+                Plugin.class
+        );
+    }
+
     private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
         for (Organization organization : mongoTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
