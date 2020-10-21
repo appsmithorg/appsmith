@@ -204,7 +204,6 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
       : null};
 `;
 type ApplicationCardProps = {
-  activeAppCard?: boolean;
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
@@ -248,7 +247,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
-  const menuIconRef = createRef<HTMLSpanElement>();
 
   useEffect(() => {
     setSelectedColor(colorCode);
@@ -274,11 +272,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
-    if (props.activeAppCard) {
-      setShowOverlay(true);
-    }
-  }, [props.activeAppCard]);
 
   const appIcon = (props.application?.icon ||
     getApplicationIcon(props.application.id)) as AppIconName;
@@ -358,11 +351,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         position={Position.RIGHT_TOP}
         target={
           <MoreOptionsContainer>
-            <Icon
-              name="context-menu"
-              ref={menuIconRef}
-              size={IconSize.XXXL}
-            ></Icon>
+            <Icon name="context-menu" size={IconSize.XXXL}></Icon>
           </MoreOptionsContainer>
         }
         className="more"
