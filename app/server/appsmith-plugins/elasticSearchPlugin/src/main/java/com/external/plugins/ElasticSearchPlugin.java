@@ -6,6 +6,8 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +63,7 @@ public class ElasticSearchPlugin extends BasePlugin {
             if (isBulkQuery(path)) {
                 contentType = ContentType.create("application/x-ndjson");
 
-                // If body is a JSON Array, instead of ND-JSON, convert it to ND-JSON.
+                // If body is a JSON Array, convert it to an ND-JSON string.
                 if (body != null && body.trim().startsWith("[")) {
                     final StringBuilder ndJsonBuilder = new StringBuilder();
                     try {
@@ -70,7 +72,9 @@ public class ElasticSearchPlugin extends BasePlugin {
                             ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
                         }
                     } catch (IOException e) {
-                        return Mono.error(e);
+                        final String message = "Error converting array to ND-JSON: " + e.getMessage();
+                        log.warn(message, e);
+                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
                     }
                     body = ndJsonBuilder.toString();
                 }
@@ -85,7 +89,9 @@ public class ElasticSearchPlugin extends BasePlugin {
                         client.performRequest(request).getEntity().getContent().readAllBytes());
                 result.setBody(objectMapper.readValue(responseBody, HashMap.class));
             } catch (IOException e) {
-                return Mono.error(e);
+                final String message = "Error performing request: " + e.getMessage();
+                log.warn(message, e);
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
             }
 
             result.setIsExecutionSuccess(true);
