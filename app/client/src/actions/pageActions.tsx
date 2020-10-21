@@ -32,6 +32,14 @@ export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
   };
 };
 
+export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
+  type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
+  payload: {
+    pageId,
+    bustCache,
+  },
+});
+
 export const fetchPageSuccess = () => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
