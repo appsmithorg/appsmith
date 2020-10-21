@@ -1,6 +1,6 @@
 <div align="center">
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" width="100"/>
-    <h1>Appsmith</h1>
+    <H1>Appsmith</H1>
 </div>
 
 <div align="center">
@@ -9,10 +9,8 @@
   [![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
   [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
   [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
-  [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
+  [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
   [![All Contributors](https://img.shields.io/badge/contributors-50+-orange.svg?style=flat-square)](#-contributors)
-  <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-  
   <!-- ALL-CONTRIBUTORS-BADGE:END -->
   
   </p>
@@ -20,9 +18,9 @@
 
 -----------------
 
-Appsmith is a drag-and-drop tool to build sophisticated internal tools without having to wrestle with ever-upcoming new frontend technologies, or the cumbersome HTML/CSS. 
+Appsmith is a **Visual MVC** Framework to build sophisticated internal tools without having to wrestle with ever-upcoming frontend technologies, or cumbersome HTML/CSS. 
 
-You can build dashboards, forms, workflows by connecting to any API or Database, and deploy them with one click, ready to be shared with your users, with built-in support for Role-based Access control.
+You can build complex workflows using pre-built widgets (forms, tables, charts etc.), connect to any API or Database and even write conditional logic. Deploy apps with with a single-click and invite users with built-in Role-based Access control.
 
 API Support: REST & GraphQL APIs
 Database Support: PostgreSQL, MongoDB & MySQL
