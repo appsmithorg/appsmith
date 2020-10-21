@@ -54,9 +54,12 @@ export default function MemberSettings(props: PageProps) {
     dispatch(fetchOrg(orgId));
   }, [orgId]);
 
-  const { isFetchingAllUsers, isFetchingAllRoles } = useSelector(
-    getOrgLoadingStates,
-  );
+  const {
+    isFetchingAllUsers,
+    isFetchingAllRoles,
+    deletingUserInfo,
+    roleChangingUserInfo,
+  } = useSelector(getOrgLoadingStates);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
   const currentOrg = useSelector(getCurrentOrg);
@@ -102,6 +105,11 @@ export default function MemberSettings(props: PageProps) {
           <TableDropdown
             selectedIndex={index}
             options={roles}
+            isLoading={
+              roleChangingUserInfo &&
+              roleChangingUserInfo.username ===
+                cellProps.cell.row.values.username
+            }
             onSelect={option => {
               dispatch(
                 changeOrgUserRole(
@@ -130,6 +138,10 @@ export default function MemberSettings(props: PageProps) {
             name="delete"
             size={IconSize.LARGE}
             cypressSelector="t--deleteUser"
+            isLoading={
+              deletingUserInfo &&
+              deletingUserInfo.username === cellProps.cell.row.values.username
+            }
             onClick={() => {
               dispatch(
                 deleteOrgUser(orgId, cellProps.cell.row.values.username),

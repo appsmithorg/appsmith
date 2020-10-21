@@ -179,6 +179,34 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "daniel-shuy",
+      "name": "Daniel Shuy",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/17351764?v=4",
+      "profile": "https://github.com/daniel-shuy",
+      "contributions": [
+        "code",
+        "doc"
+      ]
+    },
+    {
+      "login": "pc9795",
+      "name": "Prashant Chaubey",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/14848874?v=4",
+      "profile": "http://prashantchaubey.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "A-Scratchy",
+      "name": "Adam",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/25309929?v=4",
+      "profile": "https://github.com/A-Scratchy",
+      "contributions": [
+        "code"      
+      ]
     }
   ],
   "contributorsPerLine": 7,

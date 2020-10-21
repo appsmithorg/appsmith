@@ -29,7 +29,6 @@ import {
   selectPlugin,
   createDatasource,
   changeDatasource,
-  testDatasource,
   setDatsourceEditorMode,
   expandDatasourceEntity,
   fetchDatasourceStructure,

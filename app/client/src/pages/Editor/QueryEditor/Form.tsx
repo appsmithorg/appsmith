@@ -23,7 +23,7 @@ import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
 import Table from "./Table";
 import { RestAction } from "entities/Action";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
@@ -37,6 +37,7 @@ import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
+import { addTableWidgetFromQuery } from "actions/widgetActions";
 
 const QueryFormContainer = styled.div`
   padding: 20px 32px;
@@ -218,6 +219,7 @@ const TabContainerView = styled.div`
 
   .react-tabs__tab-panel {
     border: 1px solid #ebeff2;
+    overflow: scroll;
   }
   .react-tabs__tab-list {
     margin: 0px;
@@ -225,9 +227,26 @@ const TabContainerView = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  padding-left: 15px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding: 5px 10px;
+`;
+
+const AddWidgetButton = styled(BaseButton)`
+  &&&& {
+    max-width: 125px;
+    border: 1px solid ${Colors.GEYSER_LIGHT};
+  }
+`;
+
+const OutputHeader = styled.div`
+  flex-direction: row;
+  justify-content: space-between;
+  display: flex;
+  margin-bottom: 10px;
+  align-items: center;
+`;
+
+const FieldWrapper = styled.div`
+  margin-top: 15px;
 `;
 
 type QueryFormProps = {
@@ -279,6 +298,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     documentationLink,
     loadingFormConfigs,
     editorConfig,
+    actionName,
   } = props;
 
   let error = runErrorMessage;
@@ -293,6 +313,11 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   }
 
   const isSQL = responseType === "TABLE";
+
+  const dispatch = useDispatch();
+  const onAddWidget = () => {
+    dispatch(addTableWidgetFromQuery(actionName));
+  };
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (
@@ -462,23 +487,28 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               {
                 key: "query",
                 title: "Query",
-                panelComponent:
-                  editorConfig && editorConfig.length > 0 ? (
-                    editorConfig.map(renderEachConfig)
-                  ) : (
-                    <>
-                      <ErrorMessage>An unexpected error occurred</ErrorMessage>
-                      <Tag
-                        round
-                        intent="warning"
-                        interactive
-                        minimal
-                        onClick={() => window.location.reload()}
-                      >
-                        Refresh
-                      </Tag>
-                    </>
-                  ),
+                panelComponent: (
+                  <SettingsWrapper>
+                    {editorConfig && editorConfig.length > 0 ? (
+                      editorConfig.map(renderEachConfig)
+                    ) : (
+                      <>
+                        <ErrorMessage>
+                          An unexpected error occurred
+                        </ErrorMessage>
+                        <Tag
+                          round
+                          intent="warning"
+                          interactive
+                          minimal
+                          onClick={() => window.location.reload()}
+                        >
+                          Refresh
+                        </Tag>
+                      </>
+                    )}
+                  </SettingsWrapper>
+                ),
               },
               {
                 key: "settings",
@@ -523,9 +553,19 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
       {!error && output && dataSources.length && (
         <>
-          <p className="statementTextArea">
-            {output.length ? "Query response" : "No data records to display"}
-          </p>
+          <OutputHeader>
+            <p className="statementTextArea">
+              {output.length ? "Query response" : "No data records to display"}
+            </p>
+            {!!output.length && (
+              <AddWidgetButton
+                className="t--add-widget"
+                icon={"plus"}
+                text="Add Widget"
+                onClick={onAddWidget}
+              />
+            )}
+          </OutputHeader>
           {isSQL ? <Table data={output} /> : <JSONViewer src={output} />}
         </>
       )}
@@ -541,13 +581,13 @@ const renderEachConfig = (section: any): any => {
       try {
         const { configProperty } = propertyControlOrSection;
         return (
-          <div key={configProperty} style={{ marginTop: "8px" }}>
+          <FieldWrapper key={configProperty}>
             {FormControlFactory.createControl(
               { ...propertyControlOrSection },
               {},
               false,
             )}
-          </div>
+          </FieldWrapper>
         );
       } catch (e) {
         console.log(e);

@@ -506,6 +506,10 @@ type ColorType = {
     hoverIcon: ShadeColor;
     hoverText: ShadeColor;
     hoverBg: ShadeColor;
+    warning: {
+      color: string;
+      bg: string;
+    };
   };
   colorSelector: {
     shadow: ShadeColor;
@@ -681,6 +685,10 @@ type ColorType = {
       bgColor: string;
     };
   };
+  loader: {
+    light: ShadeColor;
+    dark: ShadeColor;
+  };
 };
 
 export const dark: ColorType = {
@@ -764,6 +772,10 @@ export const dark: ColorType = {
     hoverIcon: darkShades[8],
     hoverText: darkShades[9],
     hoverBg: darkShades[4],
+    warning: {
+      color: "#EABB0C",
+      bg: "#3A3628",
+    },
   },
   colorSelector: {
     shadow: darkShades[4],
@@ -873,12 +885,12 @@ export const dark: ColorType = {
     },
   },
   applications: {
-    bg: darkShades[1],
+    bg: darkShades[4],
     textColor: darkShades[7],
     orgColor: darkShades[7],
     iconColor: darkShades[7],
     hover: {
-      bg: darkShades[4],
+      bg: darkShades[5],
       textColor: darkShades[8],
       orgColor: darkShades[9],
     },
@@ -938,6 +950,10 @@ export const dark: ColorType = {
       color: "#E0B30E",
       bgColor: "#29251A",
     },
+  },
+  loader: {
+    light: darkShades[2],
+    dark: darkShades[4],
   },
 };
 
@@ -1022,6 +1038,10 @@ export const light: ColorType = {
     hoverIcon: lightShades[8],
     hoverText: lightShades[10],
     hoverBg: lightShades[2],
+    warning: {
+      color: "#D2A500",
+      bg: "#FDFAF2",
+    },
   },
   colorSelector: {
     shadow: lightShades[3],
@@ -1131,12 +1151,12 @@ export const light: ColorType = {
     },
   },
   applications: {
-    bg: lightShades[2],
+    bg: lightShades[3],
     textColor: lightShades[7],
     orgColor: lightShades[7],
     iconColor: lightShades[7],
     hover: {
-      bg: lightShades[3],
+      bg: lightShades[5],
       textColor: lightShades[8],
       orgColor: lightShades[9],
     },
@@ -1196,6 +1216,10 @@ export const light: ColorType = {
       color: "#DCAD00",
       bgColor: "#FAF6E6",
     },
+  },
+  loader: {
+    light: lightShades[2],
+    dark: lightShades[4],
   },
 };
 

@@ -36,7 +36,7 @@ const validate = (values: CreateApplicationFormValues) => {
 
 // TODO(abhinav): abstract onCancel out.
 
-export const CreateApplicationForm = (props: Props) => {
+const CreateApplicationForm = (props: Props) => {
   const { error, handleSubmit, pristine, submitting, invalid } = props;
   return (
     <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>

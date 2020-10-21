@@ -18,6 +18,19 @@ const Wrapper = styled(EntityTogglesWrapper)`
       fill: #ff7235;
     }
   }
+  span {
+    font-size: ${props => props.theme.fontSizes[2]}px;
+    margin-left: 5px;
+    color: white;
+    padding-top: 2px;
+  }
+  padding: 0 5px;
+`;
+
+const StyledEntity = styled(Entity)`
+  & > div {
+    grid-template-columns: 20px auto 1fr auto;
+  }
 `;
 
 type DatasourceStructureProps = {
@@ -41,6 +54,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
       <IconWrapper {...iconProps}>
         <LightningIcon />
       </IconWrapper>
+      <span>Add</span>
     </Wrapper>
   );
 
@@ -67,7 +81,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
   const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);
 
   return (
-    <Entity
+    <StyledEntity
       entityId={"DatasourceStructure"}
       className={"datasourceStructure"}
       name={dbStructure.name}
@@ -85,7 +99,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
           />
         );
       })}
-    </Entity>
+    </StyledEntity>
   );
 };
 
