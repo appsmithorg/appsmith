@@ -59,8 +59,8 @@ public class SeedMongoData {
         log.info("Seeding the data");
         final String API_USER_EMAIL = "api_user";
         final String TEST_USER_EMAIL = "usertest@usertest.com";
-        final String ADMIN_USER_EMAIL = "admin@solutionTest.com";
-        final String DEV_USER_EMAIL = "developer@solutionTest.com";
+        final String ADMIN_USER_EMAIL = "admin@solutiontest.com";
+        final String DEV_USER_EMAIL = "developer@solutiontest.com";
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of(API_USER_EMAIL))

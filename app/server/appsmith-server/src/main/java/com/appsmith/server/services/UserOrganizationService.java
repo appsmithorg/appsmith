@@ -20,7 +20,7 @@ public interface UserOrganizationService {
 
     Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user);
 
-    Mono<UserRole> updateRoleForMember(String orgId, UserRole userRole);
+    Mono<UserRole> updateRoleForMember(String orgId, UserRole userRole, String originHeader);
 
     Mono<Organization> bulkAddUsersToOrganization(Organization organization, List<User> users, String roleName);
 }

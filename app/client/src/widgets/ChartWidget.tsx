@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";

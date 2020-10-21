@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Component
@@ -51,6 +52,11 @@ public class UserSignup {
      * @return Mono of User, published the saved user object with a non-null value for its `getId()`.
      */
     public Mono<User> signupAndLogin(User user, ServerWebExchange exchange) {
+
+        if (!validateEmail(user.getUsername())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
+        }
+
         return Mono
                 .zip(
                         userService.createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin()),

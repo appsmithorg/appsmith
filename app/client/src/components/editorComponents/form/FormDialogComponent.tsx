@@ -74,7 +74,11 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
 
   return (
     <React.Fragment>
-      <TriggerWrapper onClick={() => setIsOpen(true)}>
+      <TriggerWrapper
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
         {props.trigger}
       </TriggerWrapper>
 
