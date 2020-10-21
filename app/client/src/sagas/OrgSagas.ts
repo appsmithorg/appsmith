@@ -176,7 +176,7 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
     const response: ApiResponse = yield call(OrgApi.saveOrg, request);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const currentOrg = yield select(getCurrentOrg);
+      const currentOrg = yield select(getCurrentOrg, action.payload.id);
       if (currentOrg && currentOrg.id === request.id) {
         yield put({
           type: ReduxActionTypes.SET_CURRENT_ORG,

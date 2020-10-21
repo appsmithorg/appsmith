@@ -14,6 +14,7 @@ import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "@blueprintjs/core";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { AppState } from "reducers";
 
 const InputLabelWrapper = styled.div`
   width: 200px;
@@ -43,8 +44,9 @@ const Loader = styled.div`
 export function GeneralSettings() {
   const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
-  const currentOrg = useSelector(getCurrentOrg).find(el => el.id === orgId);
-
+  const currentOrg = useSelector((state: AppState) =>
+    getCurrentOrg(state, orgId),
+  );
   function saveChanges(settings: SaveOrgRequest) {
     dispatch(saveOrg(settings));
   }

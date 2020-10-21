@@ -18,6 +18,7 @@ import IconComponent from "components/designSystems/appsmith/IconComponent";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";
+import { AppState } from "reducers";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const LinkToApplications = styled(Link)`
@@ -38,7 +39,9 @@ const SettingsWrapper = styled.div`
 `;
 export default function Settings() {
   const { orgId } = useParams<{ orgId: string }>();
-  const currentOrg = useSelector(getCurrentOrg).find(el => el.id === orgId);
+  const currentOrg = useSelector((state: AppState) => {
+    return getCurrentOrg(state, orgId);
+  });
   const { path } = useRouteMatch();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -46,8 +49,7 @@ export default function Settings() {
     if (!currentOrg) {
       dispatch(getAllApplications());
     }
-    // dispatch(fetchOrg(orgId as string));
-  }, [orgId, dispatch, currentOrg]);
+  }, [dispatch, currentOrg]);
 
   const SettingsRenderer = (
     <div>

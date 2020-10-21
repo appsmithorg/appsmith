@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -41,10 +41,12 @@ const AppInviteUsersForm = (props: any) => {
     changeAppViewAccess,
     applicationId,
     fetchCurrentOrg,
-    currentOrg,
     currentUser,
   } = props;
 
+  const currentOrg = useSelector((state: AppState) =>
+    getCurrentOrg(state, props.orgId),
+  );
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
   const canInviteToOrg = isPermitted(
@@ -112,7 +114,6 @@ const AppInviteUsersForm = (props: any) => {
 export default connect(
   (state: AppState) => {
     return {
-      currentOrg: getCurrentOrg(state),
       currentUser: getCurrentUser(state),
       currentApplicationDetails: state.ui.applications.currentApplication,
       isFetchingApplication: state.ui.applications.isFetchingApplication,

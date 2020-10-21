@@ -692,9 +692,7 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    if (this.props.userOrgs.length === 0) {
-      this.props.getAllApplication();
-    }
+    this.props.getAllApplication();
     if (this.props.applicationList.length > 0) {
       this.setState({
         newApplicationList: this.props.applicationList.map(el => el.id),

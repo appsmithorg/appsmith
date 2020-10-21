@@ -222,14 +222,15 @@ const OrgInviteUsersForm = (props: any) => {
     fetchAllRoles,
     valid,
     fetchCurrentOrg,
-    currentOrg,
     isApplicationInvite,
     isLoading,
   } = props;
 
   const currentPath = useLocation().pathname;
   const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
-
+  const currentOrg = useSelector((state: AppState) =>
+    getCurrentOrg(state, props.orgId),
+  );
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
   const canManage = isPermitted(
     userOrgPermissions,
@@ -402,7 +403,6 @@ export default connect(
     return {
       roles: getRolesForField(state),
       allUsers: getAllUsers(state),
-      currentOrg: getCurrentOrg(state),
       isLoading: state.ui.orgs.loadingStates.isFetchAllUsers,
     };
   },
