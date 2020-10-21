@@ -75,7 +75,10 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import {
+  getAppMode,
+  getCurrentApplication,
+} from "selectors/applicationSelectors";
 import { evaluateDynamicTrigger, evaluateSingleValue } from "./evaluationsSaga";
 
 function* navigateActionSaga(

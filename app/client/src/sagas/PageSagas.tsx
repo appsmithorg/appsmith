@@ -69,7 +69,6 @@ import {
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
 } from "actions/actionActions";
-import { clearCaches } from "utils/DynamicBindingUtils";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 import { clearEvalCache } from "./evaluationsSaga";
 import { getQueryParams } from "utils/AppsmithUtils";
