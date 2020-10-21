@@ -157,16 +157,39 @@ public class ElasticSearchPluginTest {
     }
 
     @Test
-    public void testBulk() {
+    public void testBulkWithArrayBody() {
         final String contentJson = "[\n" +
-                "  { \"index\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"1\" } },\n" +
+                "  { \"index\" : { \"_index\" : \"test1\", \"_type\": \"doc\", \"_id\" : \"1\" } },\n" +
                 "  { \"field1\" : \"value1\" },\n" +
-                "  { \"delete\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"2\" } },\n" +
-                "  { \"create\" : { \"_index\" : \"test\", \"_type\": \"doc\", \"_id\" : \"3\" } },\n" +
+                "  { \"delete\" : { \"_index\" : \"test1\", \"_type\": \"doc\", \"_id\" : \"2\" } },\n" +
+                "  { \"create\" : { \"_index\" : \"test1\", \"_type\": \"doc\", \"_id\" : \"3\" } },\n" +
                 "  { \"field1\" : \"value3\" },\n" +
-                "  { \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test\"} },\n" +
+                "  { \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test1\"} },\n" +
                 "  { \"doc\" : {\"field2\" : \"value2\"} }\n" +
                 "]";
+
+        StepVerifier.create(execute(HttpMethod.POST, "/_bulk", contentJson))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    assertFalse((Boolean) resultBody.get("errors"));
+                    assertEquals(4, ((List) resultBody.get("items")).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBulkWithDirectBody() {
+        final String contentJson =
+                "{ \"index\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"1\" } }\n" +
+                "{ \"field1\" : \"value1\" }\n" +
+                "{ \"delete\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"2\" } }\n" +
+                "{ \"create\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"3\" } }\n" +
+                "{ \"field1\" : \"value3\" }\n" +
+                "{ \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test2\"} }\n" +
+                "{ \"doc\" : {\"field2\" : \"value2\"} }\n";
 
         StepVerifier.create(execute(HttpMethod.POST, "/_bulk", contentJson))
                 .assertNext(result -> {
