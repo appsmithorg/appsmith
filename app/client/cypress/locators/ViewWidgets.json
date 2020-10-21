@@ -14,7 +14,7 @@
     "searchloc": "input[placeholder='Enter location to search']",
     "imagecontainer": ".t--draggable-imagewidget span.t--widget-name",
     "imageinner": ".t--draggable-imagewidget img",
-    "chartInnerText": ".t--draggable-chartwidget text",
+    "chartInnerText": ".t--property-control-title",
     "inputChartValue": ".t--property-control-chartdata .CodeMirror textarea",
     "chartButton": ".t--property-control-chartdata button",
     "rectangleChart": ".t--draggable-chartwidget g  rect",
