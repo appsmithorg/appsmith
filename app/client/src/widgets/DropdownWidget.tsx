@@ -13,6 +13,7 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { is } from "immer/dist/utils/common";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -101,7 +102,9 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
     if (this.props.selectionType === "SINGLE_SELECT") {
-      isChanged = !(this.props.selectedOption.value === selectedOption.value);
+      if (this.props.selectedOption) {
+        isChanged = !(this.props.selectedOption.value === selectedOption.value);
+      }
       if (isChanged) {
         this.props.updateWidgetMetaProperty(
           "selectedOptionValue",
