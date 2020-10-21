@@ -31,7 +31,7 @@ Hosting: Cloud-hosted & On-premise
 <p align="center">
   <img src="https://github.com/appsmithOrg/appsmith/blob/readme-v2-images/static/Query2.png" width="300">
   <img src="https://github.com/appsmithOrg/appsmith/blob/readme-v2-images/static/API2.png" width="300">
-  <img src="https://github.com/appsmithOrg/appsmith/blob/readme-v2-images/static/Share2.png" width="300">
+  <img src="https://github.com/appsmithOrg/appsmith/blob/readme-v2-images/static/Share3.png" width="300">
 </p>
 
 ## 🏭 Features
