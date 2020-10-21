@@ -690,9 +690,9 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     );
   } catch (e) {
     log.error(e);
-    AppToaster.show({
-      message: "Failed to load onPageLoad actions",
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: "Failed to load onPageLoad actions",
+      variant: Variant.danger,
     });
   }
 }
