@@ -85,7 +85,9 @@ public class DynamoPlugin extends BasePlugin {
                     parameters = objectMapper.readValue(body, HashMap.class);
                 }
             } catch (IOException e) {
-                return Mono.error(e);
+                final String message = "Error parsein JSON body: " + e.getMessage();
+                log.warn(message, e);
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
             }
 
             final Class<?> requestClass;
@@ -107,7 +109,9 @@ public class DynamoPlugin extends BasePlugin {
                 final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
                 result.setBody(sdkToPlain(response));
             } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
-                return Mono.error(e.getCause() == null ? e : e.getCause());
+                final String message = "Error parsein JSON body: " + (e.getCause() == null ? e : e.getCause()).getMessage();
+                log.warn(message, e);
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
             }
 
             result.setIsExecutionSuccess(true);
@@ -127,7 +131,7 @@ public class DynamoPlugin extends BasePlugin {
             if (authentication == null || StringUtils.isEmpty(authentication.getDatabaseName())) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Missing region in datasource"
+                        "Missing region in datasource."
                 ));
             }
 
