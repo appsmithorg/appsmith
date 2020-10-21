@@ -35,7 +35,7 @@
           "controlType": "INPUT_TEXT"
         },
         {
-          "label": "",
+          "label": "Body",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT"
         }

@@ -58,7 +58,10 @@ public class ElasticSearchPlugin extends BasePlugin {
             ContentType contentType = ContentType.APPLICATION_JSON;
 
             if (isBulkQuery(path)) {
-                if (body.startsWith("[")) {
+                contentType = ContentType.create("application/x-ndjson");
+
+                // If body is a JSON Array, instead of ND-JSON, convert it to ND-JSON.
+                if (body.trim().startsWith("[")) {
                     final StringBuilder ndJsonBuilder = new StringBuilder();
                     try {
                         List<Object> commands = objectMapper.readValue(body, ArrayList.class);
@@ -70,21 +73,15 @@ public class ElasticSearchPlugin extends BasePlugin {
                     }
                     body = ndJsonBuilder.toString();
                 }
-                contentType = ContentType.create("application/x-ndjson");
             }
 
             if (body != null) {
                 request.setEntity(new NStringEntity(body, contentType));
             }
 
-            final String responseBody;
             try {
-                responseBody = new String(client.performRequest(request).getEntity().getContent().readAllBytes());
-            } catch (IOException e) {
-                return Mono.error(e);
-            }
-
-            try {
+                final String responseBody = new String(
+                        client.performRequest(request).getEntity().getContent().readAllBytes());
                 result.setBody(objectMapper.readValue(responseBody, HashMap.class));
             } catch (IOException e) {
                 return Mono.error(e);
