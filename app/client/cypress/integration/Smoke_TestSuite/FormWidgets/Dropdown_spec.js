@@ -21,7 +21,8 @@ describe("Dropdown Widget Functionality", function() {
       .click({ force: true });
     cy.get(commonlocators.singleSelectMenuItem)
       .contains("Option 3")
-      .click();
+      .click({ force: true });
+
     cy.get(formWidgetsPage.dropdownWidget)
       .find(widgetLocators.defaultSingleSelectValue)
       .should("have.text", "Option 3");
