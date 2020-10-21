@@ -15,7 +15,6 @@ import styled from "styled-components";
 
 import MemberSettings from "./Members";
 import IconComponent from "components/designSystems/appsmith/IconComponent";
-import { fetchOrg } from "actions/orgActions";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";
@@ -48,7 +47,7 @@ export default function Settings() {
       dispatch(getAllApplications());
     }
     // dispatch(fetchOrg(orgId as string));
-  }, [orgId, dispatch]);
+  }, [orgId, dispatch, currentOrg]);
 
   const SettingsRenderer = (
     <div>

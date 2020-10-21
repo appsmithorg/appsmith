@@ -56,9 +56,6 @@ import EditableText, {
   SavingState,
 } from "components/ads/EditableText";
 import { notEmptyValidator } from "components/ads/TextInput";
-import { throttle } from "lodash";
-import { getCurrentOrg } from "selectors/organizationSelectors";
-import { SaveOrgRequest } from "api/OrgApi";
 import { saveOrg } from "actions/orgActions";
 
 const OrgDropDown = styled.div`
@@ -317,15 +314,6 @@ const OrgNameElement = styled(Text)`
 const OrgNameHolder = styled(Text)`
   display: flex;
   align-items: center;
-`;
-
-const OrgNameInMenu = styled(Text)`
-  max-width: 100%;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  display: block;
-  padding: 9px ${props => props.theme.spaces[6]}px;
 `;
 
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`

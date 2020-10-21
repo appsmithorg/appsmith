@@ -4,7 +4,6 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ApplicationPayload,
-  ReduxActionType,
 } from "constants/ReduxActionConstants";
 import { Organization } from "constants/orgConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";

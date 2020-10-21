@@ -13,7 +13,8 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "@blueprintjs/core";
-import { getOrgLoadingStates } from "selectors/organizationSelectors";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
+
 const InputLabelWrapper = styled.div`
   width: 200px;
   display: flex;
@@ -71,7 +72,7 @@ export function GeneralSettings() {
     });
   }, throttleTimeout);
 
-  const { isFetchingOrg } = useSelector(getOrgLoadingStates);
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   return (
     <>
@@ -80,8 +81,10 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Workspace</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={notEmptyValidator}
             placeholder="Workspace name"
@@ -95,8 +98,10 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Website</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             placeholder="Your website"
             onChange={onWebsiteChange}
@@ -109,8 +114,10 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={emailValidator}
             placeholder="Email"
