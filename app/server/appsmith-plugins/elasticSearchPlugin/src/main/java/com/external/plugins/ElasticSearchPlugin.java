@@ -61,7 +61,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                 contentType = ContentType.create("application/x-ndjson");
 
                 // If body is a JSON Array, instead of ND-JSON, convert it to ND-JSON.
-                if (body.trim().startsWith("[")) {
+                if (body != null && body.trim().startsWith("[")) {
                     final StringBuilder ndJsonBuilder = new StringBuilder();
                     try {
                         List<Object> commands = objectMapper.readValue(body, ArrayList.class);
