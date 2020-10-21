@@ -936,6 +936,26 @@ public class DatabaseChangelog {
         );
     }
 
+    @ChangeSet(order = "027", id = "add-elastic-search-plugin", author = "")
+    public void addElasticSearchPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("ElasticSearch");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("elasticsearch-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.JSON);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.jpg");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-elasticsearch");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin1.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
     private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
         for (Organization organization : mongoTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
@@ -953,7 +973,5 @@ public class DatabaseChangelog {
             mongoTemplate.save(organization);
         }
     }
-
-
 
 }
