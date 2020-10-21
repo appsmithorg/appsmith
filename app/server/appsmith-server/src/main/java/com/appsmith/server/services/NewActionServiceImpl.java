@@ -49,8 +49,8 @@ import reactor.core.scheduler.Scheduler;
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -591,31 +591,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             });
                 });
 
-        // Populate the actionExecution result by setting the cached response and saving it to the DB
         return actionExecutionResultMono
-                .flatMap(result -> {
-                    Mono<ActionExecutionResult> resultMono = Mono.just(result);
-
-                    Mono<NewAction> actionFromDbMono = repository.findById(actionId)
-                            .flatMap(action -> {
-                                // If the plugin execution result is successful, then cache response body in
-                                // the action and save it.
-                                if (TRUE.equals(result.getIsExecutionSuccess())) {
-                                    // Save the result only if body exists in the body. e.g. Even though 204
-                                    // is an execution success, there would be no body expected.
-                                    if (result.getBody() != null) {
-                                        action.getUnpublishedAction().setCacheResponse(result.getBody().toString());
-                                        return repository.save(action);
-                                    }
-                                    // No result body exists. Return the action as is.
-                                    return Mono.just(action);
-                                }
-                                log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
-                                return Mono.just(action);
-                            });
-
-                    return actionFromDbMono.then(resultMono);
-                })
                 .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();
                     result.setIsExecutionSuccess(false);
@@ -692,11 +668,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                                                                DatasourceConfiguration datasourceConfiguration,
                                                                                PaginationField paginationField) {
         if (PaginationField.NEXT.equals(paginationField)) {
-            try {
-                datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
         } else if (PaginationField.PREV.equals(paginationField)) {
             datasourceConfiguration.setUrl(actionConfiguration.getPrev());
         }
