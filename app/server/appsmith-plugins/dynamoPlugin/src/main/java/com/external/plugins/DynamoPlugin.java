@@ -85,7 +85,7 @@ public class DynamoPlugin extends BasePlugin {
                     parameters = objectMapper.readValue(body, HashMap.class);
                 }
             } catch (IOException e) {
-                final String message = "Error parsein JSON body: " + e.getMessage();
+                final String message = "Error parsing the JSON body: " + e.getMessage();
                 log.warn(message, e);
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
             }
