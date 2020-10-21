@@ -10,6 +10,7 @@ import { Datasource } from "api/DatasourcesApi";
 import { Action } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
+import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -88,15 +89,12 @@ export const getPluginNameFromId = (state: AppState, pluginId: string) => {
   return plugin.name;
 };
 
-export const getPluginForm = (state: AppState, pluginId: string): [] => {
+export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
 
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
-
-export const getDatasourceRefs = (state: AppState): any =>
-  state.ui.datasourcePane.datasourceRefs;
 
 export const getDatasource = (
   state: AppState,
@@ -139,12 +137,6 @@ export const getQueryName = (state: AppState, actionId: string): string => {
   });
 
   return action?.config.name ?? "";
-};
-
-export const getQueryActions = (state: AppState): ActionDataState => {
-  return state.entities.actions.filter((action: ActionData) => {
-    return action.config.pluginType === QUERY_CONSTANT;
-  });
 };
 
 const getCurrentPageId = (state: AppState) =>
@@ -206,6 +198,19 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const getQueryActionsForCurrentPage = createSelector(
+  getActionsForCurrentPage,
+  actions => {
+    return actions.filter((action: ActionData) => {
+      return action.config.pluginType === QUERY_CONSTANT;
+    });
+  },
+);
+
+export const getPlugin = (state: AppState, pluginId: string) => {
+  return state.entities.plugins.list.find(plugin => plugin.id === pluginId);
+};
+
 export const getActionResponses = createSelector(getActions, actions => {
   const responses: Record<string, ActionResponse | undefined> = {};
 
@@ -263,3 +268,6 @@ export const isActionDirty = (id: string) =>
   });
 
 export const getAppData = (state: AppState) => state.entities.app;
+
+export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
+  state.entities.canvasWidgets;

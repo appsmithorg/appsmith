@@ -77,12 +77,14 @@ export const PageContextMenu = (props: {
       label: "Set as Home Page",
     });
   }
-  optionTree.push({
-    value: "delete",
-    onSelect: () => deletePage(props.pageId, props.name),
-    label: "Delete",
-    intent: "danger",
-  });
+  if (!props.isDefaultPage) {
+    optionTree.push({
+      value: "delete",
+      onSelect: () => deletePage(props.pageId, props.name),
+      label: "Delete",
+      intent: "danger",
+    });
+  }
   return (
     <TreeDropdown
       className={props.className}

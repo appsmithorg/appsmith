@@ -50,6 +50,7 @@ describe("Entity explorer datasource structure", function() {
       "response.body.responseMeta.status",
       200,
     );
+
     cy.deletePostgresDatasource(datasourceName);
   });
 
@@ -68,8 +69,8 @@ describe("Entity explorer datasource structure", function() {
     cy.get(commonlocators.entityExplorersearch).clear();
 
     cy.NavigateToQueryEditor();
-    cy.get(".t--datasource-name")
-      .contains(datasourceName)
+    cy.contains(".t--datasource-name", datasourceName)
+      .find(queryLocators.createQuery)
       .click();
     cy.get(queryLocators.templateMenu).click();
 

@@ -104,7 +104,7 @@ const Hit = (props: { hit: { path: string } }) => {
 
 const DefaultHelpMenuItem = (props: {
   item: { label: string; link?: string; id?: string; icon: React.ReactNode };
-  onSelect: Function;
+  onSelect: () => void;
 }) => {
   return (
     <li className="ais-Hits-item">

@@ -26,6 +26,7 @@ import { MapWidgetProps } from "widgets/MapWidget";
 import { ModalWidgetProps } from "widgets/ModalWidget";
 import { IconWidgetProps } from "widgets/IconWidget";
 import { VideoWidgetProps } from "widgets/VideoWidget";
+import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -74,6 +75,7 @@ export interface WidgetConfigReducerState {
     CANVAS_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
       WidgetConfigProps;
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
+    SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

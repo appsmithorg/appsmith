@@ -10,7 +10,7 @@
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
 [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-49-orange.svg?style=flat-square)](#-contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-50+-orange.svg?style=flat-square)](#-contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 </p>
@@ -58,7 +58,7 @@ Appsmith doesn't take the fun out of coding, because it treats every block as an
 * **5 minute setup**: Deploy Appsmith on your servers in 5 minutes.
 * **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**.
 * **Query data**: Query & update your database directly from the UI. Connect to **PostgreSQL, MongoDB, MySQL, REST & GraphQL APIs**.
-* **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows. Use popular libraries like lodash & moment anywhere in the app
+* **JS Logic**: Write snippets of business logic using JS to transform data, manipulate UI or trigger workflows. Use popular libraries like lodash & moment anywhere in the app
 * **Data Workflows**: Simple configuration to create flows when users interact with the UI.
 * **Realtime Editor**: Changes in your application reflect instantly with every edit. No need to compile!
 * **Works with existing, live databases**: Connect directly to any PostgreSQL, MySQL & MongoDB
@@ -113,6 +113,9 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
     <td align="center"><a href="https://github.com/akbansa"><img src="https://avatars0.githubusercontent.com/u/13042781?v=4" width="100px;" alt=""/><br /><sub><b>Anshul Bansal</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Aakbansa" title="Bug reports">🐛</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=akbansa" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/gogetter22"><img src="https://avatars3.githubusercontent.com/u/71608910?v=4" width="100px;" alt=""/><br /><sub><b>Navia Garg</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Agogetter22" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://github.com/Xniveres"><img src="https://avatars0.githubusercontent.com/u/56609232?v=4" width="100px;" alt=""/><br /><sub><b>Xniveres</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3AXniveres" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/daniel-shuy"><img src="https://avatars1.githubusercontent.com/u/17351764?v=4" width="100px;" alt=""/><br /><sub><b>Daniel Shuy</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=daniel-shuy" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=daniel-shuy" title="Documentation">📖</a></td>
+    <td align="center"><a href="http://prashantchaubey.com"><img src="https://avatars3.githubusercontent.com/u/14848874?v=4" width="100px;" alt=""/><br /><sub><b>Prashant Chaubey</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=pc9795" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/A-Scratchy"><img src="https://avatars0.githubusercontent.com/u/25309929?v=4" width="100px;" alt=""/><br /><sub><b>Adam</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=A-Scratchy" title="Code">💻</a></td>
   </tr>
 </table>
 

@@ -23,8 +23,8 @@ describe("Entity explorer tests related to copy query", function() {
     cy.get("@createDatasource").then(httpResponse => {
       datasourceName = httpResponse.response.body.data.name;
 
-      cy.get(".t--datasource-name")
-        .contains(datasourceName)
+      cy.contains(".t--datasource-name", datasourceName)
+        .find(queryLocators.createQuery)
         .click();
     });
 
@@ -86,6 +86,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("sliced id :" + updatedName);
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.SearchEntityandOpen(updatedName);
+      cy.get(datasource.editDatasource).click();
       cy.testSaveDatasource();
       cy.hoverAndClick();
       cy.get(apiwidget.delete).click({ force: true });

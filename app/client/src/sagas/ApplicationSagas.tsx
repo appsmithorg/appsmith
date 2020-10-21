@@ -25,7 +25,7 @@ import { getDefaultPageId } from "./SagaUtils";
 import { call, put, takeLatest, all, select } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
-import { getApplicationList } from "selectors/applicationSelectors";
+import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -37,6 +37,7 @@ import {
   DUPLICATING_APPLICATION,
   DELETING_APPLICATION,
 } from "constants/messages";
+import { Organization } from "constants/orgConstants";
 
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
@@ -317,13 +318,16 @@ export function* createApplicationSaga(
 ) {
   const { applicationName, orgId, resolve, reject } = action.payload;
   try {
-    const applicationList: ApplicationPayload[] = yield select(
-      getApplicationList,
-    );
-    const existingApplication = applicationList.find(application => {
-      return application.name === applicationName;
-    });
-
+    const userOrgs = yield select(getUserApplicationsOrgsList);
+    const existingOrgs = userOrgs.filter(
+      (org: Organization) => org.organization.id === orgId,
+    )[0];
+    const existingApplication = existingOrgs
+      ? existingOrgs.applications.find(
+          (application: ApplicationPayload) =>
+            application.name === applicationName,
+        )
+      : null;
     if (existingApplication) {
       yield call(reject, {
         _error: "An application with this name already exists",
@@ -356,25 +360,25 @@ export function* createApplicationSaga(
         });
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
-          payload: application,
+          payload: {
+            orgId,
+            application,
+          },
         });
-        yield call(resolve);
         const pageURL = BUILDER_PAGE_URL(
           application.id,
           application.defaultPageId,
         );
         history.push(pageURL);
-      } else {
-        yield call(reject);
       }
     }
   } catch (error) {
-    yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.CREATE_APPLICATION_ERROR,
       payload: {
         error,
         show: false,
+        orgId,
       },
     });
   }

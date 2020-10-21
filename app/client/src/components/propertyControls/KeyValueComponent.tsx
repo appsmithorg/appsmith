@@ -48,7 +48,7 @@ function updateOptionValue<T>(
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0px 5px;
   position: absolute;
-  right: 8px;
+  right: 22px;
   cursor: pointer;
 `;
 
@@ -63,9 +63,11 @@ const StyledOptionControlWrapper = styled(ControlWrapper)`
   width: calc(100% - 10px);
 `;
 
+type UpdatePairFunction = (pair: DropdownOption[]) => any;
+
 type KeyValueComponentProps = {
   pairs: DropdownOption[];
-  updatePairs: Function;
+  updatePairs: UpdatePairFunction;
   addLabel?: string;
 };
 export function KeyValueComponent(props: KeyValueComponentProps) {

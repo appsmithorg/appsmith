@@ -18,8 +18,8 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get("@createDatasource").then(httpResponse => {
       const datasourceName = httpResponse.response.body.data.name;
 
-      cy.get(".t--datasource-name")
-        .contains(datasourceName)
+      cy.contains(".t--datasource-name", datasourceName)
+        .find(queryLocators.createQuery)
         .click();
     });
 
@@ -44,6 +44,8 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
       cy.get(`.t--entity-name:contains(${datasourceName})`).click();
     });
+
+    cy.get(datasource.editDatasource).click();
     cy.get(".t--delete-datasource").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",

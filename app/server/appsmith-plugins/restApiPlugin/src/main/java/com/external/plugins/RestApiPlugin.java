@@ -81,7 +81,8 @@ public class RestApiPlugin extends BasePlugin {
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             URI uri;
             try {
-                uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
+                String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
+                uri = createFinalUriWithQueryParams(httpUrl, actionConfiguration.getQueryParameters());
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null);
                 actionExecutionRequest.setUrl(url);
@@ -360,6 +361,13 @@ public class RestApiPlugin extends BasePlugin {
                 }
             }
             return contentType;
+        }
+
+        private String addHttpToUrlWhenPrefixNotPresent(String url) {
+            if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
+                return url;
+            }
+            return "http://" + url;
         }
 
         private URI createFinalUriWithQueryParams(String url, List<Property> queryParams) throws URISyntaxException {

@@ -924,4 +924,36 @@ public class DatabaseChangelog {
         ));
     }
 
+    @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
+    public void fixTokenExpiration(MongoTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
+        dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
+
+        ensureIndexes(mongoTemplate, PasswordResetToken.class,
+                makeIndex(FieldName.CREATED_AT)
+                    .expire(2, TimeUnit.DAYS),
+                makeIndex(FieldName.EMAIL).unique()
+        );
+    }
+
+    private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
+        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+                organization.setPlugins(new ArrayList<>());
+            }
+
+            final Set<String> installedPlugins = organization.getPlugins()
+                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+
+            if (!installedPlugins.contains(pluginId)) {
+                organization.getPlugins()
+                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
+            }
+
+            mongoTemplate.save(organization);
+        }
+    }
+
+
+
 }

@@ -195,10 +195,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         operations: [
           {
             type: "MODIFY_PROPS",
-            fn: (
-              widget: WidgetProps & { children?: WidgetProps[] },
-              parent?: WidgetProps & { children?: WidgetProps[] },
-            ) => {
+            fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
               const tabs = widget.tabs;
 
               const newTabs = tabs.map((tab: any) => {
@@ -436,6 +433,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       allowZoom: true,
       mapCenter: { lat: -34.397, long: 150.644 },
       defaultMarkers: [{ lat: -34.397, long: 150.644, title: "Test A" }],
+    },
+    SKELETON_WIDGET: {
+      isLoading: true,
+      rows: 1,
+      columns: 1,
+      widgetName: "Skeleton",
     },
   },
   configVersion: 1,
