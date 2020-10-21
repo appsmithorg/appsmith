@@ -56,7 +56,9 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
     <Entity
       entityId={props.page.pageId + "_" + props.actionConfig?.type}
       step={props.step}
-      className={`group ${props.actionConfig?.groupName.toLowerCase()}`}
+      className={`group ${props.actionConfig?.groupName
+        .toLowerCase()
+        .replace(/ /g, "")}`}
       name={props.actionConfig?.groupName || "Plugin Group"}
       icon={props.actionConfig?.icon}
       active={props.actionConfig?.isGroupActive(params, props.page.pageId)}

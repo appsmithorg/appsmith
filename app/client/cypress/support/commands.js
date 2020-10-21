@@ -1349,11 +1349,12 @@ Cypress.Commands.add("importCurl", () => {
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.get(datasourceEditor.addDatasourceEntity).click({ force: true });
+  cy.get(explorer.addDBQueryEntity).click({ force: true });
+  cy.get(queryEditor.addDatasource).click();
 });
 
 Cypress.Commands.add("NavigateToQueryEditor", () => {
-  cy.xpath(queryEditor.addQueryEntity).click({ force: true });
+  cy.get(explorer.addDBQueryEntity).click({ force: true });
 });
 
 Cypress.Commands.add("testDatasource", () => {

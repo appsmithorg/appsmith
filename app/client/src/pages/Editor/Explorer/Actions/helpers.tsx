@@ -69,9 +69,9 @@ export const ACTION_PLUGIN_MAP: Array<
       };
     case PluginType.DB:
       return {
-        groupName: "DBQueries",
+        groupName: "DB Queries",
         type,
-        icon: datasourceIcon,
+        icon: queryIcon,
         key: generateReactKey(),
         getURL: (applicationId: string, pageId: string, id: string) =>
           `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`,
