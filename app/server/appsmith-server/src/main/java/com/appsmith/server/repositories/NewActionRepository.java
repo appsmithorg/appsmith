@@ -7,7 +7,6 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface NewActionRepository extends BaseRepository<NewAction, String>, CustomNewActionRepository {
 
-
-
     Flux<NewAction> findByApplicationId(String applicationId);
+
 }

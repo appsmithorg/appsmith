@@ -91,7 +91,7 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(
+    public Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(
             Set<String> names,
             String pageId,
             String httpMethod,

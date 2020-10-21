@@ -18,10 +18,10 @@ public interface CustomNewActionRepository extends AppsmithRepository<NewAction>
 
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
 
-    Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(Set<String> names,
-                                                                                                             String pageId,
-                                                                                                             String httpMethod,
-                                                                                                             Boolean userSetOnLoad, AclPermission aclPermission);
+    Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(Set<String> names,
+                                                           String pageId,
+                                                           String httpMethod,
+                                                           Boolean userSetOnLoad, AclPermission aclPermission);
 
     Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 

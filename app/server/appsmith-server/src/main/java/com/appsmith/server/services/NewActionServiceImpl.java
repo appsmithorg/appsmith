@@ -739,7 +739,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId) {
         final Flux<NewAction> getApiActions = repository
-                .findUnpublishedActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(names,
+                .findUnpublishedActionsForRestApiOnLoad(names,
                         pageId, "GET", false, MANAGE_ACTIONS);
 
         final Flux<NewAction> explicitOnLoadActions = repository
