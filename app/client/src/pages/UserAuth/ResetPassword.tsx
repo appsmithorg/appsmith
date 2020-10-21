@@ -122,6 +122,19 @@ export const ResetPassword = (props: ResetPasswordProps) => {
   }
   if (showFailureMessage) {
     message = error;
+    if (
+      message
+        .toLowerCase()
+        .includes(RESET_PASSWORD_FORGOT_PASSWORD_LINK.toLowerCase())
+    ) {
+      messageActions = [
+        {
+          url: FORGOT_PASSWORD_URL,
+          text: RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+          intent: "primary",
+        },
+      ];
+    }
   }
 
   const messageTagProps: FormMessageProps = {

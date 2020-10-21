@@ -559,7 +559,11 @@ public class ApplicationServiceTest {
     public void createCloneApplication() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest Clone Source TestApp");
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+
+        Mono<Application> testApplicationMono = applicationPageService.createApplication(testApplication, orgId)
+                .cache();
+
+        Mono<Application> applicationMono = testApplicationMono
                 .flatMap(application -> applicationPageService.cloneApplication(application.getId()))
                 .cache();
 
@@ -599,6 +603,55 @@ public class ApplicationServiceTest {
                         assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
                         assertThat(page.getApplicationId()).isEqualTo(application.getId());
                     }
+                })
+                .verifyComplete();
+
+        // verify that Pages are cloned
+
+        Mono<List<Page>> testPageListMono = testApplicationMono
+                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMap(applicationPage -> pageRepository.findById(applicationPage.getId()))
+                .collectList();
+
+        Mono<List<String>> pageIdListMono = pageListMono
+                .flatMapMany(Flux::fromIterable)
+                .map(Page::getId)
+                .collectList();
+
+        Mono<List<String>> testPageIdListMono = testPageListMono
+                .flatMapMany(Flux::fromIterable)
+                .map(Page::getId)
+                .collectList();
+
+        StepVerifier
+                .create(Mono.zip(pageIdListMono, testPageIdListMono))
+                .assertNext(tuple -> {
+                    List<String> pageIdList = tuple.getT1();
+                    List<String> testPageIdList = tuple.getT2();
+
+                    assertThat(pageIdList).doesNotContainAnyElementsOf(testPageIdList);
+                })
+                .verifyComplete();
+
+        // verify that cloned Pages are not renamed
+
+        Mono<List<String>> pageNameListMono = pageListMono
+                .flatMapMany(Flux::fromIterable)
+                .map(Page::getName)
+                .collectList();
+
+        Mono<List<String>> testPageNameListMono = testPageListMono
+                .flatMapMany(Flux::fromIterable)
+                .map(Page::getName)
+                .collectList();
+
+        StepVerifier
+                .create(Mono.zip(pageNameListMono, testPageNameListMono))
+                .assertNext(tuple -> {
+                    List<String> pageNameList = tuple.getT1();
+                    List<String> testPageNameList = tuple.getT2();
+
+                    assertThat(pageNameList).containsExactlyInAnyOrderElementsOf(testPageNameList);
                 })
                 .verifyComplete();
     }

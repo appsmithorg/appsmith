@@ -36,9 +36,11 @@ cd app/client
 
 #### WSL (Windows Subsystem for Linux)
 
-Because Docker Desktop for Windows does not support `host` network mode (https://docs.docker.com/network/host/), to run `start-https.sh` in WSL, in `start-https.sh`, remove the `--network host` option from the call to the `docker` command.
-
-In `app/client/docker/templates/nginx-linux.conf.template`, replace all occurrences of `http://localhost:3000` to  `http://host.docker.internal:3000`.
+- Because Docker Desktop for Windows does not support `host` network mode (https://docs.docker.com/network/host/), to run `start-https.sh` in WSL, in `start-https.sh`, remove the `--network host` option from the call to the `docker` command, then in `app/client/docker/templates/nginx-linux.conf.template`, replace all occurrences of `http://localhost:3000` with  `http://host.docker.internal:3000`.
+- If you are accessing `dev.appsmith.com` from a browser in Windows, you will need to add `dev.appsmith.com` to Windows' `C:\Windows\System32\drivers\etc\hosts` instead of `/etc/hosts`. Alternately, you can install a desktop environment in WSL to open `dev.appsmith` from a browser in WSL.
+```
+127.0.0.1	dev.appsmith.com
+```
 
 ### Steps to build & run the code:
 1. Run `yarn`
@@ -49,6 +51,12 @@ In `app/client/docker/templates/nginx-linux.conf.template`, replace all occurren
     This URL must be opened with https and not have the port 3000 in it
 
 Your client is pointing to the cloud staging server https://release-api.appsmith.com
+
+#### If yarn start throws mismatch node version error
+This error occurs because the node version is not compatible with the app environment. In this case Node version manager can be used which allows multiple
+node versions to be used in different projects. Check below for installation and usage details:
+1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
+2. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
 
 #### If you would like to hit a different Appsmith server:
 - Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). 

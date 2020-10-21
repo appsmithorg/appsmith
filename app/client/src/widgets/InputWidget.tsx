@@ -8,7 +8,7 @@ import { EventType } from "constants/ActionConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { FIELD_REQUIRED_ERROR } from "constants/messages";
 import {

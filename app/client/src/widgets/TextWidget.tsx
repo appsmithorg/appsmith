@@ -6,7 +6,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 
