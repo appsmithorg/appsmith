@@ -21,6 +21,7 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
@@ -966,13 +967,15 @@ public class DatabaseChangelog {
     @ChangeSet(order = "028", id = "use-png-logos", author = "")
     public void usePngLogos(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
-                query(where("packageName").is("mysql-plugin")),
-                update("iconLocation", "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Mysql.png"),
+                query(where(fieldName(QPlugin.plugin.packageName)).is("mysql-plugin")),
+                update(fieldName(QPlugin.plugin.iconLocation),
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Mysql.png"),
                 Plugin.class
         );
         mongoTemplate.updateFirst(
-                query(where("packageName").is("elasticsearch-plugin")),
-                update("iconLocation", "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.png"),
+                query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
+                update(fieldName(QPlugin.plugin.iconLocation),
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.png"),
                 Plugin.class
         );
     }
