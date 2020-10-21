@@ -32,6 +32,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -145,7 +146,13 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            Set<String> invalids = new HashSet<>();
+
+            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                invalids.add("No endpoint provided. Please provide a host:port where ElasticSearch is reachable.");
+            }
+
+            return invalids;
         }
 
         @Override
