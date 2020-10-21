@@ -21,6 +21,7 @@
         <module>rapidApiPlugin</module>
         <module>mysqlPlugin</module>
         <module>elasticSearchPlugin</module>
+        <module>dynamoPlugin</module>
     </modules>
 
 </project>
