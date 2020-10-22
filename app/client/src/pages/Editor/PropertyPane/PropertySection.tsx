@@ -23,8 +23,9 @@ const SectionTitle = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    &:hover {
-      background: black;
+    transition: transform 0.2s;
+    &.open-collapse {
+      transform: rotate(90deg);
     }
   }
 `;
@@ -35,14 +36,15 @@ export const PropertySection = (props: {
   isDefaultOpen?: boolean;
 }) => {
   const [isOpen, open] = useState(!!props.isDefaultOpen);
-  const icon: IconName = isOpen
-    ? IconNames.CHEVRON_DOWN
-    : IconNames.CHEVRON_RIGHT;
   return (
     <SectionWrapper>
       <SectionTitle>
         <span>{props.name}</span>
-        <Icon icon={icon} onClick={() => open(!isOpen)} />
+        <Icon
+          icon={IconNames.CHEVRON_RIGHT}
+          className={isOpen ? "open-collapse" : ""}
+          onClick={() => open(!isOpen)}
+        />
       </SectionTitle>
       {props.children && (
         <Collapse isOpen={isOpen} keepChildrenMounted>
