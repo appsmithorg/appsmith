@@ -79,7 +79,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         this.newActionService = newActionService;
     }
 
-    public Mono<Page> createPage(Page page) {
+    public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         } else if (page.getName() == null) {
@@ -100,7 +100,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, page.getApplicationId())));
 
-        Mono<Page> pageMono = applicationMono
+        Mono<PageDTO> pageMono = applicationMono
                 .map(application -> {
                     generateAndSetPagePolicies(application, page);
                     return page;
@@ -111,7 +111,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 //After the page has been saved, update the application (save the page id inside the application)
                 .zipWith(applicationMono)
                 .flatMap(tuple -> {
-                    final Page savedPage = tuple.getT1();
+                    final PageDTO savedPage = tuple.getT1();
                     final Application application = tuple.getT2();
                     return addPageToApplication(application, savedPage, false)
                             .thenReturn(savedPage);
@@ -127,7 +127,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * @return UpdateResult object with details on how many documents have been updated, which should be 0 or 1.
      */
     @Override
-    public Mono<UpdateResult> addPageToApplication(Application application, Page page, Boolean isDefault) {
+    public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
         return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
                 .doOnSuccess(result -> {
                     if (result.getModifiedCount() != 1) {
@@ -137,14 +137,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<Page> getPage(String pageId, boolean viewMode) {
+    public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return newPageService.findPageById(pageId, permission, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
     }
 
     @Override
-    public Mono<Page> getPageByName(String applicationName, String pageName, boolean viewMode) {
+    public Mono<PageDTO> getPageByName(String applicationName, String pageName, boolean viewMode) {
         AclPermission appPermission;
         AclPermission pagePermission;
         if (viewMode) {
@@ -164,7 +164,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<Application> makePageDefault(Page page) {
+    public Mono<Application> makePageDefault(PageDTO page) {
         return makePageDefault(page.getApplicationId(), page.getId());
     }
 
@@ -212,12 +212,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return applicationWithPoliciesMono
                 .flatMap(applicationService::createDefault)
-                .zipWith(userMono)
-                .flatMap(tuple -> {
-                    Application savedApplication = tuple.getT1();
-                    User user = tuple.getT2();
+                .flatMap(savedApplication -> {
 
-                    Page page = new Page();
+                    PageDTO page = new PageDTO();
                     page.setName(FieldName.DEFAULT_PAGE_NAME);
                     page.setApplicationId(savedApplication.getId());
                     List<Layout> layoutList = new ArrayList<>();
@@ -277,7 +274,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(applicationService::createDefault);
     }
 
-    private void generateAndSetPagePolicies(Application application, Page page) {
+    private void generateAndSetPagePolicies(Application application, PageDTO page) {
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
         page.setPolicies(documentPolicies);
     }
@@ -306,18 +303,18 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<Page> clonePage(String pageId) {
+    public Mono<PageDTO> clonePage(String pageId) {
 
         return newPageService.findById(pageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
                 .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"));
     }
 
-    private Mono<Page> clonePageGivenApplicationId(String pageId, String applicationId,
+    private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId,
                                                    @Nullable String newPageNameSuffix) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
-        Mono<Page> sourcePageMono = newPageService.findPageById(pageId, MANAGE_PAGES, false)
+        Mono<PageDTO> sourcePageMono = newPageService.findPageById(pageId, MANAGE_PAGES, false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(page -> Flux.fromIterable(page.getLayouts())
                         .map(layout -> layout.getDsl())
@@ -405,7 +402,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    private Mono<Page> clonePageGivenApplicationId(String pageId, String applicationId) {
+    private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId) {
         return clonePageGivenApplicationId(pageId, applicationId, null);
     }
 
@@ -485,8 +482,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * @return
      */
     @Override
-    public Mono<Page> deleteUnpublishedPage(String id) {
-        Mono<Page> pageMono = newPageService.findById(id, AclPermission.MANAGE_PAGES)
+    public Mono<PageDTO> deleteUnpublishedPage(String id) {
+
+        return newPageService.findById(id, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
@@ -505,7 +503,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         newPageMono = newPageService.archive(page);
                     }
 
-                    Mono<Page> archivedPageMono = newPageMono
+                    Mono<PageDTO> archivedPageMono = newPageMono
+                            .flatMap(analyticsService::sendDeleteEvent)
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 
                     /**
@@ -519,16 +518,13 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     return Mono.zip(archivedPageMono, archivedActionsMono, applicationMono)
                             .map(tuple -> {
-                                Page page1 = tuple.getT1();
+                                PageDTO page1 = tuple.getT1();
                                 List<Action> actions = tuple.getT2();
                                 Application application = tuple.getT3();
                                 log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), application.getId());
                                 return page1;
                             });
                 });
-
-        return pageMono
-                .flatMap(analyticsService::sendDeleteEvent);
     }
 
     /**

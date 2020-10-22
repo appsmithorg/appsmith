@@ -1,6 +1,8 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Layout;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +30,10 @@ public class PageDTO {
 
     @Transient
     public Set<String> userPermissions = new HashSet<>();
+
+    @Transient
+    @JsonIgnore
+    protected Set<Policy> policies = new HashSet<>();
 
     Instant deletedAt = null;
 

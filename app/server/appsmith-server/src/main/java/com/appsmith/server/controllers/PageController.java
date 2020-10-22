@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -48,14 +49,15 @@ public class PageController extends BaseController<PageService, Page, String> {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Page>> create(@Valid @RequestBody Page resource,
-                                          @RequestHeader(name = "Origin", required = false) String originHeader,
-                                          ServerWebExchange exchange) {
+    public Mono<ResponseDTO<PageDTO>> createPage(@Valid @RequestBody PageDTO resource,
+                                             @RequestHeader(name = "Origin", required = false) String originHeader,
+                                             ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return applicationPageService.createPage(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @Deprecated
     @Override
     public Mono<ResponseDTO<List<Page>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
@@ -83,20 +85,20 @@ public class PageController extends BaseController<PageService, Page, String> {
 
     @Override
     @GetMapping("/{pageId}")
-    public Mono<ResponseDTO<Page>> getById(@PathVariable String pageId) {
+    public Mono<ResponseDTO<PageDTO>> getPageById(@PathVariable String pageId) {
         return applicationPageService.getPage(pageId, false)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
 
     @GetMapping("/{pageId}/view")
-    public Mono<ResponseDTO<Page>> getPageView(@PathVariable String pageId) {
+    public Mono<ResponseDTO<PageDTO>> getPageView(@PathVariable String pageId) {
         return applicationPageService.getPage(pageId, true)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
     @GetMapping("{pageName}/application/{applicationName}/view")
-    public Mono<ResponseDTO<Page>> getPageViewByName(@PathVariable String applicationName, @PathVariable String pageName) {
+    public Mono<ResponseDTO<PageDTO>> getPageViewByName(@PathVariable String applicationName, @PathVariable String pageName) {
         return applicationPageService.getPageByName(applicationName, pageName, true)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
@@ -110,20 +112,20 @@ public class PageController extends BaseController<PageService, Page, String> {
      * @return
      */
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<Page>> delete(@PathVariable String id) {
+    public Mono<ResponseDTO<PageDTO>> deletePage(@PathVariable String id) {
         log.debug("Going to delete page with id: {}", id);
         return applicationPageService.deleteUnpublishedPage(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
     @PostMapping("/clone/{pageId}")
-    public Mono<ResponseDTO<Page>> clonePage(@PathVariable String pageId) {
+    public Mono<ResponseDTO<PageDTO>> clonePage(@PathVariable String pageId) {
         return applicationPageService.clonePage(pageId)
                 .map(page -> new ResponseDTO<>(HttpStatus.CREATED.value(), page, null));
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<Page>> update(@PathVariable String id, @RequestBody Page resource) {
+    public Mono<ResponseDTO<PageDTO>> updatePage(@PathVariable String id, @RequestBody PageDTO resource) {
         log.debug("Going to update page with id: {}", id);
         return newPageService.updatePage(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
