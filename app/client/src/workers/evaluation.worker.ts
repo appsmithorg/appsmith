@@ -338,7 +338,7 @@ const createDependencyTree = (
   } catch (e) {
     ERRORS.push({
       type: EvalErrorTypes.DEPENDENCY_ERROR,
-      error: e,
+      message: e.message,
     });
     return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
   }
@@ -479,7 +479,7 @@ function dependencySortedEvaluateDataTree(
           } catch (e) {
             ERRORS.push({
               type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
-              error: e,
+              message: e.message,
               context: {
                 propertyPath,
               },
@@ -531,7 +531,7 @@ function dependencySortedEvaluateDataTree(
   } catch (e) {
     ERRORS.push({
       type: EvalErrorTypes.EVAL_TREE_ERROR,
-      error: e,
+      message: e.message,
     });
     return tree;
   }
@@ -871,7 +871,7 @@ const evaluateDynamicBoundValue = (
   } catch (e) {
     ERRORS.push({
       type: EvalErrorTypes.UNESCAPE_STRING_ERROR,
-      error: e,
+      message: e.message,
       context: {
         path,
       },
@@ -904,56 +904,64 @@ const evaluate = (
   try {
     const { result, triggers } = (function() {
       /**** Setting the eval context ****/
+      const GLOBAL_DATA: Record<string, any> = {};
       ///// Adding callback data
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      self["CALLBACK_DATA"] = callbackData;
+      GLOBAL_DATA.CALLBACK_DATA = callbackData;
       ///// Adding Data tree
       Object.keys(data).forEach(datum => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
-        self[datum] = data[datum];
+        GLOBAL_DATA[datum] = data[datum];
       });
       ///// Fixing action paths and capturing their execution response
       if (data.actionPaths) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
-        self.triggers = [];
+        GLOBAL_DATA.triggers = [];
         const pusher = function(
           this: DataTree,
           action: any,
           ...payload: any[]
         ) {
           const actionPayload = action(...payload);
-          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-          // @ts-ignore
-          self.triggers.push(actionPayload);
+          GLOBAL_DATA.triggers.push(actionPayload);
         };
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
-        self.actionPaths.forEach(path => {
-          const action = _.get(self, path);
-          const entity = _.get(self, path.split(".")[0]);
+        GLOBAL_DATA.actionPaths.forEach((path: string) => {
+          const action = _.get(GLOBAL_DATA, path);
+          const entity = _.get(GLOBAL_DATA, path.split(".")[0]);
           if (action) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
-            _.set(self, path, pusher.bind(data, action.bind(entity)));
+            _.set(GLOBAL_DATA, path, pusher.bind(data, action.bind(entity)));
           }
         });
       }
-      ///// Adding extra libraries
+
+      // Set it to self
+      Object.keys(GLOBAL_DATA).forEach(key => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        self[key] = GLOBAL_DATA[key];
+      });
+
+      ///// Adding extra libraries separately
       extraLibraries.forEach(library => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
         self[library.accessor] = library.lib;
       });
-      return eval(script);
+
+      const evalResult = eval(script);
+
+      // Remove it from self
+      // This is needed so that next eval can have a clean sheet
+      Object.keys(GLOBAL_DATA).forEach(key => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        delete self[key];
+      });
+
+      return evalResult;
     })();
     return { result, triggers };
   } catch (e) {
     ERRORS.push({
       type: EvalErrorTypes.EVAL_ERROR,
-      error: e,
+      message: e.message,
       context: {
         binding: js,
       },
