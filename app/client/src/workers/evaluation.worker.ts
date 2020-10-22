@@ -930,16 +930,19 @@ const evaluate = (
           }
         });
       }
-      ///// Adding extra libraries
-      extraLibraries.forEach(library => {
-        GLOBAL_DATA[library.accessor] = library.lib;
-      });
 
       // Set it to self
       Object.keys(GLOBAL_DATA).forEach(key => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         self[key] = GLOBAL_DATA[key];
+      });
+
+      ///// Adding extra libraries separately
+      extraLibraries.forEach(library => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        self[library.accessor] = library.lib;
       });
 
       const evalResult = eval(script);
