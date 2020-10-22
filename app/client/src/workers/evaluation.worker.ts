@@ -933,14 +933,14 @@ const evaluate = (
 
       // Set it to self
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
         self[key] = GLOBAL_DATA[key];
       });
 
       ///// Adding extra libraries separately
       extraLibraries.forEach(library => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
         self[library.accessor] = library.lib;
       });
@@ -950,7 +950,7 @@ const evaluate = (
       // Remove it from self
       // This is needed so that next eval can have a clean sheet
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
         delete self[key];
       });
