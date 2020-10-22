@@ -108,4 +108,4 @@ CurrentPageEntityProperties.displayName = "CurrentPageEntityProperties";
   logOnDifferentValues: false,
 };
 
-export default CurrentPageEntityProperties;
+export default Sentry.withProfiler(CurrentPageEntityProperties);
