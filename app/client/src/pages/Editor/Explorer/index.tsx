@@ -87,7 +87,6 @@ const EntityExplorer = (props: IPanelProps) => {
           icon="search"
         />
       )}
-      <StyledDivider />
       <ExplorerDatasourcesGroup
         searchKeyword={searchKeyword}
         step={0}

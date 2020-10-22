@@ -14,10 +14,10 @@ export const WidgetContextMenu = (props: {
   className?: string;
 }) => {
   const { widgetId } = props;
-  const parentId = useSelector(
-    (state: AppState) =>
-      state.ui.pageWidgets[props.pageId][props.widgetId].parentId,
-  );
+  const parentId = useSelector((state: AppState) => {
+    // console.log(state.ui.pageWidgets[props.pageId], props.widgetId);
+    return state.ui.pageWidgets[props.pageId][props.widgetId].parentId;
+  });
   const dispatch = useDispatch();
   const dispatchDelete = useCallback(() => {
     dispatch({

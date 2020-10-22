@@ -1,13 +1,9 @@
-import React, { useMemo, memo, ReactNode } from "react";
+import React, { memo } from "react";
 import { useSelector } from "react-redux";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import { widgetIcon } from "../ExplorerIcons";
 import WidgetEntity from "./WidgetEntity";
-import {
-  WidgetTypes,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -15,37 +11,6 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
-
-const useWidgetExpandList = (
-  widgetPageId: string,
-  currentPageId: string,
-  selectedWidget?: string,
-) => {
-  const canvasWidgets = useSelector(
-    (state: AppState) => state.entities.canvasWidgets,
-  );
-
-  return useMemo(() => {
-    const widgetIdsExpandList = [];
-    if (currentPageId === widgetPageId && !!selectedWidget) {
-      // Make sure that the selected widget exists in canvasWidgets
-      let widgetId = canvasWidgets[selectedWidget]
-        ? canvasWidgets[selectedWidget].parentId
-        : undefined;
-      // If there is a parentId for the selectedWidget
-      if (widgetId) {
-        // Keep including the parent until we reach the main container
-        while (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-          widgetIdsExpandList.push(widgetId);
-          if (canvasWidgets[widgetId] && canvasWidgets[widgetId].parentId)
-            widgetId = canvasWidgets[widgetId].parentId;
-          else break;
-        }
-      }
-    }
-    return widgetIdsExpandList;
-  }, [canvasWidgets, widgetPageId, currentPageId, selectedWidget]);
-};
 
 type ExplorerWidgetGroupProps = {
   pageId: string;
@@ -64,17 +29,11 @@ const StyledLink = styled(Link)`
   }
 `;
 
-export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
+export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
-
-  // const widgetIdsExpandList = useWidgetExpandList(
-  //   props.pageId,
-  //   params.pageId,
-  //   selectedWidget,
-  // );
 
   const childNode = (
     <EntityPlaceholder step={props.step + 1}>
@@ -122,13 +81,15 @@ export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
           pageId={props.pageId}
         />
       ))}
-      {!props.widgets?.children && !props.searchKeyword && childNode}
+      {(!props.widgets?.children || props.widgets?.children.length === 0) &&
+        !props.searchKeyword &&
+        childNode}
     </Entity>
   );
-};
+});
 
 ExplorerWidgetGroup.displayName = "ExplorerWidgetGroup";
-ExplorerWidgetGroup.whyDidYouRender = {
+(ExplorerWidgetGroup as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };
 

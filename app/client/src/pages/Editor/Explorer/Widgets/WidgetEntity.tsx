@@ -23,6 +23,7 @@ import { updateWidgetName } from "actions/propertyPaneActions";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityProperties from "../Entity/EntityProperties";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -99,7 +100,11 @@ export type WidgetEntityProps = {
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
-
+  const widgetsToExpand = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestory,
+  );
+  let shouldExpand = false;
+  if (widgetsToExpand.includes(props.widgetId)) shouldExpand = true;
   const { navigateToWidget, isWidgetSelected } = useWidget(
     props.widgetId,
     props.widgetType,
@@ -131,13 +136,14 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       updateEntityName={props.pageId === pageId ? updateWidgetName : noop}
       searchKeyword={props.searchKeyword}
       isDefaultExpanded={
+        shouldExpand ||
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }
       contextMenu={props.pageId === pageId && contextMenu}
     >
       {props.childWidgets &&
-        props.childWidgets.map(child => {
+        props.childWidgets.map(child => (
           <WidgetEntity
             step={props.step + 1}
             widgetId={child.widgetId}
@@ -147,15 +153,24 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
             key={child.widgetId}
             searchKeyword={props.searchKeyword}
             pageId={props.pageId}
-          />;
-        })}
-      {!props.childWidgets && (
+          />
+        ))}
+      {!props.childWidgets && pageId === props.pageId && (
+        <CurrentPageEntityProperties
+          key={props.widgetId}
+          entityType={ENTITY_TYPE.WIDGET}
+          entityName={props.widgetName}
+          step={props.step + 1}
+        />
+      )}
+      {!props.childWidgets && pageId !== props.pageId && (
         <EntityProperties
           key={props.widgetId}
           entityType={ENTITY_TYPE.WIDGET}
           entityName={props.widgetName}
-          isCurrentPage={pageId === props.pageId}
           step={props.step + 1}
+          pageId={props.pageId}
+          entityId={props.widgetId}
         />
       )}
     </Entity>

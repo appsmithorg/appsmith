@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import Entity from "../Entity";
 import { pageGroupIcon } from "../ExplorerIcons";
 import { noop } from "lodash";
@@ -21,7 +21,7 @@ type ExplorerPageGroupProps = {
   showWidgetsSidebar: () => void;
 };
 
-export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
+export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
 
@@ -70,9 +70,11 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       {pageEntities}
     </Entity>
   );
-};
+});
 
-ExplorerPageGroup.whyDidYouRender = {
+ExplorerPageGroup.displayName = "ExplorerPageGroup";
+
+(ExplorerPageGroup as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };
 

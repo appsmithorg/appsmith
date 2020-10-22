@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { Page } from "constants/ReduxActionConstants";
 import Entity, { EntityClassNames } from "../Entity";
 import { useParams } from "react-router";
@@ -24,7 +24,7 @@ type ExplorerPageEntityProps = {
   searchKeyword?: string;
   showWidgetsSidebar: () => void;
 };
-export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
+export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
 
   const currentPageId = useSelector((state: AppState) => {
@@ -84,10 +84,10 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       )}
     </Entity>
   );
-};
+});
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
-ExplorerPageEntity.whyDidYouRender = {
+(ExplorerPageEntity as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };
 

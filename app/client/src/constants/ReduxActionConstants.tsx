@@ -289,6 +289,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SET_EVALUATED_TREE: "SET_EVALUATED_TREE",
   BATCH_UPDATES_SUCCESS: "BATCH_UPDATES_SUCCESS",
   UPDATE_CANVAS_STRUCTURE: "UPDATE_CANVAS_STRUCTURE",
+  SET_SELECTED_WIDGET_ANCESTORY: "SET_SELECTED_WIDGET_ANCESTORY",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

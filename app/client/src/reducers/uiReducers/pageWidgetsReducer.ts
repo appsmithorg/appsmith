@@ -27,14 +27,14 @@ const pageWidgetsReducer = createImmerReducer(initalState, {
       ).entities.canvasWidgets;
     });
   },
-  // [ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS]: (
-  //   state: PageWidgetsReduxState,
-  //   action: ReduxAction<{ pageId: string; dsl: DSL }>,
-  // ) => {
-  //   state[action.payload.pageId] = CanvasWidgetsNormalizer.normalize(
-  //     action.payload.dsl,
-  //   ).entities.canvasWidgets;
-  // },
+  [ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS]: (
+    state: PageWidgetsReduxState,
+    action: ReduxAction<{ pageId: string; dsl: DSL }>,
+  ) => {
+    state[action.payload.pageId] = CanvasWidgetsNormalizer.normalize(
+      action.payload.dsl,
+    ).entities.canvasWidgets;
+  },
 });
 
 export default pageWidgetsReducer;

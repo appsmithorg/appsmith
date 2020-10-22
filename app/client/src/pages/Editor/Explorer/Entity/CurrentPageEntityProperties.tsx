@@ -14,16 +14,13 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
-import { AppState } from "reducers";
 
-export const EntityProperties = memo(
+export const CurrentPageEntityProperties = memo(
   (props: {
     entityType: ENTITY_TYPE;
     entityName: string;
-    pageId: string;
     step: number;
     entity?: any;
-    entityId: string;
   }) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
@@ -33,20 +30,11 @@ export const EntityProperties = memo(
         PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
       );
     });
-    let entity: any;
-    const widgetEntity = useSelector(
-      (state: AppState) => state.ui.pageWidgets[props.pageId][props.entityId],
-    );
 
-    console.log({ widgetEntity });
+    const dataTree: DataTree = useSelector(getDataTree);
+    const entity: any = dataTree[props.entityName];
 
-    if (props.pageId && widgetEntity) {
-      entity = widgetEntity;
-    } else if (props.entity) {
-      entity = props.entity;
-    } else {
-      return null;
-    }
+    if (!entity) return null;
 
     let config: any;
     let entityProperties: Array<EntityPropertyProps> = [];
@@ -114,10 +102,10 @@ export const EntityProperties = memo(
   },
 );
 
-EntityProperties.displayName = "EntityPrperties";
+CurrentPageEntityProperties.displayName = "CurrentPageEntityProperties";
 
-(EntityProperties as any).whyDidYouRender = {
+(CurrentPageEntityProperties as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };
 
-export default EntityProperties;
+export default CurrentPageEntityProperties;
