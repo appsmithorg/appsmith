@@ -27,7 +27,7 @@ Database Support: PostgreSQL, MongoDB & MySQL
 Hosting: Cloud-hosted & On-premise
 
 -------------------
-<img src="https://github.com/appsmithOrg/appsmith/blob/readme-v2-images/static/UI.gif">
+<img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/UI.gif">
 <p align="center">
   <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/Query2.png" width="270">
   <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/API2.png" width="270">
