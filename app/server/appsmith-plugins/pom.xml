@@ -20,7 +20,8 @@
         <module>mongoPlugin</module>
         <module>rapidApiPlugin</module>
         <module>mysqlPlugin</module>
-        <module>mssqlPlugin</module>
+        <module>elasticSearchPlugin</module>
+        <module>dynamoPlugin</module>
     </modules>
 
 </project>

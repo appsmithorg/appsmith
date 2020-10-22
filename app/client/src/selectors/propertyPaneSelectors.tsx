@@ -1,23 +1,23 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
-import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
+import {
+  PropertyPaneConfigState,
+  PropertySection,
+} from "reducers/entityReducers/propertyPaneConfigReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import * as log from "loglevel";
+import { getCanvasWidgets } from "./entitiesSelector";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
 
 const getPropertyPaneConfig = (state: AppState): PropertyPaneConfigState =>
   state.entities.propertyConfig;
-
-const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
-  state.entities.canvasWidgets;
 
 export const getCurrentWidgetId = createSelector(
   getPropertyPaneState,
@@ -37,12 +37,11 @@ export const getCurrentWidgetProperties = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  evaluateDataTreeWithoutFunctions,
+  getDataTree,
   (
     widget: WidgetProps | undefined,
     evaluatedTree: DataTree,
   ): WidgetProps | undefined => {
-    log.debug("Evaluating data tree to get property pane validations");
     if (!widget) return undefined;
     const evaluatedWidget = _.find(evaluatedTree, {
       widgetId: widget.widgetId,

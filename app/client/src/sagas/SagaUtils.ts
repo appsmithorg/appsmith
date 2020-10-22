@@ -1,4 +1,5 @@
 import { ApplicationPagePayload } from "api/ApplicationApi";
+
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {

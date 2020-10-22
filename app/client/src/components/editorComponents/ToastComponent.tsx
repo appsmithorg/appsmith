@@ -83,6 +83,10 @@ const ToastComponent = (props: Props) => {
 
 const Toaster = {
   show: (config: Props) => {
+    if (typeof config.message !== "string") {
+      console.error("Toast message needs to be a string");
+      return;
+    }
     toast(
       <ToastComponent
         {...config}
