@@ -47,5 +47,8 @@
     "shareApp": ".t--application-share-btn",
     "enablePublicAccess": ".bp3-control-indicator",
     "closeBtn": ".bp3-dialog-close-button",
-    "applicationName": ".t--application-name"
+    "applicationName": ".t--application-name",
+    "profileMenu": ".bp3-popover-wrapper.profile-menu",
+    "signOutIcon": ".t--logout-icon",
+    "headerAppSmithLogo": ".t--Appsmith-logo-image"
 } 

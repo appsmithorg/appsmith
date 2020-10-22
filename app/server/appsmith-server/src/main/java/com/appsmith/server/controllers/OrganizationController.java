@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -51,8 +52,10 @@ public class OrganizationController extends BaseController<OrganizationService, 
     }
 
     @PutMapping("/{orgId}/role")
-    public Mono<ResponseDTO<UserRole>> updateRoleForMember(@RequestBody UserRole updatedUserRole, @PathVariable String orgId) {
-        return userOrganizationService.updateRoleForMember(orgId, updatedUserRole)
+    public Mono<ResponseDTO<UserRole>> updateRoleForMember(@RequestBody UserRole updatedUserRole,
+                                                           @PathVariable String orgId,
+                                                           @RequestHeader(name = "Origin", required = false) String originHeader) {
+        return userOrganizationService.updateRoleForMember(orgId, updatedUserRole, originHeader)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 

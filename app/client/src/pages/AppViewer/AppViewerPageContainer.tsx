@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { RouteComponentProps, Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
@@ -22,6 +21,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
+import { fetchPublishedPage } from "actions/pageActions";
 
 const Section = styled.section`
   background: ${props => props.theme.colors.bodyBG};
@@ -41,12 +41,6 @@ type AppViewerPageContainerProps = {
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
-  componentDidMount() {
-    const { pageId } = this.props.match.params;
-    if (pageId) {
-      this.props.fetchPage(pageId, true);
-    }
-  }
   componentDidUpdate(previously: AppViewerPageContainerProps) {
     const { pageId } = this.props.match.params;
     if (
@@ -140,13 +134,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => ({
   fetchPage: (pageId: string, bustCache = false) =>
-    dispatch({
-      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      payload: {
-        pageId,
-        bustCache,
-      },
-    }),
+    dispatch(fetchPublishedPage(pageId, bustCache)),
 });
 
 export default connect(

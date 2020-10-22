@@ -7,7 +7,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import {
   TriggerPropertiesMap,
   DerivedPropertiesMap,

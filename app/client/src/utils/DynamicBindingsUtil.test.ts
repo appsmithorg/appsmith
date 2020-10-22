@@ -1,4 +1,3 @@
-// // import RealmExecutor from "jsExecution/RealmExecutor";
 // import {
 //   mockExecute,
 //   mockRegisterLibrary,
@@ -11,12 +10,6 @@
 // } from "./DynamicBindingUtils";
 // import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 // import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
-//
-// jest.mock("jsExecution/RealmExecutor", () => {
-//   return jest.fn().mockImplementation(() => {
-//     return { execute: mockExecute, registerLibrary: mockRegisterLibrary };
-//   });
-// });
 //
 // beforeAll(() => {
 //   mockRegisterLibrary.mockClear();
