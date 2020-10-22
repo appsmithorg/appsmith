@@ -248,7 +248,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     }
 
     @Override
-    public Mono<UserRole> updateRoleForMember(String orgId, UserRole userRole) {
+    public Mono<UserRole> updateRoleForMember(String orgId, UserRole userRole, String originHeader) {
         if (userRole.getUsername() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "username"));
         }
@@ -293,8 +293,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                                     Map<String, String> params = new HashMap<>();
                                     params.put("Inviter_First_Name", currentUser.getName());
                                     params.put("inviter_org_name", organization.getName());
+                                    params.put("inviteUrl", originHeader);
                                     params.put("user_role_name", userRole.getRoleName());
-                                    
+
                                     Mono<String> emailMono = emailSender.sendMail(user.getEmail(),
                                         "Appsmith: Your Role has been changed",
                                         UPDATE_ROLE_EXISTING_USER_TEMPLATE, params);

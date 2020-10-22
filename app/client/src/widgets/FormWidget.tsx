@@ -11,8 +11,12 @@ import withMeta from "./MetaHOC";
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
     return _.some(children, child => {
-      if ("children" in child) return this.checkInvalidChildren(child.children);
-      if ("isValid" in child) return !child.isValid;
+      if ("children" in child) {
+        return this.checkInvalidChildren(child.children);
+      }
+      if ("isValid" in child) {
+        return !child.isValid;
+      }
       return false;
     });
   };

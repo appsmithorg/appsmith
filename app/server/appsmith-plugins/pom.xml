@@ -19,7 +19,8 @@
         <module>mongoPlugin</module>
         <module>rapidApiPlugin</module>
         <module>mysqlPlugin</module>
+        <module>elasticSearchPlugin</module>
+        <module>dynamoPlugin</module>
         <module>redisPlugin</module>
-        <module>mssqlPlugin</module>
     </modules>
 </project>

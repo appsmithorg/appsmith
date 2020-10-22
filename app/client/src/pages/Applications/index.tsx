@@ -28,7 +28,10 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
-import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
+import {
+  CREATE_ORGANIZATION_FORM_NAME,
+  CREATE_APPLICATION_FORM_NAME,
+} from "constants/forms";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
@@ -49,8 +52,8 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { AppLoader, loadingUserOrgs } from "./ApplicationLoaders";
+import { loadingUserOrgs } from "./ApplicationLoaders";
+import CreateApplicationForm from "./CreateApplicationForm";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
@@ -77,9 +80,69 @@ const OrgSection = styled.div``;
 
 const PaddingWrapper = styled.div`
   width: ${props => props.theme.card.minWidth + props.theme.spaces[5] * 2}px;
-  margin: ${props => props.theme.spaces[6] + 1}px
-    ${props => props.theme.spaces[12] + 2}px
+  margin: ${props => props.theme.spaces[6] + 1}px 0px
     ${props => props.theme.spaces[6] + 1}px 0px;
+
+  @media screen and (min-width: 1500px) {
+    margin-right: ${props => props.theme.spaces[12] - 1}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth}px;
+      height: ${props => props.theme.card.minHeight}px;
+    }
+  }
+
+  @media screen and (min-width: 1500px) and (max-width: 1512px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[4] * 2}px;
+    margin-right: ${props => props.theme.spaces[12] - 1}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 5}px;
+      height: ${props => props.theme.card.minHeight - 5}px;
+    }
+  }
+  @media screen and (min-width: 1478px) and (max-width: 1500px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[4] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] + 1}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 8}px;
+      height: ${props => props.theme.card.minHeight - 8}px;
+    }
+  }
+
+  @media screen and (min-width: 1447px) and (max-width: 1477px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[3] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] - 4}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 8}px;
+      height: ${props => props.theme.card.minHeight - 8}px;
+    }
+  }
+
+  @media screen and (min-width: 1417px) and (max-width: 1446px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[3] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] - 8}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 11}px;
+      height: ${props => props.theme.card.minHeight - 11}px;
+    }
+  }
+
+  @media screen and (min-width: 1400px) and (max-width: 1417px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[2] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] - 12}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 15}px;
+      height: ${props => props.theme.card.minHeight - 15}px;
+    }
+  }
+
+  @media screen and (max-width: 1400px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[2] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] - 16}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 15}px;
+      height: ${props => props.theme.card.minHeight - 15}px;
+    }
+  }
 `;
 
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
@@ -342,6 +405,18 @@ ${props => {
 }
 `;
 
+const AddApplicationCard = (
+  <ApplicationAddCardWrapper>
+    <Icon
+      className="t--create-app-popup"
+      name={"plus"}
+      size={IconSize.LARGE}
+    ></Icon>
+    <CreateNewLabel type={TextType.H4} className="createnew">
+      Create New
+    </CreateNewLabel>
+  </ApplicationAddCardWrapper>
+);
 const NoSearchResultImg = styled.img`
   margin: 1em;
 `;
@@ -525,30 +600,14 @@ const ApplicationsSection = (props: any) => {
               ) &&
                 !isFetchingApplications && (
                   <PaddingWrapper>
-                    <ApplicationAddCardWrapper
-                      onClick={() =>
-                        createNewApplication(
-                          getNextEntityName(
-                            "New App",
-                            applications.map((el: any) => el.name),
-                          ),
-                          organization.id,
-                        )
-                      }
-                    >
-                      <Icon
-                        className="t--create-app-popup"
-                        name={"plus"}
-                        size={IconSize.LARGE}
-                      ></Icon>
-                      <CreateNewLabel
-                        type={TextType.H4}
-                        className="createnew"
-                        // cypressSelector={"t--create-new-app"}
-                      >
-                        Create New
-                      </CreateNewLabel>
-                    </ApplicationAddCardWrapper>
+                    <FormDialogComponent
+                      permissions={organization.userPermissions}
+                      permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
+                      trigger={AddApplicationCard}
+                      Form={CreateApplicationForm}
+                      orgId={organization.id}
+                      title={CREATE_APPLICATION_FORM_NAME}
+                    />
                   </PaddingWrapper>
                 )}
               {applications.map((application: any) => {
@@ -572,10 +631,6 @@ const ApplicationsSection = (props: any) => {
                   )
                 );
               })}
-              {creatingApplicationMap &&
-              creatingApplicationMap[organization.id] ? (
-                <AppLoader />
-              ) : null}
               <PageSectionDivider />
             </ApplicationCardsWrapper>
           </OrgSection>
