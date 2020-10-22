@@ -458,7 +458,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     >
       <>
         <Wrapper
-          className={isFetchingApplications ? Classes.SKELETON : ""}
+          className={
+            isFetchingApplications
+              ? Classes.SKELETON
+              : "t--application-card-background"
+          }
           key={props.application.id}
           hasReadPermission={hasReadPermission}
           backgroundColor={colorCode}
