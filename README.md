@@ -1,15 +1,15 @@
 <div align="center">
-  <a href="https://appsmith.com">
-    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" height="130"><h1>Appsmith</h1>
-  </a>
+    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" width="100"/>
+    <H1>Appsmith</H1>
+</div>
 
+<div align="center">
   <p>
-
+  
   [![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
   [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
   [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
-  [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
-  <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+  [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
   [![All Contributors](https://img.shields.io/badge/contributors-50+-orange.svg?style=flat-square)](#-contributors)
   <!-- ALL-CONTRIBUTORS-BADGE:END -->
   
@@ -18,24 +18,30 @@
 
 -----------------
 
-Appsmith is a drag-and-drop tool to build sophisticated internal tools without having to wrestle with ever-upcoming new frontend technologies, or the cumbersome HTML/CSS. 
+Appsmith is a **Visual MVC** Framework to build sophisticated internal tools without having to wrestle with ever-upcoming frontend technologies, or cumbersome HTML/CSS. 
 
-You can build dashboards, forms, workflows by connecting to any API or Database, and deploy them with one click, ready to be shared with your users, with built-in support for Role-based Access control.
+You can build complex workflows using pre-built widgets (forms, tables, charts etc.), connect to any API or Database and even write conditional logic using Javascript.
 
 API Support: REST & GraphQL APIs
 Database Support: PostgreSQL, MongoDB & MySQL
 Hosting: Cloud-hosted & On-premise
 
 -------------------
+<img src="https://github.com/appsmithOrg/appsmith/blob/readme-v2-images/static/UI.gif">
+<p align="center">
+  <img src="https://github.com/appsmithOrg/appsmith/blob/readme-v2-images/static/Query2.png" width="270">
+  <img src="https://github.com/appsmithOrg/appsmith/blob/readme-v2-images/static/API2.png" width="270">
+  <img src="https://github.com/appsmithOrg/appsmith/blob/readme-v2-images/static/Share5.png" width="270">
+</p>
 
 ## 🏭 Features
 
 * **5-minute setup**: Deploy Appsmith your server, or use it on cloud to start building in 5 minutes.
-* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anaywhere to transform data. [Read more here.](https://docs.appsmith.com/core-concepts/building-the-ui)
-* **Database CRUD**: Query & update your database directly by hooking it up with the UI. Connect to **PostgreSQL, MongoDB & MySQL**.
-* **Trigger APIs**: Connect to any internal or external REST and GraphQL APIs to build dashboards, forms, and workflows.
-* **Security**: 
-* **One-click deployment**: Managed deployment of your app with a click of a button.
+* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anywhere to transform data. [Read more here.](https://docs.appsmith.com/core-concepts/building-the-ui)
+* **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**.
+* **Trigger APIs**: Connect to internal or external REST and GraphQL APIs to build custom apps.
+* **Security**: DB Credentials are AES 256 encrypted and no data is stored by appsmith. Deploy behind your private VPC for additional security!
+* **One-click deployment**: Managed deployment of your apps with a click of a button.
 * **Access-control**: Control who can edit / view your applications. [Read more here.](https://docs.appsmith.com/core-concepts/access-control)
 * **Authentication**: Allow users to authenticate via Google Auth or GitHub Auth.
 
