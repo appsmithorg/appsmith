@@ -120,4 +120,4 @@ EntityProperties.displayName = "EntityPrperties";
   logOnDifferentValues: false,
 };
 
-export default EntityProperties;
+export default Sentry.withProfiler(EntityProperties);

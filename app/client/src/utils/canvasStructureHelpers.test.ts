@@ -3,28 +3,34 @@ import { compareAndGenerateImmutableCanvasStructure } from "./canvasStructureHel
 const canvasStructure: CanvasStructure = {
   widgetId: "x",
   widgetName: "x",
+  type: "CONTAINER_WIDGET",
   children: [
     {
       widgetId: "y",
       widgetName: "y",
+      type: "CONTAINER_WIDGET",
       children: [
         {
           widgetId: "z",
           widgetName: "z",
+          type: "CONTAINER_WIDGET",
         },
       ],
     },
     {
       widgetId: "m",
       widgetName: "m",
+      type: "CONTAINER_WIDGET",
       children: [
         {
           widgetId: "n",
           widgetName: "n",
+          type: "CONTAINER_WIDGET",
           children: [
             {
               widgetId: "o",
               widgetName: "o",
+              type: "CONTAINER_WIDGET",
             },
           ],
         },
@@ -36,28 +42,37 @@ const canvasStructure: CanvasStructure = {
 const simpleDSL: any = {
   widgetId: "x",
   widgetName: "x",
+  type: "CONTAINER_WIDGET",
   children: [
     {
       widgetId: "y",
       widgetName: "y",
+      type: "CONTAINER_WIDGET",
+
       children: [
         {
           widgetId: "z",
           widgetName: "z",
+          type: "CONTAINER_WIDGET",
         },
       ],
     },
     {
       widgetId: "m",
       widgetName: "m",
+      type: "CONTAINER_WIDGET",
+
       children: [
         {
           widgetId: "n",
           widgetName: "n",
+          type: "CONTAINER_WIDGET",
+
           children: [
             {
               widgetId: "o",
               widgetName: "o",
+              type: "CONTAINER_WIDGET",
             },
           ],
         },
@@ -341,14 +356,14 @@ describe("Immutable Canvas structures", () => {
 
     expect(nextState).toBe(canvasStructure);
   });
-  it("calculates 1000 simple diffs in less than 20ms", () => {
+  it("calculates 1000 simple diffs in less than 30ms", () => {
     const start = performance.now();
     for (let i = 0; i < 1000; i++) {
       compareAndGenerateImmutableCanvasStructure(canvasStructure, newDSL);
     }
     console.log("Time taken for 1000 runs: ", performance.now() - start, "ms");
     const timeTaken = performance.now() - start;
-    expect(timeTaken).toBeLessThanOrEqual(20);
+    expect(timeTaken).toBeLessThanOrEqual(30);
   });
   it("updates the diff appropriately", () => {
     const dsl: any = {
