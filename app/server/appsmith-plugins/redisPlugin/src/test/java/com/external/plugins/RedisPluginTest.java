@@ -1,7 +1,14 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -166,7 +173,8 @@ public class RedisPluginTest {
                 .assertNext(actionExecutionResult -> {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
-                    Assert.assertEquals(actionExecutionResult.getBody(), "PONG");
+                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                    Assert.assertEquals(node.get("result").asText(), "PONG");
                 }).verifyComplete();
     }
 
@@ -184,7 +192,8 @@ public class RedisPluginTest {
                 .assertNext(actionExecutionResult -> {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
-                    Assert.assertEquals(actionExecutionResult.getBody(), "null");
+                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                    Assert.assertEquals(node.get("result").asText(), "null");
                 }).verifyComplete();
 
         // Setting a key
@@ -196,7 +205,8 @@ public class RedisPluginTest {
                 .assertNext(actionExecutionResult -> {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
-                    Assert.assertEquals(actionExecutionResult.getBody(), "OK");
+                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                    Assert.assertEquals(node.get("result").asText(), "OK");
                 }).verifyComplete();
 
         // Getting the key
@@ -206,7 +216,8 @@ public class RedisPluginTest {
                 .assertNext(actionExecutionResult -> {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
-                    Assert.assertEquals(actionExecutionResult.getBody(), "value");
+                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                    Assert.assertEquals(node.get("result").asText(), "value");
                 }).verifyComplete();
     }
 }

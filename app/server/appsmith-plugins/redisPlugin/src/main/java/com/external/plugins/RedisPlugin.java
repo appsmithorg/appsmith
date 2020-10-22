@@ -1,6 +1,11 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
@@ -19,7 +24,10 @@ import redis.clients.jedis.util.SafeEncoder;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RedisPlugin extends BasePlugin {
     private static final Integer DEFAULT_PORT = 6379;
@@ -61,19 +69,25 @@ public class RedisPlugin extends BasePlugin {
             }
 
             ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
-            actionExecutionResult.setBody(processCommandOutput(commandOutput));
+            actionExecutionResult.setBody(objectMapper.valueToTree(processCommandOutput(commandOutput)));
+            actionExecutionResult.setIsExecutionSuccess(true);
 
             return Mono.just(actionExecutionResult);
         }
 
         // This will be updated as we encounter different outputs.
-        private String processCommandOutput(Object commandOutput) {
+        private List<Map<String, String>> processCommandOutput(Object commandOutput) {
             if (commandOutput == null) {
-                return "null";
+                return List.of(Map.of("result", "null"));
             } else if (commandOutput instanceof byte[]) {
-                return SafeEncoder.encode((byte[]) commandOutput);
+                return List.of(Map.of("result", SafeEncoder.encode((byte[]) commandOutput)));
+            } else if (commandOutput instanceof List) {
+                List<byte[]> commandList = (List<byte[]>) commandOutput;
+                return commandList.stream()
+                        .map(obj -> Map.of("result", SafeEncoder.encode(obj)))
+                        .collect(Collectors.toList());
             } else {
-                return String.valueOf(commandOutput);
+                return List.of(Map.of("result", String.valueOf(commandOutput)));
             }
         }
 
@@ -151,13 +165,13 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration).
-                    map(jedis -> {
+            return datasourceCreate(datasourceConfiguration)
+                    .map(jedis -> {
                         verifyPing(jedis).block();
                         datasourceDestroy(jedis);
                         return new DatasourceTestResult();
-                    }).
-                    onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
     }
