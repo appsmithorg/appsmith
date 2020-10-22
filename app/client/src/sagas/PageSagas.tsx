@@ -176,14 +176,19 @@ export function* fetchPageSaga(
       // Execute page load actions
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
 
-      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
-        payload: {
-          pageId: id,
-          dsl: extractCurrentDSL(fetchPageResponse),
-        },
+        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+        payload: extractCurrentDSL(fetchPageResponse),
       });
+
+      // Add this to the page DSLs for entity explorer
+      // yield put({
+      //   type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+      //   payload: {
+      //     pageId: id,
+      //     dsl: extractCurrentDSL(fetchPageResponse),
+      //   },
+      // });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
@@ -296,6 +301,12 @@ function* savePageSaga() {
         dsl: savePageRequest.dsl,
       },
     });
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+      payload: savePageRequest.dsl,
+    });
+
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,
       savePageRequest,

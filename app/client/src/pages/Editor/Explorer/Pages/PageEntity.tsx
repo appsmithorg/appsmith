@@ -9,16 +9,16 @@ import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { WidgetProps } from "widgets/BaseWidget";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { homePageIcon, pageIcon } from "../ExplorerIcons";
 import { getActionGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
 
 type ExplorerPageEntityProps = {
   page: Page;
-  widgets?: WidgetProps;
+  widgets?: CanvasStructure;
   actions: any[];
   step: number;
   searchKeyword?: string;
@@ -87,5 +87,8 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
 };
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
+ExplorerPageEntity.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default ExplorerPageEntity;

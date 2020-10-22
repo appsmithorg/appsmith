@@ -11,11 +11,12 @@ import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
   step: number;
-  widgets?: Record<string, WidgetProps>;
+  widgets?: Record<string, CanvasStructure>;
   actions: Record<string, any[]>;
   showWidgetsSidebar: () => void;
 };
@@ -69,6 +70,10 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       {pageEntities}
     </Entity>
   );
+};
+
+ExplorerPageGroup.whyDidYouRender = {
+  logOnDifferentValues: false,
 };
 
 export default ExplorerPageGroup;

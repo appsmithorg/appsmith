@@ -1,9 +1,9 @@
-import React, { useMemo, memo } from "react";
+import React, { useMemo, memo, ReactNode } from "react";
 import { useSelector } from "react-redux";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import { widgetIcon } from "../ExplorerIcons";
-import WidgetEntity, { WidgetTree } from "./WidgetEntity";
+import WidgetEntity from "./WidgetEntity";
 import {
   WidgetTypes,
   MAIN_CONTAINER_WIDGET_ID,
@@ -14,63 +14,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { AppState } from "reducers";
-
-const getWidgetEntity = (
-  entity: any,
-  step: number,
-  widgetsPageId: string,
-  parentModalId?: string,
-  searchKeyword?: string,
-  widgetIdsToExpand?: string[],
-) => {
-  if (!entity) {
-    return null;
-  }
-  if (entity.type === WidgetTypes.CANVAS_WIDGET) {
-    if (!entity.children || entity.children.length === 0) return;
-    return entity.children.map((child: any) =>
-      getWidgetEntity(
-        child,
-        step + 1,
-        widgetsPageId,
-        parentModalId,
-        searchKeyword,
-        widgetIdsToExpand,
-      ),
-    );
-  }
-  const childEntities =
-    entity.children &&
-    entity.children.length > 0 &&
-    entity.children.map((child: any) =>
-      getWidgetEntity(
-        child,
-        step,
-        widgetsPageId,
-        entity.type === WidgetTypes.MODAL_WIDGET ? entity.widgetId : undefined,
-        searchKeyword,
-        widgetIdsToExpand,
-      ),
-    );
-
-  const shouldExpandWidgetEntity =
-    widgetIdsToExpand && widgetIdsToExpand.indexOf(entity.widgetId) > -1
-      ? true
-      : undefined;
-  return (
-    <WidgetEntity
-      widgetProps={entity}
-      step={step}
-      key={entity.widgetId}
-      parentModalId={parentModalId}
-      searchKeyword={searchKeyword}
-      pageId={widgetsPageId}
-      isDefaultExpanded={shouldExpandWidgetEntity}
-    >
-      {childEntities}
-    </WidgetEntity>
-  );
-};
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
 
 const useWidgetExpandList = (
   widgetPageId: string,
@@ -106,7 +50,7 @@ const useWidgetExpandList = (
 type ExplorerWidgetGroupProps = {
   pageId: string;
   step: number;
-  widgets?: WidgetTree;
+  widgets?: CanvasStructure;
   searchKeyword?: string;
   addWidgetsFn?: () => void;
 };
@@ -120,47 +64,35 @@ const StyledLink = styled(Link)`
   }
 `;
 
-export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
+export const ExplorerWidgetGroup = (props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
 
-  const widgetIdsExpandList = useWidgetExpandList(
-    props.pageId,
-    params.pageId,
-    selectedWidget,
-  );
+  // const widgetIdsExpandList = useWidgetExpandList(
+  //   props.pageId,
+  //   params.pageId,
+  //   selectedWidget,
+  // );
 
-  let childNode = getWidgetEntity(
-    props.widgets,
-    props.step,
-    props.pageId,
-    undefined,
-    props.searchKeyword,
-    widgetIdsExpandList,
+  const childNode = (
+    <EntityPlaceholder step={props.step + 1}>
+      No widgets yet. Please{" "}
+      {params.pageId !== props.pageId ? (
+        <React.Fragment>
+          <StyledLink to={BUILDER_PAGE_URL(params.applicationId, props.pageId)}>
+            switch to this page
+          </StyledLink>
+          ,&nbsp;then&nbsp;
+        </React.Fragment>
+      ) : (
+        "  "
+      )}
+      click the <strong>+</strong> icon on the <strong>Widgets</strong> group to
+      drag and drop widgets
+    </EntityPlaceholder>
   );
-  if (!childNode && !props.searchKeyword) {
-    childNode = (
-      <EntityPlaceholder step={props.step + 1}>
-        No widgets yet. Please{" "}
-        {params.pageId !== props.pageId ? (
-          <React.Fragment>
-            <StyledLink
-              to={BUILDER_PAGE_URL(params.applicationId, props.pageId)}
-            >
-              switch to this page
-            </StyledLink>
-            ,&nbsp;then&nbsp;
-          </React.Fragment>
-        ) : (
-          "  "
-        )}
-        click the <strong>+</strong> icon on the <strong>Widgets</strong> group
-        to drag and drop widgets
-      </EntityPlaceholder>
-    );
-  } else if (!childNode && props.searchKeyword) return null;
 
   return (
     <Entity
@@ -178,11 +110,26 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       onCreate={props.addWidgetsFn}
       searchKeyword={props.searchKeyword}
     >
-      {childNode}
+      {props.widgets?.children?.map(child => (
+        <WidgetEntity
+          widgetId={child.widgetId}
+          widgetName={child.widgetName}
+          widgetType={child.type}
+          childWidgets={child.children}
+          step={props.step + 1}
+          key={child.widgetId}
+          searchKeyword={props.searchKeyword}
+          pageId={props.pageId}
+        />
+      ))}
+      {!props.widgets?.children && !props.searchKeyword && childNode}
     </Entity>
   );
-});
+};
 
 ExplorerWidgetGroup.displayName = "ExplorerWidgetGroup";
+ExplorerWidgetGroup.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default ExplorerWidgetGroup;

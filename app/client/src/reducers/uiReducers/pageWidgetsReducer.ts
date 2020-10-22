@@ -1,0 +1,40 @@
+import { createImmerReducer } from "utils/AppsmithUtils";
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+  ReduxAction,
+} from "constants/ReduxActionConstants";
+import { DSL } from "./pageCanvasStructure";
+import { WidgetProps } from "widgets/BaseWidget";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+
+export interface PageWidgetsReduxState {
+  [pageId: string]: {
+    [widgetId: string]: WidgetProps & { children: string[] };
+  };
+}
+
+const initalState: PageWidgetsReduxState = {};
+
+const pageWidgetsReducer = createImmerReducer(initalState, {
+  [ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS]: (
+    state: PageWidgetsReduxState,
+    action: ReduxAction<Array<{ pageId: string; dsl: DSL }>>,
+  ) => {
+    action.payload.forEach(entry => {
+      state[entry.pageId] = CanvasWidgetsNormalizer.normalize(
+        entry.dsl,
+      ).entities.canvasWidgets;
+    });
+  },
+  // [ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS]: (
+  //   state: PageWidgetsReduxState,
+  //   action: ReduxAction<{ pageId: string; dsl: DSL }>,
+  // ) => {
+  //   state[action.payload.pageId] = CanvasWidgetsNormalizer.normalize(
+  //     action.payload.dsl,
+  //   ).entities.canvasWidgets;
+  // },
+});
+
+export default pageWidgetsReducer;
