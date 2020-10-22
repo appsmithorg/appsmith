@@ -51,7 +51,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
   errors.forEach(error => {
     if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
       AppToaster.show({
-        message: error.error.message,
+        message: error.message,
         type: ToastType.ERROR,
       });
     }

@@ -338,7 +338,7 @@ const createDependencyTree = (
   } catch (e) {
     ERRORS.push({
       type: EvalErrorTypes.DEPENDENCY_ERROR,
-      error: e,
+      message: e.message,
     });
     return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
   }
@@ -479,7 +479,7 @@ function dependencySortedEvaluateDataTree(
           } catch (e) {
             ERRORS.push({
               type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
-              error: e,
+              message: e.message,
               context: {
                 propertyPath,
               },
@@ -531,7 +531,7 @@ function dependencySortedEvaluateDataTree(
   } catch (e) {
     ERRORS.push({
       type: EvalErrorTypes.EVAL_TREE_ERROR,
-      error: e,
+      message: e.message,
     });
     return tree;
   }
@@ -871,7 +871,7 @@ const evaluateDynamicBoundValue = (
   } catch (e) {
     ERRORS.push({
       type: EvalErrorTypes.UNESCAPE_STRING_ERROR,
-      error: e,
+      message: e.message,
       context: {
         path,
       },
@@ -958,7 +958,7 @@ const evaluate = (
   } catch (e) {
     ERRORS.push({
       type: EvalErrorTypes.EVAL_ERROR,
-      error: e,
+      message: e.message,
       context: {
         binding: js,
       },
