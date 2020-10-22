@@ -1,0 +1,62 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "dynamicBindings": {},
+    "version": 6,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "text": "Label",
+        "textStyle": "LABEL",
+        "textAlign": "LEFT",
+        "widgetName": "Text1",
+        "type": "TEXT_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 3,
+        "rightColumn": 7,
+        "topRow": 4,
+        "bottomRow": 5,
+        "parentId": "0",
+        "widgetId": "pcznwg0g8k"
+      },
+      {
+        "isVisible": true,
+        "text": "{{Text1.text}}",
+        "textStyle": "LABEL",
+        "textAlign": "LEFT",
+        "widgetName": "Text2",
+        "type": "TEXT_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 3,
+        "rightColumn": 7,
+        "topRow": 6,
+        "bottomRow": 7,
+        "parentId": "0",
+        "widgetId": "tgnz7xg7a3",
+        "dynamicBindings": {
+          "text": true
+        }
+      }
+    ]
+  },
+  "layoutOnLoadActions": []
+}
