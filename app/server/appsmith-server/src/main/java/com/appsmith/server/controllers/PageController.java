@@ -1,19 +1,14 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.PageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,25 +19,21 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping(Url.PAGE_URL)
 @Slf4j
-public class PageController extends BaseController<PageService, Page, String> {
+public class PageController {
     private final ApplicationPageService applicationPageService;
     private final NewPageService newPageService;
 
     @Autowired
-    public PageController(PageService service,
-                          ApplicationPageService applicationPageService,
+    public PageController(ApplicationPageService applicationPageService,
                           NewPageService newPageService) {
-        super(service);
         this.applicationPageService = applicationPageService;
         this.newPageService = newPageService;
     }
@@ -58,12 +49,6 @@ public class PageController extends BaseController<PageService, Page, String> {
     }
 
     @Deprecated
-    @Override
-    public Mono<ResponseDTO<List<Page>>> getAll(@RequestParam MultiValueMap<String, String> params) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Deprecated
     @GetMapping("/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId) {
         return newPageService.findNamesByApplicationIdAndViewMode(applicationId, false)
@@ -73,13 +58,6 @@ public class PageController extends BaseController<PageService, Page, String> {
     @GetMapping("/view/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(@PathVariable String applicationId) {
         return newPageService.findNamesByApplicationIdAndViewMode(applicationId, true)
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
-    }
-
-    @Deprecated
-    @GetMapping("/application/name/{applicationName}")
-    public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationName(@PathVariable String applicationName) {
-        return service.findNamesByApplicationName(applicationName)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

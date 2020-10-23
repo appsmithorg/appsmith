@@ -2,7 +2,6 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
@@ -11,7 +10,6 @@ import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
-import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,18 +36,16 @@ import java.util.List;
 @RestController
 @RequestMapping(Url.ACTION_URL)
 @Slf4j
-public class ActionController extends BaseController<ActionService, Action, String> {
+public class ActionController {
 
     private final ActionCollectionService actionCollectionService;
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
 
     @Autowired
-    public ActionController(ActionService service,
-                            ActionCollectionService actionCollectionService,
+    public ActionController(ActionCollectionService actionCollectionService,
                             LayoutActionService layoutActionService,
                             NewActionService newActionService) {
-        super(service);
         this.actionCollectionService = actionCollectionService;
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
