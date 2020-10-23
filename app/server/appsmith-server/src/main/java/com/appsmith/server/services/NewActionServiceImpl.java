@@ -48,7 +48,6 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -114,45 +113,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return (isValidName && doesPatternMatch);
     }
 
-    private ActionDTO generateDTOFromAction(Action action) {
-        ActionDTO actionDTO = new ActionDTO();
-        actionDTO.setName(action.getName());
-        actionDTO.setDatasource(action.getDatasource());
-        actionDTO.setPageId(action.getPageId());
-        actionDTO.setActionConfiguration(action.getActionConfiguration());
-        actionDTO.setExecuteOnLoad(action.getExecuteOnLoad());
-        actionDTO.setDynamicBindingPathList(action.getDynamicBindingPathList());
-        actionDTO.setIsValid(action.getIsValid());
-        actionDTO.setInvalids(action.getInvalids());
-        actionDTO.setJsonPathKeys(action.getJsonPathKeys());
-        actionDTO.setCacheResponse(action.getCacheResponse());
-        actionDTO.setUserSetOnLoad(action.getUserSetOnLoad());
-        actionDTO.setConfirmBeforeExecute(action.getConfirmBeforeExecute());
+    private void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
 
-        return actionDTO;
-    }
-
-    @Override
-    public Action createActionFromDTO(ActionDTO actionDTO) {
-        Action action = new Action();
-        action.setName(actionDTO.getName());
-        action.setDatasource(actionDTO.getDatasource());
-        action.setPageId(actionDTO.getPageId());
-        action.setCollectionId(actionDTO.getCollectionId());
-        action.setActionConfiguration(actionDTO.getActionConfiguration());
-        action.setExecuteOnLoad(actionDTO.getExecuteOnLoad());
-        action.setDynamicBindingPathList(actionDTO.getDynamicBindingPathList());
-        action.setIsValid(actionDTO.getIsValid());
-        action.setInvalids(actionDTO.getInvalids());
-        action.setJsonPathKeys(actionDTO.getJsonPathKeys());
-        action.setCacheResponse(actionDTO.getCacheResponse());
-        action.setUserSetOnLoad(actionDTO.getUserSetOnLoad());
-        action.setConfirmBeforeExecute(actionDTO.getConfirmBeforeExecute());
-
-        return action;
-    }
-
-    private void setCommonFieldsFromNewActionIntoAction(NewAction newAction, Action action) {
         // Set the fields from NewAction into Action
         action.setOrganizationId(newAction.getOrganizationId());
         action.setPluginType(newAction.getPluginType());
@@ -160,9 +122,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         action.setTemplateId(newAction.getTemplateId());
         action.setProviderId(newAction.getProviderId());
         action.setDocumentation(newAction.getDocumentation());
+
+        action.setId(newAction.getId());
+        action.setUserPermissions(newAction.getUserPermissions());
     }
 
-    private void setCommonFieldsFromActionIntoNewAction(Action action, NewAction newAction) {
+    private void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
         // Set the fields from NewAction into Action
         newAction.setOrganizationId(action.getOrganizationId());
         newAction.setPluginType(action.getPluginType());
@@ -170,29 +135,25 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         newAction.setTemplateId(action.getTemplateId());
         newAction.setProviderId(action.getProviderId());
         newAction.setDocumentation(action.getDocumentation());
+        newAction.setApplicationId(action.getApplicationId());
     }
 
     @Override
-    public Mono<Action> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
-        Action action = null;
+    public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
+        ActionDTO action = null;
 
         if (TRUE.equals(viewMode)) {
             if (newAction.getPublishedAction() != null) {
-                action = createActionFromDTO(newAction.getPublishedAction());
+                action = newAction.getPublishedAction();
             } else {
                 // We are trying to fetch published action but it doesnt exist because the action hasn't been published yet
                 return Mono.empty();
             }
         } else {
             if (newAction.getUnpublishedAction() != null) {
-                action = createActionFromDTO(newAction.getUnpublishedAction());
+                action = newAction.getUnpublishedAction();
             }
         }
-
-        // Set the base domain fields
-        action.setUserPermissions(newAction.getUserPermissions());
-        action.setId(newAction.getId());
-        action.setPolicies(newAction.getPolicies());
 
         // Set the fields from NewAction into Action
         setCommonFieldsFromNewActionIntoAction(newAction, action);
@@ -206,7 +167,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Mono<Action> createAction(@NotNull Action action) {
+    public Mono<ActionDTO> createAction(ActionDTO action) {
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
@@ -225,11 +186,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", action.getPageId())))
                 .flatMap(page -> {
 
-                    // Set the applicationId
-                    newAction.setApplicationId(page.getApplicationId());
-
                     // Inherit the action policies from the page.
                     generateAndSetActionPolicies(page, newAction);
+
+                    setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
 
                     // If the datasource is embedded, check for organizationId and set it in action
                     if (action.getDatasource() != null &&
@@ -241,15 +201,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         newAction.setOrganizationId(datasource.getOrganizationId());
                     }
 
-                    newAction.setUnpublishedAction(generateDTOFromAction(action));
-                    setCommonFieldsFromActionIntoNewAction(action, newAction);
+                    newAction.setUnpublishedAction(action);
 
                     return Mono.just(newAction);
                 })
                 .flatMap(this::validateAndSaveActionToRepository);
     }
 
-    private Mono<Action> validateAndSaveActionToRepository(NewAction newAction) {
+    private Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
 
         //Default the validity to true and invalids to be an empty set.
@@ -385,7 +344,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return newAction;
     }
 
-    private Mono<Action> setTransientFieldsInUnpublishedAction(NewAction newAction) {
+    private Mono<ActionDTO> setTransientFieldsInUnpublishedAction(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
 
         // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
@@ -419,23 +378,36 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Mono<Action> updateUnpublishedAction(String id, Action action) {
+    public Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action) {
 
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        ActionDTO dtoFromAction = generateDTOFromAction(action);
         NewAction newAction = new NewAction();
-        newAction.setUnpublishedAction(dtoFromAction);
+        newAction.setUnpublishedAction(action);
 
-        return repository.findById(id, MANAGE_ACTIONS)
+        Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
-                    copyNewFieldValuesIntoOldObject(dtoFromAction, dbAction.getUnpublishedAction());
+                    copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
                     return dbAction;
                 })
-                .flatMap(this::validateAndSaveActionToRepository);
+                .cache();
+
+        Mono<ActionDTO> savedUpdatedActionMono = updatedActionMono
+                .flatMap(this::validateAndSaveActionToRepository)
+                .cache();
+
+        Mono<NewAction> analyticsUpdateMono = updatedActionMono
+                .flatMap(analyticsService::sendUpdateEvent);
+
+                // First Update the Action
+        return savedUpdatedActionMono
+                // Now send the update event to analytics service
+                .then(analyticsUpdateMono)
+                // Now return the updated action back.
+                .then(savedUpdatedActionMono);
     }
 
     @Override
@@ -684,18 +656,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Mono<Action> saveAction(Action action) {
-        ActionDTO unpublishedAction = this.generateDTOFromAction(action);
-        return findById(action.getId(), MANAGE_ACTIONS)
-                .flatMap(dbAction -> {
-                    dbAction.setUnpublishedAction(unpublishedAction);
-                    return repository.save(dbAction);
-                })
-                .flatMap(savedAction -> generateActionByViewMode(savedAction, false));
-    }
-
-    @Override
-    public Mono<Action> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
+    public Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
         return repository.findByUnpublishedNameAndPageId(name, pageId, permission)
                 .flatMap(action -> generateActionByViewMode(action, false));
     }
@@ -788,7 +749,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Mono<Action> deleteUnpublishedAction(String id) {
+    public Mono<ActionDTO> deleteUnpublishedAction(String id) {
         Mono<NewAction> actionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
@@ -806,14 +767,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         newActionMono = repository.delete(toDelete).thenReturn(toDelete);
                     }
 
-                    return newActionMono
-                            .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
+                    return newActionMono;
                 })
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(analyticsService::sendDeleteEvent)
+                .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
     }
 
     @Override
-    public Flux<Action> getUnpublishedActions(MultiValueMap<String, String> params) {
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params) {
         String name = null;
         List<String> pageIds = new ArrayList<>();
         Sort sort = Sort.by(FieldName.NAME);

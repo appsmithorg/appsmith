@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
@@ -56,16 +57,16 @@ public class ActionController extends BaseController<ActionService, Action, Stri
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Action>> create(@Valid @RequestBody Action resource,
-                                            @RequestHeader(name = "Origin", required = false) String originHeader,
-                                            ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ActionDTO>> createAction(@Valid @RequestBody ActionDTO resource,
+                                               @RequestHeader(name = "Origin", required = false) String originHeader,
+                                               ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return actionCollectionService.createAction(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<Action>> update(@PathVariable String id, @RequestBody Action resource) {
+    public Mono<ResponseDTO<ActionDTO>> updateAction(@PathVariable String id, @RequestBody ActionDTO resource) {
         log.debug("Going to update resource with id: {}", id);
         return actionCollectionService.updateAction(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
@@ -78,7 +79,7 @@ public class ActionController extends BaseController<ActionService, Action, Stri
     }
 
     @PutMapping("/move")
-    public Mono<ResponseDTO<Action>> moveAction(@RequestBody @Valid ActionMoveDTO actionMoveDTO) {
+    public Mono<ResponseDTO<ActionDTO>> moveAction(@RequestBody @Valid ActionMoveDTO actionMoveDTO) {
         log.debug("Going to move action {} from page {} to page {}", actionMoveDTO.getAction().getName(), actionMoveDTO.getAction().getPageId(), actionMoveDTO.getDestinationPageId());
         return layoutActionService.moveAction(actionMoveDTO)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
@@ -97,15 +98,14 @@ public class ActionController extends BaseController<ActionService, Action, Stri
     }
 
     @PutMapping("/executeOnLoad/{id}")
-    public Mono<ResponseDTO<Action>> setExecuteOnLoad(@PathVariable String id, @RequestParam Boolean flag) {
+    public Mono<ResponseDTO<ActionDTO>> setExecuteOnLoad(@PathVariable String id, @RequestParam Boolean flag) {
         log.debug("Going to set execute on load for action id {} to {}", id, flag);
         return layoutActionService.setExecuteOnLoad(id, flag)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
     }
 
-    @Override
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<Action>> delete(@PathVariable String id) {
+    public Mono<ResponseDTO<ActionDTO>> deleteAction(@PathVariable String id) {
         log.debug("Going to delete unpublished action with id: {}", id);
         return newActionService.deleteUnpublishedAction(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
@@ -121,9 +121,8 @@ public class ActionController extends BaseController<ActionService, Action, Stri
      * @param params
      * @return
      */
-    @Override
     @GetMapping("")
-    public Mono<ResponseDTO<List<Action>>> getAll(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all actions");
         return newActionService.getUnpublishedActions(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));

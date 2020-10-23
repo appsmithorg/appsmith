@@ -4,7 +4,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
@@ -374,7 +373,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .map(action -> {
                                 ActionDTO unpublishedAction = action.getUnpublishedAction();
                                 unpublishedAction.setPageId(newPageId);
-                                return newActionService.createActionFromDTO(unpublishedAction);
+                                return unpublishedAction;
                             })
                             .collectList()
                             .thenReturn(page);
@@ -510,7 +509,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     /**
                      *  Only delete unpublished action and not the entire action.
                      */
-                    Mono<List<Action>> archivedActionsMono = newActionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                    Mono<List<ActionDTO>> archivedActionsMono = newActionService.findByPageId(page.getId(), MANAGE_ACTIONS)
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
                                 return newActionService.deleteUnpublishedAction(action.getId());
@@ -519,7 +518,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return Mono.zip(archivedPageMono, archivedActionsMono, applicationMono)
                             .map(tuple -> {
                                 PageDTO page1 = tuple.getT1();
-                                List<Action> actions = tuple.getT2();
+                                List<ActionDTO> actions = tuple.getT2();
                                 Application application = tuple.getT3();
                                 log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), application.getId());
                                 return page1;

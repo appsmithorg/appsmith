@@ -1,10 +1,10 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.Action;
+import com.appsmith.server.dtos.ActionDTO;
 import reactor.core.publisher.Mono;
 
 public interface ApiImporter {
 
-    Mono<Action> importAction(Object input, String pageId, String name, String orgId);
+    Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId);
 
 }

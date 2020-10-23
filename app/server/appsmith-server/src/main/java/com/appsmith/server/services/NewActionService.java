@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
@@ -12,29 +11,25 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public interface NewActionService extends CrudService<NewAction, String> {
-    Action createActionFromDTO(ActionDTO actionDTO);
 
-    Mono<Action> generateActionByViewMode(NewAction newAction, Boolean viewMode);
+    Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode);
 
-    Mono<Action> createAction(@NotNull Action action);
+    Mono<ActionDTO> createAction(ActionDTO action);
 
     NewAction extractAndSetJsonPathKeys(NewAction newAction);
 
-    Mono<Action> updateUnpublishedAction(String id, Action action);
+    Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 
-    Mono<Action> saveAction(Action action);
-
-    Mono<Action> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
+    Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
     Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId);
 
@@ -50,9 +45,9 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
-    Mono<Action> deleteUnpublishedAction(String id);
+    Mono<ActionDTO> deleteUnpublishedAction(String id);
 
-    Flux<Action> getUnpublishedActions(MultiValueMap<String, String> params);
+    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
 
     Mono<NewAction> save(NewAction action);
 

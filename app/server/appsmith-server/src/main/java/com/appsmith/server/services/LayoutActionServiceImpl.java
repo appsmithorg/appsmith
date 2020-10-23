@@ -2,12 +2,11 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -102,7 +101,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId)))
                 .zipWith(onLoadActionsMono)
                 .map(tuple -> {
-                    Page page = tuple.getT1();
+                    PageDTO page = tuple.getT1();
                     List<HashSet<DslActionDTO>> onLoadActions = tuple.getT2();
 
                     List<Layout> layoutList = page.getLayouts();
@@ -110,18 +109,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
                     for (Layout storedLayout : layoutList) {
                         if (storedLayout.getId().equals(layoutId)) {
-                            //Copy the variables to conserve before update
-                            JSONObject publishedDsl = storedLayout.getPublishedDsl();
-                            List<HashSet<DslActionDTO>> publishedLayoutOnLoadActions = storedLayout.getPublishedLayoutOnLoadActions();
 
                             //Update
                             layout.setLayoutOnLoadActions(onLoadActions);
                             BeanUtils.copyProperties(layout, storedLayout);
                             storedLayout.setId(layoutId);
 
-                            //Copy back the conserved variables.
-                            storedLayout.setPublishedDsl(publishedDsl);
-                            storedLayout.setPublishedLayoutOnLoadActions(publishedLayoutOnLoadActions);
                             break;
                         }
                     }
@@ -171,7 +164,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     if (!Boolean.TRUE.equals(action.getExecuteOnLoad())) {
                         action.setExecuteOnLoad(true);
 
-                        return newActionService.updateUnpublishedAction(newAction.getId(), newActionService.createActionFromDTO(action))
+                        return newActionService.updateUnpublishedAction(newAction.getId(), action)
                                 .thenReturn(actionDTO);
                     }
                     return Mono.just(actionDTO);
@@ -207,8 +200,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
-    public Mono<Action> moveAction(ActionMoveDTO actionMoveDTO) {
-        Action action = actionMoveDTO.getAction();
+    public Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO) {
+        ActionDTO action = actionMoveDTO.getAction();
 
         String oldPageId = actionMoveDTO.getAction().getPageId();
 
@@ -311,7 +304,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             params.add(FieldName.PAGE_ID, pageId);
         }
 
-        Mono<Page> updatePageMono = newPageService
+        Mono<PageDTO> updatePageMono = newPageService
                 // fetch the unpublished page
                 .findPageById(pageId, MANAGE_PAGES, false)
                 .flatMap(page -> {
@@ -388,7 +381,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         return Mono.zip(updateActionsMono, updatePageMono)
                 .flatMap(tuple -> {
                     Set<String> updatedActionNames = tuple.getT1();
-                    Page page = tuple.getT2();
+                    PageDTO page = tuple.getT2();
                     log.debug("Actions updated due to refactor name in page {} are : {}", pageId, updatedActionNames);
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
@@ -509,30 +502,39 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * @return
      */
     @Override
-    public Mono<Action> updateAction(String id, Action action) {
-        return newActionService.updateUnpublishedAction(id, action)
-                .flatMap(this::updatePageLayoutsGivenAction)
-                .flatMap(analyticsService::sendUpdateEvent);
+    public Mono<ActionDTO> updateAction(String id, ActionDTO action) {
+        Mono<ActionDTO> updateUnpublishedAction = newActionService
+                .updateUnpublishedAction(id, action)
+                .cache();
+
+                // First update the action
+        return updateUnpublishedAction
+                // Now update the page layout for any on load changes that may have occured.
+                .flatMap(savedAction -> updatePageLayoutsGivenAction(savedAction.getPageId()))
+                // Return back the updated action.
+                .then(updateUnpublishedAction);
+
     }
 
     @Override
-    public Mono<Action> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
+    public Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
         return newActionService.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .flatMap(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
                     action.setUserSetOnLoad(true);
                     action.setExecuteOnLoad(isExecuteOnLoad);
-                    return newActionService.save(newAction)
+
+                    return updatePageLayoutsGivenAction(action.getPageId())
+                            .then(newActionService.save(newAction))
                             .flatMap(savedAction -> newActionService.generateActionByViewMode(savedAction, false));
-                })
-                .flatMap(this::updatePageLayoutsGivenAction);
+                });
     }
 
-    private Mono<Action> updatePageLayoutsGivenAction(Action action) {
-        return Mono.justOrEmpty(action.getPageId())
+    private Mono<String> updatePageLayoutsGivenAction(String pageId) {
+        return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page
-                .flatMap(pageId -> newPageService.findPageById(pageId, MANAGE_PAGES, false))
+                .flatMap(id -> newPageService.findPageById(id, MANAGE_PAGES, false))
                 .flatMapMany(page -> {
                     if (page.getLayouts() == null) {
                         return Mono.empty();
@@ -541,6 +543,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             .flatMap(layout -> updateLayout(page.getId(), layout.getId(), layout));
                 })
                 .collectList()
-                .then(Mono.just(action));
+                .then(Mono.just(pageId));
     }
 }

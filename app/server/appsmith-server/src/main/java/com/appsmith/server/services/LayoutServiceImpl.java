@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +21,10 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 @Service
 public class LayoutServiceImpl implements LayoutService {
 
-    private final PageService pageService;
     private final NewPageService newPageService;
 
     @Autowired
-    public LayoutServiceImpl(PageService pageService,
-                             NewPageService newPageService) {
-        this.pageService = pageService;
+    public LayoutServiceImpl(NewPageService newPageService) {
         this.newPageService = newPageService;
     }
 
@@ -38,7 +35,7 @@ public class LayoutServiceImpl implements LayoutService {
         }
 
         // fetch the unpublished page
-        Mono<Page> pageMono = newPageService
+        Mono<PageDTO> pageMono = newPageService
                 .findPageById(pageId, AclPermission.MANAGE_PAGES, false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)));
 

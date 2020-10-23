@@ -83,7 +83,6 @@ public class PageController extends BaseController<PageService, Page, String> {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @Override
     @GetMapping("/{pageId}")
     public Mono<ResponseDTO<PageDTO>> getPageById(@PathVariable String pageId) {
         return applicationPageService.getPage(pageId, false)

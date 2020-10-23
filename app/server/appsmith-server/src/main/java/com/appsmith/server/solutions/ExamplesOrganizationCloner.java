@@ -1,16 +1,16 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -173,7 +173,7 @@ public class ExamplesOrganizationCloner {
                             .findFirst()
                             .orElse("");
 
-                    return doCloneApplication(application)
+                    return doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(application)
                             .flatMap(page ->
                                     Mono.zip(
                                             Mono.just(page),
@@ -182,16 +182,20 @@ public class ExamplesOrganizationCloner {
                             );
                 })
                 .flatMap(tuple -> {
-                    final Page page = tuple.getT1();
+                    final NewPage newPage = tuple.getT1();
                     final boolean isDefault = tuple.getT2();
-                    final String templatePageId = page.getId();
+                    final String templatePageId = newPage.getId();
 
-                    makePristine(page);
+                    makePristine(newPage);
+                    PageDTO page = newPage.getUnpublishedPage();
+
                     if (page.getLayouts() != null) {
                         for (final Layout layout : page.getLayouts()) {
                             layout.setId(new ObjectId().toString());
                         }
                     }
+
+                    page.setApplicationId(newPage.getApplicationId());
 
                     return applicationPageService
                             .createPage(page)
@@ -204,21 +208,23 @@ public class ExamplesOrganizationCloner {
                                 clonedPages.add(savedPage);
                                 return newActionService
                                         .findByPageId(templatePageId)
-                                        .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                                        .map(action -> {
-                                            log.info("Preparing action for cloning {} {}.", action.getName(), action.getId());
+                                        .map(newAction -> {
+                                            ActionDTO action = newAction.getUnpublishedAction();
+                                            log.info("Preparing action for cloning {} {}.", action.getName(), newAction.getId());
                                             action.setPageId(savedPage.getId());
-                                            return action;
+                                            return newAction;
                                         });
                             });
                 })
-                .flatMap(action -> {
-                    final String originalActionId = action.getId();
+                .flatMap(newAction -> {
+                    final String originalActionId = newAction.getId();
                     log.info("Creating clone of action {}", originalActionId);
-                    makePristine(action);
-                    action.setOrganizationId(toOrganizationId);
+                    makePristine(newAction);
+                    newAction.setOrganizationId(toOrganizationId);
+                    ActionDTO action = newAction.getUnpublishedAction();
                     action.setCollectionId(null);
-                    Mono<Action> actionMono = Mono.just(action);
+
+                    Mono<ActionDTO> actionMono = Mono.just(action);
                     final Datasource datasourceInsideAction = action.getDatasource();
                     if (datasourceInsideAction != null) {
                         if (datasourceInsideAction.getId() != null) {
@@ -233,92 +239,72 @@ public class ExamplesOrganizationCloner {
                     }
                     return actionMono
                             .flatMap(newActionService::createAction)
-                            .map(Action::getId)
+                            .map(ActionDTO::getId)
                             .zipWith(Mono.just(originalActionId));
                 })
                 // This call to `collectMap` will wait for all actions in all pages to have been processed, and so the
                 // `clonedPages` list will also contain all pages cloned.
                 .collectMap(Tuple2::getT2, Tuple2::getT1)
-                .flatMapMany(actionIdsMap -> {
-                    final List<Mono<NewPage>> pageSaveMonos = new ArrayList<>();
-
-                    for (final NewPage page : clonedPages) {
-                        if (page.getUnpublishedPage().getLayouts() == null) {
-                            continue;
-                        }
-
-                        boolean shouldSave = false;
-
-                        for (final Layout layout : page.getUnpublishedPage().getLayouts()) {
-                            if (layout.getLayoutOnLoadActions() != null) {
-                                for (final Set<DslActionDTO> actionSet : layout.getLayoutOnLoadActions()) {
-                                    for (final DslActionDTO actionDTO : actionSet) {
-                                        if (actionIdsMap.containsKey(actionDTO.getId())) {
-                                            actionDTO.setId(actionIdsMap.get(actionDTO.getId()));
-                                            shouldSave = true;
-                                        } else {
-                                            log.error(
-                                                    "Couldn't find cloned action ID for layoutOnLoadAction {} in page {}",
-                                                    actionDTO.getId(),
-                                                    page.getId()
-                                            );
-                                        }
-                                    }
-                                }
-                            }
-                            if (layout.getPublishedLayoutOnLoadActions() != null) {
-                                for (final Set<DslActionDTO> actionSet : layout.getPublishedLayoutOnLoadActions()) {
-                                    for (final DslActionDTO actionDTO : actionSet) {
-                                        if (actionIdsMap.containsKey(actionDTO.getId())) {
-                                            actionDTO.setId(actionIdsMap.get(actionDTO.getId()));
-                                            shouldSave = true;
-                                        } else {
-                                            log.error(
-                                                    "Couldn't find cloned action ID for publishedLayoutOnLoadAction {} in page {}",
-                                                    actionDTO.getId(),
-                                                    page.getId()
-                                            );
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        if (shouldSave) {
-                            pageSaveMonos.add(newPageRepository.save(page));
-                        }
-                    }
-
-                    return Flux.concat(pageSaveMonos);
-                })
+                .flatMapMany(actionIdsMap -> updateActionIdsInClonedPages(clonedPages, actionIdsMap))
                 .then(cloneDatasourcesMono)  // Run the datasource cloning mono if it isn't already done.
                 .then();
     }
 
-    private Flux<Page> doCloneApplication(Application application) {
+    private Flux<NewPage> updateActionIdsInClonedPages(List<NewPage> clonedPages, Map<String, String> actionIdsMap) {
+        final List<Mono<NewPage>> pageSaveMonos = new ArrayList<>();
+
+        for (final NewPage page : clonedPages) {
+            // If there are no unpublished layouts, there would be no published layouts either.
+            // Move on to the next page.
+            if (page.getUnpublishedPage().getLayouts() == null) {
+                continue;
+            }
+
+            boolean shouldSave = false;
+
+            for (final Layout layout : page.getUnpublishedPage().getLayouts()) {
+                if (layout.getLayoutOnLoadActions() != null) {
+                    shouldSave = updateLayoutWithActionIds(actionIdsMap, page, shouldSave, layout);
+                }
+            }
+
+            if (shouldSave) {
+                pageSaveMonos.add(newPageRepository.save(page));
+            }
+        }
+
+        return Flux.concat(pageSaveMonos);
+    }
+
+    private boolean updateLayoutWithActionIds(Map<String, String> actionIdsMap, NewPage page, boolean shouldSave, Layout layout) {
+        for (final Set<DslActionDTO> actionSet : layout.getPublishedLayoutOnLoadActions()) {
+            for (final DslActionDTO actionDTO : actionSet) {
+                if (actionIdsMap.containsKey(actionDTO.getId())) {
+                    actionDTO.setId(actionIdsMap.get(actionDTO.getId()));
+                    shouldSave = true;
+                } else {
+                    log.error(
+                            "Couldn't find cloned action ID for publishedLayoutOnLoadAction {} in page {}",
+                            actionDTO.getId(),
+                            page.getId()
+                    );
+                }
+            }
+        }
+        return shouldSave;
+    }
+
+    private Flux<NewPage> doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(Application application) {
         final String templateApplicationId = application.getId();
         return applicationPageService
                 .cloneExampleApplication(application)
                 .flatMapMany(
                         savedApplication -> newPageRepository
                                 .findByApplicationId(templateApplicationId)
-                                // Transform new page to old page before proceeding
                                 .map(newPage -> {
-                                    Page page = new Page();
-                                    page.setApplicationId(newPage.getApplicationId());
-                                    page.setUserPermissions(newPage.getUserPermissions());
-                                    page.setId(newPage.getId());
-
-                                    // Copy the unpublished fields of the page
-                                    page.setLayouts(newPage.getUnpublishedPage().getLayouts());
-                                    page.setName(newPage.getUnpublishedPage().getName());
-
-                                    return page;
-                                })
-                                .map(page -> {
-                                    log.info("Preparing page for cloning {} {}.", page.getName(), page.getId());
-                                    page.setApplicationId(savedApplication.getId());
-                                    return page;
+                                    log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
+                                    newPage.setApplicationId(savedApplication.getId());
+                                    return newPage;
                                 })
                 );
     }
