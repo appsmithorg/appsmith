@@ -59,8 +59,7 @@
               "label": "Username",
               "configProperty": "datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
-              "placeholderText": "Username",
-              "encrypted": true
+              "placeholderText": "Username"
             },
             {
               "label": "Password",

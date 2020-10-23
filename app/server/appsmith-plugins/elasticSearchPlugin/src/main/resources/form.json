@@ -30,8 +30,7 @@
           "label": "Username for Basic Auth",
           "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
-          "placeholderText": "Username",
-          "encrypted": true
+          "placeholderText": "Username"
         },
         {
           "label": "Password for Basic Auth",
