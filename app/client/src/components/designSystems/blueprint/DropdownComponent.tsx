@@ -166,10 +166,6 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
   height: number;
   width: number;
 }>`
-  div {
-    flex: 1 1 auto;
-    height: ${props => props.height - WIDGET_PADDING * 2}px;
-  }
   .${MultiSelectClasses.MULTISELECT} {
     position: relative;
     min-width: 0;
