@@ -219,6 +219,7 @@ const TabContainerView = styled.div`
 
   .react-tabs__tab-panel {
     border: 1px solid #ebeff2;
+    overflow: scroll;
   }
   .react-tabs__tab-list {
     margin: 0px;
@@ -226,9 +227,7 @@ const TabContainerView = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  padding-left: 15px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding: 5px 10px;
 `;
 
 const AddWidgetButton = styled(BaseButton)`
@@ -244,6 +243,10 @@ const OutputHeader = styled.div`
   display: flex;
   margin-bottom: 10px;
   align-items: center;
+`;
+
+const FieldWrapper = styled.div`
+  margin-top: 15px;
 `;
 
 type QueryFormProps = {
@@ -484,23 +487,28 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               {
                 key: "query",
                 title: "Query",
-                panelComponent:
-                  editorConfig && editorConfig.length > 0 ? (
-                    editorConfig.map(renderEachConfig)
-                  ) : (
-                    <>
-                      <ErrorMessage>An unexpected error occurred</ErrorMessage>
-                      <Tag
-                        round
-                        intent="warning"
-                        interactive
-                        minimal
-                        onClick={() => window.location.reload()}
-                      >
-                        Refresh
-                      </Tag>
-                    </>
-                  ),
+                panelComponent: (
+                  <SettingsWrapper>
+                    {editorConfig && editorConfig.length > 0 ? (
+                      editorConfig.map(renderEachConfig)
+                    ) : (
+                      <>
+                        <ErrorMessage>
+                          An unexpected error occurred
+                        </ErrorMessage>
+                        <Tag
+                          round
+                          intent="warning"
+                          interactive
+                          minimal
+                          onClick={() => window.location.reload()}
+                        >
+                          Refresh
+                        </Tag>
+                      </>
+                    )}
+                  </SettingsWrapper>
+                ),
               },
               {
                 key: "settings",
@@ -573,13 +581,13 @@ const renderEachConfig = (section: any): any => {
       try {
         const { configProperty } = propertyControlOrSection;
         return (
-          <div key={configProperty} style={{ marginTop: "8px" }}>
+          <FieldWrapper key={configProperty}>
             {FormControlFactory.createControl(
               { ...propertyControlOrSection },
               {},
               false,
             )}
-          </div>
+          </FieldWrapper>
         );
       } catch (e) {
         console.log(e);

@@ -434,6 +434,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       mapCenter: { lat: -34.397, long: 150.644 },
       defaultMarkers: [{ lat: -34.397, long: 150.644, title: "Test A" }],
     },
+    SKELETON_WIDGET: {
+      isLoading: true,
+      rows: 1,
+      columns: 1,
+      widgetName: "Skeleton",
+    },
   },
   configVersion: 1,
 };

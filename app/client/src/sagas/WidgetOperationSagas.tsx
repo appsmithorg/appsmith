@@ -57,7 +57,6 @@ import {
   RenderModes,
   WidgetType,
 } from "constants/WidgetConstants";
-import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import {
   saveCopiedWidgets,
@@ -78,6 +77,9 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { forceOpenPropertyPane } from "actions/widgetActions";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { validateProperty } from "./evaluationsSaga";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -160,6 +162,7 @@ function* generateChildWidgets(
     );
   }
   widget.parentId = parent.widgetId;
+  delete widget.blueprint;
   return { widgetId: widget.widgetId, widgets };
 }
 
@@ -631,7 +634,9 @@ function* setWidgetDynamicPropertySaga(
     yield put(updateWidgetProperty(widgetId, propertyName, value));
   } else {
     delete dynamicProperties[propertyName];
-    const { parsed } = ValidationFactory.validateWidgetProperty(
+    // TODO (hetu) can we eliminate this use of validation
+    const { parsed } = yield call(
+      validateProperty,
       widget.type,
       propertyName,
       propertyValue,
@@ -668,6 +673,39 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
     const childId = childrenIds[childIndex];
     yield put(resetWidgetMetaProperty(childId));
   }
+  yield call(resetEvaluatedWidgetMetaProperties, childrenIds);
+}
+
+// This is needed because evaluation takes some time and we can reset the props
+// in the evaluated value much faster like this
+function* resetEvaluatedWidgetMetaProperties(widgetIds: string[]) {
+  const evaluatedDataTree = yield select(getDataTree);
+  const updates: Record<string, DataTreeWidget> = {};
+  for (const index in widgetIds) {
+    const widgetId = widgetIds[index];
+    const widget = _.find(evaluatedDataTree, { widgetId }) as DataTreeWidget;
+    const widgetToUpdate = { ...widget };
+    const metaPropsMap = WidgetFactory.getWidgetMetaPropertiesMap(widget.type);
+    const defaultPropertiesMap = WidgetFactory.getWidgetDefaultPropertiesMap(
+      widget.type,
+    );
+    Object.keys(metaPropsMap).forEach(metaProp => {
+      if (metaProp in defaultPropertiesMap) {
+        widgetToUpdate[metaProp] = widget[defaultPropertiesMap[metaProp]];
+      } else {
+        widgetToUpdate[metaProp] = metaPropsMap[metaProp];
+      }
+    });
+    updates[widget.widgetName] = widgetToUpdate;
+  }
+  const newEvaluatedDataTree = {
+    ...evaluatedDataTree,
+    ...updates,
+  };
+  yield put({
+    type: ReduxActionTypes.SET_EVALUATED_TREE,
+    payload: newEvaluatedDataTree,
+  });
 }
 
 function* updateCanvasSize(
@@ -997,6 +1035,12 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       parentRowSpace: 1,
       parentColumnSpace: 1,
       isLoading: false,
+      props: {
+        tableData: `{{${queryName}.data}}`,
+        dynamicBindings: {
+          tableData: true,
+        },
+      },
     };
     const {
       leftColumn,
@@ -1035,14 +1079,6 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       payload: { widgetId: newWidget.newWidgetId },
     });
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
-    yield put(
-      updateWidgetPropertyRequest(
-        newWidget.newWidgetId,
-        "tableData",
-        `{{${queryName}.data}}`,
-        RenderModes.CANVAS,
-      ),
-    );
   } catch (error) {
     AppToaster.show({
       message: "Failed to add the widget",

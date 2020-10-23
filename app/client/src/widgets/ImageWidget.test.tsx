@@ -1,7 +1,6 @@
 // import React from "react";
 // import { render, fireEvent } from "@testing-library/react";
 // import ImageWidget, { ImageWidgetProps } from "./ImageWidget";
-// import RealmExecutor from "../jsExecution/RealmExecutor";
 
 // import { useDrag } from "react-dnd";
 // import { Provider } from "react-redux";
@@ -9,8 +8,6 @@
 // import { ThemeProvider, theme, light, dark } from "constants/DefaultTheme";
 
 // import "@testing-library/jest-dom";
-
-// jest.mock("jsExecution/RealmExecutor");
 
 // jest.mock("react-dnd", () => ({
 //   useDrag: jest.fn().mockReturnValue([{ isDragging: false }, jest.fn()]),
