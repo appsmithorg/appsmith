@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -16,6 +17,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class PageDTO {
 
     @Transient

@@ -522,12 +522,16 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .flatMap(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
+
                     action.setUserSetOnLoad(true);
                     action.setExecuteOnLoad(isExecuteOnLoad);
 
-                    return updatePageLayoutsGivenAction(action.getPageId())
-                            .then(newActionService.save(newAction))
-                            .flatMap(savedAction -> newActionService.generateActionByViewMode(savedAction, false));
+                    newAction.setUnpublishedAction(action);
+
+                    return newActionService.save(newAction)
+                            .flatMap(savedAction -> updatePageLayoutsGivenAction(savedAction.getUnpublishedAction().getPageId())
+                                    .then(newActionService.generateActionByViewMode(savedAction, false)));
+
                 });
     }
 
