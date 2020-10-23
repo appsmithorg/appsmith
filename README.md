@@ -28,7 +28,7 @@ Database Support: PostgreSQL, MongoDB & MySQL
 
 Hosting: Cloud-hosted & On-premise
 
-Explore more details below, or [quickly start building on your own](#quickstart).
+Explore more details below, or [quickly start building on your own](https://github.com/appsmithorg/appsmith/tree/fix/readme-v2#%EF%B8%8F-quickstart).
 
 -------------------
 
