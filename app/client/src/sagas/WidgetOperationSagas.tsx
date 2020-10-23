@@ -1035,6 +1035,9 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       parentRowSpace: 1,
       parentColumnSpace: 1,
       isLoading: false,
+      props: {
+        tableData: `{{${queryName}.data}}`,
+      },
     };
     const {
       leftColumn,
