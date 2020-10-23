@@ -125,6 +125,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         action.setId(newAction.getId());
         action.setUserPermissions(newAction.getUserPermissions());
+        action.setPolicies(newAction.getPolicies());
     }
 
     private void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
@@ -190,6 +191,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     generateAndSetActionPolicies(page, newAction);
 
                     setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+                    newAction.setApplicationId(page.getApplicationId());
 
                     // If the datasource is embedded, check for organizationId and set it in action
                     if (action.getDatasource() != null &&
@@ -721,7 +723,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
-        Sort sort = Sort.by(fieldName(QNewAction.newAction.publishedAction.name));
+        Sort sort = Sort.by(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.name));
 
         if (applicationId == null || applicationId.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));

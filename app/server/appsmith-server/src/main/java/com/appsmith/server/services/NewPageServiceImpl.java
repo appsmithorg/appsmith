@@ -73,6 +73,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
             page.setId(newPage.getId());
             page.setApplicationId(newPage.getApplicationId());
             page.setUserPermissions(newPage.getUserPermissions());
+            page.setPolicies(newPage.getPolicies());
             return Mono.just(page);
         }
 

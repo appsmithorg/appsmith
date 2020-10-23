@@ -165,7 +165,9 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = newActionService.createAction(action);
+        Mono<ActionDTO> actionMono = newActionService.createAction(action)
+                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier
                 .create(actionMono)

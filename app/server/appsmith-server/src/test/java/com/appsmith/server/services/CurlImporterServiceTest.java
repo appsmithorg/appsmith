@@ -181,7 +181,7 @@ public class CurlImporterServiceTest {
 
         final ActionConfiguration actionConfiguration = action.getActionConfiguration();
         assertEmptyPath(action);
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Content-Type", "application/json"));
+        assertHeaders(action, new Property("Content-Type", "application/json"));
         assertThat(actionConfiguration.getQueryParameters()).isNullOrEmpty();
         assertMethod(action, HttpMethod.POST);
         assertBody(action, "{\"message\": \"The force is strong with this one...\"}");
@@ -453,7 +453,7 @@ public class CurlImporterServiceTest {
         action = curlImporterService.curlToAction("curl -H \"Origin: https://example.com\" https://example.com");
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "https://example.com");
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Origin", "https://example.com"));
+        assertHeaders(action, new Property("Origin", "https://example.com"));
 
         action = curlImporterService.curlToAction("curl -X DELETE http://api.sloths.com/sloth/4");
         assertMethod(action, HttpMethod.DELETE);
@@ -478,7 +478,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Authorization", "Basic dG9iaTpmZXJyZXQ="));
+        assertHeaders(action, new Property("Authorization", "Basic dG9iaTpmZXJyZXQ="));
         assertEmptyBody(action);
     }
 
@@ -488,7 +488,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Content-Type", "application/x-www-form-urlencoded"));
+        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
         assertEmptyBody(action);
         assertBodyFormData(
                 action,
@@ -499,7 +499,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Content-Type", "application/x-www-form-urlencoded"));
+        assertHeaders(action,  new Property("Content-Type", "application/x-www-form-urlencoded"));
         assertEmptyBody(action);
         assertBodyFormData(
                 action,
@@ -541,21 +541,21 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Set-Cookie", "foo=bar"));
+        assertHeaders(action, new Property("Set-Cookie", "foo=bar"));
         assertEmptyBody(action);
 
         action = curlImporterService.curlToAction("curl --cookie 'foo=bar' slothy https://api.sloths.com");
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Set-Cookie", "foo=bar"));
+        assertHeaders(action, new Property("Set-Cookie", "foo=bar"));
         assertEmptyBody(action);
 
         action = curlImporterService.curlToAction("curl --cookie 'species=sloth;type=galactic' slothy https://api.sloths.com");
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Set-Cookie", "species=sloth;type=galactic"));
+        assertHeaders(action, new Property("Set-Cookie", "species=sloth;type=galactic"));
         assertEmptyBody(action);
     }
 
@@ -585,7 +585,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://dummy.restapiexample.com");
         assertPath(action, "/api/v1/create");
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Content-Type", "application/x-www-form-urlencoded"));
+        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
         assertEmptyBody(action);
         assertBodyFormData(
                 action,
@@ -599,7 +599,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://dummy.restapiexample.com");
         assertPath(action, "/api/v1/create");
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Content-Type", "application/json"));
+        assertHeaders(action, new Property("Content-Type", "application/json"));
         assertBody(action, "{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
     }
 
@@ -609,7 +609,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "http://httpbin.org");
         assertPath(action, "/get");
-        assertHeaders(action, new Property("Connection", "keep-alive"), new Property("Cache-Control", "max-age=0"), new Property("Upgrade-Insecure-Requests", "1"), new Property("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"), new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"), new Property("Sec-Fetch-Site", "same-origin"), new Property("Sec-Fetch-Mode", "navigate"), new Property("Sec-Fetch-User", "?1"), new Property("Sec-Fetch-Dest", "document"), new Property("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8"), new Property("Accept", "application/json"));
+        assertHeaders(action, new Property("Accept", "application/json"));
         assertEmptyBody(action);
     }
 

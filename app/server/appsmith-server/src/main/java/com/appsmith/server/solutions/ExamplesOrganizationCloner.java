@@ -264,7 +264,7 @@ public class ExamplesOrganizationCloner {
 
             for (final Layout layout : page.getUnpublishedPage().getLayouts()) {
                 if (layout.getLayoutOnLoadActions() != null) {
-                    shouldSave = updateLayoutWithActionIds(actionIdsMap, page, shouldSave, layout);
+                    shouldSave = updateOnLoadActionsWithNewActionIds(actionIdsMap, page.getId(), shouldSave, layout);
                 }
             }
 
@@ -276,8 +276,8 @@ public class ExamplesOrganizationCloner {
         return Flux.concat(pageSaveMonos);
     }
 
-    private boolean updateLayoutWithActionIds(Map<String, String> actionIdsMap, NewPage page, boolean shouldSave, Layout layout) {
-        for (final Set<DslActionDTO> actionSet : layout.getPublishedLayoutOnLoadActions()) {
+    private boolean updateOnLoadActionsWithNewActionIds(Map<String, String> actionIdsMap, String pageId, boolean shouldSave, Layout layout) {
+        for (final Set<DslActionDTO> actionSet : layout.getLayoutOnLoadActions()) {
             for (final DslActionDTO actionDTO : actionSet) {
                 if (actionIdsMap.containsKey(actionDTO.getId())) {
                     actionDTO.setId(actionIdsMap.get(actionDTO.getId()));
@@ -286,7 +286,7 @@ public class ExamplesOrganizationCloner {
                     log.error(
                             "Couldn't find cloned action ID for publishedLayoutOnLoadAction {} in page {}",
                             actionDTO.getId(),
-                            page.getId()
+                            pageId
                     );
                 }
             }
