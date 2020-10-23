@@ -26,6 +26,8 @@ API Support: REST & GraphQL APIs
 Database Support: PostgreSQL, MongoDB & MySQL
 Hosting: Cloud-hosted & On-premise
 
+Explore more details below, or [quickly start building on your own]().
+
 -------------------
 <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/UI.gif">
 <p align="center">
@@ -52,25 +54,18 @@ Read more at [Appsmith.com](https://www.appsmith.com/), or jump start with the [
 Unsure if Appsmith is for you? [Watch it in action here](http://bit.ly/appsmith-demo-github) 
 
 But if you’d rather check out some real applications that can be built with Appsmith, check below:
-* Customer Support Dashboard
-  * [Try it out](https://bit.ly/cs-dashboard-appsmith)
-  * [Tutorial](https://www.youtube.com/watch?v=-O_6OLREEzo) (5:33 mins)
+* [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
+* [Job Application Tracker](https://bit.ly/3hbYtTi)
 
-* Job Application Tracker
-  * [Try it out](https://bit.ly/3hbYtTi)
-  * Tutorial
-
-* Recommendation Manager
-  * Try it out
-  * [Tutorial](https://www.youtube.com/watch?v=GGe_5C0eqAo) (5:38 mins)
-
-Or, [go exploring on your own](https://docs.appsmith.com/).
+Or, check out our [docs](https://docs.appsmith.com/) to explore on your own.
 
 ## 🏃‍♀️ Quickstart
 
 ### One-click deployment on Appsmith Cloud
 
 The fastest and easiest way to try Appsmith out is via [Appsmith Cloud](https://bit.ly/appsmith-signup-github) 
+
+Listed below are the steps to build a dashboard that lists users. It uses Appsmith on cloud.
 1. [Sign up](https://bit.ly/appsmith-signup-github).
 2. Create a new App within the organization that has already been create for you.
 3. Navigate to `Pages -> Queries -> Mock Database` and follow these steps to create a new query -
@@ -88,19 +83,20 @@ You just built your first app with mock data. Connect your own data to build rea
 
 ## 📕 Support & Troubleshooting
 
-The [documentation](https://docs.appsmith.com/) and community will help you troubleshoot most issues. If you have encountered a bug or need to get in touch with us, you can contact us using one of the following channels:
+If you have encountered a bug or need to get in touch with us, you can contact us using one of the following channels:
 
+* Learn Appsmith & debug yourself: [Documentation](https://docs.appsmith.com/)
 * Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
 * Support & feedback: [Discord](https://discord.gg/rBTTVJp)
-
-We are committed to fostering an open and welcoming environment in the community. Please see the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## ∞ Contributing
 
 If you're interested in contributing to Appsmith:
-1. Start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md) 
-2. Learn how to set up your local environment, in our [developer-guide](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)
-3. Explore our [open issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
+1. Start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md).
+2. Learn how to set up your local environment, in our [developer-guide](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).
+3. Explore the list of [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).
+
+We are committed to fostering an open and welcoming environment in the community. Please see the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## 📑 License
 
