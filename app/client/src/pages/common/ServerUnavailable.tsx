@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+import Button from "components/editorComponents/Button";
 import PageUnavailableImage from "assets/images/404-image.png";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const Wrapper = styled.div`
   text-align: center;
