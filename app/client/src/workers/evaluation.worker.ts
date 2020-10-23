@@ -63,7 +63,8 @@ ctx.addEventListener("message", e => {
     }
     case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
       const { binding, dataTree } = rest;
-      const withFunctions = addFunctions(dataTree);
+      const evalTree = getEvaluatedDataTree(dataTree);
+      const withFunctions = addFunctions(evalTree);
       const value = getDynamicValue(binding, withFunctions, false);
       ctx.postMessage({ value, errors: ERRORS });
       ERRORS = [];
