@@ -31,6 +31,7 @@ Hosting: Cloud-hosted & On-premise
 Explore more details below, or [quickly start building on your own](#quickstart).
 
 -------------------
+
 <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/UI.gif">
 <p align="center">
   <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/Query2.png" width="270">
