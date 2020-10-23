@@ -299,7 +299,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             helpText: "Controls the max zoom of the widget",
             propertyName: "maxZoomLevel",
             label: "Max Zoom Level",
-            controlType: "INPUT_TEXT",
+            controlType: "STEP",
             isJSConvertible: true,
           },
         ],
