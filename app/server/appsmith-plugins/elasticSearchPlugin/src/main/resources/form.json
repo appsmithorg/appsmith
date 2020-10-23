@@ -30,14 +30,16 @@
           "label": "Username for Basic Auth",
           "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
-          "placeholderText": "Username"
+          "placeholderText": "Username",
+          "encrypted": true
         },
         {
           "label": "Password for Basic Auth",
           "configProperty": "datasourceConfiguration.authentication.password",
           "dataType": "PASSWORD",
           "controlType": "INPUT_TEXT",
-          "placeholderText": "Password"
+          "placeholderText": "Password",
+          "encrypted": true
         },
         {
           "label": "Authorization Header (if username, password are not set)",

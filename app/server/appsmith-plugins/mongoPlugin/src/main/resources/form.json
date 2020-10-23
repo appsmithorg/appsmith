@@ -98,14 +98,16 @@
               "label": "Username",
               "configProperty": "datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
-              "placeholderText": "Username"
+              "placeholderText": "Username",
+              "encrypted": true
             },
             {
               "label": "Password",
               "configProperty": "datasourceConfiguration.authentication.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
-              "placeholderText": "Password"
+              "placeholderText": "Password",
+              "encrypted": true
             }
           ]
         }
