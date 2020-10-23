@@ -29,11 +29,15 @@ const pageWidgetsReducer = createImmerReducer(initalState, {
   },
   [ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS]: (
     state: PageWidgetsReduxState,
-    action: ReduxAction<{ pageId: string; dsl: DSL }>,
+    action: ReduxAction<{ pageId: string; dsl?: DSL }>,
   ) => {
-    state[action.payload.pageId] = CanvasWidgetsNormalizer.normalize(
-      action.payload.dsl,
-    ).entities.canvasWidgets;
+    if (!action.payload.dsl) {
+      delete state[action.payload.pageId];
+    } else {
+      state[action.payload.pageId] = CanvasWidgetsNormalizer.normalize(
+        action.payload.dsl,
+      ).entities.canvasWidgets;
+    }
   },
 });
 

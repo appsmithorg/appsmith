@@ -43,12 +43,16 @@ const pageCanvasStructureReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS]: (
     state: PageCanvasStructureReduxState,
-    action: ReduxAction<{ pageId: string; dsl: DSL }>,
+    action: ReduxAction<{ pageId: string; dsl?: DSL }>,
   ) => {
-    state[action.payload.pageId] = compareAndGenerateImmutableCanvasStructure(
-      state[action.payload.pageId],
-      action.payload.dsl,
-    );
+    if (!action.payload.dsl) {
+      delete state[action.payload.pageId];
+    } else {
+      state[action.payload.pageId] = compareAndGenerateImmutableCanvasStructure(
+        state[action.payload.pageId],
+        action.payload.dsl,
+      );
+    }
   },
   [ReduxActionErrorTypes.FETCH_PAGE_DSL_ERROR]: (
     state: PageCanvasStructureReduxState,

@@ -21,6 +21,17 @@ type ExplorerPageGroupProps = {
   showWidgetsSidebar: () => void;
 };
 
+const pageGroupEqualityCheck = (
+  prev: ExplorerPageGroupProps,
+  next: ExplorerPageGroupProps,
+) => {
+  return (
+    prev.widgets === next.widgets &&
+    prev.actions === next.actions &&
+    prev.searchKeyword === next.searchKeyword
+  );
+};
+
 export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
@@ -70,7 +81,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       {pageEntities}
     </Entity>
   );
-});
+}, pageGroupEqualityCheck);
 
 ExplorerPageGroup.displayName = "ExplorerPageGroup";
 
