@@ -1037,6 +1037,9 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       isLoading: false,
       props: {
         tableData: `{{${queryName}.data}}`,
+        dynamicBindings: {
+          tableData: true,
+        },
       },
     };
     const {
@@ -1076,14 +1079,6 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       payload: { widgetId: newWidget.newWidgetId },
     });
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
-    yield put(
-      updateWidgetPropertyRequest(
-        newWidget.newWidgetId,
-        "tableData",
-        `{{${queryName}.data}}`,
-        RenderModes.CANVAS,
-      ),
-    );
   } catch (error) {
     AppToaster.show({
       message: "Failed to add the widget",
