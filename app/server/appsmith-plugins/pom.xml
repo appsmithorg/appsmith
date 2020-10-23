@@ -22,5 +22,6 @@
         <module>elasticSearchPlugin</module>
         <module>dynamoPlugin</module>
         <module>redisPlugin</module>
+        <module>mssqlPlugin</module>
     </modules>
 </project>
