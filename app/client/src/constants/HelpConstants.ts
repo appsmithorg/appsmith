@@ -71,6 +71,10 @@ export const HelpMap = {
     path: "",
     searchKey: "",
   },
+  SKELETON_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
   TABS_WIDGET: {
     path: "",
     searchKey: "Tabs",

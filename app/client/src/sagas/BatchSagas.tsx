@@ -2,6 +2,7 @@
 import _ from "lodash";
 import { put, debounce, takeEvery, all } from "redux-saga/effects";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { batchActionSuccess } from "../actions/batchActions";
 
 const BATCH_PRIORITY = {
   [ReduxActionTypes.SET_META_PROP]: {
@@ -62,6 +63,7 @@ function* executeBatchSaga() {
           yield put(sagaAction);
         }
       }
+      yield put(batchActionSuccess(batch));
     }
   }
 }

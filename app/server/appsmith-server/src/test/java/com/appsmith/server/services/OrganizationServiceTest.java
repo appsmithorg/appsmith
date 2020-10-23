@@ -726,7 +726,7 @@ public class OrganizationServiceTest {
                     UserRole userRole = new UserRole();
                     userRole.setUsername("usertest@usertest.com");
                     userRole.setRoleName("App Viewer");
-                    return userOrganizationService.updateRoleForMember(org.getId(), userRole);
+                    return userOrganizationService.updateRoleForMember(org.getId(), userRole, "http://localhost:8080");
                 });
 
         Mono<Application> applicationAfterRoleChange = organizationMono
@@ -798,7 +798,7 @@ public class OrganizationServiceTest {
                     userRole.setUsername("usertest@usertest.com");
                     // Setting the role name to null ensures that user is deleted from the organization
                     userRole.setRoleName(null);
-                    return userOrganizationService.updateRoleForMember(org.getId(), userRole);
+                    return userOrganizationService.updateRoleForMember(org.getId(), userRole, "http://localhost:8080");
                 });
 
         Mono<Tuple2<Application, Organization>> tupleMono = organizationMono
