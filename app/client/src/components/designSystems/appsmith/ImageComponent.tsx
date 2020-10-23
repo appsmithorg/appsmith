@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ComponentProps } from "./BaseComponent";
 import styled from "styled-components";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 export interface StyledImageProps {
   defaultImageUrl: string;
@@ -30,37 +31,75 @@ export const StyledImage = styled.div<
   width: 100%;
 `;
 
+const Wrapper = styled.div`
+  height: 100%;
+  width: 100%;
+  .react-transform-element,
+  .react-transform-component {
+    height: 100%;
+    width: 100%;
+  }
+`;
 class ImageComponent extends React.Component<
   ImageComponentProps,
   {
     imageError: boolean;
+    scale: number;
   }
 > {
   constructor(props: ImageComponentProps) {
     super(props);
     this.state = {
       imageError: false,
+      scale: 1,
     };
   }
   render() {
+    const { maxZoomLevel } = this.props;
+    const zoomActive = maxZoomLevel !== undefined && maxZoomLevel > 1;
     return (
-      <StyledImage
-        className={this.props.isLoading ? "bp3-skeleton" : ""}
-        imageError={this.state.imageError}
-        {...this.props}
-        data-testid="styledImage"
-      >
-        <img
-          style={{
-            display: "none",
+      <Wrapper>
+        <TransformWrapper
+          defaultScale={1}
+          onPanningStart={() => {
+            this.props.disableDrag(true);
           }}
-          alt={this.props.widgetName}
-          src={this.props.imageUrl}
-          onError={this.onImageError}
-          onLoad={this.onImageLoad}
-          onClick={this.props.onClick}
-        ></img>
-      </StyledImage>
+          options={{
+            maxScale: maxZoomLevel,
+            disabled: !zoomActive,
+            transformEnabled: zoomActive,
+          }}
+          pan={{
+            disabled: !zoomActive,
+          }}
+          wheel={{
+            disabled: !zoomActive,
+          }}
+          onPanningStop={() => {
+            this.props.disableDrag(false);
+          }}
+        >
+          <TransformComponent>
+            <StyledImage
+              className={this.props.isLoading ? "bp3-skeleton" : ""}
+              imageError={this.state.imageError}
+              {...this.props}
+              data-testid="styledImage"
+            >
+              <img
+                style={{
+                  display: "none",
+                }}
+                alt={this.props.widgetName}
+                src={this.props.imageUrl}
+                onError={this.onImageError}
+                onLoad={this.onImageLoad}
+                onClick={this.props.onClick}
+              ></img>
+            </StyledImage>
+          </TransformComponent>
+        </TransformWrapper>
+      </Wrapper>
     );
   }
 
@@ -82,6 +121,8 @@ export interface ImageComponentProps extends ComponentProps {
   defaultImageUrl: string;
   isLoading: boolean;
   showHoverPointer?: boolean;
+  maxZoomLevel: number;
+  disableDrag: (disabled: boolean) => void;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 

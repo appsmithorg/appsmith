@@ -1,7 +1,7 @@
 import { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 
 const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   config: {
     CONTAINER_WIDGET: [
@@ -292,6 +292,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "3.1.4",
+            helpText: "Controls the max zoom of the widget",
+            propertyName: "maxZoomLevel",
+            label: "Max Zoom Level",
+            controlType: "INPUT_TEXT",
             isJSConvertible: true,
           },
         ],
