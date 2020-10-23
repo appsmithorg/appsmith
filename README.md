@@ -23,10 +23,12 @@ Appsmith is a **Visual MVC** Framework to build sophisticated internal tools wit
 You can build complex workflows using pre-built widgets (forms, tables, charts etc.), connect to any API or Database and even write conditional logic using Javascript.
 
 API Support: REST & GraphQL APIs
+
 Database Support: PostgreSQL, MongoDB & MySQL
+
 Hosting: Cloud-hosted & On-premise
 
-Explore more details below, or [quickly start building on your own]().
+Explore more details below, or [quickly start building on your own](#quickstart).
 
 -------------------
 <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/UI.gif">
@@ -39,13 +41,13 @@ Explore more details below, or [quickly start building on your own]().
 ## 🏭 Features
 
 * **5-minute setup**: Deploy Appsmith your server, or use it on cloud to start building in 5 minutes.
-* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anywhere to transform data. [Read more here.](https://docs.appsmith.com/core-concepts/building-the-ui)
+* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anywhere to transform data, and dynamically control widget-properties. [Read more here.](https://docs.appsmith.com/core-concepts/building-the-ui)
 * **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**.
 * **Trigger APIs**: Connect to internal or external REST and GraphQL APIs to build custom apps.
 * **Security**: DB Credentials are AES 256 encrypted and no data is stored by appsmith. Deploy behind your private VPC for additional security!
 * **One-click deployment**: Managed deployment of your apps with a click of a button.
 * **Access-control**: Control who can edit / view your applications. [Read more here.](https://docs.appsmith.com/core-concepts/access-control)
-* **Authentication**: Allow users to authenticate via Google Auth or GitHub Auth.
+* **Supports OAuth**: Allow users to authenticate via Google Auth or GitHub Auth.
 
 Read more at [Appsmith.com](https://www.appsmith.com/), or jump start with the [docs](https://docs.appsmith.com/).
 
@@ -68,11 +70,13 @@ The fastest and easiest way to try Appsmith out is via [Appsmith Cloud](https://
 Listed below are the steps to build a dashboard that lists users. It uses Appsmith on cloud.
 1. [Sign up](https://bit.ly/appsmith-signup-github).
 2. Create a new App within the organization that has already been create for you.
-3. Navigate to `Pages -> Queries -> Mock Database` and follow these steps to create a new query -
-    1. Write query `select * from users limit 5;`.
-    2. Name the query as `usersQuery`.
+3. Click on the `+` icon next to the `Queries` section to add a new query in the mock db -
+    1. Name the query as `usersQuery`.
+    2. Write query `select * from users limit 5;`.
+    3. Run the query.
+    4. In query window, switch to the `Settings` tab, and enable `Run Query on Page Load`.
 4. Navigate to `Pages -> Widgets` and create a table `UsersTable` by dragging-and-droping the table-widget.
-5. Navigate to `Table Data` property of `UsersTable`, and fill in `{{usersQuery.data}}` to display thq query's results in this table. 
+5. Navigate to `Table Data` property of `UsersTable`, and set it to `{{usersQuery.data}}` to display the query's results in this table.
 6. Hit the Deploy button.
 7. Click on the Share button to get a shareable-link of the app, and manage its access. 
 
@@ -89,7 +93,7 @@ If you have encountered a bug or need to get in touch with us, you can contact u
 * Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
 * Support & feedback: [Discord](https://discord.gg/rBTTVJp)
 
-## ∞ Contributing
+## 🧑‍🤝‍🧑 Contributing
 
 If you're interested in contributing to Appsmith:
 1. Start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md).
