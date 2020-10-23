@@ -3,8 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -75,8 +75,8 @@ public class PageServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullName() {
-        Page page = new Page();
-        Mono<Page> pageMono = Mono.just(page)
+        PageDTO page = new PageDTO();
+        Mono<PageDTO> pageMono = Mono.just(page)
                 .flatMap(applicationPageService::createPage);
         StepVerifier
                 .create(pageMono)
@@ -88,9 +88,9 @@ public class PageServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullApplication() {
-        Page page = new Page();
+        PageDTO page = new PageDTO();
         page.setName("Page without application");
-        Mono<Page> pageMono = Mono.just(page)
+        Mono<PageDTO> pageMono = Mono.just(page)
                 .flatMap(applicationPageService::createPage);
         StepVerifier
                 .create(pageMono)
@@ -109,12 +109,12 @@ public class PageServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<Page> pageMono = applicationPageService.createPage(testPage);
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage);
 
         Object parsedJson = new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);
         StepVerifier
@@ -144,14 +144,14 @@ public class PageServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("Before Page Name Change");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<Page> pageMono = applicationPageService.createPage(testPage)
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
                 .flatMap(page -> {
-                    Page newPage = new Page();
+                    PageDTO newPage = new PageDTO();
                     newPage.setId(page.getId());
                     newPage.setName("New Page Name");
                     return newPageService.updatePage(page.getId(), newPage);
@@ -182,12 +182,12 @@ public class PageServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest CloneTest Source");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<Page> pageMono = applicationPageService.createPage(testPage)
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
                 .flatMap(page -> applicationPageService.clonePage(page.getId()));
 
         Object parsedJson = new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);

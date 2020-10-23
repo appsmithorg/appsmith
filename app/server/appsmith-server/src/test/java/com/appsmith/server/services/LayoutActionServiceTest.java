@@ -2,16 +2,16 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -78,7 +78,7 @@ public class LayoutActionServiceTest {
 
     Application testApp = null;
 
-    Page testPage = null;
+    PageDTO testPage = null;
 
     Datasource datasource;
 
@@ -132,7 +132,7 @@ public class LayoutActionServiceTest {
     public void updateActionUpdatesLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("query1");
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -140,10 +140,10 @@ public class LayoutActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<Page> resultMono = newActionService
+        Mono<PageDTO> resultMono = newActionService
                 .createAction(action)
                 .flatMap(savedAction -> {
-                    Action updates = new Action();
+                    ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
@@ -167,7 +167,7 @@ public class LayoutActionServiceTest {
     public void refactorActionName() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("beforeNameChange");
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -180,7 +180,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        Action createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = newActionService.createAction(action).block();
 
         Layout firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 

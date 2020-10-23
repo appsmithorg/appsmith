@@ -4,7 +4,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
@@ -12,11 +11,12 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -152,7 +152,7 @@ public class ApplicationServiceTest {
     public void defaultPageCreateOnCreateApplicationTest() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
-        Flux<Page> pagesFlux = applicationPageService
+        Flux<PageDTO> pagesFlux = applicationPageService
                 .createApplication(testApplication, orgId)
                 // Fetch the unpublished pages by applicationId
                 .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
@@ -402,7 +402,7 @@ public class ApplicationServiceTest {
                 .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
                 .cache();
 
-        Mono<Page> pageMono = publicAppMono
+        Mono<PageDTO> pageMono = publicAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
                     return newPageService.findPageById(pageId, READ_PAGES, false);
@@ -412,7 +412,7 @@ public class ApplicationServiceTest {
                 .create(Mono.zip(publicAppMono, pageMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
-                    Page page = tuple.getT2();
+                    PageDTO page = tuple.getT2();
 
                     assertThat(publicApp.getIsPublic()).isTrue();
                     assertThat(publicApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
@@ -457,7 +457,7 @@ public class ApplicationServiceTest {
                 })
                 .cache();
 
-        Mono<Page> pageMono = privateAppMono
+        Mono<PageDTO> pageMono = privateAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
                     return newPageService.findPageById(pageId, READ_PAGES, false);
@@ -467,7 +467,7 @@ public class ApplicationServiceTest {
                 .create(Mono.zip(privateAppMono, pageMono))
                 .assertNext(tuple -> {
                     Application app = tuple.getT1();
-                    Page page = tuple.getT2();
+                    PageDTO page = tuple.getT2();
 
                     assertThat(app.getIsPublic()).isFalse();
                     assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
@@ -521,7 +521,7 @@ public class ApplicationServiceTest {
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("Public App Test action");
         action.setPageId(pageId);
         action.setDatasource(savedDatasource);
@@ -529,7 +529,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
 
-        Action savedAction = newActionService.createAction(action).block();
+        ActionDTO savedAction = newActionService.createAction(action).block();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -580,7 +580,7 @@ public class ApplicationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Mono<List<Page>> pageListMono = applicationMono
+        Mono<List<PageDTO>> pageListMono = applicationMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
@@ -596,7 +596,7 @@ public class ApplicationServiceTest {
                 .create(Mono.zip(applicationMono, pageListMono))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
-                    List<Page> pageList = tuple.getT2();
+                    List<PageDTO> pageList = tuple.getT2();
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
@@ -605,7 +605,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getOrganizationId().equals(orgId));
 
                     assertThat(pageList).isNotEmpty();
-                    for (Page page : pageList) {
+                    for (PageDTO page : pageList) {
                         assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
                         assertThat(page.getApplicationId()).isEqualTo(application.getId());
                     }
@@ -621,7 +621,7 @@ public class ApplicationServiceTest {
 
         Mono<List<String>> pageIdListMono = pageListMono
                 .flatMapMany(Flux::fromIterable)
-                .map(Page::getId)
+                .map(PageDTO::getId)
                 .collectList();
 
         Mono<List<String>> testPageIdListMono = testPageListMono
@@ -643,7 +643,7 @@ public class ApplicationServiceTest {
 
         Mono<List<String>> pageNameListMono = pageListMono
                 .flatMapMany(Flux::fromIterable)
-                .map(Page::getName)
+                .map(PageDTO::getName)
                 .collectList();
 
         Mono<List<String>> testPageNameListMono = testPageListMono
@@ -709,7 +709,7 @@ public class ApplicationServiceTest {
         testApplication.setName(appName);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> {
-                    Page page = new Page();
+                    PageDTO page = new PageDTO();
                     page.setName("New Page");
                     page.setApplicationId(application.getId());
                     Layout defaultLayout = newPageService.createDefaultLayout();
@@ -722,7 +722,7 @@ public class ApplicationServiceTest {
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
-        Page newPage = applicationMono
+        PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
                         .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
@@ -755,7 +755,7 @@ public class ApplicationServiceTest {
         testApplication.setName(appName);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> {
-                    Page page = new Page();
+                    PageDTO page = new PageDTO();
                     page.setName("New Page");
                     page.setApplicationId(application.getId());
                     Layout defaultLayout = newPageService.createDefaultLayout();
@@ -768,7 +768,7 @@ public class ApplicationServiceTest {
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
-        Page newPage = applicationMono
+        PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
                         .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "unpublishedEditedPage")))).block();
@@ -807,7 +807,7 @@ public class ApplicationServiceTest {
         testApplication.setName(appName);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> {
-                    Page page = new Page();
+                    PageDTO page = new PageDTO();
                     page.setName("New Page");
                     page.setApplicationId(application.getId());
                     Layout defaultLayout = newPageService.createDefaultLayout();
@@ -820,7 +820,7 @@ public class ApplicationServiceTest {
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
-        Page newPage = applicationMono
+        PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
                         .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))

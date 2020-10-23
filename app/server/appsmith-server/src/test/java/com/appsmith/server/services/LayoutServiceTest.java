@@ -4,14 +4,14 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -136,14 +136,14 @@ public class LayoutServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidLayout() {
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("createLayoutPageName");
 
         Application application = new Application();
         application.setName("createValidLayout-Test-Application");
         Mono<Application> applicationMono = applicationPageService.createApplication(application, orgId);
 
-        Mono<Page> pageMono = applicationMono
+        Mono<PageDTO> pageMono = applicationMono
                 .switchIfEmpty(Mono.error(new Exception("No application found")))
                 .map(app -> {
                     testPage.setApplicationId(app.getId());
@@ -169,8 +169,8 @@ public class LayoutServiceTest {
                 .verifyComplete();
     }
 
-    private Mono<Page> createPage(Application app, Page page) {
-        Mono<Page> pageMono = newPageService
+    private Mono<PageDTO> createPage(Application app, PageDTO page) {
+        return newPageService
                 .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
                 .switchIfEmpty(applicationPageService.createApplication(app, orgId)
                         .map(application -> {
@@ -178,7 +178,6 @@ public class LayoutServiceTest {
                             return page;
                         })
                         .flatMap(applicationPageService::createPage));
-        return pageMono;
     }
 
     @Test
@@ -189,7 +188,7 @@ public class LayoutServiceTest {
         obj.put("key", "value");
         testLayout.setDsl(obj);
 
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("LayoutServiceTest updateLayoutInvalidPageId");
 
         Layout updateLayout = new Layout();
@@ -199,7 +198,7 @@ public class LayoutServiceTest {
 
         Application app = new Application();
         app.setName("newApplication-updateLayoutInvalidPageId-Test");
-        Page page = createPage(app, testPage).block();
+        PageDTO page = createPage(app, testPage).block();
 
         Layout startLayout = layoutService.createLayout(page.getId(), testLayout).block();
 
@@ -226,19 +225,19 @@ public class LayoutServiceTest {
         obj1.put("key1", "value-updated");
         updateLayout.setDsl(obj);
 
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("LayoutServiceTest updateLayoutValidPageId");
 
         Application app = new Application();
         app.setName("newApplication-updateLayoutValidPageId-TestApplication");
 
-        Mono<Page> pageMono = createPage(app, testPage).cache();
+        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
 
         Mono<Layout> startLayoutMono = pageMono.flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
 
         Mono<Layout> updatedLayoutMono = Mono.zip(pageMono, startLayoutMono)
                 .flatMap(tuple -> {
-                    Page page = tuple.getT1();
+                    PageDTO page = tuple.getT1();
                     Layout startLayout = tuple.getT2();
                     return layoutActionService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
                 });
@@ -258,19 +257,19 @@ public class LayoutServiceTest {
     public void getActionsExecuteOnLoad() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("ActionsExecuteOnLoad Test Page");
 
         Application app = new Application();
         app.setName("newApplication-updateLayoutValidPageId-Test");
 
-        Mono<Page> pageMono = createPage(app, testPage).cache();
+        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
 
         Mono<Layout> testMono = pageMono
                 .flatMap(page1 -> {
-                    List<Mono<Action>> monos = new ArrayList<>();
+                    List<Mono<ActionDTO>> monos = new ArrayList<>();
 
-                    Action action = new Action();
+                    ActionDTO action = new ActionDTO();
                     action.setName("aGetAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
@@ -278,7 +277,7 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(newActionService.createAction(action));
 
-                    action = new Action();
+                    action = new ActionDTO();
                     action.setName("aPostAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
@@ -286,7 +285,7 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(newActionService.createAction(action));
 
-                    action = new Action();
+                    action = new ActionDTO();
                     action.setName("aPostActionWithAutoExec");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
@@ -298,7 +297,7 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(newActionService.createAction(action));
 
-                    action = new Action();
+                    action = new ActionDTO();
                     action.setName("aPostSecondaryAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
@@ -306,7 +305,7 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(newActionService.createAction(action));
 
-                    action = new Action();
+                    action = new ActionDTO();
                     action.setName("aPostTertiaryAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
@@ -315,7 +314,7 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(newActionService.createAction(action));
 
-                    action = new Action();
+                    action = new ActionDTO();
                     action.setName("aDeleteAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
@@ -336,7 +335,7 @@ public class LayoutServiceTest {
                     return layoutService.createLayout(page1.getId(), layout);
                 })
                 .flatMap(tuple2 -> {
-                    final Page page1 = tuple2.getT1();
+                    final PageDTO page1 = tuple2.getT1();
                     final Layout layout = tuple2.getT2();
 
                     Layout newLayout = new Layout();

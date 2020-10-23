@@ -43,8 +43,8 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICAT
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
-@Slf4j
 @Service
+@Slf4j
 public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
