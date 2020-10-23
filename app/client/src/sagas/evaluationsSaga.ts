@@ -80,10 +80,10 @@ function* evaluateTreeSaga() {
 
 export function* evaluateSingleValue(binding: string) {
   if (evaluationWorker) {
-    const evalTree = yield select(getDataTree);
+    const unEvalTree = yield select(getUnevaluatedDataTree);
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
-      dataTree: evalTree,
+      dataTree: unEvalTree,
       binding,
     });
     const workerResponse = yield take(workerChannel);
@@ -215,13 +215,6 @@ function* evaluationChangeListenerSaga() {
 
 export default function* evaluationSagaListeners() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
-      evaluationChangeListenerSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
-      evaluationChangeListenerSaga,
-    ),
+    takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
   ]);
 }

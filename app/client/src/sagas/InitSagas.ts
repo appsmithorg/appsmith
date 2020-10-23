@@ -45,6 +45,7 @@ function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   const { applicationId, pageId } = initializeEditorAction.payload;
+  yield put({ type: ReduxActionTypes.START_EVALUATION });
   // Step 1: Start getting all the data needed by the
   yield all([
     put(fetchPageList(applicationId)),
@@ -151,6 +152,7 @@ export function* initializeAppViewerSaga(
   action: ReduxAction<{ applicationId: string }>,
 ) {
   const { applicationId } = action.payload;
+  yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
     put(fetchActionsForView(applicationId)),
     put(fetchPageList(applicationId)),
