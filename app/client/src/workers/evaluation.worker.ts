@@ -95,6 +95,15 @@ ctx.addEventListener("message", e => {
       ctx.postMessage(true);
       break;
     }
+    case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
+      const { widgetType, property, value, props } = rest;
+      const result = validateWidgetProperty(widgetType, property, value, props);
+      ctx.postMessage(result);
+      break;
+    }
+    default: {
+      console.error("Action not registered on worker", action);
+    }
   }
 });
 
