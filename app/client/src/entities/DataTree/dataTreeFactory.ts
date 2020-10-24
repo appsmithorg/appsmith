@@ -17,7 +17,7 @@ export type ActionDescription<T> = {
   payload: T;
 };
 
-type ActionDispatcher<T, A extends string[]> = (
+export type ActionDispatcher<T, A extends string[]> = (
   ...args: A
 ) => ActionDescription<T>;
 
@@ -76,60 +76,39 @@ type DataTreeSeed = {
 };
 
 export class DataTreeFactory {
-  static create(
-    { actions, widgets, widgetsMeta, pageList, appData }: DataTreeSeed,
-    // TODO(hetu)
-    // temporary fix for not getting functions while normal evals which crashes the app
-    // need to remove this after we get a proper solve
-    withFunctions?: boolean,
-  ): DataTree {
+  static create({
+    actions,
+    widgets,
+    widgetsMeta,
+    pageList,
+    appData,
+  }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
-    const actionPaths = [];
-    actions.forEach(a => {
-      const config = a.config;
+    actions.forEach(action => {
       let dynamicBindingPathList: Property[] = [];
       // update paths
       if (
-        config.dynamicBindingPathList &&
-        config.dynamicBindingPathList.length
+        action.config.dynamicBindingPathList &&
+        action.config.dynamicBindingPathList.length
       ) {
-        dynamicBindingPathList = config.dynamicBindingPathList.map(d => ({
-          ...d,
-          key: `config.${d.key}`,
-        }));
+        dynamicBindingPathList = action.config.dynamicBindingPathList.map(
+          d => ({
+            ...d,
+            key: `config.${d.key}`,
+          }),
+        );
       }
-      dataTree[config.name] = {
-        ...a,
-        actionId: config.id,
-        name: config.name,
-        pluginType: config.pluginType,
-        config: config.actionConfiguration,
+      dataTree[action.config.name] = {
+        run: {},
+        actionId: action.config.id,
+        name: action.config.name,
+        pluginType: action.config.pluginType,
+        config: action.config.actionConfiguration,
         dynamicBindingPathList,
-        data: a.data ? a.data.body : {},
-        run: withFunctions
-          ? function(
-              this: DataTreeAction,
-              onSuccess: string,
-              onError: string,
-              params = "",
-            ) {
-              return {
-                type: "RUN_ACTION",
-                payload: {
-                  actionId: this.actionId,
-                  onSuccess: onSuccess ? `{{${onSuccess.toString()}}}` : "",
-                  onError: onError ? `{{${onError.toString()}}}` : "",
-                  params,
-                },
-              };
-            }
-          : {},
+        data: action.data ? action.data.body : {},
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
+        isLoading: action.isLoading,
       };
-      if (withFunctions) {
-        actionPaths.push(`${config.name}.run`);
-      }
-      dataTree.actionPaths && dataTree.actionPaths.push();
     });
     Object.keys(widgets).forEach(w => {
       const widget = { ...widgets[w] };
@@ -165,63 +144,7 @@ export class DataTreeFactory {
       };
     });
 
-    if (withFunctions) {
-      dataTree.navigateTo = function(
-        pageNameOrUrl: string,
-        params: Record<string, unknown>,
-      ) {
-        return {
-          type: "NAVIGATE_TO",
-          payload: { pageNameOrUrl, params },
-        };
-      };
-      actionPaths.push("navigateTo");
-
-      dataTree.showAlert = function(message: string, style: string) {
-        return {
-          type: "SHOW_ALERT",
-          payload: { message, style },
-        };
-      };
-      actionPaths.push("showAlert");
-
-      // dataTree.url = url;
-      dataTree.showModal = function(modalName: string) {
-        return {
-          type: "SHOW_MODAL_BY_NAME",
-          payload: { modalName },
-        };
-      };
-      actionPaths.push("showModal");
-
-      dataTree.closeModal = function(modalName: string) {
-        return {
-          type: "CLOSE_MODAL",
-          payload: { modalName },
-        };
-      };
-      actionPaths.push("closeModal");
-
-      dataTree.storeValue = function(key: string, value: string) {
-        return {
-          type: "STORE_VALUE",
-          payload: { key, value },
-        };
-      };
-      actionPaths.push("storeValue");
-
-      dataTree.download = function(data: string, name: string, type: string) {
-        return {
-          type: "DOWNLOAD",
-          payload: { data, name, type },
-        };
-      };
-      actionPaths.push("download");
-    }
-
     dataTree.pageList = pageList;
-    dataTree.actionPaths = actionPaths;
-
     dataTree.appsmith = { ...appData } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     return dataTree;

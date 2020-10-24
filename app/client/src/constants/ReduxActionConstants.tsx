@@ -285,6 +285,9 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UNDO_DELETE_WIDGET: "UNDO_DELETE_WIDGET",
   CUT_SELECTED_WIDGET: "CUT_SELECTED_WIDGET",
   WIDGET_ADD_CHILDREN: "WIDGET_ADD_CHILDREN",
+  SET_EVALUATED_TREE: "SET_EVALUATED_TREE",
+  BATCH_UPDATES_SUCCESS: "BATCH_UPDATES_SUCCESS",
+  START_EVALUATION: "START_EVALUATION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

@@ -1,7 +1,6 @@
 import { createSelector } from "reselect";
 import { getActionsForCurrentPage, getAppData } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import * as log from "loglevel";
@@ -10,6 +9,7 @@ import { getPageList } from "./appViewSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { AppState } from "../reducers";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -22,43 +22,26 @@ export const getUnevaluatedDataTree = createSelector(
       PerformanceTransactionName.CONSTRUCT_UNEVAL_TREE,
     );
     const pageList = pageListPayload || [];
-    const unevalTree = DataTreeFactory.create(
-      {
-        actions,
-        widgets,
-        widgetsMeta,
-        pageList,
-        appData,
-      },
-      true,
-    );
+    const unevalTree = DataTreeFactory.create({
+      actions,
+      widgets,
+      widgetsMeta,
+      pageList,
+      appData,
+    });
     PerformanceTracker.stopTracking();
     return unevalTree;
   },
 );
 
-export const evaluateDataTree = createSelector(
-  getUnevaluatedDataTree,
-  (dataTree: DataTree): DataTree => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.DATA_TREE_EVALUATION,
-    );
-    const evalDataTree = getEvaluatedDataTree(dataTree);
-    PerformanceTracker.stopTracking();
-    return evalDataTree;
-  },
-);
-
-export const evaluateDataTreeWithFunctions = evaluateDataTree;
-export const evaluateDataTreeWithoutFunctions = evaluateDataTree;
+export const getDataTree = (state: AppState) => state.evaluations.tree;
 
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
 export const getDataTreeForAutocomplete = createSelector(
-  evaluateDataTreeWithoutFunctions,
+  getDataTree,
   getActionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
-    log.debug("Evaluating data tree to get autocomplete values");
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
       actions.forEach(action => {

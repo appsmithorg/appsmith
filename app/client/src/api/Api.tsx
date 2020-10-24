@@ -1,4 +1,3 @@
-import _ from "lodash";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import {
   REQUEST_TIMEOUT_MS,
