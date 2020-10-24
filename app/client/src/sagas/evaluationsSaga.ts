@@ -144,7 +144,8 @@ export function* validateProperty(
       value,
       props,
     });
-    return yield take(workerChannel);
+    const response = yield take(workerChannel);
+    return response.data;
   }
   return { isValid: true, parsed: value };
 }
