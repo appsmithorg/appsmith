@@ -149,9 +149,9 @@ export function* populatePageDSLsSaga() {
 }
 
 export function* initializeAppViewerSaga(
-  action: ReduxAction<{ applicationId: string }>,
+  action: ReduxAction<{ applicationId: string; pageId: string }>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, pageId } = action.payload;
   yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
     put(fetchActionsForView(applicationId)),
@@ -164,10 +164,11 @@ export function* initializeAppViewerSaga(
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
   ]);
 
-  const pageId = yield select(getDefaultPageId);
+  const defaultPageId = yield select(getDefaultPageId);
+  const toLoadPageId = pageId || defaultPageId;
 
-  if (pageId) {
-    yield put(fetchPublishedPage(pageId, true));
+  if (toLoadPageId) {
+    yield put(fetchPublishedPage(toLoadPageId, true));
     yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
