@@ -73,7 +73,6 @@ jobs:
       run: |
         docker build -t appsmith/appsmith-server-ee:${{steps.vars.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        
         # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful 
         # with this command
         docker push appsmith/appsmith-server-ee
@@ -85,7 +84,6 @@ jobs:
         docker build -t appsmith/appsmith-server-ee:${GITHUB_SHA} .
         docker build -t appsmith/appsmith-server-ee:nightly .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        
         # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful 
         # with this command
         docker push appsmith/appsmith-server-ee
