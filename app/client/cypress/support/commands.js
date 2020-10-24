@@ -975,8 +975,12 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
         force: true,
         parseSpecialCharSequences: false,
       });
+
+    cy.wait(200);
+    cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+      .first()
+      .should("have.value", value);
   });
-  cy.wait(200);
 });
 
 Cypress.Commands.add("selectShowMsg", value => {
