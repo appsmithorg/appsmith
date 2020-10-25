@@ -63,7 +63,8 @@ ctx.addEventListener("message", e => {
     }
     case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
       const { binding, dataTree } = rest;
-      const withFunctions = addFunctions(dataTree);
+      const evalTree = getEvaluatedDataTree(dataTree);
+      const withFunctions = addFunctions(evalTree);
       const value = getDynamicValue(binding, withFunctions, false);
       ctx.postMessage({ value, errors: ERRORS });
       ERRORS = [];
@@ -93,6 +94,15 @@ ctx.addEventListener("message", e => {
       clearPropertyCache(propertyPath);
       ctx.postMessage(true);
       break;
+    }
+    case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
+      const { widgetType, property, value, props } = rest;
+      const result = validateWidgetProperty(widgetType, property, value, props);
+      ctx.postMessage(result);
+      break;
+    }
+    default: {
+      console.error("Action not registered on worker", action);
     }
   }
 });

@@ -634,7 +634,6 @@ function* setWidgetDynamicPropertySaga(
     yield put(updateWidgetProperty(widgetId, propertyName, value));
   } else {
     delete dynamicProperties[propertyName];
-    // TODO (hetu) can we eliminate this use of validation
     const { parsed } = yield call(
       validateProperty,
       widget.type,
@@ -1035,6 +1034,12 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       parentRowSpace: 1,
       parentColumnSpace: 1,
       isLoading: false,
+      props: {
+        tableData: `{{${queryName}.data}}`,
+        dynamicBindings: {
+          tableData: true,
+        },
+      },
     };
     const {
       leftColumn,
@@ -1073,14 +1078,6 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       payload: { widgetId: newWidget.newWidgetId },
     });
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
-    yield put(
-      updateWidgetPropertyRequest(
-        newWidget.newWidgetId,
-        "tableData",
-        `{{${queryName}.data}}`,
-        RenderModes.CANVAS,
-      ),
-    );
   } catch (error) {
     AppToaster.show({
       message: "Failed to add the widget",

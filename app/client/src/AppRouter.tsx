@@ -10,6 +10,7 @@ import {
   BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_URL,
+  getApplicationViewerPageURL,
   ORG_URL,
   PAGE_NOT_FOUND_URL,
   SERVER_ERROR_URL,
@@ -88,6 +89,10 @@ class AppRouter extends React.Component<any, any> {
               component={ApplicationListLoader}
             />
             <SentryRoute path={BUILDER_URL} component={EditorLoader} />
+            <SentryRoute
+              path={getApplicationViewerPageURL()}
+              component={AppViewerLoader}
+            />
             <SentryRoute path={APP_VIEW_URL} component={AppViewerLoader} />
             <SentryRoute
               exact
