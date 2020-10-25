@@ -36,14 +36,16 @@ import { connect } from "react-redux";
 
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { trimTrailingSlash } from "utils/helpers";
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const loadingIndicator = <PageLoadingBar />;
 
 function changeAppBackground(currentTheme: any) {
   if (
-    window.location.pathname.indexOf("/applications") !== -1 ||
-    window.location.pathname.indexOf("/settings") !== -1
+    trimTrailingSlash(window.location.pathname) === "/applications" ||
+    window.location.pathname.indexOf("/settings/") !== -1
   ) {
     document.body.style.backgroundColor =
       currentTheme.colors.homepageBackground;
