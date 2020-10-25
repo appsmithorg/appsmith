@@ -214,23 +214,25 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .scrollIntoView()
     .should("be.visible")
     .click();
-  cy.get(homePage.inputAppName).type(appname);
-  cy.get(homePage.CreateApp)
-    .contains("Submit")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
+  cy.wait("@createNewApplication").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
 });
 
 Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
-  cy.get(homePage.inputAppName).type(appname);
-  cy.get(homePage.CreateApp)
-    .contains("Submit")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
-  cy.wait("@getPagesForApp").should(
+  cy.wait("@createNewApplication").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+  cy.wait(2000);
+  cy.get(homePage.applicationName).type(appname + "{enter}");
+  cy.wait("@updateApplicationName").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,

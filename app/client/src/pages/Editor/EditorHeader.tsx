@@ -35,7 +35,7 @@ import {
   getApplicationList,
   getIsSavingAppName,
 } from "selectors/applicationSelectors";
-import EditableTextWrapper from "components/ads/EditableTextVariant";
+import EditableTextWrapper from "components/ads/EditableTextWrapper";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
