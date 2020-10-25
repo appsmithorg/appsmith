@@ -51,6 +51,7 @@ const StyledPanelStack = styled(PanelStack)`
   position: static;
   &&& .${Classes.PANEL_STACK_VIEW} {
     position: static;
+    overflow-x: hidden;
   }
 `;
 
@@ -81,16 +82,6 @@ const PropertyPaneView = (
 };
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
-  constructor(props: PropertyPaneProps) {
-    super(props);
-    // const initialPanel: IPanel = {
-    //   props: {},
-    //   title: "",
-    // };
-    // this.state = {
-    //   currentPanelStack: [initialPanel],
-    // };
-  }
   render() {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
@@ -113,18 +104,6 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     }
   }
 
-  addToPanelStack = (newPanel: IPanel) => {
-    this.setState(state => ({
-      currentPanelStack: [newPanel, ...state.currentPanelStack],
-    }));
-  };
-
-  removeFromPanelStack = () => {
-    this.setState(state => ({
-      currentPanelStack: state.currentPanelStack.slice(1),
-    }));
-  };
-
   renderPropertyPane() {
     const { widgetProperties } = this.props;
     console.log({ widgetProperties });
@@ -135,10 +114,6 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           e.stopPropagation();
         }}
       >
-        {/* <PropertyPaneView
-          widgetProperties={widgetProperties}
-          hidePropertyPane={this.props.hidePropertyPane}
-        /> */}
         <StyledPanelStack
           initialPanel={{
             component: PropertyPaneView,

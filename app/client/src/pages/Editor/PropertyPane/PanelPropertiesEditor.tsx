@@ -57,8 +57,8 @@ const PanelHeader = (props: PanelHeaderProps) => {
   );
 };
 
-export const PropertiesEditor = (
-  props: PropertiesEditorProps & PropertiesEditorPanelProps,
+export const PanelPropertiesEditor = (
+  props: PanelPropertiesEditorProps & PanelPropertiesEditorPanelProps,
 ) => {
   const dispatch = useDispatch();
   const hidePropertyPane = useCallback(() => {
@@ -70,7 +70,26 @@ export const PropertiesEditor = (
   }, [dispatch]);
 
   const { panelConfig, widgetProperties, panelProps, closePanel } = props;
+
+  const onPropertyChange = useCallback(
+    (propertyName: string, propertyValue: any) => {
+      if (props.panelProps) {
+        props.onPropertyChange(
+          `${
+            props.panelProps[panelConfig.panelIdPropertyName]
+          }.${propertyName}`,
+          propertyValue,
+        );
+      }
+    },
+    [
+      props.onPropertyChange,
+      props.panelProps,
+      props.panelConfig.panelIdPropertyName,
+    ],
+  );
   if (!widgetProperties) return null;
+
   return (
     <>
       <PanelHeader
@@ -80,20 +99,25 @@ export const PropertiesEditor = (
         closePanel={closePanel}
         title={panelProps[panelConfig.titlePropertyName]}
       />
-      {generatePropertyControl(panelConfig.children as PropertyPaneConfig[], {
-        ...panelProps,
-        ...widgetProperties,
-      })}
+      {generatePropertyControl(
+        panelConfig.children as PropertyPaneConfig[],
+        {
+          ...panelProps,
+          ...widgetProperties,
+        },
+        onPropertyChange,
+      )}
     </>
   );
 };
 
-interface PropertiesEditorProps {
+interface PanelPropertiesEditorProps {
   widgetProperties: WidgetProps;
   panelProps: any;
+  onPropertyChange: (propertyName: string, propertyValue: any) => void;
 }
 
-interface PropertiesEditorPanelProps {
+interface PanelPropertiesEditorPanelProps {
   panelConfig: PanelConfig;
   closePanel: () => void;
 }
@@ -107,4 +131,4 @@ interface PanelHeaderProps {
   propertyName: string;
 }
 
-export default PropertiesEditor;
+export default PanelPropertiesEditor;

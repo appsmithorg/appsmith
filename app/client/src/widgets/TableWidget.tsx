@@ -25,7 +25,6 @@ import { isNumber, isString, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
-import PropertiesEditor from "pages/Editor/PropertyPane/PropertiesEditor";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -147,6 +146,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
+              panelIdPropertyName: "id",
               children: [
                 {
                   id: "7.1.6.1",

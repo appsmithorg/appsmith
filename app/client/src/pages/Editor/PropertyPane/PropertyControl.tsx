@@ -19,11 +19,12 @@ import {
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
-import PropertiesEditor from "./PropertiesEditor";
+import PanelPropertiesEditor from "./PanelPropertiesEditor";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   widgetProperties: any;
+  onPropertyChange?: (propertyName: string, propertyValue: any) => void;
 };
 
 const PropertyControl = (props: Props) => {
@@ -53,22 +54,24 @@ const PropertyControl = (props: Props) => {
       widgetProperties.widgetName,
     ],
   );
-  const onPropertyChange = useCallback(
-    (propertyName: string, propertyValue: string) => {
+
+  let onPropertyChange = useCallback(
+    (propertyName: string, propertyValue: any) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
         widgetName: widgetProperties.widgetName,
         propertyName: propertyName,
         updatedValue: propertyValue,
       });
-      dispatch(
-        updateWidgetPropertyRequest(
-          widgetProperties.widgetId,
-          propertyName,
-          propertyValue,
-          RenderModes.CANVAS, // This seems to be not needed anymore.
-        ),
-      );
+      console.log({ propertyName }, { propertyValue });
+      // dispatch(
+      //   updateWidgetPropertyRequest(
+      //     widgetProperties.widgetId,
+      //     propertyName,
+      //     propertyValue,
+      //     RenderModes.CANVAS, // This seems to be not needed anymore.
+      //   ),
+      // );
     },
     [
       dispatch,
@@ -77,15 +80,19 @@ const PropertyControl = (props: Props) => {
       widgetProperties.widgetName,
     ],
   );
+
+  if (props.onPropertyChange) onPropertyChange = props.onPropertyChange;
+
   const openPanel = useCallback(
     (panelProps: any) => {
       if (props.panelConfig) {
         props.panel.openPanel({
-          component: PropertiesEditor,
+          component: PanelPropertiesEditor,
           props: {
             panelProps,
             panelConfig: props.panelConfig,
             widgetProperties,
+            onPropertyChange: onPropertyChange,
           },
         });
       }

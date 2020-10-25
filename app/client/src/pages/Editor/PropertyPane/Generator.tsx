@@ -24,6 +24,7 @@ export type PropertyControlsGeneratorProps = {
 export const generatePropertyControl = (
   propertyPaneConfig: PropertyPaneConfig[],
   props: any,
+  onPropertyChange?: (propertyName: string, propertyValue: any) => void,
 ) => {
   if (!propertyPaneConfig) return null;
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
@@ -34,7 +35,8 @@ export const generatePropertyControl = (
           name={(config as PropertyPaneSectionConfig).sectionName}
           isDefaultOpen
         >
-          {config.children && generatePropertyControl(config.children, props)}
+          {config.children &&
+            generatePropertyControl(config.children, props, onPropertyChange)}
         </PropertySection>
       );
     } else if ((config as PropertyPaneControlConfig).controlType) {
@@ -44,6 +46,7 @@ export const generatePropertyControl = (
           {...(config as PropertyPaneControlConfig)}
           widgetProperties={props}
           panel={props.panel}
+          onPropertyChange={onPropertyChange}
         />
       );
     }

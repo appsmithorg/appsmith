@@ -12,6 +12,7 @@ export type PropertyPaneSectionConfig = {
 export type PanelConfig = {
   editableTitle: boolean;
   titlePropertyName: string;
+  panelIdPropertyName: string;
   children: PropertyPaneConfig[];
 };
 
