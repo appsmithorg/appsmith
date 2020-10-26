@@ -89,6 +89,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
                 datasource={datasource}
                 step={props.step + 1}
                 searchKeyword={props.searchKeyword}
+                pageId={props.page.pageId}
               />
             );
           })}

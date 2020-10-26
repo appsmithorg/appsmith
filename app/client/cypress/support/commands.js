@@ -552,9 +552,9 @@ Cypress.Commands.add("SearchEntityandOpen", apiname1 => {
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).click({ force: true });
+  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .last()
+    .click({ force: true });
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
@@ -723,7 +723,7 @@ Cypress.Commands.add("MoveAPIToPage", pageName => {
   cy.get(apiwidget.page)
     .contains(pageName)
     .click();
-  cy.wait("@saveAction").should(
+  cy.wait("@moveAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -1304,7 +1304,9 @@ Cypress.Commands.add("importCurl", () => {
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.get(explorer.addDBQueryEntity).click({ force: true });
+  cy.get(explorer.addDBQueryEntity)
+    .last()
+    .click({ force: true });
   cy.get(queryEditor.addDatasource).click();
 });
 
@@ -1643,6 +1645,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");
   cy.route("PUT", "/api/v1/applications/*").as("updateApplicationName");
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
+  cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
   cy.route("POST", "/api/v1/users/invite").as("postInvite");

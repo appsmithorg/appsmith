@@ -78,7 +78,9 @@ describe("Entity explorer tests related to copy query", function() {
     cy.get(commonlocators.entityExplorersearch).clear();
     cy.NavigateToDatasourceEditor();
     cy.GlobalSearchEntity(`${datasourceName}`);
-    cy.get(`.t--entity-name:contains(${datasourceName})`).click();
+    cy.get(`.t--entity-name:contains(${datasourceName})`)
+      .last()
+      .click();
     cy.generateUUID().then(uid => {
       updatedName = uid;
       cy.log("complete uid :" + updatedName);
