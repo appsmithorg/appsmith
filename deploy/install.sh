@@ -314,7 +314,7 @@ echo_contact_support() {
 
 bye() {  # Prints a friendly good bye message and exits the script.
     set +o errexit
-    echo "Please share your email to receive support with the installation"
+    echo "Please review the above errors, and share your email if you wish to receive support with the installation"
     read -rp 'Email: ' email
 
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
@@ -327,7 +327,8 @@ bye() {  # Prints a friendly good bye message and exits the script.
             "email": "'"$email"'"
         }
     }' > /dev/null
-    echo -e "\nExiting for now. Bye! 👋 \n"
+    echo ""
+    echo -e "\nThere was an error with your installation, Exiting for now. Bye! 👋 \n"
     exit 1
 }
 
@@ -367,7 +368,9 @@ else
 fi
 
 if [[ $EUID -eq 0 ]]; then
+    echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "Please do not run this script as root/sudo."
+    echo "++++++++++++++++++++++++++++++++++++++++"
     echo_contact_support
     bye
 fi
