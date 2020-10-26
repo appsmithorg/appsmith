@@ -2,9 +2,9 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Documentation;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.AddItemToPageDTO;
 import com.appsmith.server.dtos.ItemDTO;
 import com.appsmith.server.dtos.ItemType;
@@ -20,19 +20,19 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
     private final ApiTemplateService apiTemplateService;
-    private final ActionService actionService;
     private final PluginService pluginService;
     private final MarketplaceService marketplaceService;
+    private final NewActionService newActionService;
     private static final String RAPID_API_PLUGIN = "rapidapi-plugin";
 
     public ItemServiceImpl(ApiTemplateService apiTemplateService,
-                           ActionService actionService,
                            PluginService pluginService,
-                           MarketplaceService marketplaceService) {
+                           MarketplaceService marketplaceService,
+                           NewActionService newActionService) {
         this.apiTemplateService = apiTemplateService;
-        this.actionService = actionService;
         this.pluginService = pluginService;
         this.marketplaceService = marketplaceService;
+        this.newActionService = newActionService;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Mono<Action> addItemToPage(AddItemToPageDTO addItemToPageDTO) {
+    public Mono<ActionDTO> addItemToPage(AddItemToPageDTO addItemToPageDTO) {
         if (!addItemToPageDTO.getMarketplaceElement().getType().equals(ItemType.TEMPLATE)) {
             log.debug("Only templates can currently be added to the page. Any other type is unsupported.");
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
@@ -72,7 +72,7 @@ public class ItemServiceImpl implements ItemService {
 
         ApiTemplate apiTemplate = addItemToPageDTO.getMarketplaceElement().getItem();
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName(addItemToPageDTO.getName());
         action.setPageId(addItemToPageDTO.getPageId());
         action.setTemplateId(apiTemplate.getId());
@@ -108,6 +108,6 @@ public class ItemServiceImpl implements ItemService {
                     action.setPluginType(plugin.getType());
                     return action;
                 })
-                .flatMap(actionService::create);
+                .flatMap(newActionService::createAction);
     }
 }
