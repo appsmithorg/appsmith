@@ -22,10 +22,8 @@ Appsmith is a **Visual MVC** Framework to build sophisticated internal tools wit
 
 You can build complex workflows using pre-built widgets (forms, tables, charts etc.), connect to any API or Database and even write conditional logic using Javascript.
 
-API Support: REST & GraphQL APIs
-
-Database Support: PostgreSQL, MongoDB & MySQL
-
+API Support: REST & GraphQL APIs<br/>
+Database Support: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search<br/>
 Hosting: Cloud-hosted & On-premise
 
 Explore more details below, or [quickly start building on your own](#%EF%B8%8F-quickstart).
@@ -41,7 +39,7 @@ Explore more details below, or [quickly start building on your own](#%EF%B8%8F-q
 
 ## 🏭 Features
 
-* **5-minute setup**: Deploy Appsmith your server, or use it on cloud to start building in 5 minutes.
+* **5-minute setup**: Deploy Appsmith on your server, or use our cloud version to start building in 5 minutes. [Quick Start](#%EF%B8%8F-quickstart)
 * **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anywhere to transform data, and dynamically control widget-properties. [Read more here.](https://docs.appsmith.com/core-concepts/building-the-ui)
 * **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**.
 * **Trigger APIs**: Connect to internal or external REST and GraphQL APIs to build custom apps.
@@ -49,8 +47,6 @@ Explore more details below, or [quickly start building on your own](#%EF%B8%8F-q
 * **One-click deployment**: Managed deployment of your apps with a click of a button.
 * **Access-control**: Control who can edit / view your applications. [Read more here.](https://docs.appsmith.com/core-concepts/access-control)
 * **Supports OAuth**: Allow users to authenticate via Google Auth or GitHub Auth.
-
-Read more at [Appsmith.com](https://www.appsmith.com/), or jump start with the [docs](https://docs.appsmith.com/).
 
 ## 📺 Demo
 
@@ -60,48 +56,41 @@ But if you’d rather check out some real applications that can be built with Ap
 * [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
 * [Job Application Tracker](https://bit.ly/3hbYtTi)
 
-Or, check out our [docs](https://docs.appsmith.com/) to explore on your own.
+Or, check out our [Documentation](https://docs.appsmith.com/) to explore on your own.
 
 ## 🏃‍♀️ Quickstart
 
-### One-click deployment on Appsmith Cloud
-
-The fastest and easiest way to try Appsmith out is via [Appsmith Cloud](https://bit.ly/appsmith-signup-github) 
-
-Listed below are the steps to build a dashboard that lists users. It uses Appsmith on cloud.
-1. [Sign up](https://bit.ly/appsmith-signup-github).
-2. Create a new App within the organization that has already been create for you.
-3. Click on the `+` icon next to the `Queries` section to add a new query in the mock db -
-    1. Name the query as `usersQuery`.
-    2. Write query `select * from users limit 5;`.
+Listed below are the steps to build a dashboard that lists users.
+1. [Sign up on Appsmith Cloud](https://bit.ly/appsmith-signup-github) or [Deploy Appsmith via Docker](https://bit.ly/appsmith-docker-github).
+2. Create a new app within the organization that has already been created for you.
+3. Click on the `+` icon next to the `Queries` section to add a new query in the mock database
+    1. Name the query `usersQuery`.
+    2. Write the query `select * from users limit 5;`.
     3. Run the query.
     4. In query window, switch to the `Settings` tab, and enable `Run Query on Page Load`.
-4. Navigate to `Pages -> Widgets` and create a table `UsersTable` by dragging-and-droping the table-widget.
-5. Navigate to `Table Data` property of `UsersTable`, and set it to `{{usersQuery.data}}` to display the query's results in this table.
-6. Hit the Deploy button.
-7. Click on the Share button to get a shareable-link of the app, and manage its access. 
+    5. Click the + Add Widget button above the query results to automatically add a table with the query data.
+4. The table's data property is now linked to the `usersQuery` using javascript `{{usersQuery.data}}`
+5. Hit the Deploy button and checkout the view mode of the app.
 
-You just built your first app with mock data. Connect your own data to build real apps. [Read more here.](https://docs.appsmith.com/)
-
-### Other deployment options
-* [Deploy with Docker](https://bit.ly/appsmith-docker-github)
+Congratulation 🎉 You just built your first app on Appsmith! 
+Connect your own data to build apps for your team. [Read more here.](https://docs.appsmith.com/core-concepts/connecting-to-databases)
 
 ## 📕 Support & Troubleshooting
 
-If you have encountered a bug or need to get in touch with us, you can contact us using one of the following channels:
+If you encountered a bug or need help troubleshooting an issue, you can use one of the following channels:
 
-* Learn Appsmith & debug yourself: [Documentation](https://docs.appsmith.com/)
+* Self Help: [Documentation](https://docs.appsmith.com/)
+* Community Support: [Discord](https://discord.gg/rBTTVJp)
 * Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
-* Support & feedback: [Discord](https://discord.gg/rBTTVJp)
 
 ## 🧑‍🤝‍🧑 Contributing
 
 If you're interested in contributing to Appsmith:
 1. Start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md).
 2. Learn how to set up your local environment, in our [developer-guide](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).
-3. Explore the list of [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).
+3. Explore our list of [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).
 
-We are committed to fostering an open and welcoming environment in the community. Please see the [Code of Conduct](CODE_OF_CONDUCT.md).
+We are committed to fostering an open and welcoming environment in the community. Please read our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## 📑 License
 
