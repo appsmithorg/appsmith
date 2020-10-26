@@ -301,6 +301,14 @@ public class ExamplesOrganizationCloner {
         return shouldSave;
     }
 
+    /**
+     * This function simply creates a clone of the Application object without cloning its children (page and actions)
+     * Once the new application object is created, it adds the new application's id into the list applicationIds
+     * 
+     * @param application : Application to be cloned
+     * @param applicationIds : List where the cloned new application's id would be stored
+     * @return
+     */
     private Flux<NewPage> doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(Application application, List<String> applicationIds) {
         final String templateApplicationId = application.getId();
         return applicationPageService
