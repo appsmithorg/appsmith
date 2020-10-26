@@ -368,7 +368,9 @@ else
 fi
 
 if [[ $EUID -eq 0 ]]; then
-    echo "ERROR: Please do not run this script as root/sudo."
+    echo "+++++++++++ ERROR ++++++++++++++++++++++"
+    echo "Please do not run this script as root/sudo."
+    echo "++++++++++++++++++++++++++++++++++++++++"
     echo_contact_support
     bye
 fi
