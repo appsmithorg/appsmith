@@ -1097,6 +1097,8 @@ public class DatabaseChangelog {
                     copyNewFieldValuesIntoOldObject(layout, publishedLayout);
                     publishedLayout.setDsl(publishedLayout.getDsl());
                     publishedLayout.setLayoutOnLoadActions(publishedLayout.getPublishedLayoutOnLoadActions());
+                    publishedLayout.setPublishedDsl(null);
+                    publishedLayout.setPublishedLayoutOnLoadActions(null);
                     publishedPage.getLayouts().add(publishedLayout);
                 }
             }
@@ -1117,24 +1119,7 @@ public class DatabaseChangelog {
 
     }
 
-    @ChangeSet(order = "034", id = "update-new-page", author = "")
-    public void updateNewPage(MongoTemplate mongoTemplate) {
-        final List<NewPage> pages = mongoTemplate.find(
-                query(where("deletedAt").is(null)),
-                NewPage.class
-        );
-
-        for (NewPage page : pages) {
-            PageDTO publishedPage = page.getPublishedPage();
-            if (publishedPage.getLayouts() != null && !publishedPage.getLayouts().isEmpty()) {
-                for (Layout layout : publishedPage.getLayouts()) {
-                    layout.setPublishedDsl(null);
-                    layout.setPublishedLayoutOnLoadActions(null);
-                }
-                mongoTemplate.save(page);
-            }
-        }
-    }
+    // Removed order 34 whose operation has been optimized and has been moved to order 33.
 
     @ChangeSet(order = "035", id = "createNewActionIndex", author = "")
     public void addNewActionIndex(MongoTemplate mongoTemplate) {
