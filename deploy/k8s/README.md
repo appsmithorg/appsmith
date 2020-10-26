@@ -25,11 +25,12 @@ The fastest way to get started with appsmith is using our cloud-hosted version. 
     * Aws EKS: [Create a kubeconfig for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
     
     * Microk8s: [Working with kubectl](https://microk8s.io/docs/working-with-kubectl)
-* Kubernetes NGINX Ingress Controller must be enable on your cluster by default
+* Kubernetes NGINX Ingress Controller must be enable on your cluster by default. Please make sure that you install the right version for your cluster
     * Minikube: [Set up Ingress on Minikube with the NGINX Ingress Controller](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/)
-    * Google Cloud Kubernetes: [Ingress with NGINX controller on Google Kubernetes Engine](https://cloud.google.com/community/tutorials/nginx-ingress-gke)
+    * Google Cloud Kubernetes: [Ingress with NGINX controller on Google Kubernetes Engine](https://kubernetes.github.io/ingress-nginx/deploy/)
+    * AWS EKS: [Install NGINX Controller for AWS EKS](https://kubernetes.github.io/ingress-nginx/deploy/#network-load-balancer-nlb)
     * Microk8s: [Add on: Ingress](https://microk8s.io/docs/addon-ingress)
-* Script tested on Minikube with Kubernetes v1.19.0
+* Script tested on Minikube with Kubernetes v1.18.0
 
 ## Kubernetes
 
@@ -40,7 +41,7 @@ Appsmith also comes with an installation script that will help you configure App
 
 ```bash
 # Downloads install.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/feature/k8s-deployment/deploy/k8s/install.k8s.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/k8s/install.k8s.sh
 ```
 
 2. Make the script executable
@@ -69,15 +70,30 @@ mongo-statefulset-0                         1/1     Running     0           4m13
 redis-statefulset-0                         1/1     Running     0           4m00s
 ```
 
+5. Custom Appsmith's Configuration
+  * After you successfully run the script, all the configuration files have been downloaded and & stored into `<Installation Path>`
+  * If you want to update your app settings (ex: database host). Go to the `<Installation Path>/config-template`, update the corresponding value in the configmap file, then restart the pods.
+  * Below steps will help you update database hostname of your application:
+    * Open file `appsmith-configmap.yaml` in `<Installation Path>/config-template` folder
+    * Update the value of variable `APPSMITH_MONGODB_URI` to your database host name
+    * Run commands:
+```
+kubectl apply -f appsmith-configmap.yaml
+kubectl scale deployment appsmith-internal-server --replicas=0
+kubectl scale deployment appsmith-internal-server --replicas=1
+```
+
 {% hint style="success" %}
-* You can access the running application on the **Ingress Endpoint**.
+* You can access the running application on the **Ingress Endpoint** if you not chose to provide custom domain for your application .
 ```
 kubectl get ingress
 NAME               CLASS    HOSTS   ADDRESS          PORTS   AGE
-appsmith-ingress   <none>   *       192.168.99.102   80      2m
+appsmith-ingress   <none>   *       XXX.XXX.XX.XXX   80      2m
 ```
-* You may need to wait 2-3 minutes before accessing the application to allow application start (depends on your cluster).
+* You may need to wait 2-3 minutes before accessing the application to allow applicatiown start (depends on your cluster).
 {% endhint %}
+
+
 
 
 ### Custom Domains
@@ -89,6 +105,18 @@ To host Appsmith on a custom domain, you can contact your domain registrar and u
 * [Digital Ocean](https://www.digitalocean.com/docs/networking/dns/how-to/add-subdomain/)
 * [NameCheap](https://www.namecheap.com/support/knowledgebase/article.aspx/9776/2237/how-to-create-a-subdomain-for-my-domain)
 * [Domain.com](https://www.domain.com/help/article/domain-management-how-to-update-subdomains)
+
+{% hint style="warning" %}
+* During the setup of Ingress Controller on your cloud. You will need to map your custom domain with the External IP of the controller before running the installation script
+* Below is an example how to achieve the External IP of NGINX Ingress Controller
+```
+➜ kubectl get svc -n ingress-nginx
+NAME                                 TYPE           CLUSTER-IP    EXTERNAL-IP    PORT(S)                      AGE
+ingress-nginx-controller             LoadBalancer   XX.XXX.X.XX   XX.XX.XX.XXX   80:XXXXX/TCP,443:XXXXX/TCP   17h
+ingress-nginx-controller-admission   ClusterIP      XX.XXX.X.XX   <none>         443/TCP                      17h
+```
+{% endhint %}
+
 
 ## Troubleshooting
 

@@ -9,7 +9,7 @@ spec:
   - port: 80
     targetPort: 80
 ---
-apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: appsmith-editor
@@ -17,7 +17,7 @@ spec:
   selector:
     matchLabels:
       app: appsmith-editor
-  replicas: 1 # tells deployment to run 2 pods matching the template
+  replicas: 1
   template:
     metadata:
       labels:
@@ -26,8 +26,6 @@ spec:
       containers:
       - name: nginx
         image: appsmith/appsmith-editor
-        # command: 
-        #   - /bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & /start-nginx.sh'"
         ports:
           - containerPort: 80
         envFrom:

@@ -27,10 +27,11 @@ check_k8s_setup() {
             echo "Please setup a k8s cluster & config kubectl to connect to it"
             exit 1
         fi
-        k8s_major_version=`kubectl version --short -o json | jq ."serverVersion.major" | sed 's/[^0-9]*//g'`
         k8s_minor_version=`kubectl version --short -o json | jq ."serverVersion.minor" | sed 's/[^0-9]*//g'`
-        if [[ $k8s_minor_version < 19 ]]; then
-            echo "Script is only support Kubernetes >= v1.19"
+        if [[ $k8s_minor_version < 18 ]]; then
+            echo "+++++++++++ ERROR ++++++++++++++++++++++"
+            echo "Appsmith deployments require Kubernetes >= v1.18. Found version: v1.$k8s_minor_version"
+            echo "+++++++++++ ++++++++++++++++++++++++++++"
             exit 1
         fi;
     fi
@@ -64,17 +65,22 @@ check_os() {
     case "$os_name" in
         Ubuntu*)
             desired_os=1
-            os="Ubuntu"
+            os="ubuntu"
+            package_manager="apt-get"
+            ;;
+        Debian*)
+            desired_os=1
+            os="debian"
             package_manager="apt-get"
             ;;
         Red\ Hat*)
             desired_os=1
-            os="Red Hat"
+            os="red hat"
             package_manager="yum"
             ;;
         CentOS*)
             desired_os=1
-            os="CentOS"
+            os="centos"
             package_manager="yum"
             ;;
         *)
@@ -177,14 +183,15 @@ bye() {  # Prints a friendly good bye message and exits the script.
     set +o errexit
     echo "Please share your email to receive support with the installation"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Support",
       "data": {
           "os": "'"$os"'",
-          "email": "'"$email"'"
+          "email": "'"$email"'",
+          "platform": "k8s"
        }
     }'
     echo -e "\nExiting for now. Bye! \U1F44B\n"
@@ -192,37 +199,41 @@ bye() {  # Prints a friendly good bye message and exits the script.
 }
 download_template_file() {
     templates_dir="$(mktemp -d)"
-    template_endpoint="https://raw.githubusercontent.com/appsmithorg/appsmith/feature/k8s-deployment"
+    template_endpoint="https://raw.githubusercontent.com/appsmithorg/appsmith/master"
     mkdir -p "$templates_dir"
     (
         cd "$templates_dir"
         curl --remote-name-all --silent --show-error -o appsmith-configmap.yaml.sh \
-            "$template_endpoint/deploy/k8s/scripts/appsmith-configmap.yaml.sh"
+            "$template_endpoint/k8s/scripts/appsmith-configmap.yaml.sh"
         curl --remote-name-all --silent --show-error -o appsmith-ingress.yaml.sh \
-            "$template_endpoint/deploy/k8s/scripts/appsmith-ingress.yaml.sh"
+            "$template_endpoint/k8s/scripts/appsmith-ingress.yaml.sh"
         curl --remote-name-all --silent --show-error -o encryption-configmap.yaml.sh \
-            "$template_endpoint/deploy/k8s/scripts/encryption-configmap.yaml.sh"
+            "$template_endpoint/k8s/scripts/encryption-configmap.yaml.sh"
         curl  --remote-name-all --silent --show-error -o mongo-configmap.yaml.sh \
-            "$template_endpoint/deploy/k8s/scripts/mongo-configmap.yaml.sh"
+            "$template_endpoint/k8s/scripts/mongo-configmap.yaml.sh"
         curl  --remote-name-all --silent --show-error -o nginx-configmap.yaml \
-            "$template_endpoint/deploy/k8s/scripts/nginx-configmap.yaml"
+            "$template_endpoint/k8s/scripts/nginx-configmap.yaml"
+        if [[ "$ssl_enable" == "true" ]]; then
+            curl --remote-name-all --silent --show-error  -o issuer-template.yaml.sh\
+                "$template_endpoint/k8s/scripts/issuer-template.yaml.sh"
+        fi
     )
     (
         cd "$install_dir"
-        curl --remote-name-all --silent --show-error  -o backend-template.yaml \
-            "$template_endpoint/deploy/k8s/templates/backend-template.yaml"
+        curl --remote-name-all --silent --show-error -o backend-template.yaml \
+            "$template_endpoint/k8s/templates/backend-template.yaml"
         
-        curl --remote-name-all --silent --show-error  -o frontend-template.yaml \
-            "$template_endpoint/deploy/k8s/templates/frontend-template.yaml"
+        curl --remote-name-all --silent --show-error -o frontend-template.yaml \
+            "$template_endpoint/k8s/templates/frontend-template.yaml"
         if [[ "$fresh_installation" == "true" ]]; then
-            curl --remote-name-all --silent --show-error  -o mongo-template.yaml \
-                "$template_endpoint/deploy/k8s/templates/mongo-template.yaml"
+            curl --remote-name-all --silent --show-error -o mongo-template.yaml \
+                "$template_endpoint/k8s/templates/mongo-template.yaml"
         fi
 
-        curl --remote-name-all --silent --show-error  -o redis-template.yaml \
-            "$template_endpoint/deploy/k8s/templates/redis-template.yaml"
-        curl --remote-name-all --silent --show-error  -o imago-template.yaml\
-            "$template_endpoint/deploy/k8s/templates/imago-template.yaml"
+        curl --remote-name-all --silent --show-error -o redis-template.yaml \
+            "$template_endpoint/k8s/templates/redis-template.yaml"
+        curl --remote-name-all --silent --show-error -o imago-template.yaml\
+            "$template_endpoint/k8s/templates/imago-template.yaml"
     )
 }
 
@@ -233,13 +244,13 @@ deploy_app() {
 }
 
 install_certmanager() {
-    cert_manager_ns=`kubectl get namespace cert-manager --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
+    cert_manager_ns=`kubectl get namespace cert-manager --no-headers --output=go-template={{.metadata.name}} --ignore-not-found`
     if [ -z "${cert_manager_ns}" ]; then
-        echo ""
-        echo "Installing Cert-manager"
+        echo "Installing Cert-manager";
+        # cert-manager installation document: https://cert-manager.io/docs/installation/kubernetes/
         kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.3/cert-manager.yaml
+        sleep 30; # Wait 30s for cert-manger ready
     else 
-        echo " "
         echo "Cert-manager already install"
     fi
 }
@@ -247,12 +258,17 @@ install_certmanager() {
 wait_for_application_start() {
     local timeout=$1
     address=$custom_domain
+    if [[ "$ssl_enable" == "true" ]]; then
+        protocol="https"
+    else
+        protocol="http"
+    fi
     # The while loop is important because for-loops don't work for dynamic values
     while [[ $timeout -gt 0 ]]; do
         if [[ $address == "" || $address == null ]]; then
             address=`kubectl get ingress appsmith-ingress -o json | jq -r '.status.loadBalancer.ingress[0].ip'`
         fi
-        status_code="$(curl -s -o /dev/null -w "%{http_code}" http://$address/api/v1 || true)"
+        status_code="$(curl -s -o /dev/null -w "%{http_code}" $protocol://$address/api/v1 || true)"
         if [[ status_code -eq 401 ]]; then
             break
         else
@@ -279,13 +295,14 @@ APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
 # Run bye if failure happens
 trap bye EXIT
 
-curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Installation Started",
   "data": {
-      "os": "'"$os"'"
+      "os": "'"$os"'",
+      "platform": "k8s"
    }
 }'
 
@@ -300,7 +317,9 @@ else
 fi
 
 if [[ $EUID -eq 0 ]]; then
+    echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "Please do not run this script as root/sudo."
+    echo "++++++++++++++++++++++++++++++++++++++++"
     echo_contact_support
     bye
 fi
@@ -392,13 +411,14 @@ echo ""
 
 if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
     read -rp 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Custom Domain",
       "data": {
-          "os": "'"$os"'"
+          "os": "'"$os"'",
+          "platform": "k8s"
        }
     }'
     echo ""
@@ -408,10 +428,18 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
     echo "+++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
-    # echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
-    # if confirm y '(Your DNS records must be updated for us to proceed)'; then
-    #     ssl_enable="true"
-    # fi
+    echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
+    if confirm y '(Your DNS records must be updated for us to proceed)'; then
+        ssl_enable="true"
+    fi
+
+    read -rp 'Enter email address to create SSL certificate: (Optional, but strongly recommended): ' user_email
+
+    if confirm n 'Do you want to create certificate in staging mode (which is used for dev purposes and is not subject to rate limits)?'; then
+        issuer_server="https://acme-staging-v02.api.letsencrypt.org/directory"
+    else
+        issuer_server="https://acme-v02.api.letsencrypt.org/directory"
+    fi
 fi
 
 echo ""
@@ -423,24 +451,33 @@ echo "Generating the configuration files from the templates"
 
 cd "$templates_dir" 
 
+
+mkdir -p "$install_dir/config-template"
+
 bash "$templates_dir/appsmith-configmap.yaml.sh" "$mongo_protocol" "$mongo_host" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_database" > appsmith-configmap.yaml
 if [[ "$setup_encryption" == "true" ]]; then
     bash "$templates_dir/encryption-configmap.yaml.sh" "$user_encryption_password" "$user_encryption_salt" > encryption-configmap.yaml
+    overwrite_file "config-template" "encryption-configmap.yaml"
 fi
 
 if [[ -n $custom_domain ]]; then
-    bash "$templates_dir/appsmith-ingress.yaml.sh" "$custom_domain" > ingress-template.yaml
+    bash "$templates_dir/appsmith-ingress.yaml.sh" "$custom_domain" "$ssl_enable"> ingress-template.yaml
 else
-    bash "$templates_dir/appsmith-ingress.yaml.sh" "" > ingress-template.yaml
+    bash "$templates_dir/appsmith-ingress.yaml.sh" "" "$ssl_enable" > ingress-template.yaml
 fi
 
-mkdir -p "$install_dir/config-template"
+if [[ "$ssl_enable" == "true" ]]; then
+    echo "$user_email"
+    echo "$issuer_server"
+    bash "$templates_dir/issuer-template.yaml.sh" "$user_email" "$issuer_server" > issuer-template.yaml
+    overwrite_file "" "issuer-template.yaml"
+fi
+
 overwrite_file "config-template" "nginx-configmap.yaml"
 overwrite_file "config-template" "appsmith-configmap.yaml"
-if [[ "$setup_encryption" = "true" ]];then
-    overwrite_file "config-template" "encryption-configmap.yaml"
-fi
 overwrite_file "" "ingress-template.yaml"
+
+
 
 if [[ "$fresh_installation" == "true" ]]; then
     bash "$templates_dir/mongo-configmap.yaml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > mongo-configmap.yaml
@@ -451,15 +488,15 @@ fi
 
 echo ""
 echo "Deploy Appmisth on your cluster"
+echo ""
+if [[ "$ssl_enable" == "true" ]]; then
+    install_certmanager
+else
+    echo "No domain found. Skipping generation of SSL certificate."
+fi
+echo ""
 deploy_app
 
-# echo ""
-# if [[ -n $custom_domain ]]; then
-#     install_certmanager
-# else
-#     echo "No domain found. Skipping generation of SSL certificate."
-# fi
-# echo ""
 wait_for_application_start 60
 
 echo ""
@@ -473,33 +510,35 @@ if [[ $status_code -ne 401 ]]; then
     echo ""
     echo "Please share your email to receive help with the installation"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Support",
       "data": {
           "os": "'"$os"'",
-          "email": "'"$email"'"
+          "email": "'"$email"'",
+          "platform": "k8s"
        }
     }'
 else
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Success",
       "data": {
-          "os": "'"$os"'"
+          "os": "'"$os"'",
+          "platform": "k8s"
        }
     }'
     echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
     if [[ -z $custom_domain ]]; then
-        echo "Your application is running on 'http://$address'."
+        echo "Your application is running on '$protocol://$address'."
     else
-        echo "Your application is running on 'http://$custom_domain'."
+        echo "Your application is running on '$protocol://$custom_domain'."
     fi
     echo ""
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -508,14 +547,15 @@ else
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
     echo "Please share your email to receive support & updates about appsmith!"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Identify Successful Installation",
       "data": {
           "os": "'"$os"'",
-          "email": "'"$email"'"
+          "email": "'"$email"'",
+          "platform": "k8s"
        }
     }'
 fi

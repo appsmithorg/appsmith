@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: encryption-config
-data:
-  APPSMITH_ENCRYPTION_PASSWORD: e3YBonfYzftir
-  APPSMITH_ENCRYPTION_SALT: nJF6xbBkzf4Qu

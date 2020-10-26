@@ -12,10 +12,6 @@ data:
 
     root /var/www/appsmith;
 
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
-
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-Host $host;
 
