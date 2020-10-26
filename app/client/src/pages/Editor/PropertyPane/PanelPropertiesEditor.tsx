@@ -1,20 +1,19 @@
 import React, { useCallback } from "react";
 import styled, { AnyStyledComponent } from "styled-components";
-import _, { noop } from "lodash";
-import { useDispatch } from "react-redux";
+import { noop } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { scrollbarDark } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyTitleEditor from "pages/Editor/PropertyPane/PropertyTitleEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import PaneWrapper from "pages/common/PaneWrapper";
 import { ControlIcons } from "icons/ControlIcons";
 import {
   PanelConfig,
   PropertyPaneConfig,
 } from "constants/PropertyControlConstants";
 import { generatePropertyControl } from "./Generator";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 
 const PaneTitleWrapper = styled.div`
   align-items: center;
@@ -61,15 +60,16 @@ export const PanelPropertiesEditor = (
   props: PanelPropertiesEditorProps & PanelPropertiesEditorPanelProps,
 ) => {
   const dispatch = useDispatch();
+  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const hidePropertyPane = useCallback(() => {
     AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-      widgetType: props.widgetProperties.type || "",
-      widgetId: props.widgetProperties.widgetId,
+      widgetType: widgetProperties.type || "",
+      widgetId: widgetProperties.widgetId,
     });
     dispatch({ type: ReduxActionTypes.HIDE_PROPERTY_PANE });
   }, [dispatch]);
 
-  const { panelConfig, widgetProperties, panelProps, closePanel } = props;
+  const { panelConfig, panelProps, closePanel } = props;
 
   const onPropertyChange = useCallback(
     (propertyName: string, propertyValue: any) => {
@@ -112,7 +112,6 @@ export const PanelPropertiesEditor = (
 };
 
 interface PanelPropertiesEditorProps {
-  widgetProperties: WidgetProps;
   panelProps: any;
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
 }

@@ -1,4 +1,4 @@
-import { WidgetType, RenderMode } from "constants/WidgetConstants";
+import { WidgetType, RenderMode, WidgetTypes } from "constants/WidgetConstants";
 import {
   WidgetBuilder,
   WidgetProps,
@@ -10,13 +10,18 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "./ValidationFactory";
 import React from "react";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import {
+  PropertyPaneConfig,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
 import { generateReactKey } from "./generators";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type TriggerPropertiesMap = Record<string, true>;
 
+// TODO (abhinav): To enforce the property pane config structure in this function
+// Throw an error if the config is not of the desired format.
 const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
   return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
     sectionOrControlConfig.id = generateReactKey();
@@ -24,6 +29,18 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
       sectionOrControlConfig.children = addPropertyConfigIds(
         sectionOrControlConfig.children,
       );
+    }
+    const config = sectionOrControlConfig as PropertyPaneControlConfig;
+    if (
+      config.panelConfig &&
+      config.panelConfig.children &&
+      Array.isArray(config.panelConfig.children)
+    ) {
+      config.panelConfig.children = addPropertyConfigIds(
+        config.panelConfig.children,
+      );
+
+      (sectionOrControlConfig as PropertyPaneControlConfig) = config;
     }
     return sectionOrControlConfig;
   });
@@ -75,6 +92,10 @@ class WidgetFactory {
     this.triggerPropertiesMap.set(widgetType, triggerPropertiesMap);
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+
+    propertyPaneConfig &&
+      widgetType === WidgetTypes.TABLE_WIDGET &&
+      console.log(addPropertyConfigIds(propertyPaneConfig));
     propertyPaneConfig &&
       this.propertyPaneConfigsMap.set(
         widgetType,

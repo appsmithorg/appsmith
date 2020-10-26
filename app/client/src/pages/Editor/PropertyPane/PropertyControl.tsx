@@ -7,7 +7,6 @@ import {
 } from "components/propertyControls/StyledControls";
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
-import { WidgetProps } from "widgets/BaseWidget";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
 import { useDispatch } from "react-redux";
@@ -20,6 +19,7 @@ import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
+import produce from "immer";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -63,15 +63,34 @@ const PropertyControl = (props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
       });
-      console.log({ propertyName }, { propertyValue });
-      // dispatch(
-      //   updateWidgetPropertyRequest(
-      //     widgetProperties.widgetId,
-      //     propertyName,
-      //     propertyValue,
-      //     RenderModes.CANVAS, // This seems to be not needed anymore.
-      //   ),
-      // );
+      let value = propertyValue;
+      let key = propertyName;
+      if (props.panelConfig && propertyName.split(".").length > 1) {
+        const panelConfig = props.panelConfig;
+        const paths = propertyName.split(".");
+
+        const ind = props.widgetProperties[props.propertyName].findIndex(
+          (entry: any) => {
+            return entry[panelConfig.panelIdPropertyName] === paths[0];
+          },
+        );
+        key = props.propertyName;
+        value = produce(
+          props.widgetProperties[props.propertyName],
+          (list: any) => {
+            list[ind][paths[1]] = propertyValue;
+          },
+        );
+      }
+
+      dispatch(
+        updateWidgetPropertyRequest(
+          widgetProperties.widgetId,
+          key,
+          value,
+          RenderModes.CANVAS, // This seems to be not needed anymore.
+        ),
+      );
     },
     [
       dispatch,
@@ -91,7 +110,6 @@ const PropertyControl = (props: Props) => {
           props: {
             panelProps,
             panelConfig: props.panelConfig,
-            widgetProperties,
             onPropertyChange: onPropertyChange,
           },
         });

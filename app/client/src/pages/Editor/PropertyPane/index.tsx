@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getIsPropertyPaneVisible,
@@ -61,12 +61,11 @@ interface PropertyPaneState {
 
 const PropertyPaneView = (
   props: {
-    widgetProperties: any;
     hidePropertyPane: () => void;
   } & IPanelProps,
 ) => {
-  const { widgetProperties, hidePropertyPane, ...panel } = props;
-  console.log("here in view", widgetProperties);
+  const { hidePropertyPane, ...panel } = props;
+  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   return (
     <>
       <PropertyPaneTitle
@@ -106,7 +105,6 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
   renderPropertyPane() {
     const { widgetProperties } = this.props;
-    console.log({ widgetProperties });
     if (!widgetProperties) return <PropertyPaneWrapper />;
     return (
       <PropertyPaneWrapper
@@ -118,7 +116,6 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           initialPanel={{
             component: PropertyPaneView,
             props: {
-              widgetProperties,
               hidePropertyPane: this.props.hidePropertyPane,
             },
           }}
