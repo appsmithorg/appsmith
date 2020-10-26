@@ -31,6 +31,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
       .first()
       .focus()
       .type('SELECT * FROM public."covidCases" LIMIT 10;');
+    cy.wait(500);
     cy.get(queryEditor.runQuery).click();
     cy.wait("@postExecute").should(
       "have.nested.property",
