@@ -162,6 +162,7 @@ public class ExamplesOrganizationCloner {
     private Mono<Void> cloneApplications(String fromOrganizationId, String toOrganizationId, Flux<Application> applicationsFlux) {
         final Mono<Map<String, Datasource>> cloneDatasourcesMono = cloneDatasources(fromOrganizationId, toOrganizationId).cache();
         final List<NewPage> clonedPages = new ArrayList<>();
+        final List<String> newApplicationIds = new ArrayList<>();
 
         return applicationsFlux
                 .flatMap(application -> {
@@ -173,7 +174,7 @@ public class ExamplesOrganizationCloner {
                             .findFirst()
                             .orElse("");
 
-                    return doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(application)
+                    return doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(application, newApplicationIds)
                             .flatMap(page ->
                                     Mono.zip(
                                             Mono.just(page),
@@ -247,6 +248,12 @@ public class ExamplesOrganizationCloner {
                 .collectMap(Tuple2::getT2, Tuple2::getT1)
                 .flatMapMany(actionIdsMap -> updateActionIdsInClonedPages(clonedPages, actionIdsMap))
                 .then(cloneDatasourcesMono)  // Run the datasource cloning mono if it isn't already done.
+                // Now publish all the example applications which have been cloned to ensure that there is a
+                // view mode for the newly created user.
+                .then(Mono.just(newApplicationIds))
+                .flatMapMany(applicationIds -> Flux.fromIterable(applicationIds))
+                .flatMap(appId -> applicationPageService.publish(appId))
+                .collectList()
                 .then();
     }
 
@@ -294,18 +301,29 @@ public class ExamplesOrganizationCloner {
         return shouldSave;
     }
 
-    private Flux<NewPage> doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(Application application) {
+    /**
+     * This function simply creates a clone of the Application object without cloning its children (page and actions)
+     * Once the new application object is created, it adds the new application's id into the list applicationIds
+     * 
+     * @param application : Application to be cloned
+     * @param applicationIds : List where the cloned new application's id would be stored
+     * @return
+     */
+    private Flux<NewPage> doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(Application application, List<String> applicationIds) {
         final String templateApplicationId = application.getId();
         return applicationPageService
                 .cloneExampleApplication(application)
                 .flatMapMany(
-                        savedApplication -> newPageRepository
-                                .findByApplicationId(templateApplicationId)
-                                .map(newPage -> {
-                                    log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
-                                    newPage.setApplicationId(savedApplication.getId());
-                                    return newPage;
-                                })
+                        savedApplication -> {
+                            applicationIds.add(savedApplication.getId());
+                            return newPageRepository
+                                    .findByApplicationId(templateApplicationId)
+                                    .map(newPage -> {
+                                        log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
+                                        newPage.setApplicationId(savedApplication.getId());
+                                        return newPage;
+                                    });
+                        }
                 );
     }
 

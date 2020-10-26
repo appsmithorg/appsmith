@@ -191,6 +191,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     generateAndSetActionPolicies(page, newAction);
 
                     setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+
+                    // Set the application id in the main domain
                     newAction.setApplicationId(page.getApplicationId());
 
                     // If the datasource is embedded, check for organizationId and set it in action

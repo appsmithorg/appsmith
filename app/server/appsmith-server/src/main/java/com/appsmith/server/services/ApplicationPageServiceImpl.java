@@ -370,10 +370,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(page -> {
                     String newPageId = page.getId();
                     return sourceActionFlux
-                            .map(action -> {
-                                ActionDTO unpublishedAction = action.getUnpublishedAction();
-                                unpublishedAction.setPageId(newPageId);
-                                return unpublishedAction;
+                            .flatMap(action -> {
+                                // Set new page id in the actionDTO
+                                action.getUnpublishedAction().setPageId(newPageId);
+
+                                // Now create the new action from the template of the source action.
+                                return newActionService.createAction(action.getUnpublishedAction());
                             })
                             .collectList()
                             .thenReturn(page);
