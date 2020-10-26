@@ -117,3 +117,22 @@ export const isMac = () => {
     typeof navigator !== "undefined" ? navigator.platform : undefined;
   return !platform ? false : /Mac|iPod|iPhone|iPad/.test(platform);
 };
+
+/**
+ * Removes the trailing slashes from the path
+ * @param path
+ * @example
+ * ```js
+ * let trimmedUrl = trimTrailingSlash('/url/')
+ * console.log(trimmedUrl) //will output /url
+ * ```
+ * @example
+ * ```js
+ * let trimmedUrl = trimTrailingSlash('/yet-another-url//')
+ * console.log(trimmedUrl) // will output /yet-another-url
+ * ```
+ */
+export const trimTrailingSlash = (path: string) => {
+  const trailingUrlRegex = /\/+$/;
+  return path.replace(trailingUrlRegex, "");
+};
