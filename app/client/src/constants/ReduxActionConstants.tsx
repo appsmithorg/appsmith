@@ -287,6 +287,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   WIDGET_ADD_CHILDREN: "WIDGET_ADD_CHILDREN",
   SET_EVALUATED_TREE: "SET_EVALUATED_TREE",
   BATCH_UPDATES_SUCCESS: "BATCH_UPDATES_SUCCESS",
+  START_EVALUATION: "START_EVALUATION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

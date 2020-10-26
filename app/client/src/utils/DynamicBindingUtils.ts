@@ -92,7 +92,7 @@ export enum EvalErrorTypes {
 
 export type EvalError = {
   type: EvalErrorTypes;
-  error: Error;
+  message: string;
   context?: Record<string, any>;
 };
 

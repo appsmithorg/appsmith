@@ -1017,7 +1017,47 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "030", id = "createNewPageIndex", author = "")
+    @ChangeSet(order = "030", id = "add-redis-plugin", author = "")
+    public void addRedisPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("Redis");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("redis-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.TABLE);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/redis.jpg");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redis");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin1.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
+    @ChangeSet(order = "031", id = "add-msSql-plugin", author = "")
+    public void addMsSqlPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("MsSQL");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("mssql-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.TABLE);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MsSQL.jpg");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mssql");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin1.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
+    @ChangeSet(order = "032", id = "createNewPageIndex", author = "")
     public void addNewPageIndex(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
         ensureIndexes(mongoTemplate, NewPage.class,
@@ -1025,7 +1065,7 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "031", id = "migrate-page", author = "")
+    @ChangeSet(order = "033", id = "migrate-page", author = "")
     public void migratePage(MongoTemplate mongoTemplate) {
         final List<Page> pages = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
@@ -1077,7 +1117,7 @@ public class DatabaseChangelog {
 
     }
 
-    @ChangeSet(order = "032", id = "update-new-page", author = "")
+    @ChangeSet(order = "034", id = "update-new-page", author = "")
     public void updateNewPage(MongoTemplate mongoTemplate) {
         final List<NewPage> pages = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
@@ -1096,7 +1136,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "033", id = "createNewActionIndex", author = "")
+    @ChangeSet(order = "035", id = "createNewActionIndex", author = "")
     public void addNewActionIndex(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
@@ -1106,7 +1146,7 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "034", id = "migrate-action", author = "")
+    @ChangeSet(order = "036", id = "migrate-action", author = "")
     public void migrateAction(MongoTemplate mongoTemplate) {
         final List<Action> actions = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
