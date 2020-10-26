@@ -1126,7 +1126,7 @@ public class DatabaseChangelog {
 
         for (NewPage page : pages) {
             PageDTO publishedPage = page.getPublishedPage();
-            if (publishedPage.getLayouts() != null && !publishedPage.getLayouts().isEmpty()) {
+            if (publishedPage != null && publishedPage.getLayouts() != null && !publishedPage.getLayouts().isEmpty()) {
                 for (Layout layout : publishedPage.getLayouts()) {
                     layout.setPublishedDsl(null);
                     layout.setPublishedLayoutOnLoadActions(null);
