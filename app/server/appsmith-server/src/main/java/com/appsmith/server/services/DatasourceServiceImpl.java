@@ -18,8 +18,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -35,6 +35,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
-    private final ActionRepository actionRepository;
+    private final NewActionRepository newActionRepository;
     private final EncryptionService encryptionService;
 
     @Autowired
@@ -69,7 +70,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
-                                 ActionRepository actionRepository,
+                                 NewActionRepository newActionRepository,
                                  EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
@@ -78,7 +79,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
-        this.actionRepository = actionRepository;
+        this.newActionRepository = newActionRepository;
         this.encryptionService = encryptionService;
     }
 
@@ -339,11 +340,16 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
+    public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
+        return repository.saveAll(datasourceList);
+    }
+
+    @Override
     public Mono<Datasource> delete(String id) {
         return repository
                 .findById(id, MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
-                .zipWhen(datasource -> actionRepository.countByDatasourceId(datasource.getId()))
+                .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))
                 .flatMap(objects -> {
                     final Long actionsCount = objects.getT2();
                     if (actionsCount > 0) {

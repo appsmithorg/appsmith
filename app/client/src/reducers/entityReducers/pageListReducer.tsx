@@ -10,7 +10,7 @@ const initialState: PageListReduxState = {
   pages: [],
 };
 
-const pageListReducer = createReducer(initialState, {
+export const pageListReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_PAGE_INIT]: (
     state: PageListReduxState,
     action: ReduxAction<{ id: string }>,

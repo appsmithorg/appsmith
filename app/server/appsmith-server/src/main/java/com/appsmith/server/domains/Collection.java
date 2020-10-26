@@ -25,5 +25,5 @@ public class Collection extends BaseDomain {
     Boolean shared;
 
     //To save space, when creating/updating collection, only add Action's id field instead of the entire action.
-    List<Action> actions;
+    List<NewAction> actions;
 }

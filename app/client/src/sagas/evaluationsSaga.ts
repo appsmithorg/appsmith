@@ -13,10 +13,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  getDataTree,
-  getUnevaluatedDataTree,
-} from "selectors/dataTreeSelectors";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
@@ -80,10 +77,10 @@ function* evaluateTreeSaga() {
 
 export function* evaluateSingleValue(binding: string) {
   if (evaluationWorker) {
-    const evalTree = yield select(getDataTree);
+    const unEvalTree = yield select(getUnevaluatedDataTree);
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
-      dataTree: evalTree,
+      dataTree: unEvalTree,
       binding,
     });
     const workerResponse = yield take(workerChannel);
@@ -147,7 +144,8 @@ export function* validateProperty(
       value,
       props,
     });
-    return yield take(workerChannel);
+    const response = yield take(workerChannel);
+    return response.data;
   }
   return { isValid: true, parsed: value };
 }
@@ -215,13 +213,6 @@ function* evaluationChangeListenerSaga() {
 
 export default function* evaluationSagaListeners() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
-      evaluationChangeListenerSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
-      evaluationChangeListenerSaga,
-    ),
+    takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
   ]);
 }
