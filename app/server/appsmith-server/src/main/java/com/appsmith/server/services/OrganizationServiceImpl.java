@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.codec.multipart.Part;
@@ -257,7 +258,9 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Flux<Organization> findByIdsIn(Set<String> ids, AclPermission permission) {
-        return repository.findByIdsIn(ids, permission);
+        Sort sort = Sort.by(FieldName.NAME);
+
+        return repository.findByIdsIn(ids, permission, sort);
     }
 
     @Override

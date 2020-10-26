@@ -224,7 +224,6 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.canvas)
         .first()
         .click();
-        
     });
   });
 

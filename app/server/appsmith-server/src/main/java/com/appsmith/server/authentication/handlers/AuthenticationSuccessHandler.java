@@ -1,7 +1,10 @@
 package com.appsmith.server.authentication.handlers;
 
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -26,6 +30,8 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
     private final RedirectHelper redirectHelper;
+    private final SessionUserService sessionUserService;
+    private final AnalyticsService analyticsService;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -45,7 +51,15 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 ? handleOAuth2Redirect(webFilterExchange)
                 : handleRedirect(webFilterExchange);
 
-        return examplesOrganizationCloner.cloneExamplesOrganization()
+        return sessionUserService.getCurrentUser()
+                // TODO: Need a better way to identify if this is the user's first-login.
+                .filter(user -> user.getExamplesOrganizationId() == null)
+                .flatMap(user -> {
+                    final boolean isFromInvite = user.getInviteToken() != null;
+                    return Mono.whenDelayError(
+                            analyticsService.sendEvent(AnalyticsEvents.FIRST_LOGIN, user, Map.of("isFromInvite", isFromInvite)),
+                            examplesOrganizationCloner.cloneExamplesOrganization());
+                })
                 .then(redirectionMono);
     }
 

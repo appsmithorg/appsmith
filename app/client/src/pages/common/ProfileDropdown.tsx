@@ -21,9 +21,9 @@ type TagProps = CommonComponentProps & {
   userName?: string;
 };
 
-const ProfileImage = styled.div<{ backgroundColor?: string }>`
-  width: 30px;
-  height: 30px;
+export const ProfileImage = styled.div<{ backgroundColor?: string }>`
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   border-radius: 50%;
@@ -33,6 +33,9 @@ const ProfileImage = styled.div<{ backgroundColor?: string }>`
 `;
 
 const ProfileMenuStyle = createGlobalStyle`
+  .bp3-popover {
+    box-shadow: none;
+  }
   .profile-menu {
     .bp3-popover .bp3-popover-content{
       margin-top: 2px;
@@ -100,6 +103,7 @@ export default function ProfileDropdown(props: TagProps) {
         <MenuItem
           icon="logout"
           text="Sign Out"
+          className="t--logout-icon"
           onSelect={() =>
             getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
               type: ReduxActionTypes.LOGOUT_USER_INIT,

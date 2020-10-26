@@ -4,13 +4,14 @@ import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Text, { TextType, FontWeight } from "./Text";
 import TooltipComponent from "components/ads/Tooltip";
-import { Position } from '@blueprintjs/core/lib/esm/common/position';
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 export type MenuItemProps = CommonComponentProps & {
   icon?: IconName;
   text: string;
   label?: ReactNode;
   href?: string;
+  type?: "warning";
   ellipsize?: number;
   onSelect?: () => void;
 };
@@ -35,17 +36,29 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
 
   ${props =>
     !props.disabled
-      ? ` 
+      ? `
     &:hover {
       text-decoration: none;
       cursor: pointer;
-      background-color: ${props.theme.colors.menuItem.hoverBg};
+      background-color: ${
+        props.type === "warning"
+          ? props.theme.colors.menuItem.warning.bg
+          : props.theme.colors.menuItem.hoverBg
+      };
       .${Classes.TEXT} {
-        color: ${props.theme.colors.menuItem.hoverText};
+        color: ${
+          props.type === "warning"
+            ? props.theme.colors.menuItem.warning.color
+            : props.theme.colors.menuItem.hoverText
+        };
       }
       .${Classes.ICON} {
         path {
-          fill: ${props.theme.colors.menuItem.hoverIcon};
+          fill: ${
+            props.type === "warning"
+              ? props.theme.colors.menuItem.warning.color
+              : props.theme.colors.menuItem.hoverIcon
+          };
         }
       }
     }`
@@ -67,16 +80,13 @@ const IconContainer = styled.span`
 `;
 
 function MenuItem(props: MenuItemProps) {
-  return (
-    props.ellipsize && props.text.length > props.ellipsize ? (
-      <TooltipComponent
-        position={Position.BOTTOM}
-        content={props.text}
-      >
-        <MenuItemContent {...props} />
-      </ TooltipComponent>
-    ) : <MenuItemContent {...props} />
-  )
+  return props.ellipsize && props.text.length > props.ellipsize ? (
+    <TooltipComponent position={Position.BOTTOM} content={props.text}>
+      <MenuItemContent {...props} />
+    </TooltipComponent>
+  ) : (
+    <MenuItemContent {...props} />
+  );
 }
 
 function MenuItemContent(props: MenuItemProps) {
@@ -86,12 +96,15 @@ function MenuItemContent(props: MenuItemProps) {
       onClick={props.onSelect}
       disabled={props.disabled}
       data-cy={props.cypressSelector}
+      type={props.type}
     >
-      <IconContainer>
+      <IconContainer className={props.className}>
         {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
         {props.text ? (
           <Text type={TextType.H5} weight={FontWeight.NORMAL}>
-            {props.ellipsize ? ellipsize(props.ellipsize, props.text) : props.text}
+            {props.ellipsize
+              ? ellipsize(props.ellipsize, props.text)
+              : props.text}
           </Text>
         ) : null}
       </IconContainer>
@@ -101,7 +114,7 @@ function MenuItemContent(props: MenuItemProps) {
 }
 
 function ellipsize(length: number, text: string) {
-  return text.length > length ? text.slice(0, length).concat(" ...") : text
-};
+  return text.length > length ? text.slice(0, length).concat(" ...") : text;
+}
 
 export default MenuItem;

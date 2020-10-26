@@ -37,11 +37,12 @@ import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
+  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _ from "lodash";
+import _, { isString } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -56,7 +57,6 @@ import {
   RenderModes,
   WidgetType,
 } from "constants/WidgetConstants";
-import ValidationFactory from "utils/ValidationFactory";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import {
   saveCopiedWidgets,
@@ -71,6 +71,15 @@ import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { forceOpenPropertyPane } from "actions/widgetActions";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { validateProperty } from "./evaluationsSaga";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -153,6 +162,7 @@ function* generateChildWidgets(
     );
   }
   widget.parentId = parent.widgetId;
+  delete widget.blueprint;
   return { widgetId: widget.widgetId, widgets };
 }
 
@@ -179,7 +189,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     // TODO(abhinav): This won't work if dont already have an empty children: []
     const parent = {
       ...stateParent,
-      children: [...stateParent.children, childWidgetPayload.widgetId],
+      children: [...(stateParent.children || []), childWidgetPayload.widgetId],
     };
 
     widgets[parent.widgetId] = parent;
@@ -456,7 +466,10 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
     const widgets = Object.assign({}, stateWidgets);
     // Get parent from DSL/Redux Store
     const stateParent: FlattenedWidgetProps = yield select(getWidget, parentId);
-    const parent = { ...stateParent, children: [...stateParent.children] };
+    const parent = {
+      ...stateParent,
+      children: [...(stateParent.children || [])],
+    };
     // Update position of widget
     const updatedPosition = updateWidgetPosition(widget, leftColumn, topRow);
     widget = { ...widget, ...updatedPosition };
@@ -479,7 +492,7 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
       const newParent = {
         ...widgets[newParentId],
         children: widgets[newParentId].children
-          ? [...widgets[newParentId].children, widgetId]
+          ? [...(widgets[newParentId].children || []), widgetId]
           : [widgetId],
       };
       widgets[widgetId].parentId = newParentId;
@@ -541,7 +554,9 @@ function* updateDynamicTriggers(
     widget.type,
   );
   if (propertyName in triggerProperties) {
-    let dynamicTriggers: Record<string, true> = widget.dynamicTriggers || {};
+    let dynamicTriggers: Record<string, true> = widget.dynamicTriggers
+      ? { ...widget.dynamicTriggers }
+      : {};
     if (propertyValue && !(propertyName in dynamicTriggers)) {
       dynamicTriggers[propertyName] = true;
     }
@@ -619,7 +634,8 @@ function* setWidgetDynamicPropertySaga(
     yield put(updateWidgetProperty(widgetId, propertyName, value));
   } else {
     delete dynamicProperties[propertyName];
-    const { parsed } = ValidationFactory.validateWidgetProperty(
+    const { parsed } = yield call(
+      validateProperty,
       widget.type,
       propertyName,
       propertyValue,
@@ -656,6 +672,39 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
     const childId = childrenIds[childIndex];
     yield put(resetWidgetMetaProperty(childId));
   }
+  yield call(resetEvaluatedWidgetMetaProperties, childrenIds);
+}
+
+// This is needed because evaluation takes some time and we can reset the props
+// in the evaluated value much faster like this
+function* resetEvaluatedWidgetMetaProperties(widgetIds: string[]) {
+  const evaluatedDataTree = yield select(getDataTree);
+  const updates: Record<string, DataTreeWidget> = {};
+  for (const index in widgetIds) {
+    const widgetId = widgetIds[index];
+    const widget = _.find(evaluatedDataTree, { widgetId }) as DataTreeWidget;
+    const widgetToUpdate = { ...widget };
+    const metaPropsMap = WidgetFactory.getWidgetMetaPropertiesMap(widget.type);
+    const defaultPropertiesMap = WidgetFactory.getWidgetDefaultPropertiesMap(
+      widget.type,
+    );
+    Object.keys(metaPropsMap).forEach(metaProp => {
+      if (metaProp in defaultPropertiesMap) {
+        widgetToUpdate[metaProp] = widget[defaultPropertiesMap[metaProp]];
+      } else {
+        widgetToUpdate[metaProp] = metaPropsMap[metaProp];
+      }
+    });
+    updates[widget.widgetName] = widgetToUpdate;
+  }
+  const newEvaluatedDataTree = {
+    ...evaluatedDataTree,
+    ...updates,
+  };
+  yield put({
+    type: ReduxActionTypes.SET_EVALUATED_TREE,
+    payload: newEvaluatedDataTree,
+  });
 }
 
 function* updateCanvasSize(
@@ -855,6 +904,26 @@ function* pasteWidgetSaga() {
           }
         });
       }
+
+      // Update the tabs for the tabs widget.
+      if (widget.tabs && widget.type === WidgetTypes.TABS_WIDGET) {
+        try {
+          const tabs = isString(widget.tabs)
+            ? JSON.parse(widget.tabs)
+            : widget.tabs;
+          if (Array.isArray(tabs)) {
+            widget.tabs = JSON.stringify(
+              tabs.map(tab => {
+                tab.widgetId = widgetIdMap[tab.widgetId];
+                return tab;
+              }),
+            );
+          }
+        } catch (error) {
+          log.debug("Error updating tabs", error);
+        }
+      }
+
       // If it is the copied widget, update position properties
       if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
         newWidgetId = widget.widgetId;
@@ -941,8 +1010,88 @@ function* cutWidgetSaga() {
   });
 }
 
+function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
+  try {
+    const columns = 8;
+    const rows = 7;
+    const queryName = action.payload;
+    const widgets = yield select(getWidgets);
+    const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET");
+
+    let newWidget = {
+      type: WidgetTypes.TABLE_WIDGET,
+      newWidgetId: generateReactKey(),
+      widgetId: "0",
+      topRow: 0,
+      bottomRow: rows,
+      leftColumn: 0,
+      rightColumn: columns,
+      columns,
+      rows,
+      parentId: "0",
+      widgetName,
+      renderMode: RenderModes.CANVAS,
+      parentRowSpace: 1,
+      parentColumnSpace: 1,
+      isLoading: false,
+      props: {
+        tableData: `{{${queryName}.data}}`,
+        dynamicBindings: {
+          tableData: true,
+        },
+      },
+    };
+    const {
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+    } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
+
+    newWidget = {
+      ...newWidget,
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+    };
+
+    yield put({
+      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      payload: newWidget,
+    });
+
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+
+    navigateToCanvas(
+      {
+        applicationId,
+        pageId,
+      },
+      window.location.pathname,
+      pageId,
+      newWidget.newWidgetId,
+    );
+    yield put({
+      type: ReduxActionTypes.SELECT_WIDGET,
+      payload: { widgetId: newWidget.newWidgetId },
+    });
+    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
+  } catch (error) {
+    AppToaster.show({
+      message: "Failed to add the widget",
+      type: "error",
+    });
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield all([
+    takeEvery(
+      ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
+      addTableWidgetFromQuerySaga,
+    ),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
     takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSaga),
     takeLatest(ReduxActionTypes.WIDGET_MOVE, moveSaga),

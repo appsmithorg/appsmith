@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { extraLibraries } from "jsExecution/JSExecutionManagerSingleton";
 import { Collapse, Icon, IconName, Tooltip } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import { BindingText } from "pages/Editor/APIEditor/Form";
-
-export type JSDependenciesProps = {};
+import { extraLibraries } from "utils/DynamicBindingUtils";
 
 const Wrapper = styled.div`
   font-size: 13px;
@@ -47,7 +45,7 @@ const Help = styled(Icon)`
     fill: ${Colors.WHITE};
   }
 `;
-export const JSDependencies = (props: JSDependenciesProps) => {
+export const JSDependencies = () => {
   const [isOpen, setIsOpen] = useState(false);
   const openDocs = (name: string, url: string) => () => window.open(url, name);
   const dependencyList = extraLibraries.map(lib => {

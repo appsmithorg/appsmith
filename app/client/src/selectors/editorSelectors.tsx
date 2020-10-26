@@ -2,27 +2,33 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import {
+  WIDGET_STATIC_PROPS,
+  WidgetCardProps,
+  WidgetProps,
+} from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { getEntities } from "./entitiesSelector";
 import {
-  FlattenedWidgetProps,
   CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
-import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { getActions } from "sagas/selectors";
+import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { getActions, getWidgetsMeta } from "sagas/selectors";
 
 import * as log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getCanvasWidgets } from "./entitiesSelector";
+import { MetaState } from "../reducers/entityReducers/metaReducer";
+import { WidgetTypes } from "../constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
@@ -104,26 +110,28 @@ export const getWidgetCards = createSelector(
 );
 
 export const getCanvasWidgetDsl = createSelector(
-  getEntities,
-  evaluateDataTreeWithoutFunctions,
+  getCanvasWidgets,
+  getDataTree,
   (
-    entities: AppState["entities"],
+    canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
   ): ContainerWidgetProps<WidgetProps> => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CONSTRUCT_CANVAS_DSL,
     );
-    log.debug("Evaluating data tree to get canvas widgets");
-    log.debug({ evaluatedDataTree });
-    const widgets = { ...entities.canvasWidgets };
-    Object.keys(widgets).forEach(widgetKey => {
-      const evaluatedWidget = _.find(evaluatedDataTree, {
-        widgetId: widgetKey,
-      });
+    const widgets: Record<string, DataTreeWidget> = {};
+    Object.keys(canvasWidgets).forEach(widgetKey => {
+      const canvasWidget = canvasWidgets[widgetKey];
+      const evaluatedWidget = evaluatedDataTree[
+        canvasWidget.widgetName
+      ] as DataTreeWidget;
       if (evaluatedWidget) {
-        widgets[widgetKey] = evaluatedWidget as DataTreeWidget;
+        widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
+      } else {
+        widgets[widgetKey] = createLoadingWidget(canvasWidget);
       }
     });
+
     const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets: widgets,
     });
@@ -197,3 +205,32 @@ export const getActionById = createSelector(
     }
   },
 );
+
+const createCanvasWidget = (
+  canvasWidget: FlattenedWidgetProps,
+  evaluatedWidget: DataTreeWidget,
+) => {
+  const widgetStaticProps = _.pick(
+    canvasWidget,
+    Object.keys(WIDGET_STATIC_PROPS),
+  );
+  return {
+    ...evaluatedWidget,
+    ...widgetStaticProps,
+  };
+};
+
+const createLoadingWidget = (
+  canvasWidget: FlattenedWidgetProps,
+): DataTreeWidget => {
+  const widgetStaticProps = _.pick(
+    canvasWidget,
+    Object.keys(WIDGET_STATIC_PROPS),
+  ) as WidgetProps;
+  return {
+    ...widgetStaticProps,
+    type: WidgetTypes.SKELETON_WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    isLoading: true,
+  };
+};

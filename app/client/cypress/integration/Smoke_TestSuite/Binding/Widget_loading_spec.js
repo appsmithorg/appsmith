@@ -33,8 +33,8 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
   it("Create and runs query", () => {
     cy.NavigateToQueryEditor();
-    cy.get(".t--datasource-name")
-      .contains(datasourceName)
+    cy.contains(".t--datasource-name", datasourceName)
+      .find(queryLocators.createQuery)
       .click();
 
     cy.get(queryLocators.templateMenu).click();
@@ -57,7 +57,6 @@ describe("Binding the multiple widgets and validating default data", function() 
       200,
     );
   });
-
 
   it("Input widget test with default value update with query data", function() {
     cy.SearchEntityandOpen("Input1");

@@ -161,7 +161,7 @@ jobs:
     - name: Installing Yarn serve
       run: |
         yarn global add serve
-        echo "::add-path::$(yarn global bin)"
+        echo "$(yarn global bin)" >> $GITHUB_PATH 
 
     - name: Setting up the cypress tests
       shell: bash
@@ -190,6 +190,7 @@ jobs:
         CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+        COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
       with:
         browser: chrome
         headless: true
@@ -197,9 +198,10 @@ jobs:
         install: false
         parallel: true
         group: 'Electrons on Github Action'
-        ci-build-id: '${{ github.sha }}-${{ github.workflow }}-${{ github.event_name }}'
         spec: 'cypress/integration/Smoke_TestSuite/*/*'
         working-directory: app/client
+        # tag will be either "push" or "pull_request_target"
+        tag: ${{ github.event_name }}
 
     # Upload the screenshots as artifacts if there's a failure
     - uses: actions/upload-artifact@v1
@@ -244,7 +246,7 @@ jobs:
 
     # Build release Docker image and push to Docker Hub
     - name: Push release image to Docker Hub
-      if: success() && github.ref == 'refs/heads/release'
+      if: success() && github.ref == 'refs/heads/release' && github.event_name == 'push'
       run: |
         docker build -t appsmith/appsmith-editor:${{steps.branch_name.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -252,7 +254,7 @@ jobs:
     
     # Build master Docker image and push to Docker Hub
     - name: Push production image to Docker Hub with commit tag
-      if: success() && github.ref == 'refs/heads/master'
+      if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: |
         docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
         docker build -t appsmith/appsmith-editor:nightly .
