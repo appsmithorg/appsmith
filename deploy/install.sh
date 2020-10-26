@@ -431,10 +431,11 @@ if confirm y "Is this a fresh installation?"; then
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
 else
-    read -rp 'Enter your current mongo db host: ' mongo_host
-    read -rp 'Enter your current mongo root user: ' mongo_root_user
-    read -srp 'Enter your current mongo password: ' mongo_root_password
-    read -rp 'Enter your current mongo database name: ' mongo_database
+    echo 'You are trying to connect to an existing appsmith installation. Abort if you want to install appsmith fresh'
+    read -rp 'Enter your existing appsmith mongo db host: ' mongo_host
+    read -rp 'Enter your existing appsmith mongo root user: ' mongo_root_user
+    read -srp 'Enter your existing appsmith mongo password: ' mongo_root_password
+    read -rp 'Enter your existing appsmith mongo database name: ' mongo_database
     # It is possible that this isn't the first installation.
     echo ""
     # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
