@@ -93,13 +93,17 @@ interface ColorPickerProps {
 }
 
 const ColorPicker = (props: ColorPickerProps) => {
+  const [color, setColor] = React.useState(props.color);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 1000),
     [],
   );
   const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    debouncedOnChange(value);
+    if (/^#[0-9A-F]*$/i.test(value) && value.length <= 7) {
+      setColor(value);
+      debouncedOnChange(value);
+    }
   };
   return (
     <Popover
@@ -118,11 +122,12 @@ const ColorPicker = (props: ColorPickerProps) => {
         leftIcon={<ColorIcon color={props.color} />}
         onChange={handleChangeColor}
         placeholder="enter color name or hex"
-        value={props.color}
+        value={color}
       />
       <ColorBoard
-        selectedColor={props.color}
+        selectedColor={color}
         selectColor={color => {
+          setColor(color);
           props.changeColor(color);
         }}
       />
@@ -132,7 +137,6 @@ const ColorPicker = (props: ColorPickerProps) => {
 
 class ColorPickerControl extends BaseControl<ControlProps> {
   handleChangeColor = (color: string) => {
-    console.log("color", color);
     this.updateProperty(this.props.propertyName, color);
   };
   render() {
