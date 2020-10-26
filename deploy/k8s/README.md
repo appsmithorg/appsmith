@@ -90,7 +90,7 @@ kubectl get ingress
 NAME               CLASS    HOSTS   ADDRESS          PORTS   AGE
 appsmith-ingress   <none>   *       XXX.XXX.XX.XXX   80      2m
 ```
-* You may need to wait 2-3 minutes before accessing the application to allow applicatiown start (depends on your cluster).
+* You may need to wait 2-3 minutes before accessing the application to allow application start (depends on your cluster).
 {% endhint %}
 
 

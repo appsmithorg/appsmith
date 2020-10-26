@@ -204,36 +204,36 @@ download_template_file() {
     (
         cd "$templates_dir"
         curl --remote-name-all --silent --show-error -o appsmith-configmap.yaml.sh \
-            "$template_endpoint/k8s/scripts/appsmith-configmap.yaml.sh"
+            "$template_endpoint/deploy/k8s/scripts/appsmith-configmap.yaml.sh"
         curl --remote-name-all --silent --show-error -o appsmith-ingress.yaml.sh \
-            "$template_endpoint/k8s/scripts/appsmith-ingress.yaml.sh"
+            "$template_endpoint/deploy/k8s/scripts/appsmith-ingress.yaml.sh"
         curl --remote-name-all --silent --show-error -o encryption-configmap.yaml.sh \
-            "$template_endpoint/k8s/scripts/encryption-configmap.yaml.sh"
+            "$template_endpoint/deploy/k8s/scripts/encryption-configmap.yaml.sh"
         curl  --remote-name-all --silent --show-error -o mongo-configmap.yaml.sh \
-            "$template_endpoint/k8s/scripts/mongo-configmap.yaml.sh"
+            "$template_endpoint/deploy/k8s/scripts/mongo-configmap.yaml.sh"
         curl  --remote-name-all --silent --show-error -o nginx-configmap.yaml \
-            "$template_endpoint/k8s/scripts/nginx-configmap.yaml"
+            "$template_endpoint/deploy/k8s/scripts/nginx-configmap.yaml"
         if [[ "$ssl_enable" == "true" ]]; then
             curl --remote-name-all --silent --show-error  -o issuer-template.yaml.sh\
-                "$template_endpoint/k8s/scripts/issuer-template.yaml.sh"
+                "$template_endpoint/deploy/k8s/scripts/issuer-template.yaml.sh"
         fi
     )
     (
         cd "$install_dir"
         curl --remote-name-all --silent --show-error -o backend-template.yaml \
-            "$template_endpoint/k8s/templates/backend-template.yaml"
+            "$template_endpoint/deploy/k8s/templates/backend-template.yaml"
         
         curl --remote-name-all --silent --show-error -o frontend-template.yaml \
-            "$template_endpoint/k8s/templates/frontend-template.yaml"
+            "$template_endpoint/deploy/k8s/templates/frontend-template.yaml"
         if [[ "$fresh_installation" == "true" ]]; then
             curl --remote-name-all --silent --show-error -o mongo-template.yaml \
-                "$template_endpoint/k8s/templates/mongo-template.yaml"
+                "$template_endpoint/deploy/k8s/templates/mongo-template.yaml"
         fi
 
         curl --remote-name-all --silent --show-error -o redis-template.yaml \
-            "$template_endpoint/k8s/templates/redis-template.yaml"
+            "$template_endpoint/deploy/k8s/templates/redis-template.yaml"
         curl --remote-name-all --silent --show-error -o imago-template.yaml\
-            "$template_endpoint/k8s/templates/imago-template.yaml"
+            "$template_endpoint/deploy/k8s/templates/imago-template.yaml"
     )
 }
 
