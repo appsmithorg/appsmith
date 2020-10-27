@@ -54,8 +54,8 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
 
-  if (!editorConfigs[action.pluginId]) {
-    yield put(fetchPluginForm({ id: action.pluginId }));
+  if (!editorConfigs[action.datasource.pluginId]) {
+    yield put(fetchPluginForm({ id: action.datasource.pluginId }));
   }
 
   yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
