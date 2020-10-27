@@ -4,6 +4,7 @@ import { Page } from "constants/ReduxActionConstants";
 import { ExplorerURLParams, getActionIdFromURL } from "../helpers";
 import { ActionGroupConfig } from "./helpers";
 import { useParams } from "react-router";
+import { Plugin } from "api/PluginApi";
 
 type ExplorerActionsGroupProps = {
   actions: any[];
@@ -11,6 +12,7 @@ type ExplorerActionsGroupProps = {
   searchKeyword?: string;
   config: ActionGroupConfig;
   page: Page;
+  plugins: Record<string, Plugin>;
 };
 export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
   const params = useParams<ExplorerURLParams>();
@@ -23,9 +25,10 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
     const actionId = getActionIdFromURL();
     const active = actionId === action.config.id;
 
-    let method = undefined;
-    method = action.config.actionConfiguration.httpMethod;
-    const icon = props.config?.getIcon(method);
+    const icon = props.config?.getIcon(
+      action.config,
+      props.plugins[action.config.datasource.pluginId],
+    );
     return (
       <ExplorerActionEntity
         key={action.config.id}

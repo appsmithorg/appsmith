@@ -80,6 +80,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
             page={props.page}
             searchKeyword={props.searchKeyword}
             config={props.actionConfig}
+            plugins={pluginGroups}
           />
           {props.datasources.map((datasource: Datasource) => {
             return (
