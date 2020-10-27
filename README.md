@@ -1,6 +1,5 @@
 <div align="center">
-    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo-no-padding.png" alt="Appsmith.com logo" width="100"/>
-    <H1>Appsmith</H1>
+    <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/appsmith_logo_primary.png" alt="Appsmith.com logo" width="400"/>
 </div>
 
 <div align="center">
