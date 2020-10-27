@@ -156,7 +156,9 @@ export const Entity = forwardRef(
             disabled={!!props.disabled}
             className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
           />
-          <span onClick={handleClick}>{props.icon}</span>
+          <span style={{ lineHeight: "0px" }} onClick={handleClick}>
+            {props.icon}
+          </span>
           <EntityName
             entityId={props.entityId}
             className={`${EntityClassNames.NAME}`}
