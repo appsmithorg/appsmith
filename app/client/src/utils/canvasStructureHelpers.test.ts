@@ -356,12 +356,12 @@ describe("Immutable Canvas structures", () => {
 
     expect(nextState).toBe(canvasStructure);
   });
-  it("calculates 1000 simple diffs in less than 30ms", () => {
+  it("calculates 100 simple diffs in less than 30ms", () => {
     const start = performance.now();
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 100; i++) {
       compareAndGenerateImmutableCanvasStructure(canvasStructure, newDSL);
     }
-    console.log("Time taken for 1000 runs: ", performance.now() - start, "ms");
+    console.log("Time taken for 100 runs: ", performance.now() - start, "ms");
     const timeTaken = performance.now() - start;
     expect(timeTaken).toBeLessThanOrEqual(30);
   });
