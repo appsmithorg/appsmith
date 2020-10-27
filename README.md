@@ -68,11 +68,11 @@ Listed below are the steps to build a dashboard that lists users.
     2. Write the query `select * from users limit 5;`.
     3. Run the query.
     4. In query window, switch to the `Settings` tab, and enable `Run Query on Page Load`.
-    5. Click the + Add Widget button above the query results to automatically add a table with the query data.
-4. The table's data property is now linked to the `usersQuery` using javascript `{{usersQuery.data}}`
-5. Hit the Deploy button and checkout the view mode of the app.
+4. Click on the `+` icon next to the `Widgets` section and drag a table onto the screen
+5. Link the table data property to the `usersQuery` using javascript `{{usersQuery.data}}`
+6. Hit the Deploy button and checkout the view mode of the app.
 
-Congratulation 🎉 You just built your first app on Appsmith! 
+Congratulations 🎉 You just built your first app on Appsmith! 
 Connect your own data to build apps for your team. [Read more here.](https://docs.appsmith.com/core-concepts/connecting-to-databases)
 
 ## 📕 Support & Troubleshooting
