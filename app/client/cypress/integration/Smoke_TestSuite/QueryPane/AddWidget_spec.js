@@ -22,16 +22,20 @@ describe("Add widget", function() {
       .first()
       .focus()
       .type("select * from configs");
-
+    cy.wait(500);
     cy.get(queryEditor.runQuery).click();
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-
     cy.get(".t--add-widget").click();
-
     cy.SearchEntityandOpen("Table1");
+    cy.isSelectRow(1);
+    cy.readTabledataPublish("1", "0").then(tabData => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("5");
+      cy.log("the value is " + tabValue);
+    });
   });
 });
