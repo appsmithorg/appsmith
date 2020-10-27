@@ -27,6 +27,16 @@ check_ports_occupied() {
     fi
 
     if [[ -n $port_check_output ]]; then
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Error",
+            "data": {
+                "os": "'"$os"'",
+                "error": "port taken"
+            }
+        }' > /dev/null
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
         echo "++++++++++++++++++++++++++++++++++++++++"
@@ -82,6 +92,16 @@ install_docker_compose() {
             echo ""
         fi
     else
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Error",
+            "data": {
+                "os": "'"$os"'",
+                "error": "Docker Compose Not Found"
+            }
+        }' > /dev/null
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
         echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
         echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
@@ -380,6 +400,16 @@ if [[ $desired_os -eq 0 ]];then
     echo ""
     echo "This script is currently meant to install Appsmith on Mac OS X, Ubuntu, SLES or openSUSE machines."
     echo_contact_support " if you wish to extend this support."
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "OS Not Supported"
+        }
+    }' > /dev/null
     bye
 else
     echo "🙌 You're on an OS that is supported by this installation script."
@@ -391,6 +421,16 @@ if [[ $EUID -eq 0 ]]; then
     echo "Please do not run this script as root/sudo."
     echo "++++++++++++++++++++++++++++++++++++++++"
     echo_contact_support
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "Running as Root"
+        }
+    }' > /dev/null
     bye
 fi
 
