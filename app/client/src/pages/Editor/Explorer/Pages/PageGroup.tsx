@@ -19,7 +19,7 @@ type ExplorerPageGroupProps = {
   step: number;
   widgets?: Record<string, WidgetProps>;
   actions: Record<string, any[]>;
-  datasources: Datasource[];
+  datasources: Record<string, Datasource[]>;
   plugins: Plugin[];
   showWidgetsSidebar: () => void;
 };
@@ -42,7 +42,7 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
   const pageEntities = pages.map(page => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
     const pageActions = props.actions[page.pageId] || [];
-    const datasources = props.datasources || [];
+    const datasources = props.datasources[page.pageId] || [];
     if (!pageWidgets && pageActions.length === 0 && datasources.length === 0)
       return null;
     return (

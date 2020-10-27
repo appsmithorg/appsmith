@@ -63,8 +63,10 @@ const EntityExplorer = (props: IPanelProps) => {
     const noActions =
       Object.values(actions).filter(actions => actions && actions.length > 0)
         .length === 0;
-
-    const noDatasource = !datasources || datasources.length === 0;
+    const noDatasource =
+      Object.values(datasources).filter(
+        datasources => datasources && datasources.length > 0,
+      ).length === 0;
     noResults = noWidgets && noActions && noDatasource;
   }
   const { openPanel } = props;
