@@ -82,7 +82,7 @@ class TernServer {
 
   updateDef(name: string, def: Def) {
     this.server.deleteDefs(name);
-    // @ts-ignore
+    // @ts-ignore: No types available
     this.server.addDefs(def, true);
   }
 
@@ -238,10 +238,10 @@ class TernServer {
       if (data.url) {
         tip.appendChild(document.createTextNode(" "));
         const child = tip.appendChild(this.elt("a", null, "[docs]"));
-        // @ts-ignore
+        // @ts-ignore: No types available
         child.href = data.url;
 
-        // @ts-ignore
+        // @ts-ignore: No types available
         child.target = "_blank";
       }
       this.tempTooltip(cm, tip);
@@ -267,7 +267,7 @@ class TernServer {
   ) {
     const doc = this.findDoc(cm.getDoc());
     const request = this.buildRequest(doc, query, pos);
-    // @ts-ignore
+    // @ts-ignore: No types available
     this.server.request(request, callbackFn);
   }
 
@@ -415,9 +415,9 @@ class TernServer {
   sendDoc(doc: TernDoc) {
     this.server.request(
       {
-        // @ts-ignore
+        // @ts-ignore: No types available
         files: [
-          // @ts-ignore
+          // @ts-ignore: No types available
           {
             type: "full",
             name: doc.name,
@@ -517,12 +517,12 @@ class TernServer {
   tempTooltip(cm: CodeMirror.Editor, content: HTMLElement | string) {
     if (cm.state.ternTooltip) this.remove(cm.state.ternTooltip);
     if (cm.state.completionActive) {
-      // @ts-ignore
+      // @ts-ignore: No types available
       cm.closeHint();
     }
     const where = cm.cursorCoords();
     const tip = (cm.state.ternTooltip = this.makeTooltip(
-      // @ts-ignore
+      // @ts-ignore: No types available
       where.right + 1,
       where.bottom,
       content,
@@ -543,7 +543,7 @@ class TernServer {
     });
     CodeMirror.on(tip, "mouseout", function(e: MouseEvent) {
       const related = e.relatedTarget;
-      // @ts-ignore
+      // @ts-ignore: No types available
       if (!related || !CodeMirror.contains(tip, related)) {
         if (old) clear();
         else mouseOnTip = false;

@@ -38,7 +38,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   // document.activeElement &&
   //   "blur" in document.activeElement &&
   //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-ignore
+  //   // @ts-ignore: No types available
   //   document.activeElement.blur();
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);

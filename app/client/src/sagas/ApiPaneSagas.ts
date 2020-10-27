@@ -165,7 +165,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   // document.activeElement &&
   //   "blur" in document.activeElement &&
   //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-ignore
+  //   // @ts-ignore: No types available
   //   document.activeElement.blur();
   PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
   const { id } = actionPayload.payload;

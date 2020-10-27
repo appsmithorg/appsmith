@@ -344,7 +344,7 @@ class DocumentationSearch extends React.Component<Props, State> {
   }
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-ignore: No types available
     const value = event.target.value;
     if (value === "" && this.state.showResults) {
       this.setState({

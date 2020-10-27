@@ -7,7 +7,7 @@ import "codemirror/addon/hint/sql-hint";
 
 CodeMirror.defineMode(EditorModes.TEXT_WITH_BINDING, function(config) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-ignore: No types available
   return CodeMirror.multiplexingMode(
     CodeMirror.getMode(config, EditorModes.TEXT),
     {
@@ -22,7 +22,7 @@ CodeMirror.defineMode(EditorModes.TEXT_WITH_BINDING, function(config) {
 
 CodeMirror.defineMode(EditorModes.JSON_WITH_BINDING, function(config) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-ignore: No types available
   return CodeMirror.multiplexingMode(
     CodeMirror.getMode(config, { name: "javascript", json: true }),
     {
@@ -37,7 +37,7 @@ CodeMirror.defineMode(EditorModes.JSON_WITH_BINDING, function(config) {
 
 CodeMirror.defineMode(EditorModes.SQL_WITH_BINDING, function(config) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-ignore: No types available
   return CodeMirror.multiplexingMode(
     CodeMirror.getMode(config, EditorModes.SQL),
     {
