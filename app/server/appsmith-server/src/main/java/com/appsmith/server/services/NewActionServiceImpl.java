@@ -488,6 +488,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         return datasourceService.validateDatasource(datasource);
                     }
 
+                    // The external datasources have already been validated. No need to validate again.
                     return Mono.just(datasource);
                 })
                 .flatMap(datasource -> {
@@ -515,7 +516,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
 
-                    DatasourceConfiguration datasourceConfiguration = action.getDatasource().getDatasourceConfiguration();
+
+                    DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
 
                     prepareConfigurationsForExecution(action, datasource, executeActionDTO, actionConfiguration, datasourceConfiguration);
