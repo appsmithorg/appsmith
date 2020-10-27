@@ -8,3 +8,15 @@ const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
 
 export const getAppStoreName = (appId: string) =>
   `${APP_STORE_NAMESPACE}-${appId}`;
+
+export const getAppStore = (appId: string) => {
+  const appStoreName = getAppStoreName(appId);
+  const storeString = localStorage.getItem(appStoreName) || "{}";
+  let store;
+  try {
+    store = JSON.parse(storeString);
+  } catch (e) {
+    store = {};
+  }
+  return store;
+};

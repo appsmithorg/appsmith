@@ -1,6 +1,7 @@
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppState } from "reducers";
 import {
+  Page,
   PageListPayload,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -117,6 +118,16 @@ export function* fetchPageListSaga(
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_LIST_API,
       );
+    } else {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_PAGE_LIST_API,
+      );
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -606,6 +617,62 @@ export function* setDataUrl() {
     hash: window.location.hash,
   };
   yield put(setUrlData(urlData));
+}
+
+function* fetchPageDSLSaga(action: ReduxAction<{ pageId: string }>) {
+  try {
+    const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
+      id: action.payload.pageId,
+    });
+    const isValidResponse = yield validateResponse(fetchPageResponse);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+        payload: {
+          pageId: action.payload.pageId,
+          dsl: extractCurrentDSL(fetchPageResponse),
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.FETCH_PAGE_DSL_ERROR,
+      payload: {
+        pageId: action.payload.pageId,
+        error,
+        show: false,
+      },
+    });
+  }
+}
+
+export function* populatePageDSLsSaga() {
+  try {
+    yield put({
+      type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+    });
+    const pageIds: string[] = yield select((state: AppState) =>
+      state.entities.pageList.pages.map((page: Page) => page.pageId),
+    );
+    yield all(
+      pageIds.map((pageId: string) => {
+        return call(fetchPageDSLSaga, {
+          type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+          payload: { pageId },
+        });
+      }),
+    );
+    yield put({
+      type: ReduxActionTypes.POPULATE_PAGEDSLS_SUCCESS,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }
 
 export default function* pageSagas() {

@@ -24,6 +24,8 @@ const axiosInstance: AxiosInstance = axios.create();
 
 const executeActionRegex = /actions\/execute/;
 const currentUserRegex = /\/me$/;
+const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
+
 axiosInstance.interceptors.request.use((config: any) => {
   return { ...config, timer: performance.now() };
 });
@@ -56,6 +58,11 @@ axiosInstance.interceptors.response.use(
     if (error.code === "ECONNABORTED") {
       if (error.config && error.config.url.match(currentUserRegex)) {
         history.replace({ pathname: SERVER_ERROR_URL });
+      }
+      if (error.message.match(timeoutErrorRegex)) {
+        return Promise.reject({
+          message: "Connection with server timed out",
+        });
       }
       return Promise.reject({
         message: "Please check your internet connection",
