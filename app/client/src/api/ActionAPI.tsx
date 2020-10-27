@@ -44,13 +44,10 @@ export interface ActionCreateUpdateResponse extends ApiResponse {
 export type PaginationField = "PREV" | "NEXT";
 
 export interface ExecuteActionRequest extends APIRequest {
-  action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
+  actionId: string;
   params?: Property[];
   paginationField?: PaginationField;
-}
-
-export interface ExecuteQueryRequest extends APIRequest {
-  action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
+  viewMode: boolean;
 }
 
 export interface ExecuteActionResponse extends ApiResponse {
@@ -60,7 +57,7 @@ export interface ExecuteActionResponse extends ApiResponse {
 
 export interface ActionApiResponseReq {
   headers: Record<string, string[]>;
-  body: object | null;
+  body: Record<string, unknown> | null;
   httpMethod: HttpMethod | "";
   url: string;
 }
@@ -68,7 +65,7 @@ export interface ActionApiResponseReq {
 export interface ActionApiResponse {
   responseMeta: ResponseMeta;
   data: {
-    body: object;
+    body: Record<string, unknown>;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
@@ -81,7 +78,7 @@ export interface ActionApiResponse {
 }
 
 export interface ActionResponse {
-  body: object;
+  body: Record<string, unknown>;
   headers: Record<string, string[]>;
   request?: ActionApiResponseReq;
   statusCode: string;

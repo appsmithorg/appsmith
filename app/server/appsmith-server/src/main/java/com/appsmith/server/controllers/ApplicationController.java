@@ -60,7 +60,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
 
     @PostMapping("/publish/{applicationId}")
     public Mono<ResponseDTO<Boolean>> publish(@PathVariable String applicationId) {
-        return service.publish(applicationId)
+        return applicationPageService.publish(applicationId)
                 .map(published -> new ResponseDTO<>(HttpStatus.OK.value(), published, null));
     }
 
@@ -95,6 +95,12 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     public Mono<ResponseDTO<Application>> cloneApplication(@PathVariable String applicationId) {
         return applicationPageService.cloneApplication(applicationId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @GetMapping("/view/{applicationId}")
+    public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String applicationId) {
+        return service.getApplicationInViewMode(applicationId)
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
 }

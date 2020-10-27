@@ -29,7 +29,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Test_Validate the Api data is updated on Table widget", function() {
     cy.SearchEntityandOpen("Table1");
     //cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", "{{Api1.data}}");
+    cy.testJsontext("tabledata", "{{Api1.data.users}}");
     cy.get(commonlocators.editPropCrossButton).click();
 
     /**

@@ -1,4 +1,4 @@
-/* eslint-disable  @typescript-eslint/ban-ts-ignore */
+/* eslint-disable  @typescript-eslint/ban-ts-comment */
 import _ from "lodash";
 import { put, debounce, takeEvery, all } from "redux-saga/effects";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";

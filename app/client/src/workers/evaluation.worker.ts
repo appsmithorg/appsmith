@@ -63,7 +63,8 @@ ctx.addEventListener("message", e => {
     }
     case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
       const { binding, dataTree } = rest;
-      const withFunctions = addFunctions(dataTree);
+      const evalTree = getEvaluatedDataTree(dataTree);
+      const withFunctions = addFunctions(evalTree);
       const value = getDynamicValue(binding, withFunctions, false);
       ctx.postMessage({ value, errors: ERRORS });
       ERRORS = [];
@@ -93,6 +94,15 @@ ctx.addEventListener("message", e => {
       clearPropertyCache(propertyPath);
       ctx.postMessage(true);
       break;
+    }
+    case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
+      const { widgetType, property, value, props } = rest;
+      const result = validateWidgetProperty(widgetType, property, value, props);
+      ctx.postMessage(result);
+      break;
+    }
+    default: {
+      console.error("Action not registered on worker", action);
     }
   }
 });
@@ -933,14 +943,14 @@ const evaluate = (
 
       // Set it to self
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         self[key] = GLOBAL_DATA[key];
       });
 
       ///// Adding extra libraries separately
       extraLibraries.forEach(library => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         self[library.accessor] = library.lib;
       });
@@ -950,7 +960,7 @@ const evaluate = (
       // Remove it from self
       // This is needed so that next eval can have a clean sheet
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         delete self[key];
       });

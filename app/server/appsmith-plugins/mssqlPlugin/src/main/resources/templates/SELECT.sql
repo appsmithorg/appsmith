@@ -1,0 +1,1 @@
+SELECT * FROM users where role = '{{ roleDropdown.selectedOptionValue }}' ORDER BY id LIMIT 10;

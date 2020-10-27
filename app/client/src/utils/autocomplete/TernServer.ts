@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import tern, { Server, Def } from "tern";
@@ -86,12 +86,7 @@ class TernServer {
     this.server.addDefs(def, true);
   }
 
-  requestCallback(
-    error: any,
-    data: any,
-    cm: CodeMirror.Editor,
-    resolve: Function,
-  ) {
+  requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
     if (error) return this.showError(cm, error);
     if (data.completions.length === 0) {
       return this.showError(cm, "No suggestions");
@@ -231,11 +226,7 @@ class TernServer {
     return cls + "completion " + cls + "completion-" + suffix;
   }
 
-  showContextInfo(
-    cm: CodeMirror.Editor,
-    queryName: string,
-    callbackFn?: Function,
-  ) {
+  showContextInfo(cm: CodeMirror.Editor, queryName: string, callbackFn?: any) {
     this.request(cm, { type: queryName }, (error, data) => {
       if (error) return this.showError(cm, error);
       const tip = this.elt(

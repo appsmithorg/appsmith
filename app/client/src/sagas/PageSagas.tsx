@@ -1,7 +1,6 @@
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppState } from "reducers";
 import {
-  FetchPageListPayload,
   PageListPayload,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -9,8 +8,9 @@ import {
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
 import {
-  deletePageSuccess,
   clonePageSuccess,
+  deletePageSuccess,
+  FetchPageListPayload,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
   savePageSuccess,
@@ -20,6 +20,7 @@ import {
   updateWidgetNameSuccess,
 } from "actions/pageActions";
 import PageApi, {
+  ClonePageRequest,
   CreatePageRequest,
   DeletePageRequest,
   FetchPageListResponse,
@@ -32,7 +33,6 @@ import PageApi, {
   UpdatePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
-  ClonePageRequest,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -69,8 +69,8 @@ import {
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
 } from "actions/actionActions";
+import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 import { clearEvalCache } from "./evaluationsSaga";
-import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -86,11 +86,12 @@ export function* fetchPageListSaga(
     PerformanceTransactionName.FETCH_PAGE_LIST_API,
   );
   try {
-    const { applicationId } = fetchPageListAction.payload;
-    const response: FetchPageListResponse = yield call(
-      PageApi.fetchPageList,
-      applicationId,
-    );
+    const { applicationId, mode } = fetchPageListAction.payload;
+    const apiCall =
+      mode === APP_MODE.EDIT
+        ? PageApi.fetchPageList
+        : PageApi.fetchPageListViewMode;
+    const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;

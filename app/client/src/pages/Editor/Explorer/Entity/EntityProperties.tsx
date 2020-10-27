@@ -3,13 +3,8 @@ import EntityProperty, { EntityPropertyProps } from "./EntityProperty";
 import { isFunction } from "lodash";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { WidgetType } from "constants/WidgetConstants";
-import {
-  ENTITY_TYPE,
-  DataTreeAction,
-  DataTree,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE, DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { useSelector } from "react-redux";
-import { getDataTree } from "selectors/dataTreeSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";

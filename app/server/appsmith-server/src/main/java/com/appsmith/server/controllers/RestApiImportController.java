@@ -2,8 +2,8 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.external.models.TemplateCollection;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.RestApiImporterType;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApiImporter;
 import com.appsmith.server.services.CurlImporterService;
@@ -41,12 +41,12 @@ public class RestApiImportController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Action>> create(@Valid @RequestBody Object input,
-                                            @RequestParam RestApiImporterType type,
-                                            @RequestParam String pageId,
-                                            @RequestParam String name,
-                                            @RequestParam String organizationId,
-                                            @RequestHeader(name = "Origin", required = false) String originHeader
+    public Mono<ResponseDTO<ActionDTO>> create(@Valid @RequestBody Object input,
+                                               @RequestParam RestApiImporterType type,
+                                               @RequestParam String pageId,
+                                               @RequestParam String name,
+                                               @RequestParam String organizationId,
+                                               @RequestHeader(name = "Origin", required = false) String originHeader
     ) {
         log.debug("Going to import API");
         ApiImporter service;

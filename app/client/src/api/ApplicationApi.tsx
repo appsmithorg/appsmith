@@ -12,7 +12,7 @@ export interface ChangeAppViewAccessRequest {
 }
 
 export interface PublishApplicationResponse extends ApiResponse {
-  data: {};
+  data: unknown;
 }
 
 export interface ApplicationPagePayload {
@@ -127,6 +127,12 @@ class ApplicationApi extends Api {
     applicationId: string,
   ): AxiosPromise<FetchApplicationsResponse> {
     return Api.get(ApplicationApi.baseURL + applicationId);
+  }
+
+  static fetchApplicationForViewMode(
+    applicationId: string,
+  ): AxiosPromise<FetchApplicationsResponse> {
+    return Api.get(ApplicationApi.baseURL + `view/${applicationId}`);
   }
 
   static createApplication(

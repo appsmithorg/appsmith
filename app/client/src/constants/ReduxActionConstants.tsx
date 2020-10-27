@@ -1,4 +1,4 @@
-import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/ActionConstants";
 import { Org } from "./orgConstants";
 
@@ -290,6 +290,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   BATCH_UPDATES_SUCCESS: "BATCH_UPDATES_SUCCESS",
   UPDATE_CANVAS_STRUCTURE: "UPDATE_CANVAS_STRUCTURE",
   SET_SELECTED_WIDGET_ANCESTORY: "SET_SELECTED_WIDGET_ANCESTORY",
+  START_EVALUATION: "START_EVALUATION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -486,8 +487,4 @@ export interface LoadWidgetSidebarPayload {
 export type InitializeEditorPayload = {
   applicationId: string;
   pageId: string;
-};
-
-export type FetchPageListPayload = {
-  applicationId: string;
 };
