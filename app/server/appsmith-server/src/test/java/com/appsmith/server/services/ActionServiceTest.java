@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
@@ -97,18 +98,23 @@ public class ActionServiceTest {
     @Autowired
     LayoutService layoutService;
 
+    @Autowired
+    DatasourceService datasourceService;
+
     Application testApp = null;
 
     PageDTO testPage = null;
 
     Datasource datasource;
 
+    String orgId;
+
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        String orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getOrganizationIds().iterator().next();
         Organization organization = organizationService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
@@ -650,6 +656,48 @@ public class ActionServiceTest {
                     assertThat(actionViewDTO.getPageId()).isNotNull();
                     assertThat(actionViewDTO.getConfirmBeforeExecute()).isNotNull();
                     assertThat(actionViewDTO.getJsonPathKeys().size()).isEqualTo(1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void executeActionWithExternalDatasource() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("Default Database");
+        externalDatasource.setOrganizationId(orgId);
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+        externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("actionWithExternalDatasource");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+
+        Mono<ActionExecutionResult> resultMono = newActionService.createAction(action)
+                .flatMap(savedAction -> {
+                    ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+                    executeActionDTO.setActionId(savedAction.getId());
+                    executeActionDTO.setViewMode(false);
+                    return newActionService.executeAction(executeActionDTO);
+                });
+
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getStatusCode()).isEqualTo("200");
                 })
                 .verifyComplete();
     }
