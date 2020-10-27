@@ -219,25 +219,20 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     "response.body.responseMeta.status",
     201,
   );
-  cy.wait(2000);
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplicationName").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
 });
 
 Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
-  cy.get(homePage.inputAppName).type(appname);
-  cy.get(homePage.CreateApp)
-    .contains("Submit")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
-  cy.wait("@getPagesForCreateApp").should(
+  cy.wait("@createNewApplication").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+  cy.wait(2000);
+  cy.get(homePage.applicationName).type(appname + "{enter}");
+  cy.wait("@updateApplicationName").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -1785,16 +1780,4 @@ Cypress.Commands.add("callApi", apiname => {
 
 Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusSuccess);
-});
-
-Cypress.Commands.add("EditApp", appName => {
-  cy.get(homePage.searchInput).type(appName);
-  cy.wait(2000);
-  cy.get(homePage.applicationCard)
-    .first()
-    .trigger("mouseover");
-  cy.get(homePage.appEditIcon)
-    .first()
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
 });
