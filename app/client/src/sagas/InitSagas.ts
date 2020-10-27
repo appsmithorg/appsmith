@@ -32,8 +32,6 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
-import history from "../utils/history";
-import { SERVER_ERROR_URL } from "../constants/routes";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -66,7 +64,6 @@ function* initializeEditorSaga(
     });
 
     if (resultOfPrimaryCalls.failure) {
-      history.replace({ pathname: SERVER_ERROR_URL });
       return;
     }
 
@@ -84,7 +81,6 @@ function* initializeEditorSaga(
     });
 
     if (resultOfSecondaryCalls.failure) {
-      history.replace({ pathname: SERVER_ERROR_URL });
       return;
     }
 
@@ -105,7 +101,6 @@ function* initializeEditorSaga(
     });
     yield call(populatePageDSLsSaga);
   } catch (e) {
-    history.replace({ pathname: SERVER_ERROR_URL });
     return;
   }
 }
@@ -137,7 +132,6 @@ export function* initializeAppViewerSaga(
   });
 
   if (resultOfPrimaryCalls.failure) {
-    history.replace({ pathname: SERVER_ERROR_URL });
     return;
   }
 
@@ -153,7 +147,6 @@ export function* initializeAppViewerSaga(
       failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
     });
     if (resultOfFetchPage.failure) {
-      history.replace({ pathname: SERVER_ERROR_URL });
       return;
     }
 

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 import {
   BuilderRouteParams,
   getApplicationViewerPageURL,
@@ -13,15 +13,15 @@ import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getPublishingError,
-  getIsEditorLoading,
   getIsEditorInitialized,
+  getIsEditorLoading,
   getIsPublishingApplication,
+  getPublishingError,
 } from "selectors/editorSelectors";
 import {
-  Dialog,
-  Classes,
   AnchorButton,
+  Classes,
+  Dialog,
   Hotkey,
   Hotkeys,
   Spinner,
@@ -40,11 +40,17 @@ import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
 import {
   copyWidget,
-  pasteWidget,
-  deleteSelectedWidget,
   cutWidget,
+  deleteSelectedWidget,
+  pasteWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
+import {
+  AppErrorReduxState,
+  AppLoadErrorTypes,
+} from "../../reducers/uiReducers/appErrorsReducer";
+import ServerUnavailable from "../common/ServerUnavailable";
+import PageNotFound from "../common/PageNotFound";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -59,6 +65,7 @@ type EditorProps = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   user?: User;
+  appLoadError: AppErrorReduxState;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -190,7 +197,8 @@ class Editor extends Component<Props> {
       nextProps.isEditorLoading !== this.props.isEditorLoading ||
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextState.isDialogOpen !== this.state.isDialogOpen ||
-      nextState.registered !== this.state.registered
+      nextState.registered !== this.state.registered ||
+      nextProps.appLoadError.errorType !== this.props.appLoadError.errorType
     );
   }
 
@@ -200,8 +208,21 @@ class Editor extends Component<Props> {
     });
   };
   public render() {
-    if (!this.props.isEditorInitialized || !this.state.registered) {
-      return (
+    let main = <MainContainer />;
+    if (this.props.appLoadError.errorType) {
+      if (
+        this.props.appLoadError.errorType ===
+        AppLoadErrorTypes.SERVER_NOT_RESPONDING
+      ) {
+        main = <ServerUnavailable />;
+      } else if (
+        this.props.appLoadError.errorType ===
+        AppLoadErrorTypes.RESOURCE_NOT_FOUND
+      ) {
+        main = <PageNotFound />;
+      }
+    } else if (!this.props.isEditorInitialized || !this.state.registered) {
+      main = (
         <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
           <Spinner />
         </CenteredWrapper>
@@ -219,7 +240,7 @@ class Editor extends Component<Props> {
             <meta charSet="utf-8" />
             <title>Editor | Appsmith</title>
           </Helmet>
-          <MainContainer />
+          {main}
           <Dialog
             isOpen={this.state.isDialogOpen}
             canOutsideClickClose={true}
@@ -261,6 +282,7 @@ const mapStateToProps = (state: AppState) => ({
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
+  appLoadError: state.ui.appLoadError,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

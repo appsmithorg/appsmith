@@ -4,11 +4,7 @@ import {
   API_REQUEST_HEADERS,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-import {
-  AUTH_LOGIN_URL,
-  PAGE_NOT_FOUND_URL,
-  SERVER_ERROR_URL,
-} from "constants/routes";
+import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 
@@ -22,9 +18,8 @@ export const apiRequestConfig = {
 
 const axiosInstance: AxiosInstance = axios.create();
 
+export const axiosConnectionAbortedCode = "ECONNABORTED";
 const executeActionRegex = /actions\/execute/;
-const currentUserRegex = /\/me$/;
-const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
 
 axiosInstance.interceptors.request.use((config: any) => {
   return { ...config, timer: performance.now() };
@@ -55,17 +50,11 @@ axiosInstance.interceptors.response.use(
     if (axios.isCancel(error)) {
       return;
     }
-    if (error.code === "ECONNABORTED") {
-      if (error.config && error.config.url.match(currentUserRegex)) {
-        history.replace({ pathname: SERVER_ERROR_URL });
-      }
-      if (error.message.match(timeoutErrorRegex)) {
-        return Promise.reject({
-          message: "Connection with server timed out",
-        });
-      }
+    if (error.code === axiosConnectionAbortedCode) {
       return Promise.reject({
-        message: "Please check your internet connection",
+        ...error,
+        message:
+          "Appsmith server is unavailable, please try again after some time",
       });
     }
     if (error.config && error.config.url.match(executeActionRegex)) {
