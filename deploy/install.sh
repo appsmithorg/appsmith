@@ -49,7 +49,16 @@ install_docker() {
         $apt_cmd update
         echo "Installing docker"
         $apt_cmd install docker-ce docker-ce-cli containerd.io
-
+    elif [[ $package_manager == zypper ]]; then
+        zypper_cmd="sudo zypper --quiet --no-gpg-checks --non-interactive"
+        echo "Installing docker"
+        if [[ $os == sles ]]; then
+            os_sp="$(cat /etc/*-release | awk -F= '$1 == "VERSION_ID" { gsub(/"/, ""); print $2; exit }')"
+            os_arch="$(uname -i)"
+            sudo SUSEConnect -p sle-module-containers/$os_sp/$os_arch -r ''
+        fi
+        $zypper_cmd install docker docker-runc containerd
+        sudo systemctl enable docker.service 
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
@@ -62,7 +71,7 @@ install_docker() {
 }
 
 install_docker_compose() {
-    if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
+    if [[ $package_manager == "apt-get" || $package_manager == "zypper" || $package_manager == "yum" ]]; then
         if [[ ! -f /usr/bin/docker-compose ]];then
             echo "++++++++++++++++++++++++"
             echo "Installing docker-compose"
@@ -118,6 +127,16 @@ check_os() {
             desired_os=1
             os="centos"
             package_manager="yum"
+            ;;
+        SLES*)
+            desired_os=1
+            os="sles"
+            package_manager="zypper"
+            ;;
+        openSUSE*)
+            desired_os=1
+            os="opensuse"
+            package_manager="zypper"
             ;;
         *)
             desired_os=0
@@ -359,7 +378,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
 
 if [[ $desired_os -eq 0 ]];then
     echo ""
-    echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu machines."
+    echo "This script is currently meant to install Appsmith on Mac OS X, Ubuntu, SLES or openSUSE machines."
     echo_contact_support " if you wish to extend this support."
     bye
 else
@@ -393,12 +412,12 @@ fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
 if ! is_command_present docker; then
-    if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
+    if [[ $package_manager == "apt-get" || $package_manager == "zypper" || $package_manager == "yum" ]]; then
         install_docker
     else
         echo ""
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
-        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / Redhat / Cent OS"
+        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / openSUSE / SLES / Redhat / Cent OS"
         echo "https://docs.docker.com/docker-for-mac/install/"
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
         exit 1
@@ -411,7 +430,7 @@ if ! is_command_present docker-compose; then
 fi
 
 # Starting docker service
-if [[ $package_manager == "yum" || $package_manager == "apt-get" ]]; then
+if [[ $package_manager == "yum" || $package_manager == "zypper" || $package_manager == "apt-get" ]]; then
     start_docker
 fi
 
