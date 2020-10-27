@@ -237,6 +237,7 @@ Cypress.Commands.add("CreateApp", appname => {
     "response.body.responseMeta.status",
     201,
   );
+  cy.get("#loading").should("not.exist");
   cy.wait(1000);
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplicationName").should(
@@ -244,7 +245,6 @@ Cypress.Commands.add("CreateApp", appname => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get("h2").contains("Drag and drop a widget here");
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
