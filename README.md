@@ -14,9 +14,6 @@
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 </p>
-  <p>
-    <sub>Built with empathy, not just ❤︎ </sub>
-  </p>
 </div>
 
 -----------------

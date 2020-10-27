@@ -249,6 +249,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                 page.pageId,
               )}
               activeClassName="is-active"
+              className="t--page-switch-tab"
             >
               <span>{page.pageName}</span>
             </PageTab>

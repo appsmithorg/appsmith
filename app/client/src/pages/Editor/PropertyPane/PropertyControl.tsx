@@ -107,6 +107,7 @@ const PropertyControl = (props: Props) => {
               <JSToggleButton
                 active={isDynamic}
                 onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
               >
                 <ControlIcons.JS_TOGGLE />
               </JSToggleButton>

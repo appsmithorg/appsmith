@@ -74,7 +74,11 @@ import { getType, Types } from "utils/TypeHelpers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
+import {
+  getAppMode,
+  getCurrentApplication,
+} from "selectors/applicationSelectors";
 import { evaluateDynamicTrigger, evaluateSingleValue } from "./evaluationsSaga";
 
 function* navigateActionSaga(
@@ -321,10 +325,13 @@ export function* executeActionSaga(
         : event.type === EventType.ON_PREV_PAGE
         ? "PREV"
         : undefined;
+    const appMode = yield select(getAppMode);
+
     const executeActionRequest: ExecuteActionRequest = {
-      action: { id: actionId },
+      actionId: actionId,
       params: actionParams,
       paginationField: pagination,
+      viewMode: appMode === APP_MODE.PUBLISHED,
     };
     const timeout = yield select(getActionTimeout, actionId);
     const response: ActionApiResponse = yield ActionAPI.executeAction(
@@ -529,18 +536,20 @@ function* runActionSaga(
       yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
     const actionObject = yield select(getAction, actionId);
-    const action: ExecuteActionRequest["action"] = { id: actionId };
     const jsonPathKeys = actionObject.jsonPathKeys;
 
     const { paginationField } = reduxAction.payload;
 
     const params = yield call(getActionParams, jsonPathKeys);
     const timeout = yield select(getActionTimeout, actionId);
+    const appMode = yield select(getAppMode);
+    const viewMode = appMode === APP_MODE.PUBLISHED;
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       {
-        action,
+        actionId,
         params,
         paginationField,
+        viewMode,
       },
       timeout,
     );
@@ -623,9 +632,12 @@ function* executePageLoadAction(pageAction: PageAction) {
     getActionParams,
     pageAction.jsonPathKeys,
   );
+  const appMode = yield select(getAppMode);
+  const viewMode = appMode === APP_MODE.PUBLISHED;
   const executeActionRequest: ExecuteActionRequest = {
-    action: { id: pageAction.id },
+    actionId: pageAction.id,
     params,
+    viewMode,
   };
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: pageAction.pluginType,

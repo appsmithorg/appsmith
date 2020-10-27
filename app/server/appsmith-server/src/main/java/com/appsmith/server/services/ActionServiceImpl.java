@@ -19,6 +19,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
@@ -30,7 +31,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ActionRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
@@ -72,13 +71,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final ActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
-    private final PageService pageService;
-    private final ObjectMapper objectMapper;
     private final DatasourceContextService datasourceContextService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final SessionUserService sessionUserService;
     private final MarketplaceService marketplaceService;
     private final PolicyGenerator policyGenerator;
+    private final NewPageService newPageService;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -88,25 +86,23 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              ActionRepository repository,
                              DatasourceService datasourceService,
                              PluginService pluginService,
-                             PageService pageService,
                              AnalyticsService analyticsService,
-                             ObjectMapper objectMapper,
                              DatasourceContextService datasourceContextService,
                              PluginExecutorHelper pluginExecutorHelper,
                              SessionUserService sessionUserService,
                              MarketplaceService marketplaceService,
-                             PolicyGenerator policyGenerator) {
+                             PolicyGenerator policyGenerator,
+                             NewPageService newPageService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
-        this.pageService = pageService;
-        this.objectMapper = objectMapper;
         this.datasourceContextService = datasourceContextService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.sessionUserService = sessionUserService;
         this.marketplaceService = marketplaceService;
         this.policyGenerator = policyGenerator;
+        this.newPageService = newPageService;
     }
 
     private Boolean validateActionName(String name) {
@@ -130,17 +126,17 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .getCurrentUser()
                 .cache();
 
-        return pageService
+        return newPageService
                 .findById(action.getPageId(), READ_PAGES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", action.getPageId())))
                 .zipWith(userMono)
                 .flatMap(tuple -> {
-                    Page page = tuple.getT1();
+                    NewPage page = tuple.getT1();
                     User user = tuple.getT2();
 
                     // Inherit the action policies from the page.
-                    generateAndSetActionPolicies(page, user, action);
+                    generateAndSetActionPolicies(page, action);
 
                     // If the datasource is embedded, check for organizationId and set it in action
                     if (action.getDatasource() != null &&
@@ -554,8 +550,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        return pageService
-                .findNamesByApplicationId(applicationId)
+        // fetch the published pages by application
+        return newPageService
+                .findNamesByApplicationIdAndViewMode(applicationId, true)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, "pages for application", applicationId))
                 )
@@ -615,8 +612,10 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             String finalName = name;
-            return pageService
-                    .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
+            // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
+            // function call is made which takes care of returning only the essential fields of an action
+            return newPageService
+                    .findNamesByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false)
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
                     )
@@ -715,12 +714,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 });
     }
 
-    private void generateAndSetActionPolicies(Page page, User user, Action action) {
-        Set<Policy> policySet = page.getPolicies().stream()
-                .filter(policy -> policy.getPermission().equals(MANAGE_PAGES.getValue())
-                        || policy.getPermission().equals(READ_PAGES.getValue()))
-                .collect(Collectors.toSet());
-        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Page.class, Action.class);
+    private void generateAndSetActionPolicies(NewPage page, Action action) {
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
         action.setPolicies(documentPolicies);
     }
 }

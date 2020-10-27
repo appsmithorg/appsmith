@@ -74,19 +74,20 @@ export const EntityProperties = (props: {
         "CANVAS_WIDGET" | "ICON_WIDGET" | "SKELETON_WIDGET"
       > = entity.type;
       config = entityDefinitions[type];
+      if (config) {
+        if (isFunction(config)) config = config(entity);
 
-      if (isFunction(config)) config = config(entity);
-
-      entityProperties = Object.keys(config)
-        .filter(k => k.indexOf("!") === -1)
-        .map(widgetProperty => {
-          return {
-            propertyName: widgetProperty,
-            entityName: entity.widgetName,
-            value: entity[widgetProperty],
-            step: props.step,
-          };
-        });
+        entityProperties = Object.keys(config)
+          .filter(k => k.indexOf("!") === -1)
+          .map(widgetProperty => {
+            return {
+              propertyName: widgetProperty,
+              entityName: entity.widgetName,
+              value: entity[widgetProperty],
+              step: props.step,
+            };
+          });
+      }
       break;
   }
   return (
