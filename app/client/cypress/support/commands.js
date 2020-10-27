@@ -219,6 +219,13 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     "response.body.responseMeta.status",
     201,
   );
+  cy.wait(1000);
+  cy.get(homePage.applicationName).type(appname + "{enter}");
+  cy.wait("@updateApplicationName").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
 
 Cypress.Commands.add("CreateApp", appname => {
@@ -230,7 +237,7 @@ Cypress.Commands.add("CreateApp", appname => {
     "response.body.responseMeta.status",
     201,
   );
-  cy.wait(2000);
+  cy.wait(1000);
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplicationName").should(
     "have.nested.property",
