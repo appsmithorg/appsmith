@@ -1,4 +1,4 @@
-import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/ActionConstants";
 import { Org } from "./orgConstants";
 
@@ -484,8 +484,4 @@ export interface LoadWidgetSidebarPayload {
 export type InitializeEditorPayload = {
   applicationId: string;
   pageId: string;
-};
-
-export type FetchPageListPayload = {
-  applicationId: string;
 };

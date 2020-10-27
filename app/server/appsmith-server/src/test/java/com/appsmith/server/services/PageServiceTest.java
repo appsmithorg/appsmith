@@ -1,12 +1,21 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -14,18 +23,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,9 +47,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @DirtiesContext
 public class PageServiceTest {
-    @Autowired
-    PageService pageService;
-
     @Autowired
     ApplicationPageService applicationPageService;
 
@@ -49,9 +59,26 @@ public class PageServiceTest {
     @Autowired
     ApplicationService applicationService;
 
+    @Autowired
+    NewPageService newPageService;
+
+    @Autowired
+    NewActionService newActionService;
+
+    @Autowired
+    PluginRepository pluginRepository;
+
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    PluginExecutor pluginExecutor;
+
     Application application = null;
 
     String applicationId = null;
+
+    String orgId;
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -63,7 +90,7 @@ public class PageServiceTest {
     public void setupTestApplication() {
         if (application == null) {
             User apiUser = userService.findByEmail("api_user").block();
-            String orgId = apiUser.getOrganizationIds().iterator().next();
+            orgId = apiUser.getOrganizationIds().iterator().next();
 
             Application newApp = new Application();
             newApp.setName(UUID.randomUUID().toString());
@@ -75,8 +102,8 @@ public class PageServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullName() {
-        Page page = new Page();
-        Mono<Page> pageMono = Mono.just(page)
+        PageDTO page = new PageDTO();
+        Mono<PageDTO> pageMono = Mono.just(page)
                 .flatMap(applicationPageService::createPage);
         StepVerifier
                 .create(pageMono)
@@ -88,9 +115,9 @@ public class PageServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullApplication() {
-        Page page = new Page();
+        PageDTO page = new PageDTO();
         page.setName("Page without application");
-        Mono<Page> pageMono = Mono.just(page)
+        Mono<PageDTO> pageMono = Mono.just(page)
                 .flatMap(applicationPageService::createPage);
         StepVerifier
                 .create(pageMono)
@@ -109,12 +136,12 @@ public class PageServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<Page> pageMono = applicationPageService.createPage(testPage);
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage);
 
         Object parsedJson = new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);
         StepVerifier
@@ -144,17 +171,17 @@ public class PageServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("Before Page Name Change");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<Page> pageMono = applicationPageService.createPage(testPage)
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
                 .flatMap(page -> {
-                    Page newPage = new Page();
+                    PageDTO newPage = new PageDTO();
                     newPage.setId(page.getId());
                     newPage.setName("New Page Name");
-                    return pageService.update(page.getId(), newPage);
+                    return newPageService.updatePage(page.getId(), newPage);
                 });
 
         StepVerifier
@@ -175,6 +202,8 @@ public class PageServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void clonePage() throws ParseException {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
                 .users(Set.of("api_user"))
                 .build();
@@ -182,18 +211,41 @@ public class PageServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Page testPage = new Page();
+        PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest CloneTest Source");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<Page> pageMono = applicationPageService.createPage(testPage)
-                .flatMap(page -> applicationPageService.clonePage(page.getId()));
+        ActionDTO action = new ActionDTO();
+        action.setName("Page Action");
+        action.setActionConfiguration(new ActionConfiguration());
+        Datasource datasource = new Datasource();
+        datasource.setOrganizationId(orgId);
+        datasource.setName("datasource test name for page test");
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        action.setDatasource(datasource);
+
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
+                .flatMap(page -> {
+                    action.setPageId(page.getId());
+                    return newActionService.createAction(action)
+                            .thenReturn(page);
+                })
+                .flatMap(page -> applicationPageService.clonePage(page.getId()))
+                .cache();
+
+
+        Mono<List<NewAction>> actionsMono = pageMono
+                // fetch the actions by new cloned page id.
+                .flatMapMany(page -> newActionService.findByPageId(page.getId(), READ_ACTIONS))
+                .collectList();
 
         Object parsedJson = new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);
         StepVerifier
-                .create(pageMono)
-                .assertNext(page -> {
+                .create(Mono.zip(pageMono, actionsMono))
+                .assertNext(tuple -> {
+                    PageDTO page = tuple.getT1();
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
                     assertThat("PageServiceTest CloneTest Source Copy".equals(page.getName()));
@@ -205,6 +257,11 @@ public class PageServiceTest {
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
                     assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getPublishedDsl()).isNullOrEmpty();
+
+                    // Confirm that the page action got copied as well
+                    List<NewAction> actions = tuple.getT2();
+                    assertThat(actions.size()).isEqualTo(1);
+                    assertThat(actions.get(0).getUnpublishedAction().getName()).isEqualTo("Page Action");
                 })
                 .verifyComplete();
     }
@@ -212,7 +269,7 @@ public class PageServiceTest {
 
     @After
     public void purgeAllPages() {
-        pageService.deleteAll();
+        newPageService.deleteAll();
     }
 
 }

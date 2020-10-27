@@ -202,7 +202,7 @@ Cypress.Commands.add("launchApp", appName => {
     .first()
     .click();
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPagesForApp").should(
+  cy.wait("@getPagesForViewApp").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -232,14 +232,12 @@ Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
-  cy.wait("@createNewApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
-  cy.wait(2000);
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplicationName").should(
+  cy.get(homePage.inputAppName).type(appname);
+  cy.get(homePage.CreateApp)
+    .contains("Submit")
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
+  cy.wait("@getPagesForCreateApp").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -1600,7 +1598,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
   cy.route("GET", "/api/v1/datasources").as("getDataSources");
-  cy.route("GET", "/api/v1/pages/application/*").as("getPagesForApp");
+  cy.route("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
+  cy.route("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
+
   cy.route("POST");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
   cy.route("GET", "/api/v1/actions*").as("getActions");

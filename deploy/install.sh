@@ -314,7 +314,7 @@ echo_contact_support() {
 
 bye() {  # Prints a friendly good bye message and exits the script.
     set +o errexit
-    echo "Please share your email to receive support with the installation"
+    echo "Please review the above errors, and share your email if you wish to receive support with the installation"
     read -rp 'Email: ' email
 
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
@@ -327,7 +327,8 @@ bye() {  # Prints a friendly good bye message and exits the script.
             "email": "'"$email"'"
         }
     }' > /dev/null
-    echo -e "\nExiting for now. Bye! 👋 \n"
+    echo ""
+    echo -e "\nThere was an error with your installation, Exiting for now. Bye! 👋 \n"
     exit 1
 }
 
@@ -367,7 +368,9 @@ else
 fi
 
 if [[ $EUID -eq 0 ]]; then
+    echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "Please do not run this script as root/sudo."
+    echo "++++++++++++++++++++++++++++++++++++++++"
     echo_contact_support
     bye
 fi
@@ -428,10 +431,11 @@ if confirm y "Is this a fresh installation?"; then
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
 else
-    read -rp 'Enter your current mongo db host: ' mongo_host
-    read -rp 'Enter your current mongo root user: ' mongo_root_user
-    read -srp 'Enter your current mongo password: ' mongo_root_password
-    read -rp 'Enter your current mongo database name: ' mongo_database
+    echo 'You are trying to connect to an existing appsmith installation. Abort if you want to install appsmith fresh'
+    read -rp 'Enter your existing appsmith mongo db host: ' mongo_host
+    read -rp 'Enter your existing appsmith mongo root user: ' mongo_root_user
+    read -srp 'Enter your existing appsmith mongo password: ' mongo_root_password
+    read -rp 'Enter your existing appsmith mongo database name: ' mongo_database
     # It is possible that this isn't the first installation.
     echo ""
     # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
