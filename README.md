@@ -40,12 +40,12 @@ Explore more details below, or [quickly start building on your own](#%EF%B8%8F-q
 ## 🏭 Features
 
 * **5-minute setup**: Deploy Appsmith on your server, or use our cloud version to start building in 5 minutes. [Quick Start](#%EF%B8%8F-quickstart)
-* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anywhere to transform data, and dynamically control widget-properties. [Read more here.](https://docs.appsmith.com/core-concepts/building-the-ui)
+* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anywhere to transform data, and dynamically control widget-properties.
 * **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**.
 * **Trigger APIs**: Connect to internal or external REST and GraphQL APIs to build custom apps.
 * **Security**: DB Credentials are AES 256 encrypted and no data is stored by appsmith. Deploy behind your private VPC for additional security!
 * **One-click deployment**: Managed deployment of your apps with a click of a button.
-* **Access-control**: Control who can edit / view your applications. [Read more here.](https://docs.appsmith.com/core-concepts/access-control)
+* **Access-control**: Assign users different roles & control who can edit / view your applications.
 * **Supports OAuth**: Allow users to authenticate via Google Auth or GitHub Auth.
 
 ## 📺 Demo
