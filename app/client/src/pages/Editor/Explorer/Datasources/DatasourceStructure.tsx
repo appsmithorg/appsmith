@@ -66,10 +66,14 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
         onClosed={() => {
           setActive(false);
         }}
+        isOpen={active}
         className={`${EntityClassNames.CONTEXT_MENU} t--structure-template-menu`}
         minimal
         position={Position.RIGHT_TOP}
         boundary={"viewport"}
+        onInteraction={val => {
+          setActive(val);
+        }}
       >
         {lightningMenu}
         <QueryTemplates
@@ -89,6 +93,7 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
       step={props.step}
       active={active}
       contextMenu={templateMenu}
+      action={() => setActive(!active)}
     >
       {columnsAndKeys.map((field, index) => {
         return (
