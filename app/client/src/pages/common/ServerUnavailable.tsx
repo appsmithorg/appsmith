@@ -8,7 +8,7 @@ const Wrapper = styled.div`
   text-align: center;
   margin-top: 5%;
   .bold-text {
-    font-weight: ${props => props.theme.fontWeights[3]};
+    font-weight: ${(props) => props.theme.fontWeights[3]};
     font-size: 24px;
   }
   .page-unavailable-img {
@@ -31,15 +31,15 @@ const ServerUnavailable = () => {
         <p className="bold-text">Appsmith server is unavailable</p>
         <p>Please try again after some time</p>
         <Button
-              filled
-              text="Go back to homepage"
-              intent="primary"
-              icon="arrow-right"
-              iconAlignment="right"
-              size="small"
-              className="button-position"
-              onClick={() => this.props.history.push(APPLICATIONS_URL)}
-            />
+          filled
+          text="Go back to homepage"
+          intent="primary"
+          icon="arrow-right"
+          iconAlignment="right"
+          size="small"
+          className="button-position"
+          onClick={() => this.props.history.push(APPLICATIONS_URL)}
+        />
       </div>
     </Wrapper>
   );
