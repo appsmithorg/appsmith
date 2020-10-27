@@ -29,6 +29,7 @@ import ColumnActionSelectorControl from "components/propertyControls/ColumnActio
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
 import AdditionalColumnsControl from "components/propertyControls/AdditionalColumnsControl";
 import ColorPickerControl from "components/propertyControls/ColorPickerControl";
+import ComputeTablePropertyControl from "components/propertyControls/ComputeTablePropertyControl";
 import IconTabControl, {
   IconTabControlProps,
 } from "components/propertyControls/IconTabControl";
@@ -59,6 +60,7 @@ export const PropertyControls = {
   AdditionalColumnsControl,
   IconTabControl,
   ButtonTabControl,
+  ComputeTablePropertyControl,
 };
 
 export type PropertyControlPropsType =

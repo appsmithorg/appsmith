@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import styled, { AnyStyledComponent } from "styled-components";
-import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -49,7 +48,7 @@ const PanelHeader = (props: PanelHeaderProps) => {
       <StyledBackIcon onClick={props.closePanel} />
       <PropertyTitleEditor
         title={props.title}
-        updatePropertyTitle={noop}
+        updatePropertyTitle={props.updatePropertyTitle}
         onClose={props.hidePropertyPane}
       />
     </PaneTitleWrapper>
@@ -98,6 +97,16 @@ export const PanelPropertiesEditor = (
         hidePropertyPane={hidePropertyPane}
         closePanel={closePanel}
         title={panelProps[panelConfig.titlePropertyName]}
+        updatePropertyTitle={(title: string) => {
+          if (props.panelProps) {
+            props.onPropertyChange(
+              `${props.panelProps[panelConfig.panelIdPropertyName]}.${
+                panelConfig.titlePropertyName
+              }`,
+              title,
+            );
+          }
+        }}
       />
       {generatePropertyControl(
         panelConfig.children as PropertyPaneConfig[],
@@ -128,6 +137,7 @@ interface PanelHeaderProps {
   title: string;
   closePanel: () => void;
   propertyName: string;
+  updatePropertyTitle: (title: string) => void;
 }
 
 export default PanelPropertiesEditor;

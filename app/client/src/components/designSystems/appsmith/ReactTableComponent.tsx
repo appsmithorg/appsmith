@@ -43,17 +43,17 @@ interface ReactTableComponentProps {
   width: number;
   height: number;
   pageSize: number;
-  tableData: object[];
+  tableData: Array<Record<string, unknown>>;
   columnOrder?: string[];
   primaryColumns?: ColumnProperties[];
   disableDrag: (disable: boolean) => void;
-  onRowClick: (rowData: object, rowIndex: number) => void;
+  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-  updatePageNo: Function;
+  updatePageNo: (pageNo: number) => void;
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
-  nextPageClick: Function;
-  prevPageClick: Function;
+  nextPageClick: () => void;
+  prevPageClick: () => void;
   pageNo: number;
   serverSidePaginationEnabled: boolean;
   columnActions?: ColumnAction[];
@@ -61,7 +61,7 @@ interface ReactTableComponentProps {
   selectedRowIndices: number[];
   multiRowSelection?: boolean;
   hiddenColumns?: string[];
-  handleReorderColumn: Function;
+  handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -183,7 +183,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
 
   const updateColumnType = (columnIndex: number, columnType: string) => {
     updateColumnProperties(columnIndex, {
-      type: columnType,
+      columnType: columnType,
       format: undefined,
     });
   };
@@ -199,7 +199,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     currencySymbol: string,
   ) => {
     updateColumnProperties(columnIndex, {
-      type: "currency",
+      columnType: "currency",
       format: {
         output: currencySymbol,
       },
@@ -212,7 +212,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     dateInputFormat?: string,
   ) => {
     updateColumnProperties(columnIndex, {
-      type: "date",
+      columnType: "date",
       format: {
         output: dateFormat,
         input: dateInputFormat,
@@ -243,7 +243,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const selectTableRow = (
-    row: { original: object; index: number },
+    row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
   ) => {
     if (!isSelected || !!props.multiRowSelection) {

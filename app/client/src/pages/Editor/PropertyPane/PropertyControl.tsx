@@ -68,7 +68,12 @@ const PropertyControl = (props: Props) => {
       if (props.panelConfig && propertyName.split(".").length > 1) {
         const panelConfig = props.panelConfig;
         const paths = propertyName.split(".");
-
+        console.log(
+          props.widgetProperties,
+          props.propertyName,
+          props.widgetProperties[props.propertyName],
+          paths,
+        );
         const ind = props.widgetProperties[props.propertyName].findIndex(
           (entry: any) => {
             return entry[panelConfig.panelIdPropertyName] === paths[0];

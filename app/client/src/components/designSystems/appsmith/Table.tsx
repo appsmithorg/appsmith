@@ -32,18 +32,18 @@ interface TableProps {
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
-  data: object[];
+  data: Array<Record<string, unknown>>;
   editMode: boolean;
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: Function;
+  handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   selectTableRow: (
-    row: { original: object; index: number },
+    row: { original: any; index: number },
     isSelected: boolean,
   ) => void;
   pageNo: number;
-  updatePageNo: Function;
+  updatePageNo: (pageNo: number) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;

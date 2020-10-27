@@ -699,7 +699,7 @@ export const TableHeaderCell = (props: {
   handleColumnNameUpdate: (columnIndex: number, name: string) => void;
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: Function;
+  handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   column: any;
 }) => {
   const { column } = props;
@@ -776,7 +776,9 @@ export const TableHeaderCell = (props: {
   );
 };
 
-export const getAllTableColumnKeys = (tableData: object[]) => {
+export const getAllTableColumnKeys = (
+  tableData: Array<Record<string, unknown>>,
+) => {
   const columnKeys: string[] = [];
   for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
     const row = tableData[i];
@@ -825,7 +827,7 @@ export const reorderColumns = (
 };
 
 export function sortTableFunction(
-  filteredTableData: object[],
+  filteredTableData: Array<Record<string, unknown>>,
   columns: ReactTableColumnProps[],
   sortedColumn: string,
   sortOrder: boolean,
@@ -975,7 +977,7 @@ export function getDefaultColumnProperties(
     id: accessor,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
-    type: ColumnTypes.TEXT,
+    columnType: ColumnTypes.TEXT,
     textColor: Colors.BLUE_BAYOUX,
     textSize: TextSizes.PARAGRAPH,
     fontStyle: FontStyleTypes.NORMAL,
@@ -984,5 +986,6 @@ export function getDefaultColumnProperties(
     isVisible: true,
     isDerived: false,
     label: accessor,
+    computedValue: "",
   };
 }
