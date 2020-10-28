@@ -27,11 +27,22 @@ This command will create 2 files in the `docker/` directory:
 ```bash
 echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
 ```
+Note:
+- Please be careful when copying the above string as space between the ip and the string goes missing sometimes.
+- Please check that the string has been copied properly by running
+```
+cat /etc/hosts | grep appsmith
+```
 
 3. Run the script `start-https.sh` in order to start the nginx container that will proxy the frontend code on your local system.
 ```bash
 cd app/client
 ./start-https.sh
+```
+Note:
+- If you see the following error: `Please populate the .env at the root of the project and run again`, then run the following cmd and try again:
+```
+cp ../../.env.example ../../.env
 ```
 
 #### WSL (Windows Subsystem for Linux)
@@ -45,6 +56,11 @@ cd app/client
 ### Steps to build & run the code:
 1. Run `yarn`
 2. Run `yarn start`
+Note:
+- On Ubuntu Linux platform, please run the following cmd before step 2 above:
+```
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+```
 
 🎉 Your Appsmith client is now running on https://dev.appsmith.com.
 
@@ -59,11 +75,12 @@ node versions to be used in different projects. Check below for installation and
 2. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
 
 #### If you would like to hit a different Appsmith server:
-- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). 
+- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). By default it points to the cloud hosted server https://release-api.appsmith.com. If you want it to point to your local instance, then replace all such ip instances with https://localhost:8080 
 - Run `start-https.sh` script again.
 - Run
-```bash
-REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start
+```
+yarn
+yarn start
 ```
 
 
@@ -74,3 +91,9 @@ REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start
 3. Generate the certificates manually via `mkcert`. Check the command in `start-https-server.sh` file.
 4. Change the value of the certificate location for keys `ssl_certificate` & `ssl_certificate_key` to the place where these certificates were generated.
 5. If you ran `./start-https`, but containers failed to start (you have to check with `docker ps` since it fails silently). Some Linux distros (`Ubuntu` for example) have installed and running `apache2` webserver on port `80`. This can result in `Address already in use` error (you can check with `docker logs wildcard-nginx`). Simple solution for this is simply turning it off temporarily with `sudo systemctl stop apache2`. After that just run `./start-https` again.
+
+
+## Need Help
+If you facing issues while doing the setup:
+- Please re-read all the steps and make sure you follow all instructions.
+- In case step (1) does not resolve your issue, please send an email to support@appsmith.com . We will be happy to help you.
