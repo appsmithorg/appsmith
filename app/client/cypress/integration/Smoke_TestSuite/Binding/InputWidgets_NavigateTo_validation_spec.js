@@ -29,9 +29,6 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
 
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
-    cy.addDsl(dsl2);
-    cy.wait(500);
-    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
   it("Validate NavigateTo Page functionality ", function() {
