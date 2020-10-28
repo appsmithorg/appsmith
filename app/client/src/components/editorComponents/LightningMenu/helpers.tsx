@@ -62,7 +62,7 @@ export const getApiOptions = (
     text: LIGHTNING_MENU_DATA_API,
   },
   openDirection: Directions.RIGHT,
-  openOnHover: false,
+  openOnHover: true,
   skin: skin,
   modifiers: {
     offset: {
