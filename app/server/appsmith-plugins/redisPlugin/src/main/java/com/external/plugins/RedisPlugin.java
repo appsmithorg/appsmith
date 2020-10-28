@@ -131,6 +131,9 @@ public class RedisPlugin extends BasePlugin {
                 if (StringUtils.isNullOrEmpty(endpoint.getHost())) {
                     invalids.add("Missing host for endpoint");
                 }
+                if (endpoint.getPort() == null) {
+                    invalids.add("Missing port for endpoint");
+                }
             }
 
             AuthenticationDTO auth = datasourceConfiguration.getAuthentication();
