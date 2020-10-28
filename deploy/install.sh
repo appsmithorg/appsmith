@@ -448,6 +448,16 @@ if [[ -e "$install_dir" ]]; then
     echo "The path '$install_dir' is already present. Please run the script again with a different path to install new."
     echo "If you're trying to update your existing installation, that happens automatically through WatchTower."
     echo_contact_support " if you're facing problems with the auto-updates."
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "Directory Exists"
+        }
+    }' > /dev/null
     exit 1
 fi
 
@@ -461,6 +471,16 @@ if ! is_command_present docker; then
         echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / openSUSE / SLES / Redhat / Cent OS"
         echo "https://docs.docker.com/docker-for-mac/install/"
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Error",
+            "data": {
+                "os": "'"$os"'",
+                "error": "Docker not installed"
+            }
+        }' > /dev/null
         exit 1
     fi
 fi
@@ -638,6 +658,16 @@ if [[ $status_code -ne 401 ]]; then
     echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "Containers not started"
+        }
+    }' > /dev/null
     exit 1
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
