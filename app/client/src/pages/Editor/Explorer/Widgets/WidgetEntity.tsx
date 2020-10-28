@@ -143,6 +143,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       contextMenu={props.pageId === pageId && contextMenu}
     >
       {props.childWidgets &&
+        props.childWidgets.length > 0 &&
         props.childWidgets.map(child => (
           <WidgetEntity
             step={props.step + 1}
@@ -155,24 +156,26 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
             pageId={props.pageId}
           />
         ))}
-      {!props.childWidgets && pageId === props.pageId && (
-        <CurrentPageEntityProperties
-          key={props.widgetId}
-          entityType={ENTITY_TYPE.WIDGET}
-          entityName={props.widgetName}
-          step={props.step + 1}
-        />
-      )}
-      {!props.childWidgets && pageId !== props.pageId && (
-        <EntityProperties
-          key={props.widgetId}
-          entityType={ENTITY_TYPE.WIDGET}
-          entityName={props.widgetName}
-          step={props.step + 1}
-          pageId={props.pageId}
-          entityId={props.widgetId}
-        />
-      )}
+      {!(props.childWidgets && props.childWidgets.length > 0) &&
+        pageId === props.pageId && (
+          <CurrentPageEntityProperties
+            key={props.widgetId}
+            entityType={ENTITY_TYPE.WIDGET}
+            entityName={props.widgetName}
+            step={props.step + 1}
+          />
+        )}
+      {!(props.childWidgets && props.childWidgets.length > 0) &&
+        pageId !== props.pageId && (
+          <EntityProperties
+            key={props.widgetId}
+            entityType={ENTITY_TYPE.WIDGET}
+            entityName={props.widgetName}
+            step={props.step + 1}
+            pageId={props.pageId}
+            entityId={props.widgetId}
+          />
+        )}
     </Entity>
   );
 });
