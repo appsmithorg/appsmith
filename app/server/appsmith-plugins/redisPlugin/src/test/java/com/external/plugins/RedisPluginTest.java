@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import redis.clients.jedis.Jedis;
@@ -25,7 +26,7 @@ import java.util.Set;
 @Slf4j
 public class RedisPluginTest {
     @ClassRule
-    public static final GenericContainer redis = new GenericContainer("redis:5.0.3-alpine")
+    public static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:5.0.3-alpine"))
             .withExposedPorts(6379);
     private static String host;
     private static Integer port;

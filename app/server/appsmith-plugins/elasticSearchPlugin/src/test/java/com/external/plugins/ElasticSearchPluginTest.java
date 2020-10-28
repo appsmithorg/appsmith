@@ -45,10 +45,10 @@ public class ElasticSearchPluginTest {
     @BeforeClass
     public static void setUp() throws IOException {
         port = container.getMappedPort(9200);
-        host = container.getContainerIpAddress();
+        host = "http://" + container.getContainerIpAddress();
 
         final RestClient client = RestClient.builder(
-                new HttpHost(host, port, "http")
+                new HttpHost(container.getContainerIpAddress(), port, "http")
         ).build();
 
         Request request;
@@ -241,7 +241,7 @@ public class ElasticSearchPluginTest {
     }
 
     @Test
-    public void itShouldValidateDatasourceWithInvalidEndpoint() {
+    public void itShouldValidateDatasourceWithMissingEndpoint() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
         Endpoint endpoint = new Endpoint();
@@ -249,5 +249,42 @@ public class ElasticSearchPluginTest {
 
         Assert.assertEquals(Set.of("Missing port for endpoint", "Missing host for endpoint"),
                 pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithEndpointNoProtocol() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("localhost");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(Set.of("Invalid host provided. It should be of the form http(s)://your-es-url.com"),
+                pluginExecutor.validateDatasource(datasourceConfiguration)
+        );
+    }
+
+    @Test
+    public void itShouldTestDatasourceWithInvalidEndpoint() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("localhost");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
+                .assertNext(result -> {
+                    assertFalse(result.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldTestDatasource() {
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(result -> {
+                    assertTrue(result.getInvalids().isEmpty());
+                })
+                .verifyComplete();
     }
 }
