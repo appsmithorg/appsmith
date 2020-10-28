@@ -68,7 +68,9 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.get("@createDatasource").then(httpResponse => {
       const datasourceName = httpResponse.response.body.data.name;
       cy.GlobalSearchEntity(`${datasourceName}`);
-      cy.get(`.t--entity-name:contains(${datasourceName})`).click();
+      cy.get(`.t--entity-name:contains(${datasourceName})`)
+        .last()
+        .click();
     });
     cy.deleteDataSource();
   });

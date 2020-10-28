@@ -5,6 +5,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { WidgetIcons } from "icons/WidgetIcons";
 import { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
+import QueryImageOutline from "assets/images/query-image-outline.png";
 import styled from "styled-components";
 import {
   HTTP_METHODS,
@@ -47,10 +48,34 @@ export const apiIcon = (
   <ApiIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
 );
 
-const QueryIcon = MenuIcons.DATASOURCES_COLORED_ICON;
-export const queryIcon = (
-  <QueryIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
+const DBQueryIcon = MenuIcons.DATASOURCES_COLORED_ICON;
+export const dbQueryIcon = (
+  <DBQueryIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
 );
+
+const QueryIconWrapper = styled.div`
+  position: relative;
+  .inner-image {
+    position: absolute;
+    top: 5px;
+    left: 1.1px;
+    height: 11px;
+    width: 11px;
+  }
+  .outer-image {
+    height: 18px;
+    width: 14px;
+  }
+`;
+
+export const QueryIcon = (props: { plugin: Plugin }) => {
+  return (
+    <QueryIconWrapper>
+      <img src={props.plugin.iconLocation} className="inner-image" />
+      <img src={QueryImageOutline} className="outer-image" />
+    </QueryIconWrapper>
+  );
+};
 
 const DataSourceIcon = MenuIcons.DATASOURCES_ICON;
 export const datasourceIcon = (
@@ -112,7 +137,6 @@ export const getWidgetIcon = (type: WidgetType) => {
 const PluginIcon = styled.img`
   height: ${ENTITY_ICON_SIZE}px;
   width: ${ENTITY_ICON_SIZE}px;
-  margin-right: 4px;
 `;
 
 export const getPluginIcon = (plugin?: Plugin) => {

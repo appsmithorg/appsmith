@@ -9,13 +9,7 @@ describe("Entity explorer API pane related testcases", function() {
     cy.NavigateToWidgetsInExplorer();
     cy.get(explorer.NoWidgetsMsg).should("be.visible");
     cy.NavigateToAPI_Panel();
-    cy.get(explorer.NoApiMsg)
-      .should("be.visible")
-      .should("be.visible");
     cy.NavigateToQueriesInExplorer();
-    cy.get(explorer.NoQueryMsg)
-      .should("be.visible")
-      .should("be.visible");
     cy.reload();
   });
 
