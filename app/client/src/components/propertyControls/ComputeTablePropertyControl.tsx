@@ -64,8 +64,11 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
       dataTreePath,
       validationMessage,
     } = this.props;
-    const value = propertyValue.substring(35, propertyValue.length - 3);
-    console.log("value", value);
+    const value = propertyValue.substring(
+      `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => `
+        .length,
+      propertyValue.length - 3,
+    );
     return (
       <InputText
         label={label}
@@ -84,8 +87,7 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
     if (typeof event !== "string") {
       value = event.target.value;
     }
-    const computedValue = `{{this.tableData.map((currentRow) => ${value})}}`;
-    console.log("computedValue", computedValue);
+    const computedValue = `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => ${value})}}`;
     this.updateProperty(this.props.propertyName, computedValue);
   };
 

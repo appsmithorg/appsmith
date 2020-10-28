@@ -818,6 +818,24 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (!tableData || !tableData.length) {
       return [];
     }
+    const derivedTableData: Array<Record<string, unknown>> = [...tableData];
+    if (this.props.derivedColumns) {
+      for (let i = 0; i < this.props.derivedColumns.length; i++) {
+        const column: ColumnProperties = this.props.derivedColumns[i];
+        const columnId = column.id;
+        if (column.computedValue) {
+          const computedValues: Array<unknown> = JSON.parse(
+            column.computedValue,
+          );
+          for (let index = 0; index < computedValues.length; index++) {
+            derivedTableData[index] = {
+              ...derivedTableData[index],
+              [columnId]: computedValues[index],
+            };
+          }
+        }
+      }
+    }
     let sortedTableData: any[];
     const columns = this.getTableColumns();
     const searchKey = searchText ? searchText.toUpperCase() : "";
@@ -825,13 +843,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const sortColumn = sortedColumn.column;
       const sortOrder = sortedColumn.asc;
       sortedTableData = sortTableFunction(
-        tableData,
+        derivedTableData,
         columns,
         sortColumn,
         sortOrder,
       );
     } else {
-      sortedTableData = [...tableData];
+      sortedTableData = [...derivedTableData];
     }
     return sortedTableData.filter((item: { [key: string]: any }) => {
       const searchFound = searchKey
@@ -949,6 +967,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("selectedRows", []);
       this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
     }
+    // if (
+    //   JSON.stringify(this.props.derivedColumns) !==
+    //   JSON.stringify(prevProps.derivedColumns)
+    // ) {
+    //   const filteredTableData = this.filterTableData();
+    //   this.props.updateWidgetMetaProperty(
+    //     "filteredTableData",
+    //     filteredTableData,
+    //   );
+    //   if (!this.props.multiRowSelection) {
+    //     this.props.updateWidgetMetaProperty(
+    //       "selectedRow",
+    //       this.getSelectedRow(filteredTableData),
+    //     );
+    //   } else {
+    //     this.props.updateWidgetMetaProperty(
+    //       "selectedRows",
+    //       filteredTableData.filter(
+    //         (item: Record<string, unknown>, i: number) => {
+    //           return this.props.selectedRowIndices.includes(i);
+    //         },
+    //       ),
+    //     );
+    //   }
+    // }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       if (this.props.multiRowSelection) {
         const selectedRowIndices = this.props.selectedRowIndex
