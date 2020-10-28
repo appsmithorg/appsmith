@@ -54,7 +54,7 @@ axiosInstance.interceptors.response.use(
       return Promise.reject({
         ...error,
         message:
-          "Appsmith server is unavailable, please try again after some time",
+          "Appsmith server is taking too long to respond. Please try again after some time",
       });
     }
     if (error.config && error.config.url.match(executeActionRegex)) {
