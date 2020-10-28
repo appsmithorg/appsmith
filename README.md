@@ -50,6 +50,16 @@ When we build internal tools today, we turn to admin panels, UI frameworks or us
 Appsmith is a quicker way of building internal tools by visualising them as modular blocks (**Widgets, APIs, Queries, JS**) and giving developers a simple user interface to configure them. Building new features, creating UI, changing dataflows, and modifying business logic becomes simpler because you no longer have to trudge through large undocumented code bases or wrestle with HTML/CSS. 
 Appsmith doesn't take the fun out of coding, because it treats every block as an object and exposes it via javascript so that you can read, transform and manipulate it. Whether it's a widget, API or query, you get to decide where you need to configure using UI and where you need to code.
 
+
+## Services Provided By AppSmith
+
+* Custom Software 
+* Filemaker Assistance
+* Rapid Development
+* Stalled Projects
+
+
+
 ## 🏭 Features
 
 * **5 minute setup**: Deploy Appsmith on your servers in 5 minutes.
