@@ -55,12 +55,13 @@ cp ../../.env.example ../../.env
 
 ### Steps to build & run the code:
 1. Run `yarn`
-2. Run `yarn start`
+
 Note:
-- On Ubuntu Linux platform, please run the following cmd before step 2 above:
+- On Ubuntu Linux platform, please run the following cmd before step 2 below:
 ```
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 ```
+2. Run `yarn start`
 
 🎉 Your Appsmith client is now running on https://dev.appsmith.com.
 
@@ -75,7 +76,7 @@ node versions to be used in different projects. Check below for installation and
 2. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
 
 #### If you would like to hit a different Appsmith server:
-- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). By default it points to the cloud hosted server https://release-api.appsmith.com. If you want it to point to your local instance, then replace all such ip instances with https://localhost:8080 
+- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). By default it points to the cloud hosted server https://release-api.appsmith.com. If you want it to point to your local instance, then replace all such ip instances with `https://host.docker.internal:8080` for macOS or `http://localhost:8080` for Ubuntu. Please note that the communication with localhost uses http protocol instead of https.
 - Run `start-https.sh` script again.
 - Run
 ```
@@ -96,4 +97,5 @@ yarn start
 ## Need Assistance
 If you are unable to resolve any issue while doing the setup:
 - Please re-read all the steps and make sure you follow all instructions.
-- In case step (1) does not resolve your issue, please send an email to support@appsmith.com . Team Appsmith will be happy to help you.
+- In case step (1) does not resolve your issue, please send an email to support@appsmith.com. Team Appsmith will be happy to help you.
+- In case you notice any discrepancy, please raise an issue on github and/or send an email to support@appsmith.com.
