@@ -29,11 +29,12 @@ export const EntityProperties = memo(
       );
     });
     let entity: any;
-    const widgetEntity = useSelector(
-      (state: AppState) => state.ui.pageWidgets[props.pageId][props.entityId],
-    );
-
-    console.log({ widgetEntity });
+    const widgetEntity = useSelector((state: AppState) => {
+      const pageWidgets = state.ui.pageWidgets[props.pageId];
+      if (pageWidgets) {
+        return pageWidgets[props.entityId];
+      }
+    });
 
     if (props.pageId && widgetEntity) {
       entity = widgetEntity;

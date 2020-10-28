@@ -391,12 +391,6 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
-        payload: {
-          pageId: response.data.id,
-        },
-      });
       history.push(
         BUILDER_PAGE_URL(
           createPageAction.payload.applicationId,
@@ -493,12 +487,15 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
           response.data.layouts[0].id,
         ),
       );
+      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
+          dsl: extractCurrentDSL(response),
         },
       });
+
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }
   } catch (error) {
