@@ -32,6 +32,8 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -107,7 +109,18 @@ public class ElasticSearchPlugin extends BasePlugin {
             final List<HttpHost> hosts = new ArrayList<>();
 
             for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                hosts.add(new HttpHost(endpoint.getHost(), endpoint.getPort().intValue(), "http"));
+                URL url;
+                try {
+                    url = new URL(endpoint.getHost());
+                } catch (MalformedURLException e) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid host provided. It should be of the form http(s)://your-es-url.com"));
+                }
+                String scheme = "http";
+                if (url.getProtocol() != null) {
+                    scheme = url.getProtocol();
+                }
+
+                hosts.add(new HttpHost(url.getHost(), endpoint.getPort().intValue(), scheme));
             }
 
             final RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[]{}));
@@ -156,6 +169,22 @@ public class ElasticSearchPlugin extends BasePlugin {
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add("No endpoint provided. Please provide a host:port where ElasticSearch is reachable.");
+            } else {
+                for(Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    if (endpoint.getHost() == null) {
+                        invalids.add("Missing host for endpoint");
+                    } else {
+                        try {
+                            URL url = new URL(endpoint.getHost());
+                        } catch (MalformedURLException e) {
+                            invalids.add("Invalid host provided. It should be of the form http(s)://your-es-url.com");
+                        }
+                    }
+
+                    if (endpoint.getPort() == null) {
+                        invalids.add("Missing port for endpoint");
+                    }
+                }
             }
 
             return invalids;
