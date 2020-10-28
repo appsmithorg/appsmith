@@ -638,19 +638,7 @@ if [[ $status_code -ne 401 ]]; then
     echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
-    echo ""
-    echo "Please share your email to receive help with the installation"
-    read -rp 'Email: ' email
-    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
-      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
-      "event": "Installation Support",
-      "data": {
-          "os": "'"$os"'",
-          "email": "'"$email"'"
-       }
-    }' > /dev/null
+    exit 1
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
