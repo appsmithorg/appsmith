@@ -80,6 +80,6 @@ docker run -p 127.0.0.1:6379:6379 --name appsmith-redis redis
 When using this command, the value of `APPSMITH_REDIS_URI` should be set to `redis://localhost:6379`.
 
 ## Need Assistance
-If you facing issues while doing the setup:
+If you are unable to resolve any issue while doing the setup:
 - Please re-read all the steps and make sure you follow all instructions.
 - In case step (1) does not resolve your issue, please send an email to support@appsmith.com . Team Appsmith will be happy to help you.
