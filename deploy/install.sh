@@ -706,5 +706,4 @@ else
        }
     }' > /dev/null
 fi
-set +o errexit
 echo -e "\nPeace out ✌️\n"
