@@ -41,7 +41,7 @@ check_ports_occupied() {
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
-        bye
+        exit 0
     fi
 }
 
@@ -59,16 +59,7 @@ install_docker() {
         $apt_cmd update
         echo "Installing docker"
         $apt_cmd install docker-ce docker-ce-cli containerd.io
-    elif [[ $package_manager == zypper ]]; then
-        zypper_cmd="sudo zypper --quiet --no-gpg-checks --non-interactive"
-        echo "Installing docker"
-        if [[ $os == sles ]]; then
-            os_sp="$(cat /etc/*-release | awk -F= '$1 == "VERSION_ID" { gsub(/"/, ""); print $2; exit }')"
-            os_arch="$(uname -i)"
-            sudo SUSEConnect -p sle-module-containers/$os_sp/$os_arch -r ''
-        fi
-        $zypper_cmd install docker docker-runc containerd
-        sudo systemctl enable docker.service 
+
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
@@ -81,7 +72,7 @@ install_docker() {
 }
 
 install_docker_compose() {
-    if [[ $package_manager == "apt-get" || $package_manager == "zypper" || $package_manager == "yum" ]]; then
+    if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
         if [[ ! -f /usr/bin/docker-compose ]];then
             echo "++++++++++++++++++++++++"
             echo "Installing docker-compose"
@@ -106,7 +97,7 @@ install_docker_compose() {
         echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
         echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
         echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        bye
+        exit 0
     fi
 }
 
@@ -147,16 +138,6 @@ check_os() {
             desired_os=1
             os="centos"
             package_manager="yum"
-            ;;
-        SLES*)
-            desired_os=1
-            os="sles"
-            package_manager="zypper"
-            ;;
-        openSUSE*)
-            desired_os=1
-            os="opensuse"
-            package_manager="zypper"
             ;;
         *)
             desired_os=0
@@ -352,9 +333,9 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
-    set +o errexit
-    echo "Please review the above errors, and share your email if you wish to receive support with the installation"
+    echo "Please review errors & share your email to receive support with the installation"
     read -rp 'Email: ' email
+    set +o errexit
 
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
@@ -366,8 +347,7 @@ bye() {  # Prints a friendly good bye message and exits the script.
             "email": "'"$email"'"
         }
     }' > /dev/null
-    echo ""
-    echo -e "\nThere was an error with your installation, Exiting for now. Bye! 👋 \n"
+    echo -e "\nExiting for now. Bye! 👋 \n"
     exit 1
 }
 
@@ -396,10 +376,9 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
    }
 }' > /dev/null
 
-if [[ $desired_os -eq 0 ]];then
+if [[ true ]];then
     echo ""
-    echo "This script is currently meant to install Appsmith on Mac OS X, Ubuntu, SLES or openSUSE machines."
-    echo_contact_support " if you wish to extend this support."
+    echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu machines."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
@@ -410,17 +389,14 @@ if [[ $desired_os -eq 0 ]];then
             "error": "OS Not Supported"
         }
     }' > /dev/null
-    bye
+    exit 0
 else
     echo "🙌 You're on an OS that is supported by this installation script."
     echo ""
 fi
 
 if [[ $EUID -eq 0 ]]; then
-    echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "Please do not run this script as root/sudo."
-    echo "++++++++++++++++++++++++++++++++++++++++"
-    echo_contact_support
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
@@ -431,7 +407,7 @@ if [[ $EUID -eq 0 ]]; then
             "error": "Running as Root"
         }
     }' > /dev/null
-    bye
+    exit 0
 fi
 
 check_ports_occupied
@@ -452,15 +428,15 @@ fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
 if ! is_command_present docker; then
-    if [[ $package_manager == "apt-get" || $package_manager == "zypper" || $package_manager == "yum" ]]; then
+    if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
         install_docker
     else
         echo ""
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
-        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / openSUSE / SLES / Redhat / Cent OS"
+        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / Redhat / Cent OS"
         echo "https://docs.docker.com/docker-for-mac/install/"
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
-        exit 1
+        exit 0
     fi
 fi
 
@@ -470,7 +446,7 @@ if ! is_command_present docker-compose; then
 fi
 
 # Starting docker service
-if [[ $package_manager == "yum" || $package_manager == "zypper" || $package_manager == "apt-get" ]]; then
+if [[ $package_manager == "yum" || $package_manager == "apt-get" ]]; then
     start_docker
 fi
 
@@ -490,11 +466,10 @@ if confirm y "Is this a fresh installation?"; then
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
 else
-    echo 'You are trying to connect to an existing appsmith installation. Abort if you want to install appsmith fresh'
-    read -rp 'Enter your existing appsmith mongo db host: ' mongo_host
-    read -rp 'Enter your existing appsmith mongo root user: ' mongo_root_user
-    read -srp 'Enter your existing appsmith mongo password: ' mongo_root_password
-    read -rp 'Enter your existing appsmith mongo database name: ' mongo_database
+    read -rp 'Enter your current mongo db host: ' mongo_host
+    read -rp 'Enter your current mongo root user: ' mongo_root_user
+    read -srp 'Enter your current mongo password: ' mongo_root_password
+    read -rp 'Enter your current mongo database name: ' mongo_database
     # It is possible that this isn't the first installation.
     echo ""
     # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
