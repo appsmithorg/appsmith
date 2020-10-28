@@ -94,6 +94,6 @@ yarn start
 
 
 ## Need Assistance
-If you facing issues while doing the setup:
+If you are unable to resolve any issue while doing the setup:
 - Please re-read all the steps and make sure you follow all instructions.
 - In case step (1) does not resolve your issue, please send an email to support@appsmith.com . Team Appsmith will be happy to help you.
