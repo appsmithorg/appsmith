@@ -38,10 +38,11 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 ./build.sh
 ```
 Note:
-- On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with roon privilege as well.
+- If you want to skip tests, you can pass -DskipTests flag to the build cmd.
+- On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
 - On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd like:
 ```
-sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./buid.sh
+sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
 ```
 - If the volume containing docker's data root path (macOS: ~/Library/Containers/com.docker.docker/Data/vms/0/, Ubuntu: /var/lib/docker/) has less than 2 GB space free, then the script may fail with the following error: Check failed: Docker environment should have more than 2GB free disk space. There are two ways to resolve this issue (1) free up space (2) change docker's data root path.
 
@@ -57,7 +58,7 @@ By default, the server will start on port 8080.
 
 7. When the server starts, it automatically runs migrations on MongoDB and will populate it with some initial required data.
 
-8. You can check the status of the server by hitting the endpoint: [http://localhost:8080](http://localhost:8080) on your browser. By default you should see a HTTP 401 error.
+8. You can check the status of the server by hitting the endpoint: [http://localhost:8080](http://localhost:8080) on your browser. By default you should see an HTTP 401 error.
 
 ## Setting up a local MongoDB
 
@@ -86,4 +87,5 @@ When using this command, the value of `APPSMITH_REDIS_URI` should be set to `red
 ## Need Assistance
 If you are unable to resolve any issue while doing the setup:
 - Please re-read all the steps and make sure you follow all instructions.
-- In case step (1) does not resolve your issue, please send an email to support@appsmith.com . Team Appsmith will be happy to help you.
+- In case step (1) does not resolve your issue, please send an email to support@appsmith.com. Team Appsmith will be happy to help you.
+- In case you notice any discrepancy, please raise an issue on github and/or send an email to support@appsmith.com.
