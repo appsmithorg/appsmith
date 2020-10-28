@@ -1065,9 +1065,6 @@ Cypress.Commands.add("Createpage", Pagename => {
   pageidcopy = Pagename;
   cy.get("#loading").should("not.exist");
   cy.wait(2000);
-  cy.addDsl(dsl2);
-  cy.wait(500);
-  cy.get(`.t--entity-name:contains("${Pagename}")`).should("be.visible");
 });
 
 Cypress.Commands.add("Deletepage", Pagename => {

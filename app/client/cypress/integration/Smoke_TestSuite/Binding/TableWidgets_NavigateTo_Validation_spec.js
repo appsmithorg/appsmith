@@ -28,6 +28,9 @@ describe("Table Widget and Navigate to functionality validation", function() {
 
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
+    cy.addDsl(dsl2);
+    cy.wait(500);
+    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
   it("Validate NavigateTo Page functionality ", function() {
