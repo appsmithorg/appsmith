@@ -93,7 +93,7 @@ yarn start
 5. If you ran `./start-https`, but containers failed to start (you have to check with `docker ps` since it fails silently). Some Linux distros (`Ubuntu` for example) have installed and running `apache2` webserver on port `80`. This can result in `Address already in use` error (you can check with `docker logs wildcard-nginx`). Simple solution for this is simply turning it off temporarily with `sudo systemctl stop apache2`. After that just run `./start-https` again.
 
 
-## Need Help
+## Need Assistance
 If you facing issues while doing the setup:
 - Please re-read all the steps and make sure you follow all instructions.
-- In case step (1) does not resolve your issue, please send an email to support@appsmith.com . We will be happy to help you.
+- In case step (1) does not resolve your issue, please send an email to support@appsmith.com . Team Appsmith will be happy to help you.
