@@ -3,7 +3,7 @@ import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import WidgetFactory, { TriggerPropertiesMap } from "utils/WidgetFactory";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/ActionConstants";

@@ -54,5 +54,11 @@
     "applicationCardName": "[data-cy=t--app-card-name]",
     "applicationIconSelector": ".t--icon-not-selected",
     "applicationColorSelector": ".t--color-not-selected",
-    "applicationBackgroundColor": ".t--application-card-background"
-} 
+    "applicationBackgroundColor": ".t--application-card-background",
+    "orgSettingOption": "[data-cy=t--org-setting]",
+    "orgNameInput": "[data-cy=t--org-name-input]",
+    "orgEmailInput": "[data-cy=t--org-email-input]",
+    "orgWebsiteInput": "[data-cy=t--org-website-input]",
+    "orgHeaderName": ".t--organization-header",
+    "leftPanelContainer": "[data-cy=t--left-panel]"
+}

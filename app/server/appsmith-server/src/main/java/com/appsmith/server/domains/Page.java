@@ -15,6 +15,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @Document
+@Deprecated
 public class Page extends BaseDomain {
     String name;
 

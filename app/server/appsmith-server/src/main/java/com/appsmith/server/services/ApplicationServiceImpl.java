@@ -5,17 +5,16 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -27,14 +26,13 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
 
@@ -42,11 +40,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 @Service
 public class ApplicationServiceImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationService {
 
-    //Using PageRepository instead of PageService is because a cyclic dependency is introduced if PageService is used here.
-    //TODO : Solve for this across LayoutService, PageService and ApplicationService.
-    private final PageRepository pageRepository;
     private final PolicyUtils policyUtils;
-    private final DatasourceService datasourceService;
     private final ConfigService configService;
 
     @Autowired
@@ -56,14 +50,10 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ReactiveMongoTemplate reactiveMongoTemplate,
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
-                                  PageRepository pageRepository,
                                   PolicyUtils policyUtils,
-                                  DatasourceService datasourceService,
                                   ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.pageRepository = pageRepository;
         this.policyUtils = policyUtils;
-        this.datasourceService = datasourceService;
         this.configService = configService;
     }
 
@@ -144,46 +134,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.archive(application);
     }
 
-    /**
-     * This function walks through all the pages in the application. In each page, it walks through all the layouts.
-     * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
-     * the publishedDsl.
-     *
-     * @param applicationId The id of the application that will be published.
-     * @return Publishes a Boolean true, when the application has been published.
-     */
-    @Override
-    public Mono<Boolean> publish(String applicationId) {
-        Mono<Application> applicationMono = findById(applicationId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)));
 
-        return applicationMono
-                //Return all the pages in the Application
-                .map(application -> {
-                    List<ApplicationPage> pages = application.getPages();
-                    if (pages == null) {
-                        pages = new ArrayList<>();
-                    }
-                    return pages;
-                })
-                .flatMapMany(Flux::fromIterable)
-                //In each page, copy each layout's dsl to publishedDsl field
-                .flatMap(applicationPage -> pageRepository
-                        .findById(applicationPage.getId())
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", applicationPage.getId())))
-                        .map(page -> {
-                            List<Layout> layoutList = page.getLayouts();
-                            for (Layout layout : layoutList) {
-                                layout.setPublishedDsl(layout.getDsl());
-                                layout.setPublishedLayoutActions(layout.getLayoutActions());
-                                layout.setPublishedLayoutOnLoadActions(layout.getLayoutOnLoadActions());
-                            }
-                            return page;
-                        })
-                        .flatMap(pageRepository::save))
-                .collectList()
-                .map(pages -> true);
-    }
 
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
@@ -211,7 +162,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.findByOrganizationId(organizationId);
     }
 
-    private Mono<Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
+    @Override
+    public Mono<Application> getApplicationInViewMode(String applicationId) {
+        return repository.findById(applicationId, READ_APPLICATIONS)
+                .map(application -> {
+                    application.setViewMode(true);
+                    return application;
+                });
+    }
+
+    private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
         AclPermission applicationPermission = READ_APPLICATIONS;
         AclPermission datasourcePermission = EXECUTE_DATASOURCES;
 
@@ -225,36 +185,36 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
 
-        Flux<Page> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+        Flux<NewPage> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
 
-        Flux<Action> updatedActionsFlux = updatedPagesFlux
-                .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, isPublic));
+        Flux<NewAction> updatedActionsFlux = updatedPagesFlux
+                .collectList()
+                .then(Mono.just(application.getId()))
+                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux
-                .flatMap(action -> {
-                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService
-                                .findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                                        FieldName.DATASOURCE, action.getDatasource().getId())))
-                                .map(datasource -> {
-                                    Datasource updatedDatasource;
-                                    if (isPublic) {
-                                        updatedDatasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
-                                    } else {
-                                        updatedDatasource = policyUtils.removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
-                                    }
-
-                                    return datasourceService.save(updatedDatasource);
-                                })
-                                // In case the datasource is not found, do not stop the processing for other actions.
-                                .switchIfEmpty(Mono.empty());
-                    }
-                    // In case of no datasource / embedded datasource, nothing else needs to be done here.
-                    return Mono.empty();
-                })
-                .flatMap(obj -> obj)
                 .collectList()
+                .flatMap(actions -> {
+                    Set<String> datasourceIds = new HashSet<>();
+                    for (NewAction action : actions) {
+                        ActionDTO unpublishedAction = action.getUnpublishedAction();
+                        ActionDTO publishedAction = action.getPublishedAction();
+
+                        if (unpublishedAction.getDatasource() != null &&
+                                unpublishedAction.getDatasource().getId() != null) {
+                            datasourceIds.add(unpublishedAction.getDatasource().getId());
+                        }
+
+                        if (publishedAction != null &&
+                                publishedAction.getDatasource() != null &&
+                                publishedAction.getDatasource().getId() != null) {
+                            datasourceIds.add(publishedAction.getDatasource().getId());
+                        }
+                    }
+
+                    return policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIds(datasourceIds, datasourcePolicyMap, isPublic)
+                            .collectList();
+                })
                 .thenReturn(application)
                 .flatMap(app -> {
                     Application updatedApplication;

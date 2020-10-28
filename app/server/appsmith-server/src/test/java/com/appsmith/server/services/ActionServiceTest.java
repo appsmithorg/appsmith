@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
@@ -10,17 +11,17 @@ import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -53,6 +54,7 @@ import java.util.UUID;
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -61,13 +63,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class ActionServiceTest {
     @Autowired
-    ActionService actionService;
+    NewActionService newActionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PageService pageService;
+    NewPageService newPageService;
 
     @Autowired
     UserService userService;
@@ -96,18 +98,23 @@ public class ActionServiceTest {
     @Autowired
     LayoutService layoutService;
 
+    @Autowired
+    DatasourceService datasourceService;
+
     Application testApp = null;
 
-    Page testPage = null;
+    PageDTO testPage = null;
 
     Datasource datasource;
+
+    String orgId;
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        String orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getOrganizationIds().iterator().next();
         Organization organization = organizationService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
@@ -123,7 +130,7 @@ public class ActionServiceTest {
             layout.setPublishedDsl(dsl);
             layoutService.createLayout(pageId, layout).block();
 
-            testPage = pageService.getById(pageId).block();
+            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
@@ -156,7 +163,7 @@ public class ActionServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -164,7 +171,9 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<Action> actionMono = actionService.create(action);
+        Mono<ActionDTO> actionMono = newActionService.createAction(action)
+                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier
                 .create(actionMono)
@@ -181,12 +190,12 @@ public class ActionServiceTest {
     public void validMoveAction() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Page newPage = new Page();
+        PageDTO newPage = new PageDTO();
         newPage.setName("Destination Page");
         newPage.setApplicationId(testApp.getId());
-        Page destinationPage = applicationPageService.createPage(newPage).block();
+        PageDTO destinationPage = applicationPageService.createPage(newPage).block();
         
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -194,9 +203,9 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<Action> createActionMono = actionService.create(action).cache();
+        Mono<ActionDTO> createActionMono = newActionService.createAction(action).cache();
 
-        Mono<Action> movedActionMono = createActionMono
+        Mono<ActionDTO> movedActionMono = createActionMono
                 .flatMap(savedAction -> {
                     ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
                     actionMoveDTO.setAction(savedAction);
@@ -207,8 +216,8 @@ public class ActionServiceTest {
         StepVerifier
                 .create(Mono.zip(createActionMono, movedActionMono))
                 .assertNext(tuple -> {
-                    Action originalAction = tuple.getT1();
-                    Action movedAction = tuple.getT2();
+                    ActionDTO originalAction = tuple.getT1();
+                    ActionDTO movedAction = tuple.getT2();
 
                     assertThat(movedAction.getId()).isEqualTo(originalAction.getId());
                     assertThat(movedAction.getName()).isEqualTo(originalAction.getName());
@@ -225,15 +234,15 @@ public class ActionServiceTest {
     public void createValidActionWithJustName() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("randomActionName");
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
-        Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+        Mono<ActionDTO> actionMono = Mono.just(action)
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .assertNext(createdAction -> {
@@ -249,12 +258,12 @@ public class ActionServiceTest {
     public void createValidActionNullActionConfiguration() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("randomActionName2");
         action.setPageId(testPage.getId());
         action.setDatasource(datasource);
-        Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+        Mono<ActionDTO> actionMono = Mono.just(action)
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .assertNext(createdAction -> {
@@ -269,14 +278,14 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void invalidCreateActionNullName() {
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
-        Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+        Mono<ActionDTO> actionMono = Mono.just(action)
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -287,13 +296,13 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void invalidCreateActionNullPageId() {
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("randomActionName");
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
-        Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+        Mono<ActionDTO> actionMono = Mono.just(action)
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -304,14 +313,14 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void invalidCreateActionInvalidPageId() {
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("randomActionName3");
         action.setPageId("invalid page id here");
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
-        Mono<Action> actionMono = Mono.just(action)
-                .flatMap(actionService::create);
+        Mono<ActionDTO> actionMono = Mono.just(action)
+                .flatMap(newActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -355,11 +364,11 @@ public class ActionServiceTest {
                 "  \"name\": \"propertyPane\"\n" +
                 "}";
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setActionConfiguration(new ActionConfiguration());
         action.getActionConfiguration().setBody("{{Input.text}}");
 
-        Action renderedAction = actionService.variableSubstitution(action, Map.of("Input.text", json));
+        ActionDTO renderedAction = newActionService.variableSubstitution(action, Map.of("Input.text", json));
         assertThat(renderedAction).isNotNull();
         assertThat(renderedAction.getActionConfiguration().getBody()).isEqualTo(json);
     }
@@ -367,11 +376,11 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testVariableSubstitutionWithNewline() {
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setActionConfiguration(new ActionConfiguration());
         action.getActionConfiguration().setBody("{{Input.text}}");
 
-        Action renderedAction = actionService.variableSubstitution(action, Map.of("Input.text", "name\nvalue"));
+        ActionDTO renderedAction = newActionService.variableSubstitution(action, Map.of("Input.text", "name\nvalue"));
         assertThat(renderedAction).isNotNull();
         assertThat(renderedAction.getActionConfiguration().getBody()).isEqualTo("name\nvalue");
     }
@@ -379,21 +388,28 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecute() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.POST);
         actionConfiguration.setBody("random-request-body");
         actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
         action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setAction(action);
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
     }
@@ -401,20 +417,27 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteNullRequestBody() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
         action.setActionConfiguration(actionConfiguration);
+        action.setName("testActionExecuteNullRequestBody");
+        action.setPageId(testPage.getId());
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setAction(action);
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
     }
@@ -422,17 +445,24 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteDbQuery() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("select * from users");
         action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecuteDbQuery");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setAction(action);
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
     }
@@ -440,27 +470,34 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteErrorResponse() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHeaders(List.of(
                 new Property("random-header-key", "random-header-value"),
                 new Property("", "")
         ));
         action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecuteErrorResponse");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setAction(action);
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
 
         AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
-        Mono<ActionExecutionResult> executionResultMono = actionService.executeAction(executeActionDTO);
+        Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -476,7 +513,7 @@ public class ActionServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         String key = "bodyMustacheKey";
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("actionInViewMode");
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -485,7 +522,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Action action1 = new Action();
+        ActionDTO action1 = new ActionDTO();
         action1.setName("actionInViewModeWithoutMustacheKey");
         action1.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration1 = new ActionConfiguration();
@@ -494,15 +531,16 @@ public class ActionServiceTest {
         action1.setActionConfiguration(actionConfiguration1);
         action1.setDatasource(datasource);
 
-        Action action2 = new Action();
+        ActionDTO action2 = new ActionDTO();
         action2.setName("actionInViewModeWithoutActionConfiguration");
         action2.setPageId(testPage.getId());
         action2.setDatasource(datasource);
 
-        Mono<List<ActionViewDTO>> actionsListMono = actionService.create(action)
-                .then(actionService.create(action1))
-                .then(actionService.create(action2))
-                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
+        Mono<List<ActionViewDTO>> actionsListMono = newActionService.createAction(action)
+                .then(newActionService.createAction(action1))
+                .then(newActionService.createAction(action2))
+                .then(applicationPageService.publish(testPage.getApplicationId()))
+                .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier
                 .create(actionsListMono)
@@ -538,21 +576,27 @@ public class ActionServiceTest {
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
 
-        Action action = new Action();
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("select * from users");
-        action.setActionConfiguration(actionConfiguration);
-
-        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setAction(action);
-
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenThrow(new StaleConnectionException())
                 .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = actionService.executeAction(executeActionDTO);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from users");
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("checkRecoveryFromStaleConnections");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(executeActionDTO);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -579,7 +623,7 @@ public class ActionServiceTest {
         Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = actionService.executeAction(executeActionDTO);
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(executeActionDTO);
         return actionExecutionResultMono;
     }
 
@@ -588,7 +632,7 @@ public class ActionServiceTest {
     public void getActionInViewMode() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("view-mode-action-test");
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -597,9 +641,11 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<Action> createActionMono = actionService.create(action);
+        Mono<ActionDTO> createActionMono = newActionService.createAction(action);
         Mono<List<ActionViewDTO>> actionViewModeListMono = createActionMono
-                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
+                // Publish the application before fetching the action in view mode
+                .then(applicationPageService.publish(testApp.getId()))
+                .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier.create(actionViewModeListMono)
                 .assertNext(actions -> {
@@ -610,6 +656,48 @@ public class ActionServiceTest {
                     assertThat(actionViewDTO.getPageId()).isNotNull();
                     assertThat(actionViewDTO.getConfirmBeforeExecute()).isNotNull();
                     assertThat(actionViewDTO.getJsonPathKeys().size()).isEqualTo(1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void executeActionWithExternalDatasource() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("Default Database");
+        externalDatasource.setOrganizationId(orgId);
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+        externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("actionWithExternalDatasource");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+
+        Mono<ActionExecutionResult> resultMono = newActionService.createAction(action)
+                .flatMap(savedAction -> {
+                    ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+                    executeActionDTO.setActionId(savedAction.getId());
+                    executeActionDTO.setViewMode(false);
+                    return newActionService.executeAction(executeActionDTO);
+                });
+
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getStatusCode()).isEqualTo("200");
                 })
                 .verifyComplete();
     }
