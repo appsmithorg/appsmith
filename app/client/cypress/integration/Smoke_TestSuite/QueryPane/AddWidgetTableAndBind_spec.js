@@ -50,7 +50,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
 
   it("Input widget test with default value from table widget", () => {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
+    cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -65,7 +65,6 @@ describe("Addwidget from Query and bind with other widgets", function() {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
       expect(tabValue).to.be.equal("2020-01-23");
-      cy.log("the value is" + tabValue);
       cy.get(publish.inputWidget + " " + "input")
         .first()
         .invoke("attr", "value")
