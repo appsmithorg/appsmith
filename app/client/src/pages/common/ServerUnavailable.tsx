@@ -38,7 +38,7 @@ const ServerUnavailable = () => {
           iconAlignment="right"
           size="small"
           className="button-position"
-          onClick={() => this.props.history.push(APPLICATIONS_URL)}
+          // onClick={() => props.history.push(APPLICATIONS_URL)}
         />
       </div>
     </Wrapper>
