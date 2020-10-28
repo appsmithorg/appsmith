@@ -1167,6 +1167,11 @@ public class DatabaseChangelog {
                 newAction.setApplicationId(applicationId);
             }
 
+            // Set the pluginId for the action
+            if (oldAction.getDatasource() != null) {
+                newAction.setPluginId(oldAction.getDatasource().getPluginId());
+            }
+
             //Set the base domain fields
             newAction.setId(oldAction.getId());
             newAction.setCreatedAt(oldAction.getCreatedAt());
