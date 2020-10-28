@@ -156,6 +156,18 @@ public class ElasticSearchPlugin extends BasePlugin {
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add("No endpoint provided. Please provide a host:port where ElasticSearch is reachable.");
+            } else {
+                datasourceConfiguration.getEndpoints()
+                        .stream()
+                        .filter(endpoint -> endpoint.getHost() == null)
+                        .findAny()
+                        .ifPresent(endpoint -> invalids.add("Missing host for endpoint"));
+
+                datasourceConfiguration.getEndpoints()
+                        .stream()
+                        .filter(endpoint -> endpoint.getPort() == null)
+                        .findAny()
+                        .ifPresent(endpoint -> invalids.add("Missing port for endpoint"));
             }
 
             return invalids;
