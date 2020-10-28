@@ -39,6 +39,10 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 ```
 Note:
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with roon privilege as well.
+- On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd like:
+```
+sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./buid.sh
+```
 - If the volume containing docker's data root path (macOS: ~/Library/Containers/com.docker.docker/Data/vms/0/, Ubuntu: /var/lib/docker/) has less than 2 GB space free, then the script may fail with the following error: Check failed: Docker environment should have more than 2GB free disk space. There are two ways to resolve this issue (1) free up space (2) change docker's data root path.
 
 This command will create a `dist` folder which contains the final packaged jar along with multiple jars for the binaries for plugins as well.
@@ -80,6 +84,6 @@ docker run -p 127.0.0.1:6379:6379 --name appsmith-redis redis
 When using this command, the value of `APPSMITH_REDIS_URI` should be set to `redis://localhost:6379`.
 
 ## Need Assistance
-If you facing issues while doing the setup:
+If you are unable to resolve any issue while doing the setup:
 - Please re-read all the steps and make sure you follow all instructions.
 - In case step (1) does not resolve your issue, please send an email to support@appsmith.com . Team Appsmith will be happy to help you.
