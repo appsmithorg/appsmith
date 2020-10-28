@@ -368,7 +368,7 @@ bye() {  # Prints a friendly good bye message and exits the script.
             }
         }' > /dev/null
         echo ""
-        echo -e "\nThere was an error with your installation, Exiting for now. Bye! 👋 \n"
+        echo -e "\nWe will reach out to you at the email provided shortly, Exiting for now. Bye! 👋 \n"
         exit 0
     fi
 }
