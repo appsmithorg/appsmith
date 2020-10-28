@@ -76,7 +76,7 @@ node versions to be used in different projects. Check below for installation and
 2. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
 
 #### If you would like to hit a different Appsmith server:
-- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). By default it points to the cloud hosted server https://release-api.appsmith.com. If you want it to point to your local instance, then replace all such ip instances with `https://host.docker.internal:8080` for macOS or `http://localhost:8080` for Ubuntu. Please note that the communication with localhost uses http protocol instead of https.
+- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). By default it points to the cloud hosted server https://release-api.appsmith.com. If you want it to point to your local instance, then replace all such ip instances with `http://host.docker.internal:8080` for macOS or `http://localhost:8080` for Ubuntu. Please note that the communication with local setup instance uses http protocol instead of https.
 - Run `start-https.sh` script again.
 - Run
 ```
