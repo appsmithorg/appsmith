@@ -34,6 +34,8 @@ const getCanvasStructureFromDSL = (dsl: DSL): CanvasStructure => {
     widgetId: dsl.widgetId,
     widgetName: dsl.widgetName,
     type: dsl.type,
-    children: structureChildren || children?.map(getCanvasStructureFromDSL),
+    children:
+      structureChildren ||
+      children?.filter(Boolean).map(getCanvasStructureFromDSL),
   };
 };
