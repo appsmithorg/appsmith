@@ -1663,6 +1663,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
   cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
+
+  cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
 });
 
 Cypress.Commands.add("alertValidate", text => {
