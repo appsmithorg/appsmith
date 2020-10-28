@@ -41,7 +41,7 @@ check_ports_occupied() {
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
-        exit 0
+        exit 1
     fi
 }
 
@@ -106,7 +106,7 @@ install_docker_compose() {
         echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
         echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
         echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        exit 0
+        exit 1
     fi
 }
 
@@ -352,23 +352,25 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
-    set +o errexit
-    echo "Please share your email if you wish to receive support with the installation"
-    read -rp 'Email: ' email
+    if [ "$?" -eq 1 ]; then
+        set +o errexit
+        echo "Please share your email if you wish to receive support with the installation"
+        read -rp 'Email: ' email
 
-    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
-        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
-        "event": "Installation Support",
-        "data": {
-            "os": "'"$os"'",
-            "email": "'"$email"'"
-        }
-    }' > /dev/null
-    echo ""
-    echo -e "\nThere was an error with your installation, Exiting for now. Bye! 👋 \n"
-    exit 1
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Support",
+            "data": {
+                "os": "'"$os"'",
+                "email": "'"$email"'"
+            }
+        }' > /dev/null
+        echo ""
+        echo -e "\nThere was an error with your installation, Exiting for now. Bye! 👋 \n"
+        exit 0
+    fi
 }
 
 echo -e "👋 Thank you for trying out Appsmith! "
@@ -410,7 +412,7 @@ if [[ $desired_os -eq 0 ]];then
             "error": "OS Not Supported"
         }
     }' > /dev/null
-    exit 0
+    exit 1
 else
     echo "🙌 You're on an OS that is supported by this installation script."
     echo ""
@@ -430,7 +432,7 @@ if [[ $EUID -eq 0 ]]; then
             "error": "Running as Root"
         }
     }' > /dev/null
-    exit 0
+    exit 1
 fi
 
 check_ports_occupied
@@ -446,7 +448,7 @@ if [[ -e "$install_dir" ]]; then
     echo "The path '$install_dir' is already present. Please run the script again with a different path to install new."
     echo "If you're trying to update your existing installation, that happens automatically through WatchTower."
     echo_contact_support " if you're facing problems with the auto-updates."
-    exit
+    exit 1
 fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
@@ -660,7 +662,7 @@ else
        }
     }' > /dev/null
 
-    echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
+    echo "++++++++++++++++++ SUCCESS ++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
     if [[ -z $custom_domain ]]; then
@@ -686,5 +688,5 @@ else
        }
     }' > /dev/null
 fi
-
+set +o errexit
 echo -e "\nPeace out ✌️\n"
