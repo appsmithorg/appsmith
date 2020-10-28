@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+import Button from "components/editorComponents/Button";
 import PageUnavailableImage from "assets/images/404-image.png";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const Wrapper = styled.div`
   text-align: center;
@@ -28,6 +30,16 @@ const ServerUnavailable = () => {
       <div>
         <p className="bold-text">Appsmith server is unavailable</p>
         <p>Please try again after some time</p>
+        <Button
+          filled
+          text="Go back to homepage"
+          intent="primary"
+          icon="arrow-right"
+          iconAlignment="right"
+          size="small"
+          className="button-position"
+          onClick={() => this.props.history.push(APPLICATIONS_URL)}
+        />
       </div>
     </Wrapper>
   );

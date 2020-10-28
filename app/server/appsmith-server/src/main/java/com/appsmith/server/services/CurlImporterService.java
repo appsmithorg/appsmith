@@ -3,9 +3,9 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -40,17 +40,17 @@ public class CurlImporterService extends BaseApiImporter {
 
     private static final String CONTENT_TYPE_URLENCODED = "application/x-www-form-urlencoded";
 
-    private final ActionService actionService;
+    private final NewActionService newActionService;
     private final PluginService pluginService;
 
-    public CurlImporterService(ActionService actionService, PluginService pluginService) {
-        this.actionService = actionService;
+    public CurlImporterService(NewActionService newActionService, PluginService pluginService) {
+        this.newActionService = newActionService;
         this.pluginService = pluginService;
     }
 
     @Override
-    public Mono<Action> importAction(Object input, String pageId, String name, String orgId) {
-        Action action;
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId) {
+        ActionDTO action;
 
         try {
             action = curlToAction((String) input, pageId, name);
@@ -66,7 +66,7 @@ public class CurlImporterService extends BaseApiImporter {
         // with embedded datasource
         return Mono.zip(Mono.just(action), pluginService.findByPackageName(RESTAPI_PLUGIN))
                 .flatMap(tuple -> {
-                    final Action action1 = tuple.getT1();
+                    final ActionDTO action1 = tuple.getT1();
                     final Plugin plugin = tuple.getT2();
                     final Datasource datasource = action1.getDatasource();
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
@@ -75,11 +75,11 @@ public class CurlImporterService extends BaseApiImporter {
                     datasource.setOrganizationId(orgId);
                     return Mono.just(action1);
                 })
-                .flatMap(actionService::create);
+                .flatMap(newActionService::createAction);
     }
 
-    public Action curlToAction(String command, String pageId, String name) throws AppsmithException {
-        Action action = curlToAction(command);
+    public ActionDTO curlToAction(String command, String pageId, String name) throws AppsmithException {
+        ActionDTO action = curlToAction(command);
         if (action != null) {
             action.setPageId(pageId);
             action.setName(name);
@@ -87,7 +87,7 @@ public class CurlImporterService extends BaseApiImporter {
         return action;
     }
 
-    public Action curlToAction(String command) throws AppsmithException {
+    public ActionDTO curlToAction(String command) throws AppsmithException {
         // Three stages of parsing the cURL command:
         // 1. lex: Split the string into tokens, respecting the quoting semantics of a POSIX-compliant shell.
         // 2. normalize: Normalize all the command line arguments of a curl command, into their long-form versions.
@@ -248,7 +248,7 @@ public class CurlImporterService extends BaseApiImporter {
         return normalizedTokens;
     }
 
-    public Action parse(List<String> tokens) throws AppsmithException {
+    public ActionDTO parse(List<String> tokens) throws AppsmithException {
         // Curl argument parsing as per <https://linux.die.net/man/1/curl>.
 
         if (!"curl".equals(tokens.get(0))) {
@@ -256,7 +256,7 @@ public class CurlImporterService extends BaseApiImporter {
             return null;
         }
 
-        final Action action = new Action();
+        final ActionDTO action = new ActionDTO();
         final ActionConfiguration actionConfiguration = new ActionConfiguration();
         action.setActionConfiguration(actionConfiguration);
 
@@ -367,7 +367,7 @@ public class CurlImporterService extends BaseApiImporter {
         return action;
     }
 
-    private void trySaveURL(Action action, String token) throws MalformedURLException, URISyntaxException {
+    private void trySaveURL(ActionDTO action, String token) throws MalformedURLException, URISyntaxException {
         // If the URL appears to not have a protocol set, prepend the `https` protocol.
         if (!token.matches("\\w+://.*")) {
             token = "http://" + token;
