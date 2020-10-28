@@ -36,6 +36,7 @@ import {
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import { retryPromise } from "utils/AppsmithUtils";
+import BindingPrompt from "./BindingPrompt";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -291,6 +292,9 @@ class CodeEditor extends Component<Props, State> {
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!this.props.dataTreePath));
 
+    const showNoBindingPrompt =
+      !this.props.input.value?.includes("{{") && showEvaluatedValue;
+
     return (
       <DynamicAutocompleteInputWrapper
         theme={this.props.theme}
@@ -368,6 +372,7 @@ class CodeEditor extends Component<Props, State> {
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
+            {showNoBindingPrompt && <BindingPrompt />}
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>
