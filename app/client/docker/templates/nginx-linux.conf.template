@@ -45,19 +45,19 @@ server {
     location /api {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass https://release-api.appsmith.com;
+        proxy_pass http://localhost:8080;
     }
 
     location /oauth2 {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass https://release-api.appsmith.com;
+        proxy_pass http://localhost:8080;
     }
 
     location /login {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass https://release-api.appsmith.com;
+        proxy_pass http://localhost:8080;
     }
 
 }
@@ -112,19 +112,19 @@ server {
     location /api {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass https://release-api.appsmith.com;
+        proxy_pass http://localhost:8080;
     }
 
     location /oauth2 {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass https://release-api.appsmith.com;
+        proxy_pass http://localhost:8080;
     }
 
     location /login {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass https://release-api.appsmith.com;
+        proxy_pass http://localhost:8080;
     }
 }
 
