@@ -37,6 +37,7 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 ```
 ./build.sh
 ```
+NOTE: On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with roon privilege as well. For more info, please see: https://docs.docker.com/engine/install/linux-postinstall/#:~:text=The%20Docker%20daemon%20always%20runs,members%20of%20the%20docker%20group
 
 This command will create a `dist` folder which contains the final packaged jar along with multiple jars for the binaries for plugins as well.
 
