@@ -352,7 +352,7 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
-    if [ "$?" -neq 0 ]; then
+    if [ "$?" -ne 0 ]; then
         set +o errexit
         echo "Please share your email if you wish to receive support with the installation"
         read -rp 'Email: ' email
