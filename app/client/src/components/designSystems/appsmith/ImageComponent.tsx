@@ -17,7 +17,7 @@ export const StyledImage = styled.div<
   }
 >`
   position: relative;
-  display: flex;advvv                                                                                                                                                                                                                                                                                                                                                                          
+  display: flex;                                                                                                                                                                                                                                                                                                                                                                          
   flex-direction: "row";
   cursor: ${props =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
