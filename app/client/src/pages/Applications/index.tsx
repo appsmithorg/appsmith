@@ -334,7 +334,7 @@ function LeftPane() {
         heading="ORGANIZATIONS"
         isFetchingApplications={isFetchingApplications}
       >
-        <WorkpsacesNavigator>
+        <WorkpsacesNavigator data-cy="t--left-panel">
           <FormDialogComponent
             trigger={NewWorkspaceTrigger}
             Form={CreateOrganizationForm}
@@ -487,6 +487,7 @@ const ApplicationsSection = (props: any) => {
         <MenuItem
           icon="general"
           text="Organization Settings"
+          cypressSelector="t--org-setting"
           onSelect={() =>
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: `/org/${orgId}/settings/general`,
