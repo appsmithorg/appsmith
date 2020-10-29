@@ -12,12 +12,16 @@ import ExplorerPageEntity from "./PageEntity";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
   step: number;
   widgets?: Record<string, CanvasStructure>;
   actions: Record<string, any[]>;
+  datasources: Record<string, Datasource[]>;
+  plugins: Plugin[];
   showWidgetsSidebar: () => void;
 };
 
@@ -50,13 +54,17 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const pageEntities = pages.map(page => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
     const pageActions = props.actions[page.pageId] || [];
-    if (!pageWidgets && pageActions.length === 0) return null;
+    const datasources = props.datasources[page.pageId] || [];
+    if (!pageWidgets && pageActions.length === 0 && datasources.length === 0)
+      return null;
     return (
       <ExplorerPageEntity
         key={page.pageId}
         step={props.step + 1}
         widgets={pageWidgets}
         actions={pageActions}
+        datasources={datasources}
+        plugins={props.plugins}
         searchKeyword={props.searchKeyword}
         page={page}
         showWidgetsSidebar={props.showWidgetsSidebar}

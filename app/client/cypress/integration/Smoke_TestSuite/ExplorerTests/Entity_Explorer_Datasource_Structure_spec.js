@@ -2,6 +2,7 @@ const explorer = require("../../../locators/explorerlocators.json");
 const queryEditor = require("../../../locators/QueryEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const commonlocators = require("../../../locators/commonlocators.json");
+const apiwidget = require("../../../locators/apiWidgetslocator.json");
 
 let datasourceName;
 
@@ -15,6 +16,23 @@ describe("Entity explorer datasource structure", function() {
   });
 
   it("Entity explorer datasource structure", function() {
+    cy.NavigateToQueryEditor();
+    cy.contains(".t--datasource-name", datasourceName)
+      .find(queryLocators.createQuery)
+      .click();
+    cy.wait("@createNewApi").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+
+    cy.get(apiwidget.apiTxt)
+      .clear()
+      .type("MyQuery", { force: true })
+      .should("have.value", "MyQuery")
+      .blur();
+    cy.WaitAutoSave();
+
     cy.GlobalSearchEntity(datasourceName);
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
@@ -51,10 +69,27 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
+    cy.GlobalSearchEntity("MyQuery");
+    cy.get(`.t--entity-name:contains(MyQuery)`).click();
+    cy.get(queryEditor.deleteQuery).click();
+    cy.wait("@deleteAction").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.get(commonlocators.entityExplorersearch).clear();
+
     cy.deletePostgresDatasource(datasourceName);
   });
 
   it("Refresh datasource structure", function() {
+    cy.NavigateToQueryEditor();
+    cy.contains(".t--datasource-name", datasourceName)
+      .find(queryLocators.createQuery)
+      .click();
+    cy.get(queryLocators.templateMenu).click();
+
     cy.GlobalSearchEntity(datasourceName);
     cy.get(`.t--entity.datasource:contains(${datasourceName})`)
       .find(explorer.collapse)
@@ -67,12 +102,6 @@ describe("Entity explorer datasource structure", function() {
     );
 
     cy.get(commonlocators.entityExplorersearch).clear();
-
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-    cy.get(queryLocators.templateMenu).click();
 
     const tableName = Math.random()
       .toString(36)
@@ -127,6 +156,8 @@ describe("Entity explorer datasource structure", function() {
           "response.body.responseMeta.status",
           200,
         );
+
+        cy.get(commonlocators.entityExplorersearch).clear();
         cy.deletePostgresDatasource(datasourceName);
       });
   });

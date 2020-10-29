@@ -294,6 +294,36 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "SWITCH",
             isJSConvertible: true,
           },
+          {
+            id: "3.1.4",
+            helpText: "Controls the max zoom of the widget",
+            propertyName: "maxZoomLevel",
+            label: "Max Zoom Level",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "1x",
+                value: 1,
+              },
+              {
+                label: "2x",
+                value: 2,
+              },
+              {
+                label: "4x",
+                value: 4,
+              },
+              {
+                label: "8x",
+                value: 8,
+              },
+              {
+                label: "16x",
+                value: 16,
+              },
+            ],
+            isJSConvertible: true,
+          },
         ],
       },
       {

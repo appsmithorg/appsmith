@@ -23,12 +23,14 @@ import {
   getAction,
   getPluginEditorConfigs,
   getDatasource,
+  getPluginTemplates,
 } from "selectors/entitiesSelector";
 import { RestAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
+import { isEmpty } from "lodash";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -52,8 +54,8 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
 
-  if (!editorConfigs[action.pluginId]) {
-    yield put(fetchPluginForm({ id: action.pluginId }));
+  if (!editorConfigs[action.datasource.pluginId]) {
+    yield put(fetchPluginForm({ id: action.datasource.pluginId }));
   }
 
   yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
@@ -104,10 +106,17 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
+    const pluginTemplates = yield select(getPluginTemplates);
+    const queryTemplate = pluginTemplates[action.pluginId];
+    // Do not show template view if the query has body(code) or if there are no templates
+    const showTemplate = !(
+      !!actionConfiguration.body || isEmpty(queryTemplate)
+    );
+
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
-        showTemplate: actionConfiguration.body ? "false" : "true",
+        showTemplate,
       }),
     );
   }

@@ -11,15 +11,19 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { homePageIcon, pageIcon } from "../ExplorerIcons";
-import { getActionGroups } from "../Actions/helpers";
+import { getPluginGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
 
 type ExplorerPageEntityProps = {
   page: Page;
   widgets?: CanvasStructure;
   actions: any[];
+  datasources: Datasource[];
+  plugins: Plugin[];
   step: number;
   searchKeyword?: string;
   showWidgetsSidebar: () => void;
@@ -76,10 +80,12 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
         addWidgetsFn={addWidgetsFn}
       />
 
-      {getActionGroups(
+      {getPluginGroups(
         props.page,
         props.step + 1,
         props.actions as DataTreeAction[],
+        props.datasources,
+        props.plugins,
         props.searchKeyword,
       )}
     </Entity>
