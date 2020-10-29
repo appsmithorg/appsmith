@@ -219,7 +219,7 @@ const validate = (values: any) => {
 const { mailEnabled } = getAppsmithConfigs();
 
 const OrgInviteUsersForm = (props: any) => {
-  const [metaError, setMetaError] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   const {
     handleSubmit,
@@ -307,7 +307,7 @@ const OrgInviteUsersForm = (props: any) => {
               label="Emails"
               intent="success"
               data-cy="t--invite-email-input"
-              customError={(err: string) => setMetaError(err)}
+              customError={(err: string) => setEmailError(err)}
             />
             <SelectField
               name="role"
@@ -389,8 +389,8 @@ const OrgInviteUsersForm = (props: any) => {
               fill
             />
           )}
-          {((submitFailed && error) || metaError) && (
-            <Callout text={error || metaError} variant={Variant.danger} fill />
+          {((submitFailed && error) || emailError) && (
+            <Callout text={error || emailError} variant={Variant.danger} fill />
           )}
         </ErrorBox>
         {!pathRegex.test(currentPath) && canManage && (
