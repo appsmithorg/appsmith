@@ -38,7 +38,7 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 ./build.sh
 ```
 Note:
-- If you want to skip tests, you can pass -DskipTests flag to the build cmd.
+- If you want to skip tests, you can pass `-DskipTests` flag to the build cmd.
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
 - On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd like:
 ```
