@@ -1056,19 +1056,27 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
     }
 
-    @ChangeSet(order = "037", id = "createNewPageIndex", author = "")
-    public void addNewPageIndex(MongoTemplate mongoTemplate) {
+    @ChangeSet(order = "037", id = "createNewPageIndexAfterDroppingNewPage", author = "")
+    public void addNewPageIndexAfterDroppingNewPage(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
+
+        // Drop existing NewPage class
+        mongoTemplate.dropCollection(NewPage.class);
+
+        // Now add an index
         ensureIndexes(mongoTemplate, NewPage.class,
                 createdAtIndex
         );
     }
 
-    @ChangeSet(order = "038", id = "createNewActionIndex", author = "")
-    public void addNewActionIndex(MongoTemplate mongoTemplate) {
+    @ChangeSet(order = "038", id = "createNewActionIndexAfterDroppingNewAction", author = "")
+    public void addNewActionIndexAfterDroppingNewAction(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
+        // Drop existing NewAction class
+        mongoTemplate.dropCollection(NewAction.class);
 
+        // Now add an index
         ensureIndexes(mongoTemplate, NewAction.class,
                 createdAtIndex
         );
