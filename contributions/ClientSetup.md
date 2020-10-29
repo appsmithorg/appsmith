@@ -39,6 +39,7 @@ cat /etc/hosts | grep appsmith
 ```bash
 cd app/client
 ./start-https.sh
+```
 
 #### WSL (Windows Subsystem for Linux)
 
