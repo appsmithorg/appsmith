@@ -7,7 +7,7 @@ On your development machine, please ensure that:
 
 1. You have `docker` installed in your system. If not, please visit: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 2. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details. For `mkcert` to work with Firefox you may require the `nss` utility to be installed. Details are in the link above.
-3. You have `envsubst` installed. use `brew install gettext` on macOS. Linux machines usually have this installed.
+3. You have `envsubst` installed. use `brew install gettext` on MacOS. Linux machines usually have this installed.
 4. You have cloned the repo in your local machine.
 
 ### Create local HTTPS certificates:
@@ -72,7 +72,7 @@ node versions to be used in different projects. Check below for installation and
 2. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
 
 #### If you would like to hit a different Appsmith server:
-- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-linux.conf.template` or `app/client/docker/templates/nginx-mac.conf.template`). By default it points to the cloud hosted server https://release-api.appsmith.com. If you want it to point to your local instance, then replace all such ip instances with `https://host.docker.internal:8080` for macOS or `http://localhost:8080` for Ubuntu. Please note that the communication with localhost uses http protocol instead of https.
+- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-mac.conf.template` on MacOS or `app/client/docker/templates/nginx-linux.conf.template` on Linux). By default it points to your local instance i.e. `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. You need to replace all the occurances of the default ip with your preferred ip.
 - Run `start-https.sh` script again.
 - Run
 ```
