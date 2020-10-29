@@ -92,7 +92,7 @@ export const NAVIGATE_TO_VALIDATION_ERROR =
   "Please enter a valid URL or page name";
 
 export const INVITE_USERS_VALIDATION_EMAIL_LIST =
-  "Invalid Email address(es) found:";
+  "Invalid Email address(es) found";
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = "Please select a role";
 
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = "Comma separated emails";
