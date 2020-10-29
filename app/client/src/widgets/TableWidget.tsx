@@ -187,6 +187,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Currency",
                           value: "currencys",
                         },
+                        {
+                          label: "Button",
+                          value: "button",
+                        },
                       ],
                     },
                     {
@@ -327,15 +331,41 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
                 {
                   id: "7.1.6.3",
-                  sectionName: "Actions",
+                  sectionName: "Button Properties",
                   children: [
                     {
-                      id: "7.1.6.3.1",
-                      helpText:
-                        "Adds a button action for every row. Reference the Table.selectedRow property in the action",
-                      propertyName: "columnActions",
-                      label: "Row Button",
-                      controlType: "COLUMN_ACTION_SELECTOR",
+                      propertyName: "text",
+                      label: "Label",
+                      helpText: "Sets the label of the button",
+                      controlType: "INPUT_TEXT",
+                      placeholderText: "Enter label text",
+                    },
+                    {
+                      propertyName: "buttonStyle",
+                      label: "Button Style",
+                      controlType: "DROP_DOWN",
+                      helpText: "Changes the style of the button",
+                      options: [
+                        {
+                          label: "Primary Button",
+                          value: "PRIMARY_BUTTON",
+                        },
+                        {
+                          label: "Secondary Button",
+                          value: "SECONDARY_BUTTON",
+                        },
+                        {
+                          label: "Danger Button",
+                          value: "DANGER_BUTTON",
+                        },
+                      ],
+                    },
+                    {
+                      helpText: "Triggers an action when the button is clicked",
+                      propertyName: "onClick",
+                      label: "onClick",
+                      controlType: "ACTION_SELECTOR",
+                      isJSConvertible: true,
                     },
                   ],
                 },
