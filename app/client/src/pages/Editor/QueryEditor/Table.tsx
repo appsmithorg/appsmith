@@ -21,6 +21,7 @@ const StyledTableWrapped = styled(TableWrapper)`
     flex: 1;
   }
   .table {
+    min-width: auto;
     display: flex;
     flex: 1;
     flex-direction: column;
