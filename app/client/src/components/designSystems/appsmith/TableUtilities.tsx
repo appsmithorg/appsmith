@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+// TODO(vikcy): Fix the banned types in this file
 import React, { useState } from "react";
 import { Icon, InputGroup, Tag } from "@blueprintjs/core";
 import {

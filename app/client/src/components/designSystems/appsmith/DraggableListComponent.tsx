@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
+/* eslint-disable @typescript-eslint/ban-types */
 const ItemWrapper = styled.div`
   padding-right: 16px;
   margin: 8px 0 0 0;

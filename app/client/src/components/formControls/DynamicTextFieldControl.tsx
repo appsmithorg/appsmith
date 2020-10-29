@@ -98,7 +98,7 @@ class DynamicTextControl extends BaseControl<
 
 export interface DynamicTextFieldProps extends ControlProps {
   actionName: string;
-  createTemplate: Function;
+  createTemplate: (templateString: string) => unknown;
   pluginId: string;
   responseType: string;
 }
