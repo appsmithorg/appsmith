@@ -38,6 +38,7 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 ./build.sh
 ```
 This command will create a `dist` folder which contains the final packaged jar along with multiple jars for the binaries for plugins as well.
+
 Note:
 - If you want to skip tests, you can pass `-DskipTests` flag to the build cmd.
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
