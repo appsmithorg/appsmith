@@ -154,7 +154,7 @@ jobs:
         DOCKER_IMAGE_NAME=appsmith/appsmith-server-ee:release
         if [[ github.ref == 'refs/heads/master' ]]
         then
-          DOCKER_IMAGE_NAME=appsmith/appsmith-server-ee:latest
+          DOCKER_IMAGE_NAME=appsmith/appsmith-server-ee:nightly
         fi
         echo $DOCKER_IMAGE_NAME
         docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
