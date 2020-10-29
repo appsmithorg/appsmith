@@ -37,6 +37,7 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 ```
 ./build.sh
 ```
+This command will create a `dist` folder which contains the final packaged jar along with multiple jars for the binaries for plugins as well.
 Note:
 - If you want to skip tests, you can pass `-DskipTests` flag to the build cmd.
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
@@ -44,9 +45,12 @@ Note:
 ```
 sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
 ```
-- If the volume containing docker's data root path (macOS: ~/Library/Containers/com.docker.docker/Data/vms/0/, Ubuntu: /var/lib/docker/) has less than 2 GB space free, then the script may fail with the following error: Check failed: Docker environment should have more than 2GB free disk space. There are two ways to resolve this issue (1) free up space (2) change docker's data root path.
+- If the volume containing docker's data root path (macOS: `~/Library/Containers/com.docker.docker/Data/vms/0/`, Ubuntu: `/var/lib/docker/`) has less than 2 GB of free space, then the script may fail with the following error: 
+```
+Check failed: Docker environment should have more than 2GB free disk space.
+```
+There are two ways to resolve this issue: (1) free up more space (2) change docker's data root path.
 
-This command will create a `dist` folder which contains the final packaged jar along with multiple jars for the binaries for plugins as well.
 
 6. Start the Java server by running
 
