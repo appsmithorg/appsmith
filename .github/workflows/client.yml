@@ -151,10 +151,10 @@ jobs:
       shell: bash
       run: |
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        OCKER_IMAGE_NAME=appsmith/appsmith-server:release
+        DOCKER_IMAGE_NAME=appsmith/appsmith-server-ee:release
         if [[ github.ref == 'refs/heads/master' ]]
         then
-          DOCKER_IMAGE_NAME=appsmith/appsmith-server:latest
+          DOCKER_IMAGE_NAME=appsmith/appsmith-server-ee:nightly
         fi
         echo $DOCKER_IMAGE_NAME
         docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
