@@ -221,7 +221,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   );
   cy.wait(1000);
   cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplicationName").should(
+  cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -240,7 +240,7 @@ Cypress.Commands.add("CreateApp", appname => {
   cy.get("#loading").should("not.exist");
   cy.wait(1000);
   cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplicationName").should(
+  cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
