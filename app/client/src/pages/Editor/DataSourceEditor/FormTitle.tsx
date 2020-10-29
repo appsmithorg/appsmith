@@ -103,6 +103,7 @@ const FormTitle = (props: FormTitleProps) => {
         editInteractionKind={EditInteractionKind.SINGLE}
         isEditingDefault={props.focusOnMount}
         updating={saveStatus.isSaving}
+        className="t--db-form-title-field"
       />
       {saveStatus.isSaving && <Spinner size={16} />}
     </Wrapper>

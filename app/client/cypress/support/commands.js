@@ -310,7 +310,9 @@ Cypress.Commands.add("DeleteApp", appName => {
   cy.get(commonlocators.homeIcon).click({ force: true });
   cy.get(homePage.searchInput).type(appName);
   cy.wait(2000);
-  cy.get(homePage.applicationCard).trigger("mouseover");
+  cy.get(homePage.applicationCard)
+    .first()
+    .trigger("mouseover");
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
