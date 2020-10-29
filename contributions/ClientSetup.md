@@ -67,7 +67,7 @@ echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo s
 
     This URL must be opened with https and not have the port 3000 in it
 
-Your client is pointing to the cloud staging server https://release-api.appsmith.com
+By default your client app points to the local api server - `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. Your page will load with errors if you don't have the api server running on your local system. To setup the api server on your local system please follow the instructions here: https://github.com/appsmithorg/appsmith/blob/release/contributions/ServerSetup.md
 
 #### If yarn start throws mismatch node version error
 This error occurs because the node version is not compatible with the app environment. In this case Node version manager can be used which allows multiple
