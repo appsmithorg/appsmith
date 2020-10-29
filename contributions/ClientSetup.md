@@ -97,5 +97,5 @@ yarn start
 ## Need Assistance
 If you are unable to resolve any issue while doing the setup:
 - Please re-read all the steps and make sure you follow all instructions.
-- In case step (1) does not resolve your issue, please send an email to support@appsmith.com. Team Appsmith will be happy to help you.
+- In case step (1) does not resolve your issue, please initiate a Github discussion or send an email to support@appsmith.com. We'll be happy to help you.
 - In case you notice any discrepancy, please raise an issue on github and/or send an email to support@appsmith.com.
