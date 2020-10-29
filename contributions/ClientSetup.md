@@ -33,17 +33,12 @@ Note:
 ```
 cat /etc/hosts | grep appsmith
 ```
+3. Run cmd `cp .env.example .env`
 
-3. Run the script `start-https.sh` in order to start the nginx container that will proxy the frontend code on your local system.
+4. Run the script `start-https.sh` in order to start the nginx container that will proxy the frontend code on your local system.
 ```bash
 cd app/client
 ./start-https.sh
-```
-Note:
-- If you see the following error: `Please populate the .env at the root of the project and run again`, then run the following cmd and try again:
-```
-cp ../../.env.example ../../.env
-```
 
 #### WSL (Windows Subsystem for Linux)
 
