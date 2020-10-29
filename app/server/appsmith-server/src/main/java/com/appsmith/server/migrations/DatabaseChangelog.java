@@ -23,7 +23,6 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
@@ -1057,20 +1056,40 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
     }
 
-    @ChangeSet(order = "032", id = "createNewPageIndex", author = "")
-    public void addNewPageIndex(MongoTemplate mongoTemplate) {
+    @ChangeSet(order = "037", id = "createNewPageIndexAfterDroppingNewPage", author = "")
+    public void addNewPageIndexAfterDroppingNewPage(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
+
+        // Drop existing NewPage class
+        mongoTemplate.dropCollection(NewPage.class);
+
+        // Now add an index
         ensureIndexes(mongoTemplate, NewPage.class,
                 createdAtIndex
         );
     }
 
-    @ChangeSet(order = "033", id = "migrate-page", author = "")
+    @ChangeSet(order = "038", id = "createNewActionIndexAfterDroppingNewAction", author = "")
+    public void addNewActionIndexAfterDroppingNewAction(MongoTemplate mongoTemplate) {
+        Index createdAtIndex = makeIndex("createdAt");
+
+        // Drop existing NewAction class
+        mongoTemplate.dropCollection(NewAction.class);
+
+        // Now add an index
+        ensureIndexes(mongoTemplate, NewAction.class,
+                createdAtIndex
+        );
+    }
+
+    @ChangeSet(order = "039", id = "migrate-page-and-actions", author = "")
     public void migratePage(MongoTemplate mongoTemplate) {
         final List<Page> pages = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
                 Page.class
         );
+
+        List<NewPage> toBeInsertedPages = new ArrayList<>();
 
         for (Page oldPage : pages) {
             PageDTO unpublishedPage = new PageDTO();
@@ -1114,29 +1133,22 @@ public class DatabaseChangelog {
             newPage.setUpdatedAt(oldPage.getUpdatedAt());
             newPage.setPolicies(oldPage.getPolicies());
 
-            mongoTemplate.insert(newPage, "newPage");
+            toBeInsertedPages.add(newPage);
         }
+        mongoTemplate.insertAll(toBeInsertedPages);
 
-    }
+        // Migrate Actions now
 
-    // Removed order 34 whose operation has been optimized and has been moved to order 33.
+        Map<String, String> pageIdApplicationIdMap = pages
+                .stream()
+                .collect(Collectors.toMap(Page::getId, Page::getApplicationId));
 
-    @ChangeSet(order = "035", id = "createNewActionIndex", author = "")
-    public void addNewActionIndex(MongoTemplate mongoTemplate) {
-        Index createdAtIndex = makeIndex("createdAt");
-
-
-        ensureIndexes(mongoTemplate, NewAction.class,
-                createdAtIndex
-        );
-    }
-
-    @ChangeSet(order = "036", id = "migrate-action", author = "")
-    public void migrateAction(MongoTemplate mongoTemplate) {
         final List<Action> actions = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
                 Action.class
         );
+
+        List<NewAction> toBeInsertedActions = new ArrayList<>();
 
         for (Action oldAction : actions) {
             ActionDTO unpublishedAction = copyActionToDTO(oldAction);
@@ -1157,16 +1169,15 @@ public class DatabaseChangelog {
             newAction.setPublishedAction(publishedAction);
 
             // Now set the application id for this action
+            String applicationId = pageIdApplicationIdMap.get(oldAction.getPageId());
 
-            // Find the page
-            final NewPage page = mongoTemplate.findOne(
-                    query(where(fieldName(QNewPage.newPage.id)).is(oldAction.getPageId())),
-                    NewPage.class
-            );
+            if (applicationId != null) {
+                newAction.setApplicationId(applicationId);
+            }
 
-            // Set the applicationId in the new action
-            if (page != null) {
-                newAction.setApplicationId(page.getApplicationId());
+            // Set the pluginId for the action
+            if (oldAction.getDatasource() != null) {
+                newAction.setPluginId(oldAction.getDatasource().getPluginId());
             }
 
             //Set the base domain fields
@@ -1175,7 +1186,11 @@ public class DatabaseChangelog {
             newAction.setUpdatedAt(oldAction.getUpdatedAt());
             newAction.setPolicies(oldAction.getPolicies());
 
-            mongoTemplate.insert(newAction, "newAction");
+            toBeInsertedActions.add(newAction);
         }
+
+        mongoTemplate.insertAll(toBeInsertedActions);
+
     }
+
 }
