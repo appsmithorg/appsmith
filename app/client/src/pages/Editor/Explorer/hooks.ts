@@ -31,7 +31,7 @@ const findWidgets = (widgets: WidgetProps, keyword: string) => {
 const findDataSources = (dataSources: Datasource[], keyword: string) => {
   return dataSources.filter(
     (dataSource: Datasource) =>
-      dataSource.name.toLowerCase().indexOf(keyword) > -1,
+      dataSource.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1,
   );
 };
 
@@ -52,7 +52,7 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
     }
 
     return datasourcesPageMap;
-  }, [actions]);
+  }, [actions, reducerDatasources]);
 
   return useMemo(() => {
     if (searchKeyword) {

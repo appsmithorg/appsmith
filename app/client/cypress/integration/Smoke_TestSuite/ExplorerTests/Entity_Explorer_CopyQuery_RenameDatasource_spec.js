@@ -74,7 +74,6 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("Delete query and rename datasource in explorer", function() {
-    cy.deleteQuery();
     cy.get(commonlocators.entityExplorersearch).clear();
     cy.NavigateToDatasourceEditor();
     cy.GlobalSearchEntity(`${datasourceName}`);
@@ -88,7 +87,6 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("sliced id :" + updatedName);
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.SearchEntityandOpen(updatedName);
-      cy.get(datasource.editDatasource).click();
       cy.testSaveDatasource();
       cy.hoverAndClick();
       cy.get(apiwidget.delete).click({ force: true });
@@ -99,5 +97,8 @@ describe("Entity explorer tests related to copy query", function() {
         409,
       );
     });
+
+    cy.SearchEntityandOpen("Query1Copy");
+    cy.deleteQuery();
   });
 });
