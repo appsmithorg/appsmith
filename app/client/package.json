@@ -102,6 +102,7 @@
     "react-toastify": "^5.5.0",
     "react-transition-group": "^4.3.0",
     "react-use-gesture": "^7.0.4",
+    "react-zoom-pan-pinch": "^1.6.1",
     "redux": "^4.0.1",
     "redux-form": "^8.2.6",
     "redux-saga": "^1.1.3",

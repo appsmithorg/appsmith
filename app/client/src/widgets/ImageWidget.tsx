@@ -22,6 +22,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       image: VALIDATION_TYPES.TEXT,
       imageShape: VALIDATION_TYPES.TEXT,
       defaultImage: VALIDATION_TYPES.TEXT,
+      maxZoomLevel: VALIDATION_TYPES.NUMBER,
     };
   }
   static getTriggerPropertyMap(): TriggerPropertiesMap {
@@ -30,8 +31,13 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     };
   }
   getPageView() {
+    const { maxZoomLevel } = this.props;
     return (
       <ImageComponent
+        disableDrag={(disable: boolean) => {
+          this.disableDrag(disable);
+        }}
+        maxZoomLevel={maxZoomLevel}
         widgetId={this.props.widgetId}
         imageUrl={this.props.image || ""}
         onClick={this.props.onClick ? this.onImageClick : undefined}
@@ -64,6 +70,7 @@ export interface ImageWidgetProps extends WidgetProps {
   image: string;
   imageShape: ImageShape;
   defaultImage: string;
+  maxZoomLevel: number;
   onClick?: string;
 }
 
