@@ -60,5 +60,6 @@
     "orgEmailInput": "[data-cy=t--org-email-input]",
     "orgWebsiteInput": "[data-cy=t--org-website-input]",
     "orgHeaderName": ".t--organization-header",
-    "leftPanelContainer": "[data-cy=t--left-panel]"
+    "leftPanelContainer": "[data-cy=t--left-panel]",
+    "themeText": "label div"
 }

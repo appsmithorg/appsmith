@@ -30,4 +30,20 @@ describe("Login from UI and check the functionality", function() {
     cy.wait(500);
     cy.url().should("include", "user/login");
   });
+
+  it("Theme change test and validation", function() {
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.get(homePage.profileMenu).click();
+    cy.get(homePage.themeText).should("have.attr", "value", "true");
+    cy.get("span")
+      .contains("Light")
+      .click({ force: true });
+    cy.get(homePage.profileMenu).click();
+    cy.get(homePage.themeText).should("have.attr", "value", "false");
+    cy.get("span")
+      .contains("Dark")
+      .click({ force: true });
+    cy.get(homePage.profileMenu).click();
+    cy.get(homePage.themeText).should("have.attr", "value", "true");
+  });
 });
