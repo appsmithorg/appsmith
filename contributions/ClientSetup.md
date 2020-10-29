@@ -33,7 +33,7 @@ Note:
 ```
 cat /etc/hosts | grep appsmith
 ```
-3. Run cmd `cp .env.example .env`
+3. Run cmd: `cp .env.example .env`
 
 4. Run the script `start-https.sh` in order to start the nginx container that will proxy the frontend code on your local system.
 ```bash
