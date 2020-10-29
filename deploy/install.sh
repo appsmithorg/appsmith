@@ -41,7 +41,7 @@ check_ports_occupied() {
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
-        bye
+        exit 1
     fi
 }
 
@@ -106,7 +106,7 @@ install_docker_compose() {
         echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
         echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
         echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        bye
+        exit 1
     fi
 }
 
@@ -352,23 +352,25 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
-    set +o errexit
-    echo "Please review the above errors, and share your email if you wish to receive support with the installation"
-    read -rp 'Email: ' email
+    if [ "$?" -ne 0 ]; then
+        set +o errexit
+        echo "Please share your email if you wish to receive support with the installation"
+        read -rp 'Email: ' email
 
-    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
-        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
-        "event": "Installation Support",
-        "data": {
-            "os": "'"$os"'",
-            "email": "'"$email"'"
-        }
-    }' > /dev/null
-    echo ""
-    echo -e "\nThere was an error with your installation, Exiting for now. Bye! 👋 \n"
-    exit 1
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Support",
+            "data": {
+                "os": "'"$os"'",
+                "email": "'"$email"'"
+            }
+        }' > /dev/null
+        echo ""
+        echo -e "\nWe will reach out to you at the email provided shortly, Exiting for now. Bye! 👋 \n"
+        exit 0
+    fi
 }
 
 echo -e "👋 Thank you for trying out Appsmith! "
@@ -410,7 +412,7 @@ if [[ $desired_os -eq 0 ]];then
             "error": "OS Not Supported"
         }
     }' > /dev/null
-    bye
+    exit 1
 else
     echo "🙌 You're on an OS that is supported by this installation script."
     echo ""
@@ -420,7 +422,6 @@ if [[ $EUID -eq 0 ]]; then
     echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "Please do not run this script as root/sudo."
     echo "++++++++++++++++++++++++++++++++++++++++"
-    echo_contact_support
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
@@ -431,7 +432,7 @@ if [[ $EUID -eq 0 ]]; then
             "error": "Running as Root"
         }
     }' > /dev/null
-    bye
+    exit 1
 fi
 
 check_ports_occupied
@@ -447,7 +448,17 @@ if [[ -e "$install_dir" ]]; then
     echo "The path '$install_dir' is already present. Please run the script again with a different path to install new."
     echo "If you're trying to update your existing installation, that happens automatically through WatchTower."
     echo_contact_support " if you're facing problems with the auto-updates."
-    exit
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "Directory Exists"
+        }
+    }' > /dev/null
+    exit 1
 fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
@@ -460,6 +471,16 @@ if ! is_command_present docker; then
         echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / openSUSE / SLES / Redhat / Cent OS"
         echo "https://docs.docker.com/docker-for-mac/install/"
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Error",
+            "data": {
+                "os": "'"$os"'",
+                "error": "Docker not installed"
+            }
+        }' > /dev/null
         exit 1
     fi
 fi
@@ -637,19 +658,17 @@ if [[ $status_code -ne 401 ]]; then
     echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
-    echo ""
-    echo "Please share your email to receive help with the installation"
-    read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
-      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
-      "event": "Installation Support",
-      "data": {
-          "os": "'"$os"'",
-          "email": "'"$email"'"
-       }
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "Containers not started"
+        }
     }' > /dev/null
+    exit 1
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
@@ -661,7 +680,7 @@ else
        }
     }' > /dev/null
 
-    echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
+    echo "++++++++++++++++++ SUCCESS ++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
     if [[ -z $custom_domain ]]; then
@@ -687,5 +706,4 @@ else
        }
     }' > /dev/null
 fi
-
 echo -e "\nPeace out ✌️\n"
