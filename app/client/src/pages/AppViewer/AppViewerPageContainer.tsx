@@ -17,6 +17,10 @@ import {
 } from "selectors/editorSelectors";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "../Applications/permissionHelpers";
 import { fetchPublishedPage } from "actions/pageActions";
 
 const Section = styled.section`
@@ -33,6 +37,7 @@ type AppViewerPageContainerProps = {
   currentPageName?: string;
   currentAppName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
+  currentAppPermissions?: string[];
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
@@ -46,6 +51,28 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     }
   }
   render() {
+    let appsmithEditorLink;
+    if (
+      this.props.currentAppPermissions &&
+      isPermitted(
+        this.props.currentAppPermissions,
+        PERMISSION_TYPE.MANAGE_APPLICATION,
+      )
+    ) {
+      appsmithEditorLink = (
+        <p>
+          Please add widgets to this page in the&nbsp;
+          <Link
+            to={BUILDER_PAGE_URL(
+              this.props.match.params.applicationId,
+              this.props.match.params.pageId,
+            )}
+          >
+            Appsmith Editor
+          </Link>
+        </p>
+      );
+    }
     const pageNotFound = (
       <Centered>
         <NonIdealState
@@ -57,19 +84,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
             />
           }
           title="This page seems to be blank"
-          description={
-            <p>
-              Please add widgets to this page in the&nbsp;
-              <Link
-                to={BUILDER_PAGE_URL(
-                  this.props.match.params.applicationId,
-                  this.props.match.params.pageId,
-                )}
-              >
-                Appsmith Editor
-              </Link>
-            </p>
-          }
+          description={appsmithEditorLink}
         />
       </Centered>
     );
@@ -112,6 +127,7 @@ const mapStateToProps = (state: AppState) => {
     widgets: getCanvasWidgetDsl(state),
     currentPageName: getCurrentPageName(state),
     currentAppName: currentApp?.name,
+    currentAppPermissions: currentApp?.userPermissions,
   };
   return props;
 };

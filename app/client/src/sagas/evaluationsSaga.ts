@@ -13,10 +13,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  getDataTree,
-  getUnevaluatedDataTree,
-} from "selectors/dataTreeSelectors";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
@@ -51,7 +48,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
   errors.forEach(error => {
     if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
       AppToaster.show({
-        message: error.error.message,
+        message: error.message,
         type: ToastType.ERROR,
       });
     }
@@ -69,20 +66,21 @@ function* evaluateTreeSaga() {
   });
   const workerResponse = yield take(workerChannel);
   const { errors, dataTree } = workerResponse.data;
-  log.debug({ dataTree });
+  const parsedDataTree = JSON.parse(dataTree);
+  log.debug({ dataTree: parsedDataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: JSON.parse(dataTree),
+    payload: parsedDataTree,
   });
 }
 
 export function* evaluateSingleValue(binding: string) {
   if (evaluationWorker) {
-    const evalTree = yield select(getDataTree);
+    const unEvalTree = yield select(getUnevaluatedDataTree);
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
-      dataTree: evalTree,
+      dataTree: unEvalTree,
       binding,
     });
     const workerResponse = yield take(workerChannel);
@@ -146,7 +144,8 @@ export function* validateProperty(
       value,
       props,
     });
-    return yield take(workerChannel);
+    const response = yield take(workerChannel);
+    return response.data;
   }
   return { isValid: true, parsed: value };
 }
@@ -206,6 +205,7 @@ function* evaluationChangeListenerSaga() {
         continue;
       }
     }
+    log.debug(`Evaluating`, { action });
     yield fork(evaluateTreeSaga);
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
@@ -213,13 +213,6 @@ function* evaluationChangeListenerSaga() {
 
 export default function* evaluationSagaListeners() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
-      evaluationChangeListenerSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
-      evaluationChangeListenerSaga,
-    ),
+    takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
   ]);
 }

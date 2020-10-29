@@ -292,8 +292,14 @@ public class MySqlPlugin extends BasePlugin {
             }
 
             if (StringUtils.isEmpty(datasourceConfiguration.getUrl()) &&
-                CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                    invalids.add("Missing endpoint and url");
+                    CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                invalids.add("Missing endpoint and url");
+            } else if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
+                        invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
+                    }
+                }
             }
 
             if (datasourceConfiguration.getAuthentication() == null) {

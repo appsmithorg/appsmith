@@ -301,6 +301,14 @@ public class PostgresPlugin extends BasePlugin {
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add("Missing endpoint.");
+            } else {
+                for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    if (StringUtils.isEmpty(endpoint.getHost())) {
+                        invalids.add("Missing hostname.");
+                    } else if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
+                        invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
+                    }
+                }
             }
 
             if (datasourceConfiguration.getConnection() != null

@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -157,6 +158,37 @@ public class PostgresPluginTest {
         StepVerifier.create(dsConnectionMono)
                 .assertNext(Assert::assertNotNull)
                 .verifyComplete();
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithEmptyEndpoints() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.setEndpoints(new ArrayList<>());
+
+        Assert.assertEquals(Set.of("Missing endpoint."),
+                pluginExecutor.validateDatasource(dsConfig));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithEmptyHost() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("");
+
+        Assert.assertEquals(Set.of("Missing hostname."),
+                pluginExecutor.validateDatasource(dsConfig));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithInvalidHostname() {
+
+        String hostname = "jdbc://localhost";
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("jdbc://localhost");
+
+        Assert.assertEquals(Set.of("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."),
+                pluginExecutor.validateDatasource(dsConfig));
     }
 
     @Test
