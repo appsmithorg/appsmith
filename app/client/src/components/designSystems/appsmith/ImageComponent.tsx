@@ -17,7 +17,7 @@ export const StyledImage = styled.div<
   }
 >`
   position: relative;
-  display: flex;
+  display: flex;advvv                                                                                                                                                                                                                                                                                                                                                                          
   flex-direction: "row";
   cursor: ${props =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
@@ -40,23 +40,33 @@ const Wrapper = styled.div`
     width: 100%;
   }
 `;
+
+enum ZoomingState {
+  MAX_ZOOMED_OUT = "MAX_ZOOMED_OUT",
+  MAX_ZOOMED_IN = "MAX_ZOOMED_IN",
+}
 class ImageComponent extends React.Component<
   ImageComponentProps,
   {
     imageError: boolean;
-    scale: number;
+    zoomingState: ZoomingState;
   }
 > {
   constructor(props: ImageComponentProps) {
     super(props);
     this.state = {
       imageError: false,
-      scale: 1,
+      zoomingState: ZoomingState.MAX_ZOOMED_OUT,
     };
   }
   render() {
     const { maxZoomLevel } = this.props;
     const zoomActive = maxZoomLevel !== undefined && maxZoomLevel > 1;
+    const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
+    let cursor = "inherit";
+    if (zoomActive) {
+      cursor = isZoomingIn ? "zoom-in" : "zoom-out";
+    }
     return (
       <Wrapper>
         <TransformWrapper
@@ -78,26 +88,63 @@ class ImageComponent extends React.Component<
           onPanningStop={() => {
             this.props.disableDrag(false);
           }}
+          doubleClick={{
+            disabled: true,
+          }}
+          onZoomChange={(zoom: any) => {
+            if (zoomActive) {
+              if (
+                maxZoomLevel === zoom.scale &&
+                // Added for preventing infinite loops
+                this.state.zoomingState !== ZoomingState.MAX_ZOOMED_IN
+              ) {
+                this.setState({
+                  zoomingState: ZoomingState.MAX_ZOOMED_IN,
+                });
+              } else if (
+                zoom.scale === 1 &&
+                this.state.zoomingState !== ZoomingState.MAX_ZOOMED_OUT
+              ) {
+                this.setState({
+                  zoomingState: ZoomingState.MAX_ZOOMED_OUT,
+                });
+              }
+            }
+          }}
         >
-          <TransformComponent>
-            <StyledImage
-              className={this.props.isLoading ? "bp3-skeleton" : ""}
-              imageError={this.state.imageError}
-              {...this.props}
-              data-testid="styledImage"
-            >
-              <img
-                style={{
-                  display: "none",
-                }}
-                alt={this.props.widgetName}
-                src={this.props.imageUrl}
-                onError={this.onImageError}
-                onLoad={this.onImageLoad}
-                onClick={this.props.onClick}
-              ></img>
-            </StyledImage>
-          </TransformComponent>
+          {({ zoomIn, zoomOut, setScale, ...rest }: any) => (
+            <React.Fragment>
+              <TransformComponent>
+                <StyledImage
+                  className={this.props.isLoading ? "bp3-skeleton" : ""}
+                  imageError={this.state.imageError}
+                  {...this.props}
+                  data-testid="styledImage"
+                  style={{
+                    cursor,
+                  }}
+                  onClick={(event: React.MouseEvent<HTMLElement>) => {
+                    if (isZoomingIn) {
+                      zoomIn(event);
+                    } else {
+                      zoomOut(event);
+                    }
+                    this.props.onClick && this.props.onClick(event);
+                  }}
+                >
+                  <img
+                    style={{
+                      display: "none",
+                    }}
+                    alt={this.props.widgetName}
+                    src={this.props.imageUrl}
+                    onError={this.onImageError}
+                    onLoad={this.onImageLoad}
+                  ></img>
+                </StyledImage>
+              </TransformComponent>
+            </React.Fragment>
+          )}
         </TransformWrapper>
       </Wrapper>
     );
