@@ -404,6 +404,10 @@ const OrgRename = styled(EditableText)`
   padding: 0 2px;
 `;
 
+const NoSearchResultImg = styled.img`
+  margin: 1em;
+`;
+
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
   const isFetchingApplications = useSelector(getIsFetchingApplications);
