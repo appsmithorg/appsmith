@@ -36,6 +36,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       defaultImage:
         "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
+      maxZoomLevel: 1,
       image: "",
       rows: 3,
       columns: 4,
