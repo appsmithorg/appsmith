@@ -172,5 +172,6 @@
       "productName": "Avocado Panini",
       "orderAmount": 7.99
     }
-  ]
+  ],
+  "addInputWidgetBinding": "{{Table1.selectedRow.date"
 }

@@ -42,16 +42,16 @@ interface ReactTableComponentProps {
   width: number;
   height: number;
   pageSize: number;
-  tableData: object[];
+  tableData: Array<Record<string, unknown>>;
   columnOrder?: string[];
   disableDrag: (disable: boolean) => void;
-  onRowClick: (rowData: object, rowIndex: number) => void;
+  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-  updatePageNo: Function;
+  updatePageNo: (pageNo: number) => void;
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
-  nextPageClick: Function;
-  prevPageClick: Function;
+  nextPageClick: () => void;
+  prevPageClick: () => void;
   pageNo: number;
   serverSidePaginationEnabled: boolean;
   columnActions?: ColumnAction[];
@@ -68,10 +68,12 @@ interface ReactTableComponentProps {
     };
   };
   columnSizeMap?: { [key: string]: number };
-  updateColumnType: Function;
-  updateColumnName: Function;
-  handleResizeColumn: Function;
-  handleReorderColumn: Function;
+  updateColumnType: (columnTypeMap: {
+    [key: string]: { type: string; format: string };
+  }) => void;
+  updateColumnName: (columnNameMap: { [key: string]: string }) => void;
+  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
+  handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -277,7 +279,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const selectTableRow = (
-    row: { original: object; index: number },
+    row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
   ) => {
     if (!isSelected || !!props.multiRowSelection) {

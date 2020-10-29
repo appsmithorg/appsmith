@@ -76,9 +76,14 @@ const ColorSelector = (props: ColorSelectorProps) => {
             selected={selected}
             color={hex}
             onClick={() => {
-              setSelected(hex);
-              props.onSelect && props.onSelect(hex);
+              if (selected !== hex) {
+                setSelected(hex);
+                props.onSelect && props.onSelect(hex);
+              }
             }}
+            className={
+              selected === hex ? "t--color-selected" : "t--color-not-selected"
+            }
           />
         );
       })}
