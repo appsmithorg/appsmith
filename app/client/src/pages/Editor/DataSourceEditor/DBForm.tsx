@@ -139,26 +139,11 @@ class DatasourceDBEditor extends React.Component<
     this.configDetails = {};
   }
 
-  componentDidMount() {
-    if (this.props.isNewDatasource) {
-      this.setState({
-        viewMode: false,
-      });
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
       this.requiredFields = {};
       this.configDetails = {};
-      this.setState({
-        viewMode: true,
-      });
-    }
-    if (!this.state.viewMode && this.props.viewMode) {
-      this.setState({
-        viewMode: true,
-      });
+      this.props.setDatasourceEditorMode(this.props.datasourceId, true);
     }
   }
 
@@ -321,7 +306,7 @@ class DatasourceDBEditor extends React.Component<
       datasourceId,
       handleDelete,
     } = this.props;
-    const { viewMode } = this.state;
+    const { viewMode } = this.props;
 
     return (
       <form
@@ -357,9 +342,6 @@ class DatasourceDBEditor extends React.Component<
               text="EDIT"
               accent="secondary"
               onClick={() => {
-                this.setState({
-                  viewMode: false,
-                });
                 this.props.setDatasourceEditorMode(
                   this.props.datasourceId,
                   false,
