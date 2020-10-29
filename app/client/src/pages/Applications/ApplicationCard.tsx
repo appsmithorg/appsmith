@@ -207,9 +207,8 @@ type ApplicationCardProps = {
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
-  delete?: (applicationId: string, orgId: string) => void;
+  delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
-  orgId: string;
 };
 
 const EditButton = styled(Button)`
@@ -248,7 +247,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
-  const menuIconRef = createRef<HTMLSpanElement>();
 
   useEffect(() => {
     setSelectedColor(colorCode);
@@ -306,7 +304,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   };
   const deleteApp = () => {
     setShowOverlay(false);
-    props.delete && props.delete(props.application.id, props.orgId);
+    props.delete && props.delete(props.application.id);
   };
   const askForConfirmation = () => {
     const updatedActionItems = [...moreActionItems];
@@ -353,11 +351,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         position={Position.RIGHT_TOP}
         target={
           <MoreOptionsContainer>
-            <Icon
-              name="context-menu"
-              ref={menuIconRef}
-              size={IconSize.XXXL}
-            ></Icon>
+            <Icon name="context-menu" size={IconSize.XXXL}></Icon>
           </MoreOptionsContainer>
         }
         className="more"

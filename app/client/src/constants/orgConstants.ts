@@ -12,6 +12,7 @@ export type Org = {
   name: string;
   website?: string;
   email?: string;
+  userPermissions?: string[];
 };
 
 export type OrgUser = {

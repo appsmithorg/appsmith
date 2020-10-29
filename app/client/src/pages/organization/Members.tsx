@@ -28,6 +28,7 @@ import { TextType } from "components/ads/Text";
 import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
+import { AppState } from "reducers";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
@@ -61,7 +62,9 @@ export default function MemberSettings(props: PageProps) {
   } = useSelector(getOrgLoadingStates);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  const currentOrg = useSelector(getCurrentOrg);
+  const currentOrg = useSelector((state: AppState) =>
+    getCurrentOrg(state, orgId),
+  );
 
   const userTableData = allUsers.map(user => ({
     ...user,

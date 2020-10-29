@@ -13,7 +13,9 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "@blueprintjs/core";
-import { getOrgLoadingStates } from "selectors/organizationSelectors";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { AppState } from "reducers";
+
 const InputLabelWrapper = styled.div`
   width: 200px;
   display: flex;
@@ -42,7 +44,9 @@ const Loader = styled.div`
 export function GeneralSettings() {
   const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
-  const currentOrg = useSelector(getCurrentOrg);
+  const currentOrg = useSelector((state: AppState) =>
+    getCurrentOrg(state, orgId),
+  );
   function saveChanges(settings: SaveOrgRequest) {
     dispatch(saveOrg(settings));
   }
@@ -70,7 +74,7 @@ export function GeneralSettings() {
     });
   }, throttleTimeout);
 
-  const { isFetchingOrg } = useSelector(getOrgLoadingStates);
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   return (
     <>
@@ -79,13 +83,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Workspace</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={notEmptyValidator}
             placeholder="Workspace name"
             onChange={onWorkspaceNameChange}
-            defaultValue={currentOrg.name}
+            defaultValue={currentOrg && currentOrg.name}
             cypressSelector="t--org-name-input"
           ></TextInput>
         )}
@@ -95,12 +101,14 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Website</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             placeholder="Your website"
             onChange={onWebsiteChange}
-            defaultValue={currentOrg.website || ""}
+            defaultValue={(currentOrg && currentOrg.website) || ""}
             cypressSelector="t--org-website-input"
           ></TextInput>
         )}
@@ -110,13 +118,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={emailValidator}
             placeholder="Email"
             onChange={onEmailChange}
-            defaultValue={currentOrg.email || ""}
+            defaultValue={(currentOrg && currentOrg.email) || ""}
             cypressSelector="t--org-email-input"
           ></TextInput>
         )}

@@ -54,6 +54,12 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { loadingUserOrgs } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
+import EditableText, {
+  EditInteractionKind,
+  SavingState,
+} from "components/ads/EditableText";
+import { notEmptyValidator } from "components/ads/TextInput";
+import { saveOrg } from "actions/orgActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -376,15 +382,6 @@ const OrgNameHolder = styled(Text)`
   align-items: center;
 `;
 
-const OrgNameInMenu = styled(Text)`
-  max-width: 100%;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  display: block;
-  padding: 9px ${props => props.theme.spaces[6]}px;
-`;
-
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
 cursor: ${props => (!props.disabled ? "pointer" : "inherit")};
 ${props => {
@@ -403,9 +400,8 @@ ${props => {
   color: ${props => props.theme.colors.applications.iconColor};
 }
 `;
-
-const NoSearchResultImg = styled.img`
-  margin: 1em;
+const OrgRename = styled(EditableText)`
+  padding: 0 2px;
 `;
 
 const ApplicationsSection = (props: any) => {
@@ -414,7 +410,7 @@ const ApplicationsSection = (props: any) => {
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
-  const deleteApplication = (applicationId: string, orgId: string) => {
+  const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
@@ -437,6 +433,16 @@ const ApplicationsSection = (props: any) => {
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
+
+  const ApplicationNameChange = (newName: string, orgId: string) => {
+    dispatch(
+      saveOrg({
+        id: orgId as string,
+        name: newName,
+      }),
+    );
+  };
+
   const OrgMenu = (props: {
     orgName: string;
     orgId: string;
@@ -470,7 +476,19 @@ const ApplicationsSection = (props: any) => {
         position={Position.BOTTOM_RIGHT}
         className="t--org-name"
       >
-        <OrgNameInMenu type={TextType.H5}>{orgName}</OrgNameInMenu>
+        <OrgRename
+          defaultValue={orgName}
+          editInteractionKind={EditInteractionKind.SINGLE}
+          placeholder="Workspace name"
+          hideEditIcon={false}
+          isInvalid={(value: string) => {
+            return notEmptyValidator(value).message;
+          }}
+          savingState={SavingState.NOT_STARTED}
+          isEditingDefault={false}
+          fill={true}
+          onBlur={(value: string) => ApplicationNameChange(value, orgId)}
+        />
         <MenuItem
           icon="general"
           text="Organization Settings"
@@ -618,7 +636,6 @@ const ApplicationsSection = (props: any) => {
                       <ApplicationCard
                         key={application.id}
                         application={application}
-                        orgId={organization.id}
                         delete={deleteApplication}
                         update={updateApplicationDispatch}
                         duplicate={duplicateApplicationDispatch}
