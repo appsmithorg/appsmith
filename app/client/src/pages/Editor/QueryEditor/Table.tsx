@@ -15,7 +15,7 @@ interface TableProps {
 
 const StyledTableWrapped = styled(TableWrapper)`
   min-height: 0px;
-  height: auto;
+  height: 100%;
   .tableWrap {
     display: flex;
     flex: 1;
@@ -24,9 +24,11 @@ const StyledTableWrapped = styled(TableWrapper)`
     display: flex;
     flex: 1;
     flex-direction: column;
-    height: auto;
+    height: 100%;
+    display: table;
+    width: 100%;
     .tbody {
-      height: auto;
+      height: 100%;
       overflow: auto;
     }
   }
