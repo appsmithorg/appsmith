@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
-// TODO(vicky): Fix the types here
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledInputGroup, StyledPropertyPaneButton } from "./StyledControls";
@@ -100,7 +98,7 @@ function TabControlComponent(props: RenderComponentProps) {
 }
 
 class TabControl extends BaseControl<ControlProps> {
-  updateItems = (items: object[]) => {
+  updateItems = (items: Array<Record<string, unknown>>) => {
     this.updateProperty(this.props.propertyName, JSON.stringify(items));
   };
 
@@ -133,7 +131,9 @@ class TabControl extends BaseControl<ControlProps> {
   }
 
   deleteOption = (index: number) => {
-    let tabs: object[] = _.isString(this.props.propertyValue)
+    let tabs: Array<Record<string, unknown>> = _.isString(
+      this.props.propertyValue,
+    )
       ? JSON.parse(this.props.propertyValue).slice()
       : this.props.propertyValue.slice();
     if (tabs.length === 1) return;

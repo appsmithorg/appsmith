@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
-// TODO(vicky): Fix the types here
 import React from "react";
 import {
   useTable,

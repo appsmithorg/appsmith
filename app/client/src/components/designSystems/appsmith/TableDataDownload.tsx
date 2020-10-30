@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
-// TODO(vikcy): Fix the banned types in this file
 import React from "react";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
@@ -10,7 +8,7 @@ import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
 import { isString } from "lodash";
 
 interface TableDataDownloadProps {
-  data: object[];
+  data: Array<Record<string, unknown>>;
   columns: ReactTableColumnProps[];
   widgetName: string;
 }
