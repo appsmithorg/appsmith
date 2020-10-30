@@ -19,10 +19,10 @@ const DropdownWrapper = (props: DropdownWrapperProps) => {
   };
 
   useEffect(() => {
-    if (props.placeholder) {
-      setSelectedOption({ value: props.placeholder });
-    } else if (props.input && props.input.value) {
+    if (props.input && props.input.value) {
       setSelectedOption({ value: props.input.value });
+    } else if (props.placeholder) {
+      setSelectedOption({ value: props.placeholder });
     }
   }, [props.input, props.placeholder]);
 

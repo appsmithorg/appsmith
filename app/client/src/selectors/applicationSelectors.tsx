@@ -29,6 +29,7 @@ export const getCurrentApplication = (
 };
 export const getApplicationSearchKeyword = (state: AppState) =>
   state.ui.applications.searchKeyword;
+export const getAppMode = (state: AppState) => state.entities.app.mode;
 export const getIsDeletingApplication = (state: AppState) =>
   state.ui.applications.deletingApplication;
 export const getIsDuplicatingApplication = (state: AppState) =>

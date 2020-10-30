@@ -13,6 +13,8 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Page;
@@ -21,13 +23,16 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -67,6 +72,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -112,6 +118,42 @@ public class DatabaseChangelog {
         } catch (UncategorizedMongoDbException ignored) {
             // The index probably doesn't exist. This happens if the database is created after the @Indexed annotation
             // has been removed.
+        }
+    }
+
+    private ActionDTO copyActionToDTO(Action action) {
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setName(action.getName());
+        actionDTO.setDatasource(action.getDatasource());
+        actionDTO.setPageId(action.getPageId());
+        actionDTO.setActionConfiguration(action.getActionConfiguration());
+        actionDTO.setExecuteOnLoad(action.getExecuteOnLoad());
+        actionDTO.setDynamicBindingPathList(action.getDynamicBindingPathList());
+        actionDTO.setIsValid(action.getIsValid());
+        actionDTO.setInvalids(action.getInvalids());
+        actionDTO.setJsonPathKeys(action.getJsonPathKeys());
+        actionDTO.setCacheResponse(action.getCacheResponse());
+        actionDTO.setUserSetOnLoad(action.getUserSetOnLoad());
+        actionDTO.setConfirmBeforeExecute(action.getConfirmBeforeExecute());
+
+        return actionDTO;
+    }
+
+    private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
+        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+                organization.setPlugins(new ArrayList<>());
+            }
+
+            final Set<String> installedPlugins = organization.getPlugins()
+                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+
+            if (!installedPlugins.contains(pluginId)) {
+                organization.getPlugins()
+                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
+            }
+
+            mongoTemplate.save(organization);
         }
     }
 
@@ -532,20 +574,7 @@ public class DatabaseChangelog {
             log.warn("mysql-plugin already present in database.");
         }
 
-        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
-            if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new ArrayList<>());
-            }
-
-            final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
-
-            if (!installedPlugins.contains(plugin1.getId())) {
-                organization.getPlugins()
-                        .add(new OrganizationPlugin(plugin1.getId(), OrganizationPluginStatus.FREE));
-            }
-            mongoTemplate.save(organization);
-        }
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "019", id = "update-database-documentation-links", author = "")
@@ -913,6 +942,7 @@ public class DatabaseChangelog {
 
         if (unfixablePagesCount > 0) {
             log.info("Not all pages' onLoad actions could be fixed. Some old applications might not auto-run actions.");
+
         }
     }
 
@@ -936,8 +966,78 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "027", id = "add-mssql-plugin", author = "")
-    public void addMssqlPlugin(MongoTemplate mongoTemplate) {
+    @ChangeSet(order = "027", id = "add-elastic-search-plugin", author = "")
+    public void addElasticSearchPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("ElasticSearch");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("elasticsearch-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.JSON);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.jpg");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-elasticsearch");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin1.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
+    @ChangeSet(order = "028", id = "add-dynamo-plugin", author = "")
+    public void addDynamoPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("DynamoDB");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("dynamo-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.JSON);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/DynamoDB.png");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-dynamodb");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin1.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
+    @ChangeSet(order = "029", id = "use-png-logos", author = "")
+    public void usePngLogos(MongoTemplate mongoTemplate) {
+        mongoTemplate.updateFirst(
+                query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
+                update(fieldName(QPlugin.plugin.iconLocation),
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.png"),
+                Plugin.class
+        );
+    }
+
+    @ChangeSet(order = "030", id = "add-redis-plugin", author = "")
+    public void addRedisPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("Redis");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("redis-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.TABLE);
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/redis.jpg");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redis");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin1.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
+    @ChangeSet(order = "031", id = "add-msSql-plugin", author = "")
+    public void addMsSqlPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("MsSQL");
         plugin1.setType(PluginType.DB);
@@ -956,24 +1056,141 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
     }
 
-    private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
-        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
-            if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new ArrayList<>());
-            }
+    @ChangeSet(order = "037", id = "createNewPageIndexAfterDroppingNewPage", author = "")
+    public void addNewPageIndexAfterDroppingNewPage(MongoTemplate mongoTemplate) {
+        Index createdAtIndex = makeIndex("createdAt");
 
-            final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+        // Drop existing NewPage class
+        mongoTemplate.dropCollection(NewPage.class);
 
-            if (!installedPlugins.contains(pluginId)) {
-                organization.getPlugins()
-                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
-            }
-
-            mongoTemplate.save(organization);
-        }
+        // Now add an index
+        ensureIndexes(mongoTemplate, NewPage.class,
+                createdAtIndex
+        );
     }
 
+    @ChangeSet(order = "038", id = "createNewActionIndexAfterDroppingNewAction", author = "")
+    public void addNewActionIndexAfterDroppingNewAction(MongoTemplate mongoTemplate) {
+        Index createdAtIndex = makeIndex("createdAt");
 
+        // Drop existing NewAction class
+        mongoTemplate.dropCollection(NewAction.class);
+
+        // Now add an index
+        ensureIndexes(mongoTemplate, NewAction.class,
+                createdAtIndex
+        );
+    }
+
+    @ChangeSet(order = "039", id = "migrate-page-and-actions", author = "")
+    public void migratePage(MongoTemplate mongoTemplate) {
+        final List<Page> pages = mongoTemplate.find(
+                query(where("deletedAt").is(null)),
+                Page.class
+        );
+
+        List<NewPage> toBeInsertedPages = new ArrayList<>();
+
+        for (Page oldPage : pages) {
+            PageDTO unpublishedPage = new PageDTO();
+            PageDTO publishedPage = new PageDTO();
+
+            unpublishedPage.setName(oldPage.getName());
+            unpublishedPage.setLayouts(oldPage.getLayouts());
+
+            publishedPage.setName(oldPage.getName());
+            publishedPage.setLayouts(oldPage.getLayouts());
+
+            if (oldPage.getLayouts() != null && !oldPage.getLayouts().isEmpty()) {
+                unpublishedPage.setLayouts(new ArrayList<>());
+                publishedPage.setLayouts(new ArrayList<>());
+                for (Layout layout : oldPage.getLayouts()) {
+                    Layout unpublishedLayout = new Layout();
+                    copyNewFieldValuesIntoOldObject(layout, unpublishedLayout);
+                    unpublishedLayout.setPublishedDsl(null);
+                    unpublishedLayout.setPublishedLayoutOnLoadActions(null);
+                    unpublishedPage.getLayouts().add(unpublishedLayout);
+
+                    Layout publishedLayout = new Layout();
+                    publishedLayout.setViewMode(true);
+                    copyNewFieldValuesIntoOldObject(layout, publishedLayout);
+                    publishedLayout.setDsl(publishedLayout.getDsl());
+                    publishedLayout.setLayoutOnLoadActions(publishedLayout.getPublishedLayoutOnLoadActions());
+                    publishedLayout.setPublishedDsl(null);
+                    publishedLayout.setPublishedLayoutOnLoadActions(null);
+                    publishedPage.getLayouts().add(publishedLayout);
+                }
+            }
+
+            NewPage newPage = new NewPage();
+            newPage.setApplicationId(oldPage.getApplicationId());
+            newPage.setPublishedPage(publishedPage);
+            newPage.setUnpublishedPage(unpublishedPage);
+
+            //Set the base domain fields
+            newPage.setId(oldPage.getId());
+            newPage.setCreatedAt(oldPage.getCreatedAt());
+            newPage.setUpdatedAt(oldPage.getUpdatedAt());
+            newPage.setPolicies(oldPage.getPolicies());
+
+            toBeInsertedPages.add(newPage);
+        }
+        mongoTemplate.insertAll(toBeInsertedPages);
+
+        // Migrate Actions now
+
+        Map<String, String> pageIdApplicationIdMap = pages
+                .stream()
+                .collect(Collectors.toMap(Page::getId, Page::getApplicationId));
+
+        final List<Action> actions = mongoTemplate.find(
+                query(where("deletedAt").is(null)),
+                Action.class
+        );
+
+        List<NewAction> toBeInsertedActions = new ArrayList<>();
+
+        for (Action oldAction : actions) {
+            ActionDTO unpublishedAction = copyActionToDTO(oldAction);
+            ActionDTO publishedAction = copyActionToDTO(oldAction);
+
+            NewAction newAction = new NewAction();
+
+            newAction.setOrganizationId(oldAction.getOrganizationId());
+            newAction.setPluginType(oldAction.getPluginType());
+            newAction.setPluginId(oldAction.getPluginId());
+            newAction.setTemplateId(oldAction.getTemplateId());
+            newAction.setProviderId(oldAction.getProviderId());
+            newAction.setDocumentation(oldAction.getDocumentation());
+
+            // During the first migration, both the published and the unpublished action dtos would match the existing
+            // action because before this action only had a single instance (whether in edit/view mode)
+            newAction.setUnpublishedAction(unpublishedAction);
+            newAction.setPublishedAction(publishedAction);
+
+            // Now set the application id for this action
+            String applicationId = pageIdApplicationIdMap.get(oldAction.getPageId());
+
+            if (applicationId != null) {
+                newAction.setApplicationId(applicationId);
+            }
+
+            // Set the pluginId for the action
+            if (oldAction.getDatasource() != null) {
+                newAction.setPluginId(oldAction.getDatasource().getPluginId());
+            }
+
+            //Set the base domain fields
+            newAction.setId(oldAction.getId());
+            newAction.setCreatedAt(oldAction.getCreatedAt());
+            newAction.setUpdatedAt(oldAction.getUpdatedAt());
+            newAction.setPolicies(oldAction.getPolicies());
+
+            toBeInsertedActions.add(newAction);
+        }
+
+        mongoTemplate.insertAll(toBeInsertedActions);
+
+    }
 
 }

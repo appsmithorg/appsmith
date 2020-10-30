@@ -55,11 +55,8 @@ export const getWidgetNamePrefix = (
   return state.entities.widgetConfig.config[type].widgetName;
 };
 
-export const getDefaultPageId = (state: AppState, pageId?: string): string => {
-  const { pages } = state.entities.pageList;
-  const page = pages.find(page => page.pageId === pageId);
-  return page ? page.pageId : pages[0].pageId;
-};
+export const getDefaultPageId = (state: AppState): string | undefined =>
+  state.entities.pageList.defaultPageId;
 
 export const getExistingWidgetNames = createSelector(
   getWidgets,

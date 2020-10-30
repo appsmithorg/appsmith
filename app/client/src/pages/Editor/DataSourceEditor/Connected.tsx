@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
-import { isNil, map, get } from "lodash";
+import { isNil } from "lodash";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
@@ -16,10 +16,10 @@ import {
 } from "constants/routes";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { Datasource } from "api/DatasourcesApi";
 import { DEFAULT_API_ACTION } from "constants/ApiEditorConstants";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { AppToaster } from "components/editorComponents/ToastComponent";
+import { renderDatasourceSection } from "./DatasourceSection";
 
 const ConnectedText = styled.div`
   color: ${Colors.GREEN};
@@ -51,29 +51,6 @@ const ActionButton = styled(BaseButton)`
     max-width: 140px;
     align-self: center;
   }
-`;
-
-const Key = styled.div`
-  color: #6d6d6d;
-  font-size: 14px;
-  font-weight: 500;
-  display: inline-block;
-`;
-
-const Value = styled.div`
-  font-size: 14px;
-  font-weight: 400;
-  display: inline-block;
-  margin-left: 5px;
-`;
-
-const ValueWrapper = styled.div`
-  display: inline-block;
-  margin-left: 10px;
-`;
-
-const FieldWrapper = styled.div`
-  margin-top: 9px;
 `;
 
 const Connected = () => {
@@ -188,79 +165,10 @@ const Connected = () => {
       </Header>
       <div style={{ marginTop: "30px" }}>
         {!isNil(currentFormConfig)
-          ? renderSection(currentFormConfig[0], datasource)
+          ? renderDatasourceSection(currentFormConfig[0], datasource)
           : undefined}
       </div>
     </Wrapper>
-  );
-};
-
-const renderSection = (
-  section: any,
-  datasource: Datasource | undefined,
-): any => {
-  return (
-    <>
-      {map(section.children, subSection => {
-        if ("children" in subSection) {
-          return renderSection(subSection, datasource);
-        } else {
-          try {
-            const { label, configProperty, controlType } = subSection;
-            let value = get(datasource, configProperty);
-
-            if (controlType === "KEYVALUE_ARRAY") {
-              const configPropertyInfo = configProperty.split("[*].");
-              const values = get(datasource, configPropertyInfo[0], null);
-
-              if (values) {
-                const keyValuePair = values[0];
-                value = keyValuePair[configPropertyInfo[1]];
-              } else {
-                value = "";
-              }
-            }
-
-            if (controlType === "FIXED_KEY_INPUT") {
-              return (
-                <FieldWrapper>
-                  <Key>{configProperty.key}: </Key>{" "}
-                  <Value>{configProperty.value}</Value>
-                </FieldWrapper>
-              );
-            }
-
-            if (controlType === "KEY_VAL_INPUT") {
-              return (
-                <FieldWrapper>
-                  <Key>{label}</Key>
-                  {value.map((val: { key: string; value: string }) => {
-                    return (
-                      <div key={val.key}>
-                        <div style={{ display: "inline-block" }}>
-                          <Key>Key: </Key>
-                          <Value>{val.key}</Value>
-                        </div>
-                        <ValueWrapper>
-                          <Key>Value: </Key>
-                          <Value>{val.value}</Value>
-                        </ValueWrapper>
-                      </div>
-                    );
-                  })}
-                </FieldWrapper>
-              );
-            }
-
-            return (
-              <FieldWrapper>
-                <Key>{label}: </Key> <Value>{value}</Value>
-              </FieldWrapper>
-            );
-          } catch (e) {}
-        }
-      })}
-    </>
   );
 };
 

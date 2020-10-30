@@ -36,6 +36,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       defaultImage:
         "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
+      maxZoomLevel: 1,
       image: "",
       rows: 3,
       columns: 4,
@@ -433,6 +434,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       allowZoom: true,
       mapCenter: { lat: -34.397, long: 150.644 },
       defaultMarkers: [{ lat: -34.397, long: 150.644, title: "Test A" }],
+    },
+    SKELETON_WIDGET: {
+      isLoading: true,
+      rows: 1,
+      columns: 1,
+      widgetName: "Skeleton",
     },
   },
   configVersion: 1,

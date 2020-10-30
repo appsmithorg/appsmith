@@ -10,6 +10,7 @@ import _ from "lodash";
 import { RapidApiAction, RestAction } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/actionActions";
 import produce from "immer";
+import { Datasource } from "api/DatasourcesApi";
 
 export interface ActionData {
   isLoading: boolean;
@@ -333,6 +334,52 @@ const actionsReducer = createReducer(initialState, {
           draft[index].config.executeOnLoad = true;
         }
       });
+    });
+  },
+  [ReduxActionTypes.FETCH_DATASOURCES_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<Datasource[]>,
+  ) => {
+    const datasources = action.payload;
+
+    return state.map(action => {
+      const datasourceId = action.config.datasource.id;
+      if (datasourceId) {
+        const datasource = datasources.find(
+          datasource => datasource.id === datasourceId,
+        );
+
+        return {
+          ...action,
+          config: {
+            ...action.config,
+            datasource: datasource,
+          },
+        };
+      }
+
+      return action;
+    });
+  },
+  [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<Datasource>,
+  ) => {
+    const datasource = action.payload;
+
+    return state.map(action => {
+      const datasourceId = action.config.datasource.id;
+      if (datasourceId && datasource.id === datasourceId) {
+        return {
+          ...action,
+          config: {
+            ...action.config,
+            datasource: datasource,
+          },
+        };
+      }
+
+      return action;
     });
   },
 });

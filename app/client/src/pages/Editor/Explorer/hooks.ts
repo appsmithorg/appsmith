@@ -31,22 +31,41 @@ const findWidgets = (widgets: WidgetProps, keyword: string) => {
 const findDataSources = (dataSources: Datasource[], keyword: string) => {
   return dataSources.filter(
     (dataSource: Datasource) =>
-      dataSource.name.toLowerCase().indexOf(keyword) > -1,
+      dataSource.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1,
   );
 };
 
 export const useFilteredDatasources = (searchKeyword?: string) => {
-  const dataSources = useSelector((state: AppState) => {
+  const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
   });
+  const actions = useActions();
 
-  return useMemo(
-    () =>
-      searchKeyword
-        ? findDataSources(dataSources, searchKeyword.toLowerCase())
-        : dataSources,
-    [searchKeyword, dataSources],
-  );
+  const datasources = useMemo(() => {
+    const datasourcesPageMap: Record<string, Datasource[]> = {};
+    for (const [key, value] of Object.entries(actions)) {
+      const datasourceIds = value.map(action => action.config.datasource.id);
+      const activeDatasources = reducerDatasources.filter(datasource =>
+        datasourceIds.includes(datasource.id),
+      );
+      datasourcesPageMap[key] = activeDatasources;
+    }
+
+    return datasourcesPageMap;
+  }, [actions, reducerDatasources]);
+
+  return useMemo(() => {
+    if (searchKeyword) {
+      const filteredDatasources = produce(datasources, draft => {
+        for (const [key, value] of Object.entries(draft)) {
+          draft[key] = findDataSources(value, searchKeyword);
+        }
+      });
+      return filteredDatasources;
+    }
+
+    return datasources;
+  }, [searchKeyword, datasources]);
 };
 
 export const useActions = (searchKeyword?: string) => {

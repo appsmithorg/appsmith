@@ -7,11 +7,9 @@ import _ from "lodash";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
-import { VALIDATORS } from "utils/Validators";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -28,42 +26,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       // onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
       selectedOptionValueArr: VALIDATION_TYPES.ARRAY,
       selectedOptionValues: VALIDATION_TYPES.ARRAY,
-      defaultOptionValue: (
-        value: string | string[],
-        props: WidgetProps,
-        dataTree?: DataTree,
-      ) => {
-        let values = value;
-
-        if (props) {
-          if (props.selectionType === "SINGLE_SELECT") {
-            return VALIDATORS[VALIDATION_TYPES.TEXT](value, props, dataTree);
-          } else if (props.selectionType === "MULTI_SELECT") {
-            if (typeof value === "string") {
-              try {
-                values = JSON.parse(value);
-                if (!Array.isArray(values)) {
-                  throw new Error();
-                }
-              } catch {
-                values = value.length ? value.split(",") : [];
-                if (values.length > 0) {
-                  values = values.map(value => value.trim());
-                }
-              }
-            }
-          }
-        }
-
-        if (Array.isArray(values)) {
-          values = _.uniq(values);
-        }
-
-        return {
-          isValid: true,
-          parsed: values,
-        };
-      },
+      defaultOptionValue: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
     };
   }
 
@@ -138,7 +101,11 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
     if (this.props.selectionType === "SINGLE_SELECT") {
-      isChanged = !(this.props.selectedOption.value === selectedOption.value);
+      // Check if the value has changed. If no option
+      // selected till now, there is a change
+      if (this.props.selectedOption) {
+        isChanged = !(this.props.selectedOption.value === selectedOption.value);
+      }
       if (isChanged) {
         this.props.updateWidgetMetaProperty(
           "selectedOptionValue",
