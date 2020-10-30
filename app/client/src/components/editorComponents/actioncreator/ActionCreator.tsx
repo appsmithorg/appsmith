@@ -142,7 +142,7 @@ const textGetter = (value: string, argNum: number) => {
   if (matches.length) {
     const funcArgs = matches[0][2];
     const arg = funcArgs.split(",")[argNum];
-    const stringFromJS = JSToString(arg);
+    const stringFromJS = arg ? JSToString(arg) : arg;
     return stringFromJS;
   }
   return "";
@@ -380,7 +380,7 @@ const fieldConfigs: FieldConfigs = {
       return textGetter(value, 0);
     },
     setter: (option: any, currentValue: string) => {
-      return textSetter(option.value, currentValue, 0);
+      return textSetter(option, currentValue, 0);
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -425,16 +425,16 @@ const fieldConfigs: FieldConfigs = {
       return textGetter(value, 0);
     },
     setter: (option: any, currentValue: string) => {
-      return textSetter(option.value, currentValue, 0);
+      return textSetter(option, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.VALUE_TEXT_FIELD]: {
     getter: (value: any) => {
-      return textGetter(value, 0);
+      return textGetter(value, 1);
     },
     setter: (option: any, currentValue: string) => {
-      return textSetter(option.value, currentValue, 1);
+      return textSetter(option, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
   },
@@ -443,7 +443,7 @@ const fieldConfigs: FieldConfigs = {
       return textGetter(value, 0);
     },
     setter: (option: any, currentValue: string) => {
-      return textSetter(option.value, currentValue, 0);
+      return textSetter(option, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
   },
@@ -452,7 +452,7 @@ const fieldConfigs: FieldConfigs = {
       return textGetter(value, 1);
     },
     setter: (option: any, currentValue: string) => {
-      return textSetter(option.value, currentValue, 1);
+      return textSetter(option, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
   },
