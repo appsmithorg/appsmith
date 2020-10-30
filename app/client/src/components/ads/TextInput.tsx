@@ -175,7 +175,7 @@ const TextInput = forwardRef(
     );
 
     return (
-      <InputWrapper data-cy={props.cypressSelector}>
+      <InputWrapper>
         <StyledInput
           type="text"
           ref={ref}
@@ -186,6 +186,7 @@ const TextInput = forwardRef(
           placeholder={props.placeholder}
           onChange={memoizedChangeHandler}
           readOnly={props.readOnly}
+          data-cy={props.cypressSelector}
         />
         {ErrorMessage}
       </InputWrapper>

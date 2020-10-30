@@ -688,7 +688,7 @@ export const TableHeaderCell = (props: {
   handleColumnNameUpdate: (columnIndex: number, name: string) => void;
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: Function;
+  handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   column: any;
 }) => {
   const { column } = props;
@@ -765,7 +765,9 @@ export const TableHeaderCell = (props: {
   );
 };
 
-export const getAllTableColumnKeys = (tableData: object[]) => {
+export const getAllTableColumnKeys = (
+  tableData: Array<Record<string, unknown>>,
+) => {
   const columnKeys: string[] = [];
   for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
     const row = tableData[i];
@@ -814,7 +816,7 @@ export const reorderColumns = (
 };
 
 export function sortTableFunction(
-  filteredTableData: object[],
+  filteredTableData: Array<Record<string, unknown>>,
   columns: ReactTableColumnProps[],
   sortedColumn: string,
   sortOrder: boolean,
@@ -881,7 +883,10 @@ export const ConditionFunctions: {
     return a !== "" && a !== undefined && a !== null;
   },
   notEqualTo: (a: any, b: any) => {
-    return a !== b;
+    return a.toString() !== b.toString();
+  },
+  isEqualTo: (a: any, b: any) => {
+    return a.toString() === b.toString();
   },
   lessThan: (a: any, b: any) => {
     const numericB = Number(b);

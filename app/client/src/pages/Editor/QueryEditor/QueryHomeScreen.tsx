@@ -13,6 +13,7 @@ import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
+import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
@@ -20,6 +21,7 @@ import { fetchDBPluginForms } from "actions/pluginActions";
 
 const QueryHomePage = styled.div`
   padding: 20px;
+  padding-top: 30px;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -131,15 +133,24 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
           Select a datasource to query or create a new one
         </p>
         <Boundary />
-        <AddDatasource
-          onClick={() => {
-            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
-          }}
-          fill
-          minimal
-          text="New Datasource"
-          icon={"plus"}
-        />
+        {dataSources.length < 2 ? (
+          <AddDatasourceSecurely
+            onAddDatasource={() => {
+              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+            }}
+          />
+        ) : (
+          <AddDatasource
+            className="t--add-datasource"
+            onClick={() => {
+              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+            }}
+            fill
+            minimal
+            text="New Datasource"
+            icon={"plus"}
+          />
+        )}
         {dataSources.map(datasource => {
           return (
             <DatasourceCard

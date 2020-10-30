@@ -73,9 +73,16 @@ const IconSelector = (props: IconSelectorProps) => {
             <IconBox
               key={index}
               selectedColor={selected === iconName ? props.selectedColor : ""}
+              className={
+                selected === iconName
+                  ? "t--icon-selected"
+                  : "t--icon-not-selected"
+              }
               onClick={() => {
-                setSelected(iconName);
-                props.onSelect && props.onSelect(iconName);
+                if (iconName !== selected) {
+                  setSelected(iconName);
+                  props.onSelect && props.onSelect(iconName);
+                }
               }}
             >
               <AppIcon name={iconName} size={Size.small} />

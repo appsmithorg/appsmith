@@ -1,28 +1,28 @@
 import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-  ReduxAction,
   ApplicationPayload,
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import ApplicationApi, {
-  PublishApplicationResponse,
-  PublishApplicationRequest,
-  FetchApplicationsResponse,
+  ApplicationObject,
+  ApplicationPagePayload,
+  ApplicationResponsePayload,
+  ChangeAppViewAccessRequest,
   CreateApplicationRequest,
   CreateApplicationResponse,
-  ApplicationResponsePayload,
-  ApplicationPagePayload,
-  SetDefaultPageRequest,
   DeleteApplicationRequest,
+  DuplicateApplicationRequest,
+  FetchApplicationsResponse,
   FetchUsersApplicationsOrgsResponse,
   OrganizationApplicationObject,
-  ApplicationObject,
-  ChangeAppViewAccessRequest,
-  DuplicateApplicationRequest,
+  PublishApplicationRequest,
+  PublishApplicationResponse,
+  SetDefaultPageRequest,
   UpdateApplicationRequest,
 } from "api/ApplicationApi";
 import { getDefaultPageId } from "./SagaUtils";
-import { call, put, takeLatest, all, select } from "redux-saga/effects";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
@@ -30,13 +30,17 @@ import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
-import { setDefaultApplicationPageSuccess } from "actions/applicationActions";
+import {
+  FetchApplicationPayload,
+  setDefaultApplicationPageSuccess,
+} from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import {
-  DUPLICATING_APPLICATION,
   DELETING_APPLICATION,
+  DUPLICATING_APPLICATION,
 } from "constants/messages";
+import { APP_MODE } from "../reducers/entityReducers/appReducer";
 import { Organization } from "constants/orgConstants";
 
 export function* publishApplicationSaga(
@@ -134,14 +138,18 @@ export function* fetchApplicationListSaga() {
 }
 
 export function* fetchApplicationSaga(
-  action: ReduxAction<{
-    applicationId: string;
-  }>,
+  action: ReduxAction<FetchApplicationPayload>,
 ) {
   try {
-    const applicationId: string = action.payload.applicationId;
+    const { mode, applicationId } = action.payload;
+    // Get endpoint based on app mode
+    const apiEndpoint =
+      mode === APP_MODE.EDIT
+        ? ApplicationApi.fetchApplication
+        : ApplicationApi.fetchApplicationForViewMode;
+
     const response: FetchApplicationsResponse = yield call(
-      ApplicationApi.fetchApplication,
+      apiEndpoint,
       applicationId,
     );
 

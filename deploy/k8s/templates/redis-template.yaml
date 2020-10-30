@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  labels:
+    name: redis
+spec:
+  type: NodePort
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector:
+    role: redis
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-statefulset
+spec:
+  selector:
+    matchLabels:
+      role: redis
+  serviceName: "redis-service"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: redis
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: redis
+        image: redis
+        ports:
+          - containerPort: 6379
+        volumeMounts:
+          - name: redis-persistent-storage
+            mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-persistent-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
