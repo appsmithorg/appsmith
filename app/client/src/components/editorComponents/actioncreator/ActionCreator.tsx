@@ -130,26 +130,6 @@ const textGetter = (value: string, argNum: number) => {
   return "";
 };
 
-const alertTypeGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[1];
-    return arg ? arg.trim() : "'primary'";
-  }
-  return "";
-};
-
-const downloadFileTypeGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[2];
-    return arg ? arg.trim() : "";
-  }
-  return "";
-};
-
 const enumTypeSetter = (
   changeValue: any,
   currentValue: string,
@@ -163,6 +143,20 @@ const enumTypeSetter = (
     `{{$1(${args.join(",")})}}`,
   );
   return result;
+};
+
+const enumTypeGetter = (
+  value: string,
+  argNum: number,
+  defaultValue = "",
+): string => {
+  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+  if (matches.length) {
+    const funcArgs = matches[0][2];
+    const arg = funcArgs.split(",")[argNum];
+    return arg ? arg.trim() : defaultValue;
+  }
+  return defaultValue;
 };
 
 type ActionCreatorProps = {
@@ -394,7 +388,7 @@ const fieldConfigs: FieldConfigs = {
   },
   [FieldType.ALERT_TYPE_SELECTOR_FIELD]: {
     getter: (value: any) => {
-      return alertTypeGetter(value);
+      return enumTypeGetter(value, 1, "success");
     },
     setter: (option: any, currentValue: string) => {
       return enumTypeSetter(option.value, currentValue, 1);
@@ -438,7 +432,9 @@ const fieldConfigs: FieldConfigs = {
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.DOWNLOAD_FILE_TYPE_FIELD]: {
-    getter: downloadFileTypeGetter,
+    getter: (value: any) => {
+      return enumTypeGetter(value, 2);
+    },
     setter: (option: any, currentValue: string) =>
       enumTypeSetter(option.value, currentValue, 2),
     view: ViewTypes.SELECTOR_VIEW,
