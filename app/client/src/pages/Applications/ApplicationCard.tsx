@@ -248,18 +248,12 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const [selectedColor, setSelectedColor] = useState<string>(colorCode);
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isNewCard, setIsNewCard] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const menuIconRef = createRef<HTMLSpanElement>();
 
   useEffect(() => {
     setSelectedColor(colorCode);
   }, [colorCode]);
-  useEffect(() => {
-    if (isNewCard && menuIconRef.current) {
-      menuIconRef.current.click();
-    }
-  }, [isNewCard]);
   useEffect(() => {
     if (props.share) {
       moreActionItems.push({
@@ -283,7 +277,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   }, []);
   useEffect(() => {
     if (props.activeAppCard) {
-      setIsNewCard(true);
       setShowOverlay(true);
     }
   }, [props.activeAppCard]);
@@ -380,7 +373,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         onClosing={() => {
           setIsMenuOpen(false);
           setShowOverlay(false);
-          setIsNewCard(false);
           addDeleteOption();
           if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
             props.update &&
@@ -392,7 +384,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       >
         {hasEditPermission && (
           <EditableText
-            isEditingDefault={isNewCard}
             defaultValue={props.application.name}
             editInteractionKind={EditInteractionKind.SINGLE}
             onTextChanged={(value: string) => {
@@ -413,7 +404,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             }
             fill={true}
             onBlur={(value: string) => {
-              setIsNewCard(false);
               props.update &&
                 props.update(props.application.id, {
                   name: value,
@@ -468,7 +458,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     >
       <>
         <Wrapper
-          className={isFetchingApplications ? Classes.SKELETON : ""}
+          className={
+            isFetchingApplications
+              ? Classes.SKELETON
+              : "t--application-card-background"
+          }
           key={props.application.id}
           hasReadPermission={hasReadPermission}
           backgroundColor={colorCode}
@@ -524,7 +518,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           isFetching={isFetchingApplications}
           className={isFetchingApplications ? Classes.SKELETON : ""}
         >
-          <Text type={TextType.H3}>{props.application.name}</Text>
+          <Text type={TextType.H3} cypressSelector="t--app-card-name">
+            {props.application.name}
+          </Text>
         </AppNameWrapper>
       </>
     </NameWrapper>

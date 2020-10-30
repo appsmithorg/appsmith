@@ -14,9 +14,6 @@
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 </p>
-  <p>
-    <sub>Built with empathy, not just ❤︎ </sub>
-  </p>
 </div>
 
 -----------------
@@ -86,7 +83,7 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
 ## 🧑‍🤝‍🧑 Contributors
 
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove / modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <table>

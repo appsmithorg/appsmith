@@ -11,9 +11,3 @@ export const mockExecute = jest.fn().mockImplementation((src, data) => {
 });
 
 export const mockRegisterLibrary = jest.fn();
-
-// jest.mock("jsExecution/RealmExecutor", () => {
-//   jest.fn().mockImplementation(() => {
-//     return { execute: mockExecute, registerLibrary: mockRegisterLibrary };
-//   });
-// });

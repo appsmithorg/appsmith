@@ -10,6 +10,7 @@ import { Datasource } from "api/DatasourcesApi";
 import { Action } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
+import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -138,12 +139,6 @@ export const getQueryName = (state: AppState, actionId: string): string => {
   return action?.config.name ?? "";
 };
 
-export const getQueryActions = (state: AppState): ActionDataState => {
-  return state.entities.actions.filter((action: ActionData) => {
-    return action.config.pluginType === QUERY_CONSTANT;
-  });
-};
-
 const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
@@ -200,6 +195,15 @@ export const getActionsForCurrentPage = createSelector(
   (pageId, actions) => {
     if (!pageId) return [];
     return actions.filter(a => a.config.pageId === pageId);
+  },
+);
+
+export const getQueryActionsForCurrentPage = createSelector(
+  getActionsForCurrentPage,
+  actions => {
+    return actions.filter((action: ActionData) => {
+      return action.config.pluginType === QUERY_CONSTANT;
+    });
   },
 );
 
@@ -264,3 +268,6 @@ export const isActionDirty = (id: string) =>
   });
 
 export const getAppData = (state: AppState) => state.entities.app;
+
+export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
+  state.entities.canvasWidgets;

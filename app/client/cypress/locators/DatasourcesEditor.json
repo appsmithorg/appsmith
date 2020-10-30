@@ -13,7 +13,6 @@
   "PostgreSQL": ".t--plugin-name:contains('PostgreSQL')",
   "sectionAuthentication": "[data-cy=section-Authentication]",
   "sectionSSL": "[data-cy=section-SSL\\ \\(optional\\)]",
-  "addDatasourceEntity": ".plugins .t--entity-add-btn",
   "PostgresEntity": ".t--entity-name:contains(PostgreSQL)",
   "createQuerty": ".t--create-query",
   "editDatasource": ".t--edit-datasource"

@@ -236,6 +236,14 @@ public class MySqlPluginTest {
         assertTrue(output.contains("Missing endpoint and url"));
     }
 
+    @Test
+    public void testValidateDatasourceInvalidEndpoint() {
+        String hostname = "jdbc://localhost";
+        dsConfig.getEndpoints().get(0).setHost(hostname);
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
+    }
+
     /* checking that the connection is being closed after the datadourceDestroy method is being called
     NOT : this test case will fail in case of a SQL Exception
      */
