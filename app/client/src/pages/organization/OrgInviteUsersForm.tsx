@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import TagListField from "components/editorComponents/form/fields/TagListField";
@@ -204,12 +204,23 @@ const validate = (values: any) => {
     errors["role"] = INVITE_USERS_VALIDATION_ROLE_EMPTY;
   }
 
+  if (values.users && values.users.length > 0) {
+    const _users = values.users.split(",").filter(Boolean);
+
+    _users.forEach((user: string) => {
+      if (!isEmail(user)) {
+        errors["users"] = INVITE_USERS_VALIDATION_EMAIL_LIST;
+      }
+    });
+  }
   return errors;
 };
 
 const { mailEnabled } = getAppsmithConfigs();
 
 const OrgInviteUsersForm = (props: any) => {
+  const [emailError, setEmailError] = useState("");
+
   const {
     handleSubmit,
     allUsers,
@@ -296,6 +307,7 @@ const OrgInviteUsersForm = (props: any) => {
               label="Emails"
               intent="success"
               data-cy="t--invite-email-input"
+              customError={(err: string) => setEmailError(err)}
             />
             <SelectField
               name="role"
@@ -377,8 +389,8 @@ const OrgInviteUsersForm = (props: any) => {
               fill
             />
           )}
-          {submitFailed && error && (
-            <Callout text={error} variant={Variant.danger} fill />
+          {((submitFailed && error) || emailError) && (
+            <Callout text={error || emailError} variant={Variant.danger} fill />
           )}
         </ErrorBox>
         {!pathRegex.test(currentPath) && canManage && (

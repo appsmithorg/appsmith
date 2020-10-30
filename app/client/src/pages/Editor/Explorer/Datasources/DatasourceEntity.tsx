@@ -27,6 +27,7 @@ type ExplorerDatasourceEntityProps = {
   datasource: Datasource;
   step: number;
   searchKeyword?: string;
+  pageId: string;
 };
 
 export const ExplorerDatasourceEntity = (
@@ -56,7 +57,7 @@ export const ExplorerDatasourceEntity = (
   const active = datasourceIdFromURL === props.datasource.id;
 
   const updateDatasourceName = (id: string, name: string) =>
-    saveDatasourceName({ id, name });
+    saveDatasourceName({ id: props.datasource.id, name });
 
   const datasourceStructure = useSelector((state: AppState) => {
     return state.entities.datasources.structure[props.datasource.id];
@@ -79,7 +80,7 @@ export const ExplorerDatasourceEntity = (
 
   return (
     <Entity
-      entityId={props.datasource.id}
+      entityId={`${props.datasource.id}-${props.pageId}`}
       className="datasource"
       key={props.datasource.id}
       icon={icon}
@@ -95,6 +96,7 @@ export const ExplorerDatasourceEntity = (
       updateEntityName={updateDatasourceName}
       contextMenu={
         <DataSourceContextMenu
+          entityId={`${props.datasource.id}-${props.pageId}`}
           datasourceId={props.datasource.id}
           className={EntityClassNames.CONTEXT_MENU}
         />
