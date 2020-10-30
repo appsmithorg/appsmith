@@ -46,11 +46,12 @@ export const PropertySection = (props: {
           onClick={() => open(!isOpen)}
         />
       </SectionTitle>
-      {props.children && (
+      <div style={{ position: "relative" }}>{props.children}</div>
+      {/* {props.children && (
         <Collapse isOpen={isOpen} keepChildrenMounted>
           {props.children}
         </Collapse>
-      )}
+      )} */}
     </SectionWrapper>
   );
 };

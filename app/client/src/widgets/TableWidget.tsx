@@ -198,6 +198,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "computedValue",
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType !== "button";
+                      },
                     },
                     {
                       id: "7.1.6.1.3",
@@ -205,6 +208,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Filtering",
                       controlType: "SWITCH",
                       isJSConvertible: true,
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType !== "button";
+                      },
                     },
                     {
                       id: "7.1.6.1.4",
@@ -212,6 +218,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Sorting",
                       controlType: "SWITCH",
                       isJSConvertible: true,
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType !== "button";
+                      },
                     },
                   ],
                 },
@@ -334,7 +343,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   sectionName: "Button Properties",
                   children: [
                     {
-                      propertyName: "text",
+                      propertyName: "buttonLabel",
                       label: "Label",
                       helpText: "Sets the label of the button",
                       controlType: "INPUT_TEXT",
@@ -362,7 +371,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
-                      propertyName: "onClick",
+                      propertyName: "buttonOnClick",
                       label: "onClick",
                       controlType: "ACTION_SELECTOR",
                       isJSConvertible: true,
@@ -421,6 +430,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Currency",
                           value: "currencys",
                         },
+                        {
+                          label: "Button",
+                          value: "button",
+                        },
                       ],
                     },
                     {
@@ -428,6 +441,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "computedValue",
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType === "button";
+                      },
                     },
                     {
                       id: "7.1.6.1.3",
@@ -435,6 +451,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Filtering",
                       controlType: "SWITCH",
                       isJSConvertible: true,
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType === "button";
+                      },
                     },
                     {
                       id: "7.1.6.1.4",
@@ -442,12 +461,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Sorting",
                       controlType: "SWITCH",
                       isJSConvertible: true,
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType === "button";
+                      },
                     },
                   ],
                 },
                 {
                   id: "7.1.6.2",
                   sectionName: "Text",
+                  hidden: (props: ColumnProperties) => {
+                    return props.columnType === "button";
+                  },
                   children: [
                     {
                       id: "7.1.6.2.1",
@@ -561,15 +586,44 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
                 {
                   id: "7.1.6.3",
-                  sectionName: "Actions",
+                  sectionName: "Button Properties",
+                  hidden: (props: ColumnProperties) => {
+                    return props.columnType !== "button";
+                  },
                   children: [
                     {
-                      id: "7.1.6.3.1",
-                      helpText:
-                        "Adds a button action for every row. Reference the Table.selectedRow property in the action",
-                      propertyName: "columnActions",
-                      label: "Row Button",
-                      controlType: "COLUMN_ACTION_SELECTOR",
+                      propertyName: "buttonLabel",
+                      label: "Label",
+                      helpText: "Sets the label of the button",
+                      controlType: "INPUT_TEXT",
+                      placeholderText: "Enter label text",
+                    },
+                    {
+                      propertyName: "buttonStyle",
+                      label: "Button Style",
+                      controlType: "DROP_DOWN",
+                      helpText: "Changes the style of the button",
+                      options: [
+                        {
+                          label: "Primary Button",
+                          value: "PRIMARY_BUTTON",
+                        },
+                        {
+                          label: "Secondary Button",
+                          value: "SECONDARY_BUTTON",
+                        },
+                        {
+                          label: "Danger Button",
+                          value: "DANGER_BUTTON",
+                        },
+                      ],
+                    },
+                    {
+                      helpText: "Triggers an action when the button is clicked",
+                      propertyName: "buttonOnClick",
+                      label: "onClick",
+                      controlType: "ACTION_SELECTOR",
+                      isJSConvertible: true,
                     },
                   ],
                 },
@@ -711,12 +765,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             cellProperties: cellProperties,
           },
           Cell: (props: any) => {
-            return renderCell(
-              props.cell.value,
-              columnProperties.columnType,
-              isHidden,
-              cellProperties,
-            );
+            if (columnProperties.columnType === "button") {
+              const buttonProperties: ButtonProperties = {
+                label: columnProperties.buttonLabel,
+                id: columnProperties.id,
+                dynamicTrigger: columnProperties.buttonOnClick,
+                onCommandClick: this.onCommandClick,
+                isSelected: props.row.isSelected,
+              };
+              return renderCell(
+                props.cell.value,
+                columnProperties.columnType,
+                isHidden,
+                cellProperties,
+                buttonProperties,
+              );
+            } else {
+              return renderCell(
+                props.cell.value,
+                columnProperties.columnType,
+                isHidden,
+                cellProperties,
+              );
+            }
           },
         };
         if (isHidden) {
@@ -1304,6 +1375,15 @@ export interface CellLayoutProperties {
   fontStyle?: FontStyle;
   textColor?: string;
 }
+
+export interface ButtonProperties {
+  label?: string;
+  id: string;
+  dynamicTrigger?: string;
+  isSelected?: boolean;
+  onCommandClick: (action: string, onComplete: () => void) => void;
+}
+
 export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
@@ -1339,7 +1419,10 @@ export interface ColumnProperties {
   enableFilter?: boolean;
   enableSort?: boolean;
   isDerived: boolean;
-  computedValue: string; // ['Vicky', 'Hetu', 'Abhinav']
+  computedValue: string;
+  buttonLabel?: string;
+  buttonStyle?: string;
+  buttonOnClick?: string;
   format?: {
     input?: string;
     output: string;

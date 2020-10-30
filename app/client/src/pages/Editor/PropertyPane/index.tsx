@@ -33,7 +33,7 @@ const PropertyPaneWrapper = styled(PaneWrapper)`
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 ${props => props.theme.spaces[2]}px 0 0;
+  padding: 0 ${props => props.theme.spaces[5]}px 0 0;
   text-transform: none;
   ${scrollbarDark};
 `;

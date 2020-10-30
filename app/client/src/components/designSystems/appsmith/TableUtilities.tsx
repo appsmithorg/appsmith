@@ -18,6 +18,7 @@ import {
   FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
+  ButtonProperties,
   TextSizes,
 } from "widgets/TableWidget";
 import { isString } from "lodash";
@@ -465,6 +466,7 @@ export const renderCell = (
   columnType: string,
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
+  buttonProperties?: ButtonProperties,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -521,15 +523,34 @@ export const renderCell = (
         );
       }
     default:
-      return (
-        <AutoToolTipComponent
-          title={value.toString()}
-          isHidden={isHidden}
-          cellProperties={cellProperties}
-        >
-          {value.toString()}
-        </AutoToolTipComponent>
-      );
+      if (columnType === "button" && buttonProperties) {
+        const buttonProps = {
+          isSelected: !!buttonProperties.isSelected,
+          onCommandClick: buttonProperties.onCommandClick,
+          columnActions: [
+            {
+              id: buttonProperties.id,
+              label: buttonProperties.label || "",
+              dynamicTrigger: buttonProperties.dynamicTrigger || "",
+            },
+          ],
+        };
+        return (
+          <CellWrapper isHidden={isHidden}>
+            {renderActions(buttonProps)}
+          </CellWrapper>
+        );
+      } else {
+        return (
+          <AutoToolTipComponent
+            title={value.toString()}
+            isHidden={isHidden}
+            cellProperties={cellProperties}
+          >
+            {value.toString()}
+          </AutoToolTipComponent>
+        );
+      }
   }
 };
 

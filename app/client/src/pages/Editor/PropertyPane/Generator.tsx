@@ -29,6 +29,10 @@ export const generatePropertyControl = (
   if (!propertyPaneConfig) return null;
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
     if ((config as PropertyPaneSectionConfig).sectionName) {
+      // Do not render the section if it needs to be hidden
+      if (config.hidden && config.hidden(props)) {
+        return null;
+      }
       return (
         <PropertySection
           key={config.id}

@@ -7,6 +7,7 @@ export type PropertyPaneSectionConfig = {
   sectionName: string;
   id?: string;
   children: PropertyPaneConfig[];
+  hidden?: (props: any) => boolean;
 };
 
 export type PanelConfig = {

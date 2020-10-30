@@ -64,11 +64,13 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
       dataTreePath,
       validationMessage,
     } = this.props;
-    const value = propertyValue.substring(
-      `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => `
-        .length,
-      propertyValue.length - 3,
-    );
+    const value = propertyValue
+      ? propertyValue.substring(
+          `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => `
+            .length,
+          propertyValue.length - 3,
+        )
+      : "";
     return (
       <InputText
         label={label}
