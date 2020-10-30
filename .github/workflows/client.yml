@@ -47,7 +47,7 @@ jobs:
         DOCKER_IMAGE_NAME="appsmith/appsmith-server-ee:release"
         echo ${GITHUB_REF}
         echo $GITHUB_REF
-        if [ ${GITHUB_REF} == '/refs/heads/master' ]; then
+        if [ "${GITHUB_REF}" == '/refs/heads/master' ]; then
           DOCKER_IMAGE_NAME="appsmith/appsmith-server-ee:nightly"
         fi
         echo ::set-output name=DOCKER_IMAGE_NAME::${DOCKER_IMAGE_NAME}
@@ -162,7 +162,7 @@ jobs:
       id: server
       run: |
         DOCKER_IMAGE_NAME="appsmith/appsmith-server-ee:release"
-        if [ ${GITHUB_REF} == '/refs/heads/master' ]; then
+        if [ "${GITHUB_REF}" == '/refs/heads/master' ]; then
           DOCKER_IMAGE_NAME="appsmith/appsmith-server-ee:nightly"
         fi
         echo ::set-output name=DOCKER_IMAGE_NAME::${DOCKER_IMAGE_NAME}
