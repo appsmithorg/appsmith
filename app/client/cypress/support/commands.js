@@ -1642,7 +1642,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
   cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");
-  cy.route("PUT", "/api/v1/applications/*").as("updateApplicationName");
+  cy.route("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
