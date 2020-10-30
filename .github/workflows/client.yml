@@ -152,7 +152,7 @@ jobs:
       run: |
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         DOCKER_IMAGE_NAME=appsmith/appsmith-server-ee:release
-        if [[ github.ref == 'refs/heads/master' ]]
+        if [ ${GITHUB_REF} == '/refs/heads/master' ];
         then
           DOCKER_IMAGE_NAME=appsmith/appsmith-server-ee:nightly
         fi
