@@ -99,6 +99,7 @@ class ImageComponent extends React.Component<
           }}
           onZoomChange={(zoom: any) => {
             if (zoomActive) {
+              //Check max zoom
               if (
                 maxZoomLevel === zoom.scale &&
                 // Added for preventing infinite loops
@@ -107,6 +108,7 @@ class ImageComponent extends React.Component<
                 this.setState({
                   zoomingState: ZoomingState.MAX_ZOOMED_IN,
                 });
+                // Check min zoom
               } else if (
                 zoom.scale === 1 &&
                 this.state.zoomingState !== ZoomingState.MAX_ZOOMED_OUT
