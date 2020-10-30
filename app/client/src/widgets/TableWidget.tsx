@@ -636,18 +636,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  updatePageNumber = (pageNo: number) => {
+  updatePageNumber = (pageNo: number, trigger?: boolean) => {
     const oldPageNo: number = this.props.pageNo || 1;
-    let event = EventType.ON_NEXT_PAGE;
-    if (oldPageNo > pageNo) {
-      event = EventType.ON_PREV_PAGE;
+    if (trigger && oldPageNo !== pageNo) {
+      let event = EventType.ON_NEXT_PAGE;
+      if (oldPageNo > pageNo) {
+        event = EventType.ON_PREV_PAGE;
+      }
+      this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+        dynamicString: this.props.onPageChange,
+        event: {
+          type: event,
+        },
+      });
+    } else {
+      this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
-    this.props.updateWidgetMetaProperty("pageNo", pageNo, {
-      dynamicString: this.props.onPageChange,
-      event: {
-        type: event,
-      },
-    });
     if (this.props.onPageChange) {
       this.resetSelectedRowIndex();
     }

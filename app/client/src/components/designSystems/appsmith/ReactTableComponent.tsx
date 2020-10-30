@@ -47,7 +47,7 @@ interface ReactTableComponentProps {
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-  updatePageNo: (pageNo: number) => void;
+  updatePageNo: (pageNo: number, trigger?: boolean) => void;
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
   nextPageClick: () => void;

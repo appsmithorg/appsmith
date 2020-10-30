@@ -42,7 +42,7 @@ const PageNumberInputWrapper = styled(NumericInput)`
 const PageNumberInput = (props: {
   pageNo: number;
   pageCount: number;
-  updatePageNo: Function;
+  updatePageNo: (pageNo: number, trigger?: boolean) => void;
 }) => {
   return (
     <PageNumberInputWrapper
@@ -51,6 +51,11 @@ const PageNumberInput = (props: {
       max={props.pageCount || 1}
       buttonPosition="none"
       clampValueOnBlur={true}
+      onBlur={(e: any) => {
+        if (e.target.value) {
+          props.updatePageNo(Number(e.target.value), true);
+        }
+      }}
       onValueChange={(value: number) => {
         if (isNaN(value) || value < 1) {
           props.updatePageNo(1);
@@ -65,11 +70,11 @@ const PageNumberInput = (props: {
 };
 
 interface TableHeaderProps {
-  updatePageNo: Function;
+  updatePageNo: (pageNo: number, trigger?: boolean) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
-  tableData: object[];
+  tableData: Array<Record<string, unknown>>;
   tableColumns: ReactTableColumnProps[];
   pageCount: number;
   currentPageIndex: number;

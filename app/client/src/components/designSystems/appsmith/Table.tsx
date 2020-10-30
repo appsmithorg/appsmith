@@ -44,7 +44,7 @@ interface TableProps {
     isSelected: boolean,
   ) => void;
   pageNo: number;
-  updatePageNo: (pageNo: number) => void;
+  updatePageNo: (pageNo: number, trigger?: boolean) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
