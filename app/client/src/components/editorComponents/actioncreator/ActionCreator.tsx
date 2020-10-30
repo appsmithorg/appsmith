@@ -78,36 +78,18 @@ export const modalGetter = (value: string) => {
   return name;
 };
 
-// const urlSetter = (changeValue: any, currentValue: string): string => {
-//   return currentValue.replace(ACTION_TRIGGER_REGEX, `{{$1('${changeValue}')}}`);
-// };
-
-// export const textGetter = (value: string) => {
-//   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-//   if (matches.length) {
-//     const stringValue = matches[0][2];
-//     return stringValue.substring(1, stringValue.length - 1);
-//   }
-//   return "";
-// };
-
 const stringToJS = (string: string): string => {
-  if (isDynamicValue(string)) {
-    const { stringSegments, jsSnippets } = getDynamicBindings(string);
-    // let jsIndex = 0;
-    const js = stringSegments
-      .map((segment, index) => {
-        if (isDynamicValue(segment)) {
-          return jsSnippets[index];
-        } else {
-          return `'${segment}'`;
-        }
-      })
-      .join(" + ");
-    return js;
-  } else {
-    return `'${string}'`;
-  }
+  const { stringSegments, jsSnippets } = getDynamicBindings(string);
+  const js = stringSegments
+    .map((segment, index) => {
+      if (jsSnippets[index] && jsSnippets[index].length > 0) {
+        return jsSnippets[index];
+      } else {
+        return `'${segment}'`;
+      }
+    })
+    .join(" + ");
+  return js;
 };
 
 const JSToString = (js: string): string => {
@@ -115,10 +97,10 @@ const JSToString = (js: string): string => {
   return segments
     .map(segment => {
       if (segment.charAt(0) === "'") {
-        return segment.substring(1, segment.length - 2);
+        return segment.substring(1, segment.length - 1);
       } else return "{{" + segment + "}}";
     })
-    .join(" ");
+    .join("");
 };
 
 const textSetter = (
@@ -142,7 +124,7 @@ const textGetter = (value: string, argNum: number) => {
   if (matches.length) {
     const funcArgs = matches[0][2];
     const arg = funcArgs.split(",")[argNum];
-    const stringFromJS = arg ? JSToString(arg) : arg;
+    const stringFromJS = arg ? JSToString(arg.trim()) : arg;
     return stringFromJS;
   }
   return "";
