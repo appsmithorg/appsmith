@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, Fragment, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
@@ -57,6 +57,7 @@ import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer"
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import Spinner from "components/ads/Spinner";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -590,24 +591,38 @@ const ApplicationsSection = (props: any) => {
                 !isFetchingApplications && (
                   <PaddingWrapper>
                     <ApplicationAddCardWrapper
-                      onClick={() =>
-                        createNewApplication(
-                          getNextEntityName(
-                            "Untitled application ",
-                            applications.map((el: any) => el.name),
-                          ),
-                          organization.id,
-                        )
-                      }
+                      onClick={() => {
+                        if (
+                          Object.entries(creatingApplicationMap).length === 0
+                        ) {
+                          createNewApplication(
+                            getNextEntityName(
+                              "Untitled application ",
+                              applications.map((el: any) => el.name),
+                            ),
+                            organization.id,
+                          );
+                        }
+                      }}
                     >
-                      <Icon
-                        className="t--create-app-popup"
-                        name={"plus"}
-                        size={IconSize.LARGE}
-                      ></Icon>
-                      <CreateNewLabel type={TextType.H4} className="createnew">
-                        Create New
-                      </CreateNewLabel>
+                      {creatingApplicationMap &&
+                      creatingApplicationMap[organization.id] ? (
+                        <Spinner size={IconSize.XXXL} />
+                      ) : (
+                        <Fragment>
+                          <Icon
+                            className="t--create-app-popup"
+                            name={"plus"}
+                            size={IconSize.LARGE}
+                          ></Icon>
+                          <CreateNewLabel
+                            type={TextType.H4}
+                            className="createnew"
+                          >
+                            Create New
+                          </CreateNewLabel>
+                        </Fragment>
+                      )}
                     </ApplicationAddCardWrapper>
                   </PaddingWrapper>
                 )}

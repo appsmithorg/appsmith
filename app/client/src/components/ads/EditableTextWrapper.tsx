@@ -17,6 +17,7 @@ const Container = styled.div<{
     padding: 5px 10px;
     height: 25px;
     text-decoration: ${props => (props.isEditing ? "unset" : "underline")};
+    text-decoration-style: dotted;
     background-color: ${props =>
       (props.isInvalid && props.isEditing) ||
       props.savingState === SavingState.ERROR
@@ -25,6 +26,7 @@ const Container = styled.div<{
   }
 
   &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
+    text-align: center;
     color: #d4d4d4;
     font-size: ${props => props.theme.typography.h4.fontSize}px;
     line-height: ${props => props.theme.typography.h4.lineHeight}px;

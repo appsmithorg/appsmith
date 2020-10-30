@@ -23,7 +23,7 @@ export enum SavingState {
 
 export type EditableTextProps = CommonComponentProps & {
   defaultValue: string;
-  placeholder: string;
+  placeholder?: string;
   editInteractionKind: EditInteractionKind;
   savingState: SavingState;
   onBlur: (value: string) => void;
@@ -173,14 +173,14 @@ export const EditableText = (props: EditableTextProps) => {
 
   const onConfirm = useCallback(
     (_value: string) => {
-      if (savingState === SavingState.ERROR || isInvalid) {
+      if (savingState === SavingState.ERROR || isInvalid || _value === "") {
         setValue(lastValidValue);
         onBlur(lastValidValue);
         setSavingState(SavingState.NOT_STARTED);
       } else if (changeStarted) {
         onTextChanged && onTextChanged(_value);
-        onBlur(_value);
       }
+      onBlur(_value);
       setIsEditing(false);
       setChangeStarted(false);
     },
@@ -199,7 +199,7 @@ export const EditableText = (props: EditableTextProps) => {
       const finalVal: string = _value;
       const errorMessage = inputValidation && inputValidation(finalVal);
       const error = errorMessage ? errorMessage : false;
-      if (!error) {
+      if (!error && _value !== "") {
         setLastValidValue(finalVal);
         onTextChanged && onTextChanged(finalVal);
       }
@@ -253,7 +253,7 @@ export const EditableText = (props: EditableTextProps) => {
           onConfirm={onConfirm}
           value={value}
           selectAllOnFocus={true}
-          placeholder={props.placeholder}
+          placeholder={props.placeholder || defaultValue}
           className={props.className}
           onCancel={onConfirm}
         />
@@ -261,9 +261,9 @@ export const EditableText = (props: EditableTextProps) => {
         <IconWrapper className="icon-wrapper">
           {savingState === SavingState.STARTED ? (
             <Spinner size={IconSize.XL} />
-          ) : (
+          ) : value ? (
             <Icon name={iconName} size={IconSize.XL} />
-          )}
+          ) : null}
         </IconWrapper>
       </TextContainer>
       {isEditing && !!isInvalid ? (

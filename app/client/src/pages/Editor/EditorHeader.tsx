@@ -195,14 +195,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     dispatch(updateApplication(id, data));
   };
 
-  const appNameValidator = (value: string) => {
-    if (!value) {
-      return "Name cannot be empty";
-    } else {
-      return false;
-    }
-  };
-
   return (
     <HeaderWrapper>
       <HeaderSection>
@@ -220,9 +212,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             variant="UNDERLINE"
             defaultValue={currentApplication?.name || ""}
             editInteractionKind={EditInteractionKind.SINGLE}
-            placeholder={"Enter application name"}
             hideEditIcon={true}
-            isInvalid={appNameValidator}
             className="t--application-name"
             fill={false}
             savingState={
