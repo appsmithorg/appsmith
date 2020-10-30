@@ -51,7 +51,8 @@ jobs:
           DOCKER_IMAGE_NAME="appsmith/appsmith-server-ee:nightly"
         fi
         echo ::set-output name=DOCKER_IMAGE_NAME::${DOCKER_IMAGE_NAME}
-
+        echo $DOCKER_IMAGE_NAME
+        echo ${DOCKER_IMAGE_NAME}
     # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
     - name: Cache npm dependencies
       uses: actions/cache@v2
