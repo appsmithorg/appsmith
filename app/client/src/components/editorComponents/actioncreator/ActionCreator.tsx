@@ -157,8 +157,7 @@ const enumTypeSetter = (
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = matches[0][2].split(",");
-  const jsVal = stringToJS(changeValue);
-  args[argNum] = jsVal;
+  args[argNum] = changeValue as string;
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
