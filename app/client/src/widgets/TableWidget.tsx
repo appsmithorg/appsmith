@@ -636,13 +636,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  updatePageNumber = (pageNo: number, trigger?: boolean) => {
-    const oldPageNo: number = this.props.pageNo || 1;
-    if (trigger && oldPageNo !== pageNo) {
-      let event = EventType.ON_NEXT_PAGE;
-      if (oldPageNo > pageNo) {
-        event = EventType.ON_PREV_PAGE;
-      }
+  updatePageNumber = (pageNo: number, event?: EventType) => {
+    if (event) {
       this.props.updateWidgetMetaProperty("pageNo", pageNo, {
         dynamicString: this.props.onPageChange,
         event: {
