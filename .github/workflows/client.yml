@@ -21,6 +21,7 @@ jobs:
     defaults:
       run:
         working-directory: app/client
+        shell: bash
 
     steps:
     # Checkout the code
@@ -100,6 +101,7 @@ jobs:
     defaults:
       run:
         working-directory: app/client
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
