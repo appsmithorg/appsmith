@@ -76,17 +76,18 @@ export const EntityProperties = (props: {
       config = entityDefinitions[type];
       if (config) {
         if (isFunction(config)) config = config(entity);
-
-        entityProperties = Object.keys(config)
-          .filter(k => k.indexOf("!") === -1)
-          .map(widgetProperty => {
-            return {
-              propertyName: widgetProperty,
-              entityName: entity.widgetName,
-              value: entity[widgetProperty],
-              step: props.step,
-            };
-          });
+        if (config) {
+          entityProperties = Object.keys(config)
+            .filter(k => k.indexOf("!") === -1)
+            .map(widgetProperty => {
+              return {
+                propertyName: widgetProperty,
+                entityName: entity.widgetName,
+                value: entity[widgetProperty],
+                step: props.step,
+              };
+            });
+        }
       }
       break;
   }

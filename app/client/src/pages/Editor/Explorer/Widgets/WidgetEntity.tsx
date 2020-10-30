@@ -98,17 +98,20 @@ export const getWidgetProperies = (
     ];
 
   if (isFunction(config)) config = config(widgetProps);
-
-  return Object.keys(config)
-    .filter(k => k.indexOf("!") === -1)
-    .map(widgetProperty => {
-      return {
-        propertyName: widgetProperty,
-        entityName: widgetProps.widgetName,
-        value: widgetProps[widgetProperty],
-        step,
-      };
-    });
+  if (config) {
+    return Object.keys(config)
+      .filter(k => k.indexOf("!") === -1)
+      .map(widgetProperty => {
+        return {
+          propertyName: widgetProperty,
+          entityName: widgetProps.widgetName,
+          value: widgetProps[widgetProperty],
+          step,
+        };
+      });
+  } else {
+    return [];
+  }
 };
 
 export type WidgetEntityProps = {
