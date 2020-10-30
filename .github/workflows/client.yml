@@ -42,19 +42,23 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '10.16.3'
-    - name: Set the server Docker image to be used for testing
+    
+    - name: Set the server Docker image to be used for testing in release
+      if: success() && github.ref == 'refs/heads/release'
       id: server
       run: |
-        DOCKER_IMAGE_NAME="appsmith/appsmith-server-ee:release"
-        echo ${GITHUB_REF}
-        echo $GITHUB_REF
-        if [[ "$GITHUB_REF" == '/refs/heads/master' ]]; then
-          echo "Defining nightly tag for server Docker image"
-          DOCKER_IMAGE_NAME="appsmith/appsmith-server-ee:nightly"
-        fi
-        echo ::set-output name=DOCKER_IMAGE_NAME::${DOCKER_IMAGE_NAME}
-        echo $DOCKER_IMAGE_NAME
-        echo ${DOCKER_IMAGE_NAME}
+        echo ::set-output name=DOCKER_IMAGE_NAME::"appsmith/appsmith-server-ee:release"
+
+    - name: Set the server Docker image to be used for testing in master
+      if: success() && github.ref == 'refs/heads/master'
+      id: server
+      run: |
+        echo ::set-output name=DOCKER_IMAGE_NAME::"appsmith/appsmith-server-ee:nightly"
+  
+    - name: Print the server docker image
+      run: |
+        echo ${{steps.server.outputs.DOCKER_IMAGE_NAME}}
+    
     # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
     - name: Cache npm dependencies
       uses: actions/cache@v2
