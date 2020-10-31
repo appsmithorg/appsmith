@@ -1,34 +1,44 @@
-<div align="center">
+<p align="center">
     <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/appsmith_logo_primary.png" alt="Appsmith.com logo" width="400"/>
-</div>
+    <br>
+    <i>A low-code JavaScript-based development platform to build internal tools.</i>
+    <br>
+</p>
 
-<div align="center">
-  <p>
-  
-  [![GitHub release](https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
-  [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
-  [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
-  [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-  [![All Contributors](https://img.shields.io/badge/contributors-50+-orange.svg?style=flat-square)](#-contributors)
-  <!-- ALL-CONTRIBUTORS-BADGE:END -->
-  
-  </p>
-</div>
+<p align="center">
+  <a href="https://www.appsmith.com/"><strong>www.appsmith.com</strong></a>
+  <br>
+</p>
+
+<p align="center">
+  <a href="https://docs.appsmith.com/">Documentation</a>
+  ·
+  <a href="https://github.com/appsmithorg/appsmith/issues/new/choose">Submit an Issue</a>
+  ·
+  <a href="https://discord.gg/rBTTVJp">Discord</a>
+  <br>
+  <br>
+</p>
+
+<p align="center">    
+   <a href="https://github.com/appsmithorg/appsmith/releases/latest">
+    <img src="https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub" alt="Releases" />
+  </a>&nbsp;
+  <a href="#-contributors">
+    <img src="https://img.shields.io/badge/contributors-50+-orange.svg?style=flat-square" alt="Contributors" />
+  </a>&nbsp;
+</p>
 
 -----------------
+<div>
+Appsmith is a low-code development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive UIs. Connect to APIs or Databases directly to build complex workflows really fast.
 
-Appsmith is a **Visual MVC** Framework to build sophisticated internal tools without having to wrestle with ever-upcoming frontend technologies, or cumbersome HTML/CSS. 
+**API Support**: REST APIs<br/>
+**Database Support**: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, & MSFT SQL Server<br/>
+**Hosting**: Cloud-hosted & On-premise
 
-You can build complex workflows using pre-built widgets (forms, tables, charts etc.), connect to any API or Database and even write conditional logic using Javascript.
-
-API Support: REST & GraphQL APIs<br/>
-Database Support: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search<br/>
-Hosting: Cloud-hosted & On-premise
-
-Explore more details below, or [quickly start building on your own](#%EF%B8%8F-quickstart).
-
--------------------
-
+Learn more about Appsmith below, or [jump over to start building on your own](#%EF%B8%8F-quickstart).
+</div>
 <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/UI.gif">
 <p align="center">
   <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/Query2.png" width="270">
@@ -41,7 +51,7 @@ Explore more details below, or [quickly start building on your own](#%EF%B8%8F-q
 * **5-minute setup**: Deploy Appsmith on your server, or use our cloud version to start building in 5 minutes. [Quick Start](#%EF%B8%8F-quickstart)
 * **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anywhere to transform data, and dynamically control widget-properties.
 * **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**.
-* **Trigger APIs**: Connect to internal or external REST and GraphQL APIs to build custom apps.
+* **Trigger APIs**: Connect to REST APIs to build custom apps.
 * **Security**: DB Credentials are AES 256 encrypted and no data is stored by appsmith. Deploy behind your private VPC for additional security!
 * **One-click deployment**: Managed deployment of your apps with a click of a button.
 * **Access-control**: Assign users different roles & control who can edit / view your applications.
