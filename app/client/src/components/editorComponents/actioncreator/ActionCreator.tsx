@@ -18,7 +18,7 @@ import { KeyValueComponent } from "components/propertyControls/KeyValueComponent
 import { InputText } from "components/propertyControls/InputTextControl";
 import { createModalAction } from "actions/widgetActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import TreeStructure from "components/utils/TreeStructure";
 import {
@@ -78,23 +78,40 @@ export const modalGetter = (value: string) => {
   return name;
 };
 
-// const urlSetter = (changeValue: any, currentValue: string): string => {
-//   return currentValue.replace(ACTION_TRIGGER_REGEX, `{{$1('${changeValue}')}}`);
-// };
+const stringToJS = (string: string): string => {
+  const { stringSegments, jsSnippets } = getDynamicBindings(string);
+  const js = stringSegments
+    .map((segment, index) => {
+      if (jsSnippets[index] && jsSnippets[index].length > 0) {
+        return jsSnippets[index];
+      } else {
+        return `'${segment}'`;
+      }
+    })
+    .join(" + ");
+  return js;
+};
 
-// export const textGetter = (value: string) => {
-//   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-//   if (matches.length) {
-//     const stringValue = matches[0][2];
-//     return stringValue.substring(1, stringValue.length - 1);
-//   }
-//   return "";
-// };
+const JSToString = (js: string): string => {
+  const segments = js.split(" + ");
+  return segments
+    .map(segment => {
+      if (segment.charAt(0) === "'") {
+        return segment.substring(1, segment.length - 1);
+      } else return "{{" + segment + "}}";
+    })
+    .join("");
+};
 
-const alertTextSetter = (changeValue: any, currentValue: string): string => {
+const textSetter = (
+  changeValue: any,
+  currentValue: string,
+  argNum: number,
+): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = matches[0][2].split(",");
-  args[0] = `'${changeValue}'`;
+  const jsVal = stringToJS(changeValue);
+  args[argNum] = jsVal;
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
@@ -102,40 +119,25 @@ const alertTextSetter = (changeValue: any, currentValue: string): string => {
   return result;
 };
 
-const alertTextGetter = (value: string) => {
+const textGetter = (value: string, argNum: number) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length) {
     const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[0];
-    return arg.substring(1, arg.length - 1);
+    const arg = funcArgs.split(",")[argNum];
+    const stringFromJS = arg ? JSToString(arg.trim()) : arg;
+    return stringFromJS;
   }
   return "";
 };
 
-const alertTypeSetter = (changeValue: any, currentValue: string): string => {
+const enumTypeSetter = (
+  changeValue: any,
+  currentValue: string,
+  argNum: number,
+): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = matches[0][2].split(",");
-  args[1] = changeValue as string;
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-};
-
-const alertTypeGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[1];
-    return arg ? arg.trim() : "'primary'";
-  }
-  return "";
-};
-
-const storeKeyTextSetter = (changeValue: any, currentValue: string): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
-  args[0] = `'${changeValue}'`;
+  args[argNum] = changeValue as string;
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
@@ -143,104 +145,18 @@ const storeKeyTextSetter = (changeValue: any, currentValue: string): string => {
   return result;
 };
 
-const storeKeyTextGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[0];
-    return arg.substring(1, arg.length - 1);
-  }
-  return "";
-};
-
-const storeValueTextSetter = (
-  changeValue: any,
-  currentValue: string,
+const enumTypeGetter = (
+  value: string,
+  argNum: number,
+  defaultValue = "",
 ): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
-  args[1] = `'${changeValue}'`;
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-};
-
-const storeValueTextGetter = (value: string) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length) {
     const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[1];
-    return arg ? arg.substring(1, arg.length - 1) : "";
+    const arg = funcArgs.split(",")[argNum];
+    return arg ? arg.trim() : defaultValue;
   }
-  return "";
-};
-
-const downloadDataSetter = (changeValue: any, currentValue: string): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
-  args[0] = `'${changeValue}'`;
-  const result = currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-  return result;
-};
-
-const downloadDataGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[0];
-    return arg.substring(1, arg.length - 1);
-  }
-  return "";
-};
-
-const downloadFileNameSetter = (
-  changeValue: any,
-  currentValue: string,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
-  args[1] = `'${changeValue}'`;
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-};
-
-const downloadFileNameGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[1];
-    return arg ? arg.substring(1, arg.length - 1) : "";
-  }
-  return "";
-};
-
-const downloadFileTypeSetter = (
-  changeValue: any,
-  currentValue: string,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
-  args[2] = changeValue as string;
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-};
-
-const downloadFileTypeGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[2];
-    return arg ? arg.trim() : "";
-  }
-  return "";
+  return defaultValue;
 };
 
 type ActionCreatorProps = {
@@ -436,10 +352,10 @@ const fieldConfigs: FieldConfigs = {
   },
   [FieldType.PAGE_SELECTOR_FIELD]: {
     getter: (value: any) => {
-      return modalGetter(value);
+      return textGetter(value, 0);
     },
     setter: (option: any, currentValue: string) => {
-      return modalSetter(option.value, currentValue);
+      return textSetter(option, currentValue, 0);
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -454,55 +370,73 @@ const fieldConfigs: FieldConfigs = {
   },
   [FieldType.URL_FIELD]: {
     getter: (value: string) => {
-      return modalGetter(value);
+      return textGetter(value, 0);
     },
     setter: (value: string, currentValue: string) => {
-      return modalSetter(value, currentValue);
+      return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.ALERT_TEXT_FIELD]: {
     getter: (value: string) => {
-      return alertTextGetter(value);
+      return textGetter(value, 0);
     },
     setter: (value: string, currentValue: string) => {
-      return alertTextSetter(value, currentValue);
+      return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.ALERT_TYPE_SELECTOR_FIELD]: {
     getter: (value: any) => {
-      return alertTypeGetter(value);
+      return enumTypeGetter(value, 1, "success");
     },
     setter: (option: any, currentValue: string) => {
-      return alertTypeSetter(option.value, currentValue);
+      return enumTypeSetter(option.value, currentValue, 1);
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
   [FieldType.KEY_TEXT_FIELD]: {
-    getter: storeKeyTextGetter,
-    setter: storeKeyTextSetter,
+    getter: (value: any) => {
+      return textGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 0);
+    },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.VALUE_TEXT_FIELD]: {
-    getter: storeValueTextGetter,
-    setter: storeValueTextSetter,
+    getter: (value: any) => {
+      return textGetter(value, 1);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 1);
+    },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.DOWNLOAD_DATA_FIELD]: {
-    getter: downloadDataGetter,
-    setter: downloadDataSetter,
+    getter: (value: any) => {
+      return textGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 0);
+    },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.DOWNLOAD_FILE_NAME_FIELD]: {
-    getter: downloadFileNameGetter,
-    setter: downloadFileNameSetter,
+    getter: (value: any) => {
+      return textGetter(value, 1);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 1);
+    },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.DOWNLOAD_FILE_TYPE_FIELD]: {
-    getter: downloadFileTypeGetter,
+    getter: (value: any) => {
+      return enumTypeGetter(value, 2);
+    },
     setter: (option: any, currentValue: string) =>
-      downloadFileTypeSetter(option.value, currentValue),
+      enumTypeSetter(option.value, currentValue, 2),
     view: ViewTypes.SELECTOR_VIEW,
   },
 };
