@@ -354,22 +354,12 @@ class CodeEditor extends Component<Props, State> {
                 className="leftImageStyles"
               />
             )}
-
-            {singleLine ? (
-              <textarea
-                ref={this.textArea}
-                {..._.omit(this.props.input, ["onChange", "value"])}
-                defaultValue={input.value}
-                placeholder={placeholder}
-              />
-            ) : (
-              <textarea
-                ref={this.textArea}
-                {..._.omit(this.props.input, ["onChange", "value"])}
-                defaultValue={input.value}
-                placeholder={placeholder}
-              />
-            )}
+            <textarea
+              ref={this.textArea}
+              {..._.omit(this.props.input, ["onChange", "value"])}
+              defaultValue={input.value}
+              placeholder={placeholder}
+            />
             {this.props.link && (
               <React.Fragment>
                 <a
