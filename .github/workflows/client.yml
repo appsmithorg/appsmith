@@ -160,7 +160,7 @@ jobs:
         --env APPSMITH_ENCRYPTION_PASSWORD=password \
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
-        $DOCKER_IMAGE_NAME
+        appsmith/appsmith-server-ee:release
 
     - name: Pull master server docker container and start it locally
       if: github.ref == 'refs/heads/master'
