@@ -18,6 +18,7 @@ import _ from "lodash";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { removeMultiLineCharacters } from "utils/helpers";
 import "components/editorComponents/CodeEditor/modes";
 import {
   EditorConfig,
@@ -74,6 +75,7 @@ export type EditorStyleProps = {
 export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
+    singleLine?: boolean;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -217,15 +219,19 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
-    const value = this.editor.getValue();
+    const { singleLine, input } = this.props;
+    const value = singleLine
+      ? removeMultiLineCharacters(this.editor.getValue(), " ")
+      : this.editor.getValue();
+    // this.editor.setValue(value); /* two-way binding */
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         searchString: changeObj.text[0],
       });
     }
-    const inputValue = this.props.input.value;
-    if (this.props.input.onChange && value !== inputValue) {
-      this.props.input.onChange(value);
+    const inputValue = input.value;
+    if (input.onChange && value !== inputValue) {
+      input.onChange(value);
     }
     this.updateMarkings();
   };
@@ -272,6 +278,7 @@ class CodeEditor extends Component<Props, State> {
       theme,
       disabled,
       className,
+      placeholder,
       showLightningMenu,
       dataTreePath,
       dynamicData,
@@ -280,6 +287,7 @@ class CodeEditor extends Component<Props, State> {
       evaluatedValue,
       height,
       borderLess,
+      singleLine,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -347,12 +355,21 @@ class CodeEditor extends Component<Props, State> {
               />
             )}
 
-            <textarea
-              ref={this.textArea}
-              {..._.omit(this.props.input, ["onChange", "value"])}
-              defaultValue={input.value}
-              placeholder={this.props.placeholder}
-            />
+            {singleLine ? (
+              <textarea
+                ref={this.textArea}
+                {..._.omit(this.props.input, ["onChange", "value"])}
+                defaultValue={input.value}
+                placeholder={placeholder}
+              />
+            ) : (
+              <textarea
+                ref={this.textArea}
+                {..._.omit(this.props.input, ["onChange", "value"])}
+                defaultValue={input.value}
+                placeholder={placeholder}
+              />
+            )}
             {this.props.link && (
               <React.Fragment>
                 <a

@@ -216,7 +216,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <CodeEditor {...props} />
+        <CodeEditor {...props} singleLine />
       </React.Fragment>
     );
   }
@@ -237,7 +237,7 @@ const mapStateToProps = (
   };
 };
 
-const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: datasource =>
     dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource)),
 });
