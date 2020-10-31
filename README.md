@@ -30,15 +30,16 @@
 </p>
 
 -----------------
-<div>
-Appsmith is a low-code development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive UIs. Connect to APIs or Databases directly to build complex workflows really fast.
+<div>    
+Appsmith is a low-code development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive UIs. Connect to APIs or Databases directly to build complex workflows really fast.<br/>
 
 **API Support**: REST APIs<br/>
 **Database Support**: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, & MSFT SQL Server<br/>
 **Hosting**: Cloud-hosted & On-premise
 
-Learn more about Appsmith below, or [jump over to start building on your own](#%EF%B8%8F-quickstart).
+Learn more about Appsmith below, or [quickly start building on your own](#%EF%B8%8F-quickstart).
 </div>
+
 <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/UI.gif">
 <p align="center">
   <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/Query2.png" width="270">
@@ -69,7 +70,7 @@ Or, check out our [Documentation](https://docs.appsmith.com/) to explore on your
 
 ## 🏃‍♀️ Quickstart
 
-Listed below are the steps to build a dashboard that lists users.
+The following steps introduce you to building a simple user-list dashboard on Appsmith.
 1. [Sign up on Appsmith Cloud](https://bit.ly/appsmith-signup-github) or [Deploy Appsmith via Docker](https://bit.ly/appsmith-docker-github).
 2. Create a new app within the organization that has already been created for you.
 3. Click on the `+` icon next to the `Queries` section to add a new query in the mock database
