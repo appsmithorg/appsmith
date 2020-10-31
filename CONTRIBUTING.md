@@ -2,7 +2,7 @@
 
 Thank you for your interest in Appsmith and taking the time to contribute on this project. 🙌 
 Appsmith is a project by developers for developers and there are a lot of ways you can contribute. 
-Feel free to propose changes to this document in a pull request.
+Feel free to propose changes to this document in a pull request.Contribution to Any organization gives you a sense of satisfaction.
 
 ## Code of conduct
 
