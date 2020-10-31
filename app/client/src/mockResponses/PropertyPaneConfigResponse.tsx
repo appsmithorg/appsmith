@@ -302,7 +302,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "DROP_DOWN",
             options: [
               {
-                label: "1x (Disabled)",
+                label: "1x (No Zoom)",
                 value: 1,
               },
               {
