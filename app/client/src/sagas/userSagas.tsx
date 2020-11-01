@@ -37,7 +37,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { RESET_PASSWORD_RESET_SUCCESS } from "../constants/messages";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
