@@ -216,7 +216,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <CodeEditor {...props} singleLine />
+        <CodeEditor {...props} />
       </React.Fragment>
     );
   }
@@ -248,7 +248,7 @@ const EmbeddedDatasourcePathConnectedComponent = connect(
 )(EmbeddedDatasourcePathComponent);
 
 const EmbeddedDatasourcePathField = (
-  props: BaseFieldProps & { pluginId: string },
+  props: BaseFieldProps & { pluginId: string; singleLine?: boolean },
 ) => {
   return (
     <Field component={EmbeddedDatasourcePathConnectedComponent} {...props} />

@@ -287,7 +287,6 @@ class CodeEditor extends Component<Props, State> {
       evaluatedValue,
       height,
       borderLess,
-      singleLine,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
