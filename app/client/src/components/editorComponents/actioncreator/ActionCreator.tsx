@@ -46,6 +46,7 @@ const FILE_TYPE_OPTIONS = [
   { label: "SVG", value: "'image/svg+xml'", id: "image/svg+xml" },
 ];
 
+const FUNC_ARGS_REGEX = /((["][^"]*["])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"]*[^'",]*))*/gi;
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 //Old Regex:: /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
 const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
@@ -109,7 +110,14 @@ const textSetter = (
   argNum: number,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
+  const argsplitMatches = [...matches[0][2].matchAll(FUNC_ARGS_REGEX)];
+  const args = argsplitMatches
+    .map(match => {
+      return match[1];
+    })
+    .filter(arg => {
+      return arg !== undefined;
+    });
   const jsVal = stringToJS(changeValue);
   args[argNum] = jsVal;
   const result = currentValue.replace(
@@ -136,7 +144,14 @@ const enumTypeSetter = (
   argNum: number,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
+  const argsplitMatches = [...matches[0][2].matchAll(FUNC_ARGS_REGEX)];
+  const args = argsplitMatches
+    .map(match => {
+      return match[1];
+    })
+    .filter(arg => {
+      return arg !== undefined;
+    });
   args[argNum] = changeValue as string;
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
