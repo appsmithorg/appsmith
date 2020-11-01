@@ -353,7 +353,7 @@ const actionsReducer = createReducer(initialState, {
           ...action,
           config: {
             ...action.config,
-            datasource: datasource,
+            datasource: datasource || action.config.datasource, // fallback to original datasource if datasource not available.
           },
         };
       }
