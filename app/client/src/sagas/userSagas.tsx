@@ -37,6 +37,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { RESET_PASSWORD_RESET_SUCCESS } from "../constants/messages";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -169,10 +170,13 @@ export function* resetPasswordSaga(
       yield put({
         type: ReduxActionTypes.RESET_USER_PASSWORD_SUCCESS,
       });
+      history.push({
+        pathname: AUTH_LOGIN_URL,
+        search: `resetSuccess=${true}`,
+      });
       yield call(resolve);
     }
   } catch (error) {
-    console.log(error);
     yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.RESET_USER_PASSWORD_ERROR,

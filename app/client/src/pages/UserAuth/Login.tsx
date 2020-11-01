@@ -25,9 +25,12 @@ import {
   LOGIN_PAGE_INVALID_CREDS_ERROR,
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   FORM_VALIDATION_PASSWORD_RULE,
+  RESET_PASSWORD_RESET_SUCCESS,
 } from "constants/messages";
 import Divider from "components/editorComponents/Divider";
-import FormMessage from "components/editorComponents/form/FormMessage";
+import FormMessage, {
+  FormMessageProps,
+} from "components/editorComponents/form/FormMessage";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import FormTextField from "components/editorComponents/form/FormTextField";
 import Button from "components/editorComponents/Button";
@@ -86,9 +89,34 @@ export const Login = (props: LoginFormProps) => {
 
   const queryParams = new URLSearchParams(location.search);
   let showError = false;
+  let intent = "";
+  let message = "";
+  let actions;
   if (queryParams.get("error")) {
     showError = true;
+    intent = "warning";
+    message = LOGIN_PAGE_INVALID_CREDS_ERROR;
+    actions = [
+      {
+        url: FORGOT_PASSWORD_URL,
+        text: LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+        intent: "success",
+      },
+    ];
   }
+
+  let showResetSuccess = false;
+  if (queryParams.get("resetSuccess")) {
+    showResetSuccess = true;
+    intent = "success";
+    message = RESET_PASSWORD_RESET_SUCCESS;
+  }
+
+  const formMessageProps: FormMessageProps = {
+    intent: intent,
+    message: message,
+    actions: actions,
+  };
 
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
   let signupURL = SIGN_UP_URL;
@@ -104,19 +132,7 @@ export const Login = (props: LoginFormProps) => {
 
   return (
     <AuthCardContainer>
-      {showError && (
-        <FormMessage
-          intent="warning"
-          message={LOGIN_PAGE_INVALID_CREDS_ERROR}
-          actions={[
-            {
-              url: FORGOT_PASSWORD_URL,
-              text: LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
-              intent: "success",
-            },
-          ]}
-        />
-      )}
+      {(showError || showResetSuccess) && <FormMessage {...formMessageProps} />}
       <AuthCardHeader>
         <h1>{LOGIN_PAGE_TITLE}</h1>
         <h5>{LOGIN_PAGE_SUBTITLE}</h5>

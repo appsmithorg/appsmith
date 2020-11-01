@@ -58,7 +58,7 @@ export const RESET_PASSWORD_PAGE_SUBTITLE =
   "Create a new password for your account ";
 
 export const RESET_PASSWORD_RESET_SUCCESS =
-  "Your password has been reset. Redirecting to the login page";
+  "Your password has been reset. Please Login with your new credentials";
 export const RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK = "Login";
 
 export const RESET_PASSWORD_EXPIRED_TOKEN =
