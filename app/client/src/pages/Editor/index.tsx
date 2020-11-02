@@ -14,6 +14,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsEditorInitialized,
+  getIsEditorInitializeError,
   getIsEditorLoading,
   getIsPublishingApplication,
   getPublishingError,
@@ -45,6 +46,7 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
+import ServerTimeout from "../common/ServerTimeout";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -53,6 +55,7 @@ type EditorProps = {
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
+  isEditorInitializeError: boolean;
   errorPublishing: boolean;
   copySelectedWidget: () => void;
   pasteCopiedWidget: () => void;
@@ -189,6 +192,8 @@ class Editor extends Component<Props> {
       nextProps.isPublishing !== this.props.isPublishing ||
       nextProps.isEditorLoading !== this.props.isEditorLoading ||
       nextProps.errorPublishing !== this.props.errorPublishing ||
+      nextProps.isEditorInitializeError !==
+        this.props.isEditorInitializeError ||
       nextState.isDialogOpen !== this.state.isDialogOpen ||
       nextState.registered !== this.state.registered
     );
@@ -200,6 +205,9 @@ class Editor extends Component<Props> {
     });
   };
   public render() {
+    if (this.props.isEditorInitializeError) {
+      return <ServerTimeout />;
+    }
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
         <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
@@ -260,6 +268,7 @@ const mapStateToProps = (state: AppState) => ({
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
+  isEditorInitializeError: getIsEditorInitializeError(state),
   user: getCurrentUser(state),
 });
 

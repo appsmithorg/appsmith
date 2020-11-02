@@ -1,5 +1,4 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { EditorModes } from "../components/editorComponents/CodeEditor/EditorConfig";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 

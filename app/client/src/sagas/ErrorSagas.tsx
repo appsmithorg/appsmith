@@ -94,8 +94,6 @@ export function* errorSaga(
     payload: { error, show = true },
   } = errorAction;
 
-  yield call(handleErrorSaga, error);
-
   const message =
     error && error.message ? error.message : ActionErrorDisplayMap[type](error);
 
@@ -111,22 +109,6 @@ export function* errorSaga(
       source: errorAction.type,
     },
   });
-}
-
-const currentUserRegex = /\/me$/;
-const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
-
-function* handleErrorSaga(error: ErrorPayloadType) {
-  if (
-    error.code &&
-    error.code === axiosConnectionAbortedCode &&
-    error.message &&
-    error.message.match(timeoutErrorRegex)
-  ) {
-    yield put({
-      type: ReduxActionTypes.HANDLE_SERVER_NOT_RESPONDING,
-    });
-  }
 }
 
 export default function* errorSagas() {
