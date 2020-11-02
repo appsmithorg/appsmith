@@ -10,6 +10,8 @@ import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 
@@ -22,6 +24,8 @@ public class Organization extends BaseDomain {
 
     private String domain;
 
+    @NotEmpty(message = "Name must not be empty")
+    @NotBlank(message = "Name must not be blank")
     @NotNull(message = "Name is mandatory")
     private String name;
 
