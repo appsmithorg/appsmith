@@ -147,22 +147,33 @@ jobs:
         name: build
         path: app/client/build
       
-    - name: Pull server docker container and start it locally
+    - name: Pull release server docker container and start it locally
+      if: github.ref == 'refs/heads/release'
       shell: bash
       run: |
-        DOCKER_IMAGE_NAME=appsmith/appsmith-server:release
-        if [[ github.ref == 'refs/heads/master' ]]
-        then
-          DOCKER_IMAGE_NAME=appsmith/appsmith-server:latest
-        fi
-        echo $DOCKER_IMAGE_NAME
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        
         docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
         --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
         --env APPSMITH_REDIS_URL=redis://localhost:6379 \
         --env APPSMITH_ENCRYPTION_PASSWORD=password \
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
-        $DOCKER_IMAGE_NAME
+        appsmith/appsmith-server:release
+  
+    - name: Pull master server docker container and start it locally
+      if: github.ref == 'refs/heads/master'
+      shell: bash
+      run: |
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+        docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+        --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+        --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+        --env APPSMITH_ENCRYPTION_PASSWORD=password \
+        --env APPSMITH_ENCRYPTION_SALT=salt \
+        --env APPSMITH_IS_SELF_HOSTED=false \
+        appsmith/appsmith-server:nightly
 
     - name: Installing Yarn serve
       run: |
