@@ -45,7 +45,7 @@
     "orgSection": "a:contains(",
     "createAppFrOrg": ") .t--create-app-popup", 
     "shareApp": ".t--application-share-btn",
-    "enablePublicAccess": ".bp3-control-indicator",
+    "enablePublicAccess": ".slider",
     "closeBtn": ".bp3-dialog-close-button",
     "applicationName": ".t--application-name",
     "profileMenu": ".bp3-popover-wrapper.profile-menu",
