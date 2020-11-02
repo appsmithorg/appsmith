@@ -49,8 +49,6 @@ But if you’d rather check out some real applications that can be built with Ap
 * [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
 * [Job Application Tracker](https://bit.ly/3hbYtTi)
 
-Or, check out our [Documentation](https://docs.appsmith.com/) to explore on your own.
-
 ## 🏃‍♀️ Quickstart
 
 The following steps introduce you to building a simple user-list dashboard on Appsmith.
