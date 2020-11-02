@@ -199,7 +199,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
-                        return props.columnType !== "button";
+                        return props.columnType === "button";
                       },
                     },
                     {
@@ -209,7 +209,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "SWITCH",
                       isJSConvertible: true,
                       hidden: (props: ColumnProperties) => {
-                        return props.columnType !== "button";
+                        return props.columnType === "button";
                       },
                     },
                     {
@@ -219,7 +219,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "SWITCH",
                       isJSConvertible: true,
                       hidden: (props: ColumnProperties) => {
-                        return props.columnType !== "button";
+                        return props.columnType === "button";
                       },
                     },
                   ],
@@ -227,6 +227,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 {
                   id: "7.1.6.2",
                   sectionName: "Text",
+                  hidden: (props: ColumnProperties) => {
+                    return props.columnType === "button";
+                  },
                   children: [
                     {
                       id: "7.1.6.2.1",
@@ -341,6 +344,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 {
                   id: "7.1.6.3",
                   sectionName: "Button Properties",
+                  hidden: (props: ColumnProperties) => {
+                    return props.columnType !== "button";
+                  },
                   children: [
                     {
                       propertyName: "buttonLabel",
@@ -770,6 +776,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 label: columnProperties.buttonLabel,
                 id: columnProperties.id,
                 dynamicTrigger: columnProperties.buttonOnClick,
+                buttonStyle: columnProperties.buttonStyle || "PRIMARY_BUTTON",
                 onCommandClick: this.onCommandClick,
                 isSelected: props.row.isSelected,
               };
@@ -813,6 +820,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: props.row.isSelected,
               columnActions: columnActions,
               onCommandClick: this.onCommandClick,
+              intent: "PRIMARY_BUTTON",
             });
           },
         });
@@ -1379,6 +1387,7 @@ export interface CellLayoutProperties {
 export interface ButtonProperties {
   label?: string;
   id: string;
+  buttonStyle: string;
   dynamicTrigger?: string;
   isSelected?: boolean;
   onCommandClick: (action: string, onComplete: () => void) => void;
