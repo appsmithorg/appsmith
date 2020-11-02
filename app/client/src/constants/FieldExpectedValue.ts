@@ -12,6 +12,7 @@ const FIELD_VALUES: Record<
   },
   CANVAS_WIDGET: {},
   ICON_WIDGET: {},
+  SKELETON_WIDGET: {},
   CONTAINER_WIDGET: {
     backgroundColor: "string",
     isVisible: "boolean",
@@ -42,6 +43,7 @@ const FIELD_VALUES: Record<
     image: "string",
     defaultImage: "string",
     isVisible: "boolean",
+    maxZoomLevel: "number",
   },
   RADIO_GROUP_WIDGET: {
     options: "Array<{ label: string, value: string }>",

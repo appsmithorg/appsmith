@@ -34,7 +34,7 @@ const AppViewerBody = styled.section`
 `;
 
 export type AppViewerProps = {
-  initializeAppViewer: Function;
+  initializeAppViewer: (applicationId: string, pageId?: string) => void;
   isInitialized: boolean;
   executeAction: (actionPayload: ExecuteActionPayload) => void;
   updateWidgetProperty: (
@@ -61,9 +61,10 @@ class AppViewer extends Component<
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
-    const { applicationId } = this.props.match.params;
-    if (this.props.match.params.applicationId) {
-      this.props.initializeAppViewer(applicationId);
+    const { applicationId, pageId } = this.props.match.params;
+    console.log({ applicationId, pageId });
+    if (applicationId) {
+      this.props.initializeAppViewer(applicationId, pageId);
     }
   }
 
@@ -125,11 +126,12 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
-  initializeAppViewer: (applicationId: string) =>
+  initializeAppViewer: (applicationId: string, pageId?: string) => {
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: { applicationId },
-    }),
+      payload: { applicationId, pageId },
+    });
+  },
 });
 
 export default withRouter(

@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, Fragment, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
@@ -12,6 +12,7 @@ import {
   getUserApplicationsOrgsList,
   getUserApplicationsOrgs,
   getIsDuplicatingApplication,
+  getApplicationSearchKeyword,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -27,7 +28,10 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
-import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
+import {
+  CREATE_ORGANIZATION_FORM_NAME,
+  CREATE_APPLICATION_FORM_NAME,
+} from "constants/forms";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
@@ -48,9 +52,12 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { AppLoader, loadingUserOrgs } from "./ApplicationLoaders";
+import { loadingUserOrgs } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
+import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
+import NoSearchImage from "../../assets/images/NoSearchResult.svg";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import Spinner from "components/ads/Spinner";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -73,9 +80,69 @@ const OrgSection = styled.div``;
 
 const PaddingWrapper = styled.div`
   width: ${props => props.theme.card.minWidth + props.theme.spaces[5] * 2}px;
-  margin: ${props => props.theme.spaces[6] + 1}px
-    ${props => props.theme.spaces[12] + 2}px
+  margin: ${props => props.theme.spaces[6] + 1}px 0px
     ${props => props.theme.spaces[6] + 1}px 0px;
+
+  @media screen and (min-width: 1500px) {
+    margin-right: ${props => props.theme.spaces[12] - 1}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth}px;
+      height: ${props => props.theme.card.minHeight}px;
+    }
+  }
+
+  @media screen and (min-width: 1500px) and (max-width: 1512px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[4] * 2}px;
+    margin-right: ${props => props.theme.spaces[12] - 1}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 5}px;
+      height: ${props => props.theme.card.minHeight - 5}px;
+    }
+  }
+  @media screen and (min-width: 1478px) and (max-width: 1500px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[4] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] + 1}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 8}px;
+      height: ${props => props.theme.card.minHeight - 8}px;
+    }
+  }
+
+  @media screen and (min-width: 1447px) and (max-width: 1477px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[3] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] - 4}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 8}px;
+      height: ${props => props.theme.card.minHeight - 8}px;
+    }
+  }
+
+  @media screen and (min-width: 1417px) and (max-width: 1446px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[3] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] - 8}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 11}px;
+      height: ${props => props.theme.card.minHeight - 11}px;
+    }
+  }
+
+  @media screen and (min-width: 1400px) and (max-width: 1417px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[2] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] - 12}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 15}px;
+      height: ${props => props.theme.card.minHeight - 15}px;
+    }
+  }
+
+  @media screen and (max-width: 1400px) {
+    width: ${props => props.theme.card.minWidth + props.theme.spaces[2] * 2}px;
+    margin-right: ${props => props.theme.spaces[11] - 16}px;
+    .bp3-card {
+      width: ${props => props.theme.card.minWidth - 15}px;
+      height: ${props => props.theme.card.minHeight - 15}px;
+    }
+  }
 `;
 
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
@@ -267,7 +334,7 @@ function LeftPane() {
         heading="ORGANIZATIONS"
         isFetchingApplications={isFetchingApplications}
       >
-        <WorkpsacesNavigator>
+        <WorkpsacesNavigator data-cy="t--left-panel">
           <FormDialogComponent
             trigger={NewWorkspaceTrigger}
             Form={CreateOrganizationForm}
@@ -281,7 +348,7 @@ function LeftPane() {
                   isFetchingApplications ? BlueprintClasses.SKELETON : ""
                 }
                 icon="workspace"
-                key={org.organization.name}
+                key={org.organization.id}
                 href={`${window.location.pathname}#${org.organization.name}`}
                 text={org.organization.name}
                 ellipsize={20}
@@ -336,6 +403,10 @@ ${props => {
   margin-left: 8px;
   color: ${props => props.theme.colors.applications.iconColor};
 }
+`;
+
+const NoSearchResultImg = styled.img`
+  margin: 1em;
 `;
 
 const ApplicationsSection = (props: any) => {
@@ -404,6 +475,7 @@ const ApplicationsSection = (props: any) => {
         <MenuItem
           icon="general"
           text="Organization Settings"
+          cypressSelector="t--org-setting"
           onSelect={() =>
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: `/org/${orgId}/settings/general`,
@@ -429,6 +501,7 @@ const ApplicationsSection = (props: any) => {
   };
 
   const createNewApplication = (applicationName: string, orgId: string) => {
+    console.log(applicationName, orgId);
     return dispatch({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
       payload: {
@@ -445,124 +518,141 @@ const ApplicationsSection = (props: any) => {
     updatedOrgs = loadingUserOrgs as any;
   }
 
-  return (
-    <ApplicationContainer className="t--applications-container">
-      {updatedOrgs &&
-        updatedOrgs.map((organizationObject: any, index: number) => {
-          const { organization, applications } = organizationObject;
-          const hasManageOrgPermissions = isPermitted(
-            organization.userPermissions,
-            PERMISSION_TYPE.MANAGE_ORGANIZATION,
-          );
-          return (
-            <OrgSection className="t--org-section" key={index}>
-              <OrgDropDown>
-                {(currentUser || isFetchingApplications) && (
-                  <OrgMenu
-                    setSelectedOrgId={setSelectedOrgId}
-                    orgId={organization.id}
-                    orgName={organization.name}
-                    disabled={!hasManageOrgPermissions}
-                  ></OrgMenu>
-                )}
+  let organizationsListComponent;
+  if (
+    !isFetchingApplications &&
+    props.searchKeyword &&
+    props.searchKeyword.trim().length > 0 &&
+    updatedOrgs.length === 0
+  ) {
+    organizationsListComponent = (
+      <CenteredWrapper style={{ flexDirection: "column", marginTop: "-150px" }}>
+        <CreateNewLabel type={TextType.H4}>
+          Whale! Whale! this name doesn&apos;t ring a bell!
+        </CreateNewLabel>
+        <NoSearchResultImg src={NoSearchImage} alt="No result found" />
+      </CenteredWrapper>
+    );
+  } else {
+    organizationsListComponent = updatedOrgs.map(
+      (organizationObject: any, index: number) => {
+        const { organization, applications } = organizationObject;
+        const hasManageOrgPermissions = isPermitted(
+          organization.userPermissions,
+          PERMISSION_TYPE.MANAGE_ORGANIZATION,
+        );
+        return (
+          <OrgSection className="t--org-section" key={index}>
+            <OrgDropDown>
+              {(currentUser || isFetchingApplications) && (
+                <OrgMenu
+                  setSelectedOrgId={setSelectedOrgId}
+                  orgId={organization.id}
+                  orgName={organization.name}
+                  disabled={!hasManageOrgPermissions}
+                ></OrgMenu>
+              )}
 
-                {hasManageOrgPermissions && (
-                  <StyledDialog
-                    canOutsideClickClose={false}
-                    canEscapeKeyClose={false}
+              {hasManageOrgPermissions && (
+                <StyledDialog
+                  canOutsideClickClose={false}
+                  canEscapeKeyClose={false}
+                  title={`Invite Users to ${organization.name}`}
+                  onClose={() => setSelectedOrgId("")}
+                  isOpen={selectedOrgId === organization.id}
+                  setMaxWidth
+                >
+                  <div className={BlueprintClasses.DIALOG_BODY}>
+                    <Form orgId={organization.id} />
+                  </div>
+                </StyledDialog>
+              )}
+              {isPermitted(
+                organization.userPermissions,
+                PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
+              ) &&
+                !isFetchingApplications && (
+                  <FormDialogComponent
+                    trigger={
+                      <Button text={"Share"} icon={"share"} size={Size.small} />
+                    }
+                    canOutsideClickClose={true}
+                    Form={OrgInviteUsersForm}
+                    orgId={organization.id}
                     title={`Invite Users to ${organization.name}`}
-                    onClose={() => setSelectedOrgId("")}
-                    isOpen={selectedOrgId === organization.id}
-                    setMaxWidth
-                  >
-                    <div className={BlueprintClasses.DIALOG_BODY}>
-                      <Form orgId={organization.id} />
-                    </div>
-                  </StyledDialog>
+                  />
                 )}
-                {isPermitted(
-                  organization.userPermissions,
-                  PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
-                ) &&
-                  !isFetchingApplications && (
-                    <FormDialogComponent
-                      trigger={
-                        <Button
-                          text={"Share"}
-                          icon={"share"}
-                          size={Size.small}
-                        />
-                      }
-                      canOutsideClickClose={true}
-                      Form={OrgInviteUsersForm}
-                      orgId={organization.id}
-                      title={`Invite Users to ${organization.name}`}
-                    />
-                  )}
-              </OrgDropDown>
-              <ApplicationCardsWrapper key={organization.id}>
-                {isPermitted(
-                  organization.userPermissions,
-                  PERMISSION_TYPE.CREATE_APPLICATION,
-                ) &&
-                  !isFetchingApplications && (
-                    <PaddingWrapper>
-                      <ApplicationAddCardWrapper
-                        onClick={() =>
+            </OrgDropDown>
+            <ApplicationCardsWrapper key={organization.id}>
+              {isPermitted(
+                organization.userPermissions,
+                PERMISSION_TYPE.CREATE_APPLICATION,
+              ) &&
+                !isFetchingApplications && (
+                  <PaddingWrapper>
+                    <ApplicationAddCardWrapper
+                      onClick={() => {
+                        if (
+                          Object.entries(creatingApplicationMap).length === 0
+                        ) {
                           createNewApplication(
                             getNextEntityName(
-                              "New App",
+                              "Untitled application ",
                               applications.map((el: any) => el.name),
                             ),
                             organization.id,
-                          )
+                          );
                         }
-                      >
-                        <Icon
-                          className="t--create-app-popup"
-                          name={"plus"}
-                          size={IconSize.LARGE}
-                        ></Icon>
-                        <CreateNewLabel
-                          type={TextType.H4}
-                          className="createnew"
-                          // cypressSelector={"t--create-new-app"}
-                        >
-                          Create New
-                        </CreateNewLabel>
-                      </ApplicationAddCardWrapper>
+                      }}
+                    >
+                      {creatingApplicationMap &&
+                      creatingApplicationMap[organization.id] ? (
+                        <Spinner size={IconSize.XXXL} />
+                      ) : (
+                        <Fragment>
+                          <Icon
+                            className="t--create-app-popup"
+                            name={"plus"}
+                            size={IconSize.LARGE}
+                          ></Icon>
+                          <CreateNewLabel
+                            type={TextType.H4}
+                            className="createnew"
+                          >
+                            Create New
+                          </CreateNewLabel>
+                        </Fragment>
+                      )}
+                    </ApplicationAddCardWrapper>
+                  </PaddingWrapper>
+                )}
+              {applications.map((application: any) => {
+                return (
+                  application.pages?.length > 0 && (
+                    <PaddingWrapper key={application.id}>
+                      <ApplicationCard
+                        key={application.id}
+                        application={application}
+                        orgId={organization.id}
+                        delete={deleteApplication}
+                        update={updateApplicationDispatch}
+                        duplicate={duplicateApplicationDispatch}
+                      />
                     </PaddingWrapper>
-                  )}
-                {applications.map((application: any) => {
-                  return (
-                    application.pages?.length > 0 && (
-                      <PaddingWrapper key={application.id}>
-                        <ApplicationCard
-                          key={application.id}
-                          application={application}
-                          orgId={organization.id}
-                          activeAppCard={
-                            props.newApplicationList[
-                              props.newApplicationList.length - 1
-                            ] === application.id
-                          }
-                          delete={deleteApplication}
-                          update={updateApplicationDispatch}
-                          duplicate={duplicateApplicationDispatch}
-                        />
-                      </PaddingWrapper>
-                    )
-                  );
-                })}
-                {creatingApplicationMap &&
-                creatingApplicationMap[organization.id] ? (
-                  <AppLoader />
-                ) : null}
-                <PageSectionDivider />
-              </ApplicationCardsWrapper>
-            </OrgSection>
-          );
-        })}
+                  )
+                );
+              })}
+              <PageSectionDivider />
+            </ApplicationCardsWrapper>
+          </OrgSection>
+        );
+      },
+    );
+  }
+
+  return (
+    <ApplicationContainer className="t--applications-container">
+      {organizationsListComponent}
       <HelpModal page={"Applications"} />
     </ApplicationContainer>
   );
@@ -580,17 +670,17 @@ type ApplicationProps = {
   getAllApplication: () => void;
   userOrgs: any;
   currentUser?: User;
+  searchKeyword: string | undefined;
 };
 class Applications extends Component<
   ApplicationProps,
-  { selectedOrgId: string; newApplicationList: any }
+  { selectedOrgId: string }
 > {
   constructor(props: ApplicationProps) {
     super(props);
 
     this.state = {
       selectedOrgId: "",
-      newApplicationList: [],
     };
   }
 
@@ -598,22 +688,6 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
-    if (this.props.applicationList.length > 0) {
-      this.setState({
-        newApplicationList: this.props.applicationList.map(el => el.id),
-      });
-    }
-  }
-
-  componentDidUpdate() {
-    if (
-      this.props.applicationList.length > 0 &&
-      this.props.applicationList.length !== this.state.newApplicationList.length
-    ) {
-      this.setState({
-        newApplicationList: this.props.applicationList.map(el => el.id),
-      });
-    }
   }
 
   public render() {
@@ -627,7 +701,7 @@ class Applications extends Component<
           }}
         />
         <ApplicationsSection
-          newApplicationList={this.state.newApplicationList}
+          searchKeyword={this.props.searchKeyword}
         ></ApplicationsSection>
       </PageWrapper>
     );
@@ -643,6 +717,7 @@ const mapStateToProps = (state: AppState) => ({
   duplicatingApplication: getIsDuplicatingApplication(state),
   userOrgs: getUserApplicationsOrgsList(state),
   currentUser: getCurrentUser(state),
+  searchKeyword: getApplicationSearchKeyword(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

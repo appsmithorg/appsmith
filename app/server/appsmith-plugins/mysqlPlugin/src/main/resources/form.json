@@ -66,7 +66,8 @@
               "configProperty": "datasourceConfiguration.authentication.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
-              "placeholderText": "Password"
+              "placeholderText": "Password",
+              "encrypted": true
             }
           ]
         }
@@ -156,8 +157,9 @@
       "children": [
         {
           "label": "Server Timezone Override",
-          "configProperty": "datasourceConfiguration.properties[0].serverTimezone",
-          "controlType": "INPUT_TEXT",
+          "configProperty": "datasourceConfiguration.properties[0]",
+          "fixedKey": "serverTimezone",
+          "controlType": "FIXED_KEY_INPUT",
           "placeholderText": "UTC or any valid timezone"
         }
       ]

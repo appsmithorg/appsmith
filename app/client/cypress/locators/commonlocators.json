@@ -30,7 +30,7 @@
   "labelTextStyle": ".bp3-ui-text span",
   "bodyTextStyle": ".bp3-running-text span",
   "headingTextStyle": ".bp3-heading span",
-  "editWidgetName": ".bp3-editable-text",
+  "editWidgetName": ".t--propery-page-title",
   "dropDownIcon": ".t--property-control-textstyle span.bp3-icon-chevron-down",
   "onDateSelectedField": ".t--property-control-ondateselected",
   "TableRow": ".t--draggable-tablewidget .tbody",

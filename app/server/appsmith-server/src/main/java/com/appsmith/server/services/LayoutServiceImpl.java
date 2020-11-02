@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
@@ -22,21 +21,11 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 @Service
 public class LayoutServiceImpl implements LayoutService {
 
-    private final ApplicationPageService applicationPageService;
-    private final PageService pageService;
-    /*
-     * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
-     * e.g. for the given JS function using action with name "fetchUsers"
-     * {{JSON.stringify(fetchUsers)}}
-     * This pattern should return ["JSON.stringify", "fetchUsers"]
-     */
-    private final Pattern pattern = Pattern.compile("[a-zA-Z0-9._]+");
+    private final NewPageService newPageService;
 
     @Autowired
-    public LayoutServiceImpl(ApplicationPageService applicationPageService,
-                             PageService pageService) {
-        this.applicationPageService = applicationPageService;
-        this.pageService = pageService;
+    public LayoutServiceImpl(NewPageService newPageService) {
+        this.newPageService = newPageService;
     }
 
     @Override
@@ -45,8 +34,9 @@ public class LayoutServiceImpl implements LayoutService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
-        Mono<Page> pageMono = pageService
-                .findById(pageId, AclPermission.MANAGE_PAGES)
+        // fetch the unpublished page
+        Mono<PageDTO> pageMono = newPageService
+                .findPageById(pageId, AclPermission.MANAGE_PAGES, false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)));
 
         return pageMono
@@ -62,13 +52,13 @@ public class LayoutServiceImpl implements LayoutService {
                     page.setLayouts(layoutList);
                     return page;
                 })
-                .flatMap(pageService::save)
+                .flatMap(newPageService::saveUnpublishedPage)
                 .then(Mono.just(layout));
     }
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
-        return pageService.findByIdAndLayoutsId(pageId, layoutId, READ_PAGES)
+        return newPageService.findByIdAndLayoutsId(pageId, layoutId, READ_PAGES, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();

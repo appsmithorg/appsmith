@@ -1,4 +1,5 @@
 import {
+  ApplicationPayload,
   Page,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -21,15 +22,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import {
-  evaluateDataTreeWithFunctions,
-  evaluateDataTreeWithoutFunctions,
-} from "selectors/dataTreeSelectors";
-import {
-  getDynamicBindings,
-  getDynamicValue,
-  isDynamicValue,
-} from "utils/DynamicBindingUtils";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   ActionDescription,
   RunActionPayload,
@@ -51,8 +44,8 @@ import {
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
-  updateAction,
   showRunActionConfirmModal,
+  updateAction,
 } from "actions/actionActions";
 import { Action, RestAction } from "entities/Action";
 import ActionAPI, {
@@ -81,6 +74,12 @@ import { getType, Types } from "utils/TypeHelpers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
+import {
+  getAppMode,
+  getCurrentApplication,
+} from "selectors/applicationSelectors";
+import { evaluateDynamicTrigger, evaluateSingleValue } from "./evaluationsSaga";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -202,10 +201,7 @@ const isErrorResponse = (response: ActionApiResponse) => {
 };
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
-  log.debug("Evaluating data tree to get action binding value");
-  const tree = yield select(evaluateDataTreeWithoutFunctions);
-  const dynamicResult = getDynamicValue(`{{${path}}}`, tree);
-  return dynamicResult.result;
+  return yield call(evaluateSingleValue, `{{${path}}}`);
 }
 
 const EXECUTION_PARAM_PATH = "this.params";
@@ -298,12 +294,14 @@ export function* executeActionSaga(
   );
   try {
     const api: RestAction = yield select(getAction, actionId);
-    const currentAppId = yield select(getCurrentApplicationId);
+    const currentApp: ApplicationPayload = yield select(getCurrentApplication);
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: api.pluginType,
       name: api.name,
       pageId: api.pageId,
-      appId: currentAppId,
+      appId: currentApp.id,
+      appName: currentApp.name,
+      isExampleApp: currentApp.appIsExample,
     });
     if (api.confirmBeforeExecute) {
       const confirmed = yield call(confirmRunActionSaga);
@@ -327,10 +325,13 @@ export function* executeActionSaga(
         : event.type === EventType.ON_PREV_PAGE
         ? "PREV"
         : undefined;
+    const appMode = yield select(getAppMode);
+
     const executeActionRequest: ExecuteActionRequest = {
-      action: { id: actionId },
+      actionId: actionId,
       params: actionParams,
       paginationField: pagination,
+      viewMode: appMode === APP_MODE.PUBLISHED,
     };
     const timeout = yield select(getActionTimeout, actionId);
     const response: ActionApiResponse = yield ActionAPI.executeAction(
@@ -479,15 +480,20 @@ function* executeActionTriggers(
 
 function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
-  log.debug("Evaluating data tree to get action trigger");
-  log.debug({ dynamicString });
-  const tree = yield select(evaluateDataTreeWithFunctions);
-  log.debug({ tree });
-  const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
+  log.debug({ dynamicString, responseData });
+
+  const triggers = yield call(
+    evaluateDynamicTrigger,
+    dynamicString,
+    responseData,
+  );
+
   log.debug({ triggers });
   if (triggers && triggers.length) {
     yield all(
-      triggers.map(trigger => call(executeActionTriggers, trigger, event)),
+      triggers.map((trigger: ActionDescription<any>) =>
+        call(executeActionTriggers, trigger, event),
+      ),
     );
   } else {
     if (event.callback) event.callback({ success: true });
@@ -530,18 +536,20 @@ function* runActionSaga(
       yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
     const actionObject = yield select(getAction, actionId);
-    const action: ExecuteActionRequest["action"] = { id: actionId };
     const jsonPathKeys = actionObject.jsonPathKeys;
 
     const { paginationField } = reduxAction.payload;
 
     const params = yield call(getActionParams, jsonPathKeys);
     const timeout = yield select(getActionTimeout, actionId);
+    const appMode = yield select(getAppMode);
+    const viewMode = appMode === APP_MODE.PUBLISHED;
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       {
-        action,
+        actionId,
         params,
         paginationField,
+        viewMode,
       },
       timeout,
     );
@@ -617,22 +625,28 @@ function* executePageLoadAction(pageAction: PageAction) {
     PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
   );
   const pageId = yield select(getCurrentPageId);
-  const appId = yield select(getCurrentApplicationId);
+  let currentApp: ApplicationPayload = yield select(getCurrentApplication);
+  currentApp = currentApp || {};
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
     pageAction.jsonPathKeys,
   );
+  const appMode = yield select(getAppMode);
+  const viewMode = appMode === APP_MODE.PUBLISHED;
   const executeActionRequest: ExecuteActionRequest = {
-    action: { id: pageAction.id },
+    actionId: pageAction.id,
     params,
+    viewMode,
   };
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: pageAction.pluginType,
     name: pageAction.name,
     pageId: pageId,
-    appId: appId,
+    appId: currentApp.id,
     onPageLoad: true,
+    appName: currentApp.name,
+    isExampleApp: currentApp.appIsExample,
   });
   const response: ActionApiResponse = yield ActionAPI.executeAction(
     executeActionRequest,

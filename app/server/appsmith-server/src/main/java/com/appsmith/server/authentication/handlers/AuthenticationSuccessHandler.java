@@ -20,6 +20,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -53,10 +54,12 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         return sessionUserService.getCurrentUser()
                 // TODO: Need a better way to identify if this is the user's first-login.
                 .filter(user -> user.getExamplesOrganizationId() == null)
-                .flatMap(user -> Mono.whenDelayError(
-                        analyticsService.sendEvent(AnalyticsEvents.FIRST_LOGIN, user),
-                        examplesOrganizationCloner.cloneExamplesOrganization()
-                ))
+                .flatMap(user -> {
+                    final boolean isFromInvite = user.getInviteToken() != null;
+                    return Mono.whenDelayError(
+                            analyticsService.sendEvent(AnalyticsEvents.FIRST_LOGIN, user, Map.of("isFromInvite", isFromInvite)),
+                            examplesOrganizationCloner.cloneExamplesOrganization());
+                })
                 .then(redirectionMono);
     }
 

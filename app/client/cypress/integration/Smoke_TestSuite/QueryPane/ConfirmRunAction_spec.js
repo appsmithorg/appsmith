@@ -13,8 +13,8 @@ describe("Confirm run action", function() {
   it("Confirm run action", () => {
     cy.NavigateToQueryEditor();
 
-    cy.get(".t--datasource-name")
-      .contains(datasourceName)
+    cy.contains(".t--datasource-name", datasourceName)
+      .find(queryLocators.createQuery)
       .click();
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")

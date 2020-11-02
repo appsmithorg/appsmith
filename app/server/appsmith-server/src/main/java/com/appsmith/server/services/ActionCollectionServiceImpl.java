@@ -1,7 +1,8 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Collection;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -13,17 +14,17 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 public class ActionCollectionServiceImpl implements ActionCollectionService {
-    private final ActionService actionService;
     private final CollectionService collectionService;
     private final LayoutActionService layoutActionService;
+    private final NewActionService newActionService;
 
     @Autowired
-    public ActionCollectionServiceImpl(ActionService actionService,
-                                       CollectionService collectionService,
-                                       LayoutActionService layoutActionService) {
-        this.actionService = actionService;
+    public ActionCollectionServiceImpl(CollectionService collectionService,
+                                       LayoutActionService layoutActionService,
+                                       NewActionService newActionService) {
         this.collectionService = collectionService;
         this.layoutActionService = layoutActionService;
+        this.newActionService = newActionService;
     }
 
     /**
@@ -47,13 +48,13 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
                 .flatMap(action -> {
                     if (action.getId() == null) {
                         //Action doesn't exist. Create now.
-                        return actionService.create(action);
+                        return newActionService.createAction(action.getUnpublishedAction());
                     }
-                    return Mono.just(action);
+                    return Mono.just(action.getUnpublishedAction());
                 })
                 //Need to store only action Ids inside the collection. Extract only ids and return the same inside Action
                 .map(action -> {
-                    Action toSave = new Action();
+                    NewAction toSave = new NewAction();
                     toSave.setId(action.getId());
                     return toSave;
                 })
@@ -74,19 +75,18 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
      * @return
      */
     @Override
-    public Mono<Action> createAction(Action action) {
+    public Mono<ActionDTO> createAction(ActionDTO action) {
         if (action.getCollectionId() == null) {
-            return actionService.create(action);
+            return newActionService.createAction(action);
         }
 
-        Action finalAction = action;
-        return Mono.just(action)
-                .flatMap(actionService::create)
+        ActionDTO finalAction = action;
+        return newActionService.createAction(action)
                 .flatMap(savedAction -> collectionService.addSingleActionToCollection(finalAction.getCollectionId(), savedAction));
     }
 
     @Override
-    public Mono<Action> updateAction(String id, Action action) {
+    public Mono<ActionDTO> updateAction(String id, ActionDTO action) {
 
         // Since the policies are server only concept, we should first set this to null.
         action.setPolicies(null);
@@ -96,30 +96,33 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
             return layoutActionService.updateAction(id, action);
         } else if (action.getCollectionId().length() == 0) {
             //The Action has been removed from existing collection.
-            return actionService
+            return newActionService
                     .getById(id)
-                    .flatMap(action1 -> collectionService.removeSingleActionFromCollection(action1.getCollectionId(), action1))
+                    .flatMap(action1 -> collectionService.removeSingleActionFromCollection(action1.getUnpublishedAction().getCollectionId(),
+                            Mono.just(action1)))
                     .flatMap(action1 -> {
                         log.debug("Action {} has been removed from its collection.", action1.getId());
                         action.setCollectionId(null);
-                        return layoutActionService.updateAction(id, action)
-                                .flatMap(updatedAction -> {
-                                    updatedAction.setCollectionId(null);
-                                    return actionService.save(updatedAction);
-                                });
+                        return layoutActionService.updateAction(id, action);
                     });
         } else {
             //If the code flow has reached this point, that means that the collectionId has been changed to another collection.
             //Remove the action from previous collection and add it to the new collection.
-            return actionService
+            return newActionService
                     .getById(id)
                     .flatMap(action1 -> {
-                        if (action1.getCollectionId() != null) {
-                            return collectionService.removeSingleActionFromCollection(action1.getCollectionId(), action1);
+                        if (action1.getUnpublishedAction().getCollectionId() != null) {
+                            return collectionService.removeSingleActionFromCollection(action1.getUnpublishedAction().getCollectionId(),
+                                    Mono.just(action1));
                         }
-                        return Mono.just(action1);
+                        return Mono.just(newActionService.generateActionByViewMode(action1, false));
                     })
-                    .flatMap(action1 -> collectionService.addSingleActionToCollection(action.getCollectionId(), action1))
+                    .map(obj -> (NewAction) obj)
+                    .flatMap(action1 -> {
+                        ActionDTO unpublishedAction = action1.getUnpublishedAction();
+                        unpublishedAction.setId(action1.getId());
+                        return collectionService.addSingleActionToCollection(action.getCollectionId(), unpublishedAction);
+                    })
                     .flatMap(action1 -> {
                         log.debug("Action {} removed from its previous collection and added to the new collection", action1.getId());
                         return layoutActionService.updateAction(id, action);

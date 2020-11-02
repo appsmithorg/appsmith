@@ -2,23 +2,29 @@ import { FetchPageRequest, SavePageResponse } from "api/PageApi";
 import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
-  ReduxActionTypes,
   ReduxAction,
+  ReduxActionTypes,
   UpdateCanvasPayload,
-  FetchPageListPayload,
 } from "constants/ReduxActionConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 
+export interface FetchPageListPayload {
+  applicationId: string;
+  mode: APP_MODE;
+}
+
 export const fetchPageList = (
   applicationId: string,
+  mode: APP_MODE,
 ): ReduxAction<FetchPageListPayload> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
     payload: {
       applicationId,
+      mode,
     },
   };
 };
@@ -31,6 +37,14 @@ export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
     },
   };
 };
+
+export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
+  type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
+  payload: {
+    pageId,
+    bustCache,
+  },
+});
 
 export const fetchPageSuccess = () => {
   return {

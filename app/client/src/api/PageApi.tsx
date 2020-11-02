@@ -161,6 +161,12 @@ class PageApi extends Api {
     return Api.get(PageApi.url + "/application/" + applicationId);
   }
 
+  static fetchPageListViewMode(
+    applicationId: string,
+  ): AxiosPromise<FetchPageListResponse> {
+    return Api.get(PageApi.url + "/view/application/" + applicationId);
+  }
+
   static deletePage(request: DeletePageRequest): AxiosPromise<ApiResponse> {
     return Api.delete(PageApi.url + "/" + request.id);
   }
