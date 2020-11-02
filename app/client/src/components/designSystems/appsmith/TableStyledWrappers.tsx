@@ -66,7 +66,6 @@ export const TableWrapper = styled.div<{
     .th,
     .td {
       margin: 0;
-      padding: 9px 10px;
       border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
       border-right: 1px solid ${Colors.GEYSER_LIGHT};
       position: relative;
@@ -100,7 +99,7 @@ export const TableWrapper = styled.div<{
     .td {
       height: ${props => props.tableSizes.ROW_HEIGHT}px;
       line-height: ${props => props.tableSizes.ROW_HEIGHT}px;
-      padding: 0 10px;
+      padding: 0;
     }
   }
   .draggable-header,
@@ -283,6 +282,8 @@ export const CellWrapper = styled.div<{
   align-items: ${props =>
     props?.cellProperties?.verticalAlignment &&
     ALIGN_ITEMS[props?.cellProperties?.verticalAlignment]};
+  background: ${props => props?.cellProperties?.cellBackground};
+  padding: 0 10px;
   .image-cell {
     width: 40px;
     height: 32px;
