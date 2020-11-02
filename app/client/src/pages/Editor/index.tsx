@@ -45,12 +45,6 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
-import {
-  AppErrorReduxState,
-  AppLoadErrorTypes,
-} from "../../reducers/uiReducers/appErrorsReducer";
-import ServerUnavailable from "../common/ServerUnavailable";
-import PageNotFound from "../common/PageNotFound";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -65,7 +59,6 @@ type EditorProps = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   user?: User;
-  appLoadError: AppErrorReduxState;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -197,8 +190,7 @@ class Editor extends Component<Props> {
       nextProps.isEditorLoading !== this.props.isEditorLoading ||
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextState.isDialogOpen !== this.state.isDialogOpen ||
-      nextState.registered !== this.state.registered ||
-      nextProps.appLoadError.errorType !== this.props.appLoadError.errorType
+      nextState.registered !== this.state.registered
     );
   }
 
@@ -208,21 +200,8 @@ class Editor extends Component<Props> {
     });
   };
   public render() {
-    let main = <MainContainer />;
-    if (this.props.appLoadError.errorType) {
-      if (
-        this.props.appLoadError.errorType ===
-        AppLoadErrorTypes.SERVER_NOT_RESPONDING
-      ) {
-        main = <ServerUnavailable />;
-      } else if (
-        this.props.appLoadError.errorType ===
-        AppLoadErrorTypes.RESOURCE_NOT_FOUND
-      ) {
-        main = <PageNotFound />;
-      }
-    } else if (!this.props.isEditorInitialized || !this.state.registered) {
-      main = (
+    if (!this.props.isEditorInitialized || !this.state.registered) {
+      return (
         <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
           <Spinner />
         </CenteredWrapper>
@@ -240,7 +219,7 @@ class Editor extends Component<Props> {
             <meta charSet="utf-8" />
             <title>Editor | Appsmith</title>
           </Helmet>
-          {main}
+          <MainContainer />
           <Dialog
             isOpen={this.state.isDialogOpen}
             canOutsideClickClose={true}
@@ -282,7 +261,6 @@ const mapStateToProps = (state: AppState) => ({
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
-  appLoadError: state.ui.appLoadError,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

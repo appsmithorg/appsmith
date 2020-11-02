@@ -4,9 +4,14 @@ import {
   API_REQUEST_HEADERS,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
+import {
+  AUTH_LOGIN_URL,
+  PAGE_NOT_FOUND_URL,
+  SERVER_ERROR_URL,
+} from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
+import { SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -20,7 +25,7 @@ const axiosInstance: AxiosInstance = axios.create();
 
 export const axiosConnectionAbortedCode = "ECONNABORTED";
 const executeActionRegex = /actions\/execute/;
-
+const currentUserRegex = /\/me$/;
 axiosInstance.interceptors.request.use((config: any) => {
   return { ...config, timer: performance.now() };
 });
@@ -51,10 +56,12 @@ axiosInstance.interceptors.response.use(
       return;
     }
     if (error.code === axiosConnectionAbortedCode) {
+      if (error.config && error.config.url.match(currentUserRegex)) {
+        history.replace({ pathname: SERVER_ERROR_URL });
+      }
       return Promise.reject({
         ...error,
-        message:
-          "Appsmith server is taking too long to respond. Please try again after some time",
+        message: SERVER_API_TIMEOUT_ERROR,
       });
     }
     if (error.config && error.config.url.match(executeActionRegex)) {

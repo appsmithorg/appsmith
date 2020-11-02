@@ -11,7 +11,12 @@ export const getAppStoreName = (appId: string) =>
 
 export const getAppStore = (appId: string) => {
   const appStoreName = getAppStoreName(appId);
-  const storeString = localStorage.getItem(appStoreName) || "{}";
+  let storeString = "{}";
+  // Check if localStorage exists
+  if (localStorage) {
+    const appStore = localStorage.getItem(appStoreName);
+    if (appStore) storeString = appStore;
+  }
   let store;
   try {
     store = JSON.parse(storeString);
