@@ -46,6 +46,7 @@ const FILE_TYPE_OPTIONS = [
   { label: "SVG", value: "'image/svg+xml'", id: "image/svg+xml" },
 ];
 
+const FUNC_ARGS_REGEX = /((["][^"]*["])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"+]*[^'",]*))*/gi;
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 //Old Regex:: /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
 const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
@@ -103,13 +104,24 @@ const JSToString = (js: string): string => {
     .join("");
 };
 
+const argsStringToArray = (funcArgs: string): string[] => {
+  const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
+  return argsplitMatches
+    .map(match => {
+      return match[0];
+    })
+    .filter(arg => {
+      return arg !== "";
+    });
+};
+
 const textSetter = (
   changeValue: any,
   currentValue: string,
   argNum: number,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
+  const args = argsStringToArray(matches[0][2]);
   const jsVal = stringToJS(changeValue);
   args[argNum] = jsVal;
   const result = currentValue.replace(
@@ -122,8 +134,8 @@ const textSetter = (
 const textGetter = (value: string, argNum: number) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[argNum];
+    const args = argsStringToArray(matches[0][2]);
+    const arg = args[argNum];
     const stringFromJS = arg ? JSToString(arg.trim()) : arg;
     return stringFromJS;
   }
@@ -136,7 +148,7 @@ const enumTypeSetter = (
   argNum: number,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
+  const args = argsStringToArray(matches[0][2]);
   args[argNum] = changeValue as string;
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
@@ -152,8 +164,8 @@ const enumTypeGetter = (
 ): string => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[argNum];
+    const args = argsStringToArray(matches[0][2]);
+    const arg = args[argNum];
     return arg ? arg.trim() : defaultValue;
   }
   return defaultValue;
