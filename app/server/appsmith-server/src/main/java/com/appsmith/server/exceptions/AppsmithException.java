@@ -29,4 +29,8 @@ public class AppsmithException extends Exception {
         return this.error == null ? -1 : this.error.getAppErrorCode();
     }
 
+    public AppsmithErrorAction getErrorAction() {
+        return this.error.getErrorAction();
+    }
+
 }
