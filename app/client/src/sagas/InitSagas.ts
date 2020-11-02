@@ -32,7 +32,7 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
-import { initEditorError } from "../actions/initActions";
+import { initEditorError, initViewerError } from "../actions/initActions";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -137,6 +137,7 @@ export function* initializeAppViewerSaga(
   });
 
   if (resultOfPrimaryCalls.failure) {
+    yield put(initViewerError());
     return;
   }
 
@@ -152,6 +153,7 @@ export function* initializeAppViewerSaga(
       failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
     });
     if (resultOfFetchPage.failure) {
+      yield put(initViewerError());
       return;
     }
 

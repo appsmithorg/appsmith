@@ -22,3 +22,10 @@ export const initEditorError = (): ReduxAction<{ show: false }> => ({
     show: false,
   },
 });
+
+export const initViewerError = (): ReduxAction<{ show: false }> => ({
+  type: ReduxActionErrorTypes.INITIALIZE_PAGE_VIEWER_ERROR,
+  payload: {
+    show: false,
+  },
+});
