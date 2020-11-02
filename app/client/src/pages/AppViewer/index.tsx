@@ -27,7 +27,6 @@ import {
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import { is } from "immer/dist/utils/common";
 import ServerTimeout from "../common/ServerTimeout";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
