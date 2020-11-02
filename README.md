@@ -14,7 +14,7 @@
 
 -----------------
 <div>    
-Appsmith is a Javasctipt-based visual development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive pages. Connect UI to your APIs and Databases to build complex workflows in minutes.<br/><br/>
+Appsmith is a JavaScript-based visual development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive pages. Connect UI to your APIs and Databases to build complex workflows in minutes.<br/><br/>
 
 **API Support**: REST APIs<br/>
 **Database Support**: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, & MSFT SQL Server<br/>
@@ -33,7 +33,7 @@ Already familiar with Appsmith? [Quickly start building on your own](#%EF%B8%8F-
 ## 🏭 Features
 
 * **5-minute setup**: Deploy Appsmith on your server, or use our cloud version to start building in 5 minutes. [Quick Start](#%EF%B8%8F-quickstart)
-* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write Javascript anywhere to transform data, and dynamically control widget-properties.
+* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write JavaScript anywhere to transform data, and dynamically control widget-properties.
 * **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**
 * **Trigger APIs**: Connect to REST APIs to build custom apps.
 * **Security**: DB Credentials are AES 256 encrypted and no data is stored by appsmith. Deploy behind your private VPC for additional security!
@@ -60,7 +60,7 @@ The following steps introduce you to building a simple user-list dashboard on Ap
     3. Run the query.
     4. In query window, switch to the `Settings` tab, and enable `Run Query on Page Load`.
 4. Click on the `+` icon next to the `Widgets` section and drag a table onto the screen
-5. Link the table data property to the `usersQuery` using javascript `{{usersQuery.data}}`
+5. Link the table data property to the `usersQuery` using JavaScript `{{usersQuery.data}}`
 6. Hit the Deploy button and checkout the view mode of the app.
 
 Congratulations 🎉 You just built your first app on Appsmith! 
