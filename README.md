@@ -1,32 +1,15 @@
 <p align="center">
     <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/appsmith_logo_primary.png" alt="Appsmith.com logo" width="400"/>
-    <br>
-    <i>A low-code JavaScript-based development platform to build internal tools.</i>
-    <br>
-</p>
-
-<p align="center">
-  <a href="https://www.appsmith.com/"><strong>www.appsmith.com</strong></a>
-  <br>
 </p>
 
 <p align="center">
   <a href="https://docs.appsmith.com/">Documentation</a>
   ·
-  <a href="https://github.com/appsmithorg/appsmith/issues/new/choose">Submit an Issue</a>
+  <a href="https://github.com/appsmithorg/appsmith/releases/latest">Latest Release</a>
   ·
   <a href="https://discord.gg/rBTTVJp">Discord</a>
   <br>
   <br>
-</p>
-
-<p align="center">    
-   <a href="https://github.com/appsmithorg/appsmith/releases/latest">
-    <img src="https://img.shields.io/github/v/release/appsmithorg/appsmith.svg?logo=GitHub" alt="Releases" />
-  </a>&nbsp;
-  <a href="#-contributors">
-    <img src="https://img.shields.io/badge/contributors-50+-orange.svg?style=flat-square" alt="Contributors" />
-  </a>&nbsp;
 </p>
 
 -----------------
@@ -37,7 +20,7 @@ Appsmith is a low-code development platform to build and launch internal tools q
 **Database Support**: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, & MSFT SQL Server<br/>
 **Hosting**: Cloud-hosted & On-premise
 
-Learn more about Appsmith below, or [quickly start building on your own](#%EF%B8%8F-quickstart).
+Already familiar with Appsmith? [Quickly start building on your own](#%EF%B8%8F-quickstart).
 </div>
 
 <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/UI.gif">
