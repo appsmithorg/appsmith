@@ -44,7 +44,7 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
   const datasources = useMemo(() => {
     const datasourcesPageMap: Record<string, Datasource[]> = {};
     for (const [key, value] of Object.entries(actions)) {
-      const datasourceIds = value.map(action => action.config.datasource.id);
+      const datasourceIds = value.map(action => action.config.datasource?.id);
       const activeDatasources = reducerDatasources.filter(datasource =>
         datasourceIds.includes(datasource.id),
       );
