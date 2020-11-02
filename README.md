@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://docs.appsmith.com/">Documentation</a>
+    <a href="https://docs.appsmith.com/">Documentation</a>
   ·
   <a href="https://github.com/appsmithorg/appsmith/releases/latest">Latest Release</a>
   ·
@@ -14,7 +14,7 @@
 
 -----------------
 <div>    
-Appsmith is a low-code development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive UIs. Connect to APIs or Databases directly to build complex workflows really fast.<br/>
+Appsmith is a low-code Javasctipt-based development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive UIs. Connect to APIs or Databases directly to build complex workflows really fast.<br/>
 
 **API Support**: REST APIs<br/>
 **Database Support**: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, & MSFT SQL Server<br/>
