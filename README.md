@@ -14,7 +14,7 @@
 
 -----------------
 <div>    
-Appsmith is a Javasctipt-based visual development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive UIs. Connect UI to your APIs or Databases to build complex workflows in minutes.<br/>
+Appsmith is a Javasctipt-based visual development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive UIs. Connect UI to your APIs or Databases to build complex workflows in minutes.<br/><br/>
 
 **API Support**: REST APIs<br/>
 **Database Support**: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, & MSFT SQL Server<br/>
