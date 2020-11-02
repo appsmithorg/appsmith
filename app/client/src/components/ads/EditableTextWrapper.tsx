@@ -17,7 +17,6 @@ const Container = styled.div<{
     padding: 5px 10px;
     height: 25px;
     text-decoration: ${props => (props.isEditing ? "unset" : "underline")};
-    text-decoration-style: dotted;
     background-color: ${props =>
       (props.isInvalid && props.isEditing) ||
       props.savingState === SavingState.ERROR
