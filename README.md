@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/appsmith_logo_primary.png" alt="Appsmith.com logo" width="400"/>
+    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/appsmith_logo_primary.png" alt="Appsmith.com logo" width="400"/>
 </p>
 
 <p align="center">
@@ -23,11 +23,11 @@ Appsmith is a Javasctipt-based visual development platform to build and launch i
 Already familiar with Appsmith? [Quickly start building on your own](#%EF%B8%8F-quickstart).
 </div>
 
-<img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/UI.gif">
+<img src="https://github.com/appsmithOrg/appsmith/blob/release/static/UI.gif">
 <p align="center">
-  <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/Query2.png" width="270">
-  <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/API2.png" width="270">
-  <img src="https://github.com/appsmithOrg/appsmith/blob/fix/readme-v2/static/Share5.png" width="270">
+  <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/Query2.png" width="270">
+  <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/API2.png" width="270">
+  <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/Share5.png" width="270">
 </p>
 
 ## 🏭 Features
