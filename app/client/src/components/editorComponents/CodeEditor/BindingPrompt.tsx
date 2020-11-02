@@ -33,7 +33,12 @@ const BindingPrompt = (props: { isOpen: boolean }): JSX.Element => {
   }
 
   return (
-    <Wrapper ref={promptRef} visible={props.isOpen} bottomOffset={bottomOffset}>
+    <Wrapper
+      className="t--no-binding-prompt"
+      ref={promptRef}
+      visible={props.isOpen}
+      bottomOffset={bottomOffset}
+    >
       Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
     </Wrapper>
   );
