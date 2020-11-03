@@ -1673,6 +1673,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
+  cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
 });
 
 Cypress.Commands.add("alertValidate", text => {
