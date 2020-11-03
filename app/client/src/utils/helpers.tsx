@@ -136,10 +136,3 @@ export const trimTrailingSlash = (path: string) => {
   const trailingUrlRegex = /\/+$/;
   return path.replace(trailingUrlRegex, "");
 };
-
-export const removeMultiLineCharacters = (
-  str: string,
-  replaceWith = "",
-): string => {
-  return str.replace(/[\r\n\v]{1,}/g, replaceWith);
-};
