@@ -27,6 +27,8 @@ export const TableWrapper = styled.div`
   justify-content: space-between;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0px;
+  height: 100%;
   .tableWrap {
     height: 100%;
     display: block;
@@ -38,6 +40,10 @@ export const TableWrapper = styled.div`
     color: ${Colors.THUNDER};
     position: relative;
     background: ${Colors.ATHENS_GRAY_DARKER};
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: 100%;
     display: table;
     width: 100%;
     .thead,
@@ -45,8 +51,8 @@ export const TableWrapper = styled.div`
       overflow: hidden;
     }
     .tbody {
-      overflow-y: scroll;
-      height: auto;
+      height: 100%;
+      overflow: auto;
       .tr {
         width: 100%;
       }

@@ -410,6 +410,11 @@ export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
   meta: M;
 }
+
+export interface EvaluationReduxAction<T> extends ReduxAction<T> {
+  postEvalActions?: ReduxAction<any>[];
+}
+
 export interface PromisePayload {
   reject: any;
   resolve: any;
