@@ -106,7 +106,22 @@ jobs:
         image: mongo
         ports: 
           - 27017:27017
-
+      # This is required in Cypress tests that test the datasource integrations
+      postgres:
+        image: postgres
+        ports: 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        # Also initialize the docker container with data
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --name postgres
+          -v ./cypress/init-pg-dump-for-test.sql:/docker-entrypoint-initdb.d/init-pg-dump-for-test.sql
+      
     steps:
     # Checkout the code
     - name: Checkout the merged commit from PR and base branch
@@ -192,6 +207,7 @@ jobs:
         CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+        POSTGRES_PASSWORD: postgres
       run: |
         ./cypress/setup-test.sh
         
