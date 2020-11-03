@@ -1,35 +1,155 @@
 import React from "react";
-import {
-  TableWrapper,
-  CellWrapper,
-} from "components/designSystems/appsmith/TableStyledWrappers";
+import { CellWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
-import { CompactModeTypes, TABLE_SIZES } from "widgets/TableWidget";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import { getType, Types } from "utils/TypeHelpers";
+import { Colors } from "constants/Colors";
 
 interface TableProps {
   data: Record<string, any>[];
 }
 
-const StyledTableWrapped = styled(TableWrapper)`
+const TABLE_SIZES = {
+  COLUMN_HEADER_HEIGHT: 38,
+  TABLE_HEADER_HEIGHT: 42,
+  ROW_HEIGHT: 40,
+  ROW_FONT_SIZE: 14,
+};
+
+export const TableWrapper = styled.div`
+  width: 100%;
+  height: auto;
+  background: white;
+  border: 1px solid ${Colors.GEYSER_LIGHT};
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  overflow: hidden;
   min-height: 0px;
   height: 100%;
   .tableWrap {
-    display: flex;
-    flex: 1;
+    height: 100%;
+    display: block;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
   .table {
+    border-spacing: 0;
+    color: ${Colors.THUNDER};
+    position: relative;
+    background: ${Colors.ATHENS_GRAY_DARKER};
     display: flex;
     flex: 1;
     flex-direction: column;
     height: 100%;
     display: table;
     width: 100%;
+    .thead,
+    .tbody {
+      overflow: hidden;
+    }
     .tbody {
       height: 100%;
       overflow: auto;
+      .tr {
+        width: 100%;
+      }
+    }
+    .tr {
+      overflow: hidden;
+      :nth-child(even) {
+        background: ${Colors.ATHENS_GRAY_DARKER};
+      }
+      :nth-child(odd) {
+        background: ${Colors.WHITE};
+      }
+      &.selected-row {
+        background: ${Colors.POLAR};
+        &:hover {
+          background: ${Colors.POLAR};
+        }
+      }
+      &:hover {
+        background: ${Colors.ATHENS_GRAY};
+      }
+    }
+    .th,
+    .td {
+      margin: 0;
+      padding: 9px 10px;
+      border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
+      border-right: 1px solid ${Colors.GEYSER_LIGHT};
+      position: relative;
+      font-size: ${TABLE_SIZES.ROW_FONT_SIZE}px;
+      line-height: ${TABLE_SIZES.ROW_FONT_SIZE}px;
+      :last-child {
+        border-right: 0;
+      }
+      .resizer {
+        display: inline-block;
+        width: 10px;
+        height: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transform: translateX(50%);
+        z-index: 1;
+        ${"" /* prevents from scrolling while dragging on touch devices */}
+        touch-action:none;
+        &.isResizing {
+          cursor: isResizing;
+        }
+      }
+    }
+    .th {
+      padding: 0 10px 0 0;
+      height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
+      line-height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
+      background: ${Colors.ATHENS_GRAY_DARKER};
+    }
+    .td {
+      height: ${TABLE_SIZES.ROW_HEIGHT}px;
+      line-height: ${TABLE_SIZES.ROW_HEIGHT}px;
+      padding: 0 10px;
+    }
+  }
+  .draggable-header,
+  .hidden-header {
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: ${Colors.OXFORD_BLUE};
+    font-weight: 500;
+    padding-left: 10px;
+    &.sorted {
+      padding-left: 5px;
+    }
+  }
+  .draggable-header {
+    cursor: pointer;
+    &.reorder-line {
+      width: 1px;
+      height: 100%;
+    }
+  }
+  .hidden-header {
+    opacity: 0.6;
+  }
+  .column-menu {
+    cursor: pointer;
+    height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
+    line-height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
+  }
+  .th {
+    display: flex;
+    justify-content: space-between;
+    &.highlight-left {
+      border-left: 2px solid ${Colors.GREEN};
+    }
+    &.highlight-right {
+      border-right: 2px solid ${Colors.GREEN};
     }
   }
 `;
@@ -100,11 +220,7 @@ const Table = (props: TableProps) => {
   if (rows.length === 0 || headerGroups.length === 0) return null;
 
   return (
-    <StyledTableWrapped
-      width={200}
-      height={200}
-      tableSizes={TABLE_SIZES[CompactModeTypes.DEFAULT]}
-    >
+    <TableWrapper>
       <div className="tableWrap">
         <div {...getTableProps()} className="table">
           {headerGroups.map((headerGroup: any, index: number) => (
@@ -156,7 +272,7 @@ const Table = (props: TableProps) => {
           </div>
         </div>
       </div>
-    </StyledTableWrapped>
+    </TableWrapper>
   );
 };
 

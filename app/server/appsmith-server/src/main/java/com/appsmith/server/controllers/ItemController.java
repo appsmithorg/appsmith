@@ -1,7 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Action;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.AddItemToPageDTO;
 import com.appsmith.server.dtos.ItemDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -37,7 +37,7 @@ public class ItemController {
     }
 
     @PostMapping("/addToPage")
-    public Mono<ResponseDTO<Action>> addItemToPage(@RequestBody AddItemToPageDTO addItemToPageDTO) {
+    public Mono<ResponseDTO<ActionDTO>> addItemToPage(@RequestBody AddItemToPageDTO addItemToPageDTO) {
         log.debug("Going to add item {} to page {} with new name {}", addItemToPageDTO.getMarketplaceElement().getItem().getName(),
                 addItemToPageDTO.getPageId(), addItemToPageDTO.getName());
         return service.addItemToPage(addItemToPageDTO)

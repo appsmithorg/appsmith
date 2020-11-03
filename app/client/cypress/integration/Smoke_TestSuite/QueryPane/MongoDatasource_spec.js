@@ -2,6 +2,8 @@ const queryLocators = require("../../../locators/QueryEditor.json");
 const plugins = require("../../../fixtures/plugins.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 
+let datasourceName;
+
 describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
   it("Create a query with a mongo datasource, run, save and then delete the query", function() {
     cy.NavigateToDatasourceEditor();
@@ -16,7 +18,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToQueryEditor();
 
     cy.get("@createDatasource").then(httpResponse => {
-      const datasourceName = httpResponse.response.body.data.name;
+      datasourceName = httpResponse.response.body.data.name;
 
       cy.contains(".t--datasource-name", datasourceName)
         .find(queryLocators.createQuery)
@@ -38,19 +40,10 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.EvaluateCurrentValue(`{"find": "planets"}`);
     cy.runAndDeleteQuery();
 
-    cy.NavigateToDatasourceEditor();
     cy.get("@createDatasource").then(httpResponse => {
-      const datasourceName = httpResponse.response.body.data.name;
+      datasourceName = httpResponse.response.body.data.name;
 
-      cy.get(`.t--entity-name:contains(${datasourceName})`).click();
+      cy.deletePostgresDatasource(datasourceName);
     });
-
-    cy.get(datasource.editDatasource).click();
-    cy.get(".t--delete-datasource").click();
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
   });
 });

@@ -5,8 +5,8 @@ import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TemplateCollection;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.dtos.ActionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,8 @@ import java.util.List;
 @Slf4j
 public class PostmanImporterService extends BaseApiImporter {
     @Override
-    public Mono<Action> importAction(Object input, String pageId, String name, String orgId) {
-        Action action = new Action();
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId) {
+        ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Datasource datasource = new Datasource();
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();

@@ -11,12 +11,12 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -63,7 +63,7 @@ public class DatasourceServiceTest {
     OrganizationRepository organizationRepository;
 
     @Autowired
-    ActionService actionService;
+    NewActionService newActionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -385,7 +385,7 @@ public class DatasourceServiceTest {
                             datasourceService.create(datasource),
                             applicationPageService.createApplication(application, organization.getId())
                                     .flatMap(application1 -> {
-                                        final Page page = new Page();
+                                        final PageDTO page = new PageDTO();
                                         page.setName("test page 1");
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(Set.of(Policy.builder()
@@ -399,9 +399,9 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(objects -> {
                     final Datasource datasource = objects.getT3();
-                    final Page page = objects.getT4();
+                    final PageDTO page = objects.getT4();
 
-                    Action action = new Action();
+                    ActionDTO action = new ActionDTO();
                     action.setName("validAction");
                     action.setOrganizationId(objects.getT1().getId());
                     action.setPluginId(objects.getT2().getId());
@@ -411,7 +411,7 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return actionService.create(action).thenReturn(datasource);
+                    return newActionService.createAction(action).thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.delete(datasource.getId()));
 
@@ -551,10 +551,7 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getInvalids()).containsExactlyInAnyOrder(
-                            "Host value cannot contain `/` or `:` characters. Found `hostname/`.",
-                            "Host value cannot contain `/` or `:` characters. Found `hostname:`."
-                    );
+                    assertThat(createdDatasource.getInvalids()).isEmpty();
 
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .users(Set.of("api_user"))

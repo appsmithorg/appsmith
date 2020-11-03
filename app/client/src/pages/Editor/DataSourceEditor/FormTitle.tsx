@@ -94,6 +94,7 @@ const FormTitle = (props: FormTitleProps) => {
   return (
     <Wrapper>
       <EditableText
+        className="t--edit-datasource-name"
         type="text"
         forceDefault={forceUpdate}
         defaultValue={currentDatasource ? currentDatasource.name : ""}

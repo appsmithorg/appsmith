@@ -25,7 +25,7 @@ const Wrapper = styled.div`
   .dynamic-text-field {
     border-radius: 4px;
     font-size: 14px;
-    height: calc(100vh / 4);
+    min-height: calc(100vh / 4);
   }
 
   && {
@@ -98,7 +98,7 @@ class DynamicTextControl extends BaseControl<
 
 export interface DynamicTextFieldProps extends ControlProps {
   actionName: string;
-  createTemplate: Function;
+  createTemplate: (template: any) => any;
   pluginId: string;
   responseType: string;
 }

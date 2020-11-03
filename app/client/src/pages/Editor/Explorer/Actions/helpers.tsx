@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { apiIcon, queryIcon, MethodTag } from "../ExplorerIcons";
+import { apiIcon, dbQueryIcon, MethodTag, QueryIcon } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import { QUERIES_EDITOR_URL, API_EDITOR_URL } from "constants/routes";
@@ -11,8 +11,10 @@ import {
 } from "constants/routes";
 
 import { Page } from "constants/ReduxActionConstants";
-import ExplorerActionsGroup from "./ActionsGroup";
 import { ExplorerURLParams } from "../helpers";
+import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
+import PluginGroup from "../PluginGroup/PluginGroup";
 
 export type ActionGroupConfig = {
   groupName: string;
@@ -25,7 +27,7 @@ export type ActionGroupConfig = {
     pageId: string,
     selectedPageId: string,
   ) => string;
-  getIcon: (method?: string) => ReactNode;
+  getIcon: (action: any, plugin: Plugin) => ReactNode;
   isGroupActive: (params: ExplorerURLParams, pageId: string) => boolean;
   isGroupExpanded: (params: ExplorerURLParams, pageId: string) => boolean;
 };
@@ -46,7 +48,9 @@ export const ACTION_PLUGIN_MAP: Array<
         getURL: (applicationId: string, pageId: string, id: string) => {
           return `${API_EDITOR_ID_URL(applicationId, pageId, id)}`;
         },
-        getIcon: (method?: string) => {
+        getIcon: (action: any) => {
+          const method = action.actionConfiguration.httpMethod;
+
           if (!method) return apiIcon;
           return <MethodTag type={method} />;
         },
@@ -61,14 +65,16 @@ export const ACTION_PLUGIN_MAP: Array<
       };
     case PluginType.DB:
       return {
-        groupName: "Queries",
+        groupName: "DB Queries",
         type,
-        icon: queryIcon,
+        icon: dbQueryIcon,
         key: generateReactKey(),
         getURL: (applicationId: string, pageId: string, id: string) =>
           `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`,
-        getIcon: () => {
-          return queryIcon;
+        getIcon: (action: any, plugin: Plugin) => {
+          if (plugin && plugin.iconLocation)
+            return <QueryIcon plugin={plugin} />;
+          return dbQueryIcon;
         },
         generateCreatePageURL: QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
         isGroupActive: (params: ExplorerURLParams, pageId: string) =>
@@ -84,30 +90,46 @@ export const ACTION_PLUGIN_MAP: Array<
   }
 });
 
-// Gets the Actions groups in the entity explorer
-// ACTION_PLUGIN_MAP specifies the number of groups
-// APIs, Queries, etc.
-export const getActionGroups = (
+export const getPluginGroups = (
   page: Page,
   step: number,
-  actions?: any[],
+  actions: any[],
+  datasources: Datasource[],
+  plugins: Plugin[],
   searchKeyword?: string,
 ) => {
   return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
     if (!config) return null;
+
     const entries = actions?.filter(
       (entry: any) => entry.config.pluginType === config?.type,
     );
-    if (!entries || (entries.length === 0 && !!searchKeyword)) return null;
+
+    const filteredPlugins = plugins.filter(
+      plugin => plugin.type === config.type,
+    );
+    const filteredPluginIds = filteredPlugins.map(plugin => plugin.id);
+    const filteredDatasources = datasources.filter(datasource => {
+      return filteredPluginIds.includes(datasource.pluginId);
+    });
+
+    if (
+      (!entries && !filteredDatasources) ||
+      (entries.length === 0 &&
+        filteredDatasources.length === 0 &&
+        !!searchKeyword)
+    )
+      return null;
 
     return (
-      <ExplorerActionsGroup
+      <PluginGroup
         key={page.pageId + "_" + config.type}
         actions={entries}
+        datasources={filteredDatasources}
         step={step}
         searchKeyword={searchKeyword}
         page={page}
-        config={config}
+        actionConfig={config}
       />
     );
   });

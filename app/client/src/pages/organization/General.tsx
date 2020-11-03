@@ -86,6 +86,7 @@ export function GeneralSettings() {
             placeholder="Workspace name"
             onChange={onWorkspaceNameChange}
             defaultValue={currentOrg.name}
+            cypressSelector="t--org-name-input"
           ></TextInput>
         )}
       </SettingWrapper>
@@ -100,6 +101,7 @@ export function GeneralSettings() {
             placeholder="Your website"
             onChange={onWebsiteChange}
             defaultValue={currentOrg.website || ""}
+            cypressSelector="t--org-website-input"
           ></TextInput>
         )}
       </SettingWrapper>
@@ -115,6 +117,7 @@ export function GeneralSettings() {
             placeholder="Email"
             onChange={onEmailChange}
             defaultValue={currentOrg.email || ""}
+            cypressSelector="t--org-email-input"
           ></TextInput>
         )}
       </SettingWrapper>

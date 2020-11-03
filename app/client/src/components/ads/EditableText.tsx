@@ -21,28 +21,28 @@ export enum SavingState {
   ERROR = "ERROR",
 }
 
-type EditableTextProps = CommonComponentProps & {
+export type EditableTextProps = CommonComponentProps & {
   defaultValue: string;
-  onTextChanged: (value: string) => void;
-  placeholder: string;
+  placeholder?: string;
+  editInteractionKind: EditInteractionKind;
+  savingState: SavingState;
+  onBlur: (value: string) => void;
+  onTextChanged?: (value: string) => void;
   className?: string;
   valueTransform?: (value: string) => string;
   isEditingDefault?: boolean;
   forceDefault?: boolean;
   updating?: boolean;
   isInvalid?: (value: string) => string | boolean;
-  editInteractionKind: EditInteractionKind;
   hideEditIcon?: boolean;
   fill?: boolean;
-  savingState: SavingState;
-  onBlur: (value: string) => void;
 };
 
 const EditableTextWrapper = styled.div<{
   fill?: boolean;
 }>`
   width: ${props => (!props.fill ? "234px" : "100%")};
-  .${Classes.TEXT} {
+  .error-message {
     margin-left: ${props => props.theme.spaces[5]}px;
     color: ${props => props.theme.colors.danger.main};
   }
@@ -70,10 +70,6 @@ const TextContainer = styled.div<{
 }>`
   display: flex;
   align-items: center;
-  ${props =>
-    props.isEditing && props.isInvalid
-      ? `margin-bottom: ${props.theme.spaces[2]}px`
-      : null};
   .bp3-editable-text.bp3-editable-text-editing::before,
   .bp3-editable-text.bp3-disabled::before {
     display: none;
@@ -143,7 +139,6 @@ export const EditableText = (props: EditableTextProps) => {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
-  const valueRef = React.useRef(defaultValue);
 
   useEffect(() => {
     setSavingState(props.savingState);
@@ -178,14 +173,14 @@ export const EditableText = (props: EditableTextProps) => {
 
   const onConfirm = useCallback(
     (_value: string) => {
-      if (savingState === SavingState.ERROR || isInvalid) {
+      if (savingState === SavingState.ERROR || isInvalid || _value === "") {
         setValue(lastValidValue);
         onBlur(lastValidValue);
         setSavingState(SavingState.NOT_STARTED);
       } else if (changeStarted) {
-        onTextChanged(_value);
-        onBlur(_value);
+        onTextChanged && onTextChanged(_value);
       }
+      onBlur(_value);
       setIsEditing(false);
       setChangeStarted(false);
     },
@@ -204,10 +199,9 @@ export const EditableText = (props: EditableTextProps) => {
       const finalVal: string = _value;
       const errorMessage = inputValidation && inputValidation(finalVal);
       const error = errorMessage ? errorMessage : false;
-      if (!error) {
+      if (!error && _value !== "") {
         setLastValidValue(finalVal);
-        valueRef.current = finalVal;
-        onTextChanged(finalVal);
+        onTextChanged && onTextChanged(finalVal);
       }
       setValue(finalVal);
       setIsInvalid(error);
@@ -258,8 +252,8 @@ export const EditableText = (props: EditableTextProps) => {
           onChange={onInputchange}
           onConfirm={onConfirm}
           value={value}
-          selectAllOnFocus
-          placeholder={props.placeholder}
+          selectAllOnFocus={true}
+          placeholder={props.placeholder || defaultValue}
           className={props.className}
           onCancel={onConfirm}
         />
@@ -267,13 +261,15 @@ export const EditableText = (props: EditableTextProps) => {
         <IconWrapper className="icon-wrapper">
           {savingState === SavingState.STARTED ? (
             <Spinner size={IconSize.XL} />
-          ) : (
+          ) : value ? (
             <Icon name={iconName} size={IconSize.XL} />
-          )}
+          ) : null}
         </IconWrapper>
       </TextContainer>
       {isEditing && !!isInvalid ? (
-        <Text type={TextType.P2}>{isInvalid}</Text>
+        <Text className="error-message" type={TextType.P2}>
+          {isInvalid}
+        </Text>
       ) : null}
     </EditableTextWrapper>
   );
