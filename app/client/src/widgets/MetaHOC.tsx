@@ -51,8 +51,8 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       Object.keys(metaProperties).forEach(metaProperty => {
         const defaultProperty = defaultProperties[metaProperty];
         if (
-          prevProps[metaProperty] !== this.props[metaProperty] &&
-          this.props[defaultProperty] === this.props[metaProperty]
+          !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
+          _.isEqual(this.props[defaultProperty], this.props[metaProperty])
         ) {
           this.setState({ [metaProperty]: this.props[metaProperty] });
         }
