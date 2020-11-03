@@ -12,6 +12,8 @@ const testdata = require("../../../fixtures/testdata.json");
 const pageid = "MyPage";
 let updatedName;
 let datasourceName;
+let pluginid;
+let datasourceId;
 
 describe("Binding the multiple widgets and validating default data", function() {
   before(() => {
@@ -29,6 +31,11 @@ describe("Binding the multiple widgets and validating default data", function() 
 
     cy.get("@createDatasource").then(httpResponse => {
       datasourceName = httpResponse.response.body.data.name;
+      pluginid = httpResponse.response.body.data.pluginId;
+      datasourceId = httpResponse.response.body.data.id;
+      cy.log("pluginid: " + pluginid);
+      cy.log("datasourceName: " + datasourceName);
+      cy.log("datasourceId: " + datasourceId);
     });
   });
   it("Create and runs query", () => {
