@@ -45,14 +45,15 @@ function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   const { applicationId, pageId } = initializeEditorAction.payload;
+  // Step 1: Set App Mode. Start getting all the data needed
+  yield put(setAppMode(APP_MODE.EDIT));
   yield put({ type: ReduxActionTypes.START_EVALUATION });
-  // Step 1: Start getting all the data needed by the
   yield all([
-    put(fetchPageList(applicationId)),
+    put(fetchPageList(applicationId, APP_MODE.EDIT)),
     put(fetchEditorConfigs()),
     put(fetchActions(applicationId)),
     put(fetchPage(pageId)),
-    put(fetchApplication(applicationId)),
+    put(fetchApplication(applicationId, APP_MODE.EDIT)),
   ]);
   // Step 2: Wait for all data to be in the state
   yield all([
@@ -71,8 +72,7 @@ function* initializeEditorSaga(
     take(ReduxActionTypes.FETCH_DATASOURCES_SUCCESS),
   ]);
 
-  // Step 5: Set app mode
-  yield put(setAppMode(APP_MODE.EDIT));
+  // Step 5: Set app store
   yield put(updateAppStore(getAppStore(applicationId)));
 
   const currentApplication = yield select(getCurrentApplication);
@@ -152,18 +152,22 @@ export function* initializeAppViewerSaga(
   action: ReduxAction<{ applicationId: string; pageId: string }>,
 ) {
   const { applicationId, pageId } = action.payload;
+  yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
+    // TODO (hetu) Remove spl view call for fetch actions
     put(fetchActionsForView(applicationId)),
-    put(fetchPageList(applicationId)),
-    put(fetchApplication(applicationId)),
+    put(fetchPageList(applicationId, APP_MODE.PUBLISHED)),
+    put(fetchApplication(applicationId, APP_MODE.PUBLISHED)),
   ]);
 
   yield all([
     take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
+    take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
   ]);
 
+  yield put(updateAppStore(getAppStore(applicationId)));
   const defaultPageId = yield select(getDefaultPageId);
   const toLoadPageId = pageId || defaultPageId;
 

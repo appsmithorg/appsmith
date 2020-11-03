@@ -1,13 +1,13 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Collection;
+import com.appsmith.server.dtos.ActionDTO;
 import reactor.core.publisher.Mono;
 
 public interface ActionCollectionService {
     Mono<Collection> createCollection(Collection collection);
 
-    Mono<Action> createAction(Action action);
+    Mono<ActionDTO> createAction(ActionDTO action);
 
-    Mono<Action> updateAction(String id, Action action);
+    Mono<ActionDTO> updateAction(String id, ActionDTO action);
 }

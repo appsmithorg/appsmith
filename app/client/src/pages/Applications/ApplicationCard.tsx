@@ -204,7 +204,6 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
       : null};
 `;
 type ApplicationCardProps = {
-  activeAppCard?: boolean;
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
@@ -275,11 +274,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
-    if (props.activeAppCard) {
-      setShowOverlay(true);
-    }
-  }, [props.activeAppCard]);
 
   const appIcon = (props.application?.icon ||
     getApplicationIcon(props.application.id)) as AppIconName;
@@ -458,7 +452,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     >
       <>
         <Wrapper
-          className={isFetchingApplications ? Classes.SKELETON : ""}
+          className={
+            isFetchingApplications
+              ? Classes.SKELETON
+              : "t--application-card-background"
+          }
           key={props.application.id}
           hasReadPermission={hasReadPermission}
           backgroundColor={colorCode}
@@ -514,7 +512,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           isFetching={isFetchingApplications}
           className={isFetchingApplications ? Classes.SKELETON : ""}
         >
-          <Text type={TextType.H3}>{props.application.name}</Text>
+          <Text type={TextType.H3} cypressSelector="t--app-card-name">
+            {props.application.name}
+          </Text>
         </AppNameWrapper>
       </>
     </NameWrapper>

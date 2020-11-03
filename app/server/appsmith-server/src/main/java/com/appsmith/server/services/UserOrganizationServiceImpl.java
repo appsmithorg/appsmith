@@ -7,6 +7,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
@@ -170,16 +172,17 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
 
         // Update the underlying application/page/action
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true);
-        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true);
-        Flux<Page> updatedPagesFlux = updatedApplicationsFlux
+        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true)
+                .cache();
+        Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
-        Flux<Action> updatedActionsFlux = updatedPagesFlux
-                .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, true));
+        Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
 
-        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
+        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
                 .flatMap(tuple -> {
                     //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-                    Organization updatedOrgBeforeSave = tuple.getT3();
+                    Organization updatedOrgBeforeSave = tuple.getT4();
                     return organizationRepository.save(updatedOrgBeforeSave);
                 });
     }
@@ -233,16 +236,17 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
 
         // Update the underlying application/page/action
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, false);
-        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, false);
-        Flux<Page> updatedPagesFlux = updatedApplicationsFlux
+        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, false)
+                .cache();
+        Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, false));
-        Flux<Action> updatedActionsFlux = updatedPagesFlux
-                .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, false));
+        Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, false));
 
-        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
+        return Mono.zip(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList(), Mono.just(updatedOrganization))
                 .flatMap(tuple -> {
                     //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-                    Organization updatedOrgBeforeSave = tuple.getT3();
+                    Organization updatedOrgBeforeSave = tuple.getT4();
                     return organizationRepository.save(updatedOrgBeforeSave);
                 });
     }
@@ -369,13 +373,15 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
 
         // Update the underlying application/page/action
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true);
-        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true);
-        Flux<Page> updatedPagesFlux = updatedApplicationsFlux
+        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true)
+                .cache();
+        Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
-        Flux<Action> updatedActionsFlux = updatedPagesFlux
-                .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, true));
 
-        return Mono.when(updatedDatasourcesFlux.collectList(), updatedActionsFlux.collectList())
+        Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
+
+        return Mono.when(updatedDatasourcesFlux.collectList(), updatedPagesFlux.collectList(), updatedActionsFlux.collectList())
                 //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
                 .then(organizationRepository.save(updatedOrganization));
     }

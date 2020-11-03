@@ -5,27 +5,29 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
-import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
-import com.appsmith.server.services.PageService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -87,10 +89,7 @@ public class ExamplesOrganizationClonerTests {
     private SessionUserService sessionUserService;
 
     @Autowired
-    private ActionService actionService;
-
-    @Autowired
-    private PageService pageService;
+    private NewActionService newActionService;
 
     @Autowired
     private ActionCollectionService actionCollectionService;
@@ -110,13 +109,16 @@ public class ExamplesOrganizationClonerTests {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    private NewPageService newPageService;
+
     private Plugin installedPlugin;
 
     private static class OrganizationData {
         Organization organization;
         List<Application> applications = new ArrayList<>();
         List<Datasource> datasources = new ArrayList<>();
-        List<Action> actions = new ArrayList<>();
+        List<ActionDTO> actions = new ArrayList<>();
     }
 
     public Mono<OrganizationData> loadOrganizationData(Organization organization) {
@@ -246,7 +248,7 @@ public class ExamplesOrganizationClonerTests {
                             .zip(
                                     applicationPageService.createApplication(app1),
                                     applicationPageService.createApplication(app2).flatMap(application -> {
-                                        final Page newPage = new Page();
+                                        final PageDTO newPage = new PageDTO();
                                         newPage.setName("The New Page");
                                         newPage.setApplicationId(application.getId());
                                         return applicationPageService.createPage(newPage).thenReturn(application);
@@ -521,7 +523,7 @@ public class ExamplesOrganizationClonerTests {
                                 final String pageId1 = app.getPages().get(0).getId();
                                 final Datasource ds1Again = tuple1.getT3();
 
-                                final Page newPage = new Page();
+                                final PageDTO newPage = new PageDTO();
                                 newPage.setName("A New Page");
                                 newPage.setApplicationId(app.getId());
                                 newPage.setLayouts(new ArrayList<>());
@@ -534,7 +536,7 @@ public class ExamplesOrganizationClonerTests {
                                 layout.setLayoutOnLoadActions(List.of(dslActionDTOS));
                                 newPage.getLayouts().add(layout);
 
-                                final Action newPageAction = new Action();
+                                final ActionDTO newPageAction = new ActionDTO();
                                 newPageAction.setName("newPageAction");
                                 newPageAction.setOrganizationId(organization.getId());
                                 newPageAction.setDatasource(ds1Again);
@@ -542,14 +544,14 @@ public class ExamplesOrganizationClonerTests {
                                 newPageAction.setActionConfiguration(new ActionConfiguration());
                                 newPageAction.getActionConfiguration().setHttpMethod(HttpMethod.GET);
 
-                                final Action action1 = new Action();
+                                final ActionDTO action1 = new ActionDTO();
                                 action1.setName("action1");
                                 action1.setPageId(pageId1);
                                 action1.setOrganizationId(organization.getId());
                                 action1.setDatasource(ds1Again);
                                 action1.setPluginId(installedPlugin.getId());
 
-                                final Action action2 = new Action();
+                                final ActionDTO action2 = new ActionDTO();
                                 action2.setPageId(pageId1);
                                 action2.setName("action2");
                                 action2.setOrganizationId(organization.getId());
@@ -560,14 +562,14 @@ public class ExamplesOrganizationClonerTests {
                                 final String pageId2 = app2Again.getPages().get(0).getId();
                                 final Datasource ds2Again = tuple1.getT4();
 
-                                final Action action3 = new Action();
+                                final ActionDTO action3 = new ActionDTO();
                                 action3.setName("action3");
                                 action3.setPageId(pageId2);
                                 action3.setOrganizationId(organization.getId());
                                 action3.setDatasource(ds2Again);
                                 action3.setPluginId(installedPlugin.getId());
 
-                                final Action action4 = new Action();
+                                final ActionDTO action4 = new ActionDTO();
                                 action4.setPageId(pageId2);
                                 action4.setName("action4");
                                 action4.setOrganizationId(organization.getId());
@@ -581,7 +583,7 @@ public class ExamplesOrganizationClonerTests {
                                                     return applicationPageService.addPageToApplication(app, page, false)
                                                             .then(actionCollectionService.createAction(newPageAction))
                                                             .flatMap(savedAction -> layoutActionService.updateAction(savedAction.getId(), savedAction))
-                                                            .then(pageService.findById(page.getId(), READ_PAGES));
+                                                            .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
                                                 })
                                                 .map(tuple2 -> {
                                                     log.info("Created action and added page to app {}", tuple2);
@@ -620,10 +622,11 @@ public class ExamplesOrganizationClonerTests {
                     final Application firstApplication = data.applications.stream().filter(app -> app.getName().equals("first application")).findFirst().orElse(null);
                     assert firstApplication != null;
                     assertThat(firstApplication.getPages().stream().filter(ApplicationPage::isDefault).count()).isEqualTo(1);
-                    final Page newPage = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("name").is("A New Page")), Page.class);
+                    final NewPage newPage = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("unpublishedPage.name").is("A New Page")), NewPage.class);
                     assert newPage != null;
-                    final String actionId = newPage.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
-                    final Action newPageAction = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), Action.class);
+                    log.debug("new page is : {}", newPage.toString());
+                    final String actionId = newPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
+                    final NewAction newPageAction = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), NewAction.class);
                     assert newPageAction != null;
                     assertThat(newPageAction.getOrganizationId()).isEqualTo(data.organization.getId());
 
@@ -634,7 +637,7 @@ public class ExamplesOrganizationClonerTests {
                     );
 
                     assertThat(data.actions).hasSize(5);
-                    assertThat(map(data.actions, Action::getName)).containsExactlyInAnyOrder(
+                    assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "newPageAction",
                             "action1",
                             "action2",
@@ -645,15 +648,24 @@ public class ExamplesOrganizationClonerTests {
                 .verifyComplete();
     }
 
+    private List<String> getUnpublishedActionName(List<ActionDTO> actions) {
+        List<String> names = new ArrayList<>();
+        for (ActionDTO action : actions) {
+            names.add(action.getName());
+        }
+        return names;
+    }
+
     private <InType, OutType> List<OutType> map(List<InType> list, Function<InType, OutType> fn) {
         return list.stream().map(fn).collect(Collectors.toList());
     }
 
-    private Flux<Action> getActionsInOrganization(Organization organization) {
+    private Flux<ActionDTO> getActionsInOrganization(Organization organization) {
         return applicationService
                 .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
-                .flatMap(application -> pageService.findByApplicationId(application.getId(), READ_PAGES))
-                .flatMap(page -> actionService.get(new LinkedMultiValueMap<>(
+                // fetch the unpublished pages
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
+                .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
 }
