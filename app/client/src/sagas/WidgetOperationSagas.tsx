@@ -89,10 +89,12 @@ function getChildWidgetProps(
   const { leftColumn, topRow, newWidgetId, props, type } = params;
   let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
-  const defaultConfig: any = WidgetConfigResponse.config[type];
+  const { blueprint = undefined, ...restDefaultConfig } = {
+    ...(WidgetConfigResponse as any).config[type],
+  };
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
-    widgetName = getNextEntityName(defaultConfig.widgetName, widgetNames);
+    widgetName = getNextEntityName(restDefaultConfig.widgetName, widgetNames);
   }
   if (type === WidgetTypes.CANVAS_WIDGET) {
     columns =
@@ -104,7 +106,13 @@ function getChildWidgetProps(
     if (props) props.children = [];
   }
 
-  const widgetProps = { ...defaultConfig, ...props, columns, rows, minHeight };
+  const widgetProps = {
+    ...restDefaultConfig,
+    ...props,
+    columns,
+    rows,
+    minHeight,
+  };
   const widget = generateWidgetProps(
     parent,
     type,
@@ -130,10 +138,13 @@ function* generateChildWidgets(
 ): any {
   const widget = yield getChildWidgetProps(parent, params, widgets);
   widgets[widget.widgetId] = widget;
-  if (widget.blueprint && widget.blueprint.view) {
+  const { blueprint = undefined } = {
+    ...(WidgetConfigResponse as any).config[widget.type],
+  };
+  if (blueprint && blueprint.view) {
     const childWidgetList: WidgetAddChild[] = yield call(
       buildWidgetBlueprint,
-      widget.blueprint,
+      blueprint,
       widget.widgetId,
     );
     const childPropsList: GeneratedWidgetPayload[] = yield all(
@@ -149,20 +160,15 @@ function* generateChildWidgets(
   }
 
   widgets[widget.widgetId] = widget;
-  if (
-    widget.blueprint &&
-    widget.blueprint.operations &&
-    widget.blueprint.operations.length > 0
-  ) {
+  if (blueprint && blueprint.operations && blueprint.operations.length > 0) {
     widgets = yield call(
       executeWidgetBlueprintOperations,
-      widget.blueprint.operations,
+      blueprint.operations,
       widgets,
       widget.widgetId,
     );
   }
   widget.parentId = parent.widgetId;
-  delete widget.blueprint;
   return { widgetId: widget.widgetId, widgets };
 }
 
@@ -847,17 +853,11 @@ function* pasteWidgetSaga() {
       } else {
         // If the widget in which to paste the new widget is a tabs widget
         // Find the currently selected tab canvas widget
-        const { selectedTabId } = yield select(
+        const { selectedTabWidgetId } = yield select(
           getWidgetMetaProps,
           parentWidget.widgetId,
         );
-        const tabs = _.isString(parentWidget.tabs)
-          ? JSON.parse(parentWidget.tabs)
-          : parentWidget.tabs;
-        const childWidgetId =
-          tabs.find((tab: any) => tab.id === selectedTabId)?.widgetId ||
-          parentWidget.children[0];
-        childWidget = widgets[childWidgetId];
+        if (selectedTabWidgetId) childWidget = widgets[selectedTabWidgetId];
       }
       // If the finally selected parent in which to paste the widget
       // is a CANVAS_WIDGET, use its widgetId as the new widget's parent Id

@@ -9,6 +9,7 @@ import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
+import produce from "immer";
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0;
@@ -157,7 +158,7 @@ class TabControl extends BaseControl<ControlProps> {
   };
 
   addOption = () => {
-    const tabs: Array<{
+    let tabs: Array<{
       id: string;
       label: string;
       widgetId: string;
@@ -169,11 +170,14 @@ class TabControl extends BaseControl<ControlProps> {
       "Tab ",
       tabs.map(tab => tab.label),
     );
-    tabs.push({
-      id: newTabId,
-      label: newTabLabel,
-      widgetId: generateReactKey(),
+    tabs = produce(tabs, draft => {
+      draft.push({
+        id: newTabId,
+        label: newTabLabel,
+        widgetId: generateReactKey(),
+      });
     });
+
     this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
   };
 
