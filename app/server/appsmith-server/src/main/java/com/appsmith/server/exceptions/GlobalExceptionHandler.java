@@ -43,6 +43,11 @@ public class GlobalExceptionHandler {
                 rollbar.log(error);
             }
         }
+        else {
+            if(rollbar != null) {
+                rollbar.log(error);
+            }
+        }
     }
 
     /**
