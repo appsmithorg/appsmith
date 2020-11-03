@@ -121,6 +121,9 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
     <td align="center"><a href="http://prashantchaubey.com"><img src="https://avatars3.githubusercontent.com/u/14848874?v=4" width="100px;" alt=""/><br /><sub><b>Prashant Chaubey</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=pc9795" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/A-Scratchy"><img src="https://avatars0.githubusercontent.com/u/25309929?v=4" width="100px;" alt=""/><br /><sub><b>Adam</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=A-Scratchy" title="Code">💻</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/sumanthyedoti"><img src="https://avatars3.githubusercontent.com/u/30371888?v=4" width="100px;" alt=""/><br /><sub><b>Sumanth Yedoti</b></sub></a><br /><a href="#tool-sumanthyedoti" title="Tools">🔧</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=sumanthyedoti" title="Code">💻</a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-enable -->
