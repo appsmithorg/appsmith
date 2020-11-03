@@ -118,10 +118,6 @@ jobs:
         # Set health checks to wait until postgres has started
         # Also initialize the docker container with data
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
           --name postgres
           -v ${{ github.workspace }}/app/client/cypress/init-pg-dump-for-test.sql:/docker-entrypoint-initdb.d/init-pg-dump-for-test.sql
       
