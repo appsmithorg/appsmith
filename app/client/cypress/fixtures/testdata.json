@@ -173,5 +173,6 @@
       "orderAmount": 7.99
     }
   ],
-  "addInputWidgetBinding": "{{Table1.selectedRow.date"
+  "addInputWidgetBinding": "{{Table1.selectedRow.date",
+  "externalPage": "https://www.appsmith.com/"
 }

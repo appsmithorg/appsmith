@@ -201,6 +201,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
             options={HTTP_METHOD_OPTIONS}
+            isSearchable={false}
           />
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField

@@ -52,8 +52,10 @@ class ImageComponent extends React.Component<
     zoomingState: ZoomingState;
   }
 > {
+  isPanning: boolean;
   constructor(props: ImageComponentProps) {
     super(props);
+    this.isPanning = false;
     this.state = {
       imageError: false,
       zoomingState: ZoomingState.MAX_ZOOMED_OUT,
@@ -61,7 +63,8 @@ class ImageComponent extends React.Component<
   }
   render() {
     const { maxZoomLevel } = this.props;
-    const zoomActive = maxZoomLevel !== undefined && maxZoomLevel > 1;
+    const zoomActive =
+      maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
     let cursor = "inherit";
     if (zoomActive) {
@@ -74,6 +77,12 @@ class ImageComponent extends React.Component<
           onPanningStart={() => {
             this.props.disableDrag(true);
           }}
+          onPanning={() => {
+            this.isPanning = true;
+          }}
+          onPanningStop={() => {
+            this.props.disableDrag(false);
+          }}
           options={{
             maxScale: maxZoomLevel,
             disabled: !zoomActive,
@@ -85,14 +94,12 @@ class ImageComponent extends React.Component<
           wheel={{
             disabled: !zoomActive,
           }}
-          onPanningStop={() => {
-            this.props.disableDrag(false);
-          }}
           doubleClick={{
             disabled: true,
           }}
           onZoomChange={(zoom: any) => {
             if (zoomActive) {
+              //Check max zoom
               if (
                 maxZoomLevel === zoom.scale &&
                 // Added for preventing infinite loops
@@ -101,6 +108,7 @@ class ImageComponent extends React.Component<
                 this.setState({
                   zoomingState: ZoomingState.MAX_ZOOMED_IN,
                 });
+                // Check min zoom
               } else if (
                 zoom.scale === 1 &&
                 this.state.zoomingState !== ZoomingState.MAX_ZOOMED_OUT
@@ -124,12 +132,15 @@ class ImageComponent extends React.Component<
                     cursor,
                   }}
                   onClick={(event: React.MouseEvent<HTMLElement>) => {
-                    if (isZoomingIn) {
-                      zoomIn(event);
-                    } else {
-                      zoomOut(event);
+                    if (!this.isPanning) {
+                      if (isZoomingIn) {
+                        zoomIn(event);
+                      } else {
+                        zoomOut(event);
+                      }
+                      this.props.onClick && this.props.onClick(event);
                     }
-                    this.props.onClick && this.props.onClick(event);
+                    this.isPanning = false;
                   }}
                 >
                   <img

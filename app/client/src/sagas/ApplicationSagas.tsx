@@ -212,6 +212,10 @@ export function* updateApplicationSaga(
         type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
         payload: response.data,
       });
+      AppToaster.show({
+        message: `Application updated`,
+        type: "success",
+      });
     }
   } catch (error) {
     yield put({
@@ -219,6 +223,10 @@ export function* updateApplicationSaga(
       payload: {
         error,
       },
+    });
+    AppToaster.show({
+      message: error,
+      type: "error",
     });
   }
 }

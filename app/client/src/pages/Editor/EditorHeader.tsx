@@ -25,10 +25,17 @@ import {
   getIsPublishingApplication,
 } from "selectors/editorSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { HeaderIcons } from "icons/HeaderIcons";
 import ThreeDotLoading from "components/designSystems/appsmith/header/ThreeDotsLoading";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
+import { EditInteractionKind, SavingState } from "components/ads/EditableText";
+import { updateApplication } from "actions/applicationActions";
+import {
+  getApplicationList,
+  getIsSavingAppName,
+} from "selectors/applicationSelectors";
+import EditableTextWrapper from "components/ads/EditableTextWrapper";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -143,6 +150,10 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     publishApplication,
   } = props;
 
+  const dispatch = useDispatch();
+  const isSavingName = useSelector(getIsSavingAppName);
+  const applicationList = useSelector(getApplicationList);
+
   const handlePublish = () => {
     if (applicationId) {
       publishApplication(applicationId);
@@ -180,6 +191,10 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     }
   }
 
+  const updateApplicationDispatch = (id: string, data: { name: string }) => {
+    dispatch(updateApplication(id, data));
+  };
+
   return (
     <HeaderWrapper>
       <HeaderSection>
@@ -192,8 +207,26 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         </Link>
       </HeaderSection>
       <HeaderSection flex-direction={"row"}>
-        <ApplicationName>{currentApplication?.name}&nbsp;</ApplicationName>
-        <PageName>{pageName}&nbsp;</PageName>
+        {currentApplication ? (
+          <EditableTextWrapper
+            variant="UNDERLINE"
+            defaultValue={currentApplication?.name || ""}
+            editInteractionKind={EditInteractionKind.SINGLE}
+            hideEditIcon={true}
+            className="t--application-name"
+            fill={false}
+            savingState={
+              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+            }
+            isNewApp={
+              applicationList.filter(el => el.id === applicationId).length > 0
+            }
+            onBlur={(value: string) =>
+              updateApplicationDispatch(applicationId || "", { name: value })
+            }
+          />
+        ) : null}
+        {/* <PageName>{pageName}&nbsp;</PageName> */}
       </HeaderSection>
       <HeaderSection>
         <SaveStatusContainer className={"t--save-status-container"}>
