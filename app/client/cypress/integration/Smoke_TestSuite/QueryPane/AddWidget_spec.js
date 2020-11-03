@@ -10,6 +10,8 @@ describe("Add widget", function() {
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then(httpResponse => {
       datasourceName = httpResponse.response.body.data.name;
+      pluginid = httpResponse.response.body.data.pluginId;
+      datasourceId = httpResponse.response.body.data.id;
       cy.log("pluginid: " + pluginid);
       cy.log("datasourceName: " + datasourceName);
       cy.log("datasourceId: " + datasourceId);
