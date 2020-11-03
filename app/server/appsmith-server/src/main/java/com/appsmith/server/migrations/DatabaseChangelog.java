@@ -88,6 +88,9 @@ public class DatabaseChangelog {
      * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering and we try
      * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
      * WILL happen.
+     *
+     * Also, please check out the following blog on how to best create indexes :
+     * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
     private static Index makeIndex(String... fields) {
         if (fields.length == 1) {
@@ -1190,6 +1193,25 @@ public class DatabaseChangelog {
         }
 
         mongoTemplate.insertAll(toBeInsertedActions);
+
+    }
+
+    @ChangeSet(order = "040", id = "new-page-new-action-add-indexes", author = "")
+    public void addNewPageAndNewActionNewIndexes(MongoTemplate mongoTemplate) {
+
+        dropIndexIfExists(mongoTemplate, NewAction.class, "createdAt");
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("applicationId", "deleted", "createdAt")
+                        .named("applicationId_deleted_createdAt_compound_index")
+        );
+
+        dropIndexIfExists(mongoTemplate, NewPage.class, "createdAt");
+
+        ensureIndexes(mongoTemplate, NewPage.class,
+                makeIndex("applicationId", "deleted")
+                        .named("applicationId_deleted_compound_index")
+        );
 
     }
 
