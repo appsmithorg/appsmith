@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
         log.error("", error);
 
         if (error instanceof AppsmithException) {
-            if (rollbar != null && ((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_WITH_ROLLBAR) {
+            if (rollbar != null && ((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
                 rollbar.log(error);
             }
         }
