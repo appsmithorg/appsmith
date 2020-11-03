@@ -18,7 +18,6 @@ import _ from "lodash";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { removeMultiLineCharacters } from "utils/helpers";
 import "components/editorComponents/CodeEditor/modes";
 import {
   EditorConfig,
@@ -75,7 +74,6 @@ export type EditorStyleProps = {
 export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
-    singleLine?: boolean;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -219,19 +217,15 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
-    const { singleLine, input } = this.props;
-    const value = singleLine
-      ? removeMultiLineCharacters(this.editor.getValue(), " ")
-      : this.editor.getValue();
-    // this.editor.setValue(value); /* two-way binding */
+    const value = this.editor.getValue();
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         searchString: changeObj.text[0],
       });
     }
-    const inputValue = input.value;
-    if (input.onChange && value !== inputValue) {
-      input.onChange(value);
+    const inputValue = this.props.input.value;
+    if (this.props.input.onChange && value !== inputValue) {
+      this.props.input.onChange(value);
     }
     this.updateMarkings();
   };
