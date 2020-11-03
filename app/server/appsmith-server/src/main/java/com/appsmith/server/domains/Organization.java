@@ -24,9 +24,7 @@ public class Organization extends BaseDomain {
 
     private String domain;
 
-    @NotEmpty(message = "Name must not be empty")
-    @NotBlank(message = "Name must not be blank")
-    @NotNull(message = "Name is mandatory")
+    @NotBlank(message = "Name is mandatory")
     private String name;
 
     private String website;
