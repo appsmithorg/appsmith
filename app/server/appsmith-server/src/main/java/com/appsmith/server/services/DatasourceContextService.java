@@ -5,6 +5,8 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
 import reactor.core.publisher.Mono;
 
+import java.util.function.Function;
+
 public interface DatasourceContextService {
 
     /**
@@ -16,6 +18,8 @@ public interface DatasourceContextService {
      * @return DatasourceContext
      */
     Mono<DatasourceContext> getDatasourceContext(Datasource datasource);
+
+    <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext, Mono<T>> task);
 
     Mono<DatasourceContext> deleteDatasourceContext(String datasourceId);
 

@@ -6,6 +6,18 @@ export const getRolesFromState = (state: AppState) => {
   return state.ui.orgs.roles;
 };
 
+export const getOrgLoadingStates = (state: AppState) => {
+  return {
+    isFetchingOrg: state.ui.orgs.loadingStates.isFetchingOrg,
+    isFetchingAllUsers: state.ui.orgs.loadingStates.isFetchAllUsers,
+    isFetchingAllRoles: state.ui.orgs.loadingStates.isFetchAllRoles,
+    deletingUserInfo: state.ui.orgs.orgUsers.filter(el => el.isDeleting)[0],
+    roleChangingUserInfo: state.ui.orgs.orgUsers.filter(
+      el => el.isChangingRole,
+    )[0],
+  };
+};
+
 export const getCurrentOrgId = (state: AppState) => state.ui.orgs.currentOrg.id;
 export const getOrgs = (state: AppState) => {
   return state.ui.applications.userOrgs;

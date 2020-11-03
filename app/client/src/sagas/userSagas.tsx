@@ -33,6 +33,10 @@ import {
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -74,11 +78,19 @@ export function* createUserSaga(
 
 export function* getCurrentUserSaga() {
   try {
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.USER_ME_API,
+    );
     const response: ApiResponse = yield call(UserApi.getCurrentUser);
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AnalyticsUtil.identifyUser(response.data.username, response.data);
+      if (
+        !response.data.isAnonymous &&
+        response.data.username !== ANONYMOUS_USERNAME
+      ) {
+        AnalyticsUtil.identifyUser(response.data.username, response.data);
+      }
       if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
@@ -90,8 +102,15 @@ export function* getCurrentUserSaga() {
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
       });
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.USER_ME_API,
+      );
     }
   } catch (error) {
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.USER_ME_API,
+      { failed: true },
+    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_DETAILS_ERROR,
       payload: {

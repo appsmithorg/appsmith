@@ -2,34 +2,38 @@ import React from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
-import { Icon, IconName } from "./Icon";
-import { Size } from "./Button";
+import Icon, { IconName, IconSize } from "./Icon";
+import { Classes, CommonComponentProps } from "./common";
+
+export type TabProp = {
+  key: string;
+  title: string;
+  panelComponent: JSX.Element;
+  icon: IconName;
+};
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
   border-radius: 0px;
   height: 100%;
-  .ads-icon {
-    margin-right: ${props => props.theme.spaces[4]}px;
-    svg {
-      width: ${props => props.theme.spaces[9]}px;
-      height: ${props => props.theme.spaces[9]}px;
-    }
+  .${Classes.ICON} {
+    margin-right: ${props => props.theme.spaces[3]}px;
   }
   .react-tabs {
     height: 100%;
   }
   .react-tabs__tab-panel {
     height: calc(100% - 32px);
-    overflow: scroll;
+    overflow: auto;
   }
   .react-tabs__tab-list {
     display: flex;
     align-items: center;
-    border-bottom: 2px solid ${props => props.theme.colors.blackShades[3]};
-    color: ${props => props.theme.colors.blackShades[6]};
+    border-bottom: ${props => props.theme.spaces[1] - 2}px solid
+      ${props => props.theme.colors.tabs.border};
+    color: ${props => props.theme.colors.tabs.normal};
     path {
-      fill: ${props => props.theme.colors.blackShades[6]};
+      fill: ${props => props.theme.colors.tabs.normal};
     }
     ${props =>
       props.shouldOverflow &&
@@ -43,41 +47,54 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 0 0 ${props => props.theme.spaces[2]}px 0;
+    padding: 0 0 ${props => props.theme.spaces[4]}px 0;
     margin-right: ${props => props.theme.spaces[12] - 3}px;
     text-align: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    border-color: transparent;
+    position: relative;
   }
   .react-tabs__tab:hover {
-    color: ${props => props.theme.colors.blackShades[9]};
+    color: ${props => props.theme.colors.tabs.hover};
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
-    }
-  }
-  .react-tabs__tab:focus {
-    box-shadow: none;
-    border-bottom: ${props => props.theme.colors.info.main}
-      ${props => props.theme.spaces[1] - 2}px solid;
-    path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.tabs.hover};
     }
   }
   .react-tabs__tab--selected {
-    color: ${props => props.theme.colors.blackShades[9]};
-    border: 0px solid;
-    border-bottom: ${props => props.theme.colors.info.main}
-      ${props => props.theme.spaces[1] - 2}px solid;
+    color: ${props => props.theme.colors.tabs.hover};
     background-color: transparent;
+
     path {
-      fill: ${props => props.theme.colors.blackShades[9]};
+      fill: ${props => props.theme.colors.tabs.hover};
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      bottom: ${props => props.theme.spaces[0] - 1}px;
+      left: ${props => props.theme.spaces[0]}px;
+      height: ${props => props.theme.spaces[1] - 2}px;
+      background-color: ${props => props.theme.colors.info.main};
     }
   }
-  .react-tabs__tab:focus:after {
-    content: none;
-    height: ${props => props.theme.spaces[1] - 2}px;
-    background: ${props => props.theme.colors.info.main};
+  .react-tabs__tab:focus {
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      bottom: ${props => props.theme.spaces[0] - 1}px;
+      left: ${props => props.theme.spaces[0]}px;
+      height: ${props => props.theme.spaces[1] - 2}px;
+      background-color: ${props => props.theme.colors.info.main};
+    }
+    box-shadow: none;
+    border-color: transparent;
+    path {
+      fill: ${props => props.theme.colors.tabs.hover};
+    }
   }
 `;
 
@@ -88,31 +105,29 @@ const TabTitle = styled.span`
   letter-spacing: ${props => props.theme.typography.h4.letterSpacing}px;
 `;
 
-type TabbedViewComponentType = {
-  tabs: Array<{
-    key: string;
-    title: string;
-    panelComponent: JSX.Element;
-    icon?: IconName;
-  }>;
+type TabbedViewComponentType = CommonComponentProps & {
+  tabs: Array<TabProp>;
   selectedIndex?: number;
-  setSelectedIndex?: Function;
+  onSelect?: Function;
   overflow?: boolean;
 };
 
-export const AdsTabComponent = (props: TabbedViewComponentType) => {
+export const TabComponent = (props: TabbedViewComponentType) => {
   return (
-    <TabsWrapper shouldOverflow={props.overflow}>
+    <TabsWrapper
+      shouldOverflow={props.overflow}
+      data-cy={props.cypressSelector}
+    >
       <Tabs
         selectedIndex={props.selectedIndex}
         onSelect={(index: number) => {
-          props.setSelectedIndex && props.setSelectedIndex(index);
+          props.onSelect && props.onSelect(index);
         }}
       >
         <TabList>
           {props.tabs.map(tab => (
             <Tab key={tab.key}>
-              {tab.icon ? <Icon name={tab.icon} size={Size.large} /> : null}
+              {tab.icon ? <Icon name={tab.icon} size={IconSize.XXXL} /> : null}
               <TabTitle>{tab.title}</TabTitle>
             </Tab>
           ))}

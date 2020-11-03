@@ -22,6 +22,8 @@ const initialState: EditorReduxState = {
     isPageSwitching: false,
     creatingPage: false,
     creatingPageError: false,
+    cloningPage: false,
+    cloningPageError: false,
     updatingWidgetName: false,
     updateWidgetNameError: false,
   },
@@ -30,6 +32,15 @@ const initialState: EditorReduxState = {
 const editorReducer = createReducer(initialState, {
   [ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, initialized: true };
+  },
+  [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ id: string; name: string }>,
+  ) => {
+    if (action.payload.id === state.currentPageId) {
+      return { ...state, currentPageName: action.payload.name };
+    }
+    return state;
   },
   [ReduxActionTypes.FETCH_PAGE_INIT]: (state: EditorReduxState) => ({
     ...state,
@@ -55,9 +66,14 @@ const editorReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.INITIALIZE_EDITOR_ERROR]: (
     state: EditorReduxState,
   ) => {
-    state.loadingStates.loading = false;
-    state.loadingStates.loadingError = true;
-    return { ...state };
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        loading: false,
+        loadingError: true,
+      },
+    };
   },
   [ReduxActionTypes.PUBLISH_APPLICATION_INIT]: (state: EditorReduxState) => {
     state.loadingStates.publishing = true;
@@ -100,6 +116,7 @@ const editorReducer = createReducer(initialState, {
       currentLayoutId,
       pageWidgetId,
       currentApplicationId,
+      currentPageId,
     } = action.payload;
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
@@ -109,7 +126,22 @@ const editorReducer = createReducer(initialState, {
       currentLayoutId,
       pageWidgetId,
       currentApplicationId,
+      currentPageId,
     };
+  },
+  [ReduxActionTypes.CLONE_PAGE_INIT]: (state: EditorReduxState) => {
+    state.loadingStates.cloningPage = true;
+    state.loadingStates.cloningPageError = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
+    state.loadingStates.cloningPageError = true;
+    state.loadingStates.cloningPage = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.CLONE_PAGE_SUCCESS]: (state: EditorReduxState) => {
+    state.loadingStates.cloningPage = false;
+    return { ...state };
   },
   [ReduxActionTypes.CREATE_PAGE_INIT]: (state: EditorReduxState) => {
     state.loadingStates.creatingPage = true;
@@ -150,6 +182,7 @@ export interface EditorReduxState {
   pageWidgetId?: string;
   currentLayoutId?: string;
   currentPageName?: string;
+  currentPageId?: string;
   loadingStates: {
     saving: boolean;
     savingError: boolean;
@@ -162,6 +195,8 @@ export interface EditorReduxState {
     pageSwitchingError: boolean;
     creatingPage: boolean;
     creatingPageError: boolean;
+    cloningPage: boolean;
+    cloningPageError: boolean;
     updatingWidgetName: boolean;
     updateWidgetNameError: boolean;
   };

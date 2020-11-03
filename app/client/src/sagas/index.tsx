@@ -18,6 +18,8 @@ import curlImportSagas from "./CurlImportSagas";
 import queryPaneSagas from "./QueryPaneSagas";
 import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
+import themeSagas from "./ThemeSaga";
+import evaluationsSaga from "./evaluationsSaga";
 
 export function* rootSaga() {
   yield all([
@@ -40,5 +42,7 @@ export function* rootSaga() {
     spawn(queryPaneSagas),
     spawn(modalSagas),
     spawn(batchSagas),
+    spawn(themeSagas),
+    spawn(evaluationsSaga),
   ]);
 }

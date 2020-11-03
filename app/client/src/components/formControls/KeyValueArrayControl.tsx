@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, JSXElementConstructor } from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
 import { FormIcons } from "icons/FormIcons";
-import BaseControl, { ControlProps, ControlData } from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import TextField from "components/editorComponents/form/fields/TextField";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
@@ -29,11 +29,13 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
+const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
   const { extraData = [] } = props;
   const keyName = getFieldName(extraData[0].configProperty);
   const valueName = getFieldName(extraData[1].configProperty);
   const valueDataType = getType(extraData[1].dataType);
+  const keyFieldProps = extraData[0];
+
   let isRequired: boolean | undefined;
 
   useEffect(() => {
@@ -47,13 +49,26 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
 
   useEffect(() => {
     if (typeof props.fields.getAll() === "string") {
-      const fieldsValue: [] = JSON.parse(`${props.fields.getAll()}`);
+      const fieldsValue: any[] = JSON.parse(`${props.fields.getAll()}`);
       props.fields.removeAll();
       fieldsValue.forEach((value, index) => {
         props.fields.insert(index, value);
       });
     }
   }, [props.fields]);
+
+  const keyFieldValidate = useCallback(
+    (value: string) => {
+      if (value && keyFieldProps.validationRegex) {
+        const regex = new RegExp(keyFieldProps.validationRegex);
+
+        return regex.test(value) ? undefined : keyFieldProps.validationMessage;
+      }
+
+      return undefined;
+    },
+    [keyFieldProps.validationRegex, keyFieldProps.validationMessage],
+  );
 
   if (extraData) {
     isRequired = extraData[0].isRequired || extraData[1].isRequired;
@@ -85,7 +100,11 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                   <FormLabel>
                     {extraData && extraData[0].label} {isRequired && "*"}
                   </FormLabel>
-                  <TextField name={`${field}.${keyName[1]}`} />
+                  <TextField
+                    name={`${field}.${keyName[1]}`}
+                    showError
+                    validate={keyFieldValidate}
+                  />
                 </div>
                 {!props.actionConfig && (
                   <div style={{ marginLeft: 16 }}>
@@ -143,26 +162,16 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   );
 };
 
-type Props = {
-  name: string;
-  label: string;
-  rightIcon?: Function;
-  description?: string;
-  actionConfig?: any;
-  extraData?: ControlData[];
-  isRequired?: boolean;
-};
-
 class KeyValueFieldArray extends BaseControl<KeyValueArrayProps> {
   render() {
     const name = getFieldName(this.props.configProperty);
 
     return (
       <FieldArray
-        name={name[0]}
         component={KeyValueRow}
         rerenderOnEveryChange={false}
         {...this.props}
+        name={name[0]}
       />
     );
   }
@@ -190,7 +199,7 @@ const getType = (dataType: InputType | undefined) => {
 export interface KeyValueArrayProps extends ControlProps {
   name: string;
   label: string;
-  rightIcon?: Function;
+  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
   description?: string;
   actionConfig?: any;
 }

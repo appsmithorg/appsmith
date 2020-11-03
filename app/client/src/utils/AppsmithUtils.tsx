@@ -1,6 +1,6 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "configs";
-import * as Sentry from "@sentry/browser";
+import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
@@ -8,8 +8,11 @@ import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
-import { providerBackgroundColors } from "constants/providerConstants";
 import FeatureFlag from "utils/featureFlags";
+import produce from "immer";
+import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
+import history from "./history";
+import { SERVER_ERROR_URL } from "../constants/routes";
 
 export const createReducer = (
   initialState: any,
@@ -24,6 +27,19 @@ export const createReducer = (
   };
 };
 
+export const createImmerReducer = (
+  initialState: any,
+  handlers: { [type: string]: any },
+) => {
+  return function reducer(state = initialState, action: ReduxAction<any>) {
+    if (handlers.hasOwnProperty(action.type)) {
+      return produce(handlers[action.type])(state, action);
+    } else {
+      return state;
+    }
+  };
+};
+
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
@@ -32,9 +48,9 @@ export const appInitializer = () => {
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init(appsmithConfigs.sentry);
   }
-  if (appsmithConfigs.hotjar.enabled) {
-    const { id, sv } = appsmithConfigs.hotjar;
-    AnalyticsUtil.initializeHotjar(id, sv);
+  if (appsmithConfigs.smartLook.enabled) {
+    const { id } = appsmithConfigs.smartLook;
+    AnalyticsUtil.initializeSmartLook(id);
   }
   if (appsmithConfigs.segment.enabled) {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
@@ -124,7 +140,10 @@ const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   return logLevel;
 };
 
-export const getInitialsAndColorCode = (fullName: any): string[] => {
+export const getInitialsAndColorCode = (
+  fullName: any,
+  colorPalette: string[],
+): string[] => {
   let inits = "";
   // if name contains space. eg: "Full Name"
   if (fullName.includes(" ")) {
@@ -140,16 +159,27 @@ export const getInitialsAndColorCode = (fullName: any): string[] => {
     initials = initials.join("").toUpperCase();
     inits = initials.slice(0, 2);
   }
-  const colorCode = getColorCode(inits);
+  const colorCode = getColorCode(inits, colorPalette);
   return [inits, colorCode];
 };
 
-export const getColorCode = (initials: string): string => {
+export const getColorCode = (
+  initials: string,
+  colorPalette: string[],
+): string => {
   let asciiSum = 0;
   for (let i = 0; i < initials.length; i++) {
     asciiSum += initials[i].charCodeAt(0);
   }
-  return providerBackgroundColors[asciiSum % providerBackgroundColors.length];
+  return colorPalette[asciiSum % colorPalette.length];
+};
+
+export const getApplicationIcon = (initials: string): AppIconName => {
+  let asciiSum = 0;
+  for (let i = 0; i < initials.length; i++) {
+    asciiSum += initials[i].charCodeAt(0);
+  }
+  return AppIconCollection[asciiSum % AppIconCollection.length];
 };
 
 export function hexToRgb(
@@ -172,3 +202,49 @@ export function hexToRgb(
         b: -1,
       };
 }
+
+export function getQueryParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const keys = urlParams.keys();
+  let key = keys.next().value;
+  const queryParams: Record<string, string> = {};
+  while (key) {
+    queryParams[key] = urlParams.get(key) as string;
+    key = keys.next().value;
+  }
+  return queryParams;
+}
+
+export function convertObjectToQueryParams(object: any): string {
+  if (!_.isNil(object)) {
+    const paramArray: string[] = _.map(_.keys(object), key => {
+      return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
+    });
+    return "?" + _.join(paramArray, "&");
+  } else {
+    return "";
+  }
+}
+
+export const retryPromise = (
+  fn: Function,
+  retriesLeft = 5,
+  interval = 1000,
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    fn()
+      .then(resolve)
+      .catch((error: any) => {
+        setTimeout(() => {
+          if (retriesLeft === 1) {
+            reject(error);
+            history.replace(SERVER_ERROR_URL);
+            return;
+          }
+
+          // Passing on "reject" is the important part
+          retryPromise(fn, retriesLeft - 1, interval).then(resolve, reject);
+        }, interval);
+      });
+  });
+};

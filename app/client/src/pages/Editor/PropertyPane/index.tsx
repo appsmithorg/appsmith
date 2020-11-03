@@ -14,22 +14,22 @@ import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import { Divider, Icon, Tooltip, Position } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { ControlProps } from "components/propertyControls/BaseControl";
 import { generateClassName } from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { CloseButton } from "components/designSystems/blueprint/CloseButton";
-import { getColorWithOpacity, theme } from "constants/DefaultTheme";
+import { scrollbarDark } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import PaneWrapper from "pages/common/PaneWrapper";
-import { BindingText } from "pages/Editor/APIEditor/Form";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 const PropertySectionLabel = styled.div`
   color: ${props => props.theme.colors.paneSectionLabel};
@@ -42,7 +42,6 @@ const PropertySectionLabel = styled.div`
 `;
 
 const PropertyPaneWrapper = styled(PaneWrapper)`
-  position: relative;
   width: 100%;
   max-height: ${props => props.theme.propertyPane.height}px;
   width: ${props => props.theme.propertyPane.width}px;
@@ -55,31 +54,9 @@ const PropertyPaneWrapper = styled(PaneWrapper)`
   overflow-x: hidden;
   padding: 0 ${props => props.theme.spaces[5]}px 0 0;
   text-transform: none;
-
-  scrollbar-color: ${props => props.theme.colors.paneCard}
-    ${props => props.theme.colors.paneBG};
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneCard};
-    outline: 1px solid ${props => props.theme.paneText};
-    border-radius: ${props => props.theme.radii[1]}px;
-  }
+  ${scrollbarDark};
 `;
 
-const StyledToolTip = styled(Tooltip)`
-  position: absolute;
-  top: 0;
-  right: 35px;
-`;
 class PropertyPane extends Component<
   PropertyPaneProps & PropertyPaneFunctions
 > {
@@ -123,46 +100,10 @@ class PropertyPane extends Component<
           key={this.props.widgetId}
           title={widgetProperties.widgetName}
           widgetId={this.props.widgetId}
+          widgetType={this.props.widgetProperties?.type}
+          onClose={this.props.hidePropertyPane}
         />
-        <StyledToolTip
-          content={
-            <div>
-              <span>You can connect data from your API by adding </span>
-              <BindingText>{`{{apiName.data}}`}</BindingText>
-              <span> to a widget property</span>
-            </div>
-          }
-          position={Position.TOP}
-          hoverOpenDelay={200}
-        >
-          <Icon
-            style={{
-              // position: "absolute",
-              // right: 35,
-              padding: 7,
-            }}
-            color={theme.colors.paneSectionLabel}
-            icon="help"
-          />
-        </StyledToolTip>
 
-        <CloseButton
-          onClick={(e: any) => {
-            AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-              widgetType: this.props.widgetProperties
-                ? this.props.widgetProperties.type
-                : "",
-              widgetId: this.props.widgetId,
-            });
-            this.props.hidePropertyPane();
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          size={theme.spaces[5]}
-          color={theme.colors.paneSectionLabel}
-          className={"t--property-pane-close-btn"}
-        />
-        <Divider />
         {!_.isNil(propertySections)
           ? _.map(propertySections, (propertySection: PropertySection) => {
               return this.renderPropertySection(
@@ -234,11 +175,20 @@ class PropertyPane extends Component<
     }
   };
 
+  componentDidMount() {
+    PerformanceTracker.stopTracking(
+      PerformanceTransactionName.OPEN_PROPERTY_PANE,
+    );
+  }
+
   componentDidUpdate(prevProps: PropertyPaneProps & PropertyPaneFunctions) {
     if (
       this.props.widgetId !== prevProps.widgetId &&
       this.props.widgetId !== undefined
     ) {
+      PerformanceTracker.stopTracking(
+        PerformanceTransactionName.OPEN_PROPERTY_PANE,
+      );
       if (prevProps.widgetId && prevProps.widgetProperties) {
         AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
           widgetType: prevProps.widgetProperties.type,
@@ -286,12 +236,13 @@ class PropertyPane extends Component<
 }
 
 const mapStateToProps = (state: AppState): PropertyPaneProps => {
-  return {
+  const props = {
     propertySections: getPropertyConfig(state),
     widgetId: getCurrentWidgetId(state),
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
   };
+  return props;
 };
 
 const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {

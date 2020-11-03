@@ -1,7 +1,13 @@
 package com.appsmith.server.constants;
 
-public interface AnalyticsEvents {
-    String CREATE = "create";
-    String UPDATE = "update";
-    String DELETE = "delete";
+public enum AnalyticsEvents {
+    CREATE,
+    UPDATE,
+    DELETE,
+    FIRST_LOGIN,
+    ;
+
+    public String lowerName() {
+        return name().toLowerCase();
+    }
 }

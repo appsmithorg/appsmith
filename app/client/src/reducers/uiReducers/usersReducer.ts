@@ -6,7 +6,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 
-import { User } from "constants/userConstants";
+import { DefaultCurrentUserDetails, User } from "constants/userConstants";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -33,7 +33,7 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<User>,
   ) => {
     const users = [...state.users];
-    const userIndex = _.findIndex(users, { id: action.payload.id });
+    const userIndex = _.findIndex(users, { username: action.payload.username });
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
@@ -54,7 +54,7 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<User>,
   ) => {
     const users = [...state.list];
-    const userIndex = _.findIndex(users, { id: action.payload.id });
+    const userIndex = _.findIndex(users, { username: action.payload.username });
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
@@ -90,7 +90,8 @@ const usersReducer = createReducer(initialState, {
   [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (state: UsersReduxState) => ({
     ...state,
     current: undefined,
-    currentUser: undefined,
+    currentUser: DefaultCurrentUserDetails,
+    users: [DefaultCurrentUserDetails],
   }),
 });
 

@@ -25,16 +25,19 @@ import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
 import { MapWidgetProps } from "widgets/MapWidget";
 import { ModalWidgetProps } from "widgets/ModalWidget";
 import { IconWidgetProps } from "widgets/IconWidget";
+import { VideoWidgetProps } from "widgets/VideoWidget";
+import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
 export type WidgetBlueprint = {
-  view: Array<{
+  view?: Array<{
     type: string;
     size?: { rows: number; cols: number };
     position: { top?: number; left?: number };
     props: Record<string, any>;
   }>;
+  operations?: any;
 };
 
 export interface WidgetConfigProps {
@@ -56,6 +59,7 @@ export interface WidgetConfigReducerState {
       WidgetConfigProps;
     DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
     TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
+    VIDEO_WIDGET: Partial<VideoWidgetProps> & WidgetConfigProps;
     DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
     CHECKBOX_WIDGET: Partial<CheckboxWidgetProps> & WidgetConfigProps;
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
@@ -71,6 +75,7 @@ export interface WidgetConfigReducerState {
     CANVAS_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
       WidgetConfigProps;
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
+    SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

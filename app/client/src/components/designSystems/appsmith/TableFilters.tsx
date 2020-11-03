@@ -12,12 +12,20 @@ import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.s
 import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import Button from "components/editorComponents/Button";
 import CascadeFields from "components/designSystems/appsmith/CascadeFields";
+import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
 import {
   ReactTableColumnProps,
   Condition,
   Operator,
   OperatorTypes,
 } from "widgets/TableWidget";
+import { TABLE_FILTER_COLUMN_TYPE_CALLOUT } from "constants/messages";
+
+const TableFilterOuterWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
 
 const TableFilerWrapper = styled.div`
   display: flex;
@@ -37,6 +45,41 @@ const ButtonWrapper = styled.div`
     background: transparent;
   }
 `;
+
+const SelectedFilterWrapper = styled.div`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: ${Colors.GREEN};
+  border: 0.5px solid ${Colors.WHITE};
+  box-sizing: border-box;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 6px;
+  color: ${Colors.WHITE};
+`;
+
+const ColumnTypeBindingMessage = styled.div`
+  width: 100%;
+  height: 41px;
+  line-height: 41px;
+  background: ${Colors.ATHENS_GRAY_DARKER};
+  border: 1px dashed ${Colors.GEYSER_LIGHT};
+  box-sizing: border-box;
+  font-size: 12px;
+  color: ${Colors.SLATE_GRAY};
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  padding: 0 16px;
+  min-width: 350px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+`;
 export interface ReactTableFilter {
   column: string;
   operator: Operator;
@@ -53,6 +96,7 @@ interface TableFilterProps {
   columns: ReactTableColumnProps[];
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
+  editMode: boolean;
 }
 
 const TableFilters = (props: TableFilterProps) => {
@@ -75,7 +119,7 @@ const TableFilters = (props: TableFilterProps) => {
   }, [props.filters]);
 
   const addFilter = () => {
-    const updatedFilters = [...props.filters];
+    const updatedFilters = props.filters ? [...props.filters] : [];
     let operator: Operator = OperatorTypes.OR;
     if (updatedFilters.length >= 2) {
       operator = updatedFilters[1].operator;
@@ -121,65 +165,75 @@ const TableFilters = (props: TableFilterProps) => {
       }}
       isOpen={selected}
     >
-      <TableIconWrapper
+      <TableActionIcon
+        tooltip="Filters"
+        className="t--table-filter-toggle-btn"
         selected={selected}
-        onClick={e => {
-          selectMenu(true);
-          e.stopPropagation();
+        icon={
+          showAddFilter ? (
+            <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
+          ) : null
+        }
+        selectMenu={(selected: boolean) => {
+          selectMenu(selected);
         }}
       >
-        <IconWrapper
-          width={20}
-          height={20}
-          color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
-        >
-          <FilterIcon />
-        </IconWrapper>
-      </TableIconWrapper>
-      <TableFilerWrapper onClick={e => e.stopPropagation()}>
-        {filters.map((filter: ReactTableFilter, index: number) => {
-          return (
-            <CascadeFields
-              key={index}
-              index={index}
-              operator={
-                filters.length >= 2 ? filters[1].operator : filter.operator
-              }
-              column={filter.column}
-              condition={filter.condition}
-              value={filter.value}
-              columns={columns}
-              applyFilter={(filter: ReactTableFilter, index: number) => {
-                const updatedFilters = props.filters ? [...props.filters] : [];
-                updatedFilters[index] = filter;
-                props.applyFilter(updatedFilters);
-              }}
-              removeFilter={(index: number) => {
-                const filters: ReactTableFilter[] = props.filters || [];
-                if (index === 1 && filters.length > 2) {
-                  filters[2].operator = filters[1].operator;
+        <FilterIcon />
+      </TableActionIcon>
+      <TableFilterOuterWrapper>
+        <TableFilerWrapper onClick={e => e.stopPropagation()}>
+          {filters.map((filter: ReactTableFilter, index: number) => {
+            return (
+              <CascadeFields
+                key={index}
+                index={index}
+                operator={
+                  filters.length >= 2 ? filters[1].operator : filter.operator
                 }
-                const newFilters = [
-                  ...filters.slice(0, index),
-                  ...filters.slice(index + 1),
-                ];
-                props.applyFilter(newFilters);
-              }}
-            />
-          );
-        })}
-        {showAddFilter ? (
-          <ButtonWrapper className={Classes.POPOVER_DISMISS}>
-            <Button
-              intent="primary"
-              text="Add Filter"
-              size="small"
-              onClick={addFilter}
-              icon="plus"
-            />
-          </ButtonWrapper>
-        ) : null}
-      </TableFilerWrapper>
+                column={filter.column}
+                condition={filter.condition}
+                value={filter.value}
+                columns={columns}
+                applyFilter={(filter: ReactTableFilter, index: number) => {
+                  const updatedFilters = props.filters
+                    ? [...props.filters]
+                    : [];
+                  updatedFilters[index] = filter;
+                  props.applyFilter(updatedFilters);
+                }}
+                removeFilter={(index: number) => {
+                  const filters: ReactTableFilter[] = props.filters || [];
+                  if (index === 1 && filters.length > 2) {
+                    filters[2].operator = filters[1].operator;
+                  }
+                  const newFilters = [
+                    ...filters.slice(0, index),
+                    ...filters.slice(index + 1),
+                  ];
+                  props.applyFilter(newFilters);
+                }}
+              />
+            );
+          })}
+          {showAddFilter ? (
+            <ButtonWrapper className={Classes.POPOVER_DISMISS}>
+              <Button
+                intent="primary"
+                text="Add Filter"
+                size="small"
+                onClick={addFilter}
+                icon="plus"
+                className="t--add-filter-btn"
+              />
+            </ButtonWrapper>
+          ) : null}
+        </TableFilerWrapper>
+        {props.editMode && (
+          <ColumnTypeBindingMessage>
+            {TABLE_FILTER_COLUMN_TYPE_CALLOUT}
+          </ColumnTypeBindingMessage>
+        )}
+      </TableFilterOuterWrapper>
     </Popover>
   );
 };

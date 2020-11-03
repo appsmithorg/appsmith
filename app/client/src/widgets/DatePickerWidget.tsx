@@ -6,12 +6,14 @@ import DatePickerComponent from "components/designSystems/blueprint/DatePickerCo
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
+import * as Sentry from "@sentry/react";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -72,15 +74,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   }
 
   onDateSelected = (selectedDate: string) => {
-    this.updateWidgetMetaProperty("selectedDate", selectedDate);
-    if (this.props.onDateSelected) {
-      super.executeAction({
-        dynamicString: this.props.onDateSelected,
-        event: {
-          type: EventType.ON_DATE_SELECTED,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("selectedDate", selectedDate, {
+      dynamicString: this.props.onDateSelected,
+      event: {
+        type: EventType.ON_DATE_SELECTED,
+      },
+    });
   };
 
   getWidgetType(): WidgetType {
@@ -90,7 +89,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
 
 export type DatePickerType = "DATE_PICKER" | "DATE_RANGE_PICKER";
 
-export interface DatePickerWidgetProps extends WidgetProps {
+export interface DatePickerWidgetProps extends WidgetProps, WithMeta {
   defaultDate: string;
   selectedDate: string;
   isDisabled: boolean;
@@ -105,3 +104,6 @@ export interface DatePickerWidgetProps extends WidgetProps {
 }
 
 export default DatePickerWidget;
+export const ProfiledDatePickerWidget = Sentry.withProfiler(
+  withMeta(DatePickerWidget),
+);

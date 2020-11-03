@@ -70,9 +70,17 @@ const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
                       (item: ColumnMenuSubOptionProps, itemIndex: number) => (
                         <OptionWrapper
                           key={itemIndex}
-                          onClick={() => item.onClick(props.columnIndex)}
+                          onClick={() => {
+                            if (item.onClick) {
+                              item.onClick(props.columnIndex);
+                            }
+                          }}
                           className={
-                            item.closeOnClick ? Classes.POPOVER_DISMISS : ""
+                            item.closeOnClick
+                              ? Classes.POPOVER_DISMISS
+                              : item.category
+                              ? "non-selectable"
+                              : ""
                           }
                           selected={!!item.isSelected}
                         >

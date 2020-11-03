@@ -1,13 +1,17 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
+import * as Sentry from "@sentry/react";
+import { retryPromise } from "utils/AppsmithUtils";
 
 const ChartComponent = lazy(() =>
-  import(
-    /* webpackPrefetch: true, webpackChunkName: "charts" */ "components/designSystems/appsmith/ChartComponent"
+  retryPromise(() =>
+    import(
+      /* webpackPrefetch: true, webpackChunkName: "charts" */ "components/designSystems/appsmith/ChartComponent"
+    ),
   ),
 );
 
@@ -74,3 +78,4 @@ export interface ChartWidgetProps extends WidgetProps {
 }
 
 export default ChartWidget;
+export const ProfiledChartWidget = Sentry.withProfiler(ChartWidget);

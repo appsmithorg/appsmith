@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon, Card, Spinner } from "@blueprintjs/core";
+import { Spinner, Button } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
@@ -13,68 +13,23 @@ import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import DatasourceCard from "./DatasourceCard";
+import { fetchDBPluginForms } from "actions/pluginActions";
 
 const QueryHomePage = styled.div`
-  font-size: 20px;
   padding: 20px;
-  max-height: 95vh;
+  padding-top: 30px;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - ${props => props.theme.headerHeight});
 
   .sectionHeader {
     font-weight: ${props => props.theme.fontWeights[2]};
     font-size: ${props => props.theme.fontSizes[4]}px;
-  }
-
-  .addIcon {
-    align-items: center;
-    margin-top: 15px;
-    margin-bottom: 20px;
-  }
-
-  .createText {
-    font-size: 14px;
-    justify-content: center;
-    text-align: center;
-    letter-spacing: -0.17px;
-    color: #2e3d49;
-    font-weight: 500;
-    text-decoration: none !important;
-  }
-
-  .textBtn {
-    font-size: 14px;
-    justify-content: center;
-    text-align: center;
-    letter-spacing: -0.17px;
-    color: #2e3d49;
-    font-weight: 500;
-    text-decoration: none !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
-
-const CardsWrapper = styled.div`
-  flex: 1;
-  display: -webkit-box;
-  flex-wrap: wrap;
-  -webkit-box-pack: start !important;
-  justify-content: center;
-  text-align: center;
-  min-width: 140px;
-  border-radius: 4px;
-  .createCard {
-    margin-right: 20px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    width: 140px;
-    height: 110px;
-    padding-bottom: 0px;
-    cursor: pointer !important;
   }
 `;
 
@@ -82,39 +37,28 @@ const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
 
-const DatasourceCardsContainer = styled.div`
-  flex: 1;
-  display: inline-flex;
-  flex-wrap: wrap;
-  margin-left: -10px;
+const AddDatasource = styled(Button)`
+  padding: 23px;
+  border: 2px solid #d6d6d6;
   justify-content: flex-start;
-  text-align: center;
-  min-width: 150px;
-  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+`;
 
-  .eachDatasourceCard {
-    margin: 10px;
-    width: 140px;
-    height: 110px;
-    padding-bottom: 0px;
-    cursor: pointer;
-  }
-  .dataSourceImage {
-    height: 52px;
-    width: auto;
-    margin-top: -5px;
-    max-width: 100%;
-    margin-bottom: 7px;
-  }
+const Boundary = styled.hr`
+  border: 1px solid #d0d7dd;
+  margin-top: 16px;
 `;
 
 type QueryHomeScreenProps = {
   dataSources: Datasource[];
   applicationId: string;
   pageId: string;
-  createAction: (data: Partial<QueryAction>) => void;
+  createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
+  fetchDBPluginForms: () => void;
   actions: ActionDataState;
   isCreating: boolean;
+  loadingDBFormConfigs: boolean;
   location: {
     search: string;
   };
@@ -127,14 +71,14 @@ type QueryHomeScreenProps = {
 };
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
-  handleCreateNewQuery = (dataSourceId: string, params: string) => {
-    const { actions, pages } = this.props;
-    const pageId = new URLSearchParams(params).get("importTo");
-    const page = pages.find(page => page.pageId === pageId);
+  componentDidMount() {
+    this.props.fetchDBPluginForms();
+  }
 
-    AnalyticsUtil.logEvent("CREATE_QUERY_CLICK", {
-      pageName: page?.pageName ?? "",
-    });
+  handleCreateNewQuery = (dataSource: Datasource) => {
+    const { actions, location } = this.props;
+    const params: string = location.search;
+    const pageId = new URLSearchParams(params).get("importTo");
     if (pageId) {
       const newQueryName = createNewQueryName(actions, pageId);
 
@@ -142,7 +86,12 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         name: newQueryName,
         pageId,
         datasource: {
-          id: dataSourceId,
+          id: dataSource.id,
+        },
+        eventData: {
+          actionType: "Query",
+          from: "home-screen",
+          dataSource: dataSource.name,
         },
         actionConfiguration: {},
       });
@@ -155,12 +104,11 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       applicationId,
       pageId,
       history,
-      location,
       isCreating,
-      pluginImages,
+      location,
+      loadingDBFormConfigs,
     } = this.props;
 
-    const queryParams: string = location.search;
     const destinationPageId = new URLSearchParams(location.search).get(
       "importTo",
     );
@@ -171,7 +119,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       );
     }
 
-    if (isCreating) {
+    if (isCreating || loadingDBFormConfigs) {
       return (
         <LoadingContainer>
           <Spinner size={30} />
@@ -181,50 +129,37 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
     return (
       <QueryHomePage>
-        <p className="sectionHeader">Create Query</p>
-        <CardsWrapper>
-          <DatasourceCardsContainer>
-            <Card
-              interactive={false}
-              className="eachDatasourceCard"
-              onClick={() => {
-                if (dataSources.length) {
-                  this.handleCreateNewQuery(dataSources[0].id, queryParams);
-                } else {
-                  history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
-                }
-              }}
-            >
-              <Icon icon="plus" iconSize={25} className="addIcon" />
-              <p className="createText">Blank Query</p>
-            </Card>
-            {dataSources.map(dataSource => {
-              return (
-                <Card
-                  interactive={false}
-                  className="eachDatasourceCard"
-                  key={dataSource.id}
-                  onClick={() =>
-                    this.handleCreateNewQuery(dataSource.id, queryParams)
-                  }
-                >
-                  <img
-                    src={pluginImages[dataSource.pluginId]}
-                    className="dataSourceImage"
-                    alt="Datasource"
-                  />
-
-                  <p
-                    className="textBtn t--datasource-name"
-                    title={dataSource.name}
-                  >
-                    {dataSource.name}
-                  </p>
-                </Card>
-              );
-            })}
-          </DatasourceCardsContainer>
-        </CardsWrapper>
+        <p className="sectionHeader">
+          Select a datasource to query or create a new one
+        </p>
+        <Boundary />
+        {dataSources.length < 2 ? (
+          <AddDatasourceSecurely
+            onAddDatasource={() => {
+              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+            }}
+          />
+        ) : (
+          <AddDatasource
+            className="t--add-datasource"
+            onClick={() => {
+              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+            }}
+            fill
+            minimal
+            text="New Datasource"
+            icon={"plus"}
+          />
+        )}
+        {dataSources.map(datasource => {
+          return (
+            <DatasourceCard
+              key={datasource.id}
+              datasource={datasource}
+              onCreateQuery={this.handleCreateNewQuery}
+            />
+          );
+        })}
       </QueryHomePage>
     );
   }
@@ -234,11 +169,15 @@ const mapStateToProps = (state: AppState) => ({
   pluginImages: getPluginImages(state),
   actions: state.entities.actions,
   pages: state.entities.pageList.pages,
+  loadingDBFormConfigs: state.entities.plugins.loadingDBFormConfigs,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  createAction: (data: Partial<QueryAction>) => {
+  createAction: (data: Partial<QueryAction> & { eventData: any }) => {
     dispatch(createActionRequest(data));
+  },
+  fetchDBPluginForms: () => {
+    dispatch(fetchDBPluginForms());
   },
 });
 

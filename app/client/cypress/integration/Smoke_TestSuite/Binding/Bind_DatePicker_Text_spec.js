@@ -16,7 +16,6 @@ describe("Binding the Datepicker and Text Widget", function() {
     /**
      * Bind DatePicker1 to Text for "selectedDate"
      */
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
     cy.get(commonlocators.editPropCrossButton).click();
@@ -50,7 +49,6 @@ describe("Binding the Datepicker and Text Widget", function() {
   });
 
   it("DatePicker1-text: Change the date in DatePicker1 and Validate the same in text widget", function() {
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
 
     /**
@@ -108,7 +106,6 @@ describe("Binding the Datepicker and Text Widget", function() {
     /**
      * Bind the DatePicker1 and DatePicker2 along with hard coded text to Text widget
      */
-    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext(
       "text",

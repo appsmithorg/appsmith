@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
 import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import {
@@ -24,10 +23,12 @@ export interface ColumnMenuOptionProps {
 }
 
 export interface ColumnMenuSubOptionProps {
-  content: string;
-  isSelected: boolean;
-  closeOnClick: boolean;
-  onClick: (columnIndex: number) => void;
+  content: string | JSX.Element;
+  isSelected?: boolean;
+  closeOnClick?: boolean;
+  onClick?: (columnIndex: number) => void;
+  id?: string;
+  category?: boolean;
 }
 
 interface ReactTableComponentProps {
@@ -37,37 +38,42 @@ interface ReactTableComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isLoading: boolean;
-  renderMode: RenderMode;
+  editMode: boolean;
   width: number;
   height: number;
   pageSize: number;
-  tableData: object[];
+  tableData: Array<Record<string, unknown>>;
   columnOrder?: string[];
   disableDrag: (disable: boolean) => void;
-  onRowClick: (rowData: object, rowIndex: number) => void;
+  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-  updatePageNo: Function;
+  updatePageNo: (pageNo: number) => void;
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
-  nextPageClick: Function;
-  prevPageClick: Function;
+  nextPageClick: () => void;
+  prevPageClick: () => void;
   pageNo: number;
   serverSidePaginationEnabled: boolean;
   columnActions?: ColumnAction[];
   selectedRowIndex: number;
+  selectedRowIndices: number[];
+  multiRowSelection?: boolean;
   hiddenColumns?: string[];
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: {
     [key: string]: {
       type: string;
       format: string;
+      inputFormat?: string;
     };
   };
   columnSizeMap?: { [key: string]: number };
-  updateColumnType: Function;
-  updateColumnName: Function;
-  handleResizeColumn: Function;
-  handleReorderColumn: Function;
+  updateColumnType: (columnTypeMap: {
+    [key: string]: { type: string; format: string };
+  }) => void;
+  updateColumnName: (columnNameMap: { [key: string]: string }) => void;
+  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
+  handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -163,6 +169,10 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       props.columnTypeMap && props.columnTypeMap[columnId]
         ? props.columnTypeMap[columnId].format
         : "";
+    const inputFormat =
+      props.columnTypeMap && props.columnTypeMap[columnId]
+        ? props.columnTypeMap[columnId].inputFormat
+        : "";
     const isColumnHidden = !!(
       props.hiddenColumns && props.hiddenColumns.includes(columnId)
     );
@@ -171,6 +181,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       isColumnHidden,
       columnType,
       format,
+      inputFormat,
       hideColumn: hideColumn,
       updateColumnType: updateColumnType,
       handleUpdateCurrencySymbol: handleUpdateCurrencySymbol,
@@ -227,21 +238,35 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     props.updateColumnType(columnTypeMap);
   };
 
-  const handleDateFormatUpdate = (columnIndex: number, dateFormat: string) => {
+  const handleDateFormatUpdate = (
+    columnIndex: number,
+    dateFormat: string,
+    dateInputFormat?: string,
+  ) => {
     const column = props.columns[columnIndex];
     const columnTypeMap = props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
       type: "date",
       format: dateFormat,
     };
+    if (dateInputFormat) {
+      columnTypeMap[column.accessor].inputFormat = dateInputFormat;
+    }
     props.updateColumnType(columnTypeMap);
   };
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
-    const column = props.columns[columnIndex];
-    const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
-    if (columnType !== ColumnTypes.IMAGE && columnType !== ColumnTypes.VIDEO) {
-      props.sortTableColumn(column.accessor, asc);
+    if (columnIndex === -1) {
+      props.sortTableColumn("", asc);
+    } else {
+      const column = props.columns[columnIndex];
+      const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+      if (
+        columnType !== ColumnTypes.IMAGE &&
+        columnType !== ColumnTypes.VIDEO
+      ) {
+        props.sortTableColumn(column.accessor, asc);
+      }
     }
   };
 
@@ -254,10 +279,10 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const selectTableRow = (
-    row: { original: object; index: number },
+    row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
   ) => {
-    if (!isSelected) {
+    if (!isSelected || !!props.multiRowSelection) {
       props.onRowClick(row.original, row.index);
     }
   };
@@ -275,7 +300,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       hiddenColumns={props.hiddenColumns}
       updateHiddenColumns={props.updateHiddenColumns}
       data={props.tableData}
-      displayColumnActions={props.renderMode === RenderModes.CANVAS}
+      editMode={props.editMode}
       columnNameMap={props.columnNameMap}
       getColumnMenu={getColumnMenu}
       handleColumnNameUpdate={handleColumnNameUpdate}
@@ -293,13 +318,14 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       }}
       serverSidePaginationEnabled={props.serverSidePaginationEnabled}
       selectedRowIndex={props.selectedRowIndex}
+      selectedRowIndices={props.selectedRowIndices}
       disableDrag={() => {
         props.disableDrag(true);
       }}
       enableDrag={() => {
         props.disableDrag(false);
       }}
-      searchTableData={debounce(props.searchTableData, 500)}
+      searchTableData={props.searchTableData}
       filters={props.filters}
       applyFilter={props.applyFilter}
       compactMode={props.compactMode}

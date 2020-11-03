@@ -75,16 +75,10 @@ export const scrollElementIntoParentCanvasView = (
   }
 };
 
-export const convertToCamelCase = (value: string, limit?: number) => {
+export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
     .split(separatorRegex)
-    .map((token, index) => {
-      if (index > 0) {
-        return token.charAt(0).toLocaleUpperCase() + token.slice(1);
-      }
-      return token;
-    })
     .join("_")
     .slice(0, limit || 30);
 };
@@ -105,4 +99,40 @@ export const flashElementById = (id: string) => {
   });
 
   if (el) flashElement(el);
+};
+
+export const resolveAsSpaceChar = (value: string, limit?: number) => {
+  const separatorRegex = /[^\w\s]/;
+  const duplicateSpaceRegex = /\s+/;
+  return value
+    .split(separatorRegex)
+    .join("")
+    .split(duplicateSpaceRegex)
+    .join(" ")
+    .slice(0, limit || 30);
+};
+
+export const isMac = () => {
+  const platform =
+    typeof navigator !== "undefined" ? navigator.platform : undefined;
+  return !platform ? false : /Mac|iPod|iPhone|iPad/.test(platform);
+};
+
+/**
+ * Removes the trailing slashes from the path
+ * @param path
+ * @example
+ * ```js
+ * let trimmedUrl = trimTrailingSlash('/url/')
+ * console.log(trimmedUrl) //will output /url
+ * ```
+ * @example
+ * ```js
+ * let trimmedUrl = trimTrailingSlash('/yet-another-url//')
+ * console.log(trimmedUrl) // will output /yet-another-url
+ * ```
+ */
+export const trimTrailingSlash = (path: string) => {
+  const trailingUrlRegex = /\/+$/;
+  return path.replace(trailingUrlRegex, "");
 };

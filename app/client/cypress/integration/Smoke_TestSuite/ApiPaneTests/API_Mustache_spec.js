@@ -9,12 +9,9 @@ describe("Moustache test Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Moustache test Functionality", function() {
-    //cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("textwidget");
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
     cy.testCodeMirror("/api/users/2");
-    cy.NavigateToEntityExplorer();
-    cy.wait(10000);
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("TestAPINew");

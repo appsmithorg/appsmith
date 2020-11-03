@@ -2,12 +2,17 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
-
+import styled from "styled-components";
 import IconComponent, {
   IconType,
 } from "components/designSystems/appsmith/IconComponent";
 import { EventType, ExecutionResult } from "constants/ActionConstants";
+import * as Sentry from "@sentry/react";
 
+const IconWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
 class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
@@ -32,13 +37,15 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <IconComponent
-        iconName={this.props.iconName}
-        disabled={this.props.disabled}
-        iconSize={this.props.iconSize}
-        color={this.props.color}
-        onClick={this.onClick}
-      />
+      <IconWrapper>
+        <IconComponent
+          iconName={this.props.iconName}
+          disabled={this.props.disabled}
+          iconSize={this.props.iconSize}
+          color={this.props.color}
+          onClick={this.onClick}
+        />
+      </IconWrapper>
     );
   }
 
@@ -63,3 +70,4 @@ export interface IconWidgetProps extends WidgetProps {
 }
 
 export default IconWidget;
+export const ProfiledIconWidget = Sentry.withProfiler(IconWidget);

@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,11 +24,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedCaseInsensitiveMap;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -62,6 +68,9 @@ public class UserServiceTest {
     Mono<User> userMono;
 
     Mono<Organization> organizationMono;
+
+    @Autowired
+    UserSignup userSignup;
 
     @Before
     public void setup() {
@@ -162,8 +171,10 @@ public class UserServiceTest {
                     assertThat(user.getName()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
-                    assertThat(user.getOrganizationIds()).isNotNull();
-                    assertThat(user.getOrganizationIds().size()).isEqualTo(1);
+                    // Since there is a template organization, the user won't have an empty personal organization. They
+                    // will get a clone of the personal organization when they first login. So, we expect it to be
+                    // empty here.
+                    assertThat(user.getOrganizationIds()).isNullOrEmpty();
                 })
                 .verifyComplete();
     }
@@ -369,6 +380,45 @@ public class UserServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAllUsersTest() {
+        Flux<User> userFlux = userService.get(CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>()));
+
+        StepVerifier.create(userFlux)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
+                .verify();
+
+    }
+
+    @Test
+    public void createUserWithInvalidEmailAddress() {
+        List<String> invalidAddresses = Arrays.asList(
+                "plainaddress",
+                "#@%^%#$@#$@#.com",
+                "@example.com",
+                "Joe Smith <email@example.com>",
+                "email.example.com",
+                "email@example@example.com",
+                ".email@example.com",
+                "email.@example.com",
+                "email..email@example.com",
+                "email@example.com (Joe Smith)",
+                "email@-example.com",
+                "email@example..com",
+                "Abc..123@example.com"
+        );
+        for (String invalidAddress : invalidAddresses) {
+            User user = new User();
+            user.setEmail(invalidAddress);
+            user.setPassword("test-password");
+            user.setName("test-name");
+            StepVerifier.create(userSignup.signupAndLogin(user, null))
+                    .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL));
+        }
     }
 }
 

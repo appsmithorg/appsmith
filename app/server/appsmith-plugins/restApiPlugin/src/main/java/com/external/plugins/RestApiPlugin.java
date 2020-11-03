@@ -63,10 +63,10 @@ public class RestApiPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RestApiPluginExecutor implements PluginExecutor {
+    public static class RestApiPluginExecutor implements PluginExecutor<Void> {
 
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection,
+        public Mono<ActionExecutionResult> execute(Void ignored,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
@@ -81,7 +81,8 @@ public class RestApiPlugin extends BasePlugin {
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             URI uri;
             try {
-                uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
+                String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
+                uri = createFinalUriWithQueryParams(httpUrl, actionConfiguration.getQueryParameters());
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null);
                 actionExecutionRequest.setUrl(url);
@@ -307,12 +308,12 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.empty();
         }
 
         @Override
-        public void datasourceDestroy(Object connection) {
+        public void datasourceDestroy(Void connection) {
             // REST API plugin doesn't have a datasource.
         }
 
@@ -360,6 +361,13 @@ public class RestApiPlugin extends BasePlugin {
                 }
             }
             return contentType;
+        }
+
+        private String addHttpToUrlWhenPrefixNotPresent(String url) {
+            if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
+                return url;
+            }
+            return "http://" + url;
         }
 
         private URI createFinalUriWithQueryParams(String url, List<Property> queryParams) throws URISyntaxException {

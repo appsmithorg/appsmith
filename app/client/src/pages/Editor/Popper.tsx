@@ -56,7 +56,6 @@ export default (props: PopperProps) => {
           },
         },
       );
-      _popper.disableEventListeners();
       return () => {
         _popper.destroy();
       };

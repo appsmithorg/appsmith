@@ -51,13 +51,13 @@ public class RapidApiPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RapidApiPluginExecutor implements PluginExecutor {
+    public static class RapidApiPluginExecutor implements PluginExecutor<Void> {
 
         private static final String RAPID_API_KEY_NAME = "X-RapidAPI-Key";
         private static final String RAPID_API_KEY_VALUE = System.getenv("APPSMITH_RAPID_API_KEY_VALUE");
 
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection,
+        public Mono<ActionExecutionResult> execute(Void ignored,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
@@ -103,7 +103,8 @@ public class RapidApiPlugin extends BasePlugin {
 
             URI uri;
             try {
-                uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
+                String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
+                uri = createFinalUriWithQueryParams(httpUrl, actionConfiguration.getQueryParameters());
                 log.info("Final URL is : {}", uri);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
@@ -256,12 +257,12 @@ public class RapidApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.empty();
         }
 
         @Override
-        public void datasourceDestroy(Object connection) {
+        public void datasourceDestroy(Void connection) {
 
         }
 
@@ -285,6 +286,13 @@ public class RapidApiPlugin extends BasePlugin {
                     webClientBuilder.defaultHeader(header.getKey(), header.getValue());
                 }
             }
+        }
+
+        private String addHttpToUrlWhenPrefixNotPresent(String url) {
+            if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
+                return url;
+            }
+            return "http://" + url;
         }
 
         private URI createFinalUriWithQueryParams(String url, List<Property> queryParams) throws URISyntaxException {

@@ -39,14 +39,23 @@ export const RichtextEditorComponent = (
       editorInstance !== null &&
       props.defaultValue !== editorContent.current
     ) {
-      editorInstance.setContent(props.defaultValue, { format: "html" });
+      setTimeout(() => {
+        const content = props.defaultValue
+          ? props.defaultValue.replace(/\n/g, "<br/>")
+          : props.defaultValue;
+        editorInstance.setContent(props.defaultValue, { format: "html" });
+      }, 200);
     }
   }, [props.defaultValue]);
   useEffect(() => {
-    const onChange = debounce(props.onValueChange, 200);
+    const onChange = debounce((content: string) => {
+      editorContent.current = content;
+      props.onValueChange(content);
+    }, 200);
+    const selector = `textarea#rte-${props.widgetId}`;
     (window as any).tinyMCE.init({
       height: "100%",
-      selector: `textarea#rte-${props.widgetId}`,
+      selector: selector,
       menubar: false,
       branding: false,
       resize: false,
@@ -54,24 +63,22 @@ export const RichtextEditorComponent = (
         editor.mode.set(props.isDisabled === true ? "readonly" : "design");
         // Without timeout default value is not set on browser refresh.
         setTimeout(() => {
-          editor.setContent(props.defaultValue, { format: "html" });
+          const content = props.defaultValue
+            ? props.defaultValue.replace(/\n/g, "<br/>")
+            : props.defaultValue;
+          editor.setContent(content, { format: "html" });
         }, 300);
         editor
           .on("Change", () => {
-            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           })
           .on("Undo", () => {
-            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           })
           .on("Redo", () => {
-            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           })
           .on("KeyUp", () => {
-            // console.log("change: ", editor.getContent())
-            editorContent.current = editor.getContent();
             onChange(editor.getContent());
           });
         setEditorInstance(editor);
@@ -86,7 +93,8 @@ export const RichtextEditorComponent = (
     });
 
     return () => {
-      editorInstance !== null && editorInstance.destroy();
+      (window as any).tinyMCE.EditorManager.remove(selector);
+      editorInstance !== null && editorInstance.remove();
     };
   }, []);
   return (

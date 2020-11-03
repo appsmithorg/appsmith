@@ -2,14 +2,17 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -34,6 +37,7 @@ import reactor.test.StepVerifier;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,13 +47,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class LayoutActionServiceTest {
     @Autowired
-    ActionService actionService;
+    NewActionService newActionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
-
-    @Autowired
-    PageService pageService;
 
     @Autowired
     UserService userService;
@@ -72,9 +73,12 @@ public class LayoutActionServiceTest {
     @Autowired
     LayoutService layoutService;
 
+    @Autowired
+    NewPageService newPageService;
+
     Application testApp = null;
 
-    Page testPage = null;
+    PageDTO testPage = null;
 
     Datasource datasource;
 
@@ -94,7 +98,7 @@ public class LayoutActionServiceTest {
 
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = pageService.getById(pageId).block();
+            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
             Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
@@ -102,7 +106,7 @@ public class LayoutActionServiceTest {
             layout.setPublishedDsl(dsl);
             layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
 
-            testPage = pageService.getById(pageId).block();
+            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
@@ -128,7 +132,7 @@ public class LayoutActionServiceTest {
     public void updateActionUpdatesLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Action action = new Action();
+        ActionDTO action = new ActionDTO();
         action.setName("query1");
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -136,16 +140,17 @@ public class LayoutActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<Page> resultMono = actionService
-                .create(action)
+        Mono<PageDTO> resultMono = newActionService
+                .createAction(action)
                 .flatMap(savedAction -> {
-                    Action updates = new Action();
+                    ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     return layoutActionService.updateAction(savedAction.getId(), updates);
                 })
-                .flatMap(savedAction -> pageService.findById(testPage.getId(), READ_PAGES));
+                // fetch the unpublished page
+                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false));
 
         StepVerifier
                 .create(resultMono)
@@ -155,5 +160,54 @@ public class LayoutActionServiceTest {
                     assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getName()).isEqualTo("query1");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void refactorActionName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("beforeNameChange");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject(Map.of("widgetName", "firstWidget", "mustacheProp", "{{ beforeNameChange.data }}"));
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+        layout.setPublishedDsl(dsl);
+
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        Layout firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(firstLayout.getId());
+        refactorNameDTO.setOldName("beforeNameChange");
+        refactorNameDTO.setNewName("PostNameChange");
+
+        Layout postNameChangeLayout = layoutActionService.refactorActionName(refactorNameDTO).block();
+
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+
+        StepVerifier
+               .create(postNameChangeActionMono)
+               .assertNext(updatedAction -> {
+
+                   assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
+
+                   DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                   assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
+
+                   JSONObject newDsl = new JSONObject(Map.of("widgetName", "firstWidget", "mustacheProp", "{{ PostNameChange.data }}"));
+                   assertThat(postNameChangeLayout.getDsl()).isEqualTo(newDsl);
+               })
+               .verifyComplete();
+
     }
 }

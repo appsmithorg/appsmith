@@ -4,7 +4,7 @@ import { submit } from "redux-form";
 import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import ApiHomeScreen from "./ApiHomeScreen";
-import { runAction, deleteAction } from "actions/actionActions";
+import { deleteAction, runActionInit } from "actions/actionActions";
 import { PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
@@ -15,7 +15,6 @@ import {
 import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
 import _ from "lodash";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { UserApplication } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getActionById,
@@ -29,6 +28,11 @@ import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import * as Sentry from "@sentry/react";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -36,11 +40,11 @@ const LoadingContainer = styled(CenteredWrapper)`
 
 interface ReduxStateProps {
   actions: ActionDataState;
-  isRunning: Record<string, boolean>;
-  isDeleting: Record<string, boolean>;
+  isRunning: boolean;
+  isDeleting: boolean;
   isCreating: boolean;
   apiName: string;
-  currentApplication: UserApplication;
+  currentApplication?: ApplicationPayload;
   currentPageName: string | undefined;
   pages: any;
   plugins: Plugin[];
@@ -67,6 +71,9 @@ type Props = ReduxActionProps &
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount() {
+    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
+      actionType: "API",
+    });
     this.props.changeAPIPage(this.props.match.params.apiId);
   }
   handleDeleteClick = () => {
@@ -83,6 +90,9 @@ class ApiEditor extends React.Component<Props> {
   };
 
   componentDidUpdate(prevProps: Props) {
+    if (prevProps.isRunning === true && this.props.isRunning === false) {
+      PerformanceTracker.stopTracking(PerformanceTransactionName.RUN_API_CLICK);
+    }
     if (prevProps.match.params.apiId !== this.props.match.params.apiId) {
       this.props.changeAPIPage(this.props.match.params.apiId);
     }
@@ -93,6 +103,9 @@ class ApiEditor extends React.Component<Props> {
       this.props.pages,
       this.props.match.params.pageId,
     );
+    PerformanceTracker.startTracking(PerformanceTransactionName.RUN_API_CLICK, {
+      apiId: this.props.match.params.apiId,
+    });
     AnalyticsUtil.logEvent("RUN_API_CLICK", {
       apiName: this.props.apiName,
       apiID: this.props.match.params.apiId,
@@ -157,7 +170,6 @@ class ApiEditor extends React.Component<Props> {
         match={this.props.match}
       />
     );
-
     return (
       <div
         style={{
@@ -171,8 +183,8 @@ class ApiEditor extends React.Component<Props> {
               <ApiEditorForm
                 pluginId={pluginId}
                 paginationType={paginationType}
-                isRunning={isRunning[apiId]}
-                isDeleting={isDeleting[apiId]}
+                isRunning={isRunning}
+                isDeleting={isDeleting}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
                 appName={
@@ -189,8 +201,8 @@ class ApiEditor extends React.Component<Props> {
                 apiName={this.props.apiName}
                 apiId={this.props.match.params.apiId}
                 paginationType={paginationType}
-                isRunning={isRunning[apiId]}
-                isDeleting={isDeleting[apiId]}
+                isRunning={isRunning}
+                isDeleting={isDeleting}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
                 appName={
@@ -214,7 +226,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
   const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
-  return {
+  const apiEditorState = {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
@@ -224,20 +236,23 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId: _.get(apiAction, "pluginId"),
     paginationType: _.get(apiAction, "actionConfiguration.paginationType"),
     apiAction,
-    isRunning,
-    isDeleting,
-    isCreating,
+    isRunning: isRunning[props.match.params.apiId],
+    isDeleting: isDeleting[props.match.params.apiId],
+    isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
   };
+  return apiEditorState;
 };
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   runAction: (id: string, paginationField?: PaginationField) =>
-    dispatch(runAction(id, paginationField)),
+    dispatch(runActionInit(id, paginationField)),
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   changeAPIPage: (actionId: string) => dispatch(changeApi(actionId)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ApiEditor);
+export default Sentry.withProfiler(
+  connect(mapStateToProps, mapDispatchToProps)(ApiEditor),
+);

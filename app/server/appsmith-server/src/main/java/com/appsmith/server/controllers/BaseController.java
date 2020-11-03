@@ -24,7 +24,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-public abstract class BaseController<S extends CrudService, T extends BaseDomain, ID> {
+public abstract class BaseController<S extends CrudService<T, ID>, T extends BaseDomain, ID> {
 
     protected final S service;
 
@@ -38,6 +38,14 @@ public abstract class BaseController<S extends CrudService, T extends BaseDomain
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    /**
+     * TODO : Remove this function completely if this is not being used.
+     * If not, atleast remove it for :
+     * 1. Page
+     * 2. Datasources
+     * @param params
+     * @return
+     */
     @GetMapping("")
     public Mono<ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources");

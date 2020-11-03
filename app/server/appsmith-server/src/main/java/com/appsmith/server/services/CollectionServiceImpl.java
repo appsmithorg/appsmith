@@ -1,7 +1,8 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Collection;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CollectionRepository;
@@ -36,14 +37,14 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
     }
 
     @Override
-    public Mono<Collection> addActionsToCollection(Collection collection, List<Action> actions) {
+    public Mono<Collection> addActionsToCollection(Collection collection, List<NewAction> actions) {
         collection.setActions(actions);
         return repository.save(collection);
 
     }
 
     @Override
-    public Mono<Action> addSingleActionToCollection(String collectionId, Action action) {
+    public Mono<ActionDTO> addSingleActionToCollection(String collectionId, ActionDTO action) {
         if (collectionId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
@@ -55,7 +56,7 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
                 .findById(collectionId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "collection Id")))
                 .flatMap(collection1 -> {
-                    List<Action> actions = collection1.getActions();
+                    List<NewAction> actions = collection1.getActions();
                     if (actions == null) {
                         actions = new ArrayList<>();
                     }
@@ -65,7 +66,7 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
                      * the following link for more details :
                      * https://stackoverflow.com/questions/38261838/add-object-to-an-array-in-java-mongodb
                      */
-                    Action toSave = new Action();
+                    NewAction toSave = new NewAction();
                     toSave.setId(action.getId());
                     actions.add(toSave);
                     collection1.setActions(actions);
@@ -78,34 +79,37 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
     }
 
     @Override
-    public Mono<Action> removeSingleActionFromCollection(String collectionId, Action action) {
+    public Mono<NewAction> removeSingleActionFromCollection(String collectionId, Mono<NewAction> actionMono) {
         if (collectionId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
-        }
-        if (action.getId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "action"));
         }
 
         return repository
                 .findById(collectionId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "collectionId")))
-                .flatMap(collection -> {
-                    List<Action> actions = collection.getActions();
+                .zipWith(actionMono)
+                .flatMap(tuple -> {
+                    Collection collection = tuple.getT1();
+                    NewAction action = tuple.getT2();
+
+                    if (action.getId() == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "action"));
+                    }
+
+                    List<NewAction> actions = collection.getActions();
                     if (actions == null || actions.isEmpty()) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "actionId or collectionId"));
                     }
-                    ListIterator<Action> actionIterator = actions.listIterator();
+                    ListIterator<NewAction> actionIterator = actions.listIterator();
                     while (actionIterator.hasNext()) {
                         if (actionIterator.next().getId().equals(action.getId())) {
                             actionIterator.remove();
                             break;
                         }
                     }
+                    log.debug("Action {} removed from Collection {}", action.getId(), collection.getId());
                     return repository.save(collection);
                 })
-                .map(collection -> {
-                    log.debug("Action {} removed from Collection {}", action.getId(), collection.getId());
-                    return action;
-                });
+                .then(actionMono);
     }
 }

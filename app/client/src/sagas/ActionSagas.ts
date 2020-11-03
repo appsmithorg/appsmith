@@ -50,6 +50,7 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getDatasource,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
@@ -60,8 +61,9 @@ import {
   QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
 } from "constants/routes";
-import { changeApi } from "actions/apiPaneActions";
-import { changeQuery } from "actions/queryPaneActions";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   try {
@@ -80,12 +82,25 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
         response.data.id,
       );
 
-      AnalyticsUtil.logEvent("CREATE_API", {
-        apiId: response.data.id,
-        apiName: response.data.name,
+      AnalyticsUtil.logEvent("CREATE_ACTION", {
+        id: response.data.id,
+        actionName: response.data.name,
         pageName: pageName,
+        ...actionPayload.payload.eventData,
       });
-      yield put(createActionSuccess(response.data));
+
+      let newAction = response.data;
+
+      if (newAction.datasource.id) {
+        const datasource = yield select(getDatasource, newAction.datasource.id);
+
+        newAction = {
+          ...newAction,
+          datasource,
+        };
+      }
+
+      yield put(createActionSuccess(newAction));
     }
   } catch (error) {
     yield put({
@@ -96,8 +111,12 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
 }
 
 export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
+  const { applicationId } = action.payload;
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.FETCH_ACTIONS_API,
+    { mode: "EDITOR", appId: applicationId },
+  );
   try {
-    const { applicationId } = action.payload;
     const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActions(
       applicationId,
     );
@@ -107,20 +126,31 @@ export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
         type: ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
         payload: response.data,
       });
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_ACTIONS_API,
+      );
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
       payload: { error },
     });
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_ACTIONS_API,
+      { failed: true },
+    );
   }
 }
 
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
+  const { applicationId } = action.payload;
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.FETCH_ACTIONS_API,
+    { mode: "VIEWER", appId: applicationId },
+  );
   try {
-    const { applicationId } = action.payload;
     const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActionsForViewMode(
       applicationId,
     );
@@ -130,20 +160,31 @@ export function* fetchActionsForViewModeSaga(
         type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
         payload: response.data,
       });
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_ACTIONS_API,
+      );
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
       payload: { error },
     });
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_ACTIONS_API,
+      { failed: true },
+    );
   }
 }
 
 export function* fetchActionsForPageSaga(
   action: ReduxAction<{ pageId: string }>,
 ) {
+  const { pageId } = action.payload;
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
+    { pageId: pageId },
+  );
   try {
-    const { pageId } = action.payload;
     const response: GenericApiResponse<RestAction[]> = yield call(
       ActionAPI.fetchActionsByPageId,
       pageId,
@@ -151,8 +192,15 @@ export function* fetchActionsForPageSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(fetchActionsForPageSuccess(response.data));
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
+      );
     }
   } catch (error) {
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
+      { failed: true },
+    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACTIONS_FOR_PAGE_ERROR,
       payload: { error },
@@ -162,6 +210,10 @@ export function* fetchActionsForPageSaga(
 
 export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.UPDATE_ACTION_API,
+      { actionid: actionPayload.payload.id },
+    );
     let action: Action = yield select(getAction, actionPayload.payload.id);
     const isApi = action.pluginType === "API";
     const isDB = action.pluginType === "DB";
@@ -196,9 +248,31 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
         });
       }
 
-      yield put(updateActionSuccess({ data: response.data }));
+      let updatedAction = response.data;
+
+      if (updatedAction.datasource.id) {
+        const datasource = yield select(
+          getDatasource,
+          updatedAction.datasource.id,
+        );
+
+        updatedAction = {
+          ...updatedAction,
+          datasource,
+        };
+      }
+
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.UPDATE_ACTION_API,
+      );
+
+      yield put(updateActionSuccess({ data: updatedAction }));
     }
   } catch (error) {
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.UPDATE_ACTION_API,
+      { failed: true },
+    );
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
       payload: { error, id: actionPayload.payload.id },
@@ -292,28 +366,6 @@ function* moveActionSaga(
       apiID: response.data.id,
     });
     yield put(moveActionSuccess(response.data));
-    const applicationId = yield select(getCurrentApplicationId);
-
-    const isApi = actionObject.pluginType === PLUGIN_TYPE_API;
-    const isQuery = actionObject.pluginType === QUERY_CONSTANT;
-
-    if (isQuery) {
-      history.push(
-        QUERIES_EDITOR_ID_URL(
-          applicationId,
-          response.data.pageId,
-          response.data.id,
-        ),
-      );
-    } else if (isApi) {
-      history.push(
-        API_EDITOR_ID_URL(
-          applicationId,
-          response.data.pageId,
-          response.data.id,
-        ),
-      );
-    }
   } catch (e) {
     AppToaster.show({
       message: `Error while moving action ${actionObject.name}`,
@@ -358,10 +410,6 @@ function* copyActionSaga(
       apiID: response.data.id,
     });
     yield put(copyActionSuccess(response.data));
-    const applicationId = yield select(getCurrentApplicationId);
-    history.push(
-      API_EDITOR_ID_URL(applicationId, response.data.pageId, response.data.id),
-    );
   } catch (e) {
     AppToaster.show({
       message: `Error while copying action ${actionObject.name}`,
@@ -378,6 +426,10 @@ export function* refactorActionName(
   newName: string,
 ) {
   // fetch page of the action
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.REFACTOR_ACTION_NAME,
+    { actionId: id },
+  );
   const pageResponse = yield call(PageApi.fetchPage, {
     id: pageId,
   });
@@ -397,6 +449,11 @@ export function* refactorActionName(
     const isRefactorSuccessful = yield validateResponse(refactorResponse);
 
     const currentPageId = yield select(getCurrentPageId);
+
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.REFACTOR_ACTION_NAME,
+      { isSuccess: isRefactorSuccessful },
+    );
     if (isRefactorSuccessful) {
       yield put({
         type: ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,
@@ -437,7 +494,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       },
     });
     AppToaster.show({
-      message: `Unable to update API name`,
+      message: `Unable to update Action name`,
       type: ToastType.ERROR,
     });
     console.error(e);
@@ -470,6 +527,7 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   const { actionId, value, propertyName } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
+
   const actionObj = yield select(getAction, actionId);
   const effects: Record<string, any> = {};
   // Value change effect
@@ -485,20 +543,56 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
       put(updateActionProperty({ id: actionId, field, value: effects[field] })),
     ),
   );
+  if (propertyName === "executeOnLoad") {
+    yield put({
+      type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
+      payload: {
+        actionId,
+        shouldExecute: value,
+      },
+    });
+    return;
+  }
   yield put(updateAction({ id: actionId }));
+}
+
+function* toggleActionExecuteOnLoadSaga(
+  action: ReduxAction<{ actionId: string; shouldExecute: boolean }>,
+) {
+  try {
+    const response = yield call(
+      ActionAPI.toggleActionExecuteOnLoad,
+      action.payload.actionId,
+      action.payload.shouldExecute,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_ERROR,
+      payload: error,
+    });
+  }
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  const action = yield select(getAction, id);
+  const action: Action = yield select(getAction, id);
   const isApi = action.pluginType === PLUGIN_TYPE_API;
   const isQuery = action.pluginType === QUERY_CONSTANT;
+  const applicationId = yield select(getCurrentApplicationId);
 
   if (isApi) {
-    yield put(changeApi(id));
+    history.push(API_EDITOR_ID_URL(applicationId, action.pageId, action.id));
   }
   if (isQuery) {
-    yield put(changeQuery(id));
+    history.push(
+      QUERIES_EDITOR_ID_URL(applicationId, action.pageId, action.id),
+    );
   }
 }
 
@@ -524,5 +618,9 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionErrorTypes.MOVE_ACTION_ERROR, handleMoveOrCopySaga),
     takeEvery(ReduxActionErrorTypes.COPY_ACTION_ERROR, handleMoveOrCopySaga),
+    takeLatest(
+      ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
+      toggleActionExecuteOnLoadSaga,
+    ),
   ]);
 }

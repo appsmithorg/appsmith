@@ -23,7 +23,6 @@ import {
 } from "constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import FormMessage from "components/editorComponents/form/FormMessage";
-
 import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import Button from "components/editorComponents/Button";
@@ -33,6 +32,9 @@ import {
   ForgotPasswordFormValues,
   forgotPasswordSubmitHandler,
 } from "./helpers";
+import { getAppsmithConfigs } from "configs";
+
+const { mailEnabled } = getAppsmithConfigs();
 
 const validate = (values: ForgotPasswordFormValues) => {
   const errors: ForgotPasswordFormValues = {};
@@ -54,13 +56,11 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
   const {
     error,
     handleSubmit,
-    pristine,
     submitting,
     submitFailed,
     submitSucceeded,
   } = props;
-  const queryParams = new URLSearchParams(props.location.search);
-  const hasEmail = queryParams.get("email");
+
   return (
     <AuthCardContainer>
       {submitSucceeded && (
@@ -69,7 +69,24 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
           message={`${FORGOT_PASSWORD_SUCCESS_TEXT} ${props.emailValue}`}
         />
       )}
-      {submitFailed && error && <FormMessage intent="danger" message={error} />}
+      {!mailEnabled && (
+        <FormMessage
+          intent="warning"
+          message={
+            "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
+          }
+          actions={[
+            {
+              url: "https://docs.appsmith.com/third-party-services/email",
+              text: "Configure Email service",
+              intent: "primary",
+            },
+          ]}
+        />
+      )}
+      {submitFailed && error && (
+        <FormMessage intent="warning" message={error} />
+      )}
       <AuthCardHeader>
         <h1>{FORGOT_PASSWORD_PAGE_TITLE}</h1>
         <h5>{FORGOT_PASSWORD_PAGE_SUBTITLE}</h5>
@@ -93,7 +110,7 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
               intent="primary"
               filled
               size="large"
-              disabled={pristine && !hasEmail}
+              disabled={!isEmail(props.emailValue)}
               loading={submitting}
             />
           </FormActions>

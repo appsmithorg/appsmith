@@ -1,3 +1,4 @@
+const homePage = require("../../../locators/HomePage.json");
 let pageid;
 let appId;
 
@@ -18,5 +19,31 @@ describe("Login from UI and check the functionality", function() {
     cy.DeleteApp(appname);
     cy.wait("@deleteApplication");
     cy.get("@deleteApplication").should("have.property", "status", 200);
+  });
+
+  it("Login/Logout click Appsmith logo should route to login page", function() {
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.get(homePage.profileMenu).click();
+    cy.get(homePage.signOutIcon).click();
+    cy.wait(500);
+    cy.get(homePage.headerAppSmithLogo).click();
+    cy.wait(500);
+    cy.url().should("include", "user/login");
+  });
+
+  it("Theme change test and validation", function() {
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.get(homePage.profileMenu).click();
+    cy.get(homePage.themeText).should("have.attr", "value", "true");
+    cy.get("span")
+      .contains("Light")
+      .click({ force: true });
+    cy.get(homePage.profileMenu).click();
+    cy.get(homePage.themeText).should("have.attr", "value", "false");
+    cy.get("span")
+      .contains("Dark")
+      .click({ force: true });
+    cy.get(homePage.profileMenu).click();
+    cy.get(homePage.themeText).should("have.attr", "value", "true");
   });
 });

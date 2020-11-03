@@ -73,62 +73,80 @@ const PickMyLocationWrapper = styled.div<PickMyLocationProps>`
 `;
 
 const MyMapComponent = withScriptjs(
-  withGoogleMap((props: any) => (
-    <GoogleMap
-      options={{
-        zoomControl: props.allowZoom,
-        fullscreenControl: false,
-        mapTypeControl: false,
-        scrollwheel: false,
-        rotateControl: false,
-        streetViewControl: false,
-      }}
-      zoom={props.zoom}
-      center={{ ...props.center, lng: props.center.long }}
-      onClick={e => {
-        if (props.enableCreateMarker) {
-          props.saveMarker(e.latLng.lat(), e.latLng.lng());
+  withGoogleMap((props: any) => {
+    const [mapCenter, setMapCenter] = React.useState<
+      | {
+          lat: number;
+          lng: number;
+          title?: string;
+          description?: string;
         }
-      }}
-    >
-      {props.enableSearch && (
-        <SearchBox
-          controlPosition={2}
-          onPlacesChanged={props.onPlacesChanged}
-          ref={props.onSearchBoxMounted}
-        >
-          <StyledInput type="text" placeholder="Enter location to search" />
-        </SearchBox>
-      )}
-      {props.markers.map((marker: any, index: number) => (
-        <Marker
-          key={index}
-          title={marker.title}
-          position={{ lat: marker.lat, lng: marker.long }}
-          clickable
-          draggable={
-            props.selectedMarker &&
-            props.selectedMarker.lat === marker.lat &&
-            props.selectedMarker.long === marker.long
+      | undefined
+    >({
+      ...props.center,
+      lng: props.center.long,
+    });
+    return (
+      <GoogleMap
+        options={{
+          zoomControl: props.allowZoom,
+          fullscreenControl: false,
+          mapTypeControl: false,
+          scrollwheel: false,
+          rotateControl: false,
+          streetViewControl: false,
+        }}
+        zoom={props.zoom}
+        center={mapCenter}
+        onClick={e => {
+          if (props.enableCreateMarker) {
+            props.saveMarker(e.latLng.lat(), e.latLng.lng());
           }
-          onClick={e => {
-            props.selectMarker(marker.lat, marker.long, marker.title);
-          }}
-          onDragEnd={de => {
-            props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-          }}
-        />
-      ))}
-      {props.enablePickLocation && (
-        <PickMyLocationWrapper
-          title="Pick My Location"
-          allowZoom={props.allowZoom}
-        >
-          <PickMyLocation updateCenter={props.updateCenter} />
-        </PickMyLocationWrapper>
-      )}
-    </GoogleMap>
-  )),
+        }}
+      >
+        {props.enableSearch && (
+          <SearchBox
+            controlPosition={2}
+            onPlacesChanged={props.onPlacesChanged}
+            ref={props.onSearchBoxMounted}
+          >
+            <StyledInput type="text" placeholder="Enter location to search" />
+          </SearchBox>
+        )}
+        {props.markers.map((marker: any, index: number) => (
+          <Marker
+            key={index}
+            title={marker.title}
+            position={{ lat: marker.lat, lng: marker.long }}
+            clickable
+            draggable={
+              props.selectedMarker &&
+              props.selectedMarker.lat === marker.lat &&
+              props.selectedMarker.long === marker.long
+            }
+            onClick={e => {
+              setMapCenter({
+                ...marker,
+                lng: marker.long,
+              });
+              props.selectMarker(marker.lat, marker.long, marker.title);
+            }}
+            onDragEnd={de => {
+              props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
+            }}
+          />
+        ))}
+        {props.enablePickLocation && (
+          <PickMyLocationWrapper
+            title="Pick My Location"
+            allowZoom={props.allowZoom}
+          >
+            <PickMyLocation updateCenter={props.updateCenter} />
+          </PickMyLocationWrapper>
+        )}
+      </GoogleMap>
+    );
+  }),
 );
 
 class MapComponent extends React.Component<MapComponentProps> {

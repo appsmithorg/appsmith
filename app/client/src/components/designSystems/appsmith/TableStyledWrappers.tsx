@@ -29,6 +29,8 @@ export const TableWrapper = styled.div<{
     color: ${Colors.THUNDER};
     position: relative;
     background: ${Colors.ATHENS_GRAY_DARKER};
+    display: table;
+    width: 100%;
     .thead,
     .tbody {
       overflow: hidden;
@@ -179,8 +181,7 @@ export const OptionWrapper = styled.div<{ selected: boolean }>`
     width: 100%;
   }
   &.non-selectable {
-    color: ${Colors.GRAY};
-    pointer-events: none;
+    background: ${Colors.WHITE_SMOKE};
   }
 `;
 
@@ -291,7 +292,7 @@ export const TableHeaderWrapper = styled.div<{
   .show-page-items {
     display: ${props => (props.width < 700 ? "none" : "flex")};
   }
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
   height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
@@ -325,17 +326,48 @@ export const TableIconWrapper = styled.div<{
   box-shadow: ${props =>
     props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
   width: 48px;
-  height: 45px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: ${props => (props.disabled ? 0.6 : 1)};
   cursor: ${props => !props.disabled && "pointer"};
+  position: relative;
   &:hover {
     background: ${Colors.ATHENS_GRAY};
   }
 `;
 
-export const SortIconWrapper = styled.div<{ rotate: boolean }>`
-  transform: ${props => (props.rotate ? "rotate(180deg)" : "none")};
+export const SortIconWrapper = styled.div<{ rotate: string }>`
+  transform: ${props => (props.rotate === "true" ? "rotate(180deg)" : "none")};
+`;
+
+export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 150px;
+  background: ${props => props.selected && Colors.GREEN};
+  position: relative;
+  .title {
+    color: ${props => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
+    width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .type {
+    position: absolute;
+    left: 135px;
+    font-size: 12px !important;
+    color: ${props => (props.selected ? Colors.WHITE : Colors.BLUE_BAYOUX)};
+  }
+`;
+
+export const MenuCategoryWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  color: ${Colors.RIVER_BED};
 `;

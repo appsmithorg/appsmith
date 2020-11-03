@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Icon, InputGroup } from "@blueprintjs/core";
+import { Icon, InputGroup, Tag } from "@blueprintjs/core";
 import {
   MenuColumnWrapper,
   CellWrapper,
   ActionWrapper,
   SortIconWrapper,
+  MenuCategoryWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ColumnMenuOptionProps } from "components/designSystems/appsmith/ReactTableComponent";
@@ -13,8 +14,8 @@ import {
   ColumnTypes,
   Condition,
 } from "widgets/TableWidget";
-import { isString, isNumber } from "lodash";
-import VideoComponent from "components/designSystems/appsmith/VideoComponent";
+import { isString } from "lodash";
+import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import TableColumnMenuPopup from "./TableColumnMenu";
@@ -29,13 +30,18 @@ interface MenuOptionProps {
   isColumnHidden: boolean;
   columnType: string;
   format?: string;
+  inputFormat?: string;
   hideColumn: (columnIndex: number, isColumnHidden: boolean) => void;
   updateColumnType: (columnIndex: number, columnType: string) => void;
   handleUpdateCurrencySymbol: (
     columnIndex: number,
     currencySymbol: string,
   ) => void;
-  handleDateFormatUpdate: (columnIndex: number, dateFormat: string) => void;
+  handleDateFormatUpdate: (
+    columnIndex: number,
+    dateFormat: string,
+    dateInputFormat?: string,
+  ) => void;
 }
 
 export const getMenuOptions = (props: MenuOptionProps) => {
@@ -255,35 +261,141 @@ export const getMenuOptions = (props: MenuOptionProps) => {
       isSelected: props.columnType === ColumnTypes.DATE,
       options: [
         {
-          content: "MM-DD-YY",
-          isSelected: props.format === "MM-DD-YY",
-          closeOnClick: true,
+          content: (
+            <MenuCategoryWrapper>
+              <div>Date Input Format</div>
+              {props.inputFormat && <Tag>Clear</Tag>}
+            </MenuCategoryWrapper>
+          ),
+          category: true,
+          closeOnClick: false,
           onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(columnIndex, "MM-DD-YY");
+            props.updateColumnType(columnIndex, ColumnTypes.TEXT);
+          },
+          id: "date_input",
+        },
+        {
+          content: "UNIX timestamp (s)",
+          isSelected: props.inputFormat === "Epoch",
+          closeOnClick: false,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(
+              columnIndex,
+              props.format || "",
+              "Epoch",
+            );
           },
         },
         {
-          content: "DD-MM-YY",
-          isSelected: props.format === "DD-MM-YY",
-          closeOnClick: true,
+          content: "UNIX timestamp (ms)",
+          isSelected: props.inputFormat === "Milliseconds",
+          closeOnClick: false,
           onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(columnIndex, "DD-MM-YY");
+            props.handleDateFormatUpdate(
+              columnIndex,
+              props.format || "",
+              "Milliseconds",
+            );
           },
         },
         {
-          content: "DD/MM/YY",
-          isSelected: props.format === "DD/MM/YY",
-          closeOnClick: true,
+          content: "YYYY-MM-DD",
+          isSelected: props.inputFormat === "YYYY-MM-DD",
+          closeOnClick: false,
           onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(columnIndex, "DD/MM/YY");
+            props.handleDateFormatUpdate(
+              columnIndex,
+              props.format || "",
+              "YYYY-MM-DD",
+            );
           },
         },
         {
-          content: "MM/DD/YY",
-          isSelected: props.format === "MM/DD/YY",
-          closeOnClick: true,
+          content: "YYYY-MM-DDTHH:mm:ss",
+          isSelected: props.inputFormat === "YYYY-MM-DDTHH:mm:ss",
+          closeOnClick: false,
           onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(columnIndex, "MM/DD/YY");
+            props.handleDateFormatUpdate(
+              columnIndex,
+              props.format || "",
+              "YYYY-MM-DDTHH:mm:ss",
+            );
+          },
+        },
+        {
+          content: "YYYY-MM-DD hh:mm:ss",
+          isSelected: props.inputFormat === "YYYY-MM-DD hh:mm:ss",
+          closeOnClick: false,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(
+              columnIndex,
+              props.format || "",
+              "YYYY-MM-DD hh:mm:ss",
+            );
+          },
+        },
+        {
+          content: (
+            <MenuCategoryWrapper>
+              <div>Date Output Format</div>
+            </MenuCategoryWrapper>
+          ),
+          closeOnClick: false,
+          category: true,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(
+              columnIndex,
+              "",
+              props.inputFormat || "",
+            );
+          },
+        },
+        {
+          content: "Same as Input",
+          isSelected: props.format === "SAME_AS_INPUT",
+          closeOnClick: false,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(
+              columnIndex,
+              "SAME_AS_INPUT",
+              props.inputFormat || "",
+            );
+          },
+        },
+        {
+          content: "DD-MM-YYYY HH:mm",
+          isSelected: props.format === "DD-MM-YYYY HH:mm",
+          closeOnClick: false,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(
+              columnIndex,
+              "DD-MM-YYYY HH:mm",
+              props.inputFormat || "",
+            );
+          },
+        },
+        {
+          content: "DD-MM-YYYY",
+          isSelected: props.format === "DD-MM-YYYY",
+          closeOnClick: false,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(
+              columnIndex,
+              "DD-MM-YYYY",
+              props.inputFormat || "",
+            );
+          },
+        },
+        {
+          content: "Do MMM YYYY",
+          isSelected: props.format === "Do MMM YYYY",
+          closeOnClick: false,
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(
+              columnIndex,
+              "Do MMM YYYY",
+              props.inputFormat || "",
+            );
           },
         },
       ],
@@ -393,7 +505,7 @@ export const renderCell = (
       } else if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper isHidden={isHidden} className="video-cell">
-            <VideoComponent url={value} />
+            <PopoverVideo url={value} />
           </CellWrapper>
         );
       } else {
@@ -402,13 +514,9 @@ export const renderCell = (
         );
       }
     default:
-      const data =
-        isString(value) || isNumber(value)
-          ? value.toString()
-          : JSON.stringify(value);
       return (
-        <AutoToolTipComponent title={data} isHidden={isHidden}>
-          {data}
+        <AutoToolTipComponent title={value.toString()} isHidden={isHidden}>
+          {value.toString()}
         </AutoToolTipComponent>
       );
   }
@@ -576,11 +684,11 @@ export const TableHeaderCell = (props: {
   columnIndex: number;
   isHidden: boolean;
   isAscOrder?: boolean;
-  displayColumnActions: boolean;
+  editMode: boolean;
   handleColumnNameUpdate: (columnIndex: number, name: string) => void;
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: Function;
+  handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   column: any;
 }) => {
   const { column } = props;
@@ -590,10 +698,13 @@ export const TableHeaderCell = (props: {
     toggleRenameColumn(false);
   };
   const handleSortColumn = () => {
-    props.sortTableColumn(
-      props.columnIndex,
-      props.isAscOrder === undefined ? true : !props.isAscOrder,
-    );
+    let columnIndex = props.columnIndex;
+    if (props.isAscOrder === true) {
+      columnIndex = -1;
+    }
+    const sortOrder =
+      props.isAscOrder === undefined ? false : !props.isAscOrder;
+    props.sortTableColumn(columnIndex, sortOrder);
   };
   if (column.isResizing) {
     props.handleResizeColumn(
@@ -608,7 +719,7 @@ export const TableHeaderCell = (props: {
       onClick={handleSortColumn}
     >
       {props.isAscOrder !== undefined ? (
-        <SortIconWrapper rotate={!props.isAscOrder}>
+        <SortIconWrapper rotate={props.isAscOrder.toString()}>
           <SortIcon height={16} width={16} />
         </SortIconWrapper>
       ) : null}
@@ -632,7 +743,7 @@ export const TableHeaderCell = (props: {
           {column.render("Header")}
         </div>
       )}
-      {props.displayColumnActions && (
+      {props.editMode && (
         <div
           className="column-menu"
           onClick={(event: React.MouseEvent<HTMLElement>) => {
@@ -654,7 +765,9 @@ export const TableHeaderCell = (props: {
   );
 };
 
-export const getAllTableColumnKeys = (tableData: object[]) => {
+export const getAllTableColumnKeys = (
+  tableData: Array<Record<string, unknown>>,
+) => {
   const columnKeys: string[] = [];
   for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
     const row = tableData[i];
@@ -703,18 +816,24 @@ export const reorderColumns = (
 };
 
 export function sortTableFunction(
-  tableData: object[],
+  filteredTableData: Array<Record<string, unknown>>,
   columns: ReactTableColumnProps[],
   sortedColumn: string,
   sortOrder: boolean,
 ) {
+  const tableData = filteredTableData ? [...filteredTableData] : [];
   const columnType =
     columns.find(
       (column: ReactTableColumnProps) => column.accessor === sortedColumn,
     )?.metaProperties?.type || ColumnTypes.TEXT;
   return tableData.sort(
     (a: { [key: string]: any }, b: { [key: string]: any }) => {
-      if (a[sortedColumn] !== undefined && b[sortedColumn] !== undefined) {
+      if (
+        a[sortedColumn] !== undefined &&
+        a[sortedColumn] !== null &&
+        b[sortedColumn] !== undefined &&
+        b[sortedColumn] !== null
+      ) {
         switch (columnType) {
           case ColumnTypes.CURRENCY:
           case ColumnTypes.NUMBER:
@@ -764,7 +883,10 @@ export const ConditionFunctions: {
     return a !== "" && a !== undefined && a !== null;
   },
   notEqualTo: (a: any, b: any) => {
-    return a !== b;
+    return a.toString() !== b.toString();
+  },
+  isEqualTo: (a: any, b: any) => {
+    return a.toString() === b.toString();
   },
   lessThan: (a: any, b: any) => {
     const numericB = Number(b);

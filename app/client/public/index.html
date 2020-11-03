@@ -3,6 +3,8 @@
 
 <head>
   <meta charset="utf-8" />
+  <link rel="shortcut icon"
+    href="https://res.cloudinary.com/dwpfockn8/image/upload/v1597920848/favicons/favicon-orange_pxfmdc.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Appsmith</title>
   <style>
@@ -19,7 +21,7 @@
     // INTERCOM SETUP
     const APP_ID = "%REACT_APP_INTERCOM_APP_ID%"
     const CLOUD_HOSTING = "%REACT_APP_CLOUD_HOSTING%"
-    if (APP_ID.length && CLOUD_HOSTING.length) {
+    if (APP_ID.length && APP_ID[0] !== "%" && CLOUD_HOSTING.length) {
       (function () { var w = window; var ic = w.Intercom; if (typeof ic === "function") { ic('reattach_activator'); ic('update', w.intercomSettings); } else { var d = document; var i = function () { i.c(arguments); }; i.q = []; i.c = function (args) { i.q.push(args); }; w.Intercom = i; var l = function () { var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = 'https://widget.intercom.io/widget/' + APP_ID; var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }; if (document.readyState === 'complete') { l(); } else if (w.attachEvent) { w.attachEvent('onload', l); } else { w.addEventListener('load', l, false); } } })();
     }
   </script>
@@ -39,10 +41,47 @@
   <div id="loader" style="width: 30vw;"></div>
   <div id="root"></div>
   <script type="text/javascript">
+    // Note: The following handler is necessary for when we have a new deployment.
+
+    // What happens?
+    // The chunk hashes change, resulting in the server not able to find
+    // the previous chunks which the client will keep requesting, until the "new" index.html
+    // is loaded. This new index.html is loaded on page reload.
+
+    // Current solution:
+    // 1. Make sure it is indeed Appsmith's chunk which failed to fetch (regex match)
+    // 2. Reload once, and don't reload again.
+    // Pitfalls:
+    // 1. First reload will not fetch the new index.html, if the server isn't yet ready to serve it.
+    //    this can happen when the server is still deploying.
+
+    // TODO(abhinav): A comprehensive solution is involve the user when repeated
+    // reloads are necessary.
+    // 1. Delay reloads in increasing durations
+    // 2. Allow the user to pre-emptively reload or cancel reloads altogether.
+    window.onerror = function(message, url) {
+      const regex = /\/static\/js\/(\w.+).js$/;
+      const chunkLoadErrorMessage = "Unexpected token '<'"
+      if(regex.test(url) && url.indexOf(window.location.host) > -1 && message.includes(chunkLoadErrorMessage)) {
+        console.log("chunk load failed!", url);
+        // First check if we've set the flag to not reload on chunk load fail
+        const donotReload = window.localStorage.getItem("donotReloadOnChunkLoadFail");
+          if(!donotReload){
+            // If donotReload is set to false or undefined, we can set it to true and reload
+            // This signifies that this is the first time this happened in this session.
+            window.localStorage.setItem("donotReloadOnChunkLoadFail", true);
+            window.location.assign(window.location.href);
+          }
+      }
+    };
     window.addEventListener("DOMContentLoaded", (event) => {
       document.getElementById("loader").style.width = "50vw";
     });
     window.addEventListener("load", (event) => {
+      // This signifies that we've had a chunk load failure in this session
+      // We clear the entry, as otherwise, we will have a repeated reload scenario.
+      window.localStorage.removeItem("donotReloadOnChunkLoadFail");
+
       document.getElementById("loader").style.width = "100vw";
       setTimeout(() => {
         document.getElementById("loader").style.opacity = 0;
@@ -74,9 +113,8 @@
         release: parseConfig("__APPSMITH_SENTRY_RELEASE__"),
         environment: parseConfig("__APPSMITH_SENTRY_ENVIRONMENT__"),
       },
-      hotjar: {
-        id: parseConfig("__APPSMITH_HOTJAR_HJID__"),
-        sv: parseConfig("__APPSMITH_HOTJAR_HJSV__"),
+      smartLook: {
+        id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
       enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__").length > 0,
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__").length > 0,
@@ -98,9 +136,10 @@
         releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__")
       },
       intercomAppID: parseConfig("__APPSMITH_INTERCOM_APP_ID__"),
+      mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__").length > 0,
     };
+
   </script>
-  <script rel="prefetch" type="text/javascript" src="/shims/realms-shim.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.4.0/tinymce.min.js" referrerpolicy="origin"></script>
 </body>
 

@@ -60,7 +60,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
 
     @PostMapping("/publish/{applicationId}")
     public Mono<ResponseDTO<Boolean>> publish(@PathVariable String applicationId) {
-        return service.publish(applicationId)
+        return applicationPageService.publish(applicationId)
                 .map(published -> new ResponseDTO<>(HttpStatus.OK.value(), published, null));
     }
 
@@ -88,6 +88,18 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     public Mono<ResponseDTO<Application>> shareApplication(@PathVariable String applicationId, @RequestBody ApplicationAccessDTO applicationAccessDTO) {
         log.debug("Going to change access for application {} to {}", applicationId, applicationAccessDTO.getPublicAccess());
         return service.changeViewAccess(applicationId, applicationAccessDTO)
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
+    }
+
+    @PostMapping("/clone/{applicationId}")
+    public Mono<ResponseDTO<Application>> cloneApplication(@PathVariable String applicationId) {
+        return applicationPageService.cloneApplication(applicationId)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @GetMapping("/view/{applicationId}")
+    public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String applicationId) {
+        return service.getApplicationInViewMode(applicationId)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 

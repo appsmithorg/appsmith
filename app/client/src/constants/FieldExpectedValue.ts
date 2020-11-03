@@ -12,6 +12,7 @@ const FIELD_VALUES: Record<
   },
   CANVAS_WIDGET: {},
   ICON_WIDGET: {},
+  SKELETON_WIDGET: {},
   CONTAINER_WIDGET: {
     backgroundColor: "string",
     isVisible: "boolean",
@@ -33,10 +34,16 @@ const FIELD_VALUES: Record<
     // onRowSelected: "Function Call",
     // onPageChange: "Function Call",
   },
+  VIDEO_WIDGET: {
+    url: "string",
+    autoPlay: "boolean",
+    isVisible: "boolean",
+  },
   IMAGE_WIDGET: {
     image: "string",
     defaultImage: "string",
     isVisible: "boolean",
+    maxZoomLevel: "number",
   },
   RADIO_GROUP_WIDGET: {
     options: "Array<{ label: string, value: string }>",
@@ -46,7 +53,8 @@ const FIELD_VALUES: Record<
     // onSelectionChange: "Function Call",
   },
   TABS_WIDGET: {
-    tabs: "Array<{ label: string, id: string }>",
+    tabs:
+      "Array<{ label: string, id: string(unique), widgetId: string(unique) }>",
     selectedTab: "string",
     isVisible: "boolean",
   },

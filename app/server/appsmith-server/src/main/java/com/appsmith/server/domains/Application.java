@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryEntity;
 import lombok.Getter;
@@ -31,7 +32,25 @@ public class Application extends BaseDomain {
 
     List<ApplicationPage> pages;
 
+    @JsonIgnore
+    List<ApplicationPage> publishedPages;
+
+    @JsonIgnore
+    @Transient
+    Boolean viewMode = false;
+
     @Transient
     boolean appIsExample = false;
+
+    @JsonIgnore
+    String clonedFromApplicationId;
+
+    String color;
+
+    String icon;
+
+    public List<ApplicationPage> getPages() {
+        return viewMode ? publishedPages : pages;
+    }
 
 }

@@ -2,7 +2,12 @@ import React from "react";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
-import { Link, RouteComponentProps, useLocation, withRouter } from "react-router-dom";
+import {
+  Link,
+  RouteComponentProps,
+  useLocation,
+  withRouter,
+} from "react-router-dom";
 import Divider from "components/editorComponents/Divider";
 import {
   AuthCardHeader,
@@ -44,7 +49,10 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import { AppState } from "reducers";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 const {
   enableGithubOAuth,
   enableGoogleOAuth,
@@ -83,7 +91,8 @@ const validate = (values: SignupFormValues) => {
   return errors;
 };
 
-type SignUpFormProps = InjectedFormProps<SignupFormValues> & RouteComponentProps<{ email: string }>;
+type SignUpFormProps = InjectedFormProps<SignupFormValues> &
+  RouteComponentProps<{ email: string }>;
 
 export const SignUp = (props: SignUpFormProps) => {
   const { error, submitting, pristine, valid } = props;
@@ -121,6 +130,7 @@ export const SignUp = (props: SignUpFormProps) => {
               name="email"
               type="email"
               placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
+              autoFocus
             />
           </FormGroup>
           <FormGroup
@@ -147,12 +157,19 @@ export const SignUp = (props: SignUpFormProps) => {
                 AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                   signupMethod: "EMAIL",
                 });
+                PerformanceTracker.startTracking(
+                  PerformanceTransactionName.SIGN_UP,
+                );
               }}
             />
           </FormActions>
         </SpacedSubmitForm>
-        {SocialLoginList.length > 0 && <Divider />}
-        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+        {SocialLoginList.length > 0 && (
+          <>
+            <Divider />
+            <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+          </>
+        )}
       </AuthCardBody>
       <AuthCardFooter>
         <TncPPLinks />
@@ -164,17 +181,14 @@ export const SignUp = (props: SignUpFormProps) => {
   );
 };
 
-export default connect(
-  (state: AppState, props: SignUpFormProps) => {
-    const queryParams = new URLSearchParams(props.location.search);
-    return {
-      initialValues: {
-        email: queryParams.get("email"),
-      },
-    };
-  },
-  null,
-)(
+export default connect((state: AppState, props: SignUpFormProps) => {
+  const queryParams = new URLSearchParams(props.location.search);
+  return {
+    initialValues: {
+      email: queryParams.get("email"),
+    },
+  };
+}, null)(
   reduxForm<SignupFormValues>({
     validate,
     form: SIGNUP_FORM_NAME,

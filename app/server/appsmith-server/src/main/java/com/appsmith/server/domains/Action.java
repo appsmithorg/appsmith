@@ -3,6 +3,7 @@ package com.appsmith.server.domains;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Property;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
+@Deprecated
 public class Action extends BaseDomain {
 
     String name;
@@ -55,6 +57,7 @@ public class Action extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> jsonPathKeys;
 
+    @JsonIgnore
     String cacheResponse;
 
     String templateId; //If action is created via a template, store the id here.
@@ -66,6 +69,11 @@ public class Action extends BaseDomain {
 
     @Transient
     String pluginId;
+
+    @JsonIgnore
+    Boolean userSetOnLoad = false;
+
+    Boolean confirmBeforeExecute = false;
 
     Documentation documentation;
 

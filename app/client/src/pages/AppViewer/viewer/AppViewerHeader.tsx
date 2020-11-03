@@ -4,7 +4,7 @@ import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo_white.png";
 import Button from "components/editorComponents/Button";
-import { EDIT_APP, FORK_APP } from "constants/messages";
+import { EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -15,6 +15,7 @@ import {
 } from "constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,
+  AUTH_LOGIN_URL,
   getApplicationViewerPageURL,
   SIGN_UP_URL,
 } from "constants/routes";
@@ -27,6 +28,8 @@ import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { Colors } from "constants/Colors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   background: ${Colors.BALTIC_SEA};
@@ -65,6 +68,9 @@ const ForkButton = styled(Button)`
   max-width: 200px;
   height: 32px;
   margin: 5px 10px;
+  svg {
+    transform: rotate(-90deg);
+  }
 `;
 
 const ShareButton = styled(Button)`
@@ -83,7 +89,7 @@ const StyledApplicationName = styled.span`
 const PageTab = styled(NavLink)`
   display: flex;
   height: 30px;
-  flex: 0 0 150px;
+  max-width: 170px;
   margin-right: 1px;
   align-self: flex-end;
   cursor: pointer;
@@ -98,6 +104,10 @@ const PageTab = styled(NavLink)`
     line-height: 20px;
     letter-spacing: 0.04em;
     color: #fff;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   &&&:hover {
     text-decoration: none;
@@ -119,10 +129,11 @@ type AppViewerHeaderProps = {
   currentApplicationDetails?: ApplicationPayload;
   pages: PageListPayload;
   currentOrgId: string;
+  currentUser?: User;
 };
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
-  const { currentApplicationDetails, pages, currentOrgId } = props;
+  const { currentApplicationDetails, pages, currentOrgId, currentUser } = props;
   const isExampleApp = currentApplicationDetails?.appIsExample;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
@@ -139,6 +150,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   }
 
   const forkAppUrl = `${window.location.origin}${SIGN_UP_URL}?appId=${currentApplicationDetails?.id}`;
+  const loginAppUrl = `${window.location.origin}${AUTH_LOGIN_URL}?appId=${currentApplicationDetails?.id}`;
 
   let CTA = null;
 
@@ -163,6 +175,19 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         icon="fork"
         iconAlignment="left"
         text={FORK_APP}
+        filled
+      />
+    );
+  } else if (
+    currentApplicationDetails?.isPublic &&
+    currentUser?.username === ANONYMOUS_USERNAME
+  ) {
+    CTA = (
+      <ForkButton
+        className="t--fork-app"
+        href={loginAppUrl}
+        intent="primary"
+        text={SIGN_IN}
         filled
       />
     );
@@ -207,6 +232,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                 orgId={currentOrgId}
                 applicationId={currentApplicationDetails.id}
                 title={currentApplicationDetails.name}
+                canOutsideClickClose={true}
               />
               {CTA}
             </>
@@ -223,6 +249,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                 page.pageId,
               )}
               activeClassName="is-active"
+              className="t--page-switch-tab"
             >
               <span>{page.pageName}</span>
             </PageTab>
@@ -238,6 +265,7 @@ const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   url: getEditorURL(state),
   currentApplicationDetails: state.ui.applications.currentApplication,
   currentOrgId: getCurrentOrgId(state),
+  currentUser: getCurrentUser(state),
 });
 
 export default connect(mapStateToProps)(AppViewerHeader);

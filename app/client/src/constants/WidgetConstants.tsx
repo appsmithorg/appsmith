@@ -19,6 +19,8 @@ export enum WidgetTypes {
   CANVAS_WIDGET = "CANVAS_WIDGET",
   ICON_WIDGET = "ICON_WIDGET",
   FILE_PICKER_WIDGET = "FILE_PICKER_WIDGET",
+  VIDEO_WIDGET = "VIDEO_WIDGET",
+  SKELETON_WIDGET = "SKELETON_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -84,3 +86,5 @@ export const WIDGET_PADDING = (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.2;
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
+
+export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;

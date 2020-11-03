@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet";
 import styled from "styled-components";
 
 const Wrapper = styled.section`
+  margin-top: ${props => props.theme.homePage.header}px;
   && .fade {
     position: relative;
   }
@@ -25,16 +26,15 @@ const Wrapper = styled.section`
 `;
 
 const PageBody = styled.div`
-  width: ${props => props.theme.pageContentWidth}px;
   height: calc(
-    100vh - ${props => props.theme.headerHeight} +
-      ${props => props.theme.spaces[12]}px
+    100vh - ${props => props.theme.homePage.header}px
   );
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  margin: ${props => props.theme.spaces[12]}px auto;
+  // padding-top: ${props => props.theme.spaces[12]}px;
+  margin: 0 auto;
   & > * {
     width: 100%;
   }
@@ -45,15 +45,17 @@ type PageWrapperProps = {
   displayName?: string;
 };
 
-export const PageWrapper = (props: PageWrapperProps) => (
-  <Wrapper>
-    <Helmet>
-      <title>{`${
-        props.displayName ? `${props.displayName} | ` : ""
-      }Appsmith`}</title>
-    </Helmet>
-    <PageBody>{props.children}</PageBody>
-  </Wrapper>
-);
+export const PageWrapper = (props: PageWrapperProps) => {
+  return (
+    <Wrapper>
+      <Helmet>
+        <title>{`${
+          props.displayName ? `${props.displayName} | ` : ""
+        }Appsmith`}</title>
+      </Helmet>
+      <PageBody>{props.children}</PageBody>
+    </Wrapper>
+  );
+};
 
 export default PageWrapper;

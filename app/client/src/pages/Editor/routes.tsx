@@ -1,5 +1,10 @@
 import React, { useEffect, ReactNode } from "react";
-import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
+import {
+  Switch,
+  withRouter,
+  RouteComponentProps,
+  Route,
+} from "react-router-dom";
 import ApiEditor from "./APIEditor";
 import QueryEditor from "./QueryEditor";
 import DataSourceEditor from "./DataSourceEditor";
@@ -19,16 +24,20 @@ import {
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
-  WIDGETS_URL,
 } from "constants/routes";
 import styled from "styled-components";
-import AppRoute from "pages/common/AppRoute";
 import {
   useShowPropertyPane,
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
 import { closeAllModals } from "actions/widgetActions";
 import { useDispatch } from "react-redux";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+
+import * as Sentry from "@sentry/react";
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -63,8 +72,7 @@ class EditorsRouter extends React.Component<
     this.state = {
       isVisible:
         this.props.location.pathname !==
-          BUILDER_PAGE_URL(applicationId, pageId) &&
-        this.props.location.pathname !== WIDGETS_URL(applicationId, pageId),
+        BUILDER_PAGE_URL(applicationId, pageId),
     };
   }
 
@@ -74,13 +82,16 @@ class EditorsRouter extends React.Component<
       this.setState({
         isVisible:
           this.props.location.pathname !==
-            BUILDER_PAGE_URL(applicationId, pageId) &&
-          this.props.location.pathname !== WIDGETS_URL(applicationId, pageId),
+          BUILDER_PAGE_URL(applicationId, pageId),
       });
     }
   }
 
   handleClose = (e: React.MouseEvent) => {
+    PerformanceTracker.startTracking(
+      PerformanceTransactionName.CLOSE_SIDE_PANE,
+      { path: this.props.location.pathname },
+    );
     e.stopPropagation();
     const { applicationId, pageId } = this.props.match.params;
     this.setState({
@@ -101,60 +112,47 @@ class EditorsRouter extends React.Component<
           onClick={this.preventClose}
         >
           <Switch>
-            <AppRoute
-              exact
-              path={API_EDITOR_URL()}
-              component={ApiEditor}
-              name={"ApiEditor"}
-            />
-            <AppRoute
+            <SentryRoute exact path={API_EDITOR_URL()} component={ApiEditor} />
+            <SentryRoute
               exact
               path={API_EDITOR_ID_URL()}
               component={ApiEditor}
-              name={"ApiEditor"}
             />
-            <AppRoute
+            <SentryRoute
               exact
               path={API_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
               component={ApiEditor}
-              name={"ApiEditor"}
             />
-            <AppRoute
+            <SentryRoute
               exact
               path={QUERIES_EDITOR_URL()}
               component={QueryEditor}
-              name={"QueryEditor"}
             />
-            <AppRoute
+            <SentryRoute
               exact
               path={QUERIES_EDITOR_ID_URL()}
               component={QueryEditor}
-              name={"QueryEditor"}
             />
 
-            <AppRoute
+            <SentryRoute
               exact
               path={getCurlImportPageURL()}
               component={CurlImportForm}
-              name={"ApiEditor"}
             />
-            <AppRoute
+            <SentryRoute
               exact
               path={DATA_SOURCES_EDITOR_URL()}
               component={DataSourceEditor}
-              name={"DataSourceEditor"}
             />
-            <AppRoute
+            <SentryRoute
               exact
               path={DATA_SOURCES_EDITOR_ID_URL()}
               component={DataSourceEditor}
-              name={"DataSourceEditor"}
             />
-            <AppRoute
+            <SentryRoute
               exact
               path={getProviderTemplatesURL()}
               component={ProviderTemplates}
-              name={"ApiEditor"}
             />
           </Switch>
         </PaneDrawer>

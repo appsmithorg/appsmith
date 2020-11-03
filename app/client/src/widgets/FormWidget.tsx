@@ -5,12 +5,18 @@ import { WidgetType } from "constants/WidgetConstants";
 import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ContainerComponentProps } from "components/designSystems/appsmith/ContainerComponent";
 import shallowEqual from "shallowequal";
+import * as Sentry from "@sentry/react";
+import withMeta from "./MetaHOC";
 
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
     return _.some(children, child => {
-      if ("children" in child) return this.checkInvalidChildren(child.children);
-      if ("isValid" in child) return !child.isValid;
+      if ("children" in child) {
+        return this.checkInvalidChildren(child.children);
+      }
+      if ("isValid" in child) {
+        return !child.isValid;
+      }
       return false;
     });
   };
@@ -33,7 +39,7 @@ class FormWidget extends ContainerWidget {
     if (this.props.children) {
       const formData = this.getFormData(this.props.children[0]);
       if (!shallowEqual(formData, this.props.data)) {
-        this.updateWidgetMetaProperty("data", formData);
+        this.props.updateWidgetMetaProperty("data", formData);
       }
     }
   }
@@ -68,7 +74,8 @@ class FormWidget extends ContainerWidget {
 
 export interface FormWidgetProps extends ContainerComponentProps {
   name: string;
-  data: object;
+  data: Record<string, unknown>;
 }
 
 export default FormWidget;
+export const ProfiledFormWidget = Sentry.withProfiler(withMeta(FormWidget));

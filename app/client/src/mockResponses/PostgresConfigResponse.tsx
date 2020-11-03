@@ -33,6 +33,8 @@ const PostgresConfigResponse = [
             label: "Host Address",
             configProperty: "datasourceConfiguration.endpoints[*].host",
             controlType: "KEYVALUE_ARRAY",
+            validationMessage: "Please enter a valid host",
+            validationRegex: "^((?![/:]).)*$",
           },
           {
             label: "Port",

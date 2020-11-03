@@ -5,17 +5,18 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -37,6 +38,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -61,7 +63,7 @@ public class DatasourceServiceTest {
     OrganizationRepository organizationRepository;
 
     @Autowired
-    ActionService actionService;
+    NewActionService newActionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -383,7 +385,7 @@ public class DatasourceServiceTest {
                             datasourceService.create(datasource),
                             applicationPageService.createApplication(application, organization.getId())
                                     .flatMap(application1 -> {
-                                        final Page page = new Page();
+                                        final PageDTO page = new PageDTO();
                                         page.setName("test page 1");
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(Set.of(Policy.builder()
@@ -397,9 +399,9 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(objects -> {
                     final Datasource datasource = objects.getT3();
-                    final Page page = objects.getT4();
+                    final PageDTO page = objects.getT4();
 
-                    Action action = new Action();
+                    ActionDTO action = new ActionDTO();
                     action.setName("validAction");
                     action.setOrganizationId(objects.getT1().getId());
                     action.setPluginId(objects.getT2().getId());
@@ -409,7 +411,7 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return actionService.create(action).thenReturn(datasource);
+                    return newActionService.createAction(action).thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.delete(datasource.getId()));
 
@@ -520,6 +522,49 @@ public class DatasourceServiceTest {
                     AuthenticationDTO authentication = updatedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createDatasourceWithInvalidCharsInHost() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByPackageName("installed-db-plugin");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name with invalid hostnames");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setEndpoints(new ArrayList<>());
+        datasourceConfiguration.getEndpoints().add(new Endpoint("hostname/", 5432L));
+        datasourceConfiguration.getEndpoints().add(new Endpoint("hostname:", 5432L));
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
+                    assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getInvalids()).isEmpty();
+
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+
+                    assertThat(createdDatasource.getPolicies()).isNotEmpty();
+                    assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                 })
                 .verifyComplete();
     }

@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class AnalyticsService<T extends BaseDomain> {
+public class AnalyticsService {
 
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
@@ -38,6 +39,9 @@ public class AnalyticsService<T extends BaseDomain> {
                         traitsMap.put("name", savedUser.getName());
                     }
                     traitsMap.put("email", savedUser.getEmail());
+                    if (savedUser.getSource() != null) {
+                        traitsMap.put("source", savedUser.getSource().toString());
+                    }
                     analytics.enqueue(IdentifyMessage.builder()
                             .userId(savedUser.getUsername())
                             .traits(traitsMap)
@@ -47,10 +51,16 @@ public class AnalyticsService<T extends BaseDomain> {
                 });
     }
 
-    public Mono<T> sendEvent(String eventTag, T object) {
+    public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object) {
+        return sendEvent(event, object, null);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
         if (analytics == null) {
             return Mono.just(object);
         }
+
+        final String eventTag = event.lowerName() + "_" + object.getClass().getSimpleName().toUpperCase();
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
@@ -59,21 +69,51 @@ public class AnalyticsService<T extends BaseDomain> {
         return userMono
                 .map(user -> {
 
-                    // In case the user is anonymous, return as is without raising the event.
-                    if (user.getIsAnonymous()) {
-                        return (T) object;
+                    // In case the user is anonymous, don't raise an event, unless it's a signup event.
+                    if (user.isAnonymous() && !(object instanceof User && event == AnalyticsEvents.CREATE)) {
+                        return object;
                     }
 
-                    HashMap<String, String> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", ((BaseDomain) object).getId());
-                    analyticsProperties.put("object", object.toString());
+                    final String username = (object instanceof User ? (User) object : user).getUsername();
+
+                    HashMap<String, Object> analyticsProperties = new HashMap<>();
+                    analyticsProperties.put("id", username);
+                    analyticsProperties.put("oid", object.getId());
+                    if (extraProperties != null) {
+                        analyticsProperties.putAll(extraProperties);
+                    }
 
                     analytics.enqueue(
                             TrackMessage.builder(eventTag)
-                                    .userId(user.getUsername())
+                                    .userId(username)
                                     .properties(analyticsProperties)
                     );
-                    return (T) object;
+
+                    return object;
                 });
+    }
+
+    public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {
+        return sendEvent(AnalyticsEvents.CREATE, object, extraProperties);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendCreateEvent(T object) {
+        return sendCreateEvent(object, null);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object, Map<String, Object> extraProperties) {
+        return sendEvent(AnalyticsEvents.UPDATE, object, extraProperties);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object) {
+        return sendUpdateEvent(object, null);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object, Map<String, Object> extraProperties) {
+        return sendEvent(AnalyticsEvents.DELETE, object, extraProperties);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
+        return sendDeleteEvent(object, null);
     }
 }

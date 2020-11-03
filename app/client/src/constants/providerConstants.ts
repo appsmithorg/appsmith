@@ -46,8 +46,8 @@ export type ApiTemplates = {
     paginationType: string;
     path: string;
     httpMethod: string;
-    headers: [];
-    routeParameters: [];
+    headers: any[];
+    routeParameters: any[];
   };
   datasourceConfiguration: {
     url: string;
@@ -74,8 +74,8 @@ export type ProviderTemplateArray = ApiResponse & {
       paginationType: string;
       path: string;
       httpMethod: string;
-      headers: [];
-      routeParameters: [];
+      headers: any[];
+      routeParameters: any[];
     };
     datasourceConfiguration: {
       url: string;
@@ -96,15 +96,3 @@ export type SearchResultsProviders = {
 };
 
 export const DEFAULT_TEMPLATE_TYPE = "TEMPLATE";
-
-export const providerBackgroundColors = [
-  "#0BA780",
-  "#929500",
-  "#1F97D3",
-  "#B32FA5",
-  "#1A29B1",
-  "#2965CC",
-  "#4E5D78",
-  "#14928B",
-  "#FBBEBE",
-];

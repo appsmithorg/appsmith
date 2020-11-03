@@ -2,7 +2,7 @@
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
 import { get, omit } from "lodash";
-import { all, select, put, takeEvery, call } from "redux-saga/effects";
+import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -18,6 +18,7 @@ import {
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
   CONTENT_TYPE,
+  PLUGIN_TYPE_API,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -33,7 +34,11 @@ import {
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  getNextEntityName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
@@ -44,6 +49,10 @@ import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -52,7 +61,7 @@ function* syncApiParamsSaga(
   const field = actionPayload.meta.field;
   const value = actionPayload.payload;
   const padQueryParams = { key: "", value: "" };
-
+  PerformanceTracker.startTracking(PerformanceTransactionName.SYNC_PARAMS_SAGA);
   if (field === "actionConfiguration.path") {
     if (value.indexOf("?") > -1) {
       const paramsString = value.substr(value.indexOf("?") + 1);
@@ -117,6 +126,7 @@ function* syncApiParamsSaga(
       ),
     );
   }
+  PerformanceTracker.stopTracking();
 }
 
 function* initializeExtraFormDataSaga() {
@@ -130,7 +140,11 @@ function* initializeExtraFormDataSaga() {
     DEFAULT_API_ACTION.actionConfiguration?.headers,
   );
 
-  const queryParameters = get(values, "actionConfiguration.queryParameters");
+  const queryParameters = get(
+    values,
+    "actionConfiguration.queryParameters",
+    [],
+  );
   if (!extraformData[values.id]) {
     yield put(
       change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
@@ -153,6 +167,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   //   // @ts-ignore
   //   document.activeElement.blur();
+  PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
   const { id } = actionPayload.payload;
   const action = yield select(getAction, id);
   if (!action) return;
@@ -178,6 +193,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
       id,
     );
   }
+  PerformanceTracker.stopTracking();
 }
 
 function* updateFormFields(
@@ -293,14 +309,14 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     const pageId = yield select(getCurrentPageId);
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
-        new: "true",
+        editName: "true",
       }),
     );
   }
 }
 
 function* handleCreateNewApiActionSaga(
-  action: ReduxAction<{ pageId: string }>,
+  action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
   const organizationId = yield select(getCurrentOrgId);
   const pluginId = yield select(
@@ -325,6 +341,10 @@ function* handleCreateNewApiActionSaga(
           pluginId,
           organizationId,
         },
+        eventData: {
+          actionType: "API",
+          from: action.payload.from,
+        },
         pageId,
       }),
     );
@@ -335,7 +355,7 @@ function* handleCreateNewApiActionSaga(
 }
 
 function* handleCreateNewQueryActionSaga(
-  action: ReduxAction<{ pageId: string }>,
+  action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
   const { pageId } = action.payload;
   const applicationId = yield select(getCurrentApplicationId);
@@ -364,6 +384,11 @@ function* handleCreateNewQueryActionSaga(
         datasource: {
           id: dataSourceId,
         },
+        eventData: {
+          actionType: "Query",
+          from: action.payload.from,
+          dataSource: validDataSources[0].name,
+        },
         actionConfiguration: {},
       }),
     );
@@ -375,8 +400,26 @@ function* handleCreateNewQueryActionSaga(
   }
 }
 
-function* handleApiNameChangeSaga(action: ReduxAction<{ name: string }>) {
+function* handleApiNameChangeSaga(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
   yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.name));
+}
+function* handleApiNameChangeSuccessSaga(
+  action: ReduxAction<{ actionId: string }>,
+) {
+  const { actionId } = action.payload;
+  const actionObj = yield select(getAction, actionId);
+  yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
+  if (actionObj.pluginType === PLUGIN_TYPE_API) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
+  }
 }
 
 function* handleApiNameChangeFailureSaga(
@@ -390,6 +433,10 @@ export default function* root() {
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
+    takeEvery(
+      ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,
+      handleApiNameChangeSuccessSaga,
+    ),
     takeEvery(
       ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       handleApiNameChangeFailureSaga,

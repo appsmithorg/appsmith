@@ -1,4 +1,3 @@
-import _ from "lodash";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import {
   REQUEST_TIMEOUT_MS,
@@ -11,6 +10,7 @@ import {
   SERVER_ERROR_URL,
 } from "constants/routes";
 import history from "utils/history";
+import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -50,15 +50,18 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
+    if (axios.isCancel(error)) {
+      return;
+    }
     if (error.code === "ECONNABORTED") {
-      if (error.config.url.match(currentUserRegex)) {
+      if (error.config && error.config.url.match(currentUserRegex)) {
         history.replace({ pathname: SERVER_ERROR_URL });
       }
       return Promise.reject({
         message: "Please check your internet connection",
       });
     }
-    if (error.config.url.match(executeActionRegex)) {
+    if (error.config && error.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(error.response);
     }
     if (error.response) {
@@ -116,24 +119,27 @@ class Api {
   static get(
     url: string,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
-    return axiosInstance.get(
-      url + this.convertObjectToQueryParams(queryParams),
-      _.merge(apiRequestConfig, config),
-    );
+    return axiosInstance.get(url + convertObjectToQueryParams(queryParams), {
+      ...apiRequestConfig,
+      ...config,
+    });
   }
 
   static post(
     url: string,
     body?: any,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
     return axiosInstance.post(
-      url + this.convertObjectToQueryParams(queryParams),
+      url + convertObjectToQueryParams(queryParams),
       body,
-      _.merge(apiRequestConfig, config),
+      {
+        ...apiRequestConfig,
+        ...config,
+      },
     );
   }
 
@@ -141,35 +147,27 @@ class Api {
     url: string,
     body?: any,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
     return axiosInstance.put(
-      url + this.convertObjectToQueryParams(queryParams),
+      url + convertObjectToQueryParams(queryParams),
       body,
-      _.merge(apiRequestConfig, config),
+      {
+        ...apiRequestConfig,
+        ...config,
+      },
     );
   }
 
   static delete(
     url: string,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
-    return axiosInstance.delete(
-      url + this.convertObjectToQueryParams(queryParams),
-      _.merge(apiRequestConfig, config),
-    );
-  }
-
-  static convertObjectToQueryParams(object: any): string {
-    if (!_.isNil(object)) {
-      const paramArray: string[] = _.map(_.keys(object), key => {
-        return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
-      });
-      return "?" + _.join(paramArray, "&");
-    } else {
-      return "";
-    }
+    return axiosInstance.delete(url + convertObjectToQueryParams(queryParams), {
+      ...apiRequestConfig,
+      ...config,
+    });
   }
 }
 

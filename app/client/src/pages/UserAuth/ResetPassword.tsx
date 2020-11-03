@@ -122,6 +122,19 @@ export const ResetPassword = (props: ResetPasswordProps) => {
   }
   if (showFailureMessage) {
     message = error;
+    if (
+      message
+        .toLowerCase()
+        .includes(RESET_PASSWORD_FORGOT_PASSWORD_LINK.toLowerCase())
+    ) {
+      messageActions = [
+        {
+          url: FORGOT_PASSWORD_URL,
+          text: RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+          intent: "primary",
+        },
+      ];
+    }
   }
 
   const messageTagProps: FormMessageProps = {
@@ -159,6 +172,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
               name="password"
               type="password"
               placeholder={RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+              disabled={submitSucceeded}
             />
           </FormGroup>
           <Field type="hidden" name="email" component="input" />
@@ -170,7 +184,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
               type="submit"
               text={RESET_PASSWORD_SUBMIT_BUTTON_TEXT}
               intent="primary"
-              disabled={pristine}
+              disabled={pristine || submitSucceeded}
               loading={submitting}
             />
           </FormActions>

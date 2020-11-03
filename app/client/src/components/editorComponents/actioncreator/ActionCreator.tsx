@@ -18,7 +18,7 @@ import { KeyValueComponent } from "components/propertyControls/KeyValueComponent
 import { InputText } from "components/propertyControls/InputTextControl";
 import { createModalAction } from "actions/widgetActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import TreeStructure from "components/utils/TreeStructure";
 import {
@@ -26,12 +26,27 @@ import {
   createNewQueryAction,
 } from "actions/apiPaneActions";
 
+/* eslint-disable @typescript-eslint/ban-types */
+/* TODO: Function and object types need to be updated to enable the lint rule */
+
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
   { label: "Success", value: "'success'", id: "success" },
   { label: "Error", value: "'error'", id: "error" },
   { label: "Warning", value: "'warning'", id: "warning" },
 ];
+
+const FILE_TYPE_OPTIONS = [
+  { label: "Plain text", value: "'text/plain'", id: "text/plain" },
+  { label: "HTML", value: "'text/html'", id: "text/html" },
+  { label: "CSV", value: "'text/csv'", id: "text/csv" },
+  { label: "JSON", value: "'application/json'", id: "application/json" },
+  { label: "JPEG", value: "'image/jpeg'", id: "image/jpeg" },
+  { label: "PNG", value: "'image/png'", id: "image/png" },
+  { label: "SVG", value: "'image/svg+xml'", id: "image/svg+xml" },
+];
+
+const FUNC_ARGS_REGEX = /((["][^"]*["])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"+]*[^'",]*))*/gi;
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 //Old Regex:: /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
 const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
@@ -64,23 +79,51 @@ export const modalGetter = (value: string) => {
   return name;
 };
 
-// const urlSetter = (changeValue: any, currentValue: string): string => {
-//   return currentValue.replace(ACTION_TRIGGER_REGEX, `{{$1('${changeValue}')}}`);
-// };
+const stringToJS = (string: string): string => {
+  const { stringSegments, jsSnippets } = getDynamicBindings(string);
+  const js = stringSegments
+    .map((segment, index) => {
+      if (jsSnippets[index] && jsSnippets[index].length > 0) {
+        return jsSnippets[index];
+      } else {
+        return `'${segment}'`;
+      }
+    })
+    .join(" + ");
+  return js;
+};
 
-// export const textGetter = (value: string) => {
-//   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-//   if (matches.length) {
-//     const stringValue = matches[0][2];
-//     return stringValue.substring(1, stringValue.length - 1);
-//   }
-//   return "";
-// };
+const JSToString = (js: string): string => {
+  const segments = js.split(" + ");
+  return segments
+    .map(segment => {
+      if (segment.charAt(0) === "'") {
+        return segment.substring(1, segment.length - 1);
+      } else return "{{" + segment + "}}";
+    })
+    .join("");
+};
 
-const alertTextSetter = (changeValue: any, currentValue: string): string => {
+const argsStringToArray = (funcArgs: string): string[] => {
+  const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
+  return argsplitMatches
+    .map(match => {
+      return match[0];
+    })
+    .filter(arg => {
+      return arg !== "";
+    });
+};
+
+const textSetter = (
+  changeValue: any,
+  currentValue: string,
+  argNum: number,
+): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
-  args[0] = `'${changeValue}'`;
+  const args = argsStringToArray(matches[0][2]);
+  const jsVal = stringToJS(changeValue);
+  args[argNum] = jsVal;
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
@@ -88,34 +131,44 @@ const alertTextSetter = (changeValue: any, currentValue: string): string => {
   return result;
 };
 
-const alertTextGetter = (value: string) => {
+const textGetter = (value: string, argNum: number) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[0];
-    return arg.substring(1, arg.length - 1);
+    const args = argsStringToArray(matches[0][2]);
+    const arg = args[argNum];
+    const stringFromJS = arg ? JSToString(arg.trim()) : arg;
+    return stringFromJS;
   }
   return "";
 };
 
-const alertTypeSetter = (changeValue: any, currentValue: string): string => {
+const enumTypeSetter = (
+  changeValue: any,
+  currentValue: string,
+  argNum: number,
+): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
-  args[1] = changeValue as string;
-  return currentValue.replace(
+  const args = argsStringToArray(matches[0][2]);
+  args[argNum] = changeValue as string;
+  const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
   );
+  return result;
 };
 
-const alertTypeGetter = (value: string) => {
+const enumTypeGetter = (
+  value: string,
+  argNum: number,
+  defaultValue = "",
+): string => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length) {
-    const funcArgs = matches[0][2];
-    const arg = funcArgs.split(",")[1];
-    return arg ? arg.trim() : "'primary'";
+    const args = argsStringToArray(matches[0][2]);
+    const arg = args[argNum];
+    return arg ? arg.trim() : defaultValue;
   }
-  return "";
+  return defaultValue;
 };
 
 type ActionCreatorProps = {
@@ -133,6 +186,8 @@ const ActionType = {
   closeModal: "closeModal",
   navigateTo: "navigateTo",
   showAlert: "showAlert",
+  storeValue: "storeValue",
+  download: "download",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -235,6 +290,11 @@ const FieldType = {
   URL_FIELD: "URL_FIELD",
   ALERT_TEXT_FIELD: "ALERT_TEXT_FIELD",
   ALERT_TYPE_SELECTOR_FIELD: "ALERT_TYPE_SELECTOR_FIELD",
+  KEY_TEXT_FIELD: "KEY_TEXT_FIELD",
+  VALUE_TEXT_FIELD: "VALUE_TEXT_FIELD",
+  DOWNLOAD_DATA_FIELD: "DOWNLOAD_DATA_FIELD",
+  DOWNLOAD_FILE_NAME_FIELD: "DOWNLOAD_FILE_NAME_FIELD",
+  DOWNLOAD_FILE_TYPE_FIELD: "DOWNLOAD_FILE_TYPE_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -304,10 +364,10 @@ const fieldConfigs: FieldConfigs = {
   },
   [FieldType.PAGE_SELECTOR_FIELD]: {
     getter: (value: any) => {
-      return modalGetter(value);
+      return textGetter(value, 0);
     },
     setter: (option: any, currentValue: string) => {
-      return modalSetter(option.value, currentValue);
+      return textSetter(option, currentValue, 0);
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -322,29 +382,73 @@ const fieldConfigs: FieldConfigs = {
   },
   [FieldType.URL_FIELD]: {
     getter: (value: string) => {
-      return modalGetter(value);
+      return textGetter(value, 0);
     },
     setter: (value: string, currentValue: string) => {
-      return modalSetter(value, currentValue);
+      return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.ALERT_TEXT_FIELD]: {
     getter: (value: string) => {
-      return alertTextGetter(value);
+      return textGetter(value, 0);
     },
     setter: (value: string, currentValue: string) => {
-      return alertTextSetter(value, currentValue);
+      return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.ALERT_TYPE_SELECTOR_FIELD]: {
     getter: (value: any) => {
-      return alertTypeGetter(value);
+      return enumTypeGetter(value, 1, "success");
     },
     setter: (option: any, currentValue: string) => {
-      return alertTypeSetter(option.value, currentValue);
+      return enumTypeSetter(option.value, currentValue, 1);
     },
+    view: ViewTypes.SELECTOR_VIEW,
+  },
+  [FieldType.KEY_TEXT_FIELD]: {
+    getter: (value: any) => {
+      return textGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.VALUE_TEXT_FIELD]: {
+    getter: (value: any) => {
+      return textGetter(value, 1);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 1);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.DOWNLOAD_DATA_FIELD]: {
+    getter: (value: any) => {
+      return textGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.DOWNLOAD_FILE_NAME_FIELD]: {
+    getter: (value: any) => {
+      return textGetter(value, 1);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 1);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.DOWNLOAD_FILE_TYPE_FIELD]: {
+    getter: (value: any) => {
+      return enumTypeGetter(value, 2);
+    },
+    setter: (option: any, currentValue: string) =>
+      enumTypeSetter(option.value, currentValue, 2),
     view: ViewTypes.SELECTOR_VIEW,
   },
 };
@@ -378,6 +482,14 @@ const baseOptions: any = [
   {
     label: "Close Modal",
     value: ActionType.closeModal,
+  },
+  {
+    label: "Store Value",
+    value: ActionType.storeValue,
+  },
+  {
+    label: "Download",
+    value: ActionType.download,
   },
 ];
 function getOptionsWithChildren(
@@ -496,6 +608,29 @@ function getFieldFromValue(
       },
     );
   }
+  if (value.indexOf("storeValue") !== -1) {
+    fields.push(
+      {
+        field: FieldType.KEY_TEXT_FIELD,
+      },
+      {
+        field: FieldType.VALUE_TEXT_FIELD,
+      },
+    );
+  }
+  if (value.indexOf("download") !== -1) {
+    fields.push(
+      {
+        field: FieldType.DOWNLOAD_DATA_FIELD,
+      },
+      {
+        field: FieldType.DOWNLOAD_FILE_NAME_FIELD,
+      },
+      {
+        field: FieldType.DOWNLOAD_FILE_TYPE_FIELD,
+      },
+    );
+  }
   return fields;
 }
 
@@ -535,6 +670,7 @@ function renderField(props: {
     case FieldType.CLOSE_MODAL_FIELD:
     case FieldType.PAGE_SELECTOR_FIELD:
     case FieldType.ALERT_TYPE_SELECTOR_FIELD:
+    case FieldType.DOWNLOAD_FILE_TYPE_FIELD:
       let label = "";
       let defaultText = "Select Action";
       let options = props.apiOptionTree;
@@ -584,9 +720,14 @@ function renderField(props: {
         defaultText = "Select Page";
       }
       if (fieldType === FieldType.ALERT_TYPE_SELECTOR_FIELD) {
-        label = "type";
+        label = "Type";
         options = ALERT_STYLE_OPTIONS;
         defaultText = "Select type";
+      }
+      if (fieldType === FieldType.DOWNLOAD_FILE_TYPE_FIELD) {
+        label = "Type";
+        options = FILE_TYPE_OPTIONS;
+        defaultText = "Select file type (optional)";
       }
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: options,
@@ -622,11 +763,23 @@ function renderField(props: {
       break;
     case FieldType.ALERT_TEXT_FIELD:
     case FieldType.URL_FIELD:
+    case FieldType.KEY_TEXT_FIELD:
+    case FieldType.VALUE_TEXT_FIELD:
+    case FieldType.DOWNLOAD_DATA_FIELD:
+    case FieldType.DOWNLOAD_FILE_NAME_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
       } else if (fieldType === FieldType.URL_FIELD) {
         fieldLabel = "Page Name";
+      } else if (fieldType === FieldType.KEY_TEXT_FIELD) {
+        fieldLabel = "Key";
+      } else if (fieldType === FieldType.VALUE_TEXT_FIELD) {
+        fieldLabel = "Value";
+      } else if (fieldType === FieldType.DOWNLOAD_DATA_FIELD) {
+        fieldLabel = "Data to download";
+      } else if (fieldType === FieldType.DOWNLOAD_FILE_NAME_FIELD) {
+        fieldLabel = "File name with extension";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
@@ -802,7 +955,7 @@ function useApiOptionTree() {
           value: `${apiName}`,
           type: ActionType.api,
         });
-        dispatch(createNewApiAction(pageId));
+        dispatch(createNewApiAction(pageId, "API_PANE"));
       }
     },
   });
@@ -848,7 +1001,7 @@ function useQueryOptionTree() {
           value: `${queryName}`,
           type: ActionType.query,
         });
-        dispatch(createNewQueryAction(pageId));
+        dispatch(createNewQueryAction(pageId, "QUERY_PANE"));
       }
     },
   });

@@ -30,7 +30,6 @@ import {
   useShowPropertyPane,
   useWidgetSelection,
   useCanvasSnapRowsUpdateHook,
-  useToggleEditWidgetName,
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 
@@ -106,7 +105,6 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const [rows, setRows] = useState(snapRows);
 
   const showPropertyPane = useShowPropertyPane();
-  const toggleEditWidgetName = useToggleEditWidgetName();
   const { selectWidget, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
@@ -242,12 +240,19 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
     }
   };
 
-  const handleFocus = () => {
-    if (!props.parentId && !isResizing && !isDragging) {
-      selectWidget && selectWidget(props.widgetId);
-      focusWidget && focusWidget(props.widgetId);
+  const handleFocus = (e: any) => {
+    if (!isResizing && !isDragging) {
+      if (!props.parentId) {
+        selectWidget && selectWidget(props.widgetId);
+        focusWidget && focusWidget(props.widgetId);
+      } else {
+        selectWidget && selectWidget(props.parentId);
+        focusWidget && focusWidget(props.parentId);
+      }
       showPropertyPane && showPropertyPane();
     }
+    e.stopPropagation();
+    e.preventDefault();
   };
   const height = canDropTargetExtend
     ? `${Math.max(rows * props.snapRowSpace, props.minHeight)}px`

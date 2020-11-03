@@ -18,8 +18,7 @@ server {
     location / {
         proxy_pass http://localhost:3000;
         sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN}';
-        sub_filter __APPSMITH_APPSMITH_HOTJAR_HJID__ '${APPSMITH_HOTJAR_HJID}';
-        sub_filter __APPSMITH_HOTJAR_HJSV__ '${APPSMITH_HOTJAR_HJSV}';
+        sub_filter __APPSMITH_SMART_LOOK_ID__ '${APPSMITH_SMART_LOOK_ID}';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
         sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
         sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '${APPSMITH_MARKETPLACE_ENABLED}';
@@ -36,6 +35,7 @@ server {
         sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID}';
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
         sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';
+        sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED}';
     }
 
     location /f {
@@ -85,8 +85,7 @@ server {
     location / {
         proxy_pass http://localhost:3000;
         sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN}';
-        sub_filter __APPSMITH_HOTJAR_HJID__ '${APPSMITH_HOTJAR_HJID}';
-        sub_filter __APPSMITH_HOTJAR_HJSV__ '${APPSMITH_HOTJAR_HJSV}';
+        sub_filter __APPSMITH_SMART_LOOK_ID__ '${APPSMITH_SMART_LOOK_ID}';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
         sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
         sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '${APPSMITH_MARKETPLACE_ENABLED}';
@@ -103,6 +102,7 @@ server {
         sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID}';
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
         sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';
+        sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED}';
     }
 
     location /f {

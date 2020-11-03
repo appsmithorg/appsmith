@@ -55,11 +55,8 @@ export const getWidgetNamePrefix = (
   return state.entities.widgetConfig.config[type].widgetName;
 };
 
-export const getDefaultPageId = (state: AppState, pageId?: string): string => {
-  const { pages } = state.entities.pageList;
-  const page = pages.find(page => page.pageId === pageId);
-  return page ? page.pageId : pages[0].pageId;
-};
+export const getDefaultPageId = (state: AppState): string | undefined =>
+  state.entities.pageList.defaultPageId;
 
 export const getExistingWidgetNames = createSelector(
   getWidgets,
@@ -113,4 +110,10 @@ export const getPluginIdOfPackageName = (
   const plugin = _.find(plugins, { packageName: name });
   if (plugin) return plugin.id;
   return undefined;
+};
+
+export const getSelectedWidget = (state: AppState) => {
+  const selectedWidgetId = state.ui.widgetDragResize.selectedWidget;
+  if (!selectedWidgetId) return;
+  return state.entities.canvasWidgets[selectedWidgetId];
 };

@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import TagInputComponent from "components/editorComponents/TagInputComponent";
+import TagInputComponent from "components/ads/TagInputComponent";
 import { Intent } from "constants/DefaultTheme";
 
 const renderComponent = (
@@ -26,6 +26,7 @@ type TagListFieldProps = {
   type: string;
   label: string;
   intent: Intent;
+  customError: (err: string) => void;
 };
 
 const TagListField = (props: TagListFieldProps) => {

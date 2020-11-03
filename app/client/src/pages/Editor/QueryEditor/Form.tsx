@@ -1,12 +1,7 @@
 import React from "react";
-import {
-  formValueSelector,
-  InjectedFormProps,
-  reduxForm,
-  Field,
-} from "redux-form";
+import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover, Spinner } from "@blueprintjs/core";
+import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -14,7 +9,7 @@ import {
   OptionTypeBase,
   SingleValueProps,
 } from "react-select";
-import _ from "lodash";
+import { isString } from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
@@ -22,15 +17,15 @@ import FormRow from "components/editorComponents/FormRow";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "api/DatasourcesApi";
+import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
 import Table from "./Table";
 import { RestAction } from "entities/Action";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
@@ -39,14 +34,15 @@ import {
 import FormControlFactory from "utils/FormControlFactory";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { SwitchField } from "components/formControls/SwitchControl";
+import ActionSettings from "pages/Editor/ActionSettings";
+import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
+import { addTableWidgetFromQuery } from "actions/widgetActions";
 
 const QueryFormContainer = styled.div`
-  padding: 20px 32px;
+  padding: 20px 0px;
   width: 100%;
-  display: flex;
-  flex-direction: column;
   height: calc(100vh - ${props => props.theme.headerHeight});
+  overflow: auto;
   a {
     font-size: 14px;
     line-height: 20px;
@@ -155,6 +151,8 @@ const TooltipStyles = createGlobalStyle`
 const ErrorMessage = styled.p`
   font-size: 14px;
   color: ${Colors.RED};
+  display: inline-block;
+  margin-right: 10px;
 `;
 const CreateDatasource = styled.div`
   height: 44px;
@@ -206,12 +204,62 @@ const NameWrapper = styled.div`
   }
 `;
 
-const CollapsibleWrapper = styled.div`
-  width: 200px;
-`;
-
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
+`;
+
+const TabContainerView = styled.div`
+  .react-tabs__tab-panel {
+    overflow: scroll;
+  }
+  .react-tabs__tab-list {
+    margin: 0px;
+  }
+  &&& {
+    ul.react-tabs__tab-list {
+      padding-left: 23px;
+    }
+  }
+  position: relative;
+  margin-top: 31px;
+`;
+
+const SettingsWrapper = styled.div`
+  padding: 5px 23px;
+`;
+
+const AddWidgetButton = styled(BaseButton)`
+  &&&& {
+    height: 36px;
+    max-width: 125px;
+    border: 1px solid ${Colors.GEYSER_LIGHT};
+  }
+`;
+
+const OutputHeader = styled.div`
+  flex-direction: row;
+  justify-content: space-between;
+  display: flex;
+  margin: 10px 0px;
+  align-items: center;
+`;
+
+const FieldWrapper = styled.div`
+  margin-top: 15px;
+`;
+
+const StyledFormRow = styled(FormRow)`
+  padding: 0px 24px;
+`;
+
+const DocumentationLink = styled.a`
+  position: absolute;
+  right: 23px;
+  top: -6px;
+`;
+
+const OutputWrapper = styled.div`
+  margin: 0px 23px;
 `;
 
 type QueryFormProps = {
@@ -230,7 +278,7 @@ type QueryFormProps = {
   location: {
     state: any;
   };
-  editorConfig: [];
+  editorConfig?: any;
   loadingFormConfigs: boolean;
 };
 
@@ -263,13 +311,14 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     documentationLink,
     loadingFormConfigs,
     editorConfig,
+    actionName,
   } = props;
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
 
   if (executedQueryData) {
-    if (_.isString(executedQueryData.body)) {
+    if (isString(executedQueryData.body)) {
       error = executedQueryData.body;
     } else {
       output = executedQueryData.body;
@@ -277,6 +326,11 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   }
 
   const isSQL = responseType === "TABLE";
+
+  const dispatch = useDispatch();
+  const onAddWidget = () => {
+    dispatch(addTableWidgetFromQuery(actionName));
+  };
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (
@@ -339,7 +393,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   return (
     <QueryFormContainer>
       <form onSubmit={handleSubmit}>
-        <FormRow>
+        <StyledFormRow>
           <NameWrapper>
             <ActionNameEditor />
           </NameWrapper>
@@ -413,45 +467,61 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               )}
             </ActionButtons>
           </ActionsWrapper>
-        </FormRow>
+        </StyledFormRow>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-          }}
-        >
-          <p className="statementTextArea">Query Statement</p>
-
+        <TabContainerView>
           {documentationLink && (
-            <CollapsibleWrapper>
-              <CollapsibleHelp>
-                <a
-                  href={documentationLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {"Documentation "}
-                  <StyledOpenDocsIcon icon="document-open" />
-                </a>
-              </CollapsibleHelp>
-            </CollapsibleWrapper>
+            <DocumentationLink
+              href={documentationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {"Documentation "}
+              <StyledOpenDocsIcon icon="document-open" />
+            </DocumentationLink>
           )}
-        </div>
-
-        {!_.isNil(editorConfig) ? (
-          _.map(editorConfig, renderEachConfig)
-        ) : (
-          <ErrorMessage>An unexpected error occurred</ErrorMessage>
-        )}
-        <div className="executeOnLoad">
-          <Field
-            name="executeOnLoad"
-            component={SwitchField}
-            label={"Run on Page Load"}
+          <BaseTabbedView
+            tabs={[
+              {
+                key: "query",
+                title: "Query",
+                panelComponent: (
+                  <SettingsWrapper>
+                    {editorConfig && editorConfig.length > 0 ? (
+                      editorConfig.map(renderEachConfig)
+                    ) : (
+                      <>
+                        <ErrorMessage>
+                          An unexpected error occurred
+                        </ErrorMessage>
+                        <Tag
+                          round
+                          intent="warning"
+                          interactive
+                          minimal
+                          onClick={() => window.location.reload()}
+                        >
+                          Refresh
+                        </Tag>
+                      </>
+                    )}
+                  </SettingsWrapper>
+                ),
+              },
+              {
+                key: "settings",
+                title: "Settings",
+                panelComponent: (
+                  <SettingsWrapper>
+                    <ActionSettings
+                      actionSettingsConfig={queryActionSettingsConfig}
+                    />
+                  </SettingsWrapper>
+                ),
+              },
+            ]}
           />
-        </div>
+        </TabContainerView>
       </form>
 
       {dataSources.length === 0 && (
@@ -473,44 +543,55 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       )}
 
       {error && (
-        <>
+        <OutputWrapper>
           <p className="statementTextArea">Query error</p>
           <ErrorMessage>{error}</ErrorMessage>
-        </>
+        </OutputWrapper>
       )}
 
       {!error && output && dataSources.length && (
-        <>
-          <p className="statementTextArea">
-            {output.length ? "Query response" : "No data records to display"}
-          </p>
+        <OutputWrapper>
+          <OutputHeader>
+            <p className="statementTextArea">
+              {output.length ? "Query response" : "No data records to display"}
+            </p>
+            {!!output.length && (
+              <AddWidgetButton
+                className="t--add-widget"
+                icon={"plus"}
+                text="Add Widget"
+                onClick={onAddWidget}
+              />
+            )}
+          </OutputHeader>
           {isSQL ? <Table data={output} /> : <JSONViewer src={output} />}
-        </>
+        </OutputWrapper>
       )}
     </QueryFormContainer>
   );
 };
 
 const renderEachConfig = (section: any): any => {
-  return _.map(section.children, (propertyControlOrSection: ControlProps) => {
+  return section.children.map((propertyControlOrSection: ControlProps) => {
     if ("children" in propertyControlOrSection) {
       return renderEachConfig(propertyControlOrSection);
     } else {
       try {
         const { configProperty } = propertyControlOrSection;
         return (
-          <div key={configProperty} style={{ marginTop: "8px" }}>
+          <FieldWrapper key={configProperty}>
             {FormControlFactory.createControl(
               { ...propertyControlOrSection },
               {},
               false,
             )}
-          </div>
+          </FieldWrapper>
         );
       } catch (e) {
         console.log(e);
       }
     }
+    return null;
   });
 };
 

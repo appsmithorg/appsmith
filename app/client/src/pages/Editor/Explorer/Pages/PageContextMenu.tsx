@@ -9,6 +9,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
+import { clonePageInit } from "actions/pageActions";
 
 export const PageContextMenu = (props: {
   pageId: string;
@@ -52,11 +53,21 @@ export const PageContextMenu = (props: {
     [dispatch, props.pageId],
   );
 
+  const clonePage = useCallback(() => dispatch(clonePageInit(props.pageId)), [
+    dispatch,
+    props.pageId,
+  ]);
+
   const optionTree: TreeDropdownOption[] = [
     {
       value: "rename",
       onSelect: editPageName,
       label: "Edit Name",
+    },
+    {
+      value: "clone",
+      onSelect: clonePage,
+      label: "Clone",
     },
   ];
   if (!props.isDefaultPage) {
@@ -66,12 +77,14 @@ export const PageContextMenu = (props: {
       label: "Set as Home Page",
     });
   }
-  optionTree.push({
-    value: "delete",
-    onSelect: () => deletePage(props.pageId, props.name),
-    label: "Delete",
-    intent: "danger",
-  });
+  if (!props.isDefaultPage) {
+    optionTree.push({
+      value: "delete",
+      onSelect: () => deletePage(props.pageId, props.name),
+      label: "Delete",
+      intent: "danger",
+    });
+  }
   return (
     <TreeDropdown
       className={props.className}

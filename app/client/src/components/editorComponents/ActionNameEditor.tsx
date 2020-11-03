@@ -6,7 +6,7 @@ import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { convertToCamelCase } from "utils/helpers";
+import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
 import { RestAction } from "entities/Action";
 import { Page } from "constants/ReduxActionConstants";
@@ -31,7 +31,7 @@ const ApiNameWrapper = styled.div`
 export const ActionNameEditor = () => {
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const isNew =
-    new URLSearchParams(window.location.search).get("new") === "true";
+    new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   if (!params.apiId && !params.queryId) {
@@ -128,7 +128,7 @@ export const ActionNameEditor = () => {
           forceDefault={forceUpdate}
           onTextChanged={handleAPINameChange}
           isInvalid={isInvalidActionName}
-          valueTransform={convertToCamelCase}
+          valueTransform={removeSpecialChars}
           isEditingDefault={isNew}
           updating={saveStatus.isSaving}
           editInteractionKind={EditInteractionKind.SINGLE}

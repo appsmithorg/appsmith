@@ -1,7 +1,7 @@
 import { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 
 const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // eslint-disable-next-line
   // @ts-ignore
   config: {
     CONTAINER_WIDGET: [
@@ -114,6 +114,69 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "onDateSelected",
             label: "onDateSelected",
             controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ],
+    VIDEO_WIDGET: [
+      {
+        id: "17.1",
+        sectionName: "General",
+        children: [
+          {
+            id: "17.1.1",
+            propertyName: "url",
+            label: "URL",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter url",
+            inputType: "TEXT",
+          },
+          {
+            id: "17.1.1",
+            propertyName: "autoPlay",
+            label: "Auto Play",
+            helpText: "Video will be automatically played",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "17.1.2",
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        id: "17.2",
+        sectionName: "Actions",
+        children: [
+          {
+            id: "17.2.3",
+            helpText: "Triggers an action when the video is played",
+            propertyName: "onPlay",
+            label: "onPlay",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            id: "17.2.4",
+            helpText: "Triggers an action when the video is paused",
+            propertyName: "onPause",
+            label: "onPause",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            id: "17.2.5",
+            helpText: "Triggers an action when the video ends",
+            propertyName: "onEnd",
+            label: "onEnd",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
           },
         ],
       },
@@ -154,6 +217,12 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "isVisible",
             isJSConvertible: true,
             label: "Visible",
+            controlType: "SWITCH",
+          },
+          {
+            id: "7.1.5",
+            propertyName: "multiRowSelection",
+            label: "Enable multi row selection",
             controlType: "SWITCH",
           },
         ],
@@ -223,6 +292,51 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "3.1.4",
+            helpText: "Controls the max zoom of the widget",
+            propertyName: "maxZoomLevel",
+            label: "Max Zoom Level",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "1x (No Zoom)",
+                value: 1,
+              },
+              {
+                label: "2x",
+                value: 2,
+              },
+              {
+                label: "4x",
+                value: 4,
+              },
+              {
+                label: "8x",
+                value: 8,
+              },
+              {
+                label: "16x",
+                value: 16,
+              },
+            ],
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        id: "3.2",
+        sectionName: "Actions",
+        children: [
+          {
+            id: "3.2.1",
+            helpText:
+              "Triggers an action when a user changes the selected option",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
         ],
@@ -722,6 +836,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "SWITCH",
             isJSConvertible: true,
           },
+          {
+            id: "15.1.6",
+            propertyName: "googleRecaptchaKey",
+            label: "Google Recaptcha Key",
+            helpText: "Sets Google Recaptcha v3 site key for button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter google recaptcha key",
+          },
         ],
       },
       {
@@ -869,6 +991,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "SWITCH",
             helpText: "Disables clicks to this widget",
             isJSConvertible: true,
+          },
+          {
+            id: "1.1.4",
+            propertyName: "googleRecaptchaKey",
+            label: "Google Recaptcha Key",
+            helpText: "Sets Google Recaptcha v3 site key for button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter google recaptcha key",
           },
         ],
       },

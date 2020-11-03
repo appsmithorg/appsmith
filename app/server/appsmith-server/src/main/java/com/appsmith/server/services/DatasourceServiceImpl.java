@@ -3,22 +3,23 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -34,6 +35,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,15 +48,13 @@ import static com.appsmith.server.helpers.BeanCopyUtils.copyNestedNonNullPropert
 @Service
 public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceService {
 
-    private final DatasourceRepository repository;
     private final OrganizationService organizationService;
     private final SessionUserService sessionUserService;
-    private final ObjectMapper objectMapper;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
-    private final ActionRepository actionRepository;
+    private final NewActionRepository newActionRepository;
     private final EncryptionService encryptionService;
 
     @Autowired
@@ -64,25 +64,22 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  ReactiveMongoTemplate reactiveMongoTemplate,
                                  DatasourceRepository repository,
                                  OrganizationService organizationService,
-                                 AnalyticsService<Datasource> analyticsService,
+                                 AnalyticsService analyticsService,
                                  SessionUserService sessionUserService,
-                                 ObjectMapper objectMapper,
                                  PluginService pluginService,
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
-                                 ActionRepository actionRepository,
+                                 NewActionRepository newActionRepository,
                                  EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.repository = repository;
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
-        this.objectMapper = objectMapper;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
-        this.actionRepository = actionRepository;
+        this.newActionRepository = newActionRepository;
         this.encryptionService = encryptionService;
     }
 
@@ -171,6 +168,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Mono<Datasource> validateDatasource(Datasource datasource) {
         Set<String> invalids = new HashSet<>();
+        datasource.setInvalids(invalids);
 
         if (!StringUtils.hasText(datasource.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
@@ -178,13 +176,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         if (datasource.getPluginId() == null) {
             invalids.add(AppsmithError.PLUGIN_ID_NOT_GIVEN.getMessage());
-            datasource.setInvalids(invalids);
             return Mono.just(datasource);
         }
 
         if (datasource.getOrganizationId() == null) {
             invalids.add(AppsmithError.ORGANIZATION_ID_NOT_GIVEN.getMessage());
-            datasource.setInvalids(invalids);
             return Mono.just(datasource);
         }
 
@@ -192,7 +188,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .findByIdAndPluginsPluginId(datasource.getOrganizationId(), datasource.getPluginId())
                 .switchIfEmpty(Mono.defer(() -> {
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
-                    datasource.setInvalids(invalids);
                     return Mono.just(new Organization());
                 }));
 
@@ -200,7 +195,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
         }
 
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId()).cache();
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
 
         return checkPluginInstallationAndThenReturnOrganizationMono
@@ -211,7 +207,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                         invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
                     }
 
-                    datasource.setInvalids(invalids);
                     return Mono.just(datasource);
                 });
     }
@@ -333,11 +328,16 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
+    public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
+        return repository.saveAll(datasourceList);
+    }
+
+    @Override
     public Mono<Datasource> delete(String id) {
         return repository
                 .findById(id, MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
-                .zipWhen(datasource -> actionRepository.countByDatasourceId(datasource.getId()))
+                .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))
                 .flatMap(objects -> {
                     final Long actionsCount = objects.getT2();
                     if (actionsCount > 0) {
@@ -346,12 +346,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     return Mono.just(objects.getT1());
                 })
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
-                .flatMap(deletedObj ->
-                    analyticsService.sendEvent(
-                            AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(),
-                            deletedObj
-                    )
-                );
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
 }

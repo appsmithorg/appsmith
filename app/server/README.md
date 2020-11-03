@@ -24,10 +24,10 @@ $ java -jar -Dspring.profiles.active=$env server-1.0-SNAPSHOT.jar
 ```
 
 ### How to test
-In order to test the code, you can run the following command
+In order to test the code, you can run the following command:
 
 ```
 mvn -B clean package
 ```
 
-Please make sure that you have a local Redis instance running for the test cases. The MongoDB is run in-memory during tests so that shouldn't be a problem.
+Please make sure that you have a local Redis instance running for the test cases. During tests, the MongoDB is run in-memory. So you don't require to be running a local MongoDB instance.

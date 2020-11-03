@@ -25,6 +25,8 @@ import EmbeddedDatasourcePathField from "components/editorComponents/form/fields
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
+import ActionSettings from "pages/Editor/ActionSettings";
+import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
 
 const Form = styled.form`
   display: flex;
@@ -111,6 +113,13 @@ const RequestParamsWrapper = styled.div`
   padding-right: 10px;
 `;
 
+const SettingsWrapper = styled.div`
+  padding-left: 15px;
+  ${FormLabel} {
+    padding: 0px;
+  }
+`;
+
 const HeadersSection = styled.div`
   margin-bottom: 32px;
 `;
@@ -192,6 +201,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
             options={HTTP_METHOD_OPTIONS}
+            isSearchable={false}
           />
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
@@ -228,14 +238,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         actionConfig={actionConfigurationHeaders}
                         placeholder="Value"
                         dataTreePath={`${actionName}.config.headers`}
-                        pushFields
                       />
                     </HeadersSection>
                     <KeyValueFieldArray
                       name="actionConfiguration.queryParameters"
                       label="Params"
                       dataTreePath={`${actionName}.config.queryParameters`}
-                      pushFields
                     />
                     {allowPostBody && (
                       <PostBodyData
@@ -256,6 +264,17 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                     onTestClick={props.onRunClick}
                     paginationType={props.paginationType}
                   />
+                ),
+              },
+              {
+                key: "settings",
+                title: "Settings",
+                panelComponent: (
+                  <SettingsWrapper>
+                    <ActionSettings
+                      actionSettingsConfig={apiActionSettingsConfig}
+                    />
+                  </SettingsWrapper>
                 ),
               },
             ]}

@@ -3,6 +3,7 @@ package com.appsmith.server.dtos;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -11,11 +12,13 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class ActionViewDTO {
     String id;
     String name;
     String pageId;
     Integer timeoutInMillisecond;
+    Boolean confirmBeforeExecute;
     Set<String> jsonPathKeys;
 
     // Overriding the getter to ensure that for actions missing action configuration, the timeout is

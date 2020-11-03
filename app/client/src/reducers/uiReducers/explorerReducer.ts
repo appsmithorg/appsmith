@@ -20,17 +20,38 @@ const setUpdatingEntity = (
 };
 
 const setEntityUpdateError = (state: ExplorerReduxState) => {
-  return { updatingEntity: undefined };
+  return { updatingEntity: undefined, updateEntityError: state.updatingEntity };
 };
 
 const setEntityUpdateSuccess = () => {
   return {};
 };
 
+const setUpdatingDatasourceEntity = (
+  state: ExplorerReduxState,
+  action: ReduxAction<{ id: string }>,
+) => {
+  const pathParts = window.location.pathname.split("/");
+  const pageId = pathParts[pathParts.indexOf("pages") + 1];
+
+  if (!state.updatingEntity?.includes(action.payload.id)) {
+    return {
+      updatingEntity: `${action.payload.id}-${pageId}`,
+      updateEntityError: undefined,
+    };
+  }
+
+  return state;
+};
+
 const explorerReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_PAGE_INIT]: setUpdatingEntity,
   [ReduxActionTypes.FETCH_PAGE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.FETCH_PAGE_SUCCESS]: setEntityUpdateSuccess,
+
+  [ReduxActionTypes.CLONE_PAGE_INIT]: setUpdatingEntity,
+  [ReduxActionTypes.CLONE_PAGE_ERROR]: setEntityUpdateError,
+  [ReduxActionTypes.CLONE_PAGE_SUCCESS]: setEntityUpdateSuccess,
 
   [ReduxActionTypes.MOVE_ACTION_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: setEntityUpdateError,
@@ -44,13 +65,21 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.DELETE_ACTION_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.DELETE_ACTION_SUCCESS]: setEntityUpdateSuccess,
 
-  [ReduxActionTypes.DELETE_DATASOURCE_INIT]: setUpdatingEntity,
+  [ReduxActionTypes.DELETE_DATASOURCE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.DELETE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
 
-  [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: setUpdatingEntity,
+  [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
+
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: setUpdatingDatasourceEntity,
+  [ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR]: setEntityUpdateError,
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS]: setEntityUpdateSuccess,
+
+  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]: setUpdatingDatasourceEntity,
+  [ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR]: setEntityUpdateError,
+  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_SUCCESS]: setEntityUpdateSuccess,
 
   [ReduxActionTypes.UPDATE_PAGE_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.UPDATE_PAGE_ERROR]: setEntityUpdateError,
