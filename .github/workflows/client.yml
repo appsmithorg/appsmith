@@ -121,7 +121,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
           --name postgres
-          -v ${{ github.workspace }}/cypress/init-pg-dump-for-test.sql:/docker-entrypoint-initdb.d/init-pg-dump-for-test.sql
+          -v ${{ github.workspace }}/app/client/cypress/init-pg-dump-for-test.sql:/docker-entrypoint-initdb.d/init-pg-dump-for-test.sql
       
     steps:
     # Checkout the code
