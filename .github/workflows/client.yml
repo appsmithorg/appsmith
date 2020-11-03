@@ -109,7 +109,8 @@ jobs:
       # This is required in Cypress tests that test the datasource integrations
       postgres:
         image: postgres
-        ports: 5432:5432
+        ports: 
+          - 5432:5432
         env:
           POSTGRES_PASSWORD: postgres
         # Set health checks to wait until postgres has started
