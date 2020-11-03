@@ -45,6 +45,8 @@ const ChildrenWrapper = styled.div`
   width: 100%;
   position: relative;
   background: ${props => props.theme.colors.builderBodyBG};
+  border-bottom-right-radius: ${props => `${props.theme.radii[1]}px`};
+  border-bottom-left-radius: ${props => `${props.theme.radii[1]}px`};
   overflow: hidden;
 `;
 
@@ -64,6 +66,10 @@ const TabsContainer = styled.div`
   overflow-x: auto;
   overflow-y: hidden;
   ${scrollbarLight};
+  background: ${props => props.theme.colors.builderBodyBG};
+  border-top-right-radius: ${props => `${props.theme.radii[1]}px`};
+  border-top-left-radius: ${props => `${props.theme.radii[1]}px`};
+  border: 1px solid red;
   overflow: hidden;
   && {
     height: 38px;
