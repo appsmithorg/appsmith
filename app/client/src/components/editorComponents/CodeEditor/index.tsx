@@ -271,6 +271,7 @@ class CodeEditor extends Component<Props, State> {
       theme,
       disabled,
       className,
+      placeholder,
       showLightningMenu,
       dataTreePath,
       dynamicData,
@@ -349,12 +350,11 @@ class CodeEditor extends Component<Props, State> {
                 className="leftImageStyles"
               />
             )}
-
             <textarea
               ref={this.textArea}
               {..._.omit(this.props.input, ["onChange", "value"])}
               defaultValue={input.value}
-              placeholder={this.props.placeholder}
+              placeholder={placeholder}
             />
             {this.props.link && (
               <React.Fragment>
