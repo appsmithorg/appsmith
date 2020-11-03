@@ -254,6 +254,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     setSelectedColor(colorCode);
   }, [colorCode]);
   useEffect(() => {
+    if (hasEditPermission) {
+      moreActionItems.push({
+        href: viewApplicationURL,
+        text: "Launch App",
+        icon: "rocket",
+        cypressSelector: "t--application-view-link",
+      });
+    }
     if (props.share) {
       moreActionItems.push({
         onSelect: shareApp,
@@ -492,7 +500,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                       href={editApplicationURL}
                     />
                   )}
-                  {!isMenuOpen && (
+                  {!hasEditPermission && !isMenuOpen && (
                     <Button
                       text="LAUNCH"
                       size={Size.medium}
