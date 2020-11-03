@@ -71,8 +71,8 @@ sudo docker run --network host --name postgres -d -p 5432:5432 \
  -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
  -v `pwd`/cypress/init-pg-dump-for-test.sql:/docker-entrypoint-initdb.d/init-pg-dump-for-test.sql \
  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
- postgres:latest
- 
+ postgres:latest &
+
 # DEBUG=cypress:* $(npm bin)/cypress version
 # sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
 # cat /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
