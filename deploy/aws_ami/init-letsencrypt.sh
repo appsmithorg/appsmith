@@ -34,9 +34,9 @@ data_path="$install_dir/data/certbot"
 
 sudo chown -R ubuntu:ubuntu "$data_path"
 
-if [[ -d "$data_path" ]]; then
+if [ -d "$data_path/conf/keys" ] && [ -d "$data_path/conf/live" ]; then
     if ! confirm n "Existing certificate data found at '$data_path'. Continue and replace existing certificate?"; then
-        return
+        exit 0
     fi
 fi
 

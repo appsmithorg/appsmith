@@ -42,8 +42,7 @@ mkdir -p "$templates_dir"
 
 cd "$templates_dir"
 curl --remote-name-all --silent --show-error \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/nginx_app.conf.sh \
-
+    https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/nginx_app.conf.sh \
 
 bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > "$install_dir/data/nginx/app.conf.template"
 

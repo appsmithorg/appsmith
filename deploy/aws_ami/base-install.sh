@@ -23,6 +23,7 @@ install_package() {
 
     sudo apt-get -y update --quiet
     sudo apt-get -y install docker-ce docker-ce-cli containerd.io --quiet
+    sudo usermod -aG docker $USER
 
     # Installing docker compose
     if [ ! -f /usr/bin/docker-compose ];then
@@ -41,7 +42,7 @@ app_path="/home/ubuntu/appsmith"
 script_path="script"
 boot_script_path=$app_path/$script_path
 boot_file_name="boot.sh"
-first_time_setup_file_name="boot.sh"
+first_time_setup_file_name="first-time-setup.sh"
 config_ssl_file_name="configure-ssl.sh"
 mkdir -p $boot_script_path
 sudo chown -R ubuntu:ubuntu $app_path
@@ -54,5 +55,5 @@ sudo chown ubuntu:ubuntu $boot_script_path/$first_time_setup_file_name && sudo c
 
 USER="ubuntu"
 CRON_FILE="/etc/cron.d/appsmith"
-echo "@reboot /bin/bash $boot_script_path/$boot_file_name" >> | sudo tee -a $CRON_FILE
+echo "@reboot /bin/bash $boot_script_path/$boot_file_name" > $CRON_FILE
 sudo chmod 0600 $CRON_FILE

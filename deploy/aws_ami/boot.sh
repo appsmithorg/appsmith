@@ -21,7 +21,7 @@ if [ ! -f $install_dir/docker-compose.yml ]; then
     echo ""
     echo "Setting Appsmith"
     first_time_setup_script=$install_dir/scripts/first-time-setup.sh 
-    chmod +x first_time_setup_script;
+    chmod +x $first_time_setup_script;
     /bin/bash $first_time_setup_script
 else
     echo "Booting appsmith"
