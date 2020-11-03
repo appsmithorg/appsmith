@@ -508,6 +508,47 @@ public class ActionServiceTest {
                 })
                 .verifyComplete();
     }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteSecondaryStaleConnection() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(List.of(
+                new Property("random-header-key", "random-header-value"),
+                new Property("", "")
+        ));
+        actionConfiguration.setTimeoutInMillisecond(10);
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecuteSecondaryStaleConnection");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new StaleConnectionException())).thenReturn(Mono.error(new StaleConnectionException()));
+        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+
+        Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO);
+
+        StepVerifier.create(executionResultMono)
+                .assertNext(result -> {
+                    assertThat(result.getIsExecutionSuccess()).isFalse();
+                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                })
+                .verifyComplete();
+    }
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -548,7 +589,6 @@ public class ActionServiceTest {
                     assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_TIMEOUT_ERROR.getAppErrorCode().toString());
                 })
                 .verifyComplete();
-
     }
 
     @Test
