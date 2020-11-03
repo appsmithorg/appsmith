@@ -16,9 +16,11 @@ describe("Add widget", function() {
       cy.log("datasourceName: " + datasourceName);
       cy.log("datasourceId: " + datasourceId);
     });
+    cy.wait(5000);
   });
 
   it("Add widget", () => {
+    cy.wait(5000);
     cy.NavigateToQueryEditor();
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)

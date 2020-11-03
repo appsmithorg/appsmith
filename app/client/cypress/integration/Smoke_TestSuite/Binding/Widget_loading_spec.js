@@ -37,8 +37,10 @@ describe("Binding the multiple widgets and validating default data", function() 
       cy.log("datasourceName: " + datasourceName);
       cy.log("datasourceId: " + datasourceId);
     });
+    cy.wait(5000);
   });
   it("Create and runs query", () => {
+    cy.wait(5000);
     cy.NavigateToQueryEditor();
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
