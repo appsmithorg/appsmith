@@ -31,7 +31,7 @@ const importReducer = createReducer(initialState, {
 
 export interface ImportReduxState {
   isImportingCurl: boolean;
-  errorPayload: {};
+  errorPayload: Record<string, unknown>;
 }
 
 export default importReducer;

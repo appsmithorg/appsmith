@@ -52,7 +52,6 @@ export const TableWrapper = styled.div`
     }
     .tbody {
       height: 100%;
-      overflow: auto;
       .tr {
         width: 100%;
       }

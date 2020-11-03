@@ -105,15 +105,6 @@ export const selectPlugin = (pluginId: string) => {
   };
 };
 
-export const storeDatastoreRefs = (refsList: {}) => {
-  return {
-    type: ReduxActionTypes.STORE_DATASOURCE_REFS,
-    payload: {
-      refsList,
-    },
-  };
-};
-
 export const initDatasourcePane = (
   pluginType: string,
   urlId?: string,

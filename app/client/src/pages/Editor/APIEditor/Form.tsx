@@ -133,7 +133,7 @@ interface APIFormProps {
   paginationType: PaginationType;
   appName: string;
   httpMethodFromForm: string;
-  actionConfigurationBody: object | string;
+  actionConfigurationBody: Record<string, unknown> | string;
   actionConfigurationHeaders?: any;
   actionName: string;
   apiId: string;

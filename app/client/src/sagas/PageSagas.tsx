@@ -181,14 +181,11 @@ export function* fetchPageSaga(
         ]),
       );
 
-      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
-        payload: {
-          pageId: id,
-          dsl: extractCurrentDSL(fetchPageResponse),
-        },
+        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+        payload: extractCurrentDSL(fetchPageResponse),
       });
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
@@ -303,6 +300,12 @@ function* savePageSaga() {
         dsl: savePageRequest.dsl,
       },
     });
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+      payload: savePageRequest.dsl,
+    });
+
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,
       savePageRequest,
@@ -386,10 +389,12 @@ export function* createPageSaga(
           layoutId: response.data.layouts[0].id,
         },
       });
+      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
+          dsl: extractCurrentDSL(response),
         },
       });
       history.push(
@@ -447,6 +452,14 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
+      // Remove this page from page DSLs
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+        payload: {
+          pageId: request.id,
+          dsl: undefined,
+        },
+      });
       const currentPageId = yield select(
         (state: AppState) => state.entities.pageList.currentPageId,
       );
@@ -480,12 +493,15 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
           response.data.layouts[0].id,
         ),
       );
+      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
+          dsl: extractCurrentDSL(response),
         },
       });
+
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }
   } catch (error) {

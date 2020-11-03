@@ -8,24 +8,30 @@ module.exports = {
     "plugin:prettier/recommended",
   ],
   parserOptions: {
-    ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
+    ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features
     sourceType: "module", // Allows for the use of imports
     ecmaFeatures: {
       jsx: true, // Allows for the parsing of JSX
     },
   },
   rules: {
-    "@typescript-eslint/explicit-function-return-type": 0,
     "@typescript-eslint/no-explicit-any": 0,
     "react-hooks/rules-of-hooks": "error",
     "@typescript-eslint/no-use-before-define": 0,
     "@typescript-eslint/no-var-requires": 0,
-    "import/no-webpack-loader-syntax": 0
+    "import/no-webpack-loader-syntax": 0,
+    "no-undef": 0,
+    "react/prop-types": 0,
+    "@typescript-eslint/explicit-module-boundary-types": 0,
   },
   settings: {
     react: {
       pragma: "React",
       version: "detect", // Tells eslint-plugin-react to automatically detect the version of React to use
     },
+  },
+  env: {
+    browser: true,
+    node: true,
   },
 };

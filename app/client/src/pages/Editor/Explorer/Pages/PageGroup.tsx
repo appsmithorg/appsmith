@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import Entity from "../Entity";
 import { pageGroupIcon } from "../ExplorerIcons";
 import { noop } from "lodash";
@@ -11,20 +11,32 @@ import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
 import { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
   step: number;
-  widgets?: Record<string, WidgetProps>;
+  widgets?: Record<string, CanvasStructure>;
   actions: Record<string, any[]>;
   datasources: Record<string, Datasource[]>;
   plugins: Plugin[];
   showWidgetsSidebar: () => void;
 };
 
-export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
+const pageGroupEqualityCheck = (
+  prev: ExplorerPageGroupProps,
+  next: ExplorerPageGroupProps,
+) => {
+  return (
+    prev.widgets === next.widgets &&
+    prev.actions === next.actions &&
+    prev.searchKeyword === next.searchKeyword
+  );
+};
+
+export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
 
@@ -77,6 +89,12 @@ export const ExplorerPageGroup = (props: ExplorerPageGroupProps) => {
       {pageEntities}
     </Entity>
   );
+}, pageGroupEqualityCheck);
+
+ExplorerPageGroup.displayName = "ExplorerPageGroup";
+
+(ExplorerPageGroup as any).whyDidYouRender = {
+  logOnDifferentValues: false,
 };
 
 export default ExplorerPageGroup;
