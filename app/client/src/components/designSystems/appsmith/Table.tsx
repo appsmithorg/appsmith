@@ -111,7 +111,7 @@ export const Table = (props: TableProps) => {
   }
   const subPage = page.slice(startIndex, endIndex);
   const selectedRowIndex = props.selectedRowIndex;
-  const selectedRowIndices = props.selectedRowIndices;
+  const selectedRowIndices = props.selectedRowIndices || [];
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   /* Subtracting 9px to handling widget padding */
   return (
