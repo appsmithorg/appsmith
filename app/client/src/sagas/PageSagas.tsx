@@ -43,6 +43,7 @@ import {
   select,
   takeLatest,
   takeLeading,
+  take,
 } from "redux-saga/effects";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -173,9 +174,12 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(fetchPageSuccess());
-      // Execute page load actions
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+      yield put(
+        fetchPageSuccess([
+          // Execute page load actions after evaluation of fetch page
+          executePageLoadActions(canvasWidgetsPayload.pageActions),
+        ]),
+      );
 
       // Add this to the page DSLs for entity explorer
       yield put({
@@ -237,17 +241,19 @@ export function* fetchPublishedPageSaga(
       yield put(updateCurrentPage(pageId));
       // dispatch fetch page success
       yield put(
-        fetchPublishedPageSuccess({
-          dsl: response.data.layouts[0].dsl,
-          pageId: request.pageId,
-          pageWidgetId: canvasWidgetsPayload.pageWidgetId,
-        }),
+        fetchPublishedPageSuccess(
+          {
+            dsl: response.data.layouts[0].dsl,
+            pageId: request.pageId,
+            pageWidgetId: canvasWidgetsPayload.pageWidgetId,
+          },
+          // Execute page load actions post published page eval
+          [executePageLoadActions(canvasWidgetsPayload.pageActions)],
+        ),
       );
-      // Execute page load actions
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
