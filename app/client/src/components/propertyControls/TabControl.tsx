@@ -157,7 +157,7 @@ class TabControl extends BaseControl<ControlProps> {
   };
 
   addOption = () => {
-    const tabs: Array<{
+    let tabs: Array<{
       id: string;
       label: string;
       widgetId: string;
@@ -169,11 +169,11 @@ class TabControl extends BaseControl<ControlProps> {
       "Tab ",
       tabs.map(tab => tab.label),
     );
-    tabs.push({
-      id: newTabId,
-      label: newTabLabel,
-      widgetId: generateReactKey(),
-    });
+    tabs = [
+      ...tabs,
+      { id: newTabId, label: newTabLabel, widgetId: generateReactKey() },
+    ];
+
     this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
   };
 
