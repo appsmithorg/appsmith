@@ -124,7 +124,7 @@ export const EditorWrapper = styled.div<{
   left: 0;
   top: 0;
   `
-      : `z-index: 0; position: relative;`}
+      : `position: relative;`}
   min-height: 32px;
   height: ${props => props.height || "auto"};
   background-color: ${props =>
