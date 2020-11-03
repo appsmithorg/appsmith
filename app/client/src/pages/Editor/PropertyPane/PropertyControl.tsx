@@ -83,7 +83,9 @@ const PropertyControl = (props: Props) => {
         value = produce(
           props.widgetProperties[props.propertyName],
           (list: any) => {
-            list[ind][paths[1]] = propertyValue;
+            if (list[ind] && list[ind][paths[1]]) {
+              list[ind][paths[1]] = propertyValue;
+            }
           },
         );
       }

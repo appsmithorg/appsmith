@@ -124,7 +124,7 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
     const index = 1 + derivedColumns.length;
     const newColumnName = getNextEntityName(
       "DERIVED",
-      derivedColumns.map((column: ColumnProperties) => column.label),
+      derivedColumns.map((column: ColumnProperties) => column.id),
     );
     const columnProps: ColumnProperties = getDefaultColumnProperties(
       newColumnName,
