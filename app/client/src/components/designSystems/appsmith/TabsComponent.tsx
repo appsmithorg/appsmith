@@ -42,6 +42,9 @@ const ChildrenWrapper = styled.div`
   border-top: none;
   border-color: ${props => props.theme.colors.bodyBG};
   background: ${props => props.theme.colors.builderBodyBG};
+  border-bottom-right-radius: ${props => `${props.theme.radii[1]}px`};
+  border-bottom-left-radius: ${props => `${props.theme.radii[1]}px`};
+  overflow: hidden;
 `;
 
 const ScrollableCanvasWrapper = styled.div<
@@ -61,6 +64,10 @@ const TabsContainer = styled.div`
   overflow-y: hidden;
   ${scrollbarLight};
   background: ${props => props.theme.colors.builderBodyBG};
+  border-top-right-radius: ${props => `${props.theme.radii[1]}px`};
+  border-top-left-radius: ${props => `${props.theme.radii[1]}px`};
+  border: 1px solid red;
+  overflow: hidden;
   && {
     height: 38px;
     width: 100%;
@@ -130,7 +137,7 @@ const TabsComponent = (props: TabsComponentProps) => {
                 {tab.label}
               </StyledText>
             ))}
-          <StyledTab></StyledTab>
+          <StyledTab />
         </TabsContainer>
       ) : (
         undefined
