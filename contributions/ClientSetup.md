@@ -65,7 +65,7 @@ echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo s
 
 #### Note:
 - By default your client app points to the local api server - `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. Your page will load with errors if you don't have the api server running on your local system. To setup the api server on your local system please follow the instructions [here](https://github.com/appsmithorg/appsmith/blob/release/contributions/ServerSetup.md)
-- In case you are unable to setup the api server on your local system, you can also use Appsmith's api server: https://release-api.appsmith.com/. How to make this change is described in [this section](#if-you-would-like-to-hit-a-different-appsmith-server).
+- In case you are unable to setup the api server on your local system, you can also use Appsmith's api server: https://release-api.appsmith.com. How to make this change is described in [this section](#if-you-would-like-to-hit-a-different-appsmith-server).
 
 #### If yarn start throws mismatch node version error
 This error occurs because the node version is not compatible with the app environment. In this case Node version manager can be used which allows multiple
