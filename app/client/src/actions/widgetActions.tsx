@@ -30,11 +30,10 @@ export const executeActionError = (
 
 export const executePageLoadActions = (
   payload: PageAction[][],
-): BatchAction<PageAction[][]> =>
-  batchAction({
-    type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-    payload,
-  });
+): ReduxAction<PageAction[][]> => ({
+  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+  payload,
+});
 
 export const disableDragAction = (
   isDraggingDisabled: boolean,
