@@ -1128,6 +1128,40 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
   }
 }
 
+// The following is computed to be used in the entity explorer
+// Every time a widget is selected, we need to expand widget entities
+// in the entity explorer so that the selected widget is visible
+function* selectedWidgetAncestorySaga(
+  action: ReduxAction<{ widgetId: string }>,
+) {
+  try {
+    const canvasWidgets = yield select(getWidgets);
+    const widgetIdsExpandList = [];
+    const selectedWidget = action.payload.widgetId;
+
+    // Make sure that the selected widget exists in canvasWidgets
+    let widgetId = canvasWidgets[selectedWidget]
+      ? canvasWidgets[selectedWidget].parentId
+      : undefined;
+    // If there is a parentId for the selectedWidget
+    if (widgetId) {
+      // Keep including the parent until we reach the main container
+      while (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+        widgetIdsExpandList.push(widgetId);
+        if (canvasWidgets[widgetId] && canvasWidgets[widgetId].parentId)
+          widgetId = canvasWidgets[widgetId].parentId;
+        else break;
+      }
+    }
+    yield put({
+      type: ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTORY,
+      payload: widgetIdsExpandList,
+    });
+  } catch (error) {
+    log.debug("Could not compute selected widget's ancestory", error);
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield all([
     takeEvery(
@@ -1156,5 +1190,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestorySaga),
   ]);
 }

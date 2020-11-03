@@ -30,7 +30,8 @@
       "./node_modules/@types"
     ],
     "sourceMap": true,
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "./src/**/*"

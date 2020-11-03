@@ -12,7 +12,7 @@ export interface ChangeAppViewAccessRequest {
 }
 
 export interface PublishApplicationResponse extends ApiResponse {
-  data: {};
+  data: unknown;
 }
 
 export interface ApplicationPagePayload {

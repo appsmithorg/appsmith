@@ -43,7 +43,7 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
 
 export function generateTypeDef(
   obj: any,
-): string | Record<string, string | object> {
+): string | Record<string, string | Record<string, unknown>> {
   const type = getType(obj);
   switch (type) {
     case Types.ARRAY: {
@@ -53,7 +53,7 @@ export function generateTypeDef(
       return `[${name}]`;
     }
     case Types.OBJECT: {
-      const objType: Record<string, string | object> = {};
+      const objType: Record<string, string | Record<string, unknown>> = {};
       Object.keys(obj).forEach(k => {
         objType[k] = generateTypeDef(obj[k]);
       });
