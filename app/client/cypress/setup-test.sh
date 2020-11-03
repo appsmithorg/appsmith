@@ -67,9 +67,6 @@ curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
 	"password": "'"$CYPRESS_TESTPASSWORD2"'"
 }'
 
-# Populating the local Postgres Docker container with data
-cat test-pg-dump.sql | sudo docker exec -i postgres PGPASSWORD=$POSTGRES_PASSWORD psql -U postgres -d postgres
-
 # DEBUG=cypress:* $(npm bin)/cypress version
 # sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
 # cat /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
