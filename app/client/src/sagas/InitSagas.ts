@@ -11,6 +11,7 @@ import { fetchEditorConfigs } from "actions/configsActions";
 import {
   fetchPage,
   fetchPageList,
+  fetchPublishedPage,
   setAppMode,
   updateAppStore,
 } from "actions/pageActions";
@@ -26,6 +27,7 @@ import { validateResponse } from "./ErrorSagas";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppStoreName } from "constants/AppConstants";
+import { getDefaultPageId } from "./selectors";
 
 const getAppStore = (appId: string) => {
   const appStoreName = getAppStoreName(appId);
@@ -43,13 +45,15 @@ function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   const { applicationId, pageId } = initializeEditorAction.payload;
-  // Step 1: Start getting all the data needed by the
+  // Step 1: Set App Mode. Start getting all the data needed
+  yield put(setAppMode(APP_MODE.EDIT));
+  yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
-    put(fetchPageList(applicationId)),
+    put(fetchPageList(applicationId, APP_MODE.EDIT)),
     put(fetchEditorConfigs()),
     put(fetchActions(applicationId)),
     put(fetchPage(pageId)),
-    put(fetchApplication(applicationId)),
+    put(fetchApplication(applicationId, APP_MODE.EDIT)),
   ]);
   // Step 2: Wait for all data to be in the state
   yield all([
@@ -68,8 +72,7 @@ function* initializeEditorSaga(
     take(ReduxActionTypes.FETCH_DATASOURCES_SUCCESS),
   ]);
 
-  // Step 5: Set app mode
-  yield put(setAppMode(APP_MODE.EDIT));
+  // Step 5: Set app store
   yield put(updateAppStore(getAppStore(applicationId)));
 
   const currentApplication = yield select(getCurrentApplication);
@@ -146,30 +149,43 @@ export function* populatePageDSLsSaga() {
 }
 
 export function* initializeAppViewerSaga(
-  action: ReduxAction<{ pageId: string; applicationId: string }>,
+  action: ReduxAction<{ applicationId: string; pageId: string }>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, pageId } = action.payload;
+  yield put(setAppMode(APP_MODE.PUBLISHED));
+  yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
+    // TODO (hetu) Remove spl view call for fetch actions
     put(fetchActionsForView(applicationId)),
-    put(fetchPageList(applicationId)),
-    put(fetchApplication(applicationId)),
+    put(fetchPageList(applicationId, APP_MODE.PUBLISHED)),
+    put(fetchApplication(applicationId, APP_MODE.PUBLISHED)),
   ]);
 
   yield all([
     take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
+    take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
   ]);
 
-  yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(updateAppStore(getAppStore(applicationId)));
+  const defaultPageId = yield select(getDefaultPageId);
+  const toLoadPageId = pageId || defaultPageId;
 
-  yield put({
-    type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
-  });
-  if ("serviceWorker" in navigator) {
+  if (toLoadPageId) {
+    yield put(fetchPublishedPage(toLoadPageId, true));
+    yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
+
+    yield put(setAppMode(APP_MODE.PUBLISHED));
+    yield put(updateAppStore(getAppStore(applicationId)));
+
     yield put({
-      type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
+      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
+    if ("serviceWorker" in navigator) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
+      });
+    }
   }
 }
 

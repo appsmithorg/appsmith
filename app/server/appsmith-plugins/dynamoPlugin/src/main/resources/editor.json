@@ -1,0 +1,188 @@
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "Action",
+          "configProperty": "actionConfiguration.path",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "GetItem",
+          "options": [
+            {
+              "label": "BatchGetItem",
+              "value":"BatchGetItem"
+            },
+            {
+              "label": "BatchWriteItem",
+              "value": "BatchWriteItem"
+            },
+            {
+              "label": "CreateBackup",
+              "value": "CreateBackup"
+            },
+            {
+              "label": "CreateGlobalTable",
+              "value": "CreateGlobalTable"
+            },
+            {
+              "label": "CreateTable",
+              "value": "CreateTable"
+            },
+            {
+              "label": "DeleteBackup",
+              "value": "DeleteBackup"
+            },
+            {
+              "label": "DeleteItem",
+              "value": "DeleteItem"
+            },
+            {
+              "label": "DeleteTable",
+              "value": "DeleteTable"
+            },
+            {
+              "label": "DescribeBackup",
+              "value": "DescribeBackup"
+            },
+            {
+              "label": "DescribeContinuousBackups",
+              "value": "DescribeContinuousBackups"
+            },
+            {
+              "label": "DescribeContributorInsights",
+              "value": "DescribeContributorInsights"
+            },
+            {
+              "label": "DescribeEndpoints",
+              "value": "DescribeEndpoints"
+            },
+            {
+              "label": "DescribeGlobalTable",
+              "value": "DescribeGlobalTable"
+            },
+            {
+              "label": "DescribeGlobalTableSettings",
+              "value": "DescribeGlobalTableSettings"
+            },
+            {
+              "label": "DescribeLimits",
+              "value": "DescribeLimits"
+            },
+            {
+              "label": "DescribeTable",
+              "value": "DescribeTable"
+            },
+            {
+              "label": "DescribeTableReplicaAutoScaling",
+              "value": "DescribeTableReplicaAutoScaling"
+            },
+            {
+              "label": "DescribeTimeToLive",
+              "value": "DescribeTimeToLive"
+            },
+            {
+              "label": "GetItem",
+              "value": "GetItem"
+            },
+            {
+              "label": "ListBackups",
+              "value": "ListBackups"
+            },
+            {
+              "label": "ListContributorInsights",
+              "value": "ListContributorInsights"
+            },
+            {
+              "label": "ListGlobalTables",
+              "value": "ListGlobalTables"
+            },
+            {
+              "label": "ListTables",
+              "value": "ListTables"
+            },
+            {
+              "label": "ListTagsOfResource",
+              "value": "ListTagsOfResource"
+            },
+            {
+              "label": "PutItem",
+              "value": "PutItem"
+            },
+            {
+              "label": "Query",
+              "value": "Query"
+            },
+            {
+              "label": "RestoreTableFromBackup",
+              "value": "RestoreTableFromBackup"
+            },
+            {
+              "label": "RestoreTableToPointInTime",
+              "value": "RestoreTableToPointInTime"
+            },
+            {
+              "label": "Scan",
+              "value": "Scan"
+            },
+            {
+              "label": "TagResource",
+              "value": "TagResource"
+            },
+            {
+              "label": "TransactGetItems",
+              "value": "TransactGetItems"
+            },
+            {
+              "label": "TransactWriteItems",
+              "value": "TransactWriteItems"
+            },
+            {
+              "label": "UntagResource",
+              "value": "UntagResource"
+            },
+            {
+              "label": "UpdateContinuousBackups",
+              "value": "UpdateContinuousBackups"
+            },
+            {
+              "label": "UpdateContributorInsights",
+              "value": "UpdateContributorInsights"
+            },
+            {
+              "label": "UpdateGlobalTable",
+              "value": "UpdateGlobalTable"
+            },
+            {
+              "label": "UpdateGlobalTableSettings",
+              "value": "UpdateGlobalTableSettings"
+            },
+            {
+              "label": "UpdateItem",
+              "value": "UpdateItem"
+            },
+            {
+              "label": "UpdateTable",
+              "value": "UpdateTable"
+            },
+            {
+              "label": "UpdateTableReplicaAutoScaling",
+              "value": "UpdateTableReplicaAutoScaling"
+            },
+            {
+              "label": "UpdateTimeToLive",
+              "value": "UpdateTimeToLive"
+            }
+          ]
+        },
+        {
+          "label": "",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT"
+        }
+      ]
+    }
+  ]
+}

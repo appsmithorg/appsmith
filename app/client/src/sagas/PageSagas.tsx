@@ -1,7 +1,6 @@
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppState } from "reducers";
 import {
-  FetchPageListPayload,
   PageListPayload,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -9,8 +8,9 @@ import {
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
 import {
-  deletePageSuccess,
   clonePageSuccess,
+  deletePageSuccess,
+  FetchPageListPayload,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
   savePageSuccess,
@@ -20,6 +20,7 @@ import {
   updateWidgetNameSuccess,
 } from "actions/pageActions";
 import PageApi, {
+  ClonePageRequest,
   CreatePageRequest,
   DeletePageRequest,
   FetchPageListResponse,
@@ -32,7 +33,6 @@ import PageApi, {
   UpdatePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
-  ClonePageRequest,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -43,6 +43,7 @@ import {
   select,
   takeLatest,
   takeLeading,
+  take,
 } from "redux-saga/effects";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -69,8 +70,8 @@ import {
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
 } from "actions/actionActions";
-import { clearCaches } from "utils/DynamicBindingUtils";
-import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { clearEvalCache } from "./evaluationsSaga";
 import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -86,11 +87,12 @@ export function* fetchPageListSaga(
     PerformanceTransactionName.FETCH_PAGE_LIST_API,
   );
   try {
-    const { applicationId } = fetchPageListAction.payload;
-    const response: FetchPageListResponse = yield call(
-      PageApi.fetchPageList,
-      applicationId,
-    );
+    const { applicationId, mode } = fetchPageListAction.payload;
+    const apiCall =
+      mode === APP_MODE.EDIT
+        ? PageApi.fetchPageList
+        : PageApi.fetchPageListViewMode;
+    const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
@@ -162,7 +164,7 @@ export function* fetchPageSaga(
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       // Clear any existing caches
-      clearCaches();
+      yield call(clearEvalCache);
       // Set url params
       yield call(setDataUrl);
       // Get Canvas payload
@@ -172,9 +174,12 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(fetchPageSuccess());
-      // Execute page load actions
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+      yield put(
+        fetchPageSuccess([
+          // Execute page load actions after evaluation of fetch page
+          executePageLoadActions(canvasWidgetsPayload.pageActions),
+        ]),
+      );
 
       // Add this to the page DSLs for entity explorer
       yield put({
@@ -225,7 +230,7 @@ export function* fetchPublishedPageSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       // Clear any existing caches
-      clearCaches();
+      yield call(clearEvalCache);
       // Set url params
       yield call(setDataUrl);
       // Get Canvas payload
@@ -236,17 +241,19 @@ export function* fetchPublishedPageSaga(
       yield put(updateCurrentPage(pageId));
       // dispatch fetch page success
       yield put(
-        fetchPublishedPageSuccess({
-          dsl: response.data.layouts[0].dsl,
-          pageId: request.pageId,
-          pageWidgetId: canvasWidgetsPayload.pageWidgetId,
-        }),
+        fetchPublishedPageSuccess(
+          {
+            dsl: response.data.layouts[0].dsl,
+            pageId: request.pageId,
+            pageWidgetId: canvasWidgetsPayload.pageWidgetId,
+          },
+          // Execute page load actions post published page eval
+          [executePageLoadActions(canvasWidgetsPayload.pageActions)],
+        ),
       );
-      // Execute page load actions
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -326,6 +333,7 @@ function* savePageSaga() {
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {
         error,
+        show: false,
       },
     });
   }

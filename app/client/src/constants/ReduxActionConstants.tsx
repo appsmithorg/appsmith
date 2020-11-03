@@ -1,4 +1,4 @@
-import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/ActionConstants";
 import { Org } from "./orgConstants";
 
@@ -131,6 +131,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_PLUGINS_SUCCESS: "FETCH_PLUGINS_SUCCESS",
   FETCH_PLUGIN_FORM_INIT: "FETCH_PLUGIN_FORM_INIT",
   FETCH_PLUGIN_FORM_SUCCESS: "FETCH_PLUGIN_FORM_SUCCESS",
+  FETCH_DB_PLUGIN_FORMS_INIT: "FETCH_DB_PLUGIN_FORMS_INIT",
+  FETCH_DB_PLUGIN_FORMS_SUCCESS: "FFETCH_DB_PLUGIN_FORMS_SUCCESS",
   INVITE_USERS_TO_ORG_INIT: "INVITE_USERS_TO_ORG_INIT",
   INVITE_USERS_TO_ORG_SUCCESS: "INVITE_USERS_TO_ORG_SUCCESS",
   FORGOT_PASSWORD_INIT: "FORGOT_PASSWORD_INIT",
@@ -283,6 +285,9 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UNDO_DELETE_WIDGET: "UNDO_DELETE_WIDGET",
   CUT_SELECTED_WIDGET: "CUT_SELECTED_WIDGET",
   WIDGET_ADD_CHILDREN: "WIDGET_ADD_CHILDREN",
+  SET_EVALUATED_TREE: "SET_EVALUATED_TREE",
+  BATCH_UPDATES_SUCCESS: "BATCH_UPDATES_SUCCESS",
+  START_EVALUATION: "START_EVALUATION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -337,6 +342,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   SWITCH_ORGANIZATION_ERROR: "SWITCH_ORGANIZATION_ERROR",
   TEST_DATASOURCE_ERROR: "TEST_DATASOURCE_ERROR",
   FETCH_PLUGIN_FORM_ERROR: "FETCH_PLUGIN_FORM_ERROR",
+  FETCH_DB_PLUGIN_FORMS_ERROR: "FETCH_DB_PLUGIN_FORMS_ERROR",
   FORGOT_PASSWORD_ERROR: "FORGOT_PASSWORD_ERROR",
   RESET_PASSWORD_VERIFY_TOKEN_ERROR: "RESET_PASSWORD_VERIFY_TOKEN_ERROR",
   FETCH_ORG_ROLES_ERROR: "FETCH_ORG_ROLES_ERROR",
@@ -404,6 +410,11 @@ export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
   meta: M;
 }
+
+export interface EvaluationReduxAction<T> extends ReduxAction<T> {
+  postEvalActions?: ReduxAction<any>[];
+}
+
 export interface PromisePayload {
   reject: any;
   resolve: any;
@@ -478,8 +489,4 @@ export interface LoadWidgetSidebarPayload {
 export type InitializeEditorPayload = {
   applicationId: string;
   pageId: string;
-};
-
-export type FetchPageListPayload = {
-  applicationId: string;
 };

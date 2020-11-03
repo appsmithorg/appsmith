@@ -1,4 +1,3 @@
-import _ from "lodash";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import {
   REQUEST_TIMEOUT_MS,
@@ -51,15 +50,18 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
+    if (axios.isCancel(error)) {
+      return;
+    }
     if (error.code === "ECONNABORTED") {
-      if (error.config.url.match(currentUserRegex)) {
+      if (error.config && error.config.url.match(currentUserRegex)) {
         history.replace({ pathname: SERVER_ERROR_URL });
       }
       return Promise.reject({
         message: "Please check your internet connection",
       });
     }
-    if (error.config.url.match(executeActionRegex)) {
+    if (error.config && error.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(error.response);
     }
     if (error.response) {

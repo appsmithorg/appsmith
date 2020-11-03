@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.QOrganization;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,8 +34,9 @@ public class CustomOrganizationRepositoryImpl extends BaseAppsmithRepositoryImpl
     }
 
     @Override
-    public Flux<Organization> findByIdsIn(Set<String> orgIds, AclPermission aclPermission) {
+    public Flux<Organization> findByIdsIn(Set<String> orgIds, AclPermission aclPermission, Sort sort) {
         Criteria orgIdsCriteria = where(fieldName(QOrganization.organization.id)).in(orgIds);
-        return queryAll(List.of(orgIdsCriteria), aclPermission);
+
+        return queryAll(List.of(orgIdsCriteria), aclPermission, sort);
     }
 }

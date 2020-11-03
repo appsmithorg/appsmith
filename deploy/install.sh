@@ -27,11 +27,21 @@ check_ports_occupied() {
     fi
 
     if [[ -n $port_check_output ]]; then
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Error",
+            "data": {
+                "os": "'"$os"'",
+                "error": "port taken"
+            }
+        }' > /dev/null
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
-        bye
+        exit 1
     fi
 }
 
@@ -42,18 +52,27 @@ install_docker() {
     if [[ $package_manager == apt-get ]]; then
         apt_cmd="sudo apt-get --yes --quiet"
         $apt_cmd update
-        $apt_cmd install gnupg-agent
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        $apt_cmd install software-properties-common gnupg-agent
+        curl -fsSL "https://download.docker.com/linux/$os/gpg" | sudo apt-key add -
         sudo add-apt-repository \
-            "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            "deb [arch=amd64] https://download.docker.com/linux/$os $(lsb_release -cs) stable"
         $apt_cmd update
         echo "Installing docker"
         $apt_cmd install docker-ce docker-ce-cli containerd.io
-
+    elif [[ $package_manager == zypper ]]; then
+        zypper_cmd="sudo zypper --quiet --no-gpg-checks --non-interactive"
+        echo "Installing docker"
+        if [[ $os == sles ]]; then
+            os_sp="$(cat /etc/*-release | awk -F= '$1 == "VERSION_ID" { gsub(/"/, ""); print $2; exit }')"
+            os_arch="$(uname -i)"
+            sudo SUSEConnect -p sle-module-containers/$os_sp/$os_arch -r ''
+        fi
+        $zypper_cmd install docker docker-runc containerd
+        sudo systemctl enable docker.service 
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
-        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/$os/docker-ce.repo
         echo "Installing docker"
         $yum_cmd install docker-ce docker-ce-cli containerd.io
 
@@ -62,9 +81,10 @@ install_docker() {
 }
 
 install_docker_compose() {
-    if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
+    if [[ $package_manager == "apt-get" || $package_manager == "zypper" || $package_manager == "yum" ]]; then
         if [[ ! -f /usr/bin/docker-compose ]];then
-            echo "Installing docker-compose..."
+            echo "++++++++++++++++++++++++"
+            echo "Installing docker-compose"
             sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
             sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
@@ -72,11 +92,21 @@ install_docker_compose() {
             echo ""
         fi
     else
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Error",
+            "data": {
+                "os": "'"$os"'",
+                "error": "Docker Compose Not Found"
+            }
+        }' > /dev/null
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
         echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
         echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
         echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
-        bye
+        exit 1
     fi
 }
 
@@ -100,18 +130,33 @@ check_os() {
     case "$os_name" in
         Ubuntu*)
             desired_os=1
-            os="Ubuntu"
+            os="ubuntu"
+            package_manager="apt-get"
+            ;;
+        Debian*)
+            desired_os=1
+            os="debian"
             package_manager="apt-get"
             ;;
         Red\ Hat*)
             desired_os=1
-            os="Red Hat"
+            os="red hat"
             package_manager="yum"
             ;;
         CentOS*)
             desired_os=1
-            os="CentOS"
+            os="centos"
             package_manager="yum"
+            ;;
+        SLES*)
+            desired_os=1
+            os="sles"
+            package_manager="zypper"
+            ;;
+        openSUSE*)
+            desired_os=1
+            os="opensuse"
+            package_manager="zypper"
             ;;
         *)
             desired_os=0
@@ -131,7 +176,6 @@ overwrite_file() {
         echo ""
     else
         mv -f "$template_file" "$full_path"
-        echo "File $full_path moved successfully!"
     fi
 }
 
@@ -308,38 +352,43 @@ echo_contact_support() {
 }
 
 bye() {  # Prints a friendly good bye message and exits the script.
-    set +o errexit
-    echo "Please share your email to receive support with the installation"
-    read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
-      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
-      "event": "Installation Support",
-      "data": {
-          "os": "'"$os"'",
-          "email": "'"$email"'"
-       }
-    }'
-    echo -e "\nExiting for now. Bye! \U1F44B\n"
-    exit 1
+    if [ "$?" -ne 0 ]; then
+        set +o errexit
+        echo "Please share your email if you wish to receive support with the installation"
+        read -rp 'Email: ' email
+
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Support",
+            "data": {
+                "os": "'"$os"'",
+                "email": "'"$email"'"
+            }
+        }' > /dev/null
+        echo ""
+        echo -e "\nWe will reach out to you at the email provided shortly, Exiting for now. Bye! 👋 \n"
+        exit 0
+    fi
 }
 
-echo -e "\U1F44B  Thank you for trying out Appsmith! "
+echo -e "👋 Thank you for trying out Appsmith! "
 echo ""
 
 
 # Checking OS and assigning package manager
 desired_os=0
 os=""
-echo -e "\U1F575  Detecting your OS"
+echo -e "🕵️  Detecting your OS"
 check_os
+
 APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
 
 # Run bye if failure happens
 trap bye EXIT
 
-curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -347,22 +396,43 @@ curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi
   "data": {
       "os": "'"$os"'"
    }
-}'
+}' > /dev/null
 
 if [[ $desired_os -eq 0 ]];then
     echo ""
-    echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu machines."
+    echo "This script is currently meant to install Appsmith on Mac OS X, Ubuntu, SLES or openSUSE machines."
     echo_contact_support " if you wish to extend this support."
-    bye
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "OS Not Supported"
+        }
+    }' > /dev/null
+    exit 1
 else
-    echo "You're on an OS that is supported by this installation script."
+    echo "🙌 You're on an OS that is supported by this installation script."
     echo ""
 fi
 
 if [[ $EUID -eq 0 ]]; then
+    echo "+++++++++++ ERROR ++++++++++++++++++++++"
     echo "Please do not run this script as root/sudo."
-    echo_contact_support
-    bye
+    echo "++++++++++++++++++++++++++++++++++++++++"
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "Running as Root"
+        }
+    }' > /dev/null
+    exit 1
 fi
 
 check_ports_occupied
@@ -378,19 +448,39 @@ if [[ -e "$install_dir" ]]; then
     echo "The path '$install_dir' is already present. Please run the script again with a different path to install new."
     echo "If you're trying to update your existing installation, that happens automatically through WatchTower."
     echo_contact_support " if you're facing problems with the auto-updates."
-    exit
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "Directory Exists"
+        }
+    }' > /dev/null
+    exit 1
 fi
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
 if ! is_command_present docker; then
-    if [[ $package_manager == "apt-get" || $package_manager == "yum" ]]; then
+    if [[ $package_manager == "apt-get" || $package_manager == "zypper" || $package_manager == "yum" ]]; then
         install_docker
     else
         echo ""
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
-        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / Redhat / Cent OS"
+        echo "Docker Desktop must be installed manually on Mac OS to proceed. Docker can only be installed automatically on Ubuntu / openSUSE / SLES / Redhat / Cent OS"
         echo "https://docs.docker.com/docker-for-mac/install/"
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Error",
+            "data": {
+                "os": "'"$os"'",
+                "error": "Docker not installed"
+            }
+        }' > /dev/null
         exit 1
     fi
 fi
@@ -401,7 +491,7 @@ if ! is_command_present docker-compose; then
 fi
 
 # Starting docker service
-if [[ $package_manager == "yum" || $package_manager == "apt-get" ]]; then
+if [[ $package_manager == "yum" || $package_manager == "zypper" || $package_manager == "apt-get" ]]; then
     start_docker
 fi
 
@@ -421,10 +511,11 @@ if confirm y "Is this a fresh installation?"; then
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
 else
-    read -rp 'Enter your current mongo db host: ' mongo_host
-    read -rp 'Enter your current mongo root user: ' mongo_root_user
-    read -srp 'Enter your current mongo password: ' mongo_root_password
-    read -rp 'Enter your current mongo database name: ' mongo_database
+    echo 'You are trying to connect to an existing appsmith installation. Abort if you want to install appsmith fresh'
+    read -rp 'Enter your existing appsmith mongo db host: ' mongo_host
+    read -rp 'Enter your existing appsmith mongo root user: ' mongo_root_user
+    read -srp 'Enter your existing appsmith mongo password: ' mongo_root_password
+    read -rp 'Enter your existing appsmith mongo database name: ' mongo_database
     # It is possible that this isn't the first installation.
     echo ""
     # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
@@ -476,7 +567,7 @@ fi
 echo ""
 
 if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -484,7 +575,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
       "data": {
           "os": "'"$os"'"
        }
-    }'
+    }' > /dev/null
     echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
@@ -567,21 +658,19 @@ if [[ $status_code -ne 401 ]]; then
     echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
     echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
-    echo ""
-    echo "Please share your email to receive help with the installation"
-    read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
-      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
-      "event": "Installation Support",
-      "data": {
-          "os": "'"$os"'",
-          "email": "'"$email"'"
-       }
-    }'
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Error",
+        "data": {
+            "os": "'"$os"'",
+            "error": "Containers not started"
+        }
+    }' > /dev/null
+    exit 1
 else
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -589,8 +678,9 @@ else
       "data": {
           "os": "'"$os"'"
        }
-    }'
-    echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
+    }' > /dev/null
+
+    echo "++++++++++++++++++ SUCCESS ++++++++++++++++++++++"
     echo "Your installation is complete!"
     echo ""
     if [[ -z $custom_domain ]]; then
@@ -605,7 +695,7 @@ else
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
     echo "Please share your email to receive support & updates about appsmith!"
     read -rp 'Email: ' email
-    curl -s -O --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
@@ -614,7 +704,6 @@ else
           "os": "'"$os"'",
           "email": "'"$email"'"
        }
-    }'
+    }' > /dev/null
 fi
-
-echo -e "\nPeace out \U1F596\n"
+echo -e "\nPeace out ✌️\n"

@@ -147,9 +147,12 @@ jobs:
         name: build
         path: app/client/build
       
-    - name: Pull server docker container and start it locally
+    - name: Pull release server docker container and start it locally
+      if: github.ref == 'refs/heads/release'
       shell: bash
       run: |
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        
         docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
         --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
         --env APPSMITH_REDIS_URL=redis://localhost:6379 \
@@ -157,11 +160,25 @@ jobs:
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
         appsmith/appsmith-server:release
+  
+    - name: Pull master server docker container and start it locally
+      if: github.ref == 'refs/heads/master'
+      shell: bash
+      run: |
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        
+        docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+        --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+        --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+        --env APPSMITH_ENCRYPTION_PASSWORD=password \
+        --env APPSMITH_ENCRYPTION_SALT=salt \
+        --env APPSMITH_IS_SELF_HOSTED=false \
+        appsmith/appsmith-server:nightly
 
     - name: Installing Yarn serve
       run: |
         yarn global add serve
-        echo "::add-path::$(yarn global bin)"
+        echo "$(yarn global bin)" >> $GITHUB_PATH 
 
     - name: Setting up the cypress tests
       shell: bash
@@ -246,7 +263,7 @@ jobs:
 
     # Build release Docker image and push to Docker Hub
     - name: Push release image to Docker Hub
-      if: success() && github.ref == 'refs/heads/release'
+      if: success() && github.ref == 'refs/heads/release' && github.event_name == 'push'
       run: |
         docker build -t appsmith/appsmith-editor:${{steps.branch_name.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -254,7 +271,7 @@ jobs:
     
     # Build master Docker image and push to Docker Hub
     - name: Push production image to Docker Hub with commit tag
-      if: success() && github.ref == 'refs/heads/master'
+      if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: |
         docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
         docker build -t appsmith/appsmith-editor:nightly .

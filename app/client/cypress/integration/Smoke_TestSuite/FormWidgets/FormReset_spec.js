@@ -20,6 +20,8 @@ describe("Form reset functionality", function() {
       .contains("Reset")
       .click();
 
+    cy.wait(500);
+
     cy.get(".tr")
       .eq(2)
       .should("not.have.class", "selected-row");

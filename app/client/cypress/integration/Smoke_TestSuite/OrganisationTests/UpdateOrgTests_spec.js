@@ -1,0 +1,71 @@
+const homePage = require("../../../locators/HomePage.json");
+
+describe("Update Organization", function() {
+  let orgid;
+
+  it("Open the org general settings and update org name. The update should reflect in the org. It should also reflect in the org names on the left side and the org dropdown.	", function() {
+    cy.NavigateToHome();
+    cy.generateUUID().then(uid => {
+      orgid = uid;
+      localStorage.setItem("OrgName", orgid);
+      cy.createOrg(orgid);
+      cy.get(homePage.orgList.concat(orgid).concat(")"))
+        .scrollIntoView()
+        .should("be.visible")
+        .within(() => {
+          cy.get(".t--org-name")
+            .first()
+            .click();
+        });
+      cy.get(homePage.orgSettingOption).click();
+    });
+    cy.generateUUID().then(uid => {
+      orgid = uid;
+      localStorage.setItem("OrgName", orgid);
+      cy.get(homePage.orgNameInput).clear();
+      cy.get(homePage.orgNameInput).type(orgid);
+      cy.wait(2000);
+      cy.get(homePage.orgHeaderName).should("have.text", orgid);
+    });
+    cy.NavigateToHome();
+    cy.get(homePage.leftPanelContainer).within(() => {
+      cy.get("span").should(item => {
+        expect(item).to.contain.text(orgid);
+      });
+    });
+  });
+
+  it("Open the org general settings and update org email. The update should reflect in the org.", function() {
+    cy.get(homePage.orgList.concat(orgid).concat(")"))
+      .scrollIntoView()
+      .should("be.visible")
+      .within(() => {
+        cy.get(".t--org-name")
+          .first()
+          .click();
+      });
+    cy.get(homePage.orgSettingOption).click();
+    cy.get(homePage.orgEmailInput).clear();
+    cy.get(homePage.orgEmailInput).type(Cypress.env("TESTUSERNAME2"));
+    cy.wait("@updateOrganization").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(homePage.orgEmailInput).should(
+      "have.value",
+      Cypress.env("TESTUSERNAME2"),
+    );
+  });
+
+  it("Open the org general settings and update org website. The update should reflect in the org.", function() {
+    cy.get(homePage.orgWebsiteInput).clear();
+    cy.get(homePage.orgWebsiteInput).type("demowebsite");
+    cy.wait("@updateOrganization").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(homePage.orgWebsiteInput).should("have.value", "demowebsite");
+  });
+});

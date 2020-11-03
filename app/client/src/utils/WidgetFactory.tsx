@@ -8,7 +8,7 @@ import {
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
-} from "./ValidationFactory";
+} from "./WidgetValidation";
 import React from "react";
 
 type WidgetDerivedPropertyType = any;
@@ -142,7 +142,32 @@ class WidgetFactory {
     }
     return map;
   }
+
+  static getWidgetTypeConfigMap(): WidgetTypeConfigMap {
+    const typeConfigMap: WidgetTypeConfigMap = {};
+    WidgetFactory.getWidgetTypes().forEach(type => {
+      typeConfigMap[type] = {
+        validations: WidgetFactory.getWidgetPropertyValidationMap(type),
+        defaultProperties: WidgetFactory.getWidgetDefaultPropertiesMap(type),
+        derivedProperties: WidgetFactory.getWidgetDerivedPropertiesMap(type),
+        triggerProperties: WidgetFactory.getWidgetTriggerPropertiesMap(type),
+        metaProperties: WidgetFactory.getWidgetMetaPropertiesMap(type),
+      };
+    });
+    return typeConfigMap;
+  }
 }
+
+export type WidgetTypeConfigMap = Record<
+  string,
+  {
+    validations: WidgetPropertyValidationType;
+    derivedProperties: WidgetDerivedPropertyType;
+    triggerProperties: TriggerPropertiesMap;
+    defaultProperties: Record<string, string>;
+    metaProperties: Record<string, any>;
+  }
+>;
 
 export interface WidgetCreationException {
   message: string;

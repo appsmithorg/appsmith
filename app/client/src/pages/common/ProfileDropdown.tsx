@@ -103,6 +103,7 @@ export default function ProfileDropdown(props: TagProps) {
         <MenuItem
           icon="logout"
           text="Sign Out"
+          className="t--logout-icon"
           onSelect={() =>
             getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
               type: ReduxActionTypes.LOGOUT_USER_INIT,
