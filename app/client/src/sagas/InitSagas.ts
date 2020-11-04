@@ -92,26 +92,23 @@ function* initializeEditorSaga(
   yield call(populatePageDSLsSaga);
 }
 
-function* fetchPageDSLSaga(action: ReduxAction<{ pageId: string }>) {
+function* fetchPageDSLSaga(pageId: string) {
   try {
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-      id: action.payload.pageId,
+      id: pageId,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
-        payload: {
-          pageId: action.payload.pageId,
-          dsl: extractCurrentDSL(fetchPageResponse),
-        },
-      });
+      return {
+        pageId: pageId,
+        dsl: extractCurrentDSL(fetchPageResponse),
+      };
     }
   } catch (error) {
     yield put({
       type: ReduxActionTypes.FETCH_PAGE_DSL_ERROR,
       payload: {
-        pageId: action.payload.pageId,
+        pageId: pageId,
         error,
         show: false,
       },
@@ -127,16 +124,14 @@ export function* populatePageDSLsSaga() {
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
-    yield all(
+    const pageDSLs = yield all(
       pageIds.map((pageId: string) => {
-        return call(fetchPageDSLSaga, {
-          type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
-          payload: { pageId },
-        });
+        return call(fetchPageDSLSaga, pageId);
       }),
     );
     yield put({
-      type: ReduxActionTypes.POPULATE_PAGEDSLS_SUCCESS,
+      type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
+      payload: pageDSLs,
     });
   } catch (error) {
     yield put({

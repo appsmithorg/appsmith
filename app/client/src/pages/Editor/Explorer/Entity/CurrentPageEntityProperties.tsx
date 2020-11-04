@@ -3,22 +3,24 @@ import EntityProperty, { EntityPropertyProps } from "./EntityProperty";
 import { isFunction } from "lodash";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { WidgetType } from "constants/WidgetConstants";
-import { ENTITY_TYPE, DataTreeAction } from "entities/DataTree/dataTreeFactory";
+import {
+  ENTITY_TYPE,
+  DataTreeAction,
+  DataTree,
+} from "entities/DataTree/dataTreeFactory";
 import { useSelector } from "react-redux";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
-import { AppState } from "reducers";
 
-export const EntityProperties = memo(
+export const CurrentPageEntityProperties = memo(
   (props: {
     entityType: ENTITY_TYPE;
     entityName: string;
-    pageId: string;
     step: number;
     entity?: any;
-    entityId: string;
   }) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
@@ -28,21 +30,11 @@ export const EntityProperties = memo(
         PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
       );
     });
-    let entity: any;
-    const widgetEntity = useSelector((state: AppState) => {
-      const pageWidgets = state.ui.pageWidgets[props.pageId];
-      if (pageWidgets) {
-        return pageWidgets[props.entityId];
-      }
-    });
 
-    if (props.pageId && widgetEntity) {
-      entity = widgetEntity;
-    } else if (props.entity) {
-      entity = props.entity;
-    } else {
-      return null;
-    }
+    const dataTree: DataTree = useSelector(getDataTree);
+    const entity: any = dataTree[props.entityName];
+
+    if (!entity) return null;
 
     let config: any;
     let entityProperties: Array<EntityPropertyProps> = [];
@@ -110,10 +102,10 @@ export const EntityProperties = memo(
   },
 );
 
-EntityProperties.displayName = "EntityPrperties";
+CurrentPageEntityProperties.displayName = "CurrentPageEntityProperties";
 
-(EntityProperties as any).whyDidYouRender = {
+(CurrentPageEntityProperties as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };
 
-export default Sentry.withProfiler(EntityProperties);
+export default Sentry.withProfiler(CurrentPageEntityProperties);

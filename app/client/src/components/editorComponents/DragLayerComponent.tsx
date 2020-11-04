@@ -45,7 +45,7 @@ type DragLayerProps = {
   parentColumnWidth: number;
   visible: boolean;
   occupiedSpaces?: OccupiedSpace[];
-  onBoundsUpdate: Function;
+  onBoundsUpdate: (rect: DOMRect) => void;
   isOver: boolean;
   parentRows?: number;
   parentCols?: number;

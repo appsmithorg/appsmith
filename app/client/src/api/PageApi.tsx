@@ -63,7 +63,7 @@ export interface UpdatePageRequest {
 }
 
 export interface CreatePageResponse extends ApiResponse {
-  data: {};
+  data: unknown;
 }
 
 export interface FetchPageListResponse extends ApiResponse {

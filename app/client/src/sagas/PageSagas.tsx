@@ -43,6 +43,7 @@ import {
   select,
   takeLatest,
   takeLeading,
+  take,
 } from "redux-saga/effects";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -173,18 +174,18 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(fetchPageSuccess());
-      // Execute page load actions
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+      yield put(
+        fetchPageSuccess([
+          // Execute page load actions after evaluation of fetch page
+          executePageLoadActions(canvasWidgetsPayload.pageActions),
+        ]),
+      );
 
-      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
-        payload: {
-          pageId: id,
-          dsl: extractCurrentDSL(fetchPageResponse),
-        },
+        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+        payload: extractCurrentDSL(fetchPageResponse),
       });
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
@@ -237,17 +238,19 @@ export function* fetchPublishedPageSaga(
       yield put(updateCurrentPage(pageId));
       // dispatch fetch page success
       yield put(
-        fetchPublishedPageSuccess({
-          dsl: response.data.layouts[0].dsl,
-          pageId: request.pageId,
-          pageWidgetId: canvasWidgetsPayload.pageWidgetId,
-        }),
+        fetchPublishedPageSuccess(
+          {
+            dsl: response.data.layouts[0].dsl,
+            pageId: request.pageId,
+            pageWidgetId: canvasWidgetsPayload.pageWidgetId,
+          },
+          // Execute page load actions post published page eval
+          [executePageLoadActions(canvasWidgetsPayload.pageActions)],
+        ),
       );
-      // Execute page load actions
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -297,6 +300,12 @@ function* savePageSaga() {
         dsl: savePageRequest.dsl,
       },
     });
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+      payload: savePageRequest.dsl,
+    });
+
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,
       savePageRequest,
@@ -380,10 +389,12 @@ export function* createPageSaga(
           layoutId: response.data.layouts[0].id,
         },
       });
+      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
+          dsl: extractCurrentDSL(response),
         },
       });
       history.push(
@@ -441,6 +452,14 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
+      // Remove this page from page DSLs
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+        payload: {
+          pageId: request.id,
+          dsl: undefined,
+        },
+      });
       const currentPageId = yield select(
         (state: AppState) => state.entities.pageList.currentPageId,
       );
@@ -474,12 +493,15 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
           response.data.layouts[0].id,
         ),
       );
+      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
+          dsl: extractCurrentDSL(response),
         },
       });
+
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }
   } catch (error) {
