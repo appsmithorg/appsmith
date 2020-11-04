@@ -1471,10 +1471,7 @@ export const theme: Theme = {
   shadows: [
     /* 0. tab */
     `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
-    /* 1. first tab */
     `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
-    /* 2. container */
-    `0 1px 1px 0 rgba(60,75,100,.14) ,0 2px 1px -1px rgba(60,75,100,.12), 0 1px 3px 0 rgba(60,75,100,.2)`,
   ],
   widgets: {
     tableWidget: {
