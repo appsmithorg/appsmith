@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled, { AnyStyledComponent } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -10,9 +10,12 @@ import { ControlIcons } from "icons/ControlIcons";
 import {
   PanelConfig,
   PropertyPaneConfig,
+  PropertyPaneControlConfig,
+  PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { generatePropertyControl } from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { get } from "lodash";
 
 const PaneTitleWrapper = styled.div`
   align-items: center;
@@ -55,6 +58,24 @@ const PanelHeader = (props: PanelHeaderProps) => {
   );
 };
 
+const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
+  return config.map(_childConfig => {
+    const childConfig = Object.assign({}, _childConfig);
+    // TODO(abhinav): Figure out a better way to differentiate between section and control
+    if (
+      (childConfig as PropertyPaneSectionConfig).sectionName &&
+      childConfig.children
+    ) {
+      childConfig.children = updateConfigPaths(childConfig.children, basePath);
+    } else {
+      (childConfig as PropertyPaneControlConfig).propertyName = `${basePath}.${
+        (childConfig as PropertyPaneControlConfig).propertyName
+      }`;
+    }
+    return childConfig;
+  });
+};
+
 export const PanelPropertiesEditor = (
   props: PanelPropertiesEditorProps & PanelPropertiesEditorPanelProps,
 ) => {
@@ -66,27 +87,40 @@ export const PanelPropertiesEditor = (
       widgetId: widgetProperties.widgetId,
     });
     dispatch({ type: ReduxActionTypes.HIDE_PROPERTY_PANE });
-  }, [dispatch]);
+  }, [dispatch, widgetProperties.type, widgetProperties.widgetId]);
 
-  const { panelConfig, panelProps, closePanel } = props;
+  const {
+    panelConfig,
+    panelProps,
+    closePanel,
+    panelParentPropertyPath,
+  } = props;
 
-  const onPropertyChange = useCallback(
-    (propertyName: string, propertyValue: any) => {
-      if (props.panelProps) {
-        props.onPropertyChange(
-          `${
-            props.panelProps[panelConfig.panelIdPropertyName]
-          }.${propertyName}`,
-          propertyValue,
-        );
-      }
-    },
-    [
-      props.onPropertyChange,
-      props.panelProps,
-      props.panelConfig.panelIdPropertyName,
-    ],
-  );
+  // TODO(abhinav): This works for arrays, not for objects
+  // handle scenario where the children are object properties instead of array of objects
+  const currentIndex = useMemo(() => {
+    const parentProperty = get(widgetProperties, panelParentPropertyPath);
+    if (parentProperty && Array.isArray(parentProperty)) {
+      const currentIndex = parentProperty.findIndex(
+        entry =>
+          panelProps[panelConfig.panelIdPropertyName] ===
+          entry[panelConfig.panelIdPropertyName],
+      );
+      return currentIndex;
+    }
+    return;
+  }, [widgetProperties, panelParentPropertyPath, panelProps, panelConfig]);
+
+  const panelConfigs = useMemo(() => {
+    if (currentIndex !== undefined && currentIndex > -1) {
+      const configChildren = [...panelConfig.children];
+      return updateConfigPaths(
+        configChildren,
+        `${panelParentPropertyPath}[${currentIndex}]`,
+      );
+    }
+  }, [currentIndex, panelConfig, panelParentPropertyPath]);
+
   if (!widgetProperties) return null;
 
   return (
@@ -108,14 +142,11 @@ export const PanelPropertiesEditor = (
           }
         }}
       />
-      {generatePropertyControl(
-        panelConfig.children as PropertyPaneConfig[],
-        {
+      {panelConfigs &&
+        generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
           ...panelProps,
           ...widgetProperties,
-        },
-        onPropertyChange,
-      )}
+        })}
     </>
   );
 };
@@ -123,6 +154,7 @@ export const PanelPropertiesEditor = (
 interface PanelPropertiesEditorProps {
   panelProps: any;
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
+  panelParentPropertyPath: string;
 }
 
 interface PanelPropertiesEditorPanelProps {

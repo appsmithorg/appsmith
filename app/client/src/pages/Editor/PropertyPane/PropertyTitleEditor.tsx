@@ -4,10 +4,8 @@ import { Icon, Tooltip, Position, Classes } from "@blueprintjs/core";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { WidgetType } from "constants/WidgetConstants";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 import { theme } from "constants/DefaultTheme";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   justify-content: center;

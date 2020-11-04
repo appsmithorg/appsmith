@@ -1,4 +1,4 @@
-import { WidgetType, RenderMode, WidgetTypes } from "constants/WidgetConstants";
+import { WidgetType, RenderMode } from "constants/WidgetConstants";
 import {
   WidgetBuilder,
   WidgetProps,
@@ -42,7 +42,7 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
 
       (sectionOrControlConfig as PropertyPaneControlConfig) = config;
     }
-    return sectionOrControlConfig;
+    return Object.freeze(sectionOrControlConfig);
   });
 };
 class WidgetFactory {
@@ -93,9 +93,6 @@ class WidgetFactory {
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
-    propertyPaneConfig &&
-      widgetType === WidgetTypes.TABLE_WIDGET &&
-      console.log(addPropertyConfigIds(propertyPaneConfig));
     propertyPaneConfig &&
       this.propertyPaneConfigsMap.set(
         widgetType,

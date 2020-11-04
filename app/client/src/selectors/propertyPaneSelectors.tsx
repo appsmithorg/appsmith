@@ -1,6 +1,5 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
-import { PropertyControlPropsType } from "components/propertyControls";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -39,7 +38,6 @@ export const getWidgetPropsForPropertyPane = createSelector(
     evaluatedTree: DataTree,
   ): WidgetProps | undefined => {
     log.debug("Evaluating data tree to get property pane validations");
-    console.log("Evaluating data tree to get property pane validations");
     if (!widget) return undefined;
     const evaluatedWidget = _.find(evaluatedTree, {
       widgetId: widget.widgetId,
@@ -76,7 +74,6 @@ export const getWidgetChildPropertiesForPropertyPane = createSelector(
     evaluatedTree: DataTree,
   ): any | undefined => {
     log.debug("Evaluating data tree to get child property pane validations");
-    console.log("Evaluating data tree to get child property pane validations");
     if (!widget) return undefined;
     const evaluatedWidget = _.find(evaluatedTree, {
       widgetId: widget.widgetId,
@@ -95,7 +92,6 @@ export const getWidgetChildPropertiesForPropertyPane = createSelector(
         widgetProperties.validationMessages = validationMessages;
       }
     }
-    console.log("pane", pane, widgetProperties);
     if (pane.propertyControlId) {
       const childItems = widgetProperties[pane.propertyControlId];
       if (childItems && childItems.length) {

@@ -6,6 +6,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { set } from "lodash";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -30,8 +31,13 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateWidgetPropertyPayload>,
   ) => {
-    state[action.payload.widgetId][action.payload.propertyName] =
-      action.payload.propertyValue;
+    set(
+      state[action.payload.widgetId],
+      action.payload.propertyName,
+      action.payload.propertyValue,
+    );
+    // state[action.payload.widgetId][action.payload.propertyName] =
+    //   action.payload.propertyValue;
   },
 });
 

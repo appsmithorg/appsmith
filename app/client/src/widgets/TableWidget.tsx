@@ -149,11 +149,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               panelIdPropertyName: "id",
               children: [
                 {
-                  id: "7.1.6.1",
                   sectionName: "Column Control",
                   children: [
                     {
-                      id: "7.1.6.1.0",
                       propertyName: "columnType",
                       label: "Column Type",
                       controlType: "DROP_DOWN",
@@ -194,7 +192,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                     },
                     {
-                      id: "7.1.6.1.2",
                       propertyName: "computedValue",
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
@@ -203,7 +200,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       },
                     },
                     {
-                      id: "7.1.6.1.3",
                       propertyName: "enableFilter",
                       label: "Filtering",
                       controlType: "SWITCH",
@@ -213,7 +209,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       },
                     },
                     {
-                      id: "7.1.6.1.4",
                       propertyName: "enableSort",
                       label: "Sorting",
                       controlType: "SWITCH",
@@ -225,11 +220,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   ],
                 },
                 {
-                  id: "7.1.6.2",
                   sectionName: "Text",
                   children: [
                     {
-                      id: "7.1.6.2.1",
                       propertyName: "horizontalAlignment",
                       label: "Text Align",
                       controlType: "ICON_TABS",
@@ -251,7 +244,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       isJSConvertible: true,
                     },
                     {
-                      id: "7.1.6.2.2",
                       propertyName: "textSize",
                       label: "Text Size",
                       controlType: "DROP_DOWN",
@@ -290,7 +282,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                     },
                     {
-                      id: "7.1.6.2.3",
                       propertyName: "fontStyle",
                       label: "Font Style",
                       controlType: "BUTTON_TABS",
@@ -308,7 +299,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       isJSConvertible: true,
                     },
                     {
-                      id: "7.1.6.2.4",
                       propertyName: "verticalAlignment",
                       label: "Vertical Alignment",
                       controlType: "ICON_TABS",
@@ -330,7 +320,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       isJSConvertible: true,
                     },
                     {
-                      id: "7.1.6.2.5",
                       propertyName: "textColor",
                       label: "Text Color",
                       controlType: "COLOR_PICKER",
@@ -339,7 +328,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   ],
                 },
                 {
-                  id: "7.1.6.3",
                   sectionName: "Button Properties",
                   children: [
                     {
@@ -392,11 +380,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               panelIdPropertyName: "id",
               children: [
                 {
-                  id: "7.1.6.1",
                   sectionName: "Column Control",
                   children: [
                     {
-                      id: "7.1.6.1.0",
                       propertyName: "columnType",
                       label: "Column Type",
                       controlType: "DROP_DOWN",
@@ -437,7 +423,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                     },
                     {
-                      id: "7.1.6.1.2",
                       propertyName: "computedValue",
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
@@ -446,7 +431,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       },
                     },
                     {
-                      id: "7.1.6.1.3",
                       propertyName: "enableFilter",
                       label: "Filtering",
                       controlType: "SWITCH",
@@ -456,7 +440,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       },
                     },
                     {
-                      id: "7.1.6.1.4",
                       propertyName: "enableSort",
                       label: "Sorting",
                       controlType: "SWITCH",
@@ -468,14 +451,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   ],
                 },
                 {
-                  id: "7.1.6.2",
                   sectionName: "Text",
                   hidden: (props: ColumnProperties) => {
                     return props.columnType === "button";
                   },
                   children: [
                     {
-                      id: "7.1.6.2.1",
                       propertyName: "horizontalAlignment",
                       label: "Text Align",
                       controlType: "ICON_TABS",
@@ -497,7 +478,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       isJSConvertible: true,
                     },
                     {
-                      id: "7.1.6.2.2",
                       propertyName: "textSize",
                       label: "Text Size",
                       controlType: "DROP_DOWN",
@@ -536,7 +516,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                     },
                     {
-                      id: "7.1.6.2.3",
                       propertyName: "fontStyle",
                       label: "Font Style",
                       controlType: "BUTTON_TABS",
@@ -554,7 +533,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       isJSConvertible: true,
                     },
                     {
-                      id: "7.1.6.2.4",
                       propertyName: "verticalAlignment",
                       label: "Vertical Alignment",
                       controlType: "ICON_TABS",
@@ -576,7 +554,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       isJSConvertible: true,
                     },
                     {
-                      id: "7.1.6.2.5",
                       propertyName: "textColor",
                       label: "Text Color",
                       controlType: "COLOR_PICKER",
@@ -585,7 +562,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   ],
                 },
                 {
-                  id: "7.1.6.3",
                   sectionName: "Button Properties",
                   hidden: (props: ColumnProperties) => {
                     return props.columnType !== "button";

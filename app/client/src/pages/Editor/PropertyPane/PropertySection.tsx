@@ -1,5 +1,5 @@
-import { Classes, Collapse, Icon } from "@blueprintjs/core";
-import { IconName, IconNames } from "@blueprintjs/icons";
+import { Classes, Icon } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
 

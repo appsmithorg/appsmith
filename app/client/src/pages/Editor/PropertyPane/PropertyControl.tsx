@@ -19,12 +19,10 @@ import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
-import produce from "immer";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   widgetProperties: any;
-  onPropertyChange?: (propertyName: string, propertyValue: any) => void;
 };
 
 const PropertyControl = (props: Props) => {
@@ -55,7 +53,7 @@ const PropertyControl = (props: Props) => {
     ],
   );
 
-  let onPropertyChange = useCallback(
+  const onPropertyChange = useCallback(
     (propertyName: string, propertyValue: any) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
@@ -63,36 +61,11 @@ const PropertyControl = (props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
       });
-      let value = propertyValue;
-      let key = propertyName;
-      if (props.panelConfig && propertyName.split(".").length > 1) {
-        const panelConfig = props.panelConfig;
-        const paths = propertyName.split(".");
-        console.log(
-          props.widgetProperties,
-          props.propertyName,
-          props.widgetProperties[props.propertyName],
-          paths,
-        );
-        const ind = props.widgetProperties[props.propertyName].findIndex(
-          (entry: any) => {
-            return entry[panelConfig.panelIdPropertyName] === paths[0];
-          },
-        );
-        key = props.propertyName;
-        value = produce(
-          props.widgetProperties[props.propertyName],
-          (list: any) => {
-            list[ind][paths[1]] = propertyValue;
-          },
-        );
-      }
-
       dispatch(
         updateWidgetPropertyRequest(
           widgetProperties.widgetId,
-          key,
-          value,
+          propertyName,
+          propertyValue,
           RenderModes.CANVAS, // This seems to be not needed anymore.
         ),
       );
@@ -105,8 +78,6 @@ const PropertyControl = (props: Props) => {
     ],
   );
 
-  if (props.onPropertyChange) onPropertyChange = props.onPropertyChange;
-
   const openPanel = useCallback(
     (panelProps: any) => {
       if (props.panelConfig) {
@@ -116,12 +87,14 @@ const PropertyControl = (props: Props) => {
             panelProps,
             panelConfig: props.panelConfig,
             onPropertyChange: onPropertyChange,
+            panelParentPropertyPath: props.propertyName,
           },
         });
       }
     },
-    [props.panelConfig, widgetProperties],
+    [props.panelConfig, onPropertyChange, props.panel, props.propertyName],
   );
+
   // Do not render the control if it needs to be hidden
   if (props.hidden && props.hidden(props.widgetProperties)) {
     return null;
@@ -147,12 +120,13 @@ const PropertyControl = (props: Props) => {
 
   const { propertyName, label } = props;
   if (widgetProperties) {
-    const propertyValue = widgetProperties[propertyName];
+    const propertyValue = _.get(widgetProperties, propertyName);
     const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
     const evaluatedValue = _.get(
       widgetProperties,
       `evaluatedValues.${propertyName}`,
     );
+
     const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const config = {
       ...props,
