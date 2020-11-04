@@ -23,6 +23,8 @@ module.exports = {
     "no-undef": 0,
     "react/prop-types": 0,
     "@typescript-eslint/explicit-module-boundary-types": 0,
+    "no-unused-vars": ["warn", { ignoreRestSiblings: true }],
+    "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
   },
   settings: {
     react: {

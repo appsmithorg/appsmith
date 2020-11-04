@@ -395,8 +395,7 @@ export const currentDropRow = (
     (draggableItemVerticalOffset - dropTargetVerticalOffset) /
       dropTargetRowSpace,
   );
-  const currentBottomOffset = top + widgetHeight;
-  return currentBottomOffset;
+  return top + widgetHeight;
 };
 
 export const widgetOperationParams = (

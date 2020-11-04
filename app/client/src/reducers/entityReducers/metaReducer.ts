@@ -45,18 +45,8 @@ export const metaReducer = createReducer(initialState, {
     }
     return state;
   },
-  [ReduxActionTypes.FETCH_PAGE_SUCCESS]: (
-    state: MetaState,
-    action: ReduxAction<{ widgetId: string }>,
-  ) => {
-    return initialState;
-  },
-  [ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS]: (
-    state: MetaState,
-    action: ReduxAction<{ widgetId: string }>,
-  ) => {
-    return initialState;
-  },
+  [ReduxActionTypes.FETCH_PAGE_SUCCESS]: () => initialState,
+  [ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS]: () => initialState,
 });
 
 export default metaReducer;

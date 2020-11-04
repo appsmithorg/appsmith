@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, ReactNode, memo } from "react";
+import React, { useMemo, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetTypes, WidgetType } from "constants/WidgetConstants";

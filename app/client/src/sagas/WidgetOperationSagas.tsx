@@ -37,7 +37,6 @@ import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
-  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -90,6 +89,7 @@ function getChildWidgetProps(
   const { leftColumn, topRow, newWidgetId, props, type } = params;
   let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const { blueprint = undefined, ...restDefaultConfig } = {
     ...(WidgetConfigResponse as any).config[type],
   };
@@ -209,7 +209,7 @@ function* generateChildWidgets(
   // Add the parentId prop to this widget
   widget.parentId = parent.widgetId;
   // Remove the blueprint from the widget (if any)
-  // as blueprints are not useful beyont this point.
+  // as blueprints are not useful beyond this point.
   delete widget.blueprint;
   return { widgetId: widget.widgetId, widgets };
 }
@@ -420,7 +420,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
     widget => widget.widgetId === action.payload.widgetId,
   );
 
-  // If the deleted widget is infact available.
+  // If the deleted widget is in fact available.
   if (deletedWidget) {
     // Log an undo event
     AnalyticsUtil.logEvent("WIDGET_DELETE_UNDO", {
@@ -478,7 +478,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
         }
         let newChildren = [widget.widgetId];
         if (widgets[widget.parentId].children) {
-          // Concatenate the list of paren't children with the current widgetId
+          // Concatenate the list of parent's children with the current widgetId
           newChildren = newChildren.concat(widgets[widget.parentId].children);
         }
         widgets = {
@@ -597,7 +597,7 @@ function* updateDynamicTriggers(
   propertyName: string,
   propertyValue: string,
 ) {
-  // TODO WIDGETFACTORY
+  // TODO WIDGET FACTORY
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
@@ -1131,7 +1131,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
 // in the entity explorer so that the selected widget is visible
-function* selectedWidgetAncestorySaga(
+function* selectedWidgetAncestrySaga(
   action: ReduxAction<{ widgetId: string }>,
 ) {
   try {
@@ -1158,7 +1158,7 @@ function* selectedWidgetAncestorySaga(
       payload: widgetIdsExpandList,
     });
   } catch (error) {
-    log.debug("Could not compute selected widget's ancestory", error);
+    log.debug("Could not compute selected widget's ancestry", error);
   }
 }
 
@@ -1190,6 +1190,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
-    takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestorySaga),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestrySaga),
   ]);
 }

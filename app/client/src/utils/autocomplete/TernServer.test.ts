@@ -1,4 +1,5 @@
 import TernServer from "./TernServer";
+import CodeMirror from "codemirror";
 import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
 
 describe("Tern server", () => {
@@ -88,7 +89,7 @@ describe("Tern server", () => {
       },
     ];
 
-    testCases.forEach((testCase, index) => {
+    testCases.forEach(testCase => {
       const request = ternServer.buildRequest(testCase.input, {});
 
       expect(request.query.end).toEqual(testCase.expectedOutput);
@@ -140,7 +141,7 @@ describe("Tern server", () => {
       },
     ];
 
-    testCases.forEach((testCase, index) => {
+    testCases.forEach(testCase => {
       MockCodemirrorEditor.getValue.mockReturnValueOnce(
         testCase.input.codeEditor.value,
       );

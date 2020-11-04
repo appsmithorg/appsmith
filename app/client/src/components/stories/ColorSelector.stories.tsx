@@ -3,9 +3,8 @@ import { action } from "@storybook/addon-actions";
 import ColorSelector from "components/ads/ColorSelector";
 import { withKnobs, array, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-// import { appCardColors } from "constants/AppConstants";
 import { StoryWrapper } from "components/ads/common";
-import { theme, light, dark } from "constants/DefaultTheme";
+import { light } from "constants/DefaultTheme";
 
 export default {
   title: "ColorSelector",

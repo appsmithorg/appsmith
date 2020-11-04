@@ -83,7 +83,7 @@ export class DroppableComponent extends React.Component<
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <Droppable droppableId="droppable">
-          {({ innerRef, droppableProps, placeholder }) => (
+          {({ innerRef, droppableProps }) => (
             <DroppableWrapper
               ref={innerRef as React.Ref<HTMLDivElement>}
               {...droppableProps}

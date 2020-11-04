@@ -1,4 +1,4 @@
 // TODO
-export default function TreeView(props: any) {
+export default function TreeView() {
   return null;
 }

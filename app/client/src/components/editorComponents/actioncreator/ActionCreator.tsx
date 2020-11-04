@@ -8,18 +8,18 @@ import {
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown, { TreeDropdownOption } from "./TreeDropdown";
 import {
-  FieldWrapper,
   ControlWrapper,
+  FieldWrapper,
 } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
 import { createModalAction } from "actions/widgetActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import HightlightedCode from "components/editorComponents/HighlightedCode";
+import HighlightedCode from "components/editorComponents/HighlightedCode";
 import TreeStructure from "components/utils/TreeStructure";
 import {
   createNewApiAction,
@@ -82,7 +82,7 @@ export const modalGetter = (value: string) => {
 
 const stringToJS = (string: string): string => {
   const { stringSegments, jsSnippets } = getDynamicBindings(string);
-  const js = stringSegments
+  return stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return jsSnippets[index];
@@ -91,7 +91,6 @@ const stringToJS = (string: string): string => {
       }
     })
     .join(" + ");
-  return js;
 };
 
 const JSToString = (js: string): string => {
@@ -131,13 +130,11 @@ const textSetter = (
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = argsStringToArray(matches[0][2]);
-  const jsVal = stringToJS(changeValue);
-  args[argNum] = jsVal;
-  const result = currentValue.replace(
+  args[argNum] = stringToJS(changeValue);
+  return currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
   );
-  return result;
 };
 
 const textGetter = (value: string, argNum: number) => {
@@ -145,8 +142,7 @@ const textGetter = (value: string, argNum: number) => {
   if (matches.length) {
     const args = argsStringToArray(matches[0][2]);
     const arg = args[argNum];
-    const stringFromJS = arg ? JSToString(arg.trim()) : arg;
-    return stringFromJS;
+    return arg ? JSToString(arg.trim()) : arg;
   }
   return "";
 };
@@ -159,11 +155,10 @@ const enumTypeSetter = (
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = argsStringToArray(matches[0][2]);
   args[argNum] = changeValue as string;
-  const result = currentValue.replace(
+  return currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
   );
-  return result;
 };
 
 const enumTypeGetter = (
@@ -334,11 +329,7 @@ const fieldConfigs: FieldConfigs = {
       }
       return mainFuncSelectedValue;
     },
-    setter: (
-      option: TreeDropdownOption,
-      currentValue: string,
-      defaultValue?: string,
-    ) => {
+    setter: (option: TreeDropdownOption) => {
       const type: ActionType = option.type || option.value;
       let value = option.value;
       switch (type) {
@@ -703,9 +694,9 @@ function renderField(props: {
             option.type === ActionType.api ||
             option.type === ActionType.query
           ) {
-            return <HightlightedCode codeText={`{{${option.label}.run()}}`} />;
+            return <HighlightedCode codeText={`{{${option.label}.run()}}`} />;
           } else if (displayValue) {
-            return <HightlightedCode codeText={displayValue} />;
+            return <HighlightedCode codeText={displayValue} />;
           }
           return <span>{option.label}</span>;
         };
@@ -927,10 +918,9 @@ function useModalDropdownList() {
       id: "create",
       className: "t--create-modal-btn",
       onSelect: (option: TreeDropdownOption, setter?: Function) => {
-        const modalName = nextModalName;
         if (setter) {
           setter({
-            value: `${modalName}`,
+            value: `${nextModalName}`,
           });
           dispatch(createModalAction(nextModalName));
         }
@@ -952,7 +942,7 @@ function useApiOptionTree() {
   const actions = useSelector(getActionsForCurrentPage).filter(
     action => action.config.pluginType === "API",
   );
-  const apiOptionTree = getOptionsWithChildren(baseOptions, actions, {
+  return getOptionsWithChildren(baseOptions, actions, {
     label: "Create API",
     value: "api",
     id: "create",
@@ -968,7 +958,6 @@ function useApiOptionTree() {
       }
     },
   });
-  return apiOptionTree;
 }
 
 function getQueryOptionsWithChildren(
@@ -998,7 +987,7 @@ function useQueryOptionTree() {
   const queries = useSelector(getActionsForCurrentPage).filter(
     action => action.config.pluginType === "DB",
   );
-  const queryOptionTree = getQueryOptionsWithChildren(baseOptions, queries, {
+  return getQueryOptionsWithChildren(baseOptions, queries, {
     label: "Create Query",
     value: "query",
     id: "create",
@@ -1014,7 +1003,6 @@ function useQueryOptionTree() {
       }
     },
   });
-  return queryOptionTree;
 }
 
 export function ActionCreator(props: ActionCreatorProps) {

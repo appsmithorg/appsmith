@@ -119,10 +119,10 @@ abstract class BaseWidget<
     resetChildrenMetaProperty(widgetId);
   }
 
-  /* eslint-disable @typescript-eslint/no-empty-function */
-  /* eslint-disable @typescript-eslint/no-unused-vars */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars, @typescript-eslint/no-empty-function
   componentDidUpdate(prevProps: T) {}
 
+  // eslint-disable-next-line  @typescript-eslint/no-empty-function
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
 
@@ -294,6 +294,7 @@ export interface BaseStyle {
 
 export type WidgetState = Record<string, unknown>;
 
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
   buildWidget(widgetProps: T): JSX.Element;
 }

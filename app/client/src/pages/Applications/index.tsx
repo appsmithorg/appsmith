@@ -28,10 +28,7 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
-import {
-  CREATE_ORGANIZATION_FORM_NAME,
-  CREATE_APPLICATION_FORM_NAME,
-} from "constants/forms";
+import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
@@ -227,7 +224,7 @@ function LeftPaneSection(props: {
         label={props.heading}
         textType={TextType.H6}
         isFetchingApplications={props.isFetchingApplications}
-      ></Item>
+      />
       {props.children}
     </>
   );
@@ -415,7 +412,7 @@ const ApplicationsSection = (props: any) => {
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
-  const deleteApplication = (applicationId: string, orgId: string) => {
+  const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
@@ -448,7 +445,7 @@ const ApplicationsSection = (props: any) => {
 
     const OrgName = (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
-        <StyledAnchor id={orgName}></StyledAnchor>
+        <StyledAnchor id={orgName} />
         <OrgNameHolder
           type={TextType.H1}
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
@@ -459,7 +456,7 @@ const ApplicationsSection = (props: any) => {
           >
             {orgName}
           </OrgNameElement>
-          <Icon name="downArrow" size={IconSize.XXS}></Icon>
+          <Icon name="downArrow" size={IconSize.XXS} />
         </OrgNameHolder>
       </OrgNameWrapper>
     );
@@ -486,7 +483,7 @@ const ApplicationsSection = (props: any) => {
           text="Share"
           icon="share"
           onSelect={() => setSelectedOrgId(orgId)}
-        ></MenuItem>
+        />
         <MenuItem
           icon="user"
           text="Members"
@@ -550,7 +547,7 @@ const ApplicationsSection = (props: any) => {
                   orgId={organization.id}
                   orgName={organization.name}
                   disabled={!hasManageOrgPermissions}
-                ></OrgMenu>
+                />
               )}
 
               {hasManageOrgPermissions && (
@@ -614,7 +611,7 @@ const ApplicationsSection = (props: any) => {
                             className="t--create-app-popup"
                             name={"plus"}
                             size={IconSize.LARGE}
-                          ></Icon>
+                          />
                           <CreateNewLabel
                             type={TextType.H4}
                             className="createnew"
@@ -700,9 +697,7 @@ class Applications extends Component<
             queryFn: this.props.searchApplications,
           }}
         />
-        <ApplicationsSection
-          searchKeyword={this.props.searchKeyword}
-        ></ApplicationsSection>
+        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
       </PageWrapper>
     );
   }

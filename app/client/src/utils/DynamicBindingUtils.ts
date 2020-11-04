@@ -6,8 +6,6 @@ import {
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
 
-type StringTuple = [string, string];
-
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
   const withBindings = string.replace(DATA_BIND_REGEX_GLOBAL, "{{ }}");

@@ -19,10 +19,7 @@ const ActionIconGroup = styled.div`
   align-items: center;
 `;
 
-export const ExplorerTitle = (props: {
-  isCollapsed: boolean;
-  onCollapseToggle: () => void;
-}) => {
+export const ExplorerTitle = () => {
   return (
     <Wrapper>
       <h1>EXPLORER</h1>

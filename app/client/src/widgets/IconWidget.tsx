@@ -6,7 +6,7 @@ import styled from "styled-components";
 import IconComponent, {
   IconType,
 } from "components/designSystems/appsmith/IconComponent";
-import { EventType, ExecutionResult } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import * as Sentry from "@sentry/react";
 
 const IconWrapper = styled.div`
@@ -19,9 +19,9 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
       onClick: true,
     };
   }
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  /* eslint-disable @typescript-eslint/no-empty-function */
-  handleActionResult = (result: ExecutionResult) => {};
+  handleActionResult = () => {
+    return undefined;
+  };
 
   onClick = () => {
     if (this.props.onClick) {

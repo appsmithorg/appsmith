@@ -11,7 +11,6 @@ import { put, takeLatest, call } from "redux-saga/effects";
 import { ERROR_401, ERROR_500, ERROR_0 } from "constants/messages";
 import { ToastType } from "react-toastify";
 import log from "loglevel";
-import { axiosConnectionAbortedCode } from "../api/Api";
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {

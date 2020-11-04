@@ -17,7 +17,7 @@ export const StyledImage = styled.div<
   }
 >`
   position: relative;
-  display: flex;                                                                                                                                                                                                                                                                                                                                                                          
+  display: flex;
   flex-direction: "row";
   cursor: ${props =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
@@ -120,7 +120,7 @@ class ImageComponent extends React.Component<
             }
           }}
         >
-          {({ zoomIn, zoomOut, setScale, ...rest }: any) => (
+          {({ zoomIn, zoomOut }: any) => (
             <React.Fragment>
               <TransformComponent>
                 <StyledImage
@@ -151,7 +151,7 @@ class ImageComponent extends React.Component<
                     src={this.props.imageUrl}
                     onError={this.onImageError}
                     onLoad={this.onImageLoad}
-                  ></img>
+                  />
                 </StyledImage>
               </TransformComponent>
             </React.Fragment>

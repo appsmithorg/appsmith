@@ -5,8 +5,6 @@ export type SentryConfig = {
   environment: string;
 };
 
-type Milliseconds = number;
-
 export enum FeatureFlagsEnum {}
 
 export type FeatureFlags = Record<FeatureFlagsEnum, boolean>;

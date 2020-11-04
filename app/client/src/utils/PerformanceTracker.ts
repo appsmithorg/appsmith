@@ -126,7 +126,7 @@ class PerformanceTracker {
     if (eventName) {
       const index = _.findLastIndex(
         PerformanceTracker.perfLogQueue,
-        (perfLog, i) => {
+        perfLog => {
           return perfLog.eventName === eventName;
         },
       );

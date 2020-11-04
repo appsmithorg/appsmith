@@ -67,13 +67,13 @@ export const entityDefinitions = {
     isVisible: isVisible,
     searchText: "string",
   }),
-  VIDEO_WIDGET: (widget: any) => ({
+  VIDEO_WIDGET: {
     "!doc":
       "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
     "!url": "https://docs.appsmith.com/widget-reference/video",
     playState: "number",
     autoPlay: "bool",
-  }),
+  },
   DROP_DOWN_WIDGET: {
     "!doc":
       "Dropdown is used to capture user input/s from a specified list of permitted inputs. A Dropdown can capture a single choice as well as multiple choices",

@@ -943,14 +943,14 @@ const evaluate = (
       // Set it to self
       Object.keys(GLOBAL_DATA).forEach(key => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
+        // @ts-ignore: Mutating global context to add data tree before eval
         self[key] = GLOBAL_DATA[key];
       });
 
       ///// Adding extra libraries separately
       extraLibraries.forEach(library => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
+        // @ts-ignore: Mutating global context to add libs before eval
         self[library.accessor] = library.lib;
       });
 
@@ -960,7 +960,7 @@ const evaluate = (
       // This is needed so that next eval can have a clean sheet
       Object.keys(GLOBAL_DATA).forEach(key => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
+        // @ts-ignore: Remove all data tree values of global context
         delete self[key];
       });
 
@@ -1066,11 +1066,7 @@ const clearCaches = () => {
 };
 
 const VALIDATORS: Record<ValidationType, Validator> = {
-  [VALIDATION_TYPES.TEXT]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ): ValidationResponse => {
+  [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {
     let parsed = value;
     if (isUndefined(value) || value === null) {
       return {
@@ -1128,11 +1124,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
 
     return { isValid, parsed, message };
   },
-  [VALIDATION_TYPES.NUMBER]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ): ValidationResponse => {
+  [VALIDATION_TYPES.NUMBER]: (value: any): ValidationResponse => {
     let parsed = value;
     if (isUndefined(value)) {
       return {
@@ -1165,11 +1157,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.BOOLEAN]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ): ValidationResponse => {
+  [VALIDATION_TYPES.BOOLEAN]: (value: any): ValidationResponse => {
     let parsed = value;
     if (isUndefined(value)) {
       return {
@@ -1191,11 +1179,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.OBJECT]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ): ValidationResponse => {
+  [VALIDATION_TYPES.OBJECT]: (value: any): ValidationResponse => {
     let parsed = value;
     if (isUndefined(value)) {
       return {
@@ -1221,11 +1205,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.ARRAY]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ): ValidationResponse => {
+  [VALIDATION_TYPES.ARRAY]: (value: any): ValidationResponse => {
     let parsed = value;
     try {
       if (isUndefined(value)) {
@@ -1446,7 +1426,6 @@ const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.DATE]: (
     dateString: string,
     props: WidgetProps,
-    dataTree?: DataTree,
   ): ValidationResponse => {
     const today = moment()
       .hour(0)
@@ -1474,11 +1453,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
     };
   },
-  [VALIDATION_TYPES.ACTION_SELECTOR]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ): ValidationResponse => {
+  [VALIDATION_TYPES.ACTION_SELECTOR]: (value: any): ValidationResponse => {
     if (Array.isArray(value) && value.length) {
       return {
         isValid: true,
@@ -1556,7 +1531,6 @@ const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.SELECTED_TAB]: (
     value: any,
     props: WidgetProps,
-    dataTree?: DataTree,
   ): ValidationResponse => {
     const tabs =
       props.tabs && isString(props.tabs)
