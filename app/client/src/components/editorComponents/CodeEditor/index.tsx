@@ -291,8 +291,9 @@ class CodeEditor extends Component<Props, State> {
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!this.props.dataTreePath));
 
+    const stringifiedValue = JSON.stringify(this.props.input.value);
     const showBindingPrompt =
-      (!this.props.input.value?.includes("{{") || !this.props.input.value) &&
+      (!stringifiedValue?.includes("{{") || !stringifiedValue) &&
       showEvaluatedValue;
 
     return (
