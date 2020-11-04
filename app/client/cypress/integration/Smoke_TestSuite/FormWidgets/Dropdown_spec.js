@@ -1,20 +1,33 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
+const widgetLocators = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/newFormDsl.json");
 const pages = require("../../../locators/Pages.json");
+const data = require("../../../fixtures/example.json");
 
 describe("Dropdown Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Dropdown Widget Functionality", function() {
+  it("Selects value with invalid default value", () => {
     cy.openPropertyPane("dropdownwidget");
-    /**
-     * @param{Text} Random Text
-     * @param{DropdownWidget}Mouseover
-     * @param{DropdownPre Css} Assertion
-     */
+
+    cy.testJsontext("options", JSON.stringify(data.input));
+    cy.testJsontext("defaultoption", "Not an option");
+
+    cy.get(formWidgetsPage.dropdownWidget)
+      .find(widgetLocators.dropdownSingleSelect)
+      .click({ force: true });
+    cy.get(commonlocators.singleSelectMenuItem)
+      .contains("Option 3")
+      .click({ force: true });
+
+    cy.get(formWidgetsPage.dropdownWidget)
+      .find(widgetLocators.defaultSingleSelectValue)
+      .should("have.text", "Option 3");
+  });
+  it("Dropdown Widget Functionality", function() {
     cy.widgetText(
       "lock",
       formWidgetsPage.dropdownWidget,
@@ -30,7 +43,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.dropdownSelectionType)
       .find(commonlocators.menuSelection)
       .should("have.text", "Multi Select");
-    cy.testJsontext("options", JSON.stringify(this.data.input));
     /**
      * @param{Show Alert} Css for InputChange
      */

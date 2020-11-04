@@ -70,33 +70,28 @@ public class ApplicationFetcher {
         return userMono
                 .flatMap(user -> {
                     Set<String> orgIds = user.getOrganizationIds();
-                    /*
-                     * For all the organization ids present in the user object, fetch all the organization objects
-                     * and store in a map for fast access.
-                     */
-                    Mono<Map<String, Organization>> organizationsMapMono = organizationService
-                            .findByIdsIn(orgIds, READ_ORGANIZATIONS)
-                            .collectMap(Organization::getId, Function.identity());
+
+                    // Collect all the applications as a map with organization id as a key
+
+                    Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationRepository
+                            .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
+                            .collectMultimap(Application::getOrganizationId, Function.identity());
 
                     UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
                     userHomepageDTO.setUser(user);
 
-                    return applicationRepository
-                            // Fetch all the applications which belong the organization ids present in the user
-                            .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
-                            // Collect all the applications as a map with organization id as a key
-                            .collectMultimap(Application::getOrganizationId)
-                            .zipWith(organizationsMapMono)
+                    return organizationService
+                            .findByIdsIn(orgIds, READ_ORGANIZATIONS)
+                            .collectList()
+                            .zipWith(applicationsMapMono)
                             .map(tuple -> {
-                                Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT1();
-                                Map<String, Organization> organizationsMap = tuple.getT2();
+                                List<Organization> organizations = tuple.getT1();
+                                Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT2();
 
                                 List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
 
-                                for (Map.Entry<String, Organization> organizationEntry : organizationsMap.entrySet()) {
-                                    String orgId = organizationEntry.getKey();
-                                    Organization organization = organizationEntry.getValue();
-                                    Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(orgId);
+                                for (Organization organization : organizations) {
+                                    Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(organization.getId());
 
                                     final List<Application> applicationList = new ArrayList<>();
                                     if (!CollectionUtils.isEmpty(applicationCollection)) {

@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
 const ItemWrapper = styled.div`
   padding-right: 16px;
   margin: 8px 0 0 0;
@@ -27,7 +26,6 @@ interface DroppableComponentProps {
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
   updateItems: (items: Array<Record<string, unknown>>) => void;
-  onEdit?: (index: number) => void;
 }
 
 interface DroppableComponentState {

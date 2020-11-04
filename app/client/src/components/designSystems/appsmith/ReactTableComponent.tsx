@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
@@ -61,6 +63,20 @@ interface ReactTableComponentProps {
   selectedRowIndices: number[];
   multiRowSelection?: boolean;
   hiddenColumns?: string[];
+  columnNameMap?: { [key: string]: string };
+  columnTypeMap?: {
+    [key: string]: {
+      type: string;
+      format: string;
+      inputFormat?: string;
+    };
+  };
+  columnSizeMap?: { [key: string]: number };
+  updateColumnType: (columnTypeMap: {
+    [key: string]: { type: string; format: string };
+  }) => void;
+  updateColumnName: (columnNameMap: { [key: string]: string }) => void;
+  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];

@@ -39,7 +39,7 @@ interface TableProps {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   selectTableRow: (
-    row: { original: any; index: number },
+    row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
   ) => void;
   pageNo: number;
@@ -110,7 +110,7 @@ export const Table = (props: TableProps) => {
   }
   const subPage = page.slice(startIndex, endIndex);
   const selectedRowIndex = props.selectedRowIndex;
-  const selectedRowIndices = props.selectedRowIndices;
+  const selectedRowIndices = props.selectedRowIndices || [];
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   /* Subtracting 9px to handling widget padding */
   return (

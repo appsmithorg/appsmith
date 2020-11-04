@@ -80,7 +80,10 @@ import IconWidget, {
 } from "widgets/IconWidget";
 
 import CanvasWidget, { ProfiledCanvasWidget } from "widgets/CanvasWidget";
-
+import SkeletonWidget, {
+  ProfiledSkeletonWidget,
+  SkeletonWidgetProps,
+} from "../widgets/SkeletonWidget";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -393,6 +396,20 @@ export default class WidgetBuilderRegistry {
       IconWidget.getTriggerPropertyMap(),
       IconWidget.getDefaultPropertiesMap(),
       IconWidget.getMetaPropertiesMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.SKELETON_WIDGET,
+      {
+        buildWidget(widgetProps: SkeletonWidgetProps): JSX.Element {
+          return <ProfiledSkeletonWidget {...widgetProps} />;
+        },
+      },
+      SkeletonWidget.getPropertyValidationMap(),
+      SkeletonWidget.getDerivedPropertiesMap(),
+      SkeletonWidget.getTriggerPropertyMap(),
+      SkeletonWidget.getDefaultPropertiesMap(),
+      SkeletonWidget.getMetaPropertiesMap(),
     );
   }
 }

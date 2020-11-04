@@ -9,7 +9,6 @@ import {
 } from "./hooks";
 import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
-import ExplorerDatasourcesGroup from "./Datasources/DatasourcesGroup";
 import { scrollbarDark } from "constants/DefaultTheme";
 import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
@@ -21,6 +20,8 @@ import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { useSelector } from "react-redux";
+import { getPlugins } from "selectors/entitiesSelector";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -51,6 +52,8 @@ const EntityExplorer = (props: IPanelProps) => {
   const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
   const datasources = useFilteredDatasources(searchKeyword);
 
+  const plugins = useSelector(getPlugins);
+
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
 
@@ -60,8 +63,10 @@ const EntityExplorer = (props: IPanelProps) => {
     const noActions =
       Object.values(actions).filter(actions => actions && actions.length > 0)
         .length === 0;
-
-    const noDatasource = !datasources || datasources.length === 0;
+    const noDatasource =
+      Object.values(datasources).filter(
+        datasources => datasources && datasources.length > 0,
+      ).length === 0;
     noResults = noWidgets && noActions && noDatasource;
   }
   const { openPanel } = props;
@@ -77,6 +82,8 @@ const EntityExplorer = (props: IPanelProps) => {
         step={0}
         widgets={widgets}
         actions={actions}
+        datasources={datasources}
+        plugins={plugins}
         showWidgetsSidebar={showWidgetsSidebar}
       />
       {noResults && (
@@ -87,12 +94,6 @@ const EntityExplorer = (props: IPanelProps) => {
           icon="search"
         />
       )}
-      <StyledDivider />
-      <ExplorerDatasourcesGroup
-        searchKeyword={searchKeyword}
-        step={0}
-        datasources={datasources}
-      />
       <StyledDivider />
       <JSDependencies />
     </Wrapper>

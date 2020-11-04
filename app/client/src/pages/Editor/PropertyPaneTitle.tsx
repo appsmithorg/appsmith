@@ -115,6 +115,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
           onBlur={exitEditMode}
           hideEditIcon
           minimal
+          className="t--propery-page-title"
         />
         {updating && <Spinner size={16} />}
       </NameWrapper>

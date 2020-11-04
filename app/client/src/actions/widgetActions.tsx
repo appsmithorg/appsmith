@@ -30,11 +30,10 @@ export const executeActionError = (
 
 export const executePageLoadActions = (
   payload: PageAction[][],
-): BatchAction<PageAction[][]> =>
-  batchAction({
-    type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-    payload,
-  });
+): ReduxAction<PageAction[][]> => ({
+  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+  payload,
+});
 
 export const disableDragAction = (
   isDraggingDisabled: boolean,
@@ -125,5 +124,12 @@ export const deleteSelectedWidget = (
 export const cutWidget = () => {
   return {
     type: ReduxActionTypes.CUT_SELECTED_WIDGET,
+  };
+};
+
+export const addTableWidgetFromQuery = (queryName: string) => {
+  return {
+    type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
+    payload: queryName,
   };
 };

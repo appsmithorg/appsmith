@@ -129,7 +129,6 @@ const SearchInput = forwardRef(
         <StyledInput
           type="text"
           ref={ref}
-          value={searchValue}
           isFocused={isFocused}
           {...props}
           placeholder={props.placeholder ? props.placeholder : ""}

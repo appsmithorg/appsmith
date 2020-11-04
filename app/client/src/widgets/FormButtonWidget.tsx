@@ -8,7 +8,7 @@ import { EventType, ExecutionResult } from "constants/ActionConstants";
 import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";

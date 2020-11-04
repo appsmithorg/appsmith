@@ -1,17 +1,13 @@
-import _ from "lodash";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import {
   REQUEST_TIMEOUT_MS,
   API_REQUEST_HEADERS,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-import {
-  AUTH_LOGIN_URL,
-  PAGE_NOT_FOUND_URL,
-  SERVER_ERROR_URL,
-} from "constants/routes";
+import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
+import { SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -23,8 +19,10 @@ export const apiRequestConfig = {
 
 const axiosInstance: AxiosInstance = axios.create();
 
+export const axiosConnectionAbortedCode = "ECONNABORTED";
 const executeActionRegex = /actions\/execute/;
-const currentUserRegex = /\/me$/;
+const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
+
 axiosInstance.interceptors.request.use((config: any) => {
   return { ...config, timer: performance.now() };
 });
@@ -51,16 +49,24 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
-    if (error.code === "ECONNABORTED") {
-      if (error.config.url.match(currentUserRegex)) {
-        history.replace({ pathname: SERVER_ERROR_URL });
-      }
-      return Promise.reject({
-        message: "Please check your internet connection",
-      });
+    // Return if the call was cancelled via cancel token
+    if (axios.isCancel(error)) {
+      return;
     }
-    if (error.config.url.match(executeActionRegex)) {
+    // Return modified response if action execution failed
+    if (error.config && error.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(error.response);
+    }
+    // Return error if any timeout happened in other api calls
+    if (
+      error.code === axiosConnectionAbortedCode &&
+      error.message &&
+      error.message.match(timeoutErrorRegex)
+    ) {
+      return Promise.reject({
+        ...error,
+        message: SERVER_API_TIMEOUT_ERROR,
+      });
     }
     if (error.response) {
       // The request was made and the server responded with a status code
@@ -117,24 +123,27 @@ class Api {
   static get(
     url: string,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
-    return axiosInstance.get(
-      url + convertObjectToQueryParams(queryParams),
-      _.merge(apiRequestConfig, config),
-    );
+    return axiosInstance.get(url + convertObjectToQueryParams(queryParams), {
+      ...apiRequestConfig,
+      ...config,
+    });
   }
 
   static post(
     url: string,
     body?: any,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
     return axiosInstance.post(
       url + convertObjectToQueryParams(queryParams),
       body,
-      _.merge(apiRequestConfig, config),
+      {
+        ...apiRequestConfig,
+        ...config,
+      },
     );
   }
 
@@ -142,24 +151,27 @@ class Api {
     url: string,
     body?: any,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
     return axiosInstance.put(
       url + convertObjectToQueryParams(queryParams),
       body,
-      _.merge(apiRequestConfig, config),
+      {
+        ...apiRequestConfig,
+        ...config,
+      },
     );
   }
 
   static delete(
     url: string,
     queryParams?: any,
-    config?: Partial<AxiosRequestConfig>,
+    config: Partial<AxiosRequestConfig> = {},
   ) {
-    return axiosInstance.delete(
-      url + convertObjectToQueryParams(queryParams),
-      _.merge(apiRequestConfig, config),
-    );
+    return axiosInstance.delete(url + convertObjectToQueryParams(queryParams), {
+      ...apiRequestConfig,
+      ...config,
+    });
   }
 }
 

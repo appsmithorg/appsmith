@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
 import entityReducer from "./entityReducers";
 import uiReducer from "./uiReducers";
+import evaluationsReducer from "./evalutationReducers";
 import { reducer as formReducer } from "redux-form";
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
@@ -29,14 +30,18 @@ import { ImportReduxState } from "reducers/uiReducers/importReducer";
 import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
-import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
+import { PageCanvasStructureReduxState } from "./uiReducers/pageCanvasStructure";
 import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
+import { EvaluatedTreeState } from "./evalutationReducers/treeReducer";
+import { EvaluationDependencyState } from "./evalutationReducers/dependencyReducer";
+import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
   ui: uiReducer,
+  evaluations: evaluationsReducer,
   form: formReducer,
 });
 
@@ -63,7 +68,8 @@ export interface AppState {
     help: HelpReduxState;
     apiName: ApiNameReduxState;
     explorer: ExplorerReduxState;
-    pageDSLs: PageDSLsReduxState;
+    pageCanvasStructure: PageCanvasStructureReduxState;
+    pageWidgets: PageWidgetsReduxState;
     confirmRunAction: ConfirmRunActionReduxState;
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
@@ -77,5 +83,9 @@ export interface AppState {
     plugins: PluginDataState;
     meta: MetaState;
     app: AppDataState;
+  };
+  evaluations: {
+    tree: EvaluatedTreeState;
+    dependencies: EvaluationDependencyState;
   };
 }

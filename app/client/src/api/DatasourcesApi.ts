@@ -75,25 +75,31 @@ class DatasourcesApi extends API {
     return API.get(DatasourcesApi.url + `?organizationId=${orgId}`);
   }
 
-  static createDatasource(datasourceConfig: Partial<Datasource>) {
+  static createDatasource(datasourceConfig: Partial<Datasource>): Promise<any> {
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
-  static testDatasource(datasourceConfig: Partial<Datasource>) {
+  static testDatasource(datasourceConfig: Partial<Datasource>): Promise<any> {
     return API.post(`${DatasourcesApi.url}/test`, datasourceConfig, undefined, {
       timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
     });
   }
 
-  static updateDatasource(datasourceConfig: Partial<Datasource>, id: string) {
+  static updateDatasource(
+    datasourceConfig: Partial<Datasource>,
+    id: string,
+  ): Promise<any> {
     return API.put(DatasourcesApi.url + `/${id}`, datasourceConfig);
   }
 
-  static deleteDatasource(id: string) {
+  static deleteDatasource(id: string): Promise<any> {
     return API.delete(DatasourcesApi.url + `/${id}`);
   }
 
-  static fetchDatasourceStructure(id: string, ignoreCache = false) {
+  static fetchDatasourceStructure(
+    id: string,
+    ignoreCache = false,
+  ): Promise<any> {
     return API.get(
       DatasourcesApi.url + `/${id}/structure?ignoreCache=${ignoreCache}`,
     );

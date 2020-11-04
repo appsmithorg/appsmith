@@ -84,6 +84,9 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<UpdateResult> setDefaultPage(String applicationId, String pageId) {
+        // Since this can only happen during edit, the page in question is unpublished page. Hence the update should
+        // be to pages and not publishedPages
+
         final Mono<UpdateResult> setAllAsNonDefaultMono = mongoOperations.updateFirst(
                 Query.query(getIdCriteria(applicationId)).addCriteria(Criteria.where("pages.isDefault").is(true)),
                 new Update().set("pages.$.isDefault", false),

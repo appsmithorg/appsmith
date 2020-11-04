@@ -933,7 +933,10 @@ export const ConditionFunctions: {
     return a !== "" && a !== undefined && a !== null;
   },
   notEqualTo: (a: any, b: any) => {
-    return a !== b;
+    return a.toString() !== b.toString();
+  },
+  isEqualTo: (a: any, b: any) => {
+    return a.toString() === b.toString();
   },
   lessThan: (a: any, b: any) => {
     const numericB = Number(b);

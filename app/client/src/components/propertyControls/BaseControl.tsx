@@ -6,10 +6,11 @@ import { Component } from "react";
 import _ from "lodash";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 
-abstract class BaseControl<
-  P extends ControlProps,
-  S = Record<string, unknown>
-> extends Component<P, S> {
+// eslint-disable-next-line @typescript-eslint/ban-types
+abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
+  P,
+  S
+> {
   updateProperty(propertyName: string, propertyValue: any) {
     if (!_.isNil(this.props.onPropertyChange))
       this.props.onPropertyChange(propertyName, propertyValue);

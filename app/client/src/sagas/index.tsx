@@ -19,6 +19,7 @@ import queryPaneSagas from "./QueryPaneSagas";
 import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
+import evaluationsSaga from "./evaluationsSaga";
 
 export function* rootSaga() {
   const sagas = [
@@ -42,6 +43,7 @@ export function* rootSaga() {
     modalSagas,
     batchSagas,
     themeSagas,
+    evaluationsSaga,
   ];
   yield all(
     sagas.map(saga =>

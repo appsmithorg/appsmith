@@ -16,7 +16,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
-} from "utils/ValidationFactory";
+} from "utils/WidgetValidation";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";

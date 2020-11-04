@@ -29,6 +29,8 @@ export const TableWrapper = styled.div<{
     color: ${Colors.THUNDER};
     position: relative;
     background: ${Colors.ATHENS_GRAY_DARKER};
+    display: table;
+    width: 100%;
     .thead,
     .tbody {
       overflow: hidden;

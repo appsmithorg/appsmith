@@ -28,7 +28,7 @@ export type AppDataState = {
   mode?: APP_MODE;
   user: AuthUserState;
   URL: UrlDataState;
-  store: object;
+  store: Record<string, unknown>;
 };
 
 const initialState: AppDataState = {
@@ -80,7 +80,7 @@ const appReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.UPDATE_APP_STORE]: (
     state: AppDataState,
-    action: ReduxAction<object>,
+    action: ReduxAction<Record<string, unknown>>,
   ) => {
     return {
       ...state,

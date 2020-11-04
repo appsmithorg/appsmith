@@ -23,7 +23,7 @@ public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint 
 
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
-        log.debug("In the custom authenticationEntryPoint. Returning unauthorized from here");
+        // In the custom authenticationEntryPoint. Returning unauthorized from here
         return Mono.fromRunnable(() -> {
             ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.UNAUTHORIZED);

@@ -1,4 +1,4 @@
-import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/ActionConstants";
 import { Org } from "./orgConstants";
 
@@ -131,6 +131,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_PLUGINS_SUCCESS: "FETCH_PLUGINS_SUCCESS",
   FETCH_PLUGIN_FORM_INIT: "FETCH_PLUGIN_FORM_INIT",
   FETCH_PLUGIN_FORM_SUCCESS: "FETCH_PLUGIN_FORM_SUCCESS",
+  FETCH_DB_PLUGIN_FORMS_INIT: "FETCH_DB_PLUGIN_FORMS_INIT",
+  FETCH_DB_PLUGIN_FORMS_SUCCESS: "FFETCH_DB_PLUGIN_FORMS_SUCCESS",
   INVITE_USERS_TO_ORG_INIT: "INVITE_USERS_TO_ORG_INIT",
   INVITE_USERS_TO_ORG_SUCCESS: "INVITE_USERS_TO_ORG_SUCCESS",
   FORGOT_PASSWORD_INIT: "FORGOT_PASSWORD_INIT",
@@ -168,6 +170,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FOCUS_WIDGET: "FOCUS_WIDGET",
   SET_WIDGET_DRAGGING: "SET_WIDGET_DRAGGING",
   SET_WIDGET_RESIZING: "SET_WIDGET_RESIZING",
+  ADD_TABLE_WIDGET_FROM_QUERY: "ADD_TABLE_WIDGET_FROM_QUERY",
   SEARCH_APPLICATIONS: "SEARCH_APPLICATIONS",
   UPDATE_PAGE_INIT: "UPDATE_PAGE_INIT",
   UPDATE_PAGE_SUCCESS: "UPDATE_PAGE_SUCCESS",
@@ -263,7 +266,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   END_EXPLORER_ENTITY_NAME_EDIT: "END_EXPLORER_ENTITY_NAME_EDIT",
   POPULATE_PAGEDSLS_INIT: "POPULATE_PAGEDSLS_INIT",
   POPULATE_PAGEDSLS_SUCCESS: "POPULATE_PAGEDSLS_SUCCESS",
-  FETCH_PAGE_DSL_INIT: "FETCH_PAGE_DSL_INIT",
+  FETCH_PAGE_DSLS_SUCCESS: "FETCH_PAGE_DSLS_SUCCESS",
   FETCH_PAGE_DSL_SUCCESS: "FETCH_PAGE_DSL_SUCCESS",
   SET_URL_DATA: "SET_URL_DATA",
   SET_APP_MODE: "SET_APP_MODE",
@@ -282,13 +285,18 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UNDO_DELETE_WIDGET: "UNDO_DELETE_WIDGET",
   CUT_SELECTED_WIDGET: "CUT_SELECTED_WIDGET",
   WIDGET_ADD_CHILDREN: "WIDGET_ADD_CHILDREN",
-  OPEN_SUB_PANE: "OPEN_SUB_PANE",
+  SET_EVALUATED_TREE: "SET_EVALUATED_TREE",
+  BATCH_UPDATES_SUCCESS: "BATCH_UPDATES_SUCCESS",
+  UPDATE_CANVAS_STRUCTURE: "UPDATE_CANVAS_STRUCTURE",
+  SET_SELECTED_WIDGET_ANCESTORY: "SET_SELECTED_WIDGET_ANCESTORY",
+  START_EVALUATION: "START_EVALUATION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR_ERROR: "INITIALIZE_EDITOR_ERROR",
+  INITIALIZE_PAGE_VIEWER_ERROR: "INITIALIZE_PAGE_VIEWER_ERROR",
   API_ERROR: "API_ERROR",
   WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
   UPDATE_APPLICATION_ERROR: "UPDATE_APPLICATION_ERROR",
@@ -337,6 +345,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   SWITCH_ORGANIZATION_ERROR: "SWITCH_ORGANIZATION_ERROR",
   TEST_DATASOURCE_ERROR: "TEST_DATASOURCE_ERROR",
   FETCH_PLUGIN_FORM_ERROR: "FETCH_PLUGIN_FORM_ERROR",
+  FETCH_DB_PLUGIN_FORMS_ERROR: "FETCH_DB_PLUGIN_FORMS_ERROR",
   FORGOT_PASSWORD_ERROR: "FORGOT_PASSWORD_ERROR",
   RESET_PASSWORD_VERIFY_TOKEN_ERROR: "RESET_PASSWORD_VERIFY_TOKEN_ERROR",
   FETCH_ORG_ROLES_ERROR: "FETCH_ORG_ROLES_ERROR",
@@ -404,6 +413,11 @@ export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
   meta: M;
 }
+
+export interface EvaluationReduxAction<T> extends ReduxAction<T> {
+  postEvalActions?: ReduxAction<any>[];
+}
+
 export interface PromisePayload {
   reject: any;
   resolve: any;
@@ -478,8 +492,4 @@ export interface LoadWidgetSidebarPayload {
 export type InitializeEditorPayload = {
   applicationId: string;
   pageId: string;
-};
-
-export type FetchPageListPayload = {
-  applicationId: string;
 };

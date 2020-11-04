@@ -20,6 +20,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
+@Deprecated
 public class Action extends BaseDomain {
 
     String name;

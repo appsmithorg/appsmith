@@ -1,12 +1,12 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
+
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
-import * as log from "loglevel";
+import { getDataTree } from "selectors/dataTreeSelectors";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -32,12 +32,11 @@ export const getCurrentWidgetProperties = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  evaluateDataTreeWithoutFunctions,
+  getDataTree,
   (
     widget: WidgetProps | undefined,
     evaluatedTree: DataTree,
   ): WidgetProps | undefined => {
-    log.debug("Evaluating data tree to get property pane validations");
     if (!widget) return undefined;
     const evaluatedWidget = _.find(evaluatedTree, {
       widgetId: widget.widgetId,
@@ -64,44 +63,44 @@ export const getIsPropertyPaneVisible = createSelector(
   (pane: PropertyPaneReduxState) => !!(pane.isVisible && pane.widgetId),
 );
 
-export const getWidgetChildPropertiesForPropertyPane = createSelector(
-  getPropertyPaneState,
-  getCurrentWidgetProperties,
-  evaluateDataTreeWithoutFunctions,
-  (
-    pane: PropertyPaneReduxState,
-    widget: WidgetProps | undefined,
-    evaluatedTree: DataTree,
-  ): any | undefined => {
-    log.debug("Evaluating data tree to get child property pane validations");
-    if (!widget) return undefined;
-    const evaluatedWidget = _.find(evaluatedTree, {
-      widgetId: widget.widgetId,
-    }) as DataTreeWidget;
-    const widgetProperties = { ...widget };
-    let childProperties = undefined;
-    if (evaluatedWidget) {
-      if (evaluatedWidget.evaluatedValues) {
-        widgetProperties.evaluatedValues = {
-          ...evaluatedWidget.evaluatedValues,
-        };
-      }
-      if (evaluatedWidget.invalidProps) {
-        const { invalidProps, validationMessages } = evaluatedWidget;
-        widgetProperties.invalidProps = invalidProps;
-        widgetProperties.validationMessages = validationMessages;
-      }
-    }
-    if (pane.propertyControlId) {
-      const childItems = widgetProperties[pane.propertyControlId];
-      if (childItems && childItems.length) {
-        for (let i = 0; i < childItems.length; i++) {
-          if (childItems[i] && childItems[i].id === pane.widgetChildProperty) {
-            childProperties = childItems[i];
-          }
-        }
-      }
-    }
-    return childProperties;
-  },
-);
+// export const getWidgetChildPropertiesForPropertyPane = createSelector(
+//   getPropertyPaneState,
+//   getCurrentWidgetProperties,
+//   getDataTree,
+//   (
+//     pane: PropertyPaneReduxState,
+//     widget: WidgetProps | undefined,
+//     evaluatedTree: DataTree,
+//   ): any | undefined => {
+//     log.debug("Evaluating data tree to get child property pane validations");
+//     if (!widget) return undefined;
+//     const evaluatedWidget = _.find(evaluatedTree, {
+//       widgetId: widget.widgetId,
+//     }) as DataTreeWidget;
+//     const widgetProperties = { ...widget };
+//     let childProperties = undefined;
+//     if (evaluatedWidget) {
+//       if (evaluatedWidget.evaluatedValues) {
+//         widgetProperties.evaluatedValues = {
+//           ...evaluatedWidget.evaluatedValues,
+//         };
+//       }
+//       if (evaluatedWidget.invalidProps) {
+//         const { invalidProps, validationMessages } = evaluatedWidget;
+//         widgetProperties.invalidProps = invalidProps;
+//         widgetProperties.validationMessages = validationMessages;
+//       }
+//     }
+//     if (pane.propertyControlId) {
+//       const childItems = widgetProperties[pane.propertyControlId];
+//       if (childItems && childItems.length) {
+//         for (let i = 0; i < childItems.length; i++) {
+//           if (childItems[i] && childItems[i].id === pane.widgetChildProperty) {
+//             childProperties = childItems[i];
+//           }
+//         }
+//       }
+//     }
+//     return childProperties;
+//   },
+// );
