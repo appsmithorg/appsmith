@@ -2,19 +2,33 @@
   "name": "appsmith",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "start": "EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com node scripts/start.js",
+    "build": "./build.sh",
+    "build-local": "node --max-old-space-size=4096 node scripts/build.js",
+    "build-staging": "REACT_APP_ENVIRONMENT=STAGING node --max-old-space-size=4096 scripts/build.js",
+    "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
+    "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
+    "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION node scripts/start.js",
+    "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT node scripts/start.js & ./node_modules/.bin/cypress open",
+    "test:unit": "$(npm bin)/jest -b --colors",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public"
+  },
+  "resolution": {
+    "jest": "24.8.0"
+  },
   "engines": {
     "node": "^10.16.3",
     "npm": "^6.9.0"
   },
-  "cracoConfig": "craco.dev.config.js",
   "dependencies": {
-    "@babel/core": "7.12.3",
     "@blueprintjs/core": "^3.18.1",
     "@blueprintjs/datetime": "^3.14.0",
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/select": "^3.10.0",
     "@blueprintjs/timezone": "^3.6.0",
-    "@craco/craco": "^5.7.0",
     "@manaflair/redux-batch": "^1.0.0",
     "@optimizely/optimizely-sdk": "^4.0.0",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.2",
@@ -37,8 +51,6 @@
     "@types/react-table": "^7.0.13",
     "@types/styled-components": "^5.1.3",
     "@types/tinycolor2": "^1.4.2",
-    "@typescript-eslint/eslint-plugin": "^4.5.0",
-    "@typescript-eslint/parser": "^4.5.0",
     "@uppy/core": "^1.8.2",
     "@uppy/dashboard": "^1.6.2",
     "@uppy/file-input": "^1.3.1",
@@ -52,7 +64,6 @@
     "axios": "^0.18.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.0",
-    "babel-loader": "8.1.0",
     "babel-plugin-named-asset-import": "^0.3.7",
     "babel-preset-react-app": "^10.0.0",
     "bfj": "^7.0.2",
@@ -62,9 +73,7 @@
     "codemirror": "^5.55.0",
     "copy-to-clipboard": "^3.3.1",
     "cosmiconfig": "^7.0.0",
-    "craco-alias": "^2.1.1",
     "css-loader": "4.3.0",
-    "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "downloadjs": "^1.4.7",
     "eslint": "^7.11.0",
@@ -73,8 +82,6 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.1.0",
     "eslint-plugin-jsx-a11y": "^6.3.1",
-    "eslint-plugin-react": "^7.21.5",
-    "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-testing-library": "^3.9.2",
     "eslint-webpack-plugin": "^2.1.0",
     "fast-deep-equal": "^3.1.1",
@@ -177,23 +184,6 @@
     "workbox-webpack-plugin": "5.1.4",
     "worker-loader": "^3.0.2"
   },
-  "scripts": {
-    "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com node scripts/start.js",
-    "build": "./build.sh",
-    "build-local": "node --max-old-space-size=4096 node scripts/build.js",
-    "build-staging": "REACT_APP_ENVIRONMENT=STAGING node --max-old-space-size=4096 scripts/build.js",
-    "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
-    "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
-    "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION node scripts/start.js",
-    "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
-    "test:unit": "$(npm bin)/jest -b --colors",
-    "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public"
-  },
-  "resolution": {
-    "jest": "24.8.0"
-  },
   "eslintConfig": {
     "extends": "react-app",
     "parser": "@typescript-eslint/parser"
@@ -233,17 +223,16 @@
     "@typescript-eslint/parser": "^4.6.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-styled-components": "^1.10.7",
-    "craco-babel-loader": "^0.1.4",
     "cypress": "5.3.0",
     "cypress-multi-reporters": "^1.2.4",
     "cypress-xpath": "^1.4.0",
-    "dotenv": "^8.1.0",
+    "dotenv": "^8.2.0",
     "eslint": "^7.11.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-react": "^7.21.3",
-    "eslint-plugin-react-hooks": "^2.3.0",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "mocha": "^7.1.0",
     "mocha-junit-reporter": "^1.23.3",
     "mochawesome": "^5.0.0",
@@ -257,8 +246,7 @@
     "source-map-explorer": "^2.4.2",
     "storybook-addon-designs": "^5.4.0",
     "ts-jest": "^24.3.0",
-    "webpack-merge": "^4.2.2",
-    "workbox-webpack-plugin": "^5.1.2"
+    "webpack-merge": "^4.2.2"
   },
   "husky": {
     "hooks": {
