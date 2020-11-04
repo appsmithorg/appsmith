@@ -37,8 +37,16 @@ public class GlobalExceptionHandler {
 
     private void doLog(Throwable error) {
         log.error("", error);
-        if (rollbar != null) {
-            rollbar.log(error);
+
+        if (error instanceof AppsmithException) {
+            if (rollbar != null && ((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+                rollbar.log(error);
+            }
+        }
+        else {
+            if(rollbar != null) {
+                rollbar.log(error);
+            }
         }
     }
 
