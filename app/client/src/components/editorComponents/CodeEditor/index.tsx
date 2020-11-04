@@ -291,10 +291,10 @@ class CodeEditor extends Component<Props, State> {
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!this.props.dataTreePath));
 
-    const stringifiedValue = JSON.stringify(this.props.input.value);
     const showBindingPrompt =
-      (!stringifiedValue?.includes("{{") || !stringifiedValue) &&
-      showEvaluatedValue;
+      !_.isString(this.props.input.value) ||
+      ((!this.props.input.value?.includes("{{") || !this.props.input.value) &&
+        showEvaluatedValue);
 
     return (
       <DynamicAutocompleteInputWrapper
