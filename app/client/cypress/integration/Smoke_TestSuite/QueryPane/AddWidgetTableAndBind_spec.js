@@ -69,10 +69,6 @@ describe("Addwidget from Query and bind with other widgets", function() {
         .first()
         .invoke("attr", "value")
         .should("contain", tabValue);
-      cy.get(publish.inputWidget + " " + "input")
-        .last()
-        .invoke("attr", "value")
-        .should("contain", tabValue);
     });
   });
 });
