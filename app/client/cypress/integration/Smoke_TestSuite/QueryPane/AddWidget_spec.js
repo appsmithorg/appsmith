@@ -1,41 +1,41 @@
-const queryLocators = require("../../../locators/QueryEditor.json");
-const queryEditor = require("../../../locators/QueryEditor.json");
+// const queryLocators = require("../../../locators/QueryEditor.json");
+// const queryEditor = require("../../../locators/QueryEditor.json");
 
-let datasourceName;
+// let datasourceName;
 
-describe("Add widget", function() {
-  beforeEach(() => {
-    cy.createPostgresDatasource();
-    cy.get("@createDatasource").then(httpResponse => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
-  });
+// describe("Add widget", function() {
+//   beforeEach(() => {
+//     cy.createPostgresDatasource();
+//     cy.get("@createDatasource").then(httpResponse => {
+//       datasourceName = httpResponse.response.body.data.name;
+//     });
+//   });
 
-  it("Add widget", () => {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
+//   it("Add widget", () => {
+//     cy.NavigateToQueryEditor();
+//     cy.contains(".t--datasource-name", datasourceName)
+//       .find(queryLocators.createQuery)
+//       .click();
 
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from configs");
-    cy.wait(500);
-    cy.get(queryEditor.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.get(".t--add-widget").click();
-    cy.SearchEntityandOpen("Table1");
-    cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "0").then(tabData => {
-      const tabValue = tabData;
-      expect(tabValue).to.be.equal("5");
-      cy.log("the value is " + tabValue);
-    });
-  });
-});
+//     cy.get(queryLocators.templateMenu).click();
+//     cy.get(".CodeMirror textarea")
+//       .first()
+//       .focus()
+//       .type("select * from configs");
+//     cy.wait(500);
+//     cy.get(queryEditor.runQuery).click();
+//     cy.wait("@postExecute").should(
+//       "have.nested.property",
+//       "response.body.responseMeta.status",
+//       200,
+//     );
+//     cy.get(".t--add-widget").click();
+//     cy.SearchEntityandOpen("Table1");
+//     cy.isSelectRow(1);
+//     cy.readTabledataPublish("1", "0").then(tabData => {
+//       const tabValue = tabData;
+//       expect(tabValue).to.be.equal("5");
+//       cy.log("the value is " + tabValue);
+//     });
+//   });
+// });
