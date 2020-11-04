@@ -296,6 +296,7 @@ export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTy
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR_ERROR: "INITIALIZE_EDITOR_ERROR",
+  INITIALIZE_PAGE_VIEWER_ERROR: "INITIALIZE_PAGE_VIEWER_ERROR",
   API_ERROR: "API_ERROR",
   WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
   UPDATE_APPLICATION_ERROR: "UPDATE_APPLICATION_ERROR",
