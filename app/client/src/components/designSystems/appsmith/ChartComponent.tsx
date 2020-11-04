@@ -152,7 +152,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       const seriesChartData: Array<Record<
         string,
         unknown
-      >> = this.getSeriesChartData(item.data, categories);
+      >> = this.getSeriesChartData(JSON.parse(item.data), categories);
       return {
         seriesName: item.seriesName,
         data: seriesChartData,

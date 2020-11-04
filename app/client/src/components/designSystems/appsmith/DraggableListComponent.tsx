@@ -26,6 +26,7 @@ interface DroppableComponentProps {
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
   updateItems: (items: Array<Record<string, unknown>>) => void;
+  onEdit?: (index: number) => void;
 }
 
 interface DroppableComponentState {

@@ -18,15 +18,15 @@ const ChartComponent = lazy(() =>
 type ChartSeries = { seriesName: string; data: string };
 type ChartDataType = Array<ChartSeries>;
 
-const chartDataValidator = (
-  value: ChartDataType,
-  props: WidgetProps,
-  dataTree?: DataTree,
-): ValidationResponse => ({
-  isValid: true,
-  parsed: value,
-  message: "",
-});
+// const chartDataValidator = (
+//   value: ChartDataType,
+//   props: WidgetProps,
+//   dataTree?: DataTree,
+// ): ValidationResponse => ({
+//   isValid: true,
+//   parsed: value,
+//   message: "",
+// });
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -35,7 +35,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       yAxisName: VALIDATION_TYPES.TEXT,
       chartName: VALIDATION_TYPES.TEXT,
       isVisible: VALIDATION_TYPES.BOOLEAN,
-      chartData: chartDataValidator,
+      chartData: VALIDATION_TYPES.CHART_DATA,
     };
   }
 
