@@ -168,3 +168,6 @@ export const GOOGLE_RECAPTCHA_KEY_ERROR =
   "Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.";
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR =
   "Google Re-Captcha Token Generation failed! Please check the allowed domains.";
+
+export const SERVER_API_TIMEOUT_ERROR =
+  "Appsmith server is taking too long to respond. Please try again after some time";
