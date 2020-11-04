@@ -44,7 +44,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.readTabledataPublish("1", "0").then(tabData => {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
-      expect(tabValue).to.be.equal("2020-01-23");
+      expect(tabValue).to.be.equal("5");
     });
   });
 
@@ -64,7 +64,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.readTabledataPublish("1", "0").then(tabData => {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
-      expect(tabValue).to.be.equal("2020-01-23");
+      expect(tabValue).to.be.equal("5");
       cy.get(publish.inputWidget + " " + "input")
         .first()
         .invoke("attr", "value")
