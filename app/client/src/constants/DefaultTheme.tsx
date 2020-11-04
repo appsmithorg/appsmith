@@ -42,23 +42,35 @@ export enum Skin {
 }
 
 export const scrollbarDark = css`
-  scrollbar-color: ${props => props.theme.colors.paneCard}
-    ${props => props.theme.colors.paneBG};
-  scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 6px;
+    height: 0.4rem;
   }
-
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  &::-webkit-scrollbar-track-piece:start {
+    background-color: transparent;
   }
-
+  &::-webkit-scrollbar-track-piece:end {
+    background-color: transparent;
+  }
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneCard};
-    border-radius: ${props => props.theme.radii[1]}px;
+    background-color: ${props => props.theme.colors.paneBG};
   }
 `;
+
+/* 
+
+&::-webkit-scrollbar {
+    width: 2px;
+    height: 0.4rem;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #0f213099;
+    cursor: pointer;
+  }
+*/
 
 export const BlueprintControlTransform = css`
   && {
