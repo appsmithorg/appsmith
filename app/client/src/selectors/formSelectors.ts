@@ -6,7 +6,7 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 type GetFormData = (
   state: AppState,
   formName: string,
-) => { values: object; valid: boolean };
+) => { initialValues: any; values: any; valid: boolean };
 
 export const getFormData: GetFormData = (state, formName) => {
   const initialValues = getFormInitialValues(formName)(state) as RestAction;

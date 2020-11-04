@@ -207,7 +207,7 @@ type ViewProps = {
 type SelectorViewProps = ViewProps & {
   options: TreeDropdownOption[];
   defaultText: string;
-  getDefaults?: Function;
+  getDefaults?: (value?: any) => any;
   displayValue?: string;
   selectedLabelModifier?: (
     option: TreeDropdownOption,

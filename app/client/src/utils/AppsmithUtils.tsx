@@ -16,7 +16,7 @@ import { SERVER_ERROR_URL } from "../constants/routes";
 
 export const createReducer = (
   initialState: any,
-  handlers: { [type: string]: Function },
+  handlers: { [type: string]: (state: any, action: any) => any },
 ) => {
   return function reducer(state = initialState, action: ReduxAction<any>) {
     if (handlers.hasOwnProperty(action.type)) {
@@ -227,7 +227,7 @@ export function convertObjectToQueryParams(object: any): string {
 }
 
 export const retryPromise = (
-  fn: Function,
+  fn: () => Promise<any>,
   retriesLeft = 5,
   interval = 1000,
 ): Promise<any> => {

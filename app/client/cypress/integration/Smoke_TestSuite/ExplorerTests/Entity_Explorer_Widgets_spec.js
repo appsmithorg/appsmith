@@ -23,6 +23,9 @@ describe("Entity explorer tests related to widgets and validation", function() {
     cy.GlobalSearchEntity("Text1");
     cy.EditApiNameFromExplorer("TextUpdated");
     cy.GlobalSearchEntity("TextUpdated");
+    cy.get(".t--entity-collapse-toggle")
+      .last()
+      .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{TextUpdated.isVisible}}");

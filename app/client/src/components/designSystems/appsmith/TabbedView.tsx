@@ -45,7 +45,7 @@ type TabbedViewComponentType = {
     panelComponent: JSX.Element;
   }>;
   selectedIndex?: number;
-  setSelectedIndex?: Function;
+  setSelectedIndex?: (selectedIndex: number) => void;
   overflow?: boolean;
 };
 

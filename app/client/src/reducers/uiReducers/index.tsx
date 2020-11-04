@@ -18,10 +18,11 @@ import queryPaneReducer from "./queryPaneReducer";
 import helpReducer from "./helpReducer";
 import apiNameReducer from "./apiNameReducer";
 import explorerReducer from "./explorerReducer";
-import pageDSLsReducer from "./pageDSLReducer";
 import confirmRunActionReducer from "./confirmRunActionReducer";
 import themeReducer from "./themeReducer";
 import datasourceNameReducer from "./datasourceNameReducer";
+import pageCanvasStructureReducer from "./pageCanvasStructure";
+import pageWidgetsReducer from "./pageWidgetsReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -44,7 +45,8 @@ const uiReducer = combineReducers({
   help: helpReducer,
   apiName: apiNameReducer,
   explorer: explorerReducer,
-  pageDSLs: pageDSLsReducer,
+  pageCanvasStructure: pageCanvasStructureReducer,
+  pageWidgets: pageWidgetsReducer,
   theme: themeReducer,
   confirmRunAction: confirmRunActionReducer,
 });
