@@ -30,7 +30,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
-      .type('SELECT * FROM public."covidCases" LIMIT 10;');
+      .type("SELECT * FROM configs LIMIT 10;");
     cy.wait(500);
     cy.get(queryEditor.runQuery).click();
     cy.wait("@postExecute").should(
