@@ -32,21 +32,19 @@ const TabsContainerWrapper = styled.div<{
   width: 100%;
   justify-content: center;
   align-items: center;
+  border-bottom-right-radius: ${props => `${props.theme.radii[1]}px`};
+  border-bottom-left-radius: ${props => `${props.theme.radii[1]}px`};
+  border-top-right-radius: ${props => `${props.theme.radii[1]}px`};
+  border-top-left-radius: ${props => `${props.theme.radii[1]}px`};
+  box-shadow: ${props => props.theme.shadows[2]};
+  overflow: hidden;
 `;
 
-const ChildrenWrapper = styled.div<{
-  shouldShowTabs: boolean;
-}>`
+const ChildrenWrapper = styled.div`
   height: 100%;
   width: 100%;
   position: relative;
   background: ${props => props.theme.colors.builderBodyBG};
-  border-bottom-right-radius: ${props => `${props.theme.radii[1]}px`};
-  border-bottom-left-radius: ${props => `${props.theme.radii[1]}px`};
-  border-top-right-radius: ${props =>
-    props.shouldShowTabs ? 0 : `${props.theme.radii[1]}px`};
-  border-top-left-radius: ${props =>
-    props.shouldShowTabs ? 0 : `${props.theme.radii[1]}px`};
   overflow: hidden;
 `;
 
@@ -66,8 +64,6 @@ const TabsContainer = styled.div`
   overflow-x: auto;
   overflow-y: hidden;
   ${scrollbarLight};
-  border-top-right-radius: ${props => `${props.theme.radii[1]}px`};
-  border-top-left-radius: ${props => `${props.theme.radii[1]}px`};
   overflow: hidden;
   && {
     height: 38px;
@@ -102,7 +98,7 @@ const StyledText = styled.div<TabProps>`
   border-bottom: ${props => (props.selected ? "0" : "1px")} solid;
   border-color: ${props => props.theme.colors.bodyBG};
   cursor: pointer;
-  box-shadow: ${props => (props.selected ? props.theme.shadows[2] : "")};
+  box-shadow: ${props => (props.selected ? props.theme.shadows[0] : "")};
   &:hover {
     background: ${props =>
       props.selected
@@ -110,7 +106,7 @@ const StyledText = styled.div<TabProps>`
         : props.theme.colors.hover};
   }
   &:first-child {
-    box-shadow: ${props => (props.selected ? props.theme.shadows[3] : "")};
+    box-shadow: ${props => (props.selected ? props.theme.shadows[1] : "")};
   }
 `;
 
@@ -146,7 +142,7 @@ const TabsComponent = (props: TabsComponentProps) => {
       ) : (
         undefined
       )}
-      <ChildrenWrapper shouldShowTabs={props.shouldShowTabs}>
+      <ChildrenWrapper>
         <ScrollableCanvasWrapper
           {...remainingProps}
           className={`${
