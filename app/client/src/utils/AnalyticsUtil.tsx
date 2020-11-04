@@ -6,6 +6,7 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
 const { cloudHosting } = getAppsmithConfigs();
+import { sha256 } from "js-sha256";
 
 export type EventLocation =
   | "LIGHTNING_MENU"
@@ -173,13 +174,16 @@ class AnalyticsUtil {
       const app = (userData.applications || []).find(
         (app: any) => app.id === appId,
       );
-      const user = {
-        userId: userData.username,
-        email: userData.email,
-        currentOrgId: userData.currentOrganizationId,
-        appId: appId,
-        appName: app ? app.name : undefined,
-      };
+      let user: any = {};
+      if (windowDoc.cloudHosting) {
+        user = {
+          userId: userData.username,
+          email: userData.email,
+          currentOrgId: userData.currentOrganizationId,
+          appId: appId,
+          appName: app ? app.name : undefined,
+        };
+      }
       finalEventData = {
         ...eventData,
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
@@ -193,22 +197,21 @@ class AnalyticsUtil {
 
   static identifyUser(userData: User) {
     const windowDoc: any = window;
-    const userId = windowDoc.cloudHosting
-      ? userData.username
-      : userData.anonymousId;
+    const userId = userData.username;
     log.debug("Identify User " + userId);
-    AnalyticsUtil.user = userData;
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
-      let userProperties = {};
       if (windowDoc.cloudHosting) {
-        userProperties = {
+        const userProperties = {
           email: userData.email,
           name: userData.name,
           userId: userId,
         };
+        AnalyticsUtil.user = userData;
+        windowDoc.analytics.identify(userId, userProperties);
+      } else {
+        windowDoc.analytics.identify(sha256(userId));
       }
-      windowDoc.analytics.identify(userId, userProperties);
     }
     Sentry.configureScope(function(scope) {
       scope.setUser({
