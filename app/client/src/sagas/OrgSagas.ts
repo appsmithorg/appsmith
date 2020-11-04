@@ -22,6 +22,7 @@ import OrgApi, {
   DeleteOrgUserRequest,
   ChangeUserRoleRequest,
   FetchAllRolesRequest,
+  SaveOrgLogo,
 } from "api/OrgApi";
 import { ApiResponse } from "api/ApiResponses";
 import { AppToaster } from "components/editorComponents/ToastComponent";
@@ -237,6 +238,25 @@ export function* createOrgSaga(
   }
 }
 
+export function* uploadOrgLogoSaga(action: ReduxAction<SaveOrgLogo>) {
+  const request = action.payload;
+  const response: ApiResponse = yield call(OrgApi.saveOrgLogo, request);
+  const isValidResponse = yield validateResponse(response);
+  if (isValidResponse) {
+    const currentOrg = yield select(getCurrentOrg);
+    if (currentOrg && currentOrg.id === request.id) {
+      const updatedOrg = {
+        ...currentOrg,
+        ...request,
+      };
+      yield put({
+        type: ReduxActionTypes.SET_CURRENT_ORG,
+        payload: updatedOrg,
+      });
+    }
+  }
+}
+
 export default function* orgSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_ORG_ROLES_INIT, fetchRolesSaga),
@@ -250,5 +270,6 @@ export default function* orgSagas() {
       ReduxActionTypes.CHANGE_ORG_USER_ROLE_INIT,
       changeOrgUserRoleSaga,
     ),
+    takeLatest(ReduxActionTypes.UPLOAD_ORG_LOGO, uploadOrgLogoSaga),
   ]);
 }

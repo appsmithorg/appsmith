@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Button, { Category, Size } from "./Button";
 import axios from "axios";
@@ -6,6 +6,8 @@ import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg"
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
+import { AppToaster } from "components/editorComponents/ToastComponent";
+import { Classes } from "./common";
 
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
@@ -14,6 +16,7 @@ type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
   onFileRemoved?: (file: any) => void;
   fileUploader?: FileUploader;
+  url?: string;
 };
 
 const ContainerDiv = styled.div<{
@@ -23,7 +26,7 @@ const ContainerDiv = styled.div<{
 }>`
   width: 320px;
   height: 190px;
-  background-color: ${props => props.theme.colors.blackShades[2]};
+  background-color: ${props => props.theme.colors.filePicker.bg};
   position: relative;
 
   #fileInput {
@@ -33,7 +36,7 @@ const ContainerDiv = styled.div<{
   .drag-drop-text {
     margin: ${props => props.theme.spaces[6]}px 0
       ${props => props.theme.spaces[6]}px 0;
-    color: ${props => props.theme.colors.blackShades[7]};
+    color: ${props => props.theme.colors.filePicker.color};
   }
 
   .bg-image {
@@ -42,7 +45,8 @@ const ContainerDiv = styled.div<{
     display: grid;
     place-items: center;
     background-repeat: no-repeat;
-    background-size: cover;
+    background-position: center;
+    background-size: contain;
   }
 
   .file-description {
@@ -61,7 +65,7 @@ const ContainerDiv = styled.div<{
 
   .progress-container {
     width: 100%;
-    background: ${props => props.theme.colors.blackShades[6]};
+    background: ${props => props.theme.colors.filePicker.progress};
     transition: height 0.2s;
   }
 
@@ -92,10 +96,14 @@ const ContainerDiv = styled.div<{
     opacity: 0.6;
     width: 100%;
 
-    button {
+    a {
+      width: 110px;
       margin: ${props => props.theme.spaces[13]}px
         ${props => props.theme.spaces[3]}px ${props => props.theme.spaces[3]}px
         auto;
+      .${Classes.ICON} {
+        margin-right: ${props => props.theme.spaces[2] - 1}px;
+      }
     }
   }
 
@@ -106,9 +114,9 @@ const ContainerDiv = styled.div<{
   }
 `;
 
-type SetProgress = (percentage: number) => void;
-type UploadCallback = (url: string) => void;
-type FileUploader = (
+export type SetProgress = (percentage: number) => void;
+export type UploadCallback = (url: string) => void;
+export type FileUploader = (
   file: any,
   setProgress: SetProgress,
   onUpload: UploadCallback,
@@ -120,7 +128,7 @@ export function CloudinaryUploader(
   onUpload: UploadCallback,
 ) {
   const formData = new FormData();
-  formData.append("upload_preset", `${CLOUDINARY_PRESETS_NAME}`);
+  formData.append("upload_preset", CLOUDINARY_PRESETS_NAME);
   if (file) {
     formData.append("file", file);
   }
@@ -154,6 +162,8 @@ const FilePickerComponent = (props: FilePickerProps) => {
     size: 0,
   });
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
+  const [fileUrl, setFileUrl] = useState("");
+
   const [{ canDrop, isOver }, drop] = useDrop({
     accept: [NativeTypes.FILE],
     drop(item, monitor) {
@@ -199,29 +209,41 @@ const FilePickerComponent = (props: FilePickerProps) => {
   }
 
   function onUpload(url: string) {
+    setFileUrl(url);
     props.onFileUploaded && props.onFileUploaded(url);
   }
 
   function handleFileUpload(files: FileList | null) {
     const file = files && files[0];
+    let fileSize = 0;
 
     if (file) {
-      setFileInfo({ name: file.name, size: Math.floor(file.size / 1024) });
+      fileSize = Math.floor(file.size / 1024);
+      setFileInfo({ name: file.name, size: fileSize });
     }
 
-    if (bgRef.current) {
-      bgRef.current.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
-      bgRef.current.style.opacity = "0.5";
-    }
-    if (fileDescRef.current) {
-      fileDescRef.current.style.display = "block";
-    }
-    if (fileContainerRef.current) {
-      fileContainerRef.current.style.display = "none";
-    }
+    if (fileSize < 250) {
+      if (bgRef.current) {
+        bgRef.current.style.backgroundImage = `url(${URL.createObjectURL(
+          file,
+        )})`;
+        bgRef.current.style.opacity = "0.5";
+      }
+      if (fileDescRef.current) {
+        fileDescRef.current.style.display = "block";
+      }
+      if (fileContainerRef.current) {
+        fileContainerRef.current.style.display = "none";
+      }
 
-    /* set form data and send api request */
-    props.fileUploader && props.fileUploader(file, setProgress, onUpload);
+      /* set form data and send api request */
+      props.fileUploader && props.fileUploader(file, setProgress, onUpload);
+    } else {
+      AppToaster.show({
+        message: "File size should be less than 250kb!",
+        type: "warning",
+      });
+    }
   }
 
   function removeFile() {
@@ -234,6 +256,31 @@ const FilePickerComponent = (props: FilePickerProps) => {
   }
 
   const isActive = canDrop && isOver;
+
+  useEffect(() => {
+    if (props.url) {
+      const urlKeys = props.url.split("/");
+      if (urlKeys[urlKeys.length - 1] !== "null") {
+        setFileUrl(props.url);
+      }
+    }
+  }, [props.url]);
+
+  useEffect(() => {
+    if (fileUrl) {
+      setIsUploaded(true);
+      if (bgRef.current) {
+        bgRef.current.style.backgroundImage = `url(${props.url})`;
+        bgRef.current.style.opacity = "1";
+      }
+      if (fileDescRef.current) {
+        fileDescRef.current.style.display = "none";
+      }
+      if (fileContainerRef.current) {
+        fileContainerRef.current.style.display = "none";
+      }
+    }
+  }, [fileUrl]);
 
   return (
     <ContainerDiv

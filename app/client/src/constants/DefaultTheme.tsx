@@ -689,6 +689,11 @@ type ColorType = {
     light: ShadeColor;
     dark: ShadeColor;
   };
+  filePicker: {
+    bg: ShadeColor;
+    color: ShadeColor;
+    progress: ShadeColor;
+  };
 };
 
 export const dark: ColorType = {
@@ -955,6 +960,11 @@ export const dark: ColorType = {
     light: darkShades[2],
     dark: darkShades[4],
   },
+  filePicker: {
+    bg: darkShades[0],
+    color: darkShades[7],
+    progress: darkShades[6],
+  },
 };
 
 export const light: ColorType = {
@@ -1220,6 +1230,11 @@ export const light: ColorType = {
   loader: {
     light: lightShades[2],
     dark: lightShades[4],
+  },
+  filePicker: {
+    bg: lightShades[0],
+    color: lightShades[7],
+    progress: lightShades[6],
   },
 };
 

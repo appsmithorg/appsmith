@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { SaveOrgRequest } from "api/OrgApi";
+import { SaveOrgLogo, SaveOrgRequest } from "api/OrgApi";
 
 export const fetchOrg = (orgId: string) => {
   return {
@@ -64,5 +64,12 @@ export const saveOrg = (orgSettings: SaveOrgRequest) => {
   return {
     type: ReduxActionTypes.SAVE_ORG_INIT,
     payload: orgSettings,
+  };
+};
+
+export const uploadOrgLogo = (orgLogo: SaveOrgLogo) => {
+  return {
+    type: ReduxActionTypes.UPLOAD_ORG_LOGO,
+    payload: orgLogo,
   };
 };
