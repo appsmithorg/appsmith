@@ -14,6 +14,8 @@ import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import history from "./history";
 import { SERVER_ERROR_URL } from "../constants/routes";
 
+const SEGMENT_CE_KEY = "aLyfW0WipbrC3WP02i2Zm8SOOJoBSd0o";
+
 export const createReducer = (
   initialState: any,
   handlers: { [type: string]: (state: any, action: any) => any },
@@ -54,6 +56,8 @@ export const appInitializer = () => {
   }
   if (appsmithConfigs.segment.enabled) {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
+  } else {
+    AnalyticsUtil.initializeSegment(SEGMENT_CE_KEY);
   }
 
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));

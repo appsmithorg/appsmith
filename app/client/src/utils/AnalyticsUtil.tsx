@@ -5,6 +5,7 @@ import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
+const { cloudHosting } = getAppsmithConfigs();
 
 export type EventLocation =
   | "LIGHTNING_MENU"
@@ -190,17 +191,24 @@ class AnalyticsUtil {
     log.debug("Event fired", eventName, finalEventData);
   }
 
-  static identifyUser(userId: string, userData: User) {
-    log.debug("Identify User " + userId);
+  static identifyUser(userData: User) {
     const windowDoc: any = window;
+    const userId = windowDoc.cloudHosting
+      ? userData.username
+      : userData.anonymousId;
+    log.debug("Identify User " + userId);
     AnalyticsUtil.user = userData;
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
-      windowDoc.analytics.identify(userId, {
-        email: userData.email,
-        name: userData.name,
-        userId: userId,
-      });
+      let userProperties = {};
+      if (windowDoc.cloudHosting) {
+        userProperties = {
+          email: userData.email,
+          name: userData.name,
+          userId: userId,
+        };
+      }
+      windowDoc.analytics.identify(userId, userProperties);
     }
     Sentry.configureScope(function(scope) {
       scope.setUser({
