@@ -40,20 +40,11 @@ const TabsContainerWrapper = styled.div<{
   overflow: hidden;
 `;
 
-const ChildrenWrapper = styled.div<{
-  shouldShowTabs: boolean;
-}>`
+const ChildrenWrapper = styled.div`
   height: 100%;
   width: 100%;
   position: relative;
   background: ${props => props.theme.colors.builderBodyBG};
-  border-bottom-right-radius: ${props => `${props.theme.radii[1]}px`};
-  border-bottom-left-radius: ${props => `${props.theme.radii[1]}px`};
-  border-top-right-radius: ${props =>
-    props.shouldShowTabs ? 0 : `${props.theme.radii[1]}px`};
-  border-top-left-radius: ${props =>
-    props.shouldShowTabs ? 0 : `${props.theme.radii[1]}px`};
-  overflow: hidden;
 `;
 
 const ScrollableCanvasWrapper = styled.div<
@@ -72,17 +63,6 @@ const TabsContainer = styled.div`
   overflow-x: auto;
   overflow-y: hidden;
   ${scrollbarLight};
-<<<<<<< HEAD
-  background: ${props => props.theme.colors.builderBodyBG};
-  border-top-right-radius: ${props => `${props.theme.radii[1]}px`};
-  border-top-left-radius: ${props => `${props.theme.radii[1]}px`};
-=======
-<<<<<<< HEAD
-=======
-  border-top-right-radius: ${props => `${props.theme.radii[1]}px`};
-  border-top-left-radius: ${props => `${props.theme.radii[1]}px`};
->>>>>>> fix(Widgets): add rounded corners and improve overall style for TabsWidget
->>>>>>> fix(Widgets): add rounded corners and improve overall style for TabsWidget
   overflow: hidden;
   && {
     height: 38px;
@@ -161,7 +141,7 @@ const TabsComponent = (props: TabsComponentProps) => {
       ) : (
         undefined
       )}
-      <ChildrenWrapper shouldShowTabs={props.shouldShowTabs}>
+      <ChildrenWrapper>
         <ScrollableCanvasWrapper
           {...remainingProps}
           className={`${
