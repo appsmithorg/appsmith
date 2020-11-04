@@ -64,4 +64,6 @@ export type AppsmithUIConfigs = {
   };
   intercomAppID: string;
   mailEnabled: boolean;
+
+  disableTelemetry: boolean;
 };

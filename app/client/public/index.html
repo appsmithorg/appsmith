@@ -137,6 +137,7 @@
       },
       intercomAppID: parseConfig("__APPSMITH_INTERCOM_APP_ID__"),
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__").length > 0,
+      disableTelemetry: parseConfig("__APPSMITH_DISABLE_TELEMETRY__").toLowerCase() === 'true' ,
     };
 
   </script>

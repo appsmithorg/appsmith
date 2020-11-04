@@ -5,7 +5,7 @@ import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
-const { cloudHosting } = getAppsmithConfigs();
+const { cloudHosting, disableTelemetry } = getAppsmithConfigs();
 import { sha256 } from "js-sha256";
 
 export type EventLocation =
@@ -175,7 +175,7 @@ class AnalyticsUtil {
         (app: any) => app.id === appId,
       );
       let user: any = {};
-      if (windowDoc.cloudHosting) {
+      if (cloudHosting) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -201,7 +201,8 @@ class AnalyticsUtil {
     log.debug("Identify User " + userId);
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
-      if (windowDoc.cloudHosting) {
+      // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
+      if (cloudHosting) {
         const userProperties = {
           email: userData.email,
           name: userData.name,
@@ -209,7 +210,9 @@ class AnalyticsUtil {
         };
         AnalyticsUtil.user = userData;
         windowDoc.analytics.identify(userId, userProperties);
-      } else {
+      } else if (!disableTelemetry) {
+        // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
+        // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
         windowDoc.analytics.identify(sha256(userId));
       }
     }
