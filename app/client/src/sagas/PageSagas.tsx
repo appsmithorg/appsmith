@@ -44,7 +44,6 @@ import {
   select,
   takeLatest,
   takeLeading,
-  take,
 } from "redux-saga/effects";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
