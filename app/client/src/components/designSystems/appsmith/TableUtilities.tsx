@@ -31,6 +31,7 @@ import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import moment from "moment";
+import { ButtonStyle } from "widgets/ButtonWidget";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -527,6 +528,7 @@ export const renderCell = (
         const buttonProps = {
           isSelected: !!buttonProperties.isSelected,
           onCommandClick: buttonProperties.onCommandClick,
+          intent: buttonProperties.buttonStyle,
           columnActions: [
             {
               id: buttonProperties.id,
@@ -557,6 +559,7 @@ export const renderCell = (
 interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
+  intent: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
@@ -570,6 +573,7 @@ export const renderActions = (props: RenderActionProps) => {
             key={index}
             action={action}
             isSelected={props.isSelected}
+            intent={props.intent}
             onCommandClick={props.onCommandClick}
           />
         );
@@ -578,9 +582,23 @@ export const renderActions = (props: RenderActionProps) => {
   );
 };
 
+const mapButtonStyleToStyleName = (buttonStyle: string) => {
+  switch (buttonStyle) {
+    case "PRIMARY_BUTTON":
+      return "primary";
+    case "SECONDARY_BUTTON":
+      return "secondary";
+    case "DANGER_BUTTON":
+      return "error";
+    default:
+      return undefined;
+  }
+};
+
 const TableAction = (props: {
   isSelected: boolean;
   action: ColumnAction;
+  intent: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) => {
   const [loading, setLoading] = useState(false);
@@ -596,13 +614,13 @@ const TableAction = (props: {
       }}
     >
       <Button
+        intent={mapButtonStyleToStyleName(props.intent)}
         loading={loading}
         onClick={() => {
           setLoading(true);
           props.onCommandClick(props.action.dynamicTrigger, onComplete);
         }}
         text={props.action.label}
-        intent="primary"
         filled
         size="small"
       />

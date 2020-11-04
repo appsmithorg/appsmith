@@ -196,7 +196,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
-                        return props.columnType !== "button";
+                        return props.columnType === "button";
                       },
                     },
                     {
@@ -205,7 +205,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "SWITCH",
                       isJSConvertible: true,
                       hidden: (props: ColumnProperties) => {
-                        return props.columnType !== "button";
+                        return props.columnType === "button";
                       },
                     },
                     {
@@ -214,13 +214,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "SWITCH",
                       isJSConvertible: true,
                       hidden: (props: ColumnProperties) => {
-                        return props.columnType !== "button";
+                        return props.columnType === "button";
                       },
                     },
                   ],
                 },
                 {
                   sectionName: "Text",
+                  hidden: (props: ColumnProperties) => {
+                    return props.columnType === "button";
+                  },
                   children: [
                     {
                       propertyName: "horizontalAlignment",
@@ -325,10 +328,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                     },
+                    {
+                      propertyName: "cellBackground",
+                      label: "Cell Background",
+                      controlType: "COLOR_PICKER",
+                      isJSConvertible: true,
+                    },
                   ],
                 },
                 {
                   sectionName: "Button Properties",
+                  hidden: (props: ColumnProperties) => {
+                    return props.columnType !== "button";
+                  },
                   children: [
                     {
                       propertyName: "buttonLabel",
@@ -559,6 +571,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                     },
+                    {
+                      propertyName: "cellBackground",
+                      label: "Cell Background",
+                      controlType: "COLOR_PICKER",
+                      isJSConvertible: true,
+                    },
                   ],
                 },
                 {
@@ -722,6 +740,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           textSize: columnProperties.textSize,
           fontStyle: columnProperties.fontStyle,
           textColor: columnProperties.textColor,
+          cellBackground: columnProperties.cellBackground,
         };
         const columnData = {
           Header: columnProperties.label,
@@ -746,6 +765,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 label: columnProperties.buttonLabel,
                 id: columnProperties.id,
                 dynamicTrigger: columnProperties.buttonOnClick,
+                buttonStyle: columnProperties.buttonStyle || "PRIMARY_BUTTON",
                 onCommandClick: this.onCommandClick,
                 isSelected: props.row.isSelected,
               };
@@ -789,6 +809,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: props.row.isSelected,
               columnActions: columnActions,
               onCommandClick: this.onCommandClick,
+              intent: "PRIMARY_BUTTON",
             });
           },
         });
@@ -1350,11 +1371,13 @@ export interface CellLayoutProperties {
   textSize?: TextSize;
   fontStyle?: FontStyle;
   textColor?: string;
+  cellBackground?: string;
 }
 
 export interface ButtonProperties {
   label?: string;
   id: string;
+  buttonStyle: string;
   dynamicTrigger?: string;
   isSelected?: boolean;
   onCommandClick: (action: string, onComplete: () => void) => void;
@@ -1387,6 +1410,7 @@ export interface ColumnProperties {
   isVisible: boolean;
   index: number;
   width: number;
+  cellBackground?: string;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textSize?: TextSize;
