@@ -7,7 +7,7 @@ import {
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { getDBPlugins, getPluginForm } from "selectors/entitiesSelector";
+import { getPluginForm, getPlugins } from "selectors/entitiesSelector";
 
 function* fetchPluginsSaga() {
   try {
@@ -55,11 +55,11 @@ function* fetchPluginFormSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-function* fetchDBPluginFormsSaga() {
+function* fetchPluginFormsSaga() {
   try {
-    const dbPlugins = yield select(getDBPlugins);
+    const plugins = yield select(getPlugins);
 
-    for (const plugin of dbPlugins) {
+    for (const plugin of plugins) {
       const formConfig = yield select(getPluginForm, plugin.id);
 
       if (!formConfig) {
@@ -76,11 +76,11 @@ function* fetchDBPluginFormsSaga() {
     }
 
     yield put({
-      type: ReduxActionTypes.FETCH_DB_PLUGIN_FORMS_SUCCESS,
+      type: ReduxActionTypes.FETCH_PLUGIN_FORMS_SUCCESS,
     });
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.FETCH_DB_PLUGIN_FORMS_ERROR,
+      type: ReduxActionErrorTypes.FETCH_PLUGIN_FORMS_ERROR,
       payload: { error },
     });
   }
@@ -90,10 +90,7 @@ function* root() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_PLUGINS_REQUEST, fetchPluginsSaga),
     takeEvery(ReduxActionTypes.FETCH_PLUGIN_FORM_INIT, fetchPluginFormSaga),
-    takeEvery(
-      ReduxActionTypes.FETCH_DB_PLUGIN_FORMS_INIT,
-      fetchDBPluginFormsSaga,
-    ),
+    takeEvery(ReduxActionTypes.FETCH_PLUGIN_FORMS_INIT, fetchPluginFormsSaga),
   ]);
 }
 

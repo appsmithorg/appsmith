@@ -17,7 +17,7 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
-import { fetchDBPluginForms } from "actions/pluginActions";
+import { fetchPluginForms } from "actions/pluginActions";
 
 const QueryHomePage = styled.div`
   padding: 20px;
@@ -55,10 +55,10 @@ type QueryHomeScreenProps = {
   applicationId: string;
   pageId: string;
   createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
-  fetchDBPluginForms: () => void;
+  fetchPluginForms: () => void;
   actions: ActionDataState;
   isCreating: boolean;
-  loadingDBFormConfigs: boolean;
+  loadingFormConfigs: boolean;
   location: {
     search: string;
   };
@@ -72,7 +72,7 @@ type QueryHomeScreenProps = {
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   componentDidMount() {
-    this.props.fetchDBPluginForms();
+    this.props.fetchPluginForms();
   }
 
   handleCreateNewQuery = (dataSource: Datasource) => {
@@ -106,7 +106,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       history,
       isCreating,
       location,
-      loadingDBFormConfigs,
+      loadingFormConfigs,
     } = this.props;
 
     const destinationPageId = new URLSearchParams(location.search).get(
@@ -119,7 +119,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       );
     }
 
-    if (isCreating || loadingDBFormConfigs) {
+    if (isCreating || loadingFormConfigs) {
       return (
         <LoadingContainer>
           <Spinner size={30} />
@@ -169,15 +169,15 @@ const mapStateToProps = (state: AppState) => ({
   pluginImages: getPluginImages(state),
   actions: state.entities.actions,
   pages: state.entities.pageList.pages,
-  loadingDBFormConfigs: state.entities.plugins.loadingDBFormConfigs,
+  loadingFormConfigs: state.entities.plugins.loadingFormConfigs,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   createAction: (data: Partial<QueryAction> & { eventData: any }) => {
     dispatch(createActionRequest(data));
   },
-  fetchDBPluginForms: () => {
-    dispatch(fetchDBPluginForms());
+  fetchPluginForms: () => {
+    dispatch(fetchPluginForms());
   },
 });
 

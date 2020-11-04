@@ -14,8 +14,8 @@ export const fetchPluginForm = (payload: { id: string }) => {
   };
 };
 
-export const fetchDBPluginForms = () => {
+export const fetchPluginForms = () => {
   return {
-    type: ReduxActionTypes.FETCH_DB_PLUGIN_FORMS_INIT,
+    type: ReduxActionTypes.FETCH_PLUGIN_FORMS_INIT,
   };
 };

@@ -47,6 +47,8 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/ApiConstants";
 import { getAppsmithConfigs } from "configs";
 import { getThemeDetails } from "selectors/themeSelectors";
+import DatasourceList from "./DatasourceList";
+import { fetchPluginForms } from "actions/pluginActions";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
@@ -70,8 +72,7 @@ const ApiHomePage = styled.div`
   font-size: 20px;
   padding: 20px;
   margin-left: 10px;
-  min-height: 95vh;
-  max-height: 95vh;
+  height: calc(100vh - ${props => props.theme.headerHeight});
   overflow: auto;
   padding-bottom: 50px;
   .closeBtn {
@@ -336,10 +337,12 @@ type ApiHomeScreenProps = {
   providersTotal: number;
   isSwitchingCategory: boolean;
   createNewApiAction: (pageId: string, from: EventLocation) => void;
+  fetchPluginForms: () => void;
   setCurrentCategory: (category: string) => void;
   previouslySetCategory: string;
   fetchProvidersError: boolean;
   themeDetails: any;
+  loadingFormConfigs: boolean;
 };
 
 type ApiHomeScreenState = {
@@ -366,6 +369,8 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       providersTotal,
       providerCategories,
     } = this.props;
+    this.props.fetchPluginForms();
+
     if (providerCategories.length === 0 && enableRapidAPI) {
       this.props.fetchProviderCategories();
     }
@@ -439,6 +444,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       isSwitchingCategory,
       apiOrProviderSearchResults,
       fetchProvidersError,
+      loadingFormConfigs,
     } = this.props;
     const { showSearchResults } = this.state;
 
@@ -595,6 +601,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
             </Link>
           </ApiCard>
         </StyledContainer>
+        <DatasourceList />
         {/* Imported APIs section start */}
         {/* <StyledContainer>
           <p className="sectionHeadings">{"Imported APIs"}</p>
@@ -627,6 +634,14 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
         </StyledContainer> */}
       </React.Fragment>
     );
+
+    if (loadingFormConfigs) {
+      return (
+        <LoadingContainer>
+          <Spinner size={30} />
+        </LoadingContainer>
+      );
+    }
 
     return (
       <React.Fragment>
@@ -807,6 +822,7 @@ const mapStateToProps = (state: AppState) => {
     initialValues: { category: initialCategoryValue },
     fetchProvidersError,
     themeDetails: getThemeDetails,
+    loadingFormConfigs: state.entities.plugins.loadingFormConfigs,
   };
 };
 
@@ -823,6 +839,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(createNewApiAction(pageId, from)),
   setCurrentCategory: (category: string) =>
     dispatch(setCurrentCategory(category)),
+  fetchPluginForms: () => dispatch(fetchPluginForms()),
 });
 
 export default connect(

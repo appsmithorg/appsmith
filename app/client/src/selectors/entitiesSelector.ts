@@ -7,7 +7,7 @@ import { ActionResponse } from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { createSelector } from "reselect";
 import { Datasource } from "api/DatasourcesApi";
-import { Action } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
@@ -118,6 +118,10 @@ export const getDBPlugins = createSelector(getPlugins, plugins =>
   plugins.filter(plugin => plugin.type === QUERY_CONSTANT),
 );
 
+export const getAPIPlugins = createSelector(getPlugins, plugins =>
+  plugins.filter(plugin => plugin.type === PluginType.API),
+);
+
 export const getDBDatasources = createSelector(
   getDBPlugins,
   getEntities,
@@ -127,6 +131,19 @@ export const getDBDatasources = createSelector(
 
     return datasources.filter(datasource =>
       dbPluginIds.includes(datasource.pluginId),
+    );
+  },
+);
+
+export const getAPIDatasources = createSelector(
+  getAPIPlugins,
+  getEntities,
+  (apiPlugins, entities) => {
+    const datasources = entities.datasources.list;
+    const apiPluginIds = apiPlugins.map(plugin => plugin.id);
+
+    return datasources.filter(datasource =>
+      apiPluginIds.includes(datasource.pluginId),
     );
   },
 );
@@ -203,6 +220,15 @@ export const getQueryActionsForCurrentPage = createSelector(
   actions => {
     return actions.filter((action: ActionData) => {
       return action.config.pluginType === QUERY_CONSTANT;
+    });
+  },
+);
+
+export const getApiActionsForCurrentPage = createSelector(
+  getActionsForCurrentPage,
+  actions => {
+    return actions.filter((action: ActionData) => {
+      return action.config.pluginType === PluginType.API;
     });
   },
 );
