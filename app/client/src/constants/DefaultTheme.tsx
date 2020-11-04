@@ -42,35 +42,23 @@ export enum Skin {
 }
 
 export const scrollbarDark = css`
+  scrollbar-color: ${props => props.theme.colors.paneCard}
+    ${props => props.theme.colors.paneBG};
+  scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 6px;
-    height: 0.4rem;
   }
-  &::-webkit-scrollbar-track-piece:start {
-    background-color: transparent;
+
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
   }
-  &::-webkit-scrollbar-track-piece:end {
-    background-color: transparent;
-  }
+
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneBG};
+    background-color: ${props => props.theme.colors.paneCard};
+    border-radius: ${props => props.theme.radii[1]}px;
   }
 `;
-
-/* 
-
-&::-webkit-scrollbar {
-    width: 2px;
-    height: 0.4rem;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #0f213099;
-    cursor: pointer;
-  }
-*/
 
 export const BlueprintControlTransform = css`
   && {
@@ -1471,7 +1459,10 @@ export const theme: Theme = {
   shadows: [
     /* 0. tab */
     `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
+    /* 1. first tab */
     `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
+    /* 2. container */
+    `0 1px 1px 0 rgba(60,75,100,.14) ,0 2px 1px -1px rgba(60,75,100,.12), 0 1px 3px 0 rgba(60,75,100,.2)`,
   ],
   widgets: {
     tableWidget: {

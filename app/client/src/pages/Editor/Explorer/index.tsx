@@ -25,7 +25,7 @@ import { getPlugins } from "selectors/entitiesSelector";
 
 const Wrapper = styled.div`
   height: 100%;
-  overflow-y: auto;
+  overflow-y: scroll;
   ${scrollbarDark};
 `;
 

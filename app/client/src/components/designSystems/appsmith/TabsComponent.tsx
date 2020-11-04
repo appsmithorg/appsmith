@@ -117,11 +117,7 @@ const StyledText = styled.div<TabProps>`
   border-bottom: ${props => (props.selected ? "0" : "1px")} solid;
   border-color: ${props => props.theme.colors.bodyBG};
   cursor: pointer;
-<<<<<<< HEAD
   box-shadow: ${props => (props.selected ? props.theme.shadows[0] : "")};
-=======
-  box-shadow: ${props => (props.selected ? props.theme.shadows[2] : "")};
->>>>>>> fix(Widgets): add rounded corners and improve overall style for TabsWidget
   &:hover {
     background: ${props =>
       props.selected
@@ -129,11 +125,7 @@ const StyledText = styled.div<TabProps>`
         : props.theme.colors.hover};
   }
   &:first-child {
-<<<<<<< HEAD
     box-shadow: ${props => (props.selected ? props.theme.shadows[1] : "")};
-=======
-    box-shadow: ${props => (props.selected ? props.theme.shadows[3] : "")};
->>>>>>> fix(Widgets): add rounded corners and improve overall style for TabsWidget
   }
 `;
 
