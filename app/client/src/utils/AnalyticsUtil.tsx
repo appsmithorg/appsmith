@@ -5,7 +5,6 @@ import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
-const { cloudHosting, disableTelemetry } = getAppsmithConfigs();
 import { sha256 } from "js-sha256";
 
 export type EventLocation =
@@ -170,6 +169,8 @@ class AnalyticsUtil {
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
     const appId = getApplicationId(windowDoc.location);
+    const { cloudHosting } = getAppsmithConfigs();
+
     if (userData) {
       const app = (userData.applications || []).find(
         (app: any) => app.id === appId,
@@ -198,6 +199,9 @@ class AnalyticsUtil {
   static identifyUser(userData: User) {
     const windowDoc: any = window;
     const userId = userData.username;
+
+    const { cloudHosting, disableTelemetry } = getAppsmithConfigs();
+
     log.debug("Identify User " + userId);
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
