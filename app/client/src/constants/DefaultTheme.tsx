@@ -1460,7 +1460,7 @@ export const theme: Theme = {
     "0px 2px 4px rgba(67, 70, 74, 0.14)",
     `0px 2px 4px ${Colors.MYSTIC}`,
     `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
-    `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 1px 0px ${Colors.ATHENS_GRAY}`,
+    `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
   ],
   widgets: {
     tableWidget: {
