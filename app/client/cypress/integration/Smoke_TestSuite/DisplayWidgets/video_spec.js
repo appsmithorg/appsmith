@@ -48,6 +48,9 @@ describe("Video Widget Functionality", function() {
 
   it("Update video url and check play and pause functionality validation", function() {
     cy.testCodeMirror(testdata.videoUrl);
+    cy.get(".CodeMirror textarea")
+      .first()
+      .blur();
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",

@@ -20,14 +20,12 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { getActions, getWidgetsMeta } from "sagas/selectors";
+import { getActions } from "sagas/selectors";
 
-import * as log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getCanvasWidgets } from "./entitiesSelector";
-import { MetaState } from "../reducers/entityReducers/metaReducer";
 import { WidgetTypes } from "../constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
@@ -44,6 +42,9 @@ const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
 
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;
+
+export const getIsEditorInitializeError = (state: AppState): boolean =>
+  state.ui.editor.initializationError;
 
 export const getIsEditorLoading = (state: AppState) =>
   state.ui.editor.loadingStates.loading;

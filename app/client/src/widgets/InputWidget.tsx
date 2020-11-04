@@ -58,19 +58,20 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             * Example /appsmith/i will be split into ["/appsmith/gi", "/", "appsmith", "gi"]
             */
             const regexParts = this.regex.match(/(\\/?)(.+)\\1([a-z]*)/i);
-            if (regexParts === null) {
+            if (!regexParts) {
               parsedRegex = new RegExp(this.regex);
+            } else {
+              /*
+              * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
+              /*
+              if (regexParts[3] && !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])) {
+                parsedRegex = RegExp(this.regex);
+              }
+              /*
+              * if we have a regex flags, use it to form regexp
+              */
+              parsedRegex = new RegExp(regexParts[2], regexParts[3]);
             }
-            /*
-            * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
-            /*
-            if (regexParts[3] && !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])) {
-              parsedRegex = RegExp(this.regex);
-            }
-            /*
-            * if we have a regex flags, use it to form regexp
-            */
-            parsedRegex = new RegExp(regexParts[2], regexParts[3]);
           }
           if (this.inputType === "EMAIL") {
             const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);

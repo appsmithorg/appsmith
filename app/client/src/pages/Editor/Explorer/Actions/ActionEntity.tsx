@@ -60,9 +60,10 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       <EntityProperties
         entityName={props.action.config.name}
         entityType={ENTITY_TYPE.ACTION}
-        isCurrentPage={props.pageId === pageId}
+        pageId={props.pageId}
         step={props.step + 1}
         entity={props.action}
+        entityId={props.action.config.id}
       />
     </Entity>
   );

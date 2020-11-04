@@ -9,7 +9,7 @@ import CalloutComponent from "components/designSystems/blueprint/CalloutComponen
 import { PaginationType } from "entities/Action";
 
 interface PaginationProps {
-  onTestClick: Function;
+  onTestClick: (test?: "PREV" | "NEXT") => void;
   paginationType: PaginationType;
 }
 const PaginationFieldWrapper = styled.div`

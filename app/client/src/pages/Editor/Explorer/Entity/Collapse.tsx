@@ -25,7 +25,7 @@ export const EntityCollapse = (props: {
 }) => {
   if (!props.children) return null;
   return (
-    <Collapse isOpen={props.isOpen} keepChildrenMounted>
+    <Collapse isOpen={props.isOpen}>
       <CollapsedContainer step={props.step} active={props.active}>
         {props.children}
       </CollapsedContainer>

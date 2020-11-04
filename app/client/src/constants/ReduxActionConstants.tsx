@@ -266,7 +266,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   END_EXPLORER_ENTITY_NAME_EDIT: "END_EXPLORER_ENTITY_NAME_EDIT",
   POPULATE_PAGEDSLS_INIT: "POPULATE_PAGEDSLS_INIT",
   POPULATE_PAGEDSLS_SUCCESS: "POPULATE_PAGEDSLS_SUCCESS",
-  FETCH_PAGE_DSL_INIT: "FETCH_PAGE_DSL_INIT",
+  FETCH_PAGE_DSLS_SUCCESS: "FETCH_PAGE_DSLS_SUCCESS",
   FETCH_PAGE_DSL_SUCCESS: "FETCH_PAGE_DSL_SUCCESS",
   SET_URL_DATA: "SET_URL_DATA",
   SET_APP_MODE: "SET_APP_MODE",
@@ -287,6 +287,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   WIDGET_ADD_CHILDREN: "WIDGET_ADD_CHILDREN",
   SET_EVALUATED_TREE: "SET_EVALUATED_TREE",
   BATCH_UPDATES_SUCCESS: "BATCH_UPDATES_SUCCESS",
+  UPDATE_CANVAS_STRUCTURE: "UPDATE_CANVAS_STRUCTURE",
+  SET_SELECTED_WIDGET_ANCESTORY: "SET_SELECTED_WIDGET_ANCESTORY",
   START_EVALUATION: "START_EVALUATION",
 };
 
@@ -294,6 +296,7 @@ export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTy
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR_ERROR: "INITIALIZE_EDITOR_ERROR",
+  INITIALIZE_PAGE_VIEWER_ERROR: "INITIALIZE_PAGE_VIEWER_ERROR",
   API_ERROR: "API_ERROR",
   WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
   UPDATE_APPLICATION_ERROR: "UPDATE_APPLICATION_ERROR",
@@ -410,6 +413,11 @@ export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
   meta: M;
 }
+
+export interface EvaluationReduxAction<T> extends ReduxAction<T> {
+  postEvalActions?: ReduxAction<any>[];
+}
+
 export interface PromisePayload {
   reject: any;
   resolve: any;
