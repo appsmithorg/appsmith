@@ -28,8 +28,17 @@ sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
     -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
     nginx:latest &
 
-echo "Sleeping for 10 seconds to let the server start"
+sudo docker run --network host --name postgres -d -p 5432:5432 \
+ -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+ -v `pwd`/cypress/init-pg-dump-for-test.sql:/docker-entrypoint-initdb.d/init-pg-dump-for-test.sql \
+ --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
+ postgres:latest &
+
+echo "Sleeping for 10 seconds to let the servers start"
 sleep 10
+
+echo "Checking if the containers have started"
+sudo docker ps -a 
 
 # Create the test user 
 curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
@@ -66,12 +75,6 @@ curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
 	"isEnabled" : "true",
 	"password": "'"$CYPRESS_TESTPASSWORD2"'"
 }'
-
-sudo docker run --network host --name postgres -d -p 5432:5432 \
- -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
- -v `pwd`/cypress/init-pg-dump-for-test.sql:/docker-entrypoint-initdb.d/init-pg-dump-for-test.sql \
- --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
- postgres:latest &
 
 # DEBUG=cypress:* $(npm bin)/cypress version
 # sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
