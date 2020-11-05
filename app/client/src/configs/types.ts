@@ -35,6 +35,7 @@ export type AppsmithUIConfigs = {
   segment: {
     enabled: boolean;
     apiKey: string;
+    ceKey: string;
   };
   algolia: {
     enabled: boolean;

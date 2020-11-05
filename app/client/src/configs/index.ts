@@ -16,7 +16,10 @@ type INJECTED_CONFIGS = {
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
   enableRapidAPI: boolean;
-  segment: string;
+  segment: {
+    apiKey: string;
+    ceKey: string;
+  };
   optimizely: string;
   enableMixpanel: boolean;
   google: string;
@@ -67,7 +70,10 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     enableGithubOAuth: process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID
       ? process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID.length > 0
       : false,
-    segment: process.env.REACT_APP_SEGMENT_KEY || "",
+    segment: {
+      apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
+      ceKey: process.env.REACT_APP_SEGMENT_CE_KEY || "",
+    },
     optimizely: process.env.REACT_APP_OPTIMIZELY_KEY || "",
     enableMixpanel: process.env.REACT_APP_SEGMENT_KEY
       ? process.env.REACT_APP_SEGMENT_KEY.length > 0
@@ -142,8 +148,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS.sentry.environment,
   );
   const segment = getConfig(
-    ENV_CONFIG.segment,
-    APPSMITH_FEATURE_CONFIGS.segment,
+    ENV_CONFIG.segment.apiKey,
+    APPSMITH_FEATURE_CONFIGS.segment.apiKey,
   );
   const google = getConfig(ENV_CONFIG.google, APPSMITH_FEATURE_CONFIGS.google);
 
@@ -165,6 +171,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const algoliaIndex = getConfig(
     ENV_CONFIG.algolia.indexName,
     APPSMITH_FEATURE_CONFIGS.algolia.indexName,
+  );
+
+  const segmentCEKey = getConfig(
+    ENV_CONFIG.segment.ceKey,
+    APPSMITH_FEATURE_CONFIGS.segment.ceKey,
   );
 
   return {
@@ -189,6 +200,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     segment: {
       enabled: segment.enabled,
       apiKey: segment.value,
+      ceKey: segmentCEKey.value,
     },
     algolia: {
       enabled: true,
