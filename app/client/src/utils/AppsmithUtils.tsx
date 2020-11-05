@@ -14,8 +14,6 @@ import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import history from "./history";
 import { SERVER_ERROR_URL } from "../constants/routes";
 
-const SEGMENT_CE_KEY = "aLyfW0WipbrC3WP02i2Zm8SOOJoBSd0o";
-
 export const createReducer = (
   initialState: any,
   handlers: { [type: string]: (state: any, action: any) => any },
@@ -54,10 +52,13 @@ export const appInitializer = () => {
     const { id } = appsmithConfigs.smartLook;
     AnalyticsUtil.initializeSmartLook(id);
   }
+
   if (appsmithConfigs.segment.enabled) {
+    // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
   } else {
-    AnalyticsUtil.initializeSegment(SEGMENT_CE_KEY);
+    // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+    AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
   }
 
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));

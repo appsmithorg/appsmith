@@ -5,7 +5,6 @@ import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
-const { cloudHosting } = getAppsmithConfigs();
 import { sha256 } from "js-sha256";
 
 export type EventLocation =
@@ -170,12 +169,14 @@ class AnalyticsUtil {
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
     const appId = getApplicationId(windowDoc.location);
+
     if (userData) {
+      const { cloudHosting } = getAppsmithConfigs();
       const app = (userData.applications || []).find(
         (app: any) => app.id === appId,
       );
       let user: any = {};
-      if (windowDoc.cloudHosting) {
+      if (cloudHosting) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -198,10 +199,14 @@ class AnalyticsUtil {
   static identifyUser(userData: User) {
     const windowDoc: any = window;
     const userId = userData.username;
+
+    const { cloudHosting, disableTelemetry, smartLook } = getAppsmithConfigs();
+
     log.debug("Identify User " + userId);
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
-      if (windowDoc.cloudHosting) {
+      // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
+      if (cloudHosting) {
         const userProperties = {
           email: userData.email,
           name: userData.name,
@@ -209,7 +214,9 @@ class AnalyticsUtil {
         };
         AnalyticsUtil.user = userData;
         windowDoc.analytics.identify(userId, userProperties);
-      } else {
+      } else if (!disableTelemetry) {
+        // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
+        // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
         windowDoc.analytics.identify(sha256(userId));
       }
     }
@@ -220,7 +227,7 @@ class AnalyticsUtil {
         email: userData.email,
       });
     });
-    const { smartLook } = getAppsmithConfigs();
+
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
     }
