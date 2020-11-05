@@ -23,6 +23,9 @@ const FooterActions = styled.div`
   & > button {
     margin-left: 1em;
   }
+  &&&& > .bp3-button {
+    color: ${props => props.theme.colors.formFooter.btnColor};
+  }
 `;
 
 const FormFooterContainer = styled.div``;
