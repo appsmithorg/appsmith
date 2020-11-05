@@ -4,24 +4,27 @@ import com.appsmith.server.configurations.EmailConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
+@TestPropertySource(
+        properties = {"management.health.mail.enabled=false"})
 public class EmailSenderTest {
     @MockBean
     private JavaMailSender javaMailSender;
@@ -34,8 +37,8 @@ public class EmailSenderTest {
 
     @Test
     public void itShouldNotSendMailsWithInvalidAddresses() {
-        //noinspection ResultOfMethodCallIgnored
-        doReturn(true).when(emailConfig).isEmailEnabled();
+        Mockito.when(emailConfig.isEmailEnabled()).thenReturn(true);
+
         List<String> invalidAddresses = Arrays.asList(
                 "plainaddress",
                 "#@%^%#$@#$@#.com",
