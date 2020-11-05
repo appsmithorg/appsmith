@@ -40,9 +40,9 @@ public class GlobalExceptionHandler {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
+        log.error("", error);
         error.printStackTrace(printWriter);
         stringStackTrace = stringWriter.toString();
-        log.error("", error);
 
         Sentry.configureScope(
                 scope -> {
