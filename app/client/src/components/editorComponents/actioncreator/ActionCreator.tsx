@@ -37,6 +37,7 @@ const ALERT_STYLE_OPTIONS = [
 ];
 
 const FILE_TYPE_OPTIONS = [
+  { label: 'Select file type (optional)', value: "", id: "" },
   { label: "Plain text", value: "'text/plain'", id: "text/plain" },
   { label: "HTML", value: "'text/html'", id: "text/html" },
   { label: "CSV", value: "'text/csv'", id: "text/csv" },

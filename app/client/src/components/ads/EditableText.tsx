@@ -241,6 +241,7 @@ export const EditableText = (props: EditableTextProps) => {
       }
     >
       <TextContainer
+        className="editable-text-container"
         data-cy={props.cypressSelector}
         isInvalid={!!isInvalid}
         isEditing={isEditing}
