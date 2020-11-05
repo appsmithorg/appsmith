@@ -87,7 +87,7 @@ const Toaster = {
       console.error("Toast message needs to be a string");
       return;
     }
-    if (!(config.type && config.type in ToastType)) {
+    if (config.type && !(config.type in ToastType)) {
       console.error(
         "Toast type needs to be a one of " + Object.keys(ToastType).join(", "),
       );

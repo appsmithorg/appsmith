@@ -172,7 +172,7 @@ async function downloadSaga(
 }
 
 function* showAlertSaga(
-  payload: { message: string; style: TypeOptions },
+  payload: { message: string; style?: TypeOptions },
   event: ExecuteActionPayloadEvent,
 ) {
   if (typeof payload.message !== "string") {
@@ -180,7 +180,7 @@ function* showAlertSaga(
     if (event.callback) event.callback({ success: false });
     return;
   }
-  if (!(payload.style && payload.style in ToastType)) {
+  if (payload.style && !(payload.style in ToastType)) {
     console.error(
       "Toast type needs to be a one of " + Object.keys(ToastType).join(", "),
     );
