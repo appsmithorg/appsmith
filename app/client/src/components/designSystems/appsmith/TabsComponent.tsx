@@ -63,9 +63,10 @@ const TabsContainer = styled.div`
   overflow-x: auto;
   overflow-y: hidden;
   ${scrollbarLight};
+  background: ${props => props.theme.colors.builderBodyBG};
   overflow: hidden;
   && {
-    height: 38px;
+    height: 40px;
     width: 100%;
     display: flex;
     justify-content: flex-start;
@@ -79,7 +80,7 @@ type TabProps = {
 };
 
 const StyledTab = styled.div`
-  height: 30px;
+  height: 32px;
   background: ${props => props.theme.colors.builderBodyBG};
   border-bottom: 1px solid ${props => props.theme.colors.bodyBG};
   border-color: ${props => props.theme.colors.bodyBG};
@@ -91,8 +92,8 @@ const StyledText = styled.div<TabProps>`
   background: ${props => props.theme.colors.builderBodyBG};
   color: ${props => props.theme.colors.menuIconColorInactive};
   font-size: ${props => props.theme.fontSizes[3]}px;
-  line-height: 30px;
-  height: 30px;
+  line-height: 32px;
+  height: 32px;
   padding: 0 16px;
   border-bottom: ${props => (props.selected ? "0" : "1px")} solid;
   border-color: ${props => props.theme.colors.bodyBG};
