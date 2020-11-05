@@ -657,6 +657,7 @@ type ColorType = {
       desc: ShadeColor;
     };
     manageUser: ShadeColor;
+    scrollbar: ShadeColor;
   };
   tagInput: {
     bg: ShadeColor;
@@ -923,6 +924,7 @@ export const dark: ColorType = {
       desc: darkShades[6],
     },
     manageUser: darkShades[6],
+    scrollbar: darkShades[5],
   },
   tagInput: {
     bg: darkShades[0],
@@ -1189,6 +1191,7 @@ export const light: ColorType = {
       desc: lightShades[7],
     },
     manageUser: lightShades[6],
+    scrollbar: lightShades[5],
   },
   tagInput: {
     bg: lightShades[2],
