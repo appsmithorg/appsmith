@@ -1,5 +1,5 @@
 import React from "react";
-import { RouterProps } from "react-router";
+import { RouteComponentProps, withRouter } from "react-router";
 import styled from "styled-components";
 import Button from "components/editorComponents/Button";
 import PageUnavailableImage from "assets/images/404-image.png";
@@ -20,7 +20,7 @@ const Wrapper = styled.div`
   }
 `;
 
-class PageNotFound extends React.PureComponent<RouterProps> {
+class PageNotFound extends React.PureComponent<RouteComponentProps> {
   public render() {
     return (
       <>
@@ -54,4 +54,4 @@ class PageNotFound extends React.PureComponent<RouterProps> {
   }
 }
 
-export default PageNotFound;
+export default withRouter(PageNotFound);

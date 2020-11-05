@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { Page } from "constants/ReduxActionConstants";
 import Entity, { EntityClassNames } from "../Entity";
 import { useParams } from "react-router";
@@ -9,18 +9,18 @@ import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { WidgetProps } from "widgets/BaseWidget";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { homePageIcon, pageIcon } from "../ExplorerIcons";
 import { getPluginGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
 import { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
 
 type ExplorerPageEntityProps = {
   page: Page;
-  widgets?: WidgetProps;
+  widgets?: CanvasStructure;
   actions: any[];
   datasources: Datasource[];
   plugins: Plugin[];
@@ -28,8 +28,7 @@ type ExplorerPageEntityProps = {
   searchKeyword?: string;
   showWidgetsSidebar: () => void;
 };
-
-export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
+export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
 
   const currentPageId = useSelector((state: AppState) => {
@@ -91,8 +90,11 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       )}
     </Entity>
   );
-};
+});
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
+(ExplorerPageEntity as any).whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default ExplorerPageEntity;

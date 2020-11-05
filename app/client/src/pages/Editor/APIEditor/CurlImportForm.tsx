@@ -98,7 +98,7 @@ const Header = styled.div`
 
 interface ReduxStateProps {
   actions: ActionDataState;
-  initialValues: {};
+  initialValues: Record<string, unknown>;
   isImportingCurl: boolean;
 }
 

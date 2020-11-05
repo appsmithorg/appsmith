@@ -8,12 +8,13 @@ import { scrollbarLight } from "constants/DefaultTheme";
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
   shouldScrollContents?: boolean;
-  selectedTabId: string;
+  selectedTabWidgetId: string;
   shouldShowTabs: boolean;
   onTabChange: (tabId: string) => void;
   tabs: Array<{
     id: string;
     label: string;
+    widgetId: string;
   }>;
 }
 
@@ -120,10 +121,10 @@ const TabsComponent = (props: TabsComponentProps) => {
             props.tabs.map((tab, index) => (
               <StyledText
                 onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-                  props.onTabChange(tab.id);
+                  props.onTabChange(tab.widgetId);
                   event.stopPropagation();
                 }}
-                selected={props.selectedTabId === tab.id}
+                selected={props.selectedTabWidgetId === tab.widgetId}
                 key={index}
               >
                 {tab.label}

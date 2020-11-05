@@ -23,8 +23,8 @@ class TabsWidget extends BaseWidget<
     };
   }
 
-  onTabChange = (tabId: string) => {
-    this.props.updateWidgetMetaProperty("selectedTabId", tabId, {
+  onTabChange = (tabWidgetId: string) => {
+    this.props.updateWidgetMetaProperty("selectedTabWidgetId", tabWidgetId, {
       dynamicString: this.props.onTabSelected,
       event: {
         type: EventType.ON_TAB_CHANGE,
@@ -34,7 +34,7 @@ class TabsWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedTab: `{{_.find(this.tabs, { id: this.selectedTabId }).label}}`,
+      selectedTab: `{{_.find(this.tabs, { widgetId: this.selectedTabWidgetId }).label}}`,
     };
   }
 
@@ -59,12 +59,11 @@ class TabsWidget extends BaseWidget<
   }
 
   renderComponent = () => {
-    const selectedTabId = this.props.selectedTabId;
-
+    const selectedTabWidgetId = this.props.selectedTabWidgetId;
     const childWidgetData: TabContainerWidgetProps = this.props.children
       ?.filter(Boolean)
       .filter(item => {
-        return selectedTabId === item.tabId;
+        return selectedTabWidgetId === item.widgetId;
       })[0];
     if (!childWidgetData) {
       return null;
@@ -171,8 +170,13 @@ class TabsWidget extends BaseWidget<
         const selectedTab = _.find(this.props.tabs, {
           label: this.props.defaultTab,
         });
-        const selectedTabId = selectedTab ? selectedTab.id : undefined;
-        this.props.updateWidgetMetaProperty("selectedTabId", selectedTabId);
+        const selectedTabWidgetId = selectedTab
+          ? selectedTab.widgetId
+          : undefined;
+        this.props.updateWidgetMetaProperty(
+          "selectedTabWidgetId",
+          selectedTabWidgetId,
+        );
       }
     }
   }
@@ -221,18 +225,24 @@ class TabsWidget extends BaseWidget<
         label: this.props.defaultTab,
       });
       // Find the default Tab id
-      const selectedTabId = selectedTab?.id;
+      const selectedTabWidgetId = selectedTab?.widgetId;
       // If we have a legitimate default tab Id and it is not already the selected Tab
-      if (selectedTabId && selectedTabId !== this.props.selectedTabId) {
+      if (
+        selectedTabWidgetId &&
+        selectedTabWidgetId !== this.props.selectedTabWidgetId
+      ) {
         // Select the default tab
-        this.props.updateWidgetMetaProperty("selectedTabId", selectedTabId);
+        this.props.updateWidgetMetaProperty(
+          "selectedTabWidgetId",
+          selectedTabWidgetId,
+        );
       }
-    } else if (!this.props.selectedTabId) {
+    } else if (!this.props.selectedTabWidgetId) {
       // If no tab is selected
       // Select the first tab in the tabs list.
       this.props.updateWidgetMetaProperty(
-        "selectedTabId",
-        this.props.tabs[0].id,
+        "selectedTabWidgetId",
+        this.props.tabs[0].widgetId,
       );
     }
     this.generateTabContainers();
@@ -259,7 +269,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
   onTabSelected?: string;
   snapRows?: number;
   defaultTab: string;
-  selectedTabId: string;
+  selectedTabWidgetId: string;
 }
 
 export default TabsWidget;

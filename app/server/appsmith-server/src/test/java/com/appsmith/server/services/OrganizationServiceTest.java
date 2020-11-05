@@ -148,6 +148,7 @@ public class OrganizationServiceTest {
                     assertThat(organization1.getPolicies()).isNotEmpty();
                     assertThat(organization1.getPolicies()).containsAll(Set.of(manageOrgAppPolicy, manageOrgPolicy));
                     assertThat(organization1.getSlug() != null);
+                    assertThat(organization1.getEmail()).isEqualTo("api_user");
                 })
                 .verifyComplete();
     }
