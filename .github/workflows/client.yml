@@ -198,7 +198,7 @@ jobs:
         
     - name: Run the cypress test
       uses: cypress-io/github-action@v2
-      env: 
+      env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -209,6 +209,7 @@ jobs:
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+        NODE_ENV: "development",
       with:
         browser: chrome
         headless: true
