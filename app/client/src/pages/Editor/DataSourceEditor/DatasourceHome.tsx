@@ -3,10 +3,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { initialize } from "redux-form";
 import { Card, Spinner } from "@blueprintjs/core";
-import {
-  getDatasourcePlugins,
-  getPluginImages,
-} from "selectors/entitiesSelector";
+import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import {
@@ -137,39 +134,41 @@ class DatasourceHomeScreen extends React.Component<Props> {
   render() {
     const { plugins, isSaving, pluginImages } = this.props;
 
+    if (isSaving) {
+      return (
+        <LoadingContainer>
+          <Spinner size={30} />
+        </LoadingContainer>
+      );
+    }
+
     return (
       <DatasourceHomePage>
         <StyledContainer>
           <p className="sectionHeadings">Select Datasource Type</p>
         </StyledContainer>
         <CardsWrapper>
-          {isSaving ? (
-            <LoadingContainer>
-              <Spinner size={30} />
-            </LoadingContainer>
-          ) : (
-            <DatasourceCardsContainer>
-              {plugins.map(plugin => {
-                return (
-                  <Card
-                    interactive={false}
-                    className="eachDatasourceCard"
-                    key={plugin.id}
-                    onClick={() =>
-                      this.goToCreateDatasource(plugin.id, plugin.name)
-                    }
-                  >
-                    <img
-                      src={pluginImages[plugin.id]}
-                      className="dataSourceImage"
-                      alt="Datasource"
-                    />
-                    <p className="t--plugin-name textBtn">{plugin.name}</p>
-                  </Card>
-                );
-              })}
-            </DatasourceCardsContainer>
-          )}
+          <DatasourceCardsContainer>
+            {plugins.map(plugin => {
+              return (
+                <Card
+                  interactive={false}
+                  className="eachDatasourceCard"
+                  key={plugin.id}
+                  onClick={() =>
+                    this.goToCreateDatasource(plugin.id, plugin.name)
+                  }
+                >
+                  <img
+                    src={pluginImages[plugin.id]}
+                    className="dataSourceImage"
+                    alt="Datasource"
+                  />
+                  <p className="t--plugin-name textBtn">{plugin.name}</p>
+                </Card>
+              );
+            })}
+          </DatasourceCardsContainer>
         </CardsWrapper>
       </DatasourceHomePage>
     );
@@ -179,7 +178,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {
     pluginImages: getPluginImages(state),
-    plugins: getDatasourcePlugins(state),
+    plugins: getDBPlugins(state),
     currentApplication: getCurrentApplication(state),
   };
 };

@@ -114,7 +114,11 @@ export const getPlugins = (state: AppState) => state.entities.plugins.list;
 export const getPluginEditorConfigs = (state: AppState) =>
   state.entities.plugins.editorConfigs;
 
-export const getDBPlugins = createSelector(getPlugins, plugins =>
+export const getDatasourcePlugins = createSelector(getPlugins, plugins => {
+  return plugins.filter(plugin => plugin?.allowUserDatasources ?? true);
+});
+
+export const getDBPlugins = createSelector(getDatasourcePlugins, plugins =>
   plugins.filter(plugin => plugin.type === QUERY_CONSTANT),
 );
 
@@ -158,10 +162,6 @@ export const getQueryName = (state: AppState, actionId: string): string => {
 
 const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
-
-export const getDatasourcePlugins = createSelector(getPlugins, plugins => {
-  return plugins.filter(plugin => plugin?.allowUserDatasources ?? true);
-});
 
 export const getPluginImages = createSelector(getPlugins, plugins => {
   const pluginImages: Record<string, string> = {};

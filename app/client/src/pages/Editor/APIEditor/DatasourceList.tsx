@@ -4,9 +4,10 @@ import { Button } from "@blueprintjs/core";
 import history from "utils/history";
 import { useParams } from "react-router";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-import { useSelector } from "react-redux";
-import { getAPIDatasources } from "selectors/entitiesSelector";
+import { useDispatch, useSelector } from "react-redux";
+import { getAPIDatasources, getAPIPlugins } from "selectors/entitiesSelector";
 import DatasourceCard from "./DatasourceCard";
+import { createDatasourceFromForm } from "actions/datasourceActions";
 
 const Wrapper = styled.div`
   padding-top: 15px;
@@ -31,6 +32,13 @@ const AddDatasource = styled(Button)`
 const DatasourceList = () => {
   const params = useParams<{ applicationId: string; pageId: string }>();
   const apiDatasources = useSelector(getAPIDatasources);
+  const apiPlugins = useSelector(getAPIPlugins);
+  const dispatch = useDispatch();
+
+  const createAPIDatasource = () => {
+    dispatch(createDatasourceFromForm({ pluginId: apiPlugins[0].id }));
+    history.push(DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId));
+  };
 
   return (
     <Wrapper>
@@ -39,11 +47,7 @@ const DatasourceList = () => {
       </p>
       <AddDatasource
         className="t--add-datasource"
-        onClick={() => {
-          history.push(
-            DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
-          );
-        }}
+        onClick={createAPIDatasource}
         fill
         minimal
         text="New Datasource"
