@@ -41,7 +41,7 @@ const PropertyControl = (props: Props) => {
         setWidgetDynamicProperty(
           widgetProperties.widgetId,
           propertyName,
-          isDynamic,
+          !isDynamic,
         ),
       );
     },
@@ -153,11 +153,10 @@ const PropertyControl = (props: Props) => {
       delete config.expected;
     }
 
-    const isDynamic: boolean = _.get(
-      widgetProperties,
-      ["dynamicProperties", propertyName],
-      false,
-    );
+    const isDynamic = widgetProperties.dynamicProperties
+      ? !!widgetProperties.dynamicProperties[`${propertyName}`]
+      : false;
+
     const isConvertible = !!props.isJSConvertible;
     const className = props.label
       .split(" ")
@@ -203,6 +202,10 @@ const PropertyControl = (props: Props) => {
     }
   }
   return null;
+};
+
+PropertyControl.whyDidYouRender = {
+  logOnDifferentValues: false,
 };
 
 export default PropertyControl;
