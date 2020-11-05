@@ -27,7 +27,10 @@ import {
   ActionDescription,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
-import { AppToaster } from "components/editorComponents/ToastComponent";
+import {
+  AppToaster,
+  ToastTypeOptions,
+} from "components/editorComponents/ToastComponent";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
@@ -180,9 +183,12 @@ function* showAlertSaga(
     if (event.callback) event.callback({ success: false });
     return;
   }
-  if (payload.style && !(payload.style in ToastType)) {
+  if (
+    payload.style &&
+    !ToastTypeOptions.includes(payload.style.toLowerCase())
+  ) {
     console.error(
-      "Toast type needs to be a one of " + Object.keys(ToastType).join(", "),
+      "Toast type needs to be a one of " + ToastTypeOptions.join(", "),
     );
     if (event.callback) event.callback({ success: false });
     return;

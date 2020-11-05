@@ -41,6 +41,14 @@ const ToastAction = styled.button`
   }
 `;
 
+export const ToastTypeOptions = [
+  "info",
+  "success",
+  "warning",
+  "error",
+  "default",
+];
+
 const ToastIcon = {
   info: AlertIcons.INFO,
   success: AlertIcons.SUCCESS,
@@ -87,9 +95,9 @@ const Toaster = {
       console.error("Toast message needs to be a string");
       return;
     }
-    if (config.type && !(config.type in ToastType)) {
+    if (config.type && !ToastTypeOptions.includes(config.type.toLowerCase())) {
       console.error(
-        "Toast type needs to be a one of " + Object.keys(ToastType).join(", "),
+        "Toast type needs to be a one of " + ToastTypeOptions.join(", "),
       );
       return;
     }
