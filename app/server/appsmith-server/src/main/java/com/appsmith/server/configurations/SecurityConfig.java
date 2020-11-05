@@ -140,13 +140,13 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PAGE_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/actuator/**")
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute")
                 )
                 .permitAll()
                 .pathMatchers("/public/**", "/oauth2/**").permitAll()
                 .anyExchange()
                 .authenticated()
+                .and().httpBasic()
                 .and().formLogin()
                 .loginPage(Url.LOGIN_URL)
                 .authenticationEntryPoint(authenticationEntryPoint)
