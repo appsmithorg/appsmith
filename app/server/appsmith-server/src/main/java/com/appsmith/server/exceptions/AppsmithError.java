@@ -56,6 +56,7 @@ public enum AppsmithError {
     INVALID_CURL_METHOD(400, 4032, "Invalid method in cURL command: {0}."),
     OAUTH_NOT_AVAILABLE(500, 5006, "Login with {0} is not supported."),
     MARKETPLACE_NOT_CONFIGURED(500, 5007, "Marketplace is not configured."),
+    PAYLOAD_TOO_LARGE(413, 4028, "Unable to process the request entity.")
     ;
 
 

@@ -37,4 +37,6 @@ public interface OrganizationService extends CrudService<Organization, String> {
     Mono<List<UserRole>> getOrganizationMembers(String orgId);
 
     Mono<Organization> uploadLogo(String organizationId, Part filePart);
+
+    Mono<Organization> deleteLogo(String organizationId);
 }

@@ -989,6 +989,69 @@ public class OrganizationServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void uploadOrganizationLogo_nullFilePart() throws IOException {
+        final String organizationId = organizationRepository
+                .findByName("Spring Test Organization")
+                .blockOptional(Duration.ofSeconds(3))
+                .map(Organization::getId)
+                .orElse(null);
+
+        assertThat(organizationId).isNotNull();
+
+        final Mono<Organization> resultMono = organizationService.uploadLogo(organizationId, null);
+
+        StepVerifier.create(resultMono)
+                .expectError(AppsmithException.class);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testdeleteLogo_nullOrganization() {
+        Mono<Organization> deleteLogo = organizationService.deleteLogo(null);
+        StepVerifier.create(deleteLogo)
+                .expectError(AppsmithException.class);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testdeleteLogo_nullLogo() {
+        Mono<Organization> createOrganization = organizationService.create(organization);
+        Mono<Organization> deleteLogo = createOrganization.flatMap(organization -> organizationService.deleteLogo(organization.getId()));
+        StepVerifier.create(deleteLogo)
+                .expectError(AppsmithException.class);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testdeleteLogo_validLogo() throws IOException {
+        final InputStream imageResourceStream = getClass().getClassLoader()
+                .getResourceAsStream("test_assets/OrganizationServiceTest/my_organization_logo.png");
+        assertThat(imageResourceStream).isNotNull();
+
+        final byte[] bytes = imageResourceStream.readAllBytes();
+        final InMemoryFilePart filePart = new InMemoryFilePart(bytes, MediaType.IMAGE_PNG);
+
+        Mono<Organization> createOrganization = organizationService.create(organization).cache();
+
+        Mono<Organization> uploadLogo = createOrganization.flatMap(organization -> organizationService.uploadLogo(organization.getId(), filePart));
+        StepVerifier.create(uploadLogo)
+                .assertNext(x -> {
+                    assertThat(x.getLogoAssetId()).isNotNull();
+                    log.debug("Uploaded logo for org: {}", x.getId());
+                })
+                .verifyComplete();
+
+        Mono<Organization> deleteLogo = createOrganization.flatMap(organization -> organizationService.deleteLogo(organization.getId()));
+        StepVerifier.create(deleteLogo)
+                .assertNext(x -> {
+                    assertThat(x.getLogoAssetId()).isNull();
+                    log.debug("Deleted logo for org: {}", x.getId());
+                })
+                .verifyComplete();
+    }
+
     private static class InMemoryFilePart implements Part {
 
         private final DataBuffer buffer;

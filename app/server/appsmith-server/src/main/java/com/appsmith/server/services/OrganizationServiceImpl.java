@@ -111,8 +111,9 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
      * Creates the given organization as a personal organization for the given user. That is, the organization's name
      * is changed to "[username]'s Personal Organization" and then created. The current value of the organization name
      * is discarded.
+     *
      * @param organization Organization object to be created.
-     * @param user User to whom this organization will belong to, as a personal organization.
+     * @param user         User to whom this organization will belong to, as a personal organization.
      * @return Publishes the saved organization.
      */
     @Override
@@ -130,7 +131,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
      * 5. Assigns the default groups to the user creating the organization
      *
      * @param organization Organization object to be created.
-     * @param user User to whom this organization will belong to.
+     * @param user         User to whom this organization will belong to.
      * @return Publishes the saved organization.
      */
     @Override
@@ -296,7 +297,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
                     Set<AppsmithRole> appsmithRoles = roleGraph.generateHierarchicalRoles(roleName);
 
-                    Map<String, String> appsmithRolesMap =  appsmithRoles
+                    Map<String, String> appsmithRolesMap = appsmithRoles
                             .stream()
                             .collect(toMap(AppsmithRole::getName, AppsmithRole::getDescription));
 
@@ -322,12 +323,11 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                         repository
                                 .findById(organizationId, MANAGE_ORGANIZATIONS)
                                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId))),
-                        filePart.content().single()
+                        filePart != null ? DataBufferUtils.join(filePart.content()) : Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."))
                 )
                 .flatMap(tuple -> {
                     final Organization organization = tuple.getT1();
                     final DataBuffer dataBuffer = tuple.getT2();
-
                     final String prevAssetId = organization.getLogoAssetId();
 
                     byte[] data = new byte[dataBuffer.readableByteCount()];
@@ -341,10 +341,26 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                 return repository.save(organization);
                             })
                             .flatMap(savedOrganization ->
-                                prevAssetId != null
-                                        ? assetRepository.deleteById(prevAssetId).thenReturn(savedOrganization)
-                                        : Mono.just(savedOrganization)
+                                    prevAssetId != null
+                                            ? assetRepository.deleteById(prevAssetId).thenReturn(savedOrganization)
+                                            : Mono.just(savedOrganization)
                             );
+                });
+    }
+
+    @Override
+    public Mono<Organization> deleteLogo(String organizationId) {
+        return repository
+                .findById(organizationId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
+                .flatMap(organization -> {
+                    final String prevAssetId = organization.getLogoAssetId();
+                    organization.setLogoAssetId(null);
+                    return assetRepository.findById(prevAssetId)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ASSET, prevAssetId)))
+                            .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
+                            .flatMap(analyticsService::sendDeleteEvent)
+                            .then(repository.save(organization));
                 });
     }
 
