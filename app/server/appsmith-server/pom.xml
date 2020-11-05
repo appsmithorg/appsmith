@@ -192,9 +192,9 @@
             <version>2.1.1</version>
         </dependency>
         <dependency>
-            <groupId>com.rollbar</groupId>
-            <artifactId>rollbar-java</artifactId>
-            <version>1.5.2</version>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-spring-boot-starter</artifactId>
+            <version>3.1.2</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
