@@ -165,12 +165,12 @@ class AnalyticsUtil {
   }
 
   static logEvent(eventName: EventName, eventData: any = {}) {
-    const { segment, disableTelemetry } = getAppsmithConfigs();
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
+      const { segment } = getAppsmithConfigs();
       const app = (userData.applications || []).find(
         (app: any) => app.id === appId,
       );
