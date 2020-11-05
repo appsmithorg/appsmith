@@ -64,7 +64,7 @@ import {
 import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
-import { ToastType } from "react-toastify";
+import { ToastType, TypeOptions } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { updateAppStore } from "actions/pageActions";
@@ -169,6 +169,29 @@ async function downloadSaga(
     });
     if (event.callback) event.callback({ success: false });
   }
+}
+
+function* showAlertSaga(
+  payload: { message: string; style: TypeOptions },
+  event: ExecuteActionPayloadEvent,
+) {
+  if (typeof payload.message !== "string") {
+    console.error("Toast message needs to be a string");
+    if (event.callback) event.callback({ success: false });
+    return;
+  }
+  if (!(payload.style && payload.style in ToastType)) {
+    console.error(
+      "Toast type needs to be a one of " + Object.keys(ToastType).join(", "),
+    );
+    if (event.callback) event.callback({ success: false });
+    return;
+  }
+  AppToaster.show({
+    message: payload.message,
+    type: payload.style,
+  });
+  if (event.callback) event.callback({ success: true });
 }
 
 export const getActionTimeout = (
@@ -439,11 +462,7 @@ function* executeActionTriggers(
         yield call(navigateActionSaga, trigger.payload, event);
         break;
       case "SHOW_ALERT":
-        AppToaster.show({
-          message: trigger.payload.message,
-          type: trigger.payload.style,
-        });
-        if (event.callback) event.callback({ success: true });
+        yield call(showAlertSaga, trigger.payload, event);
         break;
       case "SHOW_MODAL_BY_NAME":
         yield put(trigger);
