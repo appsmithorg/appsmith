@@ -40,9 +40,20 @@ public class GlobalExceptionHandler {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
+        log.error("", error);
         error.printStackTrace(printWriter);
         stringStackTrace = stringWriter.toString();
-        log.error("", error);
+
+        Sentry.configureScope(
+                scope -> {
+                    /**
+                     * Send stack trace as a string message. This is a work around till it is figured out why raw
+                     * stack trace is not visible on Sentry dashboard.
+                     * */
+                    scope.setExtra("Stack Trace", stringStackTrace);
+                    scope.setLevel(SentryLevel.ERROR);
+                }
+        );
 
         Sentry.configureScope(
                 scope -> {
