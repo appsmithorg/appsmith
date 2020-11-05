@@ -1341,6 +1341,7 @@ Cypress.Commands.add("saveDatasource", () => {
     "response.body.responseMeta.status",
     200,
   );
+  cy.wait(10000);
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
@@ -1660,6 +1661,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");
   cy.route("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
+  cy.route("POST", "/api/v1/actions").as("createAction");
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
