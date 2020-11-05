@@ -169,9 +169,9 @@ class AnalyticsUtil {
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
     const appId = getApplicationId(windowDoc.location);
-    const { cloudHosting } = getAppsmithConfigs();
 
     if (userData) {
+      const { cloudHosting } = getAppsmithConfigs();
       const app = (userData.applications || []).find(
         (app: any) => app.id === appId,
       );
@@ -200,7 +200,7 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     const userId = userData.username;
 
-    const { cloudHosting, disableTelemetry } = getAppsmithConfigs();
+    const { cloudHosting, disableTelemetry, smartLook } = getAppsmithConfigs();
 
     log.debug("Identify User " + userId);
     FeatureFlag.identify(userData);
@@ -227,7 +227,7 @@ class AnalyticsUtil {
         email: userData.email,
       });
     });
-    const { smartLook } = getAppsmithConfigs();
+
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
     }
