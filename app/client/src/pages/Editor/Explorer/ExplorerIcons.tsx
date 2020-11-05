@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
 import { WidgetType } from "constants/WidgetConstants";
@@ -122,7 +122,7 @@ export const datasourceColumnIcon = (
   />
 );
 
-export const DATASOURCE_FIELD_ICONS_MAP: Record<string, JSX.Element> = {
+export const DATASOURCE_FIELD_ICONS_MAP: Record<string, ReactNode> = {
   [PRIMARY_KEY]: primaryKeyIcon,
   [FOREIGN_KEY]: foreignKeyIcon,
 };

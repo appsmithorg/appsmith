@@ -30,7 +30,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
-      .type('SELECT * FROM public."covidCases" LIMIT 10;');
+      .type("SELECT * FROM configs LIMIT 10;");
     cy.wait(500);
     cy.get(queryEditor.runQuery).click();
     cy.wait("@postExecute").should(
@@ -44,7 +44,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.readTabledataPublish("1", "0").then(tabData => {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
-      expect(tabValue).to.be.equal("2020-01-23");
+      expect(tabValue).to.be.equal("5");
     });
   });
 
@@ -64,13 +64,9 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.readTabledataPublish("1", "0").then(tabData => {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
-      expect(tabValue).to.be.equal("2020-01-23");
+      expect(tabValue).to.be.equal("5");
       cy.get(publish.inputWidget + " " + "input")
         .first()
-        .invoke("attr", "value")
-        .should("contain", tabValue);
-      cy.get(publish.inputWidget + " " + "input")
-        .last()
         .invoke("attr", "value")
         .should("contain", tabValue);
     });

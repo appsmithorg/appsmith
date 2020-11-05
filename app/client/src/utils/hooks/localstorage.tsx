@@ -18,7 +18,7 @@ export function useLocalStorage(key: string, initialValue: string) {
 
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to localStorage.
-  const setValue = (value: Function) => {
+  const setValue = (value: any) => {
     try {
       // Allow value to be a function so we have same API as useState
       const valueToStore =

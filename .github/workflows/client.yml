@@ -106,7 +106,7 @@ jobs:
         image: mongo
         ports: 
           - 27017:27017
-
+      
     steps:
     # Checkout the code
     - name: Checkout the merged commit from PR and base branch
@@ -192,12 +192,13 @@ jobs:
         CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+        POSTGRES_PASSWORD: postgres
       run: |
         ./cypress/setup-test.sh
         
     - name: Run the cypress test
       uses: cypress-io/github-action@v2
-      env: 
+      env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -219,6 +220,7 @@ jobs:
         working-directory: app/client
         # tag will be either "push" or "pull_request_target"
         tag: ${{ github.event_name }}
+        env: "NODE_ENV:development"
 
     # Upload the screenshots as artifacts if there's a failure
     - uses: actions/upload-artifact@v1

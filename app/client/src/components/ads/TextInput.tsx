@@ -18,7 +18,10 @@ export type Validator = (
 };
 
 export function emailValidator(email: string) {
-  const isValid = isEmail(email);
+  let isValid = true;
+  if (email) {
+    isValid = isEmail(email);
+  }
   return {
     isValid: isValid,
     message: !isValid ? FORM_VALIDATION_INVALID_EMAIL : "",
@@ -153,16 +156,15 @@ const TextInput = forwardRef(
 
     const memoizedChangeHandler = useCallback(
       el => {
-        const validation = props.validator && props.validator(el.target.value);
+        const inputValue = el.target.value.trim();
+        const validation = props.validator && props.validator(inputValue);
         if (validation) {
           props.validator && setValidation(validation);
           return (
-            validation.isValid &&
-            props.onChange &&
-            props.onChange(el.target.value)
+            validation.isValid && props.onChange && props.onChange(inputValue)
           );
         } else {
-          return props.onChange && props.onChange(el.target.value);
+          return props.onChange && props.onChange(inputValue);
         }
       },
       [props],
