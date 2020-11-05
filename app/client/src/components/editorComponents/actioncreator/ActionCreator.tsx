@@ -107,13 +107,21 @@ const JSToString = (js: string): string => {
 
 const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
-  return argsplitMatches
-    .map(match => {
-      return match[0];
-    })
-    .filter(arg => {
-      return arg !== "";
-    });
+  const arr: string[] = [];
+  let isPrevUndefined = true;
+  argsplitMatches.forEach(match => {
+    const matchVal = match[0];
+    if (!matchVal || matchVal === "") {
+      if (isPrevUndefined) {
+        arr.push(matchVal);
+      }
+      isPrevUndefined = true;
+    } else {
+      isPrevUndefined = false;
+      arr.push(matchVal);
+    }
+  });
+  return arr;
 };
 
 const textSetter = (
