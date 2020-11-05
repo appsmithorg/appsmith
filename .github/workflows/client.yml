@@ -220,7 +220,7 @@ jobs:
         working-directory: app/client
         # tag will be either "push" or "pull_request_target"
         tag: ${{ github.event_name }}
-        env: "NODE_ENV:development"
+        env: 'NODE_ENV=development'
 
     # Upload the screenshots as artifacts if there's a failure
     - uses: actions/upload-artifact@v1
