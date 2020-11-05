@@ -175,7 +175,7 @@ class AnalyticsUtil {
         (app: any) => app.id === appId,
       );
       let user: any = {};
-      if (!segment.ceKey && segment.apiKey) {
+      if (segment.enabled && segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -190,17 +190,15 @@ class AnalyticsUtil {
       };
     }
     if (windowDoc.analytics) {
+      log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
     }
-    log.debug("Event fired", eventName, finalEventData);
   }
 
   static identifyUser(userData: User) {
-    const { segment, disableTelemetry, smartLook } = getAppsmithConfigs();
+    const { segment, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
-    const userId = userData.username;
-
-    log.debug("Identify User " + userId);
+    let userId = userData.username;
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
@@ -211,11 +209,14 @@ class AnalyticsUtil {
           userId: userId,
         };
         AnalyticsUtil.user = userData;
+        log.debug("Identify User " + userId);
         windowDoc.analytics.identify(userId, userProperties);
-      } else if (!disableTelemetry && segment.ceKey) {
+      } else if (segment.ceKey) {
         // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
         // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
-        windowDoc.analytics.identify(sha256(userId));
+        userId = sha256(userId);
+        log.debug("Identify Anonymous User " + userId);
+        windowDoc.analytics.identify(userId);
       }
     }
     Sentry.configureScope(function(scope) {
