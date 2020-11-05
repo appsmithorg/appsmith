@@ -7,6 +7,8 @@ import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
 import { sha256 } from "js-sha256";
 
+const { segment, disableTelemetry, smartLook } = getAppsmithConfigs();
+
 export type EventLocation =
   | "LIGHTNING_MENU"
   | "API_PANE"
@@ -171,12 +173,11 @@ class AnalyticsUtil {
     const appId = getApplicationId(windowDoc.location);
 
     if (userData) {
-      const { cloudHosting } = getAppsmithConfigs();
       const app = (userData.applications || []).find(
         (app: any) => app.id === appId,
       );
       let user: any = {};
-      if (cloudHosting) {
+      if (!segment.ceKey && segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -200,13 +201,11 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     const userId = userData.username;
 
-    const { cloudHosting, disableTelemetry, smartLook } = getAppsmithConfigs();
-
     log.debug("Identify User " + userId);
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
-      if (cloudHosting) {
+      if (segment.apiKey) {
         const userProperties = {
           email: userData.email,
           name: userData.name,
@@ -214,7 +213,7 @@ class AnalyticsUtil {
         };
         AnalyticsUtil.user = userData;
         windowDoc.analytics.identify(userId, userProperties);
-      } else if (!disableTelemetry) {
+      } else if (!disableTelemetry && segment.ceKey) {
         // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
         // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
         windowDoc.analytics.identify(sha256(userId));
