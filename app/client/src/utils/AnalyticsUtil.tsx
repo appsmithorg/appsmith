@@ -7,8 +7,6 @@ import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
 import { sha256 } from "js-sha256";
 
-const { segment, disableTelemetry, smartLook } = getAppsmithConfigs();
-
 export type EventLocation =
   | "LIGHTNING_MENU"
   | "API_PANE"
@@ -167,11 +165,11 @@ class AnalyticsUtil {
   }
 
   static logEvent(eventName: EventName, eventData: any = {}) {
+    const { segment, disableTelemetry } = getAppsmithConfigs();
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
     const appId = getApplicationId(windowDoc.location);
-
     if (userData) {
       const app = (userData.applications || []).find(
         (app: any) => app.id === appId,
@@ -198,6 +196,7 @@ class AnalyticsUtil {
   }
 
   static identifyUser(userData: User) {
+    const { segment, disableTelemetry, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
     const userId = userData.username;
 
