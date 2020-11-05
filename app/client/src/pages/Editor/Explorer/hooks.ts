@@ -13,40 +13,61 @@ import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
 
-const findWidgets = (widgets: WidgetProps, keyword: string) => {
+const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
   const widgetNameMached =
     widgets.widgetName.toLowerCase().indexOf(keyword) > -1;
   if (widgets.children) {
     widgets.children = compact(
-      widgets.children.map((widget: WidgetProps) =>
+      widgets.children.map((widget: CanvasStructure) =>
         findWidgets(widget, keyword),
       ),
     );
   }
-  if (widgetNameMached || widgets.children?.length > 0) return widgets;
+  if (widgetNameMached || (widgets.children && widgets.children.length > 0))
+    return widgets;
 };
 
 const findDataSources = (dataSources: Datasource[], keyword: string) => {
   return dataSources.filter(
     (dataSource: Datasource) =>
-      dataSource.name.toLowerCase().indexOf(keyword) > -1,
+      dataSource.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1,
   );
 };
 
 export const useFilteredDatasources = (searchKeyword?: string) => {
-  const dataSources = useSelector((state: AppState) => {
+  const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
   });
+  const actions = useActions();
 
-  return useMemo(
-    () =>
-      searchKeyword
-        ? findDataSources(dataSources, searchKeyword.toLowerCase())
-        : dataSources,
-    [searchKeyword, dataSources],
-  );
+  const datasources = useMemo(() => {
+    const datasourcesPageMap: Record<string, Datasource[]> = {};
+    for (const [key, value] of Object.entries(actions)) {
+      const datasourceIds = value.map(action => action.config.datasource?.id);
+      const activeDatasources = reducerDatasources.filter(datasource =>
+        datasourceIds.includes(datasource.id),
+      );
+      datasourcesPageMap[key] = activeDatasources;
+    }
+
+    return datasourcesPageMap;
+  }, [actions, reducerDatasources]);
+
+  return useMemo(() => {
+    if (searchKeyword) {
+      const filteredDatasources = produce(datasources, draft => {
+        for (const [key, value] of Object.entries(draft)) {
+          draft[key] = findDataSources(value, searchKeyword);
+        }
+      });
+      return filteredDatasources;
+    }
+
+    return datasources;
+  }, [searchKeyword, datasources]);
 };
 
 export const useActions = (searchKeyword?: string) => {
@@ -85,11 +106,13 @@ export const useActions = (searchKeyword?: string) => {
 };
 
 export const useWidgets = (searchKeyword?: string) => {
-  const pageDSLs = useSelector((state: AppState) => state.ui.pageDSLs);
+  const pageCanvasStructures = useSelector(
+    (state: AppState) => state.ui.pageCanvasStructure,
+  );
   return useMemo(() => {
-    if (searchKeyword && pageDSLs) {
+    if (searchKeyword && pageCanvasStructures) {
       const start = performance.now();
-      const filteredDSLs = produce(pageDSLs, draft => {
+      const filteredDSLs = produce(pageCanvasStructures, draft => {
         for (const [key, value] of Object.entries(draft)) {
           const filteredWidgets = findWidgets(
             value,
@@ -101,8 +124,8 @@ export const useWidgets = (searchKeyword?: string) => {
       log.debug("Filtered widgets in: ", performance.now() - start, "ms");
       return filteredDSLs;
     }
-    return pageDSLs;
-  }, [searchKeyword, pageDSLs]);
+    return pageCanvasStructures;
+  }, [searchKeyword, pageCanvasStructures]);
 };
 
 export const useFilteredEntities = (

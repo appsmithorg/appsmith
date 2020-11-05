@@ -42,7 +42,7 @@ const PageNumberInputWrapper = styled(NumericInput)`
 const PageNumberInput = (props: {
   pageNo: number;
   pageCount: number;
-  updatePageNo: Function;
+  updatePageNo: (pageNo: number) => void;
 }) => {
   return (
     <PageNumberInputWrapper
@@ -65,11 +65,11 @@ const PageNumberInput = (props: {
 };
 
 interface TableHeaderProps {
-  updatePageNo: Function;
+  updatePageNo: (pageNo: number) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
-  tableData: object[];
+  tableData: Array<Record<string, unknown>>;
   tableColumns: ReactTableColumnProps[];
   pageCount: number;
   currentPageIndex: number;

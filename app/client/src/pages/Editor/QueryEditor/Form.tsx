@@ -26,7 +26,6 @@ import { RestAction } from "entities/Action";
 import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
@@ -40,11 +39,10 @@ import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
 
 const QueryFormContainer = styled.div`
-  padding: 20px 32px;
+  padding: 20px 0px;
   width: 100%;
-  display: flex;
-  flex-direction: column;
   height: calc(100vh - ${props => props.theme.headerHeight});
+  overflow: auto;
   a {
     font-size: 14px;
     line-height: 20px;
@@ -206,32 +204,33 @@ const NameWrapper = styled.div`
   }
 `;
 
-const CollapsibleWrapper = styled.div`
-  width: 200px;
-`;
-
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
 
 const TabContainerView = styled.div`
-  height: calc(100vh / 3);
-
   .react-tabs__tab-panel {
-    border: 1px solid #ebeff2;
     overflow: scroll;
   }
   .react-tabs__tab-list {
     margin: 0px;
   }
+  &&& {
+    ul.react-tabs__tab-list {
+      padding-left: 23px;
+    }
+  }
+  position: relative;
+  margin-top: 31px;
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 5px 10px;
+  padding: 5px 23px;
 `;
 
 const AddWidgetButton = styled(BaseButton)`
   &&&& {
+    height: 36px;
     max-width: 125px;
     border: 1px solid ${Colors.GEYSER_LIGHT};
   }
@@ -241,12 +240,26 @@ const OutputHeader = styled.div`
   flex-direction: row;
   justify-content: space-between;
   display: flex;
-  margin-bottom: 10px;
+  margin: 10px 0px;
   align-items: center;
 `;
 
 const FieldWrapper = styled.div`
   margin-top: 15px;
+`;
+
+const StyledFormRow = styled(FormRow)`
+  padding: 0px 24px;
+`;
+
+const DocumentationLink = styled.a`
+  position: absolute;
+  right: 23px;
+  top: -6px;
+`;
+
+const OutputWrapper = styled.div`
+  margin: 0px 23px;
 `;
 
 type QueryFormProps = {
@@ -380,7 +393,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   return (
     <QueryFormContainer>
       <form onSubmit={handleSubmit}>
-        <FormRow>
+        <StyledFormRow>
           <NameWrapper>
             <ActionNameEditor />
           </NameWrapper>
@@ -454,34 +467,19 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               )}
             </ActionButtons>
           </ActionsWrapper>
-        </FormRow>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-          }}
-        >
-          <p className="statementTextArea">Query Statement</p>
-
-          {documentationLink && (
-            <CollapsibleWrapper>
-              <CollapsibleHelp>
-                <a
-                  href={documentationLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {"Documentation "}
-                  <StyledOpenDocsIcon icon="document-open" />
-                </a>
-              </CollapsibleHelp>
-            </CollapsibleWrapper>
-          )}
-        </div>
+        </StyledFormRow>
 
         <TabContainerView>
+          {documentationLink && (
+            <DocumentationLink
+              href={documentationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {"Documentation "}
+              <StyledOpenDocsIcon icon="document-open" />
+            </DocumentationLink>
+          )}
           <BaseTabbedView
             tabs={[
               {
@@ -545,14 +543,14 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       )}
 
       {error && (
-        <>
+        <OutputWrapper>
           <p className="statementTextArea">Query error</p>
           <ErrorMessage>{error}</ErrorMessage>
-        </>
+        </OutputWrapper>
       )}
 
       {!error && output && dataSources.length && (
-        <>
+        <OutputWrapper>
           <OutputHeader>
             <p className="statementTextArea">
               {output.length ? "Query response" : "No data records to display"}
@@ -567,7 +565,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             )}
           </OutputHeader>
           {isSQL ? <Table data={output} /> : <JSONViewer src={output} />}
-        </>
+        </OutputWrapper>
       )}
     </QueryFormContainer>
   );

@@ -147,6 +147,10 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
             return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
         }
 
+        if (organization.getEmail() == null) {
+            organization.setEmail(user.getEmail());
+        }
+
         Mono<Organization> setSlugMono;
         if (organization.getName() == null) {
             setSlugMono = Mono.just(organization);

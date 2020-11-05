@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const initialState: WidgetDragResizeState = {
@@ -7,38 +7,45 @@ const initialState: WidgetDragResizeState = {
   isResizing: false,
   selectedWidget: undefined,
   focusedWidget: undefined,
+  selectedWidgetAncestory: [],
 };
 
-export const widgetDraggingReducer = createReducer(initialState, {
+export const widgetDraggingReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.DISABLE_WIDGET_DRAG]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ isDraggingDisabled: boolean }>,
   ) => {
-    return { ...state, ...action.payload };
+    state.isDraggingDisabled = action.payload.isDraggingDisabled;
   },
   [ReduxActionTypes.SET_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ isDragging: boolean }>,
   ) => {
-    return { ...state, ...action.payload };
+    state.isDragging = action.payload.isDragging;
   },
   [ReduxActionTypes.SET_WIDGET_RESIZING]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ isResizing: boolean }>,
   ) => {
-    return { ...state, ...action.payload };
+    state.isResizing = action.payload.isResizing;
   },
   [ReduxActionTypes.SELECT_WIDGET]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetId?: string }>,
   ) => {
-    return { ...state, selectedWidget: action.payload.widgetId };
+    state.selectedWidget = action.payload.widgetId;
   },
   [ReduxActionTypes.FOCUS_WIDGET]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetId?: string }>,
   ) => {
-    return { ...state, focusedWidget: action.payload.widgetId };
+    state.focusedWidget = action.payload.widgetId;
+  },
+  [ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTORY]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<string[]>,
+  ) => {
+    state.selectedWidgetAncestory = action.payload;
   },
 });
 
@@ -48,6 +55,7 @@ export type WidgetDragResizeState = {
   isResizing: boolean;
   selectedWidget?: string;
   focusedWidget?: string;
+  selectedWidgetAncestory: string[];
 };
 
 export default widgetDraggingReducer;

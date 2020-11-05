@@ -31,8 +31,6 @@ describe("Postgres datasource test cases", function() {
       200,
     );
 
-    cy.GlobalSearchEntity(`${datasourceName}`);
-    cy.get(`.t--entity-name:contains(${datasourceName})`).click();
-    cy.deleteDataSource();
+    cy.deletePostgresDatasource(datasourceName);
   });
 });

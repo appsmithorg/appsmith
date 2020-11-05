@@ -46,10 +46,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -503,6 +505,88 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
                     assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                })
+                .verifyComplete();
+    }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteSecondaryStaleConnection() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(List.of(
+                new Property("random-header-key", "random-header-value"),
+                new Property("", "")
+        ));
+        actionConfiguration.setTimeoutInMillisecond(10);
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecuteSecondaryStaleConnection");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new StaleConnectionException())).thenReturn(Mono.error(new StaleConnectionException()));
+        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+
+        Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO);
+
+        StepVerifier.create(executionResultMono)
+                .assertNext(result -> {
+                    assertThat(result.getIsExecutionSuccess()).isFalse();
+                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteTimeout() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(List.of(
+                new Property("random-header-key", "random-header-value"),
+                new Property("", "")
+        ));
+        actionConfiguration.setTimeoutInMillisecond(10);
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecuteTimeout");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
+        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+
+        Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO);
+
+        StepVerifier.create(executionResultMono)
+                .assertNext(result -> {
+                    assertThat(result.getIsExecutionSuccess()).isFalse();
+                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_TIMEOUT_ERROR.getAppErrorCode().toString());
                 })
                 .verifyComplete();
     }

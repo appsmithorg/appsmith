@@ -20,7 +20,7 @@ interface AppRouteProps {
   logDisable?: boolean;
   name: string;
   location?: any;
-  setTheme: Function;
+  setTheme: (themeMode: ThemeMode) => void;
 }
 
 class AppRouteWithoutProps extends React.Component<AppRouteProps> {

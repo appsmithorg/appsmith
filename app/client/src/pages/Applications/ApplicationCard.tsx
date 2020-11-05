@@ -204,7 +204,6 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
       : null};
 `;
 type ApplicationCardProps = {
-  activeAppCard?: boolean;
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
@@ -275,11 +274,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
-    if (props.activeAppCard) {
-      setShowOverlay(true);
-    }
-  }, [props.activeAppCard]);
 
   const appIcon = (props.application?.icon ||
     getApplicationIcon(props.application.id)) as AppIconName;
