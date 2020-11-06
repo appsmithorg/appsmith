@@ -10,6 +10,7 @@ export type User = {
   username: string;
   name: string;
   gender: Gender;
+  anonymousId: string;
 };
 
 export interface UserApplication {
@@ -29,4 +30,5 @@ export const DefaultCurrentUserDetails: User = {
   username: ANONYMOUS_USERNAME,
   applications: [],
   gender: "MALE",
+  anonymousId: "anonymousId",
 };

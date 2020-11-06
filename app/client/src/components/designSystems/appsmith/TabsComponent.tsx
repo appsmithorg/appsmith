@@ -32,15 +32,18 @@ const TabsContainerWrapper = styled.div<{
   width: 100%;
   justify-content: center;
   align-items: center;
+  border-bottom-right-radius: ${props => `${props.theme.radii[1]}px`};
+  border-bottom-left-radius: ${props => `${props.theme.radii[1]}px`};
+  border-top-right-radius: ${props => `${props.theme.radii[1]}px`};
+  border-top-left-radius: ${props => `${props.theme.radii[1]}px`};
+  box-shadow: ${props => props.theme.shadows[2]};
+  overflow: hidden;
 `;
 
 const ChildrenWrapper = styled.div`
   height: 100%;
   width: 100%;
   position: relative;
-  border: 1px solid;
-  border-top: none;
-  border-color: ${props => props.theme.colors.bodyBG};
   background: ${props => props.theme.colors.builderBodyBG};
 `;
 
@@ -61,8 +64,9 @@ const TabsContainer = styled.div`
   overflow-y: hidden;
   ${scrollbarLight};
   background: ${props => props.theme.colors.builderBodyBG};
+  overflow: hidden;
   && {
-    height: 38px;
+    height: 40px;
     width: 100%;
     display: flex;
     justify-content: flex-start;
@@ -77,7 +81,8 @@ type TabProps = {
 
 const StyledTab = styled.div`
   height: 32px;
-  border-bottom: 1px solid;
+  background: ${props => props.theme.colors.builderBodyBG};
+  border-bottom: 1px solid ${props => props.theme.colors.bodyBG};
   border-color: ${props => props.theme.colors.bodyBG};
   width: 100%;
 `;
@@ -90,16 +95,18 @@ const StyledText = styled.div<TabProps>`
   line-height: 32px;
   height: 32px;
   padding: 0 16px;
-  cursor: pointer;
-  box-shadow: ${props => (props.selected ? props.theme.shadows[2] : "")};
-  border-bottom: ${props => (props.selected ? "none" : "1px solid")};
+  border-bottom: ${props => (props.selected ? "0" : "1px")} solid;
   border-color: ${props => props.theme.colors.bodyBG};
+  cursor: pointer;
+  box-shadow: ${props => (props.selected ? props.theme.shadows[0] : "")};
   &:hover {
     background: ${props =>
       props.selected
         ? props.theme.colors.textOnDarkBG
         : props.theme.colors.hover};
-    box-shadow: ${props => (props.selected ? "" : props.theme.shadows[3])};
+  }
+  &:first-child {
+    box-shadow: ${props => (props.selected ? props.theme.shadows[1] : "")};
   }
 `;
 
@@ -130,7 +137,7 @@ const TabsComponent = (props: TabsComponentProps) => {
                 {tab.label}
               </StyledText>
             ))}
-          <StyledTab></StyledTab>
+          <StyledTab />
         </TabsContainer>
       ) : (
         undefined
