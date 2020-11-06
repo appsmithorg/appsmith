@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   withScriptjs,
   withGoogleMap,
@@ -35,6 +35,7 @@ interface MapComponentProps {
   saveMarker: (lat: number, long: number) => void;
   selectMarker: (lat: number, long: number, title: string) => void;
   disableDrag: (e: any) => void;
+  unselectMarker: () => void;
 }
 
 const MapWrapper = styled.div`
@@ -86,6 +87,34 @@ const MyMapComponent = withScriptjs(
       ...props.center,
       lng: props.center.long,
     });
+    const searchBox = React.createRef<SearchBox>();
+    const onPlacesChanged = () => {
+      const node: any = searchBox.current;
+      if (node) {
+        const places: any = node.getPlaces();
+        if (
+          places &&
+          places.length &&
+          places[0].geometry &&
+          places[0].geometry.location
+        ) {
+          const location = places[0].geometry.location;
+          const lat = location.lat();
+          const long = location.lng();
+          setMapCenter({ lat, lng: long });
+          props.updateCenter(lat, long);
+          props.unselectMarker();
+        }
+      }
+    };
+    useEffect(() => {
+      if (!props.selectedMarker) {
+        setMapCenter({
+          ...props.center,
+          lng: props.center.long,
+        });
+      }
+    }, [props.center, props.selectedMarker]);
     return (
       <GoogleMap
         options={{
@@ -107,8 +136,8 @@ const MyMapComponent = withScriptjs(
         {props.enableSearch && (
           <SearchBox
             controlPosition={2}
-            onPlacesChanged={props.onPlacesChanged}
-            ref={props.onSearchBoxMounted}
+            onPlacesChanged={onPlacesChanged}
+            ref={searchBox}
           >
             <StyledInput type="text" placeholder="Enter location to search" />
           </SearchBox>
@@ -150,29 +179,6 @@ const MyMapComponent = withScriptjs(
 );
 
 class MapComponent extends React.Component<MapComponentProps> {
-  private searchBox = React.createRef<SearchBox>();
-
-  onSearchBoxMounted = (ref: any) => {
-    this.searchBox = ref;
-  };
-  onPlacesChanged = () => {
-    const node: any = this.searchBox;
-    if (node) {
-      const places: any = node.getPlaces();
-      if (
-        places &&
-        places.length &&
-        places[0].geometry &&
-        places[0].geometry.location
-      ) {
-        const location = places[0].geometry.location;
-        const lat = location.lat();
-        const long = location.lng();
-        this.props.updateCenter(lat, long);
-      }
-    }
-  };
-
   render() {
     const zoom = Math.floor(this.props.zoomLevel / 5);
     return (
@@ -184,8 +190,6 @@ class MapComponent extends React.Component<MapComponentProps> {
           mapElement={<MapContainerWrapper />}
           {...this.props}
           zoom={zoom}
-          onPlacesChanged={this.onPlacesChanged}
-          onSearchBoxMounted={this.onSearchBoxMounted}
         />
       </MapWrapper>
     );
