@@ -41,6 +41,14 @@ const ToastAction = styled.button`
   }
 `;
 
+export const ToastTypeOptions = [
+  "info",
+  "success",
+  "warning",
+  "error",
+  "default",
+];
+
 const ToastIcon = {
   info: AlertIcons.INFO,
   success: AlertIcons.SUCCESS,
@@ -85,6 +93,12 @@ const Toaster = {
   show: (config: Props) => {
     if (typeof config.message !== "string") {
       console.error("Toast message needs to be a string");
+      return;
+    }
+    if (config.type && !ToastTypeOptions.includes(config.type.toLowerCase())) {
+      console.error(
+        "Toast type needs to be a one of " + ToastTypeOptions.join(", "),
+      );
       return;
     }
     toast(

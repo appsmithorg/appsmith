@@ -56,6 +56,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -545,6 +546,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                         .then(executionMono);
                             })
                             .timeout(Duration.ofMillis(timeoutDuration))
+                            .onErrorMap(TimeoutException.class,
+                                    error -> new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_TIMEOUT_ERROR,
+                                            action.getName(), timeoutDuration
+                                    )
+                            )
                             .onErrorMap(
                                     StaleConnectionException.class,
                                     error -> new AppsmithPluginException(
