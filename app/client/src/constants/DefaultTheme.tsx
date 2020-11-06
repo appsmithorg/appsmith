@@ -691,7 +691,7 @@ type ColorType = {
     dark: ShadeColor;
   };
   formFooter: {
-    btnColor: ShadeColor;
+    cancelBtn: ShadeColor;
   };
 };
 
@@ -961,7 +961,7 @@ export const dark: ColorType = {
     dark: darkShades[4],
   },
   formFooter: {
-    btnColor: darkShades[9],
+    cancelBtn: darkShades[9],
   },
 };
 
@@ -1231,7 +1231,7 @@ export const light: ColorType = {
     dark: lightShades[4],
   },
   formFooter: {
-    btnColor: lightShades[9],
+    cancelBtn: lightShades[9],
   },
 };
 

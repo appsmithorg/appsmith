@@ -24,7 +24,7 @@ const FooterActions = styled.div`
     margin-left: 1em;
   }
   &&&& > .bp3-button {
-    color: ${props => props.theme.colors.formFooter.btnColor};
+    color: ${props => props.theme.colors.formFooter.cancelBtn};
   }
 `;
 
