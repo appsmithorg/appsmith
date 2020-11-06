@@ -694,6 +694,10 @@ type ColorType = {
     bg: ShadeColor;
     color: ShadeColor;
     progress: ShadeColor;
+    shadow: {
+      from: string;
+      to: string;
+    };
   };
 };
 
@@ -833,7 +837,7 @@ export const dark: ColorType = {
       border: darkShades[2],
     },
     normal: {
-      bg: darkShades[0],
+      bg: lightShades[10],
       text: darkShades[9],
       border: darkShades[0],
     },
@@ -963,9 +967,13 @@ export const dark: ColorType = {
     dark: darkShades[4],
   },
   filePicker: {
-    bg: darkShades[0],
+    bg: darkShades[1],
     color: darkShades[7],
     progress: darkShades[6],
+    shadow: {
+      from: "rgba(21, 17, 17, 0.0001)",
+      to: "rgba(9, 7, 7, 0.883386)",
+    },
   },
 };
 
@@ -1235,9 +1243,13 @@ export const light: ColorType = {
     dark: lightShades[4],
   },
   filePicker: {
-    bg: lightShades[0],
+    bg: lightShades[2],
     color: lightShades[7],
     progress: lightShades[6],
+    shadow: {
+      from: "rgba(253, 253, 253, 0.0001)",
+      to: "rgba(250, 250, 250, 0.898847)",
+    },
   },
 };
 

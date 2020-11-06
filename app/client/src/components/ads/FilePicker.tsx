@@ -17,6 +17,7 @@ type FilePickerProps = {
   onFileRemoved?: (file: any) => void;
   fileUploader?: FileUploader;
   url?: string;
+  logoUploadError?: string;
 };
 
 const ContainerDiv = styled.div<{
@@ -90,8 +91,8 @@ const ContainerDiv = styled.div<{
     right: 0;
     background: linear-gradient(
       180deg,
-      rgba(21, 17, 17, 0.0001) 0%,
-      rgba(9, 7, 7, 0.883386) 100%
+      ${props => props.theme.colors.filePicker.shadow.from},
+      ${props => props.theme.colors.filePicker.shadow.to}
     );
     opacity: 0.6;
     width: 100%;
@@ -157,6 +158,7 @@ export function CloudinaryUploader(
 }
 
 const FilePickerComponent = (props: FilePickerProps) => {
+  const { logoUploadError } = props;
   const [fileInfo, setFileInfo] = useState<{ name: string; size: number }>({
     name: "",
     size: 0,
@@ -270,7 +272,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
     if (fileUrl) {
       setIsUploaded(true);
       if (bgRef.current) {
-        bgRef.current.style.backgroundImage = `url(${props.url})`;
+        bgRef.current.style.backgroundImage = `url(${fileUrl})`;
         bgRef.current.style.opacity = "1";
       }
       if (fileDescRef.current) {
@@ -280,7 +282,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
         fileContainerRef.current.style.display = "none";
       }
     }
-  }, [fileUrl]);
+  }, [fileUrl, logoUploadError]);
 
   return (
     <ContainerDiv

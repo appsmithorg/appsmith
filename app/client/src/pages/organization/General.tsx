@@ -8,7 +8,10 @@ import TextInput, {
   notEmptyValidator,
 } from "components/ads/TextInput";
 import { useSelector, useDispatch } from "react-redux";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import {
+  getCurrentError,
+  getCurrentOrg,
+} from "selectors/organizationSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
@@ -82,6 +85,7 @@ export function GeneralSettings() {
   }, throttleTimeout);
 
   const { isFetchingOrg } = useSelector(getOrgLoadingStates);
+  const logoUploadError = useSelector(getCurrentError);
 
   const FileUploader = (
     file: File,
@@ -134,7 +138,11 @@ export function GeneralSettings() {
           <FilePickerLoader className={Classes.SKELETON}></FilePickerLoader>
         )}
         {!isFetchingOrg && (
-          <FilePicker url={currentOrg.logoUrl} fileUploader={FileUploader} />
+          <FilePicker
+            url={currentOrg.logoUrl}
+            fileUploader={FileUploader}
+            logoUploadError={logoUploadError.message}
+          />
         )}
       </SettingWrapper>
 
