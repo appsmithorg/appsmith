@@ -89,7 +89,7 @@ export function* getCurrentUserSaga() {
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME
       ) {
-        AnalyticsUtil.identifyUser(response.data.username, response.data);
+        AnalyticsUtil.identifyUser(response.data);
       }
       if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {

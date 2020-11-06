@@ -5,8 +5,6 @@ import {
 } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
-import { atob, btoa, version as BASE64LIBVERSION } from "js-base64";
-import { WidgetProps } from "../widgets/BaseWidget";
 
 type StringTuple = [string, string];
 
@@ -128,20 +126,6 @@ export const extraLibraries: ExtraLibrary[] = [
     version: moment.version,
     docsURL: `https://momentjs.com/docs/`,
     displayName: "moment",
-  },
-  {
-    accessor: "btoa",
-    lib: btoa,
-    version: BASE64LIBVERSION,
-    docsURL: "https://github.com/dankogai/js-base64#readme",
-    displayName: "btoa",
-  },
-  {
-    accessor: "atob",
-    lib: atob,
-    version: BASE64LIBVERSION,
-    docsURL: "https://github.com/dankogai/js-base64#readme",
-    displayName: "atob",
   },
 ];
 
