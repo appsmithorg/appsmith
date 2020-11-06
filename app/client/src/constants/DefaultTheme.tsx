@@ -690,6 +690,9 @@ type ColorType = {
     light: ShadeColor;
     dark: ShadeColor;
   };
+  formFooter: {
+    cancelBtn: ShadeColor;
+  };
 };
 
 export const dark: ColorType = {
@@ -956,6 +959,9 @@ export const dark: ColorType = {
   loader: {
     light: darkShades[2],
     dark: darkShades[4],
+  },
+  formFooter: {
+    cancelBtn: darkShades[9],
   },
 };
 
@@ -1224,6 +1230,9 @@ export const light: ColorType = {
     light: lightShades[2],
     dark: lightShades[4],
   },
+  formFooter: {
+    cancelBtn: lightShades[9],
+  },
 };
 
 export const theme: Theme = {
@@ -1370,6 +1379,7 @@ export const theme: Theme = {
     bindingText: Colors.BINDING_COLOR_LT,
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
+    formButtonColor: Colors.WHITE,
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
