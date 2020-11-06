@@ -39,6 +39,7 @@ import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { ProfileImage } from "pages/common/ProfileDropdown";
+import { scrollbarDark } from "constants/DefaultTheme";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -114,6 +115,12 @@ const StyledInviteFieldGroup = styled.div`
 
 const UserList = styled.div`
   margin-top: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  &&::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.modal.scrollbar};
+  }
+  ${scrollbarDark};
 `;
 
 const User = styled.div`
