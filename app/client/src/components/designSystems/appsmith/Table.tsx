@@ -151,7 +151,11 @@ export const Table = (props: TableProps) => {
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">
-          <div onMouseOver={props.disableDrag} onMouseLeave={props.enableDrag}>
+          <div
+            onMouseOver={props.disableDrag}
+            onMouseLeave={props.enableDrag}
+            className="thead"
+          >
             {headerGroups.map((headerGroup: any, index: number) => (
               <div
                 {...headerGroup.getHeaderGroupProps()}
