@@ -11,6 +11,7 @@ import {
   ReactTableColumnProps,
   ReactTableFilter,
 } from "widgets/TableWidget";
+import { EventType } from "constants/ActionConstants";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -49,7 +50,7 @@ interface ReactTableComponentProps {
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-  updatePageNo: (pageNo: number) => void;
+  updatePageNo: (pageNo: number, event?: EventType) => void;
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
   nextPageClick: () => void;
