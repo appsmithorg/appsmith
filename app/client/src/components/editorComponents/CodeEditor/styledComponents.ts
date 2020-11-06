@@ -169,6 +169,11 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.bindingText};
       font-weight: 700;
     }
+    .CodeMirror-matchingbracket { 
+      text-decoration: none; 
+      color: #11f53f !important;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
     .datasource-highlight {
       background-color: rgba(104, 113, 239, 0.1);
       border: 1px solid rgba(104, 113, 239, 0.5);
