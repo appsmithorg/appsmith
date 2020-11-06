@@ -13,7 +13,7 @@
       "parentRowSpace": 1,
       "type": "CANVAS_WIDGET",
       "canExtend": true,
-      "dynamicBindings": {},
+      "dynamicBindingPathList": [],
       "version": 3,
       "minHeight": 1292,
       "parentColumnSpace": 1,
@@ -32,7 +32,7 @@
           "parentRowSpace": 38,
           "isVisible": true,
           "type": "CONTAINER_WIDGET",
-          "dynamicBindings": {},
+          "dynamicBindingPathList": [],
           "isLoading": false,
           "parentColumnSpace": 75.25,
           "leftColumn": 0,
@@ -68,13 +68,23 @@
                   "isVisible": true,
                   "label": "Test Dropdown",
                   "type": "DROP_DOWN_WIDGET",
-                  "dynamicBindings": {
-                    "selectedOptionArr": true,
-                    "isValid": true,
-                    "selectedIndexArr": true,
-                    "selectedOption": true,
-                    "selectedIndex": true
-                  },
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "selectedOptionArr"
+                    },
+                    {
+                      "key": "isValid"
+                    },
+                    {
+                      "key": "selectedIndexArr"
+                    },
+                    {
+                      "key": "selectedOption"
+                    },
+                    {
+                      "key": "selectedIndex"
+                    }
+                  ],
                   "selectedOption": "{{\nDropdown1.selectionType === 'SINGLE_SELECT'\n ? Dropdown1.options[Dropdown1.selectedIndex]\n: undefined\n}}",
                   "isLoading": false,
                   "selectionType": "",
@@ -93,13 +103,15 @@
                   "isVisible": true,
                   "label": "Test Checkbox",
                   "type": "CHECKBOX_WIDGET",
-                  "dynamicBindings": {},
+                  "dynamicBindingPathList": [],
                   "isLoading": false,
                   "parentColumnSpace": 34.6875,
                   "leftColumn": 11,
-                  "dynamicTriggers": {
-                    "onCheckChange": true
-                  },
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onCheckChange"
+                    }
+                  ],
                   "defaultCheckedState": true,
                   "onCheckChange": "{{navigateToUrl('Awww.google.com')}}"
                 },
@@ -112,13 +124,13 @@
                   "parentRowSpace": 38,
                   "isVisible": true,
                   "type": "RICH_TEXT_EDITOR_WIDGET",
-                  "dynamicBindings": {},
+                  "dynamicBindingPathList": [],
                   "isLoading": false,
                   "parentColumnSpace": 34.6875,
                   "leftColumn": 3,
-                  "dynamicTriggers": {
-                    "onTextChange": true
-                  },
+                  "dynamicTriggerPathList": [{
+                    "key": "onTextChange"
+                  }],
                   "defaultText": "",
                   "text": "This is the initial <b>content</b> of the editor",
                   "isDisabled": false,
@@ -135,18 +147,22 @@
                   "isVisible": true,
                   "label": "Test Radio",
                   "type": "RADIO_GROUP_WIDGET",
-                  "dynamicBindings": {
-                    "isValid": true,
-                    "selectedOption": true
-                  },
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "isValid"
+                    },
+                    {
+                      "key": "selectedOption"
+                    }
+                  ],
                   "selectedOption": "{{_.find(Adi12.options, { value: Adi12.selectedOptionValue })}}",
                   "isLoading": false,
                   "defaultOptionValue": "1",
                   "parentColumnSpace": 34.6875,
                   "leftColumn": 12,
-                  "dynamicTriggers": {
-                    "onSelectionChange": true
-                  },
+                  "dynamicTriggerPathList": [{
+                    "key": "onSelectionChange"
+                  }],
                   "onSelectionChange": "{{navigateTo()}}",
                   "options": [
                     {
@@ -182,7 +198,7 @@
           "parentRowSpace": 38,
           "isVisible": true,
           "type": "CONTAINER_WIDGET",
-          "dynamicBindings": {},
+          "dynamicBindingPathList": [],
           "isLoading": false,
           "parentColumnSpace": 75.25,
           "leftColumn": 0,
@@ -216,7 +232,7 @@
                   "parentRowSpace": 38,
                   "isVisible": true,
                   "type": "FORM_WIDGET",
-                  "dynamicBindings": {},
+                  "dynamicBindingPathList": [],
                   "blueprint": {
                     "view": [
                       {
@@ -303,7 +319,7 @@
                       "isVisible": true,
                       "canExtend": false,
                       "type": "CANVAS_WIDGET",
-                      "dynamicBindings": {},
+                      "dynamicBindingPathList": [],
                       "blueprint": {
                         "view": [
                           {
@@ -374,7 +390,7 @@
                           "text": "Title",
                           "textStyle": "HEADING",
                           "type": "TEXT_WIDGET",
-                          "dynamicBindings": {}
+                          "dynamicBindingPathList": []
                         },
                         {
                           "resetFormOnClick": false,
@@ -387,7 +403,7 @@
                           "bottomRow": 12,
                           "isVisible": true,
                           "type": "FORM_BUTTON_WIDGET",
-                          "dynamicBindings": {},
+                          "dynamicBindingPathList": [],
                           "isLoading": false,
                           "disabledWhenInvalid": true,
                           "leftColumn": 12,
@@ -404,7 +420,7 @@
                           "bottomRow": 12,
                           "isVisible": true,
                           "type": "FORM_BUTTON_WIDGET",
-                          "dynamicBindings": {},
+                          "dynamicBindingPathList": [],
                           "isLoading": false,
                           "disabledWhenInvalid": false,
                           "leftColumn": 8,
@@ -431,7 +447,7 @@
           "parentRowSpace": 38,
           "isVisible": true,
           "type": "CONTAINER_WIDGET",
-          "dynamicBindings": {},
+          "dynamicBindingPathList": [],
           "isLoading": false,
           "parentColumnSpace": 75.25,
           "leftColumn": 8,
@@ -468,9 +484,11 @@
                   "label": "Upload Files",
                   "maxFileSize": "",
                   "type": "FILE_PICKER_WIDGET",
-                  "dynamicBindings": {
-                    "isValid": true
-                  },
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "isValid"
+                    }
+                  ],
                   "isLoading": false,
                   "parentColumnSpace": 34.6875,
                   "leftColumn": 4,
@@ -489,9 +507,11 @@
                   "datePickerType": "DATE_PICKER",
                   "label": "From Date",
                   "type": "DATE_PICKER_WIDGET",
-                  "dynamicBindings": {
-                    "isValid": true
-                  },
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "isValid"
+                    }
+                  ],
                   "isLoading": false,
                   "enableTimePicker": true,
                   "parentColumnSpace": 34.6875,

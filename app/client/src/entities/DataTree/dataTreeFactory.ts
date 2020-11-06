@@ -8,9 +8,13 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { ActionConfig, PluginType, Property } from "entities/Action";
+import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import _ from "lodash";
+import {
+  DynamicPath,
+  getEntityDynamicBindingPathList,
+} from "../../utils/DynamicBindingUtils";
 
 export type ActionDescription<T> = {
   type: string;
@@ -43,7 +47,7 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   run:
     | ActionDispatcher<RunActionPayload, [string, string, string]>
     | Record<string, any>;
-  dynamicBindingPathList: Property[];
+  dynamicBindingPathList: DynamicPath[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
 
@@ -85,7 +89,7 @@ export class DataTreeFactory {
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     actions.forEach(action => {
-      let dynamicBindingPathList: Property[] = [];
+      let dynamicBindingPathList: DynamicPath[] = [];
       // update paths
       if (
         action.config.dynamicBindingPathList &&
@@ -120,11 +124,13 @@ export class DataTreeFactory {
         widget.type,
       );
       const derivedProps: any = {};
-      const dynamicBindings = { ...widget.dynamicBindings } || {};
-      Object.keys(dynamicBindings).forEach(propertyName => {
-        if (_.isObject(widget[propertyName])) {
+      const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
+      dynamicBindingPathList.forEach(dynamicPath => {
+        const propertyPath = dynamicPath.key;
+        const propertyValue = _.get(widget, propertyPath);
+        if (_.isObject(propertyValue)) {
           // Stringify this because composite controls may have bindings in the sub controls
-          widget[propertyName] = JSON.stringify(widget[propertyName]);
+          _.set(widget, propertyPath, JSON.stringify(propertyValue));
         }
       });
       Object.keys(derivedPropertyMap).forEach(propertyName => {
@@ -132,14 +138,16 @@ export class DataTreeFactory {
           /this./g,
           `${widget.widgetName}.`,
         );
-        dynamicBindings[propertyName] = true;
+        dynamicBindingPathList.push({
+          key: propertyName,
+        });
       });
       dataTree[widget.widgetName] = {
         ...widget,
         ...defaultMetaProps,
         ...widgetMetaProps,
         ...derivedProps,
-        dynamicBindings,
+        dynamicBindingPathList,
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
     });

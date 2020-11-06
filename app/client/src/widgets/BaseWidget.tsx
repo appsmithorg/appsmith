@@ -33,6 +33,10 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
+import {
+  WidgetDynamicPathListProps,
+  WidgetEvaluatedProps,
+} from "../utils/DynamicBindingUtils";
 
 /***
  * BaseWidget
@@ -356,14 +360,11 @@ export interface WidgetDataProps
     WidgetPositionProps,
     WidgetDisplayProps {}
 
-export interface WidgetProps extends WidgetDataProps {
+export interface WidgetProps
+  extends WidgetDataProps,
+    WidgetDynamicPathListProps,
+    WidgetEvaluatedProps {
   key?: string;
-  dynamicBindings?: Record<string, true>;
-  dynamicTriggers?: Record<string, true>;
-  dynamicProperties?: Record<string, true>;
-  invalidProps?: Record<string, boolean>;
-  validationMessages?: Record<string, string>;
-  evaluatedValues?: Record<string, any>;
   isDefaultClickDisabled?: boolean;
   [key: string]: any;
 }
