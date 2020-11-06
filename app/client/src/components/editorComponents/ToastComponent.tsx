@@ -65,7 +65,7 @@ type Props = ToastOptions & {
 
 const ToastComponent = (props: Props) => {
   const dispatch = useDispatch();
-  const alertType = props.type || ToastType.INFO;
+  const alertType = (props.type || ToastType.INFO).toLowerCase();
   const Icon = ToastIcon[alertType];
   return (
     <ToastBody
