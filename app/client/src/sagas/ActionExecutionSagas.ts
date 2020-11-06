@@ -183,10 +183,7 @@ function* showAlertSaga(
     if (event.callback) event.callback({ success: false });
     return;
   }
-  if (
-    payload.style &&
-    !ToastTypeOptions.includes(payload.style.toLowerCase())
-  ) {
+  if (payload.style && !ToastTypeOptions.includes(payload.style)) {
     console.error(
       "Toast type needs to be a one of " + ToastTypeOptions.join(", "),
     );
