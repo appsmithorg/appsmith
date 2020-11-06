@@ -38,11 +38,12 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
 
-const QueryFormContainer = styled.div`
+const QueryFormContainer = styled.form`
+  display: flex;
+  flex-direction: column;
   padding: 20px 0px;
   width: 100%;
   height: calc(100vh - ${props => props.theme.headerHeight});
-  overflow: auto;
   a {
     font-size: 14px;
     line-height: 20px;
@@ -222,6 +223,7 @@ const TabContainerView = styled.div`
   }
   position: relative;
   margin-top: 31px;
+  height: calc(100vh - 150px);
 `;
 
 const SettingsWrapper = styled.div`
@@ -250,6 +252,7 @@ const FieldWrapper = styled.div`
 
 const StyledFormRow = styled(FormRow)`
   padding: 0px 24px;
+  flex: 0;
 `;
 
 const DocumentationLink = styled.a`
@@ -258,9 +261,7 @@ const DocumentationLink = styled.a`
   top: -6px;
 `;
 
-const OutputWrapper = styled.div`
-  margin: 0px 23px;
-`;
+const OutputWrapper = styled.div``;
 
 type QueryFormProps = {
   onDeleteClick: () => void;
@@ -391,54 +392,121 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   }
 
   return (
-    <QueryFormContainer>
-      <form onSubmit={handleSubmit}>
-        <StyledFormRow>
-          <NameWrapper>
-            <ActionNameEditor />
-          </NameWrapper>
-          <ActionsWrapper>
-            <DropdownSelect>
-              <DropdownField
-                placeholder="Datasource"
-                name="datasource.id"
-                options={DATASOURCES_OPTIONS}
-                width={232}
-                maxMenuHeight={200}
-                components={{ MenuList, Option: CustomOption, SingleValue }}
-              />
-            </DropdownSelect>
-            <ActionButtons>
-              <ActionButton
-                className="t--delete-query"
-                text="Delete"
-                accent="error"
-                loading={isDeleting}
-                onClick={onDeleteClick}
-              />
-              {dataSources.length === 0 ? (
-                <>
-                  <TooltipStyles />
-                  <Popover
-                    autoFocus={true}
-                    canEscapeKeyClose={true}
-                    content="You don’t have a Data Source to run this query"
-                    position="bottom"
-                    defaultIsOpen={false}
-                    usePortal
-                    portalClassName="helper-tooltip"
-                  >
-                    <ActionButton
-                      className="t--run-query"
-                      text="Run"
+    <QueryFormContainer onSubmit={handleSubmit}>
+      <StyledFormRow>
+        <NameWrapper>
+          <ActionNameEditor />
+        </NameWrapper>
+        <ActionsWrapper>
+          <DropdownSelect>
+            <DropdownField
+              placeholder="Datasource"
+              name="datasource.id"
+              options={DATASOURCES_OPTIONS}
+              width={232}
+              maxMenuHeight={200}
+              components={{ MenuList, Option: CustomOption, SingleValue }}
+            />
+          </DropdownSelect>
+          <ActionButtons>
+            <ActionButton
+              className="t--delete-query"
+              text="Delete"
+              accent="error"
+              loading={isDeleting}
+              onClick={onDeleteClick}
+            />
+            {dataSources.length === 0 ? (
+              <>
+                <TooltipStyles />
+                <Popover
+                  autoFocus={true}
+                  canEscapeKeyClose={true}
+                  content="You don’t have a Data Source to run this query"
+                  position="bottom"
+                  defaultIsOpen={false}
+                  usePortal
+                  portalClassName="helper-tooltip"
+                >
+                  <ActionButton
+                    className="t--run-query"
+                    text="Run"
+                    filled
+                    loading={isRunning}
+                    accent="primary"
+                    onClick={onRunClick}
+                  />
+                  <div>
+                    <p className="popuptext">
+                      You don’t have a Data Source to run this query
+                    </p>
+                    <Button
+                      onClick={() =>
+                        history.push(
+                          DATA_SOURCES_EDITOR_URL(applicationId, pageId),
+                        )
+                      }
+                      text="Add Datasource"
+                      intent="primary"
                       filled
-                      loading={isRunning}
-                      accent="primary"
-                      onClick={onRunClick}
+                      size="small"
+                      className="popoverBtn"
                     />
-                    <div>
-                      <p className="popuptext">
-                        You don’t have a Data Source to run this query
+                  </div>
+                </Popover>
+              </>
+            ) : (
+              <ActionButton
+                className="t--run-query"
+                text="Run"
+                filled
+                loading={isRunning}
+                accent="primary"
+                onClick={onRunClick}
+              />
+            )}
+          </ActionButtons>
+        </ActionsWrapper>
+      </StyledFormRow>
+      <TabContainerView>
+        {documentationLink && (
+          <DocumentationLink
+            href={documentationLink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {"Documentation "}
+            <StyledOpenDocsIcon icon="document-open" />
+          </DocumentationLink>
+        )}
+        <BaseTabbedView
+          tabs={[
+            {
+              key: "query",
+              title: "Query",
+              panelComponent: (
+                <SettingsWrapper>
+                  {editorConfig && editorConfig.length > 0 ? (
+                    editorConfig.map(renderEachConfig)
+                  ) : (
+                    <>
+                      <ErrorMessage>An unexpected error occurred</ErrorMessage>
+                      <Tag
+                        round
+                        intent="warning"
+                        interactive
+                        minimal
+                        onClick={() => window.location.reload()}
+                      >
+                        Refresh
+                      </Tag>
+                    </>
+                  )}
+                  {dataSources.length === 0 && (
+                    <NoDataSourceContainer>
+                      <p className="font18">
+                        Seems like you don’t have any Datasources to create a
+                        query
                       </p>
                       <Button
                         onClick={() =>
@@ -446,127 +514,63 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                             DATA_SOURCES_EDITOR_URL(applicationId, pageId),
                           )
                         }
-                        text="Add Datasource"
+                        text="Add a Datasource"
                         intent="primary"
                         filled
                         size="small"
-                        className="popoverBtn"
+                        icon="plus"
                       />
-                    </div>
-                  </Popover>
-                </>
-              ) : (
-                <ActionButton
-                  className="t--run-query"
-                  text="Run"
-                  filled
-                  loading={isRunning}
-                  accent="primary"
-                  onClick={onRunClick}
-                />
-              )}
-            </ActionButtons>
-          </ActionsWrapper>
-        </StyledFormRow>
+                    </NoDataSourceContainer>
+                  )}
 
-        <TabContainerView>
-          {documentationLink && (
-            <DocumentationLink
-              href={documentationLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {"Documentation "}
-              <StyledOpenDocsIcon icon="document-open" />
-            </DocumentationLink>
-          )}
-          <BaseTabbedView
-            tabs={[
-              {
-                key: "query",
-                title: "Query",
-                panelComponent: (
-                  <SettingsWrapper>
-                    {editorConfig && editorConfig.length > 0 ? (
-                      editorConfig.map(renderEachConfig)
-                    ) : (
-                      <>
-                        <ErrorMessage>
-                          An unexpected error occurred
-                        </ErrorMessage>
-                        <Tag
-                          round
-                          intent="warning"
-                          interactive
-                          minimal
-                          onClick={() => window.location.reload()}
-                        >
-                          Refresh
-                        </Tag>
-                      </>
-                    )}
-                  </SettingsWrapper>
-                ),
-              },
-              {
-                key: "settings",
-                title: "Settings",
-                panelComponent: (
-                  <SettingsWrapper>
-                    <ActionSettings
-                      actionSettingsConfig={queryActionSettingsConfig}
-                    />
-                  </SettingsWrapper>
-                ),
-              },
-            ]}
-          />
-        </TabContainerView>
-      </form>
+                  {error && (
+                    <OutputWrapper>
+                      <p className="statementTextArea">Query error</p>
+                      <ErrorMessage>{error}</ErrorMessage>
+                    </OutputWrapper>
+                  )}
 
-      {dataSources.length === 0 && (
-        <NoDataSourceContainer>
-          <p className="font18">
-            Seems like you don’t have any Datasources to create a query
-          </p>
-          <Button
-            onClick={() =>
-              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
-            }
-            text="Add a Datasource"
-            intent="primary"
-            filled
-            size="small"
-            icon="plus"
-          />
-        </NoDataSourceContainer>
-      )}
-
-      {error && (
-        <OutputWrapper>
-          <p className="statementTextArea">Query error</p>
-          <ErrorMessage>{error}</ErrorMessage>
-        </OutputWrapper>
-      )}
-
-      {!error && output && dataSources.length && (
-        <OutputWrapper>
-          <OutputHeader>
-            <p className="statementTextArea">
-              {output.length ? "Query response" : "No data records to display"}
-            </p>
-            {!!output.length && (
-              <AddWidgetButton
-                className="t--add-widget"
-                icon={"plus"}
-                text="Add Widget"
-                onClick={onAddWidget}
-              />
-            )}
-          </OutputHeader>
-          {isSQL ? <Table data={output} /> : <JSONViewer src={output} />}
-        </OutputWrapper>
-      )}
+                  {!error && output && dataSources.length && (
+                    <OutputWrapper>
+                      <OutputHeader>
+                        <p className="statementTextArea">
+                          {output.length
+                            ? "Query response"
+                            : "No data records to display"}
+                        </p>
+                        {!!output.length && (
+                          <AddWidgetButton
+                            className="t--add-widget"
+                            icon={"plus"}
+                            text="Add Widget"
+                            onClick={onAddWidget}
+                          />
+                        )}
+                      </OutputHeader>
+                      {isSQL ? (
+                        <Table data={output} />
+                      ) : (
+                        <JSONViewer src={output} />
+                      )}
+                    </OutputWrapper>
+                  )}
+                </SettingsWrapper>
+              ),
+            },
+            {
+              key: "settings",
+              title: "Settings",
+              panelComponent: (
+                <SettingsWrapper>
+                  <ActionSettings
+                    actionSettingsConfig={queryActionSettingsConfig}
+                  />
+                </SettingsWrapper>
+              ),
+            },
+          ]}
+        />
+      </TabContainerView>
     </QueryFormContainer>
   );
 };
