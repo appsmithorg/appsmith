@@ -971,7 +971,7 @@ public class OrganizationServiceTest {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
                 .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo_large.png"), new DefaultDataBufferFactory(), 4096);
-        assertThat(dataBufferFlux.count().block()).isGreaterThan(Constraint.ORGANIZATION_LOGO_CHUNKS);
+        assertThat(dataBufferFlux.count().block()).isGreaterThan((int) Math.ceil(Constraint.ORGANIZATION_LOGO_SIZE_KB/4.0));
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
@@ -985,7 +985,7 @@ public class OrganizationServiceTest {
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.PAYLOAD_TOO_LARGE.getMessage(Constraint.ORGANIZATION_LOGO_SIZE)))
+                        throwable.getMessage().equals(AppsmithError.PAYLOAD_TOO_LARGE.getMessage(Constraint.ORGANIZATION_LOGO_SIZE_KB)))
                 .verify();
     }
 
@@ -1005,7 +1005,7 @@ public class OrganizationServiceTest {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
                 .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
-        assertThat(dataBufferFlux.count().block()).isLessThanOrEqualTo(Constraint.ORGANIZATION_LOGO_CHUNKS);
+        assertThat(dataBufferFlux.count().block()).isLessThanOrEqualTo((int) Math.ceil(Constraint.ORGANIZATION_LOGO_SIZE_KB/4.0));
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);

@@ -327,14 +327,19 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .findById(organizationId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
                 .flatMap(organization -> {
-                    if (filePart != null && filePart.headers().getContentType() != null)
+                    if (filePart != null && filePart.headers().getContentType() != null) {
                         // Default implementation for the BufferFactory used breaks down the FilePart into chunks of 4KB
-                        // To limit file size to 250KB, we only allow 63 (*4 = 252) such chunks to be derived from the incoming FilePart
-                        return filePart.content().count().flatMap(count -> count > Constraint.ORGANIZATION_LOGO_CHUNKS ?
-                                Mono.error(new AppsmithException(AppsmithError.PAYLOAD_TOO_LARGE, Constraint.ORGANIZATION_LOGO_SIZE))
-                                : Mono.zip(Mono.just(organization), DataBufferUtils.join(filePart.content())));
-                    else
+                        // To limit file size to 250KB, we only allow 63 (250/4 = 62.5) such chunks to be derived from the incoming FilePart
+                        return filePart.content().count().flatMap(count -> {
+                            if (count > (int) Math.ceil(Constraint.ORGANIZATION_LOGO_SIZE_KB / 4.0)) {
+                                return Mono.error(new AppsmithException(AppsmithError.PAYLOAD_TOO_LARGE, Constraint.ORGANIZATION_LOGO_SIZE_KB));
+                            } else {
+                                return Mono.zip(Mono.just(organization), DataBufferUtils.join(filePart.content()));
+                            }
+                        });
+                    } else {
                         return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
+                    }
                 })
                 .flatMap(tuple -> {
                     final Organization organization = tuple.getT1();
@@ -347,19 +352,23 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
                     return assetRepository
                             .save(new Asset(filePart.headers().getContentType(), data))
-                            .flatMap(analyticsService::sendCreateEvent)
                             .flatMap(asset -> {
                                 organization.setLogoAssetId(asset.getId());
-                                return repository.save(organization);
+                                Mono<Organization> savedOrganization = repository.save(organization);
+                                Mono<Asset> createdAsset = analyticsService.sendCreateEvent(asset);
+                                return savedOrganization.zipWith(createdAsset);
                             })
-                            .flatMap(savedOrganization ->
-                                    prevAssetId != null
-                                            ? assetRepository.findById(prevAssetId)
+                            .flatMap(savedTuple -> {
+                                Organization savedOrganization = savedTuple.getT1();
+                                if (prevAssetId != null) {
+                                    return assetRepository.findById(prevAssetId)
                                             .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
                                             .flatMap(analyticsService::sendDeleteEvent)
-                                            .thenReturn(savedOrganization)
-                                            : Mono.just(savedOrganization)
-                            );
+                                            .thenReturn(savedOrganization);
+                                } else {
+                                    return Mono.just(savedOrganization);
+                                }
+                            });
                 });
     }
 
