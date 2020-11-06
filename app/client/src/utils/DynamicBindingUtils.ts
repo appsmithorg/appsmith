@@ -5,6 +5,7 @@ import {
 } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
+import { WidgetProps } from "../widgets/BaseWidget";
 
 type StringTuple = [string, string];
 
