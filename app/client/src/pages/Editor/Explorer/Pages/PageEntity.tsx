@@ -26,7 +26,7 @@ type ExplorerPageEntityProps = {
   plugins: Plugin[];
   step: number;
   searchKeyword?: string;
-  showWidgetsSidebar: () => void;
+  showWidgetsSidebar: (pageId: string) => void;
 };
 export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
@@ -55,8 +55,10 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
 
   const icon = props.page.isDefault ? homePageIcon : pageIcon;
 
-  let addWidgetsFn;
-  if (isCurrentPage) addWidgetsFn = props.showWidgetsSidebar;
+  const addWidgetsFn = useCallback(
+    () => props.showWidgetsSidebar(props.page.pageId),
+    [props.page.pageId],
+  );
 
   return (
     <Entity
