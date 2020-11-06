@@ -4,15 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
@@ -343,6 +335,9 @@ public class ApplicationServiceTest {
                             Application application = organizationApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
+
+                            assertThat(organizationApplicationDTO.getUserRoles().get(0).getRole().getName()).isEqualTo("Administrator");
+                            log.debug(organizationApplicationDTO.getUserRoles().toString());
                         }
                     }
 
