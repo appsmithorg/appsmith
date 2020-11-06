@@ -20,6 +20,7 @@ import {
   CompactMode,
   CompactModeTypes,
 } from "widgets/TableWidget";
+import { EventType } from "constants/ActionConstants";
 
 interface TableProps {
   width: number;
@@ -44,7 +45,7 @@ interface TableProps {
     isSelected: boolean,
   ) => void;
   pageNo: number;
-  updatePageNo: (pageNo: number) => void;
+  updatePageNo: (pageNo: number, event?: EventType) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
