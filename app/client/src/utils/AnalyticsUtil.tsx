@@ -99,6 +99,8 @@ function getApplicationId(location: Location) {
 }
 
 class AnalyticsUtil {
+  static cachedAnonymoustId: string;
+  static cachedUserId: string;
   static user?: User = undefined;
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -198,7 +200,7 @@ class AnalyticsUtil {
   static identifyUser(userData: User) {
     const { segment, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
-    let userId = userData.username;
+    const userId = userData.username;
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
@@ -214,9 +216,14 @@ class AnalyticsUtil {
       } else if (segment.ceKey) {
         // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
         // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
-        userId = sha256(userId);
-        log.debug("Identify Anonymous User " + userId);
-        windowDoc.analytics.identify(userId);
+        if (userId !== AnalyticsUtil.cachedUserId) {
+          AnalyticsUtil.cachedAnonymoustId = sha256(userId);
+          AnalyticsUtil.cachedUserId = userId;
+        }
+        log.debug(
+          "Identify Anonymous User " + AnalyticsUtil.cachedAnonymoustId,
+        );
+        windowDoc.analytics.identify(AnalyticsUtil.cachedAnonymoustId);
       }
     }
     Sentry.configureScope(function(scope) {
