@@ -1,8 +1,8 @@
 import { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 
 const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
-  // eslint-disable-next-line
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore: No types available
   config: {
     CONTAINER_WIDGET: [
       {
@@ -302,7 +302,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "DROP_DOWN",
             options: [
               {
-                label: "1x",
+                label: "1x (No Zoom)",
                 value: 1,
               },
               {

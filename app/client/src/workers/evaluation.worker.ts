@@ -63,8 +63,7 @@ ctx.addEventListener("message", e => {
     }
     case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
       const { binding, dataTree } = rest;
-      const evalTree = getEvaluatedDataTree(dataTree);
-      const withFunctions = addFunctions(evalTree);
+      const withFunctions = addFunctions(dataTree);
       const value = getDynamicValue(binding, withFunctions, false);
       ctx.postMessage({ value, errors: ERRORS });
       ERRORS = [];
@@ -943,15 +942,15 @@ const evaluate = (
 
       // Set it to self
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         self[key] = GLOBAL_DATA[key];
       });
 
       ///// Adding extra libraries separately
       extraLibraries.forEach(library => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         self[library.accessor] = library.lib;
       });
 
@@ -960,8 +959,8 @@ const evaluate = (
       // Remove it from self
       // This is needed so that next eval can have a clean sheet
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         delete self[key];
       });
 

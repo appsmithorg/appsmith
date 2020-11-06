@@ -16,7 +16,7 @@ import { SERVER_ERROR_URL } from "../constants/routes";
 
 export const createReducer = (
   initialState: any,
-  handlers: { [type: string]: Function },
+  handlers: { [type: string]: (state: any, action: any) => any },
 ) => {
   return function reducer(state = initialState, action: ReduxAction<any>) {
     if (handlers.hasOwnProperty(action.type)) {
@@ -48,14 +48,19 @@ export const appInitializer = () => {
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init(appsmithConfigs.sentry);
   }
-  if (appsmithConfigs.smartLook.enabled) {
-    const { id } = appsmithConfigs.smartLook;
-    AnalyticsUtil.initializeSmartLook(id);
+  if (!appsmithConfigs.disableTelemetry) {
+    if (appsmithConfigs.smartLook.enabled) {
+      const { id } = appsmithConfigs.smartLook;
+      AnalyticsUtil.initializeSmartLook(id);
+    }
+    if (appsmithConfigs.segment.enabled && appsmithConfigs.segment.apiKey) {
+      // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
+      AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
+    } else if (appsmithConfigs.segment.ceKey) {
+      // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+      AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
+    }
   }
-  if (appsmithConfigs.segment.enabled) {
-    AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
-  }
-
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
 };
 
@@ -227,7 +232,7 @@ export function convertObjectToQueryParams(object: any): string {
 }
 
 export const retryPromise = (
-  fn: Function,
+  fn: () => Promise<any>,
   retriesLeft = 5,
   interval = 1000,
 ): Promise<any> => {

@@ -73,8 +73,10 @@ jobs:
     - name: Run the jest tests
       run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
+    # We burn React environment & the Segment analytics key into the build itself.
+    # This is to ensure that we don't need to configure it in each installation
     - name: Create the bundle
-      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn build
+      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} yarn build
 
     # Upload the build artifact so that it can be used by the test & deploy job in the workflow
     - name: Upload react build bundle
@@ -106,7 +108,7 @@ jobs:
         image: mongo
         ports: 
           - 27017:27017
-
+      
     steps:
     # Checkout the code
     - name: Checkout the merged commit from PR and base branch
@@ -147,22 +149,33 @@ jobs:
         name: build
         path: app/client/build
       
-    - name: Pull server docker container and start it locally
+    - name: Pull release server docker container and start it locally
+      if: github.ref == 'refs/heads/release'
       shell: bash
       run: |
-        DOCKER_IMAGE_NAME=appsmith/appsmith-server:release
-        if [[ github.ref == 'refs/heads/master' ]]
-        then
-          DOCKER_IMAGE_NAME=appsmith/appsmith-server:latest
-        fi
-        echo $DOCKER_IMAGE_NAME
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        
         docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
         --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
         --env APPSMITH_REDIS_URL=redis://localhost:6379 \
         --env APPSMITH_ENCRYPTION_PASSWORD=password \
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
-        $DOCKER_IMAGE_NAME
+        appsmith/appsmith-server:release
+  
+    - name: Pull master server docker container and start it locally
+      if: github.ref == 'refs/heads/master'
+      shell: bash
+      run: |
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        
+        docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+        --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+        --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+        --env APPSMITH_ENCRYPTION_PASSWORD=password \
+        --env APPSMITH_ENCRYPTION_SALT=salt \
+        --env APPSMITH_IS_SELF_HOSTED=false \
+        appsmith/appsmith-server:nightly
 
     - name: Installing Yarn serve
       run: |
@@ -181,12 +194,13 @@ jobs:
         CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+        POSTGRES_PASSWORD: postgres
       run: |
         ./cypress/setup-test.sh
         
     - name: Run the cypress test
       uses: cypress-io/github-action@v2
-      env: 
+      env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -208,6 +222,7 @@ jobs:
         working-directory: app/client
         # tag will be either "push" or "pull_request_target"
         tag: ${{ github.event_name }}
+        env: 'NODE_ENV=development'
 
     # Upload the screenshots as artifacts if there's a failure
     - uses: actions/upload-artifact@v1

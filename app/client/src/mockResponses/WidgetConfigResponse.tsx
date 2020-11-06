@@ -197,7 +197,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           {
             type: "MODIFY_PROPS",
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const tabs = widget.tabs;
+              const tabs = [...widget.tabs];
 
               const newTabs = tabs.map((tab: any) => {
                 tab.widgetId = generateReactKey();

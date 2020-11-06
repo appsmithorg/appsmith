@@ -36,6 +36,8 @@ import {
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import { retryPromise } from "utils/AppsmithUtils";
+import BindingPrompt from "./BindingPrompt";
+import { showBindingPrompt } from "./BindingPromptHelper";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -91,9 +93,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   textArea = React.createRef<HTMLTextAreaElement>();
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
-  editor: CodeMirror.Editor;
+  editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
 
   constructor(props: Props) {
@@ -272,6 +272,7 @@ class CodeEditor extends Component<Props, State> {
       theme,
       disabled,
       className,
+      placeholder,
       showLightningMenu,
       dataTreePath,
       dynamicData,
@@ -346,12 +347,11 @@ class CodeEditor extends Component<Props, State> {
                 className="leftImageStyles"
               />
             )}
-
             <textarea
               ref={this.textArea}
               {..._.omit(this.props.input, ["onChange", "value"])}
               defaultValue={input.value}
-              placeholder={this.props.placeholder}
+              placeholder={placeholder}
             />
             {this.props.link && (
               <React.Fragment>
@@ -368,6 +368,9 @@ class CodeEditor extends Component<Props, State> {
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
+            <BindingPrompt
+              isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+            />
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>

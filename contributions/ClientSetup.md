@@ -63,7 +63,9 @@ echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo s
 
     This URL must be opened with https and not have the port 3000 in it
 
-By default your client app points to the local api server - `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. Your page will load with errors if you don't have the api server running on your local system. To setup the api server on your local system please follow the instructions here: https://github.com/appsmithorg/appsmith/blob/release/contributions/ServerSetup.md
+#### Note:
+- By default your client app points to the local api server - `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. Your page will load with errors if you don't have the api server running on your local system. To setup the api server on your local system please follow the instructions [here](https://github.com/appsmithorg/appsmith/blob/release/contributions/ServerSetup.md)
+- In case you are unable to setup the api server on your local system, you can also [use Appsmith's staging API server](#if-you-would-like-to-hit-a-different-appsmith-server).
 
 #### If yarn start throws mismatch node version error
 This error occurs because the node version is not compatible with the app environment. In this case Node version manager can be used which allows multiple
@@ -72,7 +74,7 @@ node versions to be used in different projects. Check below for installation and
 2. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
 
 #### If you would like to hit a different Appsmith server:
-- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-mac.conf.template` on MacOS or `app/client/docker/templates/nginx-linux.conf.template` on Linux). By default it points to your local instance i.e. `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. You need to replace all the occurances of the default ip with your preferred ip.
+- Change the API endpoint in the Nginx configuration files (`app/client/docker/templates/nginx-mac.conf.template` on MacOS or `app/client/docker/templates/nginx-linux.conf.template` on Linux). By default it points to your local instance i.e. `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. You need to replace all the occurances of the default ip with your preferred IP. The IP of the appsmith staging API server is https://release-api.appsmith.com.
 - Run `start-https.sh` script again.
 - Run
 ```
@@ -91,5 +93,4 @@ yarn start
 
 
 ## Need Assistance
-- If you are unable to resolve any issue while doing the setup, please initiate a Github discussion or send an email to support@appsmith.com. We'll be happy to help you.
-- In case you notice any discrepancy, please raise an issue on Github and/or send an email to support@appsmith.com.
+- If you are unable to resolve any issue while doing the setup, please initiate a Github discussion or join our [discord server](https://discord.com/invite/rBTTVJp)

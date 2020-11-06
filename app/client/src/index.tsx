@@ -31,7 +31,7 @@ const App = () => {
 
 class ThemedApp extends React.Component<{
   currentTheme: any;
-  setTheme: Function;
+  setTheme: (themeMode: ThemeMode) => void;
 }> {
   componentDidMount() {
     if (localStorage.getItem("THEME") === "LIGHT") {
