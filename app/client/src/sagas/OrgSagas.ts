@@ -239,25 +239,29 @@ export function* createOrgSaga(
 }
 
 export function* uploadOrgLogoSaga(action: ReduxAction<SaveOrgLogo>) {
-  const request = action.payload;
-  const response: ApiResponse = yield call(OrgApi.saveOrgLogo, request);
-  const isValidResponse = yield validateResponse(response);
-  if (isValidResponse) {
-    const currentOrg = yield select(getCurrentOrg);
-    if (currentOrg && currentOrg.id === request.id) {
-      const updatedOrg = {
-        ...currentOrg,
-        logoUrl: response.data.logoUrl,
-      };
-      yield put({
-        type: ReduxActionTypes.SET_CURRENT_ORG,
-        payload: updatedOrg,
-      });
-      AppToaster.show({
-        message: "Logo uploaded successfully",
-        type: ToastType.SUCCESS,
-      });
+  try {
+    const request = action.payload;
+    const response: ApiResponse = yield call(OrgApi.saveOrgLogo, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const currentOrg = yield select(getCurrentOrg);
+      if (currentOrg && currentOrg.id === request.id) {
+        const updatedOrg = {
+          ...currentOrg,
+          logoUrl: response.data.logoUrl,
+        };
+        yield put({
+          type: ReduxActionTypes.SET_CURRENT_ORG,
+          payload: updatedOrg,
+        });
+        AppToaster.show({
+          message: "Logo uploaded successfully",
+          type: ToastType.SUCCESS,
+        });
+      }
     }
+  } catch (error) {
+    console.log("error from API: ", error);
   }
 }
 
