@@ -34,8 +34,8 @@ sudo docker run --network host --name postgres -d -p 5432:5432 \
  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
  postgres:latest &
 
-echo "Sleeping for 10 seconds to let the servers start"
-sleep 10
+echo "Sleeping for 20 seconds to let the servers start"
+sleep 20
 
 echo "Checking if the containers have started"
 sudo docker ps -a 

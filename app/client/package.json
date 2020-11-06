@@ -63,6 +63,7 @@
     "interweave": "^12.1.1",
     "interweave-autolink": "^4.0.1",
     "js-base64": "^3.4.5",
+    "js-sha256": "^0.9.0",
     "json-fn": "^1.1.1",
     "lint-staged": "^9.2.5",
     "localforage": "^1.7.3",
@@ -141,7 +142,6 @@
   "eslintConfig": {
     "extends": "react-app",
     "parser": "@typescript-eslint/parser"
-
   },
   "browserslist": [
     ">0.2%",

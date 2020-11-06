@@ -706,4 +706,6 @@ else
        }
     }' > /dev/null
 fi
+echo -e "Thank you for installing appsmith! We want to be transparent and inform you that we do perform telemetry in our on-prem installations. This helps us understand your needs and prioritise features & bug fixes better."
+echo -e "All telemetry is 100% anonymous and only statistical in nature. You can read more about it and how to disable it in our documentation https://docs.appsmith.com/telemetry/telemetry"
 echo -e "\nPeace out ✌️\n"
