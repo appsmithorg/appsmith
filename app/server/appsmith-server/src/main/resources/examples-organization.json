@@ -88,7 +88,7 @@
               },
               "pluginType": "DB",
               "executeOnLoad": true,
-              "dynamicBindings": {},
+              "dynamicBindingPathList": [],
               "isValid": true,
               "invalids": [],
               "jsonPathKeys": [],
@@ -1143,7 +1143,7 @@
                 "httpMethod": "POST"
               },
               "pluginType": "API",
-              "dynamicBindings": {},
+              "dynamicBindingPathList": [],
               "isValid": true,
               "invalids": [],
               "jsonPathKeys": [],
@@ -4424,7 +4424,7 @@
                 "httpMethod": "GET"
               },
               "pluginType": "API",
-              "dynamicBindings": {},
+              "dynamicBindingPathList": [],
               "isValid": true,
               "invalids": [],
               "jsonPathKeys": [],
@@ -12401,7 +12401,7 @@
                             },
                             "text": "Update",
                             "isDisabled": false,
-                            "dynamicBindingPathList": []
+                            "dynamicBindings": {}
                           },
                           {
                             "widgetName": "Text3",
@@ -13119,7 +13119,7 @@
                             },
                             "text": "Update",
                             "isDisabled": false,
-                            "dynamicBindingPathList": []
+                            "dynamicBindings": {}
                           },
                           {
                             "widgetName": "Text3",
