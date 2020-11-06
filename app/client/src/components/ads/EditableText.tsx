@@ -8,6 +8,7 @@ import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { useSelector } from "react-redux";
+import { AppToaster } from "components/editorComponents/ToastComponent";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -173,14 +174,29 @@ export const EditableText = (props: EditableTextProps) => {
 
   const onConfirm = useCallback(
     (_value: string) => {
-      if (savingState === SavingState.ERROR || isInvalid || _value === "") {
+      const finalVal: string = _value.trim();
+      if (finalVal === "") {
+        AppToaster.show({
+          message: "Application Name can't be empty.",
+          type: "error",
+        });
+      } else {
+        AppToaster.show({
+          message: "Application name updated",
+          type: "success",
+        });
+      }
+      if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
         setValue(lastValidValue);
         onBlur(lastValidValue);
         setSavingState(SavingState.NOT_STARTED);
-      } else if (changeStarted) {
-        onTextChanged && onTextChanged(_value);
       }
-      onBlur(_value);
+      if (changeStarted) {
+        onTextChanged && onTextChanged(finalVal);
+      }
+      if (finalVal) {
+        onBlur(finalVal);
+      }
       setIsEditing(false);
       setChangeStarted(false);
     },
@@ -196,10 +212,11 @@ export const EditableText = (props: EditableTextProps) => {
 
   const onInputchange = useCallback(
     (_value: string) => {
-      const finalVal: string = _value;
+      const finalVal: string =
+        _value.indexOf(" ") === 0 ? _value.trim() : _value;
       const errorMessage = inputValidation && inputValidation(finalVal);
       const error = errorMessage ? errorMessage : false;
-      if (!error && _value !== "") {
+      if (!error && finalVal !== "") {
         setLastValidValue(finalVal);
         onTextChanged && onTextChanged(finalVal);
       }

@@ -208,14 +208,11 @@ export function* updateApplicationSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-        payload: response.data,
-      });
-      AppToaster.show({
-        message: `Application updated`,
-        type: "success",
-      });
+      if (request && request.name) {
+        yield put({
+          type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+        });
+      }
     }
   } catch (error) {
     yield put({

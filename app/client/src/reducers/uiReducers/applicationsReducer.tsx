@@ -222,7 +222,7 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       userOrgs: _organizations,
-      isSavingAppName: true,
+      isSavingAppName: isSavingAppName,
     };
   },
   [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
