@@ -6,6 +6,7 @@ import {
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { atob, btoa, version as BASE64LIBVERSION } from "js-base64";
+import { WidgetProps } from "../widgets/BaseWidget";
 
 type StringTuple = [string, string];
 
@@ -143,3 +144,105 @@ export const extraLibraries: ExtraLibrary[] = [
     displayName: "atob",
   },
 ];
+
+export interface DynamicPath {
+  key: string;
+  value?: string;
+}
+
+export interface WidgetDynamicPathListProps {
+  dynamicBindingPathList?: DynamicPath[];
+  dynamicTriggerPathList?: DynamicPath[];
+  dynamicPropertyPathList?: DynamicPath[];
+}
+
+export interface WidgetEvaluatedProps {
+  invalidProps?: Record<string, boolean>;
+  validationMessages?: Record<string, string>;
+  evaluatedValues?: Record<string, any>;
+}
+
+interface EntityWithBindings {
+  dynamicBindingPathList?: DynamicPath[];
+}
+
+export const getEntityDynamicBindingPathList = (
+  entity: EntityWithBindings,
+): DynamicPath[] => {
+  if (
+    entity &&
+    entity.dynamicBindingPathList &&
+    Array.isArray(entity.dynamicBindingPathList)
+  ) {
+    return [...entity.dynamicBindingPathList];
+  }
+  return [];
+};
+
+export const isPathADynamicBinding = (
+  entity: EntityWithBindings,
+  path: string,
+): boolean => {
+  if (
+    entity &&
+    entity.dynamicBindingPathList &&
+    Array.isArray(entity.dynamicBindingPathList)
+  ) {
+    return _.find(entity.dynamicBindingPathList, { key: path }) !== undefined;
+  }
+  return false;
+};
+
+export const getWidgetDynamicTriggerPathList = (
+  widget: WidgetProps,
+): DynamicPath[] => {
+  if (
+    widget &&
+    widget.dynamicTriggerPathList &&
+    Array.isArray(widget.dynamicTriggerPathList)
+  ) {
+    return [...widget.dynamicTriggerPathList];
+  }
+  return [];
+};
+
+export const isPathADynamicTrigger = (
+  widget: WidgetProps,
+  path: string,
+): boolean => {
+  if (
+    widget &&
+    widget.dynamicTriggerPathList &&
+    Array.isArray(widget.dynamicTriggerPathList)
+  ) {
+    return _.find(widget.dynamicTriggerPathList, { key: path }) !== undefined;
+  }
+  return false;
+};
+
+export const getWidgetDynamicPropertyPathList = (
+  widget: WidgetProps,
+): DynamicPath[] => {
+  if (
+    widget &&
+    widget.dynamicPropertyPathList &&
+    Array.isArray(widget.dynamicPropertyPathList)
+  ) {
+    return [...widget.dynamicPropertyPathList];
+  }
+  return [];
+};
+
+export const isPathADynamicProperty = (
+  widget: WidgetProps,
+  path: string,
+): boolean => {
+  if (
+    widget &&
+    widget.dynamicPropertyPathList &&
+    Array.isArray(widget.dynamicPropertyPathList)
+  ) {
+    return _.find(widget.dynamicPropertyPathList, { key: path }) !== undefined;
+  }
+  return false;
+};

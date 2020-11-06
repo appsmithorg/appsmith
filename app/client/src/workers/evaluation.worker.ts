@@ -39,6 +39,10 @@ import {
   EvalError,
   EvalErrorTypes,
   extraLibraries,
+  getEntityDynamicBindingPathList,
+  getWidgetDynamicTriggerPathList,
+  isPathADynamicBinding,
+  isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
 
 const ctx: Worker = self as any;
@@ -279,45 +283,40 @@ const createDependencyTree = (
   Object.keys(dataTree).forEach(entityKey => {
     const entity = dataTree[entityKey];
     if (entity && "ENTITY_TYPE" in entity) {
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
-        // Set default property dependency
-        const defaultProperties =
-          WIDGET_TYPE_CONFIG_MAP[entity.type].defaultProperties;
-        Object.keys(defaultProperties).forEach(property => {
-          dependencyMap[`${entityKey}.${property}`] = [
-            `${entityKey}.${defaultProperties[property]}`,
-          ];
-        });
-        if (entity.dynamicBindings) {
-          Object.keys(entity.dynamicBindings).forEach(propertyName => {
-            // using unescape to remove new lines from bindings which interfere with our regex extraction
-            const unevalPropValue = _.get(entity, propertyName);
+      if (
+        entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET ||
+        entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+      ) {
+        const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
+        if (dynamicBindingPathList.length) {
+          dynamicBindingPathList.forEach(dynamicPath => {
+            const propertyPath = dynamicPath.key;
+            const unevalPropValue = _.get(entity, propertyPath);
             const { jsSnippets } = getDynamicBindings(unevalPropValue);
             const existingDeps =
-              dependencyMap[`${entityKey}.${propertyName}`] || [];
-            dependencyMap[`${entityKey}.${propertyName}`] = existingDeps.concat(
+              dependencyMap[`${entityKey}.${propertyPath}`] || [];
+            dependencyMap[`${entityKey}.${propertyPath}`] = existingDeps.concat(
               jsSnippets.filter(jsSnippet => !!jsSnippet),
             );
           });
         }
-        if (entity.dynamicTriggers) {
-          Object.keys(entity.dynamicTriggers).forEach(prop => {
-            dependencyMap[`${entityKey}.${prop}`] = [];
+        if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+          // Set default property dependency
+          const defaultProperties =
+            WIDGET_TYPE_CONFIG_MAP[entity.type].defaultProperties;
+          Object.keys(defaultProperties).forEach(property => {
+            dependencyMap[`${entityKey}.${property}`] = [
+              `${entityKey}.${defaultProperties[property]}`,
+            ];
           });
-        }
-      }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        if (entity.dynamicBindingPathList.length) {
-          entity.dynamicBindingPathList.forEach(prop => {
-            // using unescape to remove new lines from bindings which interfere with our regex extraction
-            const unevalPropValue = _.get(entity, prop.key);
-            const { jsSnippets } = getDynamicBindings(unevalPropValue);
-            const existingDeps =
-              dependencyMap[`${entityKey}.${prop.key}`] || [];
-            dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(
-              jsSnippets.filter(jsSnippet => !!jsSnippet),
-            );
-          });
+          const dynamicTriggerPathList = getWidgetDynamicTriggerPathList(
+            entity,
+          );
+          if (dynamicTriggerPathList.length) {
+            dynamicTriggerPathList.forEach(dynamicPath => {
+              dependencyMap[`${entityKey}.${dynamicPath.key}`] = [];
+            });
+          }
         }
       }
     }
@@ -577,16 +576,16 @@ const getValidatedTree = (tree: any) => {
         );
         const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
         const isSpecialField = [
-          "dynamicBindings",
-          "dynamicTriggers",
-          "dynamicProperties",
+          "dynamicBindingPathList",
+          "dynamicTriggerPathList",
+          "dynamicPropertyPathList",
           "evaluatedValues",
           "invalidProps",
           "validationMessages",
         ].includes(property);
         const isDynamicField =
-          _.has(parsedEntity, `dynamicBindings.${property}`) ||
-          _.has(parsedEntity, `dynamicTriggers.${property}`);
+          isPathADynamicBinding(parsedEntity, property) ||
+          isPathADynamicTrigger(parsedEntity, property);
 
         if (
           !isSpecialField &&
@@ -784,9 +783,9 @@ function validateAndParseWidgetProperty(
   currentDependencyValues: Array<string>,
   cachedDependencyValues?: Array<string>,
 ): any {
-  const propertyName = propertyPath.split(".")[1];
+  const entityPropertyName = _.drop(propertyPath.split(".")).join(".");
   let valueToValidate = evalPropertyValue;
-  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+  if (isPathADynamicTrigger(widget, propertyPath)) {
     const { triggers } = getDynamicValue(
       unEvalPropertyValue,
       currentTree,
@@ -797,7 +796,7 @@ function validateAndParseWidgetProperty(
   }
   const { parsed, isValid, message, transformed } = validateWidgetProperty(
     widget.type,
-    propertyName,
+    entityPropertyName,
     valueToValidate,
     widget,
     currentTree,
@@ -808,13 +807,13 @@ function validateAndParseWidgetProperty(
     ? evalPropertyValue
     : transformed;
   const safeEvaluatedValue = removeFunctions(evaluatedValue);
-  _.set(widget, `evaluatedValues.${propertyName}`, safeEvaluatedValue);
+  _.set(widget, `evaluatedValues.${entityPropertyName}`, safeEvaluatedValue);
   if (!isValid) {
-    _.set(widget, `invalidProps.${propertyName}`, true);
-    _.set(widget, `validationMessages.${propertyName}`, message);
+    _.set(widget, `invalidProps.${entityPropertyName}`, true);
+    _.set(widget, `validationMessages.${entityPropertyName}`, message);
   }
 
-  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+  if (isPathADynamicTrigger(widget, entityPropertyName)) {
     return unEvalPropertyValue;
   } else {
     const parsedCache = getParsedValueCache(propertyPath);

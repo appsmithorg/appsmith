@@ -13,7 +13,7 @@
         "parentRowSpace": 1,
         "type": "CANVAS_WIDGET",
         "canExtend": true,
-        "dynamicBindings": {},
+        "dynamicBindingPathList": [],
         "version": 6,
         "minHeight": 1292,
         "parentColumnSpace": 1,
@@ -52,15 +52,29 @@
                 "bottomRow": 3,
                 "parentId": "0",
                 "widgetId": "9iofg44qjm",
-                "dynamicBindings": {
-                    "isValid": true,
-                    "selectedOption": true,
-                    "selectedOptionArr": true,
-                    "selectedIndex": true,
-                    "selectedIndexArr": true,
-                    "value": true,
-                    "selectedOptionValues": true
-                }
+                "dynamicBindingPathList": [
+                  {
+                    "key": "selectedOptionArr"
+                  },
+                  {
+                    "key": "isValid"
+                  },
+                  {
+                    "key": "selectedIndexArr"
+                  },
+                  {
+                    "key": "selectedOption"
+                  },
+                  {
+                    "key": "selectedIndex"
+                  },
+                  {
+                    "key": "value"
+                  },
+                  {
+                    "key": "selectedOptionValues"
+                  }
+                ]
             },
             {
                 "isVisible": true,
@@ -95,7 +109,7 @@
                 "bottomRow": 19,
                 "parentId": "0",
                 "widgetId": "iu9vqkj1rd",
-                "dynamicBindings": {}
+                "dynamicBindingPathList": []
             }
         ]
     }

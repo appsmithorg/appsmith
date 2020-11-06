@@ -13,7 +13,7 @@
     "parentRowSpace": 1,
     "type": "CANVAS_WIDGET",
     "canExtend": true,
-    "dynamicBindings": {},
+    "dynamicBindingPathList": [],
     "version": 6,
     "minHeight": 1292,
     "parentColumnSpace": 1,
@@ -276,7 +276,7 @@
         "bottomRow": 10,
         "parentId": "0",
         "widgetId": "tmkhgmgtzp",
-        "dynamicBindings": {}
+        "dynamicBindingPathList": []
       }
     ]
   }
