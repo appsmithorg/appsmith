@@ -1,12 +1,9 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,11 +63,8 @@ public class OrganizationController extends BaseController<OrganizationService, 
 
     @PostMapping("/{organizationId}/logo")
     public Mono<ResponseDTO<Organization>> uploadLogo(@PathVariable String organizationId,
-                                                      @RequestPart("file") Mono<Part> fileMono,
-                                                      @RequestHeader("Content-Length") long contentLength) {
-        return contentLength > 251 * 1024 ?
-                Mono.error(new AppsmithException(AppsmithError.PAYLOAD_TOO_LARGE, FieldName.ORGANIZATION, organizationId))
-                : fileMono
+                                                      @RequestPart("file") Mono<Part> fileMono) {
+        return fileMono
                 .flatMap(filePart -> service.uploadLogo(organizationId, filePart))
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
     }
