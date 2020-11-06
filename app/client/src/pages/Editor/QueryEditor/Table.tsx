@@ -19,7 +19,7 @@ const TABLE_SIZES = {
 
 export const TableWrapper = styled.div`
   width: 100%;
-  height: auto;
+  height: 100%;
   background: white;
   border: 1px solid ${Colors.GEYSER_LIGHT};
   box-sizing: border-box;
@@ -27,8 +27,6 @@ export const TableWrapper = styled.div`
   justify-content: space-between;
   flex-direction: column;
   overflow: hidden;
-  min-height: 0px;
-  height: 100%;
   .tableWrap {
     height: 100%;
     display: block;
@@ -40,10 +38,6 @@ export const TableWrapper = styled.div`
     color: ${Colors.THUNDER};
     position: relative;
     background: ${Colors.ATHENS_GRAY_DARKER};
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    height: 100%;
     display: table;
     width: 100%;
     .thead,
@@ -51,6 +45,7 @@ export const TableWrapper = styled.div`
       overflow: hidden;
     }
     .tbody {
+      overflow-y: scroll;
       height: 100%;
       .tr {
         width: 100%;
