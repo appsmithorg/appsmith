@@ -222,7 +222,7 @@ jobs:
         working-directory: app/client
         # tag will be either "push" or "pull_request_target"
         tag: ${{ github.event_name }}
-        command: yarn run test:ci
+        env: 'NODE_ENV=test,BABEL_ENV=test'
 
     # Upload the screenshots as artifacts if there's a failure
     - uses: actions/upload-artifact@v1
