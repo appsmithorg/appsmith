@@ -1362,8 +1362,8 @@ export const theme: Theme = {
     notification: Colors.JAFFA,
     bindingTextDark: Colors.BINDING_COLOR,
     bindingText: Colors.BINDING_COLOR_LT,
-    cmBacground: Colors.BLUE_CHARCOAL,
-    lightningborder: Colors.ALABASTER,
+    cmBackground: Colors.BLUE_CHARCOAL,
+    lightningBorder: Colors.ALABASTER,
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {

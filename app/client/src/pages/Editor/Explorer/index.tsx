@@ -1,6 +1,7 @@
 import React, { useRef, MutableRefObject, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
+import ScrollIndicator from "components/designSystems/appsmith/ScrollIndicator";
 import {
   useFilteredEntities,
   useWidgets,
@@ -26,7 +27,12 @@ import { getPlugins } from "selectors/entitiesSelector";
 const Wrapper = styled.div`
   height: 100%;
   overflow-y: auto;
-  ${scrollbarDark};
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    width: 0px;
+    -webkit-appearance: none;
+  }
 `;
 
 const NoResult = styled(NonIdealState)`
@@ -48,7 +54,7 @@ const EntityExplorer = (props: IPanelProps) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
-  const explorerRef = useRef<HTMLDivElement | null>(null);
+  const explorerRef = useRef<HTMLDivElement>(null);
   const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
   const datasources = useFilteredDatasources(searchKeyword);
 
@@ -96,6 +102,7 @@ const EntityExplorer = (props: IPanelProps) => {
       )}
       <StyledDivider />
       <JSDependencies />
+      <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
   );
 };

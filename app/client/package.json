@@ -141,7 +141,6 @@
   "eslintConfig": {
     "extends": "react-app",
     "parser": "@typescript-eslint/parser"
-
   },
   "browserslist": [
     ">0.2%",
