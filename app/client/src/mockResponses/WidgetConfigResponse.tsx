@@ -36,6 +36,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       defaultImage:
         "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
+      maxZoomLevel: 1,
       image: "",
       rows: 3,
       columns: 4,
@@ -196,7 +197,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           {
             type: "MODIFY_PROPS",
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const tabs = widget.tabs;
+              const tabs = [...widget.tabs];
 
               const newTabs = tabs.map((tab: any) => {
                 tab.widgetId = generateReactKey();

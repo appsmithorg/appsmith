@@ -80,9 +80,9 @@ public class PingScheduledTask {
                 .header("Authorization", "Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(Map.of(
-                        "userId", instanceId,
+                        "userId", ipAddress,
                         "context", Map.of("ip", ipAddress),
-                        "properties", Map.of("ip", ipAddress),
+                        "properties", Map.of("instanceId", instanceId),
                         "event", "Instance Active"
                 )))
                 .retrieve()

@@ -62,7 +62,7 @@ export const getApiOptions = (
     text: LIGHTNING_MENU_DATA_API,
   },
   openDirection: Directions.RIGHT,
-  openOnHover: false,
+  openOnHover: true,
   skin: skin,
   modifiers: {
     offset: {
@@ -111,7 +111,7 @@ export const getQueryOptions = (
     text: LIGHTNING_MENU_DATA_QUERY,
   },
   openDirection: Directions.RIGHT,
-  openOnHover: false,
+  openOnHover: true,
   skin: skin,
   modifiers: {
     offset: {
@@ -141,7 +141,7 @@ export const getWidgetOptions = (
     text: LIGHTNING_MENU_DATA_WIDGET,
   },
   openDirection: Directions.RIGHT,
-  openOnHover: false,
+  openOnHover: true,
   skin: skin,
   modifiers: {
     offset: {

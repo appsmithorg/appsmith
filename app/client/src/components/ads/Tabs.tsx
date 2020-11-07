@@ -108,7 +108,7 @@ const TabTitle = styled.span`
 type TabbedViewComponentType = CommonComponentProps & {
   tabs: Array<TabProp>;
   selectedIndex?: number;
-  onSelect?: Function;
+  onSelect?: (tabIndex: number) => void;
   overflow?: boolean;
 };
 

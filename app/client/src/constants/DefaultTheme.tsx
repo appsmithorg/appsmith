@@ -657,6 +657,7 @@ type ColorType = {
       desc: ShadeColor;
     };
     manageUser: ShadeColor;
+    scrollbar: ShadeColor;
   };
   tagInput: {
     bg: ShadeColor;
@@ -688,6 +689,9 @@ type ColorType = {
   loader: {
     light: ShadeColor;
     dark: ShadeColor;
+  };
+  formFooter: {
+    cancelBtn: ShadeColor;
   };
 };
 
@@ -923,6 +927,7 @@ export const dark: ColorType = {
       desc: darkShades[6],
     },
     manageUser: darkShades[6],
+    scrollbar: darkShades[5],
   },
   tagInput: {
     bg: darkShades[0],
@@ -954,6 +959,9 @@ export const dark: ColorType = {
   loader: {
     light: darkShades[2],
     dark: darkShades[4],
+  },
+  formFooter: {
+    cancelBtn: darkShades[9],
   },
 };
 
@@ -1189,6 +1197,7 @@ export const light: ColorType = {
       desc: lightShades[7],
     },
     manageUser: lightShades[6],
+    scrollbar: lightShades[5],
   },
   tagInput: {
     bg: lightShades[2],
@@ -1220,6 +1229,9 @@ export const light: ColorType = {
   loader: {
     light: lightShades[2],
     dark: lightShades[4],
+  },
+  formFooter: {
+    cancelBtn: lightShades[9],
   },
 };
 
@@ -1387,6 +1399,7 @@ export const theme: Theme = {
     bindingText: Colors.BINDING_COLOR_LT,
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
+    formButtonColor: Colors.WHITE,
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
@@ -1477,10 +1490,12 @@ export const theme: Theme = {
     shadow: "0px 4px 8px rgba(9, 30, 66, 0.25)",
   },
   shadows: [
-    "0px 2px 4px rgba(67, 70, 74, 0.14)",
-    `0px 2px 4px ${Colors.MYSTIC}`,
+    /* 0. tab */
     `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
-    `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 1px 0px ${Colors.ATHENS_GRAY}`,
+    /* 1. first tab */
+    `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
+    /* 2. container */
+    `0 1px 1px 0 rgba(60,75,100,.14) ,0 2px 1px -1px rgba(60,75,100,.12), 0 1px 3px 0 rgba(60,75,100,.2)`,
   ],
   widgets: {
     tableWidget: {

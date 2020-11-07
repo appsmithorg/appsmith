@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Organization;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -11,6 +12,6 @@ public interface CustomOrganizationRepository extends AppsmithRepository<Organiz
 
     Mono<Organization> findByName(String name, AclPermission aclPermission);
 
-    Flux<Organization> findByIdsIn(Set<String> orgIds, AclPermission aclPermission);
+    Flux<Organization> findByIdsIn(Set<String> orgIds, AclPermission aclPermission, Sort sort);
 
 }

@@ -27,6 +27,10 @@ import {
   ActionDescription,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
+import {
+  AppToaster,
+  ToastTypeOptions,
+} from "components/editorComponents/ToastComponent";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
@@ -63,6 +67,7 @@ import {
 import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
+import { ToastType, TypeOptions } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { updateAppStore } from "actions/pageActions";
@@ -74,7 +79,11 @@ import { Variant, ToastVariant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
+import {
+  getAppMode,
+  getCurrentApplication,
+} from "selectors/applicationSelectors";
 import { evaluateDynamicTrigger, evaluateSingleValue } from "./evaluationsSaga";
 
 function* navigateActionSaga(
@@ -165,6 +174,29 @@ async function downloadSaga(
     });
     if (event.callback) event.callback({ success: false });
   }
+}
+
+function* showAlertSaga(
+  payload: { message: string; style?: TypeOptions },
+  event: ExecuteActionPayloadEvent,
+) {
+  if (typeof payload.message !== "string") {
+    console.error("Toast message needs to be a string");
+    if (event.callback) event.callback({ success: false });
+    return;
+  }
+  if (payload.style && !ToastTypeOptions.includes(payload.style)) {
+    console.error(
+      "Toast type needs to be a one of " + ToastTypeOptions.join(", "),
+    );
+    if (event.callback) event.callback({ success: false });
+    return;
+  }
+  AppToaster.show({
+    message: payload.message,
+    type: payload.style,
+  });
+  if (event.callback) event.callback({ success: true });
 }
 
 export const getActionTimeout = (
@@ -321,10 +353,13 @@ export function* executeActionSaga(
         : event.type === EventType.ON_PREV_PAGE
         ? "PREV"
         : undefined;
+    const appMode = yield select(getAppMode);
+
     const executeActionRequest: ExecuteActionRequest = {
-      action: { id: actionId },
+      actionId: actionId,
       params: actionParams,
       paginationField: pagination,
+      viewMode: appMode === APP_MODE.PUBLISHED,
     };
     const timeout = yield select(getActionTimeout, actionId);
     const response: ActionApiResponse = yield ActionAPI.executeAction(
@@ -431,11 +466,7 @@ function* executeActionTriggers(
         yield call(navigateActionSaga, trigger.payload, event);
         break;
       case "SHOW_ALERT":
-        Toaster.show({
-          text: trigger.payload.message,
-          variant: ToastVariant(trigger.payload.style),
-        });
-        if (event.callback) event.callback({ success: true });
+        yield call(showAlertSaga, trigger.payload, event);
         break;
       case "SHOW_MODAL_BY_NAME":
         yield put(trigger);
@@ -528,18 +559,20 @@ function* runActionSaga(
       yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
     const actionObject = yield select(getAction, actionId);
-    const action: ExecuteActionRequest["action"] = { id: actionId };
     const jsonPathKeys = actionObject.jsonPathKeys;
 
     const { paginationField } = reduxAction.payload;
 
     const params = yield call(getActionParams, jsonPathKeys);
     const timeout = yield select(getActionTimeout, actionId);
+    const appMode = yield select(getAppMode);
+    const viewMode = appMode === APP_MODE.PUBLISHED;
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       {
-        action,
+        actionId,
         params,
         paginationField,
+        viewMode,
       },
       timeout,
     );
@@ -622,9 +655,12 @@ function* executePageLoadAction(pageAction: PageAction) {
     getActionParams,
     pageAction.jsonPathKeys,
   );
+  const appMode = yield select(getAppMode);
+  const viewMode = appMode === APP_MODE.PUBLISHED;
   const executeActionRequest: ExecuteActionRequest = {
-    action: { id: pageAction.id },
+    actionId: pageAction.id,
     params,
+    viewMode,
   };
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: pageAction.pluginType,

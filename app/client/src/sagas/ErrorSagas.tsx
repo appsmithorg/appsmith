@@ -11,6 +11,7 @@ import { ERROR_401, ERROR_500, ERROR_0 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import log from "loglevel";
+import { axiosConnectionAbortedCode } from "../api/Api";
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
@@ -60,7 +61,7 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
-type ErrorPayloadType = { code?: number; message?: string };
+type ErrorPayloadType = { code?: number | string; message?: string };
 let ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {};
@@ -92,6 +93,7 @@ export function* errorSaga(
     type,
     payload: { error, show = true },
   } = errorAction;
+
   const message =
     error && error.message ? error.message : ActionErrorDisplayMap[type](error);
 

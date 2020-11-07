@@ -100,6 +100,7 @@ const PageListItem = withTheme((props: PageListItemProps) => {
             editInteractionKind={EditInteractionKind.DOUBLE}
             onTextChanged={onEditPageName}
             hideEditIcon
+            className="t--page-list-item"
           />
         </Tooltip>
       </div>

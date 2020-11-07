@@ -68,11 +68,8 @@ class HelpModal extends React.Component<Props> {
     const { user } = this.props;
     if (cloudHosting && intercomAppID && window.Intercom) {
       window.Intercom("boot", {
-        // eslint-disable-next-line @typescript-eslint/camelcase
         app_id: intercomAppID,
-        // eslint-disable-next-line @typescript-eslint/camelcase
         user_id: user?.username,
-        // eslint-disable-next-line @typescript-eslint/camelcase
         name: user?.name,
         email: user?.email,
       });

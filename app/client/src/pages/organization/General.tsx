@@ -77,7 +77,7 @@ export function GeneralSettings() {
       <SettingsHeading type={TextType.H2}>General</SettingsHeading>
       <SettingWrapper>
         <InputLabelWrapper>
-          <Text type={TextType.H4}>Workspace</Text>
+          <Text type={TextType.H4}>Organization Name</Text>
         </InputLabelWrapper>
         {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
         {!isFetchingOrg && (
@@ -86,6 +86,7 @@ export function GeneralSettings() {
             placeholder="Workspace name"
             onChange={onWorkspaceNameChange}
             defaultValue={currentOrg.name}
+            cypressSelector="t--org-name-input"
           ></TextInput>
         )}
       </SettingWrapper>
@@ -100,6 +101,7 @@ export function GeneralSettings() {
             placeholder="Your website"
             onChange={onWebsiteChange}
             defaultValue={currentOrg.website || ""}
+            cypressSelector="t--org-website-input"
           ></TextInput>
         )}
       </SettingWrapper>
@@ -115,6 +117,7 @@ export function GeneralSettings() {
             placeholder="Email"
             onChange={onEmailChange}
             defaultValue={currentOrg.email || ""}
+            cypressSelector="t--org-email-input"
           ></TextInput>
         )}
       </SettingWrapper>

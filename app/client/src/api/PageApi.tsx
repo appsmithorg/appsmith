@@ -63,7 +63,7 @@ export interface UpdatePageRequest {
 }
 
 export interface CreatePageResponse extends ApiResponse {
-  data: {};
+  data: unknown;
 }
 
 export interface FetchPageListResponse extends ApiResponse {
@@ -159,6 +159,12 @@ class PageApi extends Api {
     applicationId: string,
   ): AxiosPromise<FetchPageListResponse> {
     return Api.get(PageApi.url + "/application/" + applicationId);
+  }
+
+  static fetchPageListViewMode(
+    applicationId: string,
+  ): AxiosPromise<FetchPageListResponse> {
+    return Api.get(PageApi.url + "/view/application/" + applicationId);
   }
 
   static deletePage(request: DeletePageRequest): AxiosPromise<ApiResponse> {

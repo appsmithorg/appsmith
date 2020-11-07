@@ -28,6 +28,8 @@ const DisabledContainer = styled.div`
     color: #0a0b0e;
   }
 `;
+
+const DefaultCenter = { lat: -34.397, long: 150.644 };
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -98,6 +100,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     );
   };
 
+  unselectMarker = () => {
+    this.props.updateWidgetMetaProperty("selectedMarker", undefined);
+  };
+
   onMarkerClick = (lat: number, long: number, title: string) => {
     this.disableDrag(true);
     const selectedMarker = {
@@ -140,7 +146,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isVisible={this.props.isVisible}
             zoomLevel={this.props.zoomLevel}
             allowZoom={this.props.allowZoom}
-            center={this.props.center || this.props.mapCenter}
+            center={this.props.center || this.props.mapCenter || DefaultCenter}
             enableCreateMarker
             selectedMarker={this.props.selectedMarker}
             updateCenter={this.updateCenter}
@@ -150,6 +156,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             saveMarker={this.onCreateMarker}
             updateMarker={this.updateMarker}
             selectMarker={this.onMarkerClick}
+            unselectMarker={this.unselectMarker}
             markers={this.props.markers || []}
             disableDrag={() => {
               this.disableDrag(false);

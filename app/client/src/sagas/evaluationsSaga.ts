@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import { eventChannel, EventChannel } from "redux-saga";
 import {
+  EvaluationReduxAction,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -30,12 +31,19 @@ import log from "loglevel";
 import _ from "lodash";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "../utils/PerformanceTracker";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const initEvaluationWorkers = () => {
+  // If an old worker exists, terminate it
+  if (evaluationWorker) {
+    evaluationWorker.terminate();
+  }
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   evaluationWorker = new Worker();
   workerChannel = eventChannel(emitter => {
@@ -51,7 +59,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
   errors.forEach(error => {
     if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
       AppToaster.show({
-        message: error.error.message,
+        message: error.message,
         type: ToastType.ERROR,
       });
     }
@@ -59,7 +67,16 @@ const evalErrorHandler = (errors: EvalError[]) => {
   });
 };
 
-function* evaluateTreeSaga() {
+function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
+  for (const action of actions) {
+    yield put(action);
+  }
+}
+
+function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
   const unEvalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unEvalTree });
   evaluationWorker.postMessage({
@@ -69,20 +86,27 @@ function* evaluateTreeSaga() {
   });
   const workerResponse = yield take(workerChannel);
   const { errors, dataTree } = workerResponse.data;
-  log.debug({ dataTree });
+  const parsedDataTree = JSON.parse(dataTree);
+  log.debug({ dataTree: parsedDataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: JSON.parse(dataTree),
+    payload: parsedDataTree,
   });
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
+  if (postEvalActions && postEvalActions.length) {
+    yield call(postEvalActionDispatcher, postEvalActions);
+  }
 }
 
 export function* evaluateSingleValue(binding: string) {
   if (evaluationWorker) {
-    const evalTree = yield select(getDataTree);
+    const dataTree = yield select(getDataTree);
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
-      dataTree: evalTree,
+      dataTree,
       binding,
     });
     const workerResponse = yield take(workerChannel);
@@ -146,7 +170,8 @@ export function* validateProperty(
       value,
       props,
     });
-    return yield take(workerChannel);
+    const response = yield take(workerChannel);
+    return response.data;
   }
   return { isValid: true, parsed: value };
 }
@@ -191,14 +216,19 @@ const EVALUATE_REDUX_ACTIONS = [
 
 function* evaluationChangeListenerSaga() {
   initEvaluationWorkers();
-  yield call(evaluateTreeSaga);
+  yield fork(evaluateTreeSaga);
   while (true) {
-    const action: ReduxAction<any> = yield take(EVALUATE_REDUX_ACTIONS);
+    const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
+      EVALUATE_REDUX_ACTIONS,
+    );
     // When batching success action happens, we need to only evaluate
     // if the batch had any action we need to evaluate properties for
-    if (action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS) {
+    if (
+      action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+      Array.isArray(action.payload)
+    ) {
       const batchedActionTypes = action.payload.map(
-        (batchedAction: ReduxAction<any>) => batchedAction.type,
+        (batchedAction: ReduxAction<unknown>) => batchedAction.type,
       );
       if (
         _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length === 0
@@ -206,20 +236,14 @@ function* evaluationChangeListenerSaga() {
         continue;
       }
     }
-    yield fork(evaluateTreeSaga);
+    log.debug(`Evaluating`, { action });
+    yield fork(evaluateTreeSaga, action.postEvalActions);
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
 
 export default function* evaluationSagaListeners() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
-      evaluationChangeListenerSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
-      evaluationChangeListenerSaga,
-    ),
+    takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
   ]);
 }

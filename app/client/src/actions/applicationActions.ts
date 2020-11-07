@@ -1,4 +1,5 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { APP_MODE } from "../reducers/entityReducers/appReducer";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 
 export const setDefaultApplicationPageSuccess = (
@@ -20,6 +21,24 @@ export const fetchApplications = () => {
   };
 };
 
+export interface FetchApplicationPayload {
+  applicationId: string;
+  mode: APP_MODE;
+}
+
+export const fetchApplication = (
+  applicationId: string,
+  mode: APP_MODE,
+): ReduxAction<FetchApplicationPayload> => {
+  return {
+    type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+    payload: {
+      applicationId,
+      mode,
+    },
+  };
+};
+
 export const updateApplication = (
   id: string,
   data: UpdateApplicationPayload,
@@ -29,15 +48,6 @@ export const updateApplication = (
     payload: {
       id,
       ...data,
-    },
-  };
-};
-
-export const fetchApplication = (applicationId: string) => {
-  return {
-    type: ReduxActionTypes.FETCH_APPLICATION_INIT,
-    payload: {
-      applicationId,
     },
   };
 };

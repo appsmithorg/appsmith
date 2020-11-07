@@ -66,7 +66,8 @@
               "configProperty": "datasourceConfiguration.authentication.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
-              "placeholderText": "Password"
+              "placeholderText": "Password",
+              "encrypted": true
             }
           ]
         }
