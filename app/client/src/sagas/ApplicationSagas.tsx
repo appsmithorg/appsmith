@@ -115,39 +115,6 @@ export function* getAllApplicationSaga() {
   }
 }
 
-export function* fetchApplicationListSaga() {
-  try {
-    const response: FetchApplicationsResponse = yield call(
-      ApplicationApi.fetchApplications,
-    );
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      const applicationListPayload: ApplicationPayload[] = response.data.map(
-        (
-          application: ApplicationResponsePayload & {
-            pages: ApplicationPagePayload[];
-          },
-        ) => ({
-          ...application,
-          pageCount: application.pages ? application.pages.length : 0,
-          defaultPageId: getDefaultPageId(application.pages),
-        }),
-      );
-      yield put({
-        type: ReduxActionTypes.FETCH_APPLICATION_LIST_SUCCESS,
-        payload: applicationListPayload,
-      });
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_APPLICATION_LIST_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
 export function* fetchApplicationSaga(
   action: ReduxAction<FetchApplicationPayload>,
 ) {
