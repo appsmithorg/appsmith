@@ -30,8 +30,7 @@ if [ "$target" == "ci" ]; then
     $(npm bin)/cypress run --headless --browser chrome \
     --record --key "$CYPRESS_RECORD_KEY" --ci-build-id $BUILD_ID \
     --parallel --group "Electrons on Gitlab CI" \
-    --spec "cypress/integration/Smoke_TestSuite/*/*" \
-    --env "NODE_ENV=test"
+    --spec "cypress/integration/Smoke_TestSuite/*/*"
 else
     $(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Smoke_TestSuite/*/*"
 fi
