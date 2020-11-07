@@ -211,6 +211,8 @@ jobs:
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+        NODE_ENV: 'test'
+        BABEL_ENV: 'test'
       with:
         browser: chrome
         headless: true
@@ -222,7 +224,6 @@ jobs:
         working-directory: app/client
         # tag will be either "push" or "pull_request_target"
         tag: ${{ github.event_name }}
-        env: 'NODE_ENV=test,BABEL_ENV=test'
 
     # Upload the screenshots as artifacts if there's a failure
     - uses: actions/upload-artifact@v1
