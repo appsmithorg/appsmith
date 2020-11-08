@@ -1,0 +1,72 @@
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "Method Key",
+          "configProperty": "actionConfiguration.bodyFormData[0].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "method"
+        },
+        {
+          "label": "Method",
+          "configProperty": "actionConfiguration.bodyFormData[0].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "GET",
+          "options": [
+            {
+              "label": "GET",
+              "value": "get"
+            },
+            {
+              "label": "SET",
+              "value": "set"
+            },
+            {
+              "label": "CREATE",
+              "value": "create"
+            },
+            {
+              "label": "UPDATE",
+              "value": "update"
+            },
+            {
+              "label": "DELETE",
+              "value": "delete"
+            }
+          ]
+        },
+        {
+          "label": "Collection Key",
+          "configProperty": "actionConfiguration.bodyFormData[1].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "collection"
+        },
+        {
+          "label": "Collection Value",
+          "configProperty": "actionConfiguration.bodyFormData[1].value",
+          "controlType": "INPUT_TEXT"
+        },
+        {
+          "label": "Document Reference Key",
+          "configProperty": "actionConfiguration.bodyFormData[2].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "documentKey"
+        },
+        {
+          "label": "Document Reference Value",
+          "configProperty": "actionConfiguration.bodyFormData[2].value",
+          "controlType": "INPUT_TEXT"
+        },
+        {
+          "label": "Body",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT"
+        }
+      ]
+    }
+  ]
+}

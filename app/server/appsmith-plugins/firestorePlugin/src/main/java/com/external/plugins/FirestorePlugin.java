@@ -18,7 +18,6 @@ import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -30,20 +29,31 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Datasource properties:
+ * 1. Client JSON
+ * <p>
+ * Query Action properties:
+ * 1. method: Dropdown
+ * 2. collection: String
+ * 3. documentKey: String
+ */
 public class FirestorePlugin extends BasePlugin {
 
-    private static final String SERVICE_ACCOUNT_CREDENTIALS = "";
+    private static final String CLIENT_JSON_FIELD = "clientJSON";
+    private static final String PROJECT_ID_FIELD = "projectId";
 
     public FirestorePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
-    @Slf4j
+    //    @Slf4j
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
 
@@ -77,7 +87,7 @@ public class FirestorePlugin extends BasePlugin {
 
             String strBody = actionConfiguration.getBody();
             HashMap mapBody = null;
-            if (actionConfiguration.getBody() != null) {
+            if (StringUtils.isNotBlank(actionConfiguration.getBody())) {
                 try {
                     mapBody = objectMapper.readValue(strBody, HashMap.class);
                 } catch (IOException e) {
@@ -89,8 +99,6 @@ public class FirestorePlugin extends BasePlugin {
             ApiFuture<Object> objFuture;
             Object objResult = null;
             try {
-                DocumentReference docRef = connection.collection(collection).document(documentKey);
-
                 DocumentReference document = connection.collection(collection).document(documentKey);
                 Method operationMethod = null;
                 switch (method) {
@@ -124,6 +132,7 @@ public class FirestorePlugin extends BasePlugin {
                     InterruptedException |
                     ExecutionException e) {
                 e.printStackTrace();
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
             }
 
             ActionExecutionResult result = new ActionExecutionResult();
@@ -146,40 +155,113 @@ public class FirestorePlugin extends BasePlugin {
             }
             return resultMap;
         }
+
         @Override
         public Mono<Firestore> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            InputStream serviceAccount = new ByteArrayInputStream(SERVICE_ACCOUNT_CREDENTIALS.getBytes());
+            String clientJson = null;
+            String projectId = null;
+            for (Property property : datasourceConfiguration.getProperties()) {
+                String key = property.getKey();
+                if (CLIENT_JSON_FIELD.equals(key)) {
+                    clientJson = property.getValue();
+                }
+                if (PROJECT_ID_FIELD.equals(key)) {
+                    projectId = property.getValue();
+                }
+            }
+
+            if (StringUtils.isEmpty(clientJson) || StringUtils.isEmpty(projectId)) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid datasource fields"));
+            }
+
+            InputStream serviceAccount = new ByteArrayInputStream(clientJson.getBytes());
             GoogleCredentials credentials;
-            Firestore db;
+
             try {
                 credentials = GoogleCredentials.fromStream(serviceAccount);
 
                 FirebaseOptions options = FirebaseOptions.builder()
+                        .setDatabaseUrl(datasourceConfiguration.getUrl())
+                        .setProjectId(projectId)
                         .setCredentials(credentials)
                         .build();
-                FirebaseApp.initializeApp(options);
+                FirebaseApp firebaseApp;
+                try {
+                    firebaseApp = FirebaseApp.initializeApp(options, projectId);
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                    firebaseApp = FirebaseApp.getInstance(projectId);
+                }
 
-                db = FirestoreClient.getFirestore();
+                Firestore db = FirestoreClient.getFirestore(firebaseApp);
                 return Mono.just(db);
             } catch (IOException e) {
-                e.printStackTrace();
+                return Mono.error(new Exception("Unable to initialize Firestore. Cause: " + e.getMessage()));
             }
-            return Mono.error(new Exception("Unable to initialize Firestore"));
         }
 
         @Override
         public void datasourceDestroy(Firestore connection) {
-
+            System.out.println("*** Going to close Firestore connection: " + connection.toString());
+//            if (connection != null) {
+//                try {
+//                    connection.close();
+//                } catch (Exception e) {
+//                    System.out.println("Error closing Firestore connection." + e.getMessage());
+//                }
+//            }
         }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            Set<String> invalids = new HashSet<>();
+            if (datasourceConfiguration.getProperties() == null || datasourceConfiguration.getProperties().isEmpty()) {
+                invalids.add("Missing datasource configuration properties");
+                return invalids;
+            }
+            String clientJson = "";
+            String projectId = "";
+
+            for (Property property : datasourceConfiguration.getProperties()) {
+                String key = property.getKey();
+                if (CLIENT_JSON_FIELD.equals(key)) {
+                    clientJson = property.getValue();
+                }
+                if (PROJECT_ID_FIELD.equals(key)) {
+                    projectId = property.getValue();
+                }
+            }
+
+            if (StringUtils.isBlank(clientJson)) {
+                invalids.add("Missing client json. Please generate this from Firebase Console");
+            }
+
+            if (StringUtils.isBlank(projectId)) {
+                invalids.add("Missing projectId");
+            }
+
+            if (StringUtils.isBlank(datasourceConfiguration.getUrl())) {
+                invalids.add("Missing database URL");
+            }
+
+            return invalids;
         }
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            return datasourceCreate(datasourceConfiguration)
+                    .map(connection -> {
+                        try {
+                            if (connection != null) {
+                                connection.close();
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Error closing Firestore connection that was made for testing the datasource." + e.getMessage());
+                        }
+
+                        return new DatasourceTestResult();
+                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
     }
 }

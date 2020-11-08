@@ -4,10 +4,17 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import com.google.cloud.NoCredentials;
+import com.google.cloud.ServiceOptions;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.FirestoreOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.testcontainers.containers.FirestoreEmulatorContainer;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -24,14 +31,37 @@ public class FirestorePluginTest {
 
     FirestorePlugin.FirestorePluginExecutor pluginExecutor = new FirestorePlugin.FirestorePluginExecutor();
 
+    private static final String SERVICE_ACCOUNT = "";
+
+    @ClassRule
+    public static final FirestoreEmulatorContainer emulator = new FirestoreEmulatorContainer(
+            DockerImageName.parse("gcr.io/google.com/cloudsdktool/cloud-sdk:316.0.0-emulators")
+    );
+
+    static Firestore firestore;
+
+    @BeforeClass
+    public static void setUp() {
+        FirestoreOptions options = FirestoreOptions.newBuilder()
+                .setHost(emulator.getEmulatorEndpoint())
+                .setCredentials(NoCredentials.getInstance())
+                .setRetrySettings(ServiceOptions.getNoRetrySettings())
+                .setProjectId("test-project")
+                .build();
+        firestore = options.getService();
+    }
+
     private DatasourceConfiguration createDatasourceConfiguration() {
-        return null;
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Property clientJsonProperty = new Property("clientJSON", SERVICE_ACCOUNT);
+        datasourceConfiguration.setProperties(List.of(clientJsonProperty));
+        return datasourceConfiguration;
     }
 
     @Test
     public void testConnectFirestore() {
 
-        Mono<Firestore> dsConnectionMono = pluginExecutor.datasourceCreate(null);
+        Mono<Firestore> dsConnectionMono = pluginExecutor.datasourceCreate(createDatasourceConfiguration());
 
         StepVerifier.create(dsConnectionMono)
                 .assertNext(Assert::assertNotNull)
@@ -43,15 +73,10 @@ public class FirestorePluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
-        Property methodProp = new Property();
-        methodProp.setKey("method");
-        methodProp.setValue("set");
-        Property collectionProp = new Property();
-        collectionProp.setKey("collection");
-        collectionProp.setValue("test");
-        Property docProp = new Property();
-        docProp.setKey("documentKey");
-        docProp.setValue("alovelace");
+        Property methodProp = new Property("method", "set");
+        Property collectionProp = new Property("collection", "test");
+        Property docProp = new Property("documentKey", "alovelace");
+
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("{\n" +
                 "    \"firstName\": \"test\",\n" +

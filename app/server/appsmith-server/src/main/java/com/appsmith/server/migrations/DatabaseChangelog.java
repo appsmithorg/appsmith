@@ -1215,4 +1215,25 @@ public class DatabaseChangelog {
 
     }
 
+    @ChangeSet(order = "041", id = "add-firestore-plugin", author = "")
+    public void addFirestorePlugin(MongoTemplate mongoTemplate) {
+
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("Firestore");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("firestore-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setResponseType(Plugin.ResponseType.JSON);
+        plugin1.setIconLocation("https://image.winudf.com/v2/image1/Y29tLmFua2l0Ym9ocmE3Ni5DbG91ZF9GaXJlc3RvcmVfaWNvbl8xNTQzNzgxNDQ1XzAxNA/icon.png?w=170&fakeurl=1");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-firestore");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin1.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
+
 }
