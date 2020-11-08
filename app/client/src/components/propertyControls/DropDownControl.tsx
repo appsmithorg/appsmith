@@ -2,7 +2,11 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
-import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
+import {
+  StyledDropDown,
+  StyledDropDownContainer,
+  DropdownStyles,
+} from "./StyledControls";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
 import { DropdownOption } from "widgets/DropdownWidget";
 import styled from "styled-components";
@@ -31,6 +35,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       controlIconName !== -1 ? ControlIcons[controlIconName] : null;
     return (
       <StyledDropDownContainer>
+        <DropdownStyles />
         <StyledDropDown
           items={this.props.options}
           filterable={false}
@@ -39,7 +44,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           noResults={<MenuItem disabled={true} text="No results." />}
           popoverProps={{
             minimal: true,
-            usePortal: false,
+            usePortal: true,
+            popoverClassName: "select-popover-wrapper",
           }}
         >
           <Button

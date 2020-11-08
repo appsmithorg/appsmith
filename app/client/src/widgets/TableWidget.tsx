@@ -758,23 +758,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             format: columnProperties?.format?.output || "",
             inputFormat: columnProperties?.format?.input || "",
             cellProperties: cellProperties,
+            buttonProperties:
+              columnProperties.columnType === "button"
+                ? {
+                    label: columnProperties.buttonLabel,
+                    id: columnProperties.id,
+                    dynamicTrigger: columnProperties.buttonOnClick,
+                    buttonStyle:
+                      columnProperties.buttonStyle || "PRIMARY_BUTTON",
+                    onCommandClick: this.onCommandClick,
+                  }
+                : undefined,
           },
           Cell: (props: any) => {
             if (columnProperties.columnType === "button") {
-              const buttonProperties: ButtonProperties = {
-                label: columnProperties.buttonLabel,
-                id: columnProperties.id,
-                dynamicTrigger: columnProperties.buttonOnClick,
-                buttonStyle: columnProperties.buttonStyle || "PRIMARY_BUTTON",
-                onCommandClick: this.onCommandClick,
-                isSelected: props.row.isSelected,
-              };
               return renderCell(
                 props.cell.value,
                 columnProperties.columnType,
                 isHidden,
                 cellProperties,
-                buttonProperties,
+                columnData.metaProperties.buttonProperties,
+                props.row.isSelected,
               );
             } else {
               return renderCell(
@@ -1379,7 +1383,6 @@ export interface ButtonProperties {
   id: string;
   buttonStyle: string;
   dynamicTrigger?: string;
-  isSelected?: boolean;
   onCommandClick: (action: string, onComplete: () => void) => void;
 }
 
@@ -1389,6 +1392,7 @@ export interface TableColumnMetaProps {
   inputFormat?: string;
   type: string;
   cellProperties: CellLayoutProperties;
+  buttonProperties?: ButtonProperties;
 }
 export interface ReactTableColumnProps {
   Header: string;

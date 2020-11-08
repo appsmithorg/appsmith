@@ -1,9 +1,12 @@
 import { Classes, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import React, { ReactNode, useState } from "react";
+import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 
-const SectionWrapper = styled.div``;
+const SectionWrapper = styled.div`
+  position: relative;
+`;
 const SectionTitle = styled.div`
   display: grid;
   grid-template-columns: 1fr 30px;
@@ -46,12 +49,11 @@ export const PropertySection = (props: {
           onClick={() => open(!isOpen)}
         />
       </SectionTitle>
-      <div style={{ position: "relative" }}>{props.children}</div>
-      {/* {props.children && (
+      {props.children && (
         <Collapse isOpen={isOpen} keepChildrenMounted>
-          {props.children}
+          <div style={{ position: "relative" }}>{props.children}</div>
         </Collapse>
-      )} */}
+      )}
     </SectionWrapper>
   );
 };

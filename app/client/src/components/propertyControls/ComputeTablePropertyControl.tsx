@@ -89,8 +89,12 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
     if (typeof event !== "string") {
       value = event.target.value;
     }
-    const computedValue = `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => ${value})}}`;
-    this.updateProperty(this.props.propertyName, computedValue);
+    if (value) {
+      const computedValue = `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => ${value})}}`;
+      this.updateProperty(this.props.propertyName, computedValue);
+    } else {
+      this.updateProperty(this.props.propertyName, "");
+    }
   };
 
   static getControlType() {

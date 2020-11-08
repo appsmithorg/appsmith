@@ -227,6 +227,16 @@ const tabsWidgetTabsPropertyMigration = (
   return currentDSL;
 };
 
+const tableWidgetPropertyPaneMigrations = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === WidgetTypes.TABLE_WIDGET) {
+    }
+    return children;
+  });
+  return currentDSL;
+};
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
@@ -274,6 +284,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = tabsWidgetTabsPropertyMigration(currentDSL);
     currentDSL.version = 6;
   }
+
+  // if (currentDSL.version === 6) {
+  //   currentDSL = tableWidgetPropertyPaneMigrations(currentDSL);
+  //   currentDSL.version = 7;
+  // }
 
   return currentDSL;
 };

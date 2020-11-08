@@ -13,7 +13,7 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
-import { Skin } from "constants/DefaultTheme";
+import { Skin, createGlobalStyle } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 
@@ -94,53 +94,44 @@ export const StyledDropDownContainer = styled.div`
       }
     }
   }
-  &&&& .${Classes.MENU_ITEM} {
-    border-radius: ${props => props.theme.radii[1]}px;
-    &:hover {
-      background: ${Colors.POLAR};
-    }
-    &.${Classes.ACTIVE} {
-      background: ${Colors.POLAR};
-      color: ${props => props.theme.colors.textDefault};
-      position: relative;
-      &.single-select {
-        &:before {
-          left: 0;
-          top: -2px;
-          position: absolute;
-          content: "";
-          background: ${props => props.theme.colors.primaryOld};
-          border-radius: 4px 0 0 4px;
-          width: 4px;
-          height: 100%;
-        }
-      }
-    }
-  }
-  && .${Classes.POPOVER} {
+  width: 100%;
+`;
+
+export const DropdownStyles = createGlobalStyle`
+  .select-popover-wrapper {
     width: 100%;
     border-radius: ${props => props.theme.radii[1]}px;
-    box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
+    box-shadow:  0px 2px 4px rgba(67, 70, 74, 0.14);
     padding: ${props => props.theme.spaces[3]}px;
     background: white;
-  }
-
-  &&&& .${Classes.POPOVER_CONTENT} {
-    box-shadow: none;
-  }
-
-  && .${Classes.POPOVER_WRAPPER} {
-    .${Classes.OVERLAY} {
-      .${Classes.TRANSITION_CONTAINER} {
-        width: 100%;
-      }
+    && .${Classes.MENU} {
+      max-width: 100%;
+      max-height: auto;
     }
+    &&&& .${Classes.MENU_ITEM} {
+      border-radius: ${props => props.theme.radii[1]}px;
+      &:hover {
+        background: ${Colors.POLAR};
+      }
+      &.${Classes.ACTIVE} {
+        background: ${Colors.POLAR};
+        color: ${props => props.theme.colors.textDefault};
+        position: relative;
+        &.single-select {
+          &:before {
+            left: 0;
+            top: -2px;
+            position: absolute;
+            content: "";
+            background: ${props => props.theme.colors.primaryOld};
+            border-radius: 4px 0 0 4px;
+            width: 4px;
+            height: 100%;
+          }
+        }
+      }
+    }    
   }
-  && .${Classes.MENU} {
-    max-width: 100%;
-    max-height: auto;
-  }
-  width: 100%;
 `;
 
 export const StyledMenu = styled(Menu)`

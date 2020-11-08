@@ -468,6 +468,7 @@ export const renderCell = (
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
   buttonProperties?: ButtonProperties,
+  isSelected?: boolean,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -526,7 +527,7 @@ export const renderCell = (
     default:
       if (columnType === "button" && buttonProperties) {
         const buttonProps = {
-          isSelected: !!buttonProperties.isSelected,
+          isSelected: !!isSelected,
           onCommandClick: buttonProperties.onCommandClick,
           intent: buttonProperties.buttonStyle,
           columnActions: [
