@@ -379,8 +379,9 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
                 .flatMap(organization -> {
                     final String prevAssetId = organization.getLogoAssetId();
-                    if(prevAssetId == null)
+                    if(prevAssetId == null) {
                         return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ASSET, prevAssetId));
+                    }
                     organization.setLogoAssetId(null);
                     return assetRepository.findById(prevAssetId)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ASSET, prevAssetId)))
