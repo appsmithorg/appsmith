@@ -109,6 +109,7 @@ const ToastComponent = (props: ToastProps) => {
       variant={props.variant || Variant.info}
       onUndo={props.onUndo}
       dispatchableAction={props.dispatchableAction}
+      className="t--toast-action"
     >
       {props.variant === Variant.success ? (
         <Icon name="success" size={IconSize.LARGE} />
