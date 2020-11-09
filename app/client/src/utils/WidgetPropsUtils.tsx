@@ -22,6 +22,16 @@ import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { isString } from "lodash";
 import log from "loglevel";
+import {
+  ColumnTypes,
+  CellAlignmentTypes,
+  VerticalAlignmentTypes,
+  FontStyleTypes,
+  TextSizes,
+  ColumnProperties,
+} from "widgets/TableWidget";
+import { Colors } from "constants/Colors";
+import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -232,6 +242,64 @@ const tableWidgetPropertyPaneMigrations = (
 ) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (children.type === WidgetTypes.TABLE_WIDGET) {
+      const primaryColumns = children.columnOrder || [];
+      const hiddenColumns = children.hiddenColumns || [];
+      const columnNameMap = children.columnNameMap;
+      const columnSizeMap = children.columnSizeMap;
+      const columnTypeMap = children.columnTypeMap;
+      children.primaryColumns = primaryColumns.map(
+        (accessor: string, index: number) => {
+          const column: ColumnProperties = {
+            index: index,
+            width:
+              columnSizeMap && columnSizeMap[accessor]
+                ? columnSizeMap[accessor]
+                : 150,
+            id: accessor,
+            horizontalAlignment: CellAlignmentTypes.LEFT,
+            verticalAlignment: VerticalAlignmentTypes.CENTER,
+            columnType:
+              columnTypeMap && columnTypeMap[accessor]
+                ? columnTypeMap[accessor].type
+                : ColumnTypes.TEXT,
+            textColor: Colors.BLUE_BAYOUX,
+            textSize: TextSizes.PARAGRAPH,
+            fontStyle: FontStyleTypes.NORMAL,
+            enableFilter: true,
+            enableSort: true,
+            isVisible: hiddenColumns.includes(accessor) ? false : true,
+            isDerived: false,
+            label:
+              columnNameMap && columnNameMap[accessor]
+                ? columnNameMap[accessor]
+                : accessor,
+            computedValue: "",
+          };
+          if (columnTypeMap && columnTypeMap[accessor]) {
+            column.format = {
+              output: columnTypeMap[accessor].format || "",
+              input: columnTypeMap[accessor].inputFormat || "",
+            };
+          }
+          return column;
+        },
+      );
+      const derivedColumns = children.columnActions || [];
+      children.derivedColumns = derivedColumns.map(
+        (action: ColumnAction, index: number) => {
+          return {
+            index: index,
+            width: 150,
+            id: action.id,
+            columnType: "button",
+            isVisible: true,
+            isDerived: true,
+            buttonLabel: action.label,
+            buttonStyle: "PRIMARY_BUTTON",
+            buttonOnClick: action.dynamicTrigger,
+          };
+        },
+      );
     }
     return children;
   });
