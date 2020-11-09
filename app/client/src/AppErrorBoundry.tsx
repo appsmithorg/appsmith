@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import AppCrashImage from "assets/images/404-image.png";
 import * as Sentry from "@sentry/react";
+import log from "loglevel";
 
 const Wrapper = styled.div`
   display: flex;
@@ -39,7 +40,7 @@ class AppErrorBoundary extends Component {
   };
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error({ error, errorInfo });
+    log.error({ error, errorInfo });
     Sentry.captureException(error);
     this.setState({
       hasError: true,
@@ -53,7 +54,10 @@ class AppErrorBoundary extends Component {
           <img src={AppCrashImage} alt="App crashed" />
           <div>
             <p className="bold-text">Oops! Something went wrong</p>
-            <p>Please retry and contact us if this happens again</p>
+            <p>
+              Please try again using the button below. <br />
+              If the issue persists, please contact us
+            </p>
             <RetryButton onClick={() => window.location.reload()}>
               {"Retry"}
             </RetryButton>
