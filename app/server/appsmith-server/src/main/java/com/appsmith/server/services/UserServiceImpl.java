@@ -458,10 +458,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     final String templateOrganizationId = tuple.getT2();
 
                     if (!StringUtils.hasText(templateOrganizationId)) {
-                        // Since template organization is not configured, we create an empty personal organization.
+                        // Since template organization is not configured, we create an empty default organization.
                         final User savedUser = tuple.getT1();
-                        log.debug("Creating blank personal organization for user '{}'.", savedUser.getEmail());
-                        return organizationService.createPersonal(new Organization(), savedUser);
+                        log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
+                        return organizationService.createDefault(new Organization(), savedUser);
                     }
 
                     return Mono.empty();
@@ -472,8 +472,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     /**
      * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
-     * platform. This flow also ensures that a personal workspace name is created for the user. The new user is then
-     * given admin permissions to the personal workspace.
+     * platform. This flow also ensures that a default organization name is created for the user. The new user is then
+     * given admin permissions to the default organization.
      * <p>
      * For new user invite flow, please {@link UserService#inviteUser(InviteUsersDTO, String)}
      *
@@ -694,7 +694,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // user was invited.
         newUser.setInviteToken(UUID.randomUUID().toString());
 
-        // Call user service's userCreate function so that the personal organization, etc are also created along with assigning basic permissions.
+        // Call user service's userCreate function so that the default organization, etc are also created along with assigning basic permissions.
         return userCreate(newUser)
                 .flatMap(createdUser -> {
                     log.debug("Going to send email for invite user to {}", createdUser.getEmail());
