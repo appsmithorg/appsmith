@@ -126,7 +126,7 @@ public class ExamplesOrganizationCloner {
                         organization.getUserRoles().clear();
                     }
                     organization.setSlug(null);
-                    return organizationService.createPersonal(organization, user);
+                    return organizationService.createDefault(organization, user);
                 })
                 .flatMap(newOrganization -> {
                     User userUpdate = new User();

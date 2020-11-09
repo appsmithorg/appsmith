@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Icon, NumericInput } from "@blueprintjs/core";
 import {
@@ -21,6 +21,7 @@ import {
 import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
 import TableCompactMode from "components/designSystems/appsmith/TableCompactMode";
 import { Colors } from "constants/Colors";
+import { EventType } from "constants/ActionConstants";
 
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
@@ -42,22 +43,39 @@ const PageNumberInputWrapper = styled(NumericInput)`
 const PageNumberInput = (props: {
   pageNo: number;
   pageCount: number;
-  updatePageNo: (pageNo: number) => void;
+  updatePageNo: (pageNo: number, event?: EventType) => void;
 }) => {
+  const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
+  useEffect(() => {
+    setPageNumber(props.pageNo || 0);
+  }, [props.pageNo]);
   return (
     <PageNumberInputWrapper
-      value={props.pageNo || 0}
+      value={pageNumber}
       min={1}
       max={props.pageCount || 1}
       buttonPosition="none"
       clampValueOnBlur={true}
+      onBlur={(e: any) => {
+        const oldPageNo = Number(props.pageNo || 0);
+        const value = e.target.value;
+        let page = Number(value);
+        if (isNaN(value) || Number(value) < 1) {
+          page = 1;
+        }
+        if (oldPageNo < page) {
+          props.updatePageNo(page, EventType.ON_NEXT_PAGE);
+        } else if (oldPageNo > page) {
+          props.updatePageNo(page, EventType.ON_PREV_PAGE);
+        }
+      }}
       onValueChange={(value: number) => {
         if (isNaN(value) || value < 1) {
-          props.updatePageNo(1);
+          setPageNumber(1);
         } else if (value > props.pageCount) {
-          props.updatePageNo(props.pageCount);
+          setPageNumber(props.pageCount);
         } else {
-          props.updatePageNo(value);
+          setPageNumber(value);
         }
       }}
     />
@@ -65,7 +83,7 @@ const PageNumberInput = (props: {
 };
 
 interface TableHeaderProps {
-  updatePageNo: (pageNo: number) => void;
+  updatePageNo: (pageNo: number, event?: EventType) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
@@ -163,7 +181,7 @@ const TableHeader = (props: TableHeaderProps) => {
             onClick={() => {
               const pageNo =
                 props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
-              props.updatePageNo(pageNo + 1);
+              props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
             }}
           >
             <Icon icon="chevron-left" iconSize={16} color={Colors.HIT_GRAY} />
@@ -185,7 +203,7 @@ const TableHeader = (props: TableHeaderProps) => {
                 props.currentPageIndex < props.pageCount - 1
                   ? props.currentPageIndex + 1
                   : 0;
-              props.updatePageNo(pageNo + 1);
+              props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
             }}
           >
             <Icon icon="chevron-right" iconSize={16} color={Colors.HIT_GRAY} />

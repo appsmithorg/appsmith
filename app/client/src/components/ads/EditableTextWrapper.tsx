@@ -13,15 +13,40 @@ const Container = styled.div<{
   savingState: SavingState;
   isInvalid: boolean;
 }>`
+  .editable-text-container {
+    justify-content: center;
+  }
+
   &&& .${Classes.EDITABLE_TEXT}, .icon-wrapper {
     padding: 5px 10px;
     height: 25px;
-    text-decoration: ${props => (props.isEditing ? "unset" : "underline")};
     background-color: ${props =>
       (props.isInvalid && props.isEditing) ||
       props.savingState === SavingState.ERROR
         ? props.theme.colors.editableText.dangerBg
         : "transparent"};
+  }
+
+  &&&& .${Classes.EDITABLE_TEXT} {
+    ${props =>
+      !props.isEditing
+        ? `
+      padding-left: 0px;
+      padding-right: 0px;
+      border-bottom-style: solid; 
+      border-bottom-width: 1px;
+      width: fit-content;
+    `
+        : null}
+  }
+
+  &&&& .${Classes.EDITABLE_TEXT_CONTENT} {
+    ${props =>
+      !props.isEditing
+        ? `
+        min-width: 0px !important;
+    `
+        : null}
   }
 
   &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
