@@ -1,6 +1,6 @@
 import React from "react";
 
-import { saveOrg, uploadOrgLogo } from "actions/orgActions";
+import { deleteOrgLogo, saveOrg, uploadOrgLogo } from "actions/orgActions";
 import { SaveOrgRequest } from "api/OrgApi";
 import { debounce } from "lodash";
 import TextInput, {
@@ -111,6 +111,10 @@ export function GeneralSettings() {
     );
   };
 
+  const DeleteLogo = () => {
+    dispatch(deleteOrgLogo(orgId));
+  };
+
   return (
     <>
       <SettingsHeading type={TextType.H2}>General</SettingsHeading>
@@ -141,6 +145,7 @@ export function GeneralSettings() {
           <FilePicker
             url={currentOrg.logoUrl}
             fileUploader={FileUploader}
+            onFileRemoved={DeleteLogo}
             logoUploadError={logoUploadError.message}
           />
         )}

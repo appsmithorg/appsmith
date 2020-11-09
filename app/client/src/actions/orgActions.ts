@@ -73,3 +73,12 @@ export const uploadOrgLogo = (orgLogo: SaveOrgLogo) => {
     payload: orgLogo,
   };
 };
+
+export const deleteOrgLogo = (id: string) => {
+  return {
+    type: ReduxActionTypes.REMOVE_ORG_LOGO,
+    payload: {
+      id: id,
+    },
+  };
+};

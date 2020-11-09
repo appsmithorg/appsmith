@@ -14,7 +14,7 @@ const CLOUDINARY_CLOUD_NAME = "";
 
 type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
-  onFileRemoved?: (file: any) => void;
+  onFileRemoved?: () => void;
   fileUploader?: FileUploader;
   url?: string;
   logoUploadError?: string;
@@ -193,7 +193,9 @@ const FilePickerComponent = (props: FilePickerProps) => {
   function onDrop(monitor: DropTargetMonitor) {
     if (monitor) {
       const files = monitor.getItem().files;
-      handleFileUpload(files);
+      if (files) {
+        handleFileUpload(files);
+      }
     }
   }
 
@@ -253,7 +255,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
       fileContainerRef.current.style.display = "flex";
       bgRef.current.style.backgroundImage = "url('')";
       setIsUploaded(false);
-      // props.onFileRemoved();
+      props.onFileRemoved && props.onFileRemoved();
     }
   }
 
@@ -303,6 +305,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
               id="fileInput"
               multiple={false}
               ref={inputRef}
+              accept=".jpeg,.png,.svg"
               onChange={el => handleFileUpload(el.target.files)}
             />
             <Button

@@ -124,5 +124,8 @@ class OrgApi extends Api {
       },
     );
   }
+  static deleteOrgLogo(request: { id: string }): AxiosPromise<ApiResponse> {
+    return Api.delete(OrgApi.orgsURL + "/" + request.id + "/logo");
+  }
 }
 export default OrgApi;
