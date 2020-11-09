@@ -19,6 +19,10 @@ import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
+import {
+  isPathADynamicProperty,
+  isPathADynamicTrigger,
+} from "../../../utils/DynamicBindingUtils";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -142,10 +146,7 @@ const PropertyControl = (props: Props) => {
         propertyName
       ] as any,
     };
-    if (
-      widgetProperties.dynamicTriggers &&
-      widgetProperties.dynamicTriggers[propertyName]
-    ) {
+    if (isPathADynamicTrigger(widgetProperties, propertyName)) {
       config.isValid = true;
       config.validationMessage = "";
       delete config.dataTreePath;
@@ -153,10 +154,10 @@ const PropertyControl = (props: Props) => {
       delete config.expected;
     }
 
-    const isDynamic = widgetProperties.dynamicProperties
-      ? !!widgetProperties.dynamicProperties[`${propertyName}`]
-      : false;
-
+    const isDynamic: boolean = isPathADynamicProperty(
+      widgetProperties,
+      propertyName,
+    );
     const isConvertible = !!props.isJSConvertible;
     const className = props.label
       .split(" ")

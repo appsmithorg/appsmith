@@ -119,7 +119,10 @@
       enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__").length > 0,
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__").length > 0,
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__").length > 0,
-      segment: parseConfig("__APPSMITH_SEGMENT_KEY__"),
+      segment: {
+        apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
+        ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),
+      },
       optimizely: parseConfig("__APPSMITH_OPTIMIZELY_KEY__"),
       enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__").length > 0,
       algolia: {
@@ -137,6 +140,7 @@
       },
       intercomAppID: parseConfig("__APPSMITH_INTERCOM_APP_ID__"),
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__").length > 0,
+      disableTelemetry: parseConfig("__APPSMITH_DISABLE_TELEMETRY__").toLowerCase() === 'true' ,
     };
 
   </script>

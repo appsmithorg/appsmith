@@ -73,8 +73,10 @@ jobs:
     - name: Run the jest tests
       run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
+    # We burn React environment & the Segment analytics key into the build itself.
+    # This is to ensure that we don't need to configure it in each installation
     - name: Create the bundle
-      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn build
+      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} yarn build
 
     # Upload the build artifact so that it can be used by the test & deploy job in the workflow
     - name: Upload react build bundle
@@ -198,7 +200,7 @@ jobs:
         
     - name: Run the cypress test
       uses: cypress-io/github-action@v2
-      env: 
+      env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -220,6 +222,7 @@ jobs:
         working-directory: app/client
         # tag will be either "push" or "pull_request_target"
         tag: ${{ github.event_name }}
+        env: 'NODE_ENV=development'
 
     # Upload the screenshots as artifacts if there's a failure
     - uses: actions/upload-artifact@v1

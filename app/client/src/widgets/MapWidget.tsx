@@ -172,6 +172,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     );
   };
 
+  unselectMarker = () => {
+    this.props.updateWidgetMetaProperty("selectedMarker", undefined);
+  };
+
   onMarkerClick = (lat: number, long: number, title: string) => {
     this.disableDrag(true);
     const selectedMarker = {
@@ -224,6 +228,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             saveMarker={this.onCreateMarker}
             updateMarker={this.updateMarker}
             selectMarker={this.onMarkerClick}
+            unselectMarker={this.unselectMarker}
             markers={this.props.markers || []}
             disableDrag={() => {
               this.disableDrag(false);

@@ -79,7 +79,11 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
         canExtend: false,
         isVisible: true,
       };
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       delete canvas.dynamicBindings;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       delete canvas.dynamicProperties;
       if (canvas.children && canvas.children.length > 0)
         canvas.children = canvas.children.map(updateContainers);
@@ -305,6 +309,34 @@ const tableWidgetPropertyPaneMigrations = (
   });
   return currentDSL;
 };
+
+const dynamicPathListMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(dynamicPathListMigration);
+  }
+  if (currentDSL.dynamicBindings) {
+    currentDSL.dynamicBindingPathList = Object.keys(
+      currentDSL.dynamicBindings,
+    ).map(path => ({ key: path }));
+    delete currentDSL.dynamicBindings;
+  }
+  if (currentDSL.dynamicTriggers) {
+    currentDSL.dynamicTriggerPathList = Object.keys(
+      currentDSL.dynamicTriggers,
+    ).map(path => ({ key: path }));
+    delete currentDSL.dynamicTriggers;
+  }
+  if (currentDSL.dynamicProperties) {
+    currentDSL.dynamicPropertyPathList = Object.keys(
+      currentDSL.dynamicProperties,
+    ).map(path => ({ key: path }));
+    delete currentDSL.dynamicProperties;
+  }
+  return currentDSL;
+};
+
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
@@ -351,6 +383,10 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 5) {
     currentDSL = tabsWidgetTabsPropertyMigration(currentDSL);
     currentDSL.version = 6;
+  }
+  if (currentDSL.version === 6) {
+    currentDSL = dynamicPathListMigration(currentDSL);
+    currentDSL.version = 7;
   }
 
   // if (currentDSL.version === 6) {
