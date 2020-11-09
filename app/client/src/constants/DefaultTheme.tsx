@@ -693,6 +693,15 @@ type ColorType = {
   formFooter: {
     cancelBtn: ShadeColor;
   };
+  toast: {
+    undo: string;
+    warningColor: string;
+    warningBg: string;
+    dangerColor: string;
+    dangerBg: string;
+    infoColor: string;
+    infoBg: ShadeColor;
+  };
 };
 
 export const dark: ColorType = {
@@ -962,6 +971,15 @@ export const dark: ColorType = {
   },
   formFooter: {
     cancelBtn: darkShades[9],
+  },
+  toast: {
+    undo: "#CB4810",
+    warningColor: "#E0B30E",
+    warningBg: "#29251A",
+    dangerColor: "#E22C2C",
+    dangerBg: "rgba(226, 44, 44, 0.08)",
+    infoColor: "#090707",
+    infoBg: darkShades[8],
   },
 };
 
@@ -1233,6 +1251,15 @@ export const light: ColorType = {
   formFooter: {
     cancelBtn: lightShades[9],
   },
+  toast: {
+    undo: "#F86A2B",
+    warningColor: "#DCAD00",
+    warningBg: "#FAF6E6",
+    dangerColor: "#F22B2B",
+    dangerBg: "rgba(242, 43, 43, 0.06)",
+    infoColor: "#F7F7F7",
+    infoBg: lightShades[10],
+  },
 };
 
 export const theme: Theme = {
@@ -1335,26 +1362,6 @@ export const theme: Theme = {
   },
   drawerWidth: "80%",
   colors: {
-    toast: {
-      dark: {
-        undo: "#CB4810",
-        warningColor: "#E0B30E",
-        warningBg: "#29251A",
-        dangerColor: "#E22C2C",
-        dangerBg: "rgba(226, 44, 44, 0.08)",
-        infoColor: "#090707",
-        infoBg: "#E9E9E9",
-      },
-      light: {
-        undo: "#F86A2B",
-        warningColor: "#DCAD00",
-        warningBg: "#FAF6E6",
-        dangerColor: "#F22B2B",
-        dangerBg: "rgba(242, 43, 43, 0.06)",
-        infoColor: "#F7F7F7",
-        infoBg: "#090707",
-      },
-    },
     tooltip: {
       lightBg: lightShades[0],
       darkBg: lightShades[10],

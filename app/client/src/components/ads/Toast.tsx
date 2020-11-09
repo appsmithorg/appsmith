@@ -5,18 +5,18 @@ import Icon, { IconSize } from "./Icon";
 import Text, { TextType } from "./Text";
 import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-type Background = "dark" | "light";
+import { ReduxActionType } from "constants/ReduxActionConstants";
+import { useDispatch } from "react-redux";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
     text: string;
     variant?: Variant;
-    background?: Background;
     duration?: number;
     onUndo?: () => void;
-    onComplete?: Function;
     undoAction?: () => void;
+    dispatchableAction?: { type: ReduxActionType; payload: any };
+    hideProgressBar?: boolean;
   };
 
 const WrappedToastContainer = styled.div`
@@ -46,16 +46,14 @@ export const StyledToastContainer = (props: ToastOptions) => {
 const ToastBody = styled.div<{
   variant?: Variant;
   onUndo?: () => void;
-  background?: Background;
+  dispatchableAction?: { type: ReduxActionType; payload: any };
 }>`
   background: ${props =>
-    props.background
-      ? props.variant === Variant.danger
-        ? props.theme.colors.toast[props.background].dangerBg
-        : props.variant === Variant.warning
-        ? props.theme.colors.toast[props.background].warningBg
-        : props.theme.colors.toast[props.background].infoBg
-      : null};
+    props.variant === Variant.danger
+      ? props.theme.colors.toast.dangerBg
+      : props.variant === Variant.warning
+      ? props.theme.colors.toast.warningBg
+      : props.theme.colors.toast.infoBg};
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[5]}px;
   display: flex;
@@ -67,16 +65,16 @@ const ToastBody = styled.div<{
     svg {
       path {
         fill: ${props =>
-          props.variant === Variant.warning && props.background
-            ? props.theme.colors.toast[props.background].warningColor
-            : props.variant === Variant.danger && props.background
+          props.variant === Variant.warning
+            ? props.theme.colors.toast.warningColor
+            : props.variant === Variant.danger
             ? "#FFFFFF"
-            : props.theme.colors.blackShades[6]};
+            : "#9F9F9F"};
       }
       rect {
         ${props =>
-          props.variant === Variant.danger && props.background
-            ? `fill: ${props.theme.colors.toast[props.background].dangerColor}`
+          props.variant === Variant.danger
+            ? `fill: ${props.theme.colors.toast.dangerColor}`
             : null};
       }
     }
@@ -84,33 +82,33 @@ const ToastBody = styled.div<{
 
   .${Classes.TEXT} {
     color: ${props =>
-      props.background
-        ? props.variant === Variant.danger
-          ? props.theme.colors.toast[props.background].dangerColor
-          : props.variant === Variant.warning
-          ? props.theme.colors.toast[props.background].warningColor
-          : props.theme.colors.toast[props.background].infoColor
-        : null};
+      props.variant === Variant.danger
+        ? props.theme.colors.toast.dangerColor
+        : props.variant === Variant.warning
+        ? props.theme.colors.toast.warningColor
+        : props.theme.colors.toast.infoColor};
   }
 
   ${props =>
-    props.onUndo && props.background
+    props.onUndo || props.dispatchableAction
       ? `
     .${Classes.TEXT}:last-child {
       cursor: pointer;
       margin-left: ${props.theme.spaces[3]}px;
-      color: ${props.theme.colors.toast[props.background].undo};
+      color: ${props.theme.colors.toast.undo};
     }
     `
       : null}
 `;
 
 const ToastComponent = (props: ToastProps) => {
+  const dispatch = useDispatch();
+
   return (
     <ToastBody
       variant={props.variant || Variant.info}
       onUndo={props.onUndo}
-      background={props.background || "light"}
+      dispatchableAction={props.dispatchableAction}
     >
       {props.variant === Variant.success ? (
         <Icon name="success" size={IconSize.LARGE} />
@@ -121,10 +119,17 @@ const ToastComponent = (props: ToastProps) => {
         <Icon name="error" size={IconSize.LARGE} />
       ) : null}
       <Text type={TextType.P1}>{props.text}</Text>
-      {props.onUndo ? (
+      {props.onUndo || props.dispatchableAction ? (
         <Text
           type={TextType.H6}
-          onClick={() => props.undoAction && props.undoAction()}
+          onClick={() => {
+            if (props.dispatchableAction) {
+              dispatch(props.dispatchableAction);
+              props.undoAction && props.undoAction();
+            } else {
+              props.undoAction && props.undoAction();
+            }
+          }}
         >
           UNDO
         </Text>
@@ -147,6 +152,7 @@ export const Toaster = {
         pauseOnHover: true,
         autoClose: config.duration || 5000,
         closeOnClick: false,
+        hideProgressBar: config.hideProgressBar,
       },
     );
   },

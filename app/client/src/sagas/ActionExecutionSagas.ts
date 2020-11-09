@@ -27,10 +27,7 @@ import {
   ActionDescription,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
-import {
-  AppToaster,
-  ToastTypeOptions,
-} from "components/editorComponents/ToastComponent";
+import { ToastTypeOptions } from "components/editorComponents/ToastComponent";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
@@ -192,9 +189,21 @@ function* showAlertSaga(
     if (event.callback) event.callback({ success: false });
     return;
   }
-  AppToaster.show({
-    message: payload.message,
-    type: payload.style,
+  let variant = Variant.info;
+  switch (payload.style) {
+    case "error":
+      variant = Variant.danger;
+      break;
+    case "warning":
+      variant = Variant.warning;
+      break;
+    default:
+      variant = Variant.success;
+      break;
+  }
+  Toaster.show({
+    text: payload.message,
+    variant: variant,
   });
   if (event.callback) event.callback({ success: true });
 }
