@@ -171,8 +171,14 @@ export const EditorWrapper = styled.div<{
     }
     .CodeMirror-matchingbracket { 
       text-decoration: none; 
-      color: #11f53f !important;
-      background-color: rgba(255, 255, 255, 0.5);
+      color: ${props =>
+        props.editorTheme === EditorTheme.DARK
+          ? "#000000"
+          : "#FFFFFF"} !important;
+      background-color: ${props =>
+        props.editorTheme === EditorTheme.DARK
+          ? "rgba(255, 255, 255, 0.5)"
+          : "rgba(0, 0, 0, 0.5)"};
     }
     .datasource-highlight {
       background-color: rgba(104, 113, 239, 0.1);
