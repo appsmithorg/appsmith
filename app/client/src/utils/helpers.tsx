@@ -136,3 +136,16 @@ export const trimTrailingSlash = (path: string) => {
   const trailingUrlRegex = /\/+$/;
   return path.replace(trailingUrlRegex, "");
 };
+
+/**
+ * checks if ellipsis is active on the DOM element
+ *
+ * @param element
+ */
+export const isEllipsisActive = (element: HTMLElement | null) => {
+  return (
+    element &&
+    (element.offsetWidth < element.scrollWidth ||
+      element.offsetHeight < element.scrollHeight)
+  );
+};
