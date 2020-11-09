@@ -17,6 +17,7 @@ import { setThemeMode } from "actions/themeActions";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { StyledToastContainer } from "components/ads/Toast";
 
+import AppErrorBoundary from "./AppErrorBoundry";
 appInitializer();
 
 const App = () => {
@@ -51,7 +52,9 @@ class ThemedApp extends React.Component<{
           closeButton={false}
           pauseOnHover={false}
         />
-        <AppRouter />
+        <AppErrorBoundary>
+          <AppRouter />
+        </AppErrorBoundary>
       </ThemeProvider>
     );
   }
