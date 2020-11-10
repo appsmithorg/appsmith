@@ -5,7 +5,7 @@ type ToastProps = CommonComponentProps & {
   duration: number;
   variant?: "success" | "info" | "warning" | "danger"; //default info
   keepOnHover?: boolean;
-  onComplete?: Function;
+  onComplete?: any;
   position:
     | "top-right"
     | "top-center"

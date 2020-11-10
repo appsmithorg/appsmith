@@ -9,7 +9,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
-import { getDefaultPageId } from "sagas/SagaUtils";
 import { getApplicationViewerPageURL } from "constants/routes";
 import OrgInviteUsersForm from "./OrgInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -42,6 +41,7 @@ const AppInviteUsersForm = (props: any) => {
     applicationId,
     fetchCurrentOrg,
     currentUser,
+    defaultPageId,
   } = props;
 
   const currentOrg = useSelector((state: AppState) =>
@@ -59,7 +59,6 @@ const AppInviteUsersForm = (props: any) => {
   );
 
   const getViewApplicationURL = () => {
-    const defaultPageId = getDefaultPageId(currentApplicationDetails.pages);
     const appViewEndPoint = getApplicationViewerPageURL(
       applicationId,
       defaultPageId,
@@ -116,6 +115,7 @@ export default connect(
     return {
       currentUser: getCurrentUser(state),
       currentApplicationDetails: state.ui.applications.currentApplication,
+      defaultPageId: state.entities.pageList.defaultPageId,
       isFetchingApplication: state.ui.applications.isFetchingApplication,
       isChangingViewAccess: state.ui.applications.isChangingViewAccess,
     };

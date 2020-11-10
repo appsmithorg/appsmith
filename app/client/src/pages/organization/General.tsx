@@ -81,7 +81,7 @@ export function GeneralSettings() {
       <SettingsHeading type={TextType.H2}>General</SettingsHeading>
       <SettingWrapper>
         <InputLabelWrapper>
-          <Text type={TextType.H4}>Workspace</Text>
+          <Text type={TextType.H4}>Organization Name</Text>
         </InputLabelWrapper>
         {isFetchingApplications && (
           <Loader className={Classes.SKELETON}></Loader>

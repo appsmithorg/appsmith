@@ -24,7 +24,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
@@ -57,6 +56,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -66,7 +66,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 @Service
@@ -547,6 +546,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                         .then(executionMono);
                             })
                             .timeout(Duration.ofMillis(timeoutDuration))
+                            .onErrorMap(TimeoutException.class,
+                                    error -> new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_TIMEOUT_ERROR,
+                                            action.getName(), timeoutDuration
+                                    )
+                            )
                             .onErrorMap(
                                     StaleConnectionException.class,
                                     error -> new AppsmithPluginException(
@@ -727,14 +732,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
-        Sort sort = Sort.by(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.name));
 
         if (applicationId == null || applicationId.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
         // fetch the published actions by applicationId
-        return findAllByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS, sort)
+        // No need to sort the results
+        return findAllByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS, null)
                 .map(action -> {
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
                     actionViewDTO.setId(action.getId());
@@ -783,7 +788,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params) {
         String name = null;
         List<String> pageIds = new ArrayList<>();
-        Sort sort = Sort.by(FieldName.NAME);
+
+        // In the edit mode, the actions should be displayed in the order they were created.
+        Sort sort = Sort.by(FieldName.CREATED_AT);
 
         if (params.getFirst(FieldName.NAME) != null) {
             name = params.getFirst(FieldName.NAME);

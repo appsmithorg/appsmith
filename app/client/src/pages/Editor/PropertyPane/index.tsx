@@ -219,11 +219,12 @@ class PropertyPane extends Component<
   }
 
   onPropertyChange(propertyName: string, propertyValue: any) {
-    this.props.updateWidgetProperty(
-      this.props.widgetId,
-      propertyName,
-      propertyValue,
-    );
+    this.props.widgetId &&
+      this.props.updateWidgetProperty(
+        this.props.widgetId,
+        propertyName,
+        propertyValue,
+      );
     if (this.props.widgetProperties) {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: this.props.widgetProperties.type,
@@ -285,7 +286,11 @@ export interface PropertyPaneFunctions {
     propertyName: string,
     isDynamic: boolean,
   ) => void;
-  updateWidgetProperty: Function;
+  updateWidgetProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
   hidePropertyPane: () => void;
 }
 

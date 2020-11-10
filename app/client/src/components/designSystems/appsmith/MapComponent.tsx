@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   withScriptjs,
   withGoogleMap,
@@ -35,6 +35,7 @@ interface MapComponentProps {
   saveMarker: (lat: number, long: number) => void;
   selectMarker: (lat: number, long: number, title: string) => void;
   disableDrag: (e: any) => void;
+  unselectMarker: () => void;
 }
 
 const MapWrapper = styled.div`
@@ -73,88 +74,111 @@ const PickMyLocationWrapper = styled.div<PickMyLocationProps>`
 `;
 
 const MyMapComponent = withScriptjs(
-  withGoogleMap((props: any) => (
-    <GoogleMap
-      options={{
-        zoomControl: props.allowZoom,
-        fullscreenControl: false,
-        mapTypeControl: false,
-        scrollwheel: false,
-        rotateControl: false,
-        streetViewControl: false,
-      }}
-      zoom={props.zoom}
-      center={{ ...props.center, lng: props.center.long }}
-      onClick={e => {
-        if (props.enableCreateMarker) {
-          props.saveMarker(e.latLng.lat(), e.latLng.lng());
+  withGoogleMap((props: any) => {
+    const [mapCenter, setMapCenter] = React.useState<
+      | {
+          lat: number;
+          lng: number;
+          title?: string;
+          description?: string;
         }
-      }}
-    >
-      {props.enableSearch && (
-        <SearchBox
-          controlPosition={2}
-          onPlacesChanged={props.onPlacesChanged}
-          ref={props.onSearchBoxMounted}
-        >
-          <StyledInput type="text" placeholder="Enter location to search" />
-        </SearchBox>
-      )}
-      {props.markers.map((marker: any, index: number) => (
-        <Marker
-          key={index}
-          title={marker.title}
-          position={{ lat: marker.lat, lng: marker.long }}
-          clickable
-          draggable={
-            props.selectedMarker &&
-            props.selectedMarker.lat === marker.lat &&
-            props.selectedMarker.long === marker.long
+      | undefined
+    >({
+      ...props.center,
+      lng: props.center.long,
+    });
+    const searchBox = React.createRef<SearchBox>();
+    const onPlacesChanged = () => {
+      const node: any = searchBox.current;
+      if (node) {
+        const places: any = node.getPlaces();
+        if (
+          places &&
+          places.length &&
+          places[0].geometry &&
+          places[0].geometry.location
+        ) {
+          const location = places[0].geometry.location;
+          const lat = location.lat();
+          const long = location.lng();
+          setMapCenter({ lat, lng: long });
+          props.updateCenter(lat, long);
+          props.unselectMarker();
+        }
+      }
+    };
+    useEffect(() => {
+      if (!props.selectedMarker) {
+        setMapCenter({
+          ...props.center,
+          lng: props.center.long,
+        });
+      }
+    }, [props.center, props.selectedMarker]);
+    return (
+      <GoogleMap
+        options={{
+          zoomControl: props.allowZoom,
+          fullscreenControl: false,
+          mapTypeControl: false,
+          scrollwheel: false,
+          rotateControl: false,
+          streetViewControl: false,
+        }}
+        zoom={props.zoom}
+        center={mapCenter}
+        onClick={e => {
+          if (props.enableCreateMarker) {
+            props.saveMarker(e.latLng.lat(), e.latLng.lng());
           }
-          onClick={e => {
-            props.selectMarker(marker.lat, marker.long, marker.title);
-          }}
-          onDragEnd={de => {
-            props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-          }}
-        />
-      ))}
-      {props.enablePickLocation && (
-        <PickMyLocationWrapper
-          title="Pick My Location"
-          allowZoom={props.allowZoom}
-        >
-          <PickMyLocation updateCenter={props.updateCenter} />
-        </PickMyLocationWrapper>
-      )}
-    </GoogleMap>
-  )),
+        }}
+      >
+        {props.enableSearch && (
+          <SearchBox
+            controlPosition={2}
+            onPlacesChanged={onPlacesChanged}
+            ref={searchBox}
+          >
+            <StyledInput type="text" placeholder="Enter location to search" />
+          </SearchBox>
+        )}
+        {props.markers.map((marker: any, index: number) => (
+          <Marker
+            key={index}
+            title={marker.title}
+            position={{ lat: marker.lat, lng: marker.long }}
+            clickable
+            draggable={
+              props.selectedMarker &&
+              props.selectedMarker.lat === marker.lat &&
+              props.selectedMarker.long === marker.long
+            }
+            onClick={e => {
+              setMapCenter({
+                ...marker,
+                lng: marker.long,
+              });
+              props.selectMarker(marker.lat, marker.long, marker.title);
+            }}
+            onDragEnd={de => {
+              props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
+            }}
+          />
+        ))}
+        {props.enablePickLocation && (
+          <PickMyLocationWrapper
+            title="Pick My Location"
+            allowZoom={props.allowZoom}
+          >
+            <PickMyLocation updateCenter={props.updateCenter} />
+          </PickMyLocationWrapper>
+        )}
+      </GoogleMap>
+    );
+  }),
 );
 
 class MapComponent extends React.Component<MapComponentProps> {
-  private searchBox = React.createRef<SearchBox>();
-
-  onSearchBoxMounted = (ref: any) => {
-    this.searchBox = ref;
-  };
-  onPlacesChanged = () => {
-    const node: any = this.searchBox;
-    if (node) {
-      const places: any = node.getPlaces();
-      if (
-        places &&
-        places.length &&
-        places[0].geometry &&
-        places[0].geometry.location
-      ) {
-        const location = places[0].geometry.location;
-        const lat = location.lat();
-        const long = location.lng();
-        this.props.updateCenter(lat, long);
-      }
-    }
-  };
-
   render() {
     const zoom = Math.floor(this.props.zoomLevel / 5);
     return (
@@ -166,8 +190,6 @@ class MapComponent extends React.Component<MapComponentProps> {
           mapElement={<MapContainerWrapper />}
           {...this.props}
           zoom={zoom}
-          onPlacesChanged={this.onPlacesChanged}
-          onSearchBoxMounted={this.onSearchBoxMounted}
         />
       </MapWrapper>
     );

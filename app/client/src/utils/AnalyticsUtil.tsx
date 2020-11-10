@@ -5,6 +5,7 @@ import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
+import { sha256 } from "js-sha256";
 
 export type EventLocation =
   | "LIGHTNING_MENU"
@@ -98,6 +99,8 @@ function getApplicationId(location: Location) {
 }
 
 class AnalyticsUtil {
+  static cachedAnonymoustId: string;
+  static cachedUserId: string;
   static user?: User = undefined;
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -169,38 +172,59 @@ class AnalyticsUtil {
     const userData = AnalyticsUtil.user;
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
+      const { segment } = getAppsmithConfigs();
       const app = (userData.applications || []).find(
         (app: any) => app.id === appId,
       );
-      const user = {
-        userId: userData.username,
-        email: userData.email,
-        currentOrgId: userData.currentOrganizationId,
-        appId: appId,
-        appName: app ? app.name : undefined,
-      };
+      let user: any = {};
+      if (segment.enabled && segment.apiKey) {
+        user = {
+          userId: userData.username,
+          email: userData.email,
+          currentOrgId: userData.currentOrganizationId,
+          appId: appId,
+          appName: app ? app.name : undefined,
+        };
+      }
       finalEventData = {
         ...eventData,
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
     if (windowDoc.analytics) {
+      log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
     }
-    log.debug("Event fired", eventName, finalEventData);
   }
 
-  static identifyUser(userId: string, userData: User) {
-    log.debug("Identify User " + userId);
+  static identifyUser(userData: User) {
+    const { segment, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
-    AnalyticsUtil.user = userData;
+    const userId = userData.username;
     FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
-      windowDoc.analytics.identify(userId, {
-        email: userData.email,
-        name: userData.name,
-        userId: userId,
-      });
+      // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
+      if (segment.apiKey) {
+        const userProperties = {
+          email: userData.email,
+          name: userData.name,
+          userId: userId,
+        };
+        AnalyticsUtil.user = userData;
+        log.debug("Identify User " + userId);
+        windowDoc.analytics.identify(userId, userProperties);
+      } else if (segment.ceKey) {
+        // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
+        // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
+        if (userId !== AnalyticsUtil.cachedUserId) {
+          AnalyticsUtil.cachedAnonymoustId = sha256(userId);
+          AnalyticsUtil.cachedUserId = userId;
+        }
+        log.debug(
+          "Identify Anonymous User " + AnalyticsUtil.cachedAnonymoustId,
+        );
+        windowDoc.analytics.identify(AnalyticsUtil.cachedAnonymoustId);
+      }
     }
     Sentry.configureScope(function(scope) {
       scope.setUser({
@@ -209,7 +233,7 @@ class AnalyticsUtil {
         email: userData.email,
       });
     });
-    const { smartLook } = getAppsmithConfigs();
+
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
     }
