@@ -17,7 +17,8 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     font-size: 90%;
     font-family: monospace;
     max-height: 20em;
-    width: 250px;
+    max-width: 350px;
+    min-width: 250px;
     overflow-y: auto;
     background: ${props =>
       props.editorTheme === EditorTheme.DARK ? "#090A0F" : "#ffffff"};
@@ -36,6 +37,7 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     display: flex;
     align-items: center;
     font-size: 13px;
+    padding: 10px;
   }
 
   li.CodeMirror-hint-active {

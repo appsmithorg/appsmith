@@ -76,6 +76,7 @@ export type EditorStyleProps = {
 export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
+    onCursorActivity?: (instance: any) => void;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -138,6 +139,7 @@ class CodeEditor extends Component<Props, State> {
       this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
       this.editor.on("blur", this.handleEditorBlur);
+      this.editor.on("cursorActivity", this.handleCursorActivity);
       if (this.props.height) {
         this.editor.setSize(0, this.props.height);
       } else {
@@ -199,6 +201,12 @@ class CodeEditor extends Component<Props, State> {
       return helper(this.editor, this.props.dynamicData);
     });
   }
+
+  handleCursorActivity = (instance: any) => {
+    if (this.props.onCursorActivity) {
+      this.props.onCursorActivity(instance);
+    }
+  };
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });

@@ -116,6 +116,13 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     this.handleDatasourceUrlUpdate(datasourceUrl);
   };
 
+  handleFocus = (instance: any) => {
+    if (!instance.state.completeActive) {
+      const hinter = this.handleDatasourceHint();
+      hinter().showHint(instance);
+    }
+  };
+
   handleDatasourceHighlight = () => {
     const { datasource } = this.props;
     return (editorInstance: CodeMirror.Doc) => {
@@ -146,9 +153,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         showHint: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
           const parsed = this.parseInputValue(value);
+          // To check if input is focused
+          const cursorPosition = editor.getDoc().getCursor();
           if (
             parsed.path === "" &&
-            !!value &&
+            (!!value || !!cursorPosition.sticky) &&
             this.props.datasource &&
             !("id" in this.props.datasource)
           ) {
@@ -209,6 +218,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       marking: [bindingMarker, this.handleDatasourceHighlight()],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
+      onCursorActivity: this.handleFocus,
     };
     if (datasource && !("id" in datasource) && !!displayValue) {
       props.rightIcon = <StoreAsDatasource />;
