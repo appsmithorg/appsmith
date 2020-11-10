@@ -71,7 +71,9 @@ describe("Update Application", function() {
 
     cy.get(homePage.applicationCard)
       .first()
-      .find(`[class^="Tooltip__TooltipWrapper"]`)
-      .should("have.length", 1);
+      .find(homePage.applicationCardName)
+      .trigger("mouseover");
+
+    cy.get(".bp3-popover-target.bp3-popover-open").should("have.length", 1);
   });
 });

@@ -535,9 +535,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
               {appNameText}
             </TooltipComponent>
           ) : (
-            <Text type={TextType.H3} cypressSelector="t--app-card-name">
-              {appNameText}
-            </Text>
+            appNameText
           )}
         </AppNameWrapper>
       </>
