@@ -300,7 +300,7 @@ const tableWidgetPropertyPaneMigrations = (
             isDerived: true,
             buttonLabel: action.label,
             buttonStyle: "PRIMARY_BUTTON",
-            buttonOnClick: action.dynamicTrigger,
+            dynamicTrigger: action.dynamicTrigger,
           };
         },
       );

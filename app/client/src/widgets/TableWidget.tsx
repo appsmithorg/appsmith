@@ -371,7 +371,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
-                      propertyName: "buttonOnClick",
+                      propertyName: "dynamicTrigger",
                       label: "onClick",
                       controlType: "ACTION_SELECTOR",
                       isJSConvertible: true,
@@ -614,7 +614,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
-                      propertyName: "buttonOnClick",
+                      propertyName: "dynamicTrigger",
                       label: "onClick",
                       controlType: "ACTION_SELECTOR",
                       isJSConvertible: true,
@@ -654,13 +654,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       {
         sectionName: "Actions",
         children: [
-          {
-            helpText:
-              "Adds a button action for every row. Reference the Table.selectedRow property in the action",
-            propertyName: "columnActions",
-            label: "Row Button",
-            controlType: "COLUMN_ACTION_SELECTOR",
-          },
           {
             helpText: "Triggers an action when a table row is selected",
             propertyName: "onRowSelected",
@@ -763,7 +756,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 ? {
                     label: columnProperties.buttonLabel,
                     id: columnProperties.id,
-                    dynamicTrigger: columnProperties.buttonOnClick,
+                    dynamicTrigger: columnProperties.dynamicTrigger,
                     buttonStyle:
                       columnProperties.buttonStyle || "PRIMARY_BUTTON",
                     onCommandClick: this.onCommandClick,
@@ -825,7 +818,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columns = columns.concat(hiddenColumns);
       }
     }
-    return columns;
+    return columns.filter((column: ReactTableColumnProps) => column.accessor);
   };
 
   transformData = (
@@ -926,14 +919,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const column: ColumnProperties = this.props.derivedColumns[i];
         const columnId = column.id;
         if (column.computedValue) {
-          const computedValues: Array<unknown> = JSON.parse(
-            column.computedValue,
-          );
-          for (let index = 0; index < computedValues.length; index++) {
-            derivedTableData[index] = {
-              ...derivedTableData[index],
-              [columnId]: computedValues[index],
-            };
+          try {
+            let computedValues: Array<unknown> = [];
+            if (isString(column.computedValue)) {
+              computedValues = JSON.parse(column.computedValue);
+            } else {
+              computedValues = column.computedValue;
+            }
+            for (let index = 0; index < computedValues.length; index++) {
+              derivedTableData[index] = {
+                ...derivedTableData[index],
+                [columnId]: computedValues[index],
+              };
+            }
+          } catch (e) {
+            console.log({ e });
           }
         }
       }
@@ -1440,7 +1440,7 @@ export interface ColumnProperties {
   computedValue: string;
   buttonLabel?: string;
   buttonStyle?: string;
-  buttonOnClick?: string;
+  dynamicTrigger?: string;
   format?: {
     input?: string;
     output: string;

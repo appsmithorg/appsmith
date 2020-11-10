@@ -132,11 +132,9 @@ export const PanelPropertiesEditor = (
         closePanel={closePanel}
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={(title: string) => {
-          if (props.panelProps) {
+          if (panelConfig.titlePropertyName) {
             props.onPropertyChange(
-              `${props.panelProps[panelConfig.panelIdPropertyName]}.${
-                panelConfig.titlePropertyName
-              }`,
+              `${panelParentPropertyPath}[${currentIndex}].${panelConfig.titlePropertyName}`,
               title,
             );
           }
