@@ -44,15 +44,10 @@ export const transformRestAction = (data: any): any => {
         contentType = contentTypeHeader.value;
       }
     }
-    let body: any = "";
 
-    if (
-      contentType !== POST_BODY_FORMAT_OPTIONS[1].value &&
-      contentType !== POST_BODY_FORMAT_OPTIONS[2].value
-    ) {
-      if (action.actionConfiguration.body)
-        body = action.actionConfiguration.body || undefined;
-    }
+    let body: any = "";
+    if (action.actionConfiguration.body)
+      body = action.actionConfiguration.body || undefined;
 
     if (!_.isString(body)) body = JSON.stringify(body);
     action = {
