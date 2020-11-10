@@ -16,6 +16,7 @@ import {
 import { generatePropertyControl } from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get } from "lodash";
+import { IPanelProps } from "@blueprintjs/core";
 
 const PaneTitleWrapper = styled.div`
   align-items: center;
@@ -77,7 +78,9 @@ const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
 };
 
 export const PanelPropertiesEditor = (
-  props: PanelPropertiesEditorProps & PanelPropertiesEditorPanelProps,
+  props: PanelPropertiesEditorProps &
+    PanelPropertiesEditorPanelProps &
+    IPanelProps,
 ) => {
   const dispatch = useDispatch();
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
@@ -120,6 +123,13 @@ export const PanelPropertiesEditor = (
       );
     }
   }, [currentIndex, panelConfig, panelParentPropertyPath]);
+  const panel = useMemo(
+    () => ({
+      openPanel: props.openPanel,
+      closePanel: props.closePanel,
+    }),
+    [props.openPanel, props.closePanel],
+  );
 
   if (!widgetProperties) return null;
 
@@ -144,8 +154,8 @@ export const PanelPropertiesEditor = (
       />
       {panelConfigs &&
         generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-          ...panelProps,
-          ...widgetProperties,
+          type: widgetProperties.type,
+          panel,
         })}
     </>
   );
@@ -159,7 +169,6 @@ interface PanelPropertiesEditorProps {
 
 interface PanelPropertiesEditorPanelProps {
   panelConfig: PanelConfig;
-  closePanel: () => void;
 }
 
 interface PanelHeaderProps {

@@ -389,10 +389,10 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 7;
   }
 
-  // if (currentDSL.version === 6) {
-  //   currentDSL = tableWidgetPropertyPaneMigrations(currentDSL);
-  //   currentDSL.version = 7;
-  // }
+  if (currentDSL.version === 7) {
+    currentDSL = tableWidgetPropertyPaneMigrations(currentDSL);
+    currentDSL.version = 8;
+  }
 
   return currentDSL;
 };

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import _ from "lodash";
 import {
   ControlPropertyLabelContainer,
@@ -9,7 +9,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   setWidgetDynamicProperty,
@@ -23,15 +23,15 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "../../../utils/DynamicBindingUtils";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
-  widgetProperties: any;
 };
 
-const PropertyControl = (props: Props) => {
+const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
-  const { widgetProperties } = props;
+  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -92,15 +92,16 @@ const PropertyControl = (props: Props) => {
             panelConfig: props.panelConfig,
             onPropertyChange: onPropertyChange,
             panelParentPropertyPath: props.propertyName,
+            panel: props.panel,
           },
         });
       }
     },
-    [props.panelConfig, onPropertyChange, props.panel, props.propertyName],
+    [props.panelConfig, onPropertyChange, props.propertyName],
   );
 
   // Do not render the control if it needs to be hidden
-  if (props.hidden && props.hidden(props.widgetProperties)) {
+  if (props.hidden && props.hidden(widgetProperties)) {
     return null;
   }
 
@@ -142,7 +143,7 @@ const PropertyControl = (props: Props) => {
       widgetProperties,
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
-      expected: FIELD_EXPECTED_VALUE[props.widgetProperties.type as WidgetType][
+      expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][
         propertyName
       ] as any,
     };
@@ -203,9 +204,11 @@ const PropertyControl = (props: Props) => {
     }
   }
   return null;
-};
+});
 
-PropertyControl.whyDidYouRender = {
+PropertyControl.displayName = "PropertyControl";
+
+(PropertyControl as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };
 

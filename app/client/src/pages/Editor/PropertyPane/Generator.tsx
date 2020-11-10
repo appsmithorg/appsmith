@@ -11,9 +11,9 @@ import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 
 const getPropertyPaneConfig = (
-  props: any,
+  type: WidgetType,
 ): PropertyPaneConfig[] | undefined => {
-  return WidgetFactory.propertyPaneConfigsMap.get(props.type as WidgetType);
+  return WidgetFactory.propertyPaneConfigsMap.get(type);
 };
 
 export type PropertyControlsGeneratorProps = {
@@ -23,15 +23,11 @@ export type PropertyControlsGeneratorProps = {
 
 export const generatePropertyControl = (
   propertyPaneConfig: PropertyPaneConfig[],
-  props: any,
+  props: PropertyControlsGeneratorProps,
 ) => {
   if (!propertyPaneConfig) return null;
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
     if ((config as PropertyPaneSectionConfig).sectionName) {
-      // Do not render the section if it needs to be hidden
-      if (config.hidden && config.hidden(props)) {
-        return null;
-      }
       return (
         <PropertySection
           key={config.id}
@@ -46,7 +42,6 @@ export const generatePropertyControl = (
         <PropertyControl
           key={config.id}
           {...(config as PropertyPaneControlConfig)}
-          widgetProperties={props}
           panel={props.panel}
         />
       );
@@ -58,7 +53,7 @@ export const generatePropertyControl = (
 export const PropertyControlsGenerator = (
   props: PropertyControlsGeneratorProps,
 ) => {
-  const config = getPropertyPaneConfig(props);
+  const config = getPropertyPaneConfig(props.type);
   return <>{generatePropertyControl(config as PropertyPaneConfig[], props)}</>;
 };
 

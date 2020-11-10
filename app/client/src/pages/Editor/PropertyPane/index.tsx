@@ -73,9 +73,9 @@ const PropertyPaneView = (
         title={widgetProperties.widgetName}
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
-        onClose={props.hidePropertyPane}
+        onClose={hidePropertyPane}
       />
-      <PropertyControlsGenerator {...widgetProperties} panel={panel} />
+      <PropertyControlsGenerator type={widgetProperties.type} panel={panel} />
     </>
   );
 };
