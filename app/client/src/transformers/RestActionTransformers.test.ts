@@ -102,6 +102,31 @@ describe("Api action transformer", () => {
     expect(result).toEqual(output);
   });
 
+  it("bodyFormData should not be reset for non xxx-form-encoded-data type", () => {
+    const input = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        httpMethod: "POST",
+        headers: [{ key: "content-type", value: "application/json" }],
+        body: "{ name: 'test' }",
+        bodyFormData: [{ key: "key", value: "value" }],
+      },
+    };
+    const output = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        httpMethod: "POST",
+        headers: [{ key: "content-type", value: "application/json" }],
+        body: "{ name: 'test' }",
+        bodyFormData: [{ key: "key", value: "value" }],
+      },
+    };
+    const result = transformRestAction(input);
+    expect(result).toEqual(output);
+  });
+
   it("Sets the correct body for xxx-form-encoded-data display type", () => {
     const input = {
       ...BASE_ACTION,
