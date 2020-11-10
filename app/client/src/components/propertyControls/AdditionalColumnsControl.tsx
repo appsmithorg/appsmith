@@ -12,6 +12,7 @@ import { DroppableComponent } from "../designSystems/appsmith/DraggableListCompo
 import { ColumnProperties } from "widgets/TableWidget";
 import { getDefaultColumnProperties } from "components/designSystems/appsmith/TableUtilities";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import produce from "immer";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -133,6 +134,7 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
     const column = {
       ...columnProps,
       isDerived: true,
+      buttonStyle: "PRIMARY_BUTTON",
     };
     const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
     updatedDerivedColumns.push(column);
@@ -152,8 +154,12 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
 
   updateOption = (index: number, updatedLabel: string) => {
     const derivedColumns: ColumnProperties[] = this.props.propertyValue || [];
-    const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
-    updatedDerivedColumns[index].label = updatedLabel;
+    const updatedDerivedColumns: ColumnProperties[] = produce(
+      derivedColumns,
+      (draft: ColumnProperties[]) => {
+        draft[index].label = updatedLabel;
+      },
+    );
     this.updateProperty(this.props.propertyName, updatedDerivedColumns);
   };
 
