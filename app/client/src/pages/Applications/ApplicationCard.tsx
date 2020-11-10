@@ -358,6 +358,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application.id,
     props.application.defaultPageId,
   );
+  const appNameText = (
+    <Text type={TextType.H3} cypressSelector="t--app-card-name">
+      {props.application.name}
+    </Text>
+  );
 
   const ContextMenu = (
     <ContextDropdownWrapper>
@@ -526,18 +531,12 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           className={isFetchingApplications ? Classes.SKELETON : ""}
         >
           {isEllipsisActive(appNameWrapperRef?.current) ? (
-            <TooltipComponent
-              maxWidth={400}
-              position={Position.BOTTOM}
-              content={props.application.name}
-            >
-              <Text type={TextType.H3} cypressSelector="t--app-card-name">
-                {props.application.name}
-              </Text>
+            <TooltipComponent maxWidth={400} content={props.application.name}>
+              {appNameText}
             </TooltipComponent>
           ) : (
             <Text type={TextType.H3} cypressSelector="t--app-card-name">
-              {props.application.name}
+              {appNameText}
             </Text>
           )}
         </AppNameWrapper>
