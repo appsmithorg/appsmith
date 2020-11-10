@@ -25,11 +25,7 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,11 +76,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         Set<String> widgetNames = new HashSet<>();
-        extractAllWidgetNamesFromDSL(dsl, widgetNames);
+        Set<String> dynamicBindings = new HashSet<>();
+        extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
         layout.setWidgetNames(widgetNames);
 
-        // Extract all the mustache keys in the DSL to get the dynamic bindings used in the DSL.
-        final Set<String> dynamicBindings = MustacheHelper.extractMustacheKeysFromFields(dsl);
+        // dynamicBindingNames is a reference to all kinds of Actions that can be performed on the page
         Set<String> dynamicBindingNames = new HashSet<>();
         if (!CollectionUtils.isEmpty(dynamicBindings)) {
             for (String mustacheKey : dynamicBindings) {
@@ -93,9 +89,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             }
         }
 
-        Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findOnLoadActionsInPage(dynamicBindingNames, pageId);
+        // Update these actions to be executed on load, unless the user has touched the setting for this
+        Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findAndUpdateOnLoadActionsInPage(dynamicBindingNames, pageId);
 
-        // fetch the unpublished page and layout id combination
+        // Update the list of actions to be executed on load in the layout as well
         return newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                         FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId)))
@@ -133,11 +130,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 });
     }
 
-    public Mono<List<HashSet<DslActionDTO>>> findOnLoadActionsInPage(Set<String> dynamicBindingNames, String pageId) {
-        return findOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
+    public Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(Set<String> dynamicBindingNames, String pageId) {
+        return findAndUpdateOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
     }
 
-    private Mono<List<HashSet<DslActionDTO>>> findOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
+    private Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
         if (dynamicBindingNames == null || dynamicBindingNames.isEmpty()) {
             return Mono.just(onLoadActions);
         }
@@ -160,25 +157,28 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
                     }
 
-                    // If the executeOnLoad field isn't true, set it to true at this point
-                    if (!Boolean.TRUE.equals(action.getExecuteOnLoad())) {
+                    // If the executeOnLoad field isn't true and the user hasn't explicitly set it so, set it to true at this point
+                    if (!Boolean.TRUE.equals(action.getUserSetOnLoad()) && !Boolean.TRUE.equals(action.getExecuteOnLoad())) {
                         action.setExecuteOnLoad(true);
 
                         return newActionService.updateUnpublishedAction(newAction.getId(), action)
                                 .thenReturn(actionDTO);
                     }
-                    return Mono.just(actionDTO);
-
+                    // For all others, only pick ones where the execution on load was already set by the user
+                    if(Boolean.TRUE.equals(action.getExecuteOnLoad())) {
+                        return Mono.just(actionDTO);
+                    } else {
+                        return Mono.empty();
+                    }
                 })
                 .collect(toSet())
                 .flatMap(actions -> {
                     HashSet<DslActionDTO> onLoadSet = new HashSet<>(actions);
-
                     // If the resultant set of actions is empty, don't add it to the array list.
                     if (!onLoadSet.isEmpty()) {
                         onLoadActions.add(0, onLoadSet);
                     }
-                    return findOnLoadActionsInPage(onLoadActions, bindingNames, pageId);
+                    return findAndUpdateOnLoadActionsInPage(onLoadActions, bindingNames, pageId);
                 });
     }
 
@@ -399,16 +399,34 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * @param dsl
      * @param widgetNames
      */
-    private void extractAllWidgetNamesFromDSL(JSONObject dsl, Set<String> widgetNames) {
+    private void extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl, Set<String> widgetNames, Set<String> dynamicBindings) {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
-            //This isnt a valid widget configuration. No need to traverse this.
+            // This isnt a valid widget configuration. No need to traverse this.
             return;
         }
 
         String widgetName = dsl.getAsString(FieldName.WIDGET_NAME);
-
-        //Since we are parsing this widget in this, add it.
+        // Since we are parsing this widget in this, add it.
         widgetNames.add(widgetName);
+
+        // Start by picking all fields where we expect to find dynamic bindings for this particular widget
+        ArrayList<Object> dynamicallyBoundedPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
+        // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+        dynamicallyBoundedPathList.forEach(x -> {
+            final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
+            String[] fields = fieldPath.split(Pattern.quote("."));
+            // For nested fields, the parent dsl to search in would shift by one level every iteration
+            Object parent = dsl;
+            Iterator<String> fieldsIterator = Arrays.stream(fields).iterator();
+            // This loop will end at either a leaf node, or the last identified JSONObject
+            // For instance, if the tokens in the fieldPath refer to a child of a string, or a list
+            // We will simply take the entire string, or list as a potential dynamically bound field
+            while(fieldsIterator.hasNext() && parent instanceof JSONObject) {
+                parent = ((JSONObject) parent).get(fieldsIterator.next());
+            }
+            dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
+        });
+
 
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         if (children != null) {
@@ -418,7 +436,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // If the children tag exists and there are entries within it
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
-                    extractAllWidgetNamesFromDSL(object, widgetNames);
+                    extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings);
                 }
             }
         }
