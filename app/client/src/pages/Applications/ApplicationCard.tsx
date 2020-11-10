@@ -527,6 +527,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         >
           {isEllipsisActive(appNameWrapperRef?.current) ? (
             <TooltipComponent
+              maxWidth={400}
               position={Position.BOTTOM}
               content={props.application.name}
             >
