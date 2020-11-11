@@ -123,7 +123,7 @@ class HelpModal extends React.Component<Props> {
             data-cy={"help-modal"}
             hasBackDrop={false}
             onClose={this.onClose}
-            isOpen={isHelpModalOpen}
+            isOpen
             zIndex={layers.max}
           >
             <DocumentationSearch hitsPerPage={4} />
