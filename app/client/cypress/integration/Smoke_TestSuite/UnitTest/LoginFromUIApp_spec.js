@@ -1,4 +1,5 @@
 const homePage = require("../../../locators/HomePage.json");
+const HelpLocators = require("../../../locators/HelpLocators.json");
 let pageid;
 let appId;
 
@@ -45,5 +46,13 @@ describe("Login from UI and check the functionality", function() {
       .click({ force: true });
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.themeText).should("have.attr", "value", "true");
+  });
+
+  it("Icon of fab button of help modal should change on open", function() {
+    cy.get(HelpLocators.HelpButton).click();
+    cy.get(`${HelpLocators.HelpButton} .bp3-icon-cross`).should(
+      "have.length",
+      1,
+    );
   });
 });
