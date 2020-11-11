@@ -9,7 +9,11 @@ import { AppState } from "reducers";
 import { isHidden } from "./utils";
 import { connect } from "react-redux";
 
-type Props = WrappedFieldProps & SwitchControlProps;
+type Props = WrappedFieldProps & {
+  label: string;
+  isRequired: boolean;
+  info: string;
+};
 
 const StyledFormLabel = styled(FormLabel)`
   margin-bottom: 0px;
@@ -36,7 +40,7 @@ export class SwitchField extends React.Component<Props, any> {
 
     return (
       <div>
-        <SwitchWrapped data-cy={this.props.configProperty}>
+        <SwitchWrapped data-cy={this.props.input.name}>
           <StyledFormLabel>
             {label} {isRequired && "*"}
           </StyledFormLabel>
