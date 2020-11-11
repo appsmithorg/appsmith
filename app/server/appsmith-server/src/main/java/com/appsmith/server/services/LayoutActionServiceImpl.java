@@ -76,13 +76,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     @Override
     public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
+        JSONObject dsl = layout.getDsl();
+        if (dsl == null) {
+            // There is no DSL here. No need to process anything. Return as is.
+            return Mono.just(layout);
+        }
+        
         return Mono.fromSupplier(() -> {
-                    JSONObject dsl = layout.getDsl();
-                    if (dsl == null) {
-                        // There is no DSL here. No need to process anything. Return as is.
-                        return Mono.just(layout);
-                    }
-
                     Set<String> widgetNames = new HashSet<>();
                     Set<String> dynamicBindings = new HashSet<>();
                     try {
