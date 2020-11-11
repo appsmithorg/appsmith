@@ -49,12 +49,12 @@ const HelpButton = styled.button<{
 `;
 
 const MODAL_WIDTH = 240;
-const MODAL_HEIGHT = 210;
+const MODAL_HEIGHT = 198;
 const MODAL_BOTTOM_DISTANCE = 45;
 const MODAL_RIGHT_DISTANCE = 30;
 
 const HelpIcon = HelpIcons.HELP_ICON;
-const CloseIcon = HelpIcons.GITHUB;
+const CloseIcon = HelpIcons.CLOSE_ICON;
 
 type Props = {
   isHelpModalOpen: boolean;
@@ -84,7 +84,9 @@ class HelpModal extends React.Component<Props> {
    * @param event
    */
   onClose = (event: SyntheticEvent<HTMLElement>) => {
-    const { dispatch } = this.props;
+    const { dispatch, isHelpModalOpen } = this.props;
+
+    if (isHelpModalOpen === false) return false;
 
     dispatch(setHelpModalVisibility(false));
     dispatch(setHelpDefaultRefinement(""));
@@ -109,22 +111,24 @@ class HelpModal extends React.Component<Props> {
 
     return (
       <>
-        <ModalComponent
-          canOutsideClickClose={true}
-          canEscapeKeyClose
-          scrollContents
-          height={MODAL_HEIGHT}
-          width={MODAL_WIDTH}
-          top={window.innerHeight - MODAL_BOTTOM_DISTANCE - MODAL_HEIGHT}
-          left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
-          data-cy={"help-modal"}
-          hasBackDrop={false}
-          onClose={this.onClose}
-          isOpen={isHelpModalOpen}
-          zIndex={layers.max}
-        >
-          <DocumentationSearch hitsPerPage={4} />
-        </ModalComponent>
+        {isHelpModalOpen && (
+          <ModalComponent
+            canOutsideClickClose={true}
+            canEscapeKeyClose
+            scrollContents
+            height={MODAL_HEIGHT}
+            width={MODAL_WIDTH}
+            top={window.innerHeight - MODAL_BOTTOM_DISTANCE - MODAL_HEIGHT}
+            left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
+            data-cy={"help-modal"}
+            hasBackDrop={false}
+            onClose={this.onClose}
+            isOpen={isHelpModalOpen}
+            zIndex={layers.max}
+          >
+            <DocumentationSearch hitsPerPage={4} />
+          </ModalComponent>
+        )}
         {algolia.enabled && (
           <HelpButton
             className="t--helpGlobalButton"
@@ -132,11 +136,7 @@ class HelpModal extends React.Component<Props> {
             layer={layers.help}
             onClick={this.onOpen}
           >
-            {isHelpModalOpen ? (
-              <Icon icon="cross" iconSize={12} />
-            ) : (
-              <HelpIcon />
-            )}
+            {isHelpModalOpen ? <CloseIcon /> : <HelpIcon />}
           </HelpButton>
         )}
       </>

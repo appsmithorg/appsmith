@@ -290,7 +290,7 @@ const HelpFooter = styled.div`
 `;
 
 const HelpBody = styled.div`
-  padding-top: 60px;
+  padding-top: 65px;
   flex: 5;
 `;
 
