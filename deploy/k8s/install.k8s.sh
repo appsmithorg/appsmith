@@ -284,10 +284,10 @@ wait_for_application_start() {
 ask_telemetry() {
     echo ""
     echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
-    echo -e "We want to be transparent and inform you that we do perform telemetry in our on-prem installations."
-    echo -e "All telemetry is 100% anonymous and only statistical in nature."
-    echo -e "This helps us understand your needs, prioritise features & provide better support to your on-prem instance."
-    echo -e "You can read more about it and how to disable it in our documentation https://docs.appsmith.com/telemetry/telemetry"
+    echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
+    echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
+    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
+    echo -e ""
     if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
         disable_telemetry="false"
     else

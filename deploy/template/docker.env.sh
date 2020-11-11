@@ -5,6 +5,7 @@ set -o nounset
 encoded_mongo_root_user="$1"
 encoded_mongo_root_password="$2"
 mongo_host="$3"
+disable_telemetry="$4"
 
 cat << EOF
 # Read our documentation on how to configure these features
