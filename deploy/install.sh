@@ -373,6 +373,31 @@ bye() {  # Prints a friendly good bye message and exits the script.
     fi
 }
 
+ask_telemetry() {
+    echo ""
+    echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
+    echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
+    echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
+    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
+    echo -e ""
+    if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
+        disable_telemetry="false"
+    else
+        disable_telemetry="true"
+    fi
+    echo "++++++++++++++++++++++++++++++++++++++++++++"
+
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Telemetry",
+        "data": {
+            "disable-telemetry": "'"$disable_telemetry"'"
+        }
+    }' > /dev/null
+}
+
 echo -e "👋 Thank you for trying out Appsmith! "
 echo ""
 
@@ -594,6 +619,7 @@ if [[ -z $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
+ask_telemetry
 echo ""
 echo "Downloading the configuration templates..."
 templates_dir="$(mktemp -d)"
@@ -617,7 +643,7 @@ echo "Generating the configuration files from the templates"
 bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
 bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > docker-compose.yml
 bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
-bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" > docker.env
+bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" "$disable_telemetry" > docker.env
 if [[ "$setup_encryption" = "true" ]]; then
     bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
 fi
@@ -693,6 +719,7 @@ else
     echo ""
     echo "Need help Getting Started?"
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
+    echo ""
     echo "Please share your email to receive support & updates about appsmith!"
     read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
@@ -706,9 +733,4 @@ else
        }
     }' > /dev/null
 fi
-echo -e "Thank you for installing appsmith! We want to be transparent and inform you that we do perform telemetry in our on-prem installations."
-echo -e "All telemetry is 100% anonymous and only statistical in nature."
-echo -e "This helps us understand your needs, prioritise features & provide better support to your on-prem instance."
-echo -e "You can read more about it and how to disable it in our documentation https://docs.appsmith.com/telemetry/telemetry"
-echo -e "This requires setting APPSMITH_DISABLE_TELEMETRY=true in your docker.env file and restarting your docker containers"
-echo -e "\nPeace out ✌️\n"
+echo -e "\Thank you!\n"
