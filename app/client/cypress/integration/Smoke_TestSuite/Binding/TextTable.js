@@ -111,6 +111,30 @@ describe("Text-Table Binding Functionality", function() {
       });
     });
   });
+  it("Table Widget Functionality To Verify Default Row Selection is working", function() {
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("defaultSelectedRow", "2");
+    cy.get(commonlocators.TableRow)
+      .find(".tr.selected-row")
+      .then(listing => {
+        const listingCount = listing.length;
+        expect(listingCount).to.be.equal(1);
+      });
+    cy.readTabledata("2", "1").then(tabData => {
+      const tabValue = tabData;
+      cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.EvaluateDataType("string");
+      cy.EvaluateCurrentValue(tabValue);
+      cy.PublishtheApp();
+      cy.readTabledataPublish("2", "1").then(tabDataP => {
+        const tabValueP = tabDataP;
+        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
+      });
+    });
+  });
 });
 afterEach(() => {
   // put your clean up code if any
