@@ -106,7 +106,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
-    disableTelemetry: false,
+    disableTelemetry: true,
   };
 };
 
@@ -191,7 +191,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
           routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
         }),
       ],
-      tracesSampleRate: 0,
+      tracesSampleRate: 0.5,
     },
     smartLook: {
       enabled: smartLook.enabled,

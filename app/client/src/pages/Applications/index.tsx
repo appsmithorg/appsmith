@@ -28,10 +28,7 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
-import {
-  CREATE_ORGANIZATION_FORM_NAME,
-  CREATE_APPLICATION_FORM_NAME,
-} from "constants/forms";
+import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
@@ -48,7 +45,7 @@ import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import HelpModal from "components/designSystems/appsmith/help/HelpModal";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import { UpdateApplicationPayload, UserRoles } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -58,6 +55,7 @@ import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWra
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import Spinner from "components/ads/Spinner";
+import ProfileImage from "pages/common/ProfileImage";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -192,6 +190,25 @@ const ItemWrapper = styled.div`
 `;
 const StyledIcon = styled(Icon)`
   margin-right: 11px;
+`;
+const UserImageContainer = styled.div`
+  display: flex;
+  margin-right: 8px;
+
+  div {
+    cursor: default;
+    margin-right: -6px;
+    width: 24px;
+    height: 24px;
+  }
+
+  div:last-child {
+    margin-right: 0px;
+  }
+`;
+const OrgShareUsers = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 function Item(props: {
@@ -536,7 +553,7 @@ const ApplicationsSection = (props: any) => {
   } else {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
-        const { organization, applications } = organizationObject;
+        const { organization, applications, userRoles } = organizationObject;
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -572,15 +589,30 @@ const ApplicationsSection = (props: any) => {
                 PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
               ) &&
                 !isFetchingApplications && (
-                  <FormDialogComponent
-                    trigger={
-                      <Button text={"Share"} icon={"share"} size={Size.small} />
-                    }
-                    canOutsideClickClose={true}
-                    Form={OrgInviteUsersForm}
-                    orgId={organization.id}
-                    title={`Invite Users to ${organization.name}`}
-                  />
+                  <OrgShareUsers>
+                    <UserImageContainer>
+                      {userRoles.map((el: UserRoles) => (
+                        <ProfileImage
+                          className="org-share-user-icons"
+                          userName={el.name ? el.name : el.username}
+                          key={el.username}
+                        />
+                      ))}
+                    </UserImageContainer>
+                    <FormDialogComponent
+                      trigger={
+                        <Button
+                          text={"Share"}
+                          icon={"share"}
+                          size={Size.small}
+                        />
+                      }
+                      canOutsideClickClose={true}
+                      Form={OrgInviteUsersForm}
+                      orgId={organization.id}
+                      title={`Invite Users to ${organization.name}`}
+                    />
+                  </OrgShareUsers>
                 )}
             </OrgDropDown>
             <ApplicationCardsWrapper key={organization.id}>

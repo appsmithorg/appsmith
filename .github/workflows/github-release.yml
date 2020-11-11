@@ -46,7 +46,7 @@ jobs:
         echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
     
     - name: Create the bundle
-      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn build
+      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} yarn build
       
     - name: Get the version
       id: get_version
