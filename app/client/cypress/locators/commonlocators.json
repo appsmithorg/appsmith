@@ -11,6 +11,7 @@
   "dropdownmenu": "ul.bp3-menu",
   "containerInnerText": ".t--draggable-containerwidget span.t--widget-name",
   "optionchangetextDropdown": " .t--property-control-onoptionchange .CodeMirror-code",
+  "optionchangetextDatePicker": " .t--property-control-ondateselected .CodeMirror-code",
   "optionchangetextCheckbox": ".t--property-control-oncheckchange .CodeMirror-code",
   "optionchangetextInput": ".t--property-control-ontextchanged .CodeMirror-code",
   "optionchangeRadioselect": ".t--property-control-onselectionchange .CodeMirror-code",

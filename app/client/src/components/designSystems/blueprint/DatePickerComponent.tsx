@@ -148,7 +148,7 @@ class DatePickerComponent extends React.Component<
   /**
    * checks if selelectedDate is null or not,
    * sets state and calls props onDateSelected
-   * if its null, don't do call onDateSelected
+   * if its null, don't call onDateSelected
    *
    * @param selectedDate
    */
