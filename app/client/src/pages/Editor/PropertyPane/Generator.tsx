@@ -28,10 +28,14 @@ export const generatePropertyControl = (
   if (!propertyPaneConfig) return null;
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
     if ((config as PropertyPaneSectionConfig).sectionName) {
+      const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
         <PropertySection
           key={config.id}
-          name={(config as PropertyPaneSectionConfig).sectionName}
+          id={config.id}
+          name={sectionConfig.sectionName}
+          hidden={sectionConfig.hidden}
+          propertyPath={sectionConfig.propertySectionPath}
           isDefaultOpen
         >
           {config.children && generatePropertyControl(config.children, props)}

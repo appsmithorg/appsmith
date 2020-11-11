@@ -67,6 +67,7 @@ const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
       (childConfig as PropertyPaneSectionConfig).sectionName &&
       childConfig.children
     ) {
+      (childConfig as PropertyPaneSectionConfig).propertySectionPath = basePath;
       childConfig.children = updateConfigPaths(childConfig.children, basePath);
     } else {
       (childConfig as PropertyPaneControlConfig).propertyName = `${basePath}.${

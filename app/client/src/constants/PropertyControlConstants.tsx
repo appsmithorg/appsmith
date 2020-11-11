@@ -1,5 +1,4 @@
 import { getPropertyControlTypes } from "components/propertyControls";
-import { JSXElementConstructor } from "react";
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
@@ -8,6 +7,7 @@ export type PropertyPaneSectionConfig = {
   id?: string;
   children: PropertyPaneConfig[];
   hidden?: (props: any) => boolean;
+  propertySectionPath?: string;
 };
 
 export type PanelConfig = {
