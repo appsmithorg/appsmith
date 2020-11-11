@@ -16,7 +16,10 @@ export const Profile = styled.div<{ backgroundColor?: string }>`
   background-color: ${props => props.backgroundColor};
 `;
 
-export default function ProfileImage(props: { userName?: string }) {
+export default function ProfileImage(props: {
+  userName?: string;
+  className?: string;
+}) {
   const themeDetails = useSelector(getThemeDetails);
 
   const initialsAndColorCode = getInitialsAndColorCode(
@@ -25,7 +28,10 @@ export default function ProfileImage(props: { userName?: string }) {
   );
 
   return (
-    <Profile backgroundColor={initialsAndColorCode[1]}>
+    <Profile
+      backgroundColor={initialsAndColorCode[1]}
+      className={props.className}
+    >
       <Text type={TextType.H6} highlight>
         {initialsAndColorCode[0]}
       </Text>

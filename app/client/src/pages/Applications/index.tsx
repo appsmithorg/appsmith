@@ -593,6 +593,7 @@ const ApplicationsSection = (props: any) => {
                     <UserImageContainer>
                       {userRoles.map((el: UserRoles) => (
                         <ProfileImage
+                          className="org-share-user-icons"
                           userName={el.name ? el.name : el.username}
                           key={el.username}
                         />
