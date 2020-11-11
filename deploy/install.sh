@@ -379,7 +379,7 @@ ask_telemetry() {
     echo -e "All telemetry is 100% anonymous and only statistical in nature."
     echo -e "This helps us understand your needs, prioritise features & provide better support to your on-prem instance."
     echo -e "You can read more about it and how to disable it in our documentation https://docs.appsmith.com/telemetry/telemetry"
-    if confirm y 'Do you want to continue sending anonymized data for improving Appsmith?'; then
+    if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
         disable_telemetry="false"
     else
         disable_telemetry="true"
@@ -734,4 +734,4 @@ else
        }
     }' > /dev/null
 fi
-echo -e "\nThank you! ✌️\n"
+echo -e "\nThank you!\n"
