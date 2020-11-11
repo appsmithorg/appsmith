@@ -1,5 +1,5 @@
 import React, { JSXElementConstructor, useEffect } from "react";
-import { FieldArray, WrappedFieldArrayProps } from "redux-form";
+import { FieldArray, getFormValues, WrappedFieldArrayProps } from "redux-form";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
 import { FormIcons } from "icons/FormIcons";
@@ -7,6 +7,9 @@ import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import TextField from "components/editorComponents/form/fields/TextField";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
+import { AppState } from "reducers";
+import { isHidden } from "./utils";
+import { connect } from "react-redux";
 
 const FormRowWithLabel = styled.div`
   display: flex;
@@ -85,6 +88,12 @@ type Props = {
 
 class KeyValueFieldInput extends BaseControl<KeyValueInputProps> {
   render() {
+    const { hidden } = this.props;
+
+    if (hidden) {
+      return null;
+    }
+
     return (
       <FieldArray
         component={KeyValueRow}
@@ -100,6 +109,15 @@ class KeyValueFieldInput extends BaseControl<KeyValueInputProps> {
   }
 }
 
+const mapStateToProps = (state: AppState, ownProps: KeyValueInputProps) => {
+  const values = getFormValues(ownProps.formName)(state);
+  const hidden = isHidden(values, ownProps.hidden);
+
+  return {
+    hidden,
+  };
+};
+
 export interface KeyValueInputProps extends ControlProps {
   name: string;
   label: string;
@@ -108,4 +126,4 @@ export interface KeyValueInputProps extends ControlProps {
   actionConfig?: any;
 }
 
-export default KeyValueFieldInput;
+export default connect(mapStateToProps)(KeyValueFieldInput);

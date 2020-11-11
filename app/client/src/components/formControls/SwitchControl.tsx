@@ -3,8 +3,11 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledSwitch } from "./StyledControls";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
-import { Field, WrappedFieldProps } from "redux-form";
+import { Field, getFormValues, WrappedFieldProps } from "redux-form";
 import styled from "styled-components";
+import { AppState } from "reducers";
+import { isHidden } from "./utils";
+import { connect } from "react-redux";
 
 type Props = WrappedFieldProps & SwitchControlProps;
 
@@ -27,7 +30,7 @@ const Info = styled.div`
   margin-top: 8px;
 `;
 
-export class SwitchField extends React.Component<Props> {
+export class SwitchField extends React.Component<Props, any> {
   render() {
     const { label, isRequired, input, info } = this.props;
 
@@ -51,11 +54,21 @@ export class SwitchField extends React.Component<Props> {
 
 class SwitchControl extends BaseControl<SwitchControlProps> {
   render() {
-    const { configProperty } = this.props;
+    const { configProperty, label, isRequired, info, hidden } = this.props;
+
+    if (hidden) {
+      return null;
+    }
 
     return (
       <React.Fragment>
-        <Field name={configProperty} component={SwitchField} {...this.props} />
+        <Field
+          name={configProperty}
+          component={SwitchField}
+          label={label}
+          isRequired={isRequired}
+          info={info}
+        />
       </React.Fragment>
     );
   }
@@ -65,8 +78,17 @@ class SwitchControl extends BaseControl<SwitchControlProps> {
   }
 }
 
+const mapStateToProps = (state: AppState, ownProps: SwitchControlProps) => {
+  const values = getFormValues(ownProps.formName)(state);
+  const hidden = isHidden(values, ownProps.hidden);
+
+  return {
+    hidden,
+  };
+};
+
 export interface SwitchControlProps extends ControlProps {
   info?: string;
 }
 
-export default SwitchControl;
+export default connect(mapStateToProps)(SwitchControl);

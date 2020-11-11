@@ -1,5 +1,5 @@
 import * as React from "react";
-import { WrappedFieldProps } from "redux-form";
+import { getFormValues, WrappedFieldProps } from "redux-form";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
@@ -11,6 +11,9 @@ import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
+import { AppState } from "reducers";
+import { isHidden } from "./utils";
+import { connect } from "react-redux";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -121,7 +124,11 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   }
 
   render() {
-    const { configProperty, label, isRequired } = this.props;
+    const { configProperty, label, isRequired, hidden } = this.props;
+
+    if (hidden) {
+      return null;
+    }
 
     return (
       <React.Fragment>
@@ -138,10 +145,19 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   }
 }
 
+const mapStateToProps = (state: AppState, ownProps: FilePickerControlProps) => {
+  const values = getFormValues(ownProps.formName)(state);
+  const hidden = isHidden(values, ownProps.hidden);
+
+  return {
+    hidden,
+  };
+};
+
 export interface FilePickerComponentState {
   isOpen: boolean;
 }
 
 export type FilePickerControlProps = ControlProps;
 
-export default FilePickerControl;
+export default connect(mapStateToProps)(FilePickerControl);

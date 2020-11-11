@@ -5,6 +5,10 @@ import { ControlType } from "constants/PropertyControlConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormLabel from "components/editorComponents/FormLabel";
 import styled from "styled-components";
+import { AppState } from "reducers";
+import { getFormValues } from "redux-form";
+import { isHidden } from "./utils";
+import { connect } from "react-redux";
 
 const Wrapper = styled.div`
   width: 50vh;
@@ -19,7 +23,12 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
       configProperty,
       isRequired,
       fixedKey,
+      hidden,
     } = this.props;
+
+    if (hidden) {
+      return null;
+    }
 
     return (
       <Wrapper>
@@ -67,6 +76,18 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
   }
 }
 
+const mapStateToProps = (
+  state: AppState,
+  ownProps: FixedKeyInputControlProps,
+) => {
+  const values = getFormValues(ownProps.formName)(state);
+  const hidden = isHidden(values, ownProps.hidden);
+
+  return {
+    hidden,
+  };
+};
+
 export interface FixedKeyInputControlProps extends ControlProps {
   placeholderText: string;
   inputType?: InputType;
@@ -74,4 +95,4 @@ export interface FixedKeyInputControlProps extends ControlProps {
   fixedKey: string;
 }
 
-export default FixKeyInputControl;
+export default connect(mapStateToProps)(FixKeyInputControl);

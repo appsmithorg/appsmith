@@ -4,16 +4,23 @@ import { ControlProps } from "components/formControls/BaseControl";
 
 interface ActionSettingsProps {
   actionSettingsConfig: any;
+  formName: string;
 }
 
 const ActionSettings = (props: ActionSettingsProps): JSX.Element => {
-  return <>{props.actionSettingsConfig.map(renderEachConfig)}</>;
+  return (
+    <>
+      {props.actionSettingsConfig.map((section: any) =>
+        renderEachConfig(section, props.formName),
+      )}
+    </>
+  );
 };
 
-const renderEachConfig = (section: any): any => {
+const renderEachConfig = (section: any, formName: string): any => {
   return section.children.map((propertyControlOrSection: ControlProps) => {
     if ("children" in propertyControlOrSection) {
-      return renderEachConfig(propertyControlOrSection);
+      return renderEachConfig(propertyControlOrSection, formName);
     } else {
       try {
         const { configProperty } = propertyControlOrSection;
@@ -21,8 +28,7 @@ const renderEachConfig = (section: any): any => {
           <div key={configProperty} style={{ marginTop: "18px" }}>
             {FormControlFactory.createControl(
               { ...propertyControlOrSection },
-              {},
-              false,
+              formName,
             )}
           </div>
         );

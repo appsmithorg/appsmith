@@ -453,8 +453,7 @@ class DatasourceDBEditor extends React.Component<
                   <div key={configProperty} style={{ marginTop: "16px" }}>
                     {FormControlFactory.createControl(
                       config,
-                      {},
-                      false,
+                      DATASOURCE_DB_FORM,
                       multipleConfig,
                     )}
                   </div>

@@ -7,6 +7,10 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { FormIcons } from "icons/FormIcons";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
+import { getFormValues } from "redux-form";
+import { isHidden } from "./utils";
 
 const StyledInfo = styled.span`
   font-weight: normal;
@@ -60,7 +64,12 @@ class InputTextControl extends BaseControl<InputControlProps> {
       placeholderText,
       dataType,
       configProperty,
+      hidden,
     } = this.props;
+
+    if (hidden) {
+      return null;
+    }
 
     return (
       <InputText
@@ -105,6 +114,15 @@ class InputTextControl extends BaseControl<InputControlProps> {
   }
 }
 
+const mapStateToProps = (state: AppState, ownProps: InputControlProps) => {
+  const values = getFormValues(ownProps.formName)(state);
+  const hidden = isHidden(values, ownProps.hidden);
+
+  return {
+    hidden,
+  };
+};
+
 export interface InputControlProps extends ControlProps {
   placeholderText: string;
   inputType?: InputType;
@@ -112,4 +130,4 @@ export interface InputControlProps extends ControlProps {
   encrypted?: boolean;
 }
 
-export default InputTextControl;
+export default connect(mapStateToProps)(InputTextControl);

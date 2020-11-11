@@ -564,6 +564,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                 <SettingsWrapper>
                   <ActionSettings
                     actionSettingsConfig={queryActionSettingsConfig}
+                    formName={QUERY_EDITOR_FORM_NAME}
                   />
                 </SettingsWrapper>
               ),
@@ -586,8 +587,7 @@ const renderEachConfig = (section: any): any => {
           <FieldWrapper key={configProperty}>
             {FormControlFactory.createControl(
               { ...propertyControlOrSection },
-              {},
-              false,
+              QUERY_EDITOR_FORM_NAME,
             )}
           </FieldWrapper>
         );
