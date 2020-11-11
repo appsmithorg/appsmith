@@ -110,7 +110,7 @@ class HelpModal extends React.Component<Props> {
     return (
       <>
         <ModalComponent
-          canOutsideClickClose={false}
+          canOutsideClickClose={true}
           canEscapeKeyClose
           scrollContents
           height={MODAL_HEIGHT}
@@ -121,7 +121,7 @@ class HelpModal extends React.Component<Props> {
           hasBackDrop={false}
           onClose={this.onClose}
           isOpen={isHelpModalOpen}
-          zIndex={layers.help}
+          zIndex={layers.max}
         >
           <DocumentationSearch hitsPerPage={4} />
         </ModalComponent>
@@ -130,7 +130,7 @@ class HelpModal extends React.Component<Props> {
             className="t--helpGlobalButton"
             highlight={!isHelpModalOpen}
             layer={layers.help}
-            onClick={isHelpModalOpen ? this.onClose : this.onOpen}
+            onClick={this.onOpen}
           >
             {isHelpModalOpen ? (
               <Icon icon="cross" iconSize={12} />
