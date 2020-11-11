@@ -106,7 +106,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
-    disableTelemetry: false,
+    disableTelemetry: true,
   };
 };
 
