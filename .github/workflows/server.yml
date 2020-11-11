@@ -71,22 +71,22 @@ jobs:
     - name: Push release image to Docker Hub
       if: success() && github.ref == 'refs/heads/release'
       run: |
-        docker build -t appsmith/appsmith-server:${{steps.vars.outputs.tag}} .
+        docker build -t appsmith/appsmith-server-ee:${{steps.vars.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful 
         # with this command
-        docker push appsmith/appsmith-server
+        docker push appsmith/appsmith-server-ee
 
     # Build master Docker image and push to Docker Hub
     - name: Push master image to Docker Hub with commit tag
       if: success() && github.ref == 'refs/heads/master'
       run: |
-        docker build -t appsmith/appsmith-server:${GITHUB_SHA} .
-        docker build -t appsmith/appsmith-server:nightly .
+        docker build -t appsmith/appsmith-server-ee:${GITHUB_SHA} .
+        docker build -t appsmith/appsmith-server-ee:nightly .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful 
         # with this command
-        docker push appsmith/appsmith-server
+        docker push appsmith/appsmith-server-ee
   
   # These are dummy jobs in the CI build to satisfy required status checks for merging PRs. This is a hack because Github doesn't support conditional 
   # required checks in monorepos. These jobs are a clone of similarly named jobs in client.yml. 
