@@ -14,7 +14,6 @@ type ToastProps = ToastOptions &
     variant?: Variant;
     duration?: number;
     onUndo?: () => void;
-    undoAction?: () => void;
     dispatchableAction?: { type: ReduxActionType; payload: any };
     hideProgressBar?: boolean;
   };
@@ -101,7 +100,7 @@ const ToastBody = styled.div<{
       : null}
 `;
 
-const ToastComponent = (props: ToastProps) => {
+const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
   const dispatch = useDispatch();
 
   return (
@@ -141,6 +140,16 @@ const ToastComponent = (props: ToastProps) => {
 
 export const Toaster = {
   show: (config: ToastProps) => {
+    if (typeof config.text !== "string") {
+      console.error("Toast message needs to be a string");
+      return;
+    }
+    if (config.variant && !Object.values(Variant).includes(config.variant)) {
+      console.error(
+        "Toast type needs to be a one of " + Object.values(Variant).join(", "),
+      );
+      return;
+    }
     const toastId = toast(
       <ToastComponent
         undoAction={() => {
