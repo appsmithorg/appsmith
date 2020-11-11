@@ -373,6 +373,30 @@ bye() {  # Prints a friendly good bye message and exits the script.
     fi
 }
 
+ask_telemetry() {
+    echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
+    echo -e "We want to be transparent and inform you that we do perform telemetry in our on-prem installations."
+    echo -e "All telemetry is 100% anonymous and only statistical in nature."
+    echo -e "This helps us understand your needs, prioritise features & provide better support to your on-prem instance."
+    echo -e "You can read more about it and how to disable it in our documentation https://docs.appsmith.com/telemetry/telemetry"
+    if confirm y 'Do you want to continue sending anonymized data for improving Appsmith?'; then
+        disable_telemetry="false"
+    else
+        disable_telemetry="true"
+    fi
+    echo "++++++++++++++++++++++++++++++++++++++++++++"
+
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Telemetry",
+        "data": {
+            "disable-telemetry": "'"$disable_telemetry"'"
+        }
+    }' > /dev/null
+}
+
 echo -e "👋 Thank you for trying out Appsmith! "
 echo ""
 
@@ -594,6 +618,10 @@ if [[ -z $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
+# Setting the default telemetry choice to false
+disable_telemetry="true"
+ask_telemetry
+
 echo ""
 echo "Downloading the configuration templates..."
 templates_dir="$(mktemp -d)"
@@ -706,9 +734,4 @@ else
        }
     }' > /dev/null
 fi
-echo -e "Thank you for installing appsmith! We want to be transparent and inform you that we do perform telemetry in our on-prem installations."
-echo -e "All telemetry is 100% anonymous and only statistical in nature."
-echo -e "This helps us understand your needs, prioritise features & provide better support to your on-prem instance."
-echo -e "You can read more about it and how to disable it in our documentation https://docs.appsmith.com/telemetry/telemetry"
-echo -e "This requires setting APPSMITH_DISABLE_TELEMETRY=true in your docker.env file and restarting your docker containers"
-echo -e "\nPeace out ✌️\n"
+echo -e "\nThank you! ✌️\n"
