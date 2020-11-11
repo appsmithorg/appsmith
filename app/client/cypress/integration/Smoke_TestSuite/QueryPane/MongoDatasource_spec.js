@@ -43,7 +43,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get("@createDatasource").then(httpResponse => {
       datasourceName = httpResponse.response.body.data.name;
 
-      cy.deletePostgresDatasource(datasourceName);
+      cy.deleteDatasource(datasourceName);
     });
   });
 });

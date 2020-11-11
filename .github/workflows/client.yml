@@ -21,6 +21,7 @@ jobs:
     defaults:
       run:
         working-directory: app/client
+        shell: bash
 
     steps:
     # Checkout the code
@@ -91,6 +92,7 @@ jobs:
     defaults:
       run:
         working-directory: app/client
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -162,7 +164,7 @@ jobs:
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
         appsmith/appsmith-server:release
-  
+
     - name: Pull master server docker container and start it locally
       if: github.ref == 'refs/heads/master'
       shell: bash
