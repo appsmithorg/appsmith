@@ -16,6 +16,7 @@ import { AppState } from "reducers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Icon } from "@blueprintjs/core";
 
 const { algolia, cloudHosting, intercomAppID } = getAppsmithConfigs();
 const HelpButton = styled.button<{
@@ -53,6 +54,7 @@ const MODAL_BOTTOM_DISTANCE = 45;
 const MODAL_RIGHT_DISTANCE = 30;
 
 const HelpIcon = HelpIcons.HELP_ICON;
+const CloseIcon = HelpIcons.GITHUB;
 
 type Props = {
   isHelpModalOpen: boolean;
@@ -76,14 +78,39 @@ class HelpModal extends React.Component<Props> {
     }
   }
 
+  /**
+   * closes help modal
+   *
+   * @param event
+   */
+  onClose = (event: SyntheticEvent<HTMLElement>) => {
+    const { dispatch } = this.props;
+
+    dispatch(setHelpModalVisibility(false));
+    dispatch(setHelpDefaultRefinement(""));
+    event.stopPropagation();
+    event.preventDefault();
+  };
+
+  /**
+   * opens help modal
+   */
+  onOpen = (event: SyntheticEvent<HTMLElement>) => {
+    const { dispatch, isHelpModalOpen, page } = this.props;
+
+    event.stopPropagation();
+    AnalyticsUtil.logEvent("OPEN_HELP", { page });
+    dispatch(setHelpModalVisibility(!isHelpModalOpen));
+  };
+
   render() {
-    const { dispatch, isHelpModalOpen } = this.props;
+    const { isHelpModalOpen } = this.props;
     const layers = this.context;
 
     return (
       <>
         <ModalComponent
-          canOutsideClickClose
+          canOutsideClickClose={false}
           canEscapeKeyClose
           scrollContents
           height={MODAL_HEIGHT}
@@ -92,12 +119,7 @@ class HelpModal extends React.Component<Props> {
           left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
           data-cy={"help-modal"}
           hasBackDrop={false}
-          onClose={(event: SyntheticEvent<HTMLElement>) => {
-            dispatch(setHelpModalVisibility(false));
-            dispatch(setHelpDefaultRefinement(""));
-            event.stopPropagation();
-            event.preventDefault();
-          }}
+          onClose={this.onClose}
           isOpen={isHelpModalOpen}
           zIndex={layers.help}
         >
@@ -108,12 +130,13 @@ class HelpModal extends React.Component<Props> {
             className="t--helpGlobalButton"
             highlight={!isHelpModalOpen}
             layer={layers.help}
-            onClick={() => {
-              AnalyticsUtil.logEvent("OPEN_HELP", { page: this.props.page });
-              dispatch(setHelpModalVisibility(!isHelpModalOpen));
-            }}
+            onClick={isHelpModalOpen ? this.onClose : this.onOpen}
           >
-            <HelpIcon />
+            {isHelpModalOpen ? (
+              <Icon icon="cross" iconSize={12} />
+            ) : (
+              <HelpIcon />
+            )}
           </HelpButton>
         )}
       </>
