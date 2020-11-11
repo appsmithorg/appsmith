@@ -592,7 +592,10 @@ const ApplicationsSection = (props: any) => {
                   <OrgShareUsers>
                     <UserImageContainer>
                       {userRoles.map((el: UserRoles) => (
-                        <ProfileImage userName={el.name} key={el.name} />
+                        <ProfileImage
+                          userName={el.name ? el.name : el.username}
+                          key={el.username}
+                        />
                       ))}
                     </UserImageContainer>
                     <FormDialogComponent
