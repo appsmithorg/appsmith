@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -324,6 +325,26 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(newActionService.createAction(action));
 
+                    action = new ActionDTO();
+                    action.setName("aDBAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
+                    action.setPageId(page1.getId());
+                    action.setExecuteOnLoad(true);
+                    action.setDatasource(datasource);
+                    action.setPluginType(PluginType.DB);
+                    monos.add(newActionService.createAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("anotherDBAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
+                    action.setPageId(page1.getId());
+                    action.setExecuteOnLoad(true);
+                    action.setDatasource(datasource);
+                    action.setPluginType(PluginType.DB);
+                    monos.add(newActionService.createAction(action));
+
                     return Mono.zip(monos, objects -> page1);
                 })
                 .zipWhen(page1 -> {
@@ -351,10 +372,16 @@ public class LayoutServiceTest {
                             "dynamicPostWithAutoExec", "some dynamic {{aPostActionWithAutoExec.data}}",
                             "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
                     ));
+                    obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.irrelevant}}")));
+                    obj.put("dynamicDB2", List.of("{{ anotherDBAction.optional }}"));
                     JSONArray dynamicBindingsPathList = new JSONArray();
                     dynamicBindingsPathList.addAll(List.of(
                             new JSONObject(Map.of("key", "dynamicGet")),
-                            new JSONObject(Map.of("key", "dynamicPostWithAutoExec"))));
+                            new JSONObject(Map.of("key", "dynamicPostWithAutoExec")),
+                            new JSONObject(Map.of("key", "dynamicDB.test")),
+                            new JSONObject(Map.of("key", "dynamicDB2.0"))
+                            ));
+
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
@@ -367,14 +394,83 @@ public class LayoutServiceTest {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
-                    layout.getLayoutOnLoadActions().get(0).stream().forEach(x -> log.debug(x.getName()));
+                    layout.getLayoutOnLoadActions().stream().forEach(x -> x.forEach(y -> log.debug(y.getName())));
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(Set.of("aPostTertiaryAction"));
+                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(4);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aGetAction", "aPostActionWithAutoExec"));
+                            .hasSameElementsAs(Set.of("aGetAction", "aPostActionWithAutoExec", "aDBAction", "anotherDBAction"));
                 })
                 .verifyComplete();
+    }
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testIncorrectDynamicBinding() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("testIncorrectDynamicBinding Test Page");
+
+        Application app = new Application();
+        app.setName("newApplication-testIncorrectDynamicBinding-Test");
+
+        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
+
+        Mono<Layout> testMono = pageMono
+                .flatMap(page1 -> {
+                    List<Mono<ActionDTO>> monos = new ArrayList<>();
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("aGetAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(newActionService.createAction(action));
+
+                    return Mono.zip(monos, objects -> page1);
+                })
+                .zipWhen(page1 -> {
+                    Layout layout = new Layout();
+
+                    JSONObject obj = new JSONObject(Map.of(
+                            "key", "value"
+                    ));
+                    layout.setDsl(obj);
+
+                    return layoutService.createLayout(page1.getId(), layout);
+                })
+                .flatMap(tuple2 -> {
+                    final PageDTO page1 = tuple2.getT1();
+                    final Layout layout = tuple2.getT2();
+
+                    Layout newLayout = new Layout();
+
+                    JSONObject obj = new JSONObject(Map.of(
+                            "widgetName", "testWidget",
+                            "key", "value-updated",
+                            "another", "Hello people of the {{input1.text}} planet!",
+                            "dynamicGet", "some dynamic {{aGetAction.data}}"
+                    ));
+                    JSONArray dynamicBindingsPathList = new JSONArray();
+                    dynamicBindingsPathList.addAll(List.of(
+                            new JSONObject(Map.of("key", "dynamicGet_IncorrectKey"))
+                    ));
+
+                    obj.put("dynamicBindingPathList", dynamicBindingsPathList);
+                    newLayout.setDsl(obj);
+
+                    return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
+                });
+
+        StepVerifier
+                .create(testMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("dynamicGet_IncorrectKey")))
+                .verify();
     }
 
     @After

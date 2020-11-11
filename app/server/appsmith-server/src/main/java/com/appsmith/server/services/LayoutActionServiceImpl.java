@@ -81,14 +81,14 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             // There is no DSL here. No need to process anything. Return as is.
             return Mono.just(layout);
         }
-        
+
         return Mono.fromSupplier(() -> {
                     Set<String> widgetNames = new HashSet<>();
                     Set<String> dynamicBindings = new HashSet<>();
                     try {
                         extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
                     } catch (Throwable t) {
-                        Exceptions.propagate(t);
+                        throw Exceptions.propagate(t);
                     }
                     layout.setWidgetNames(widgetNames);
 
@@ -447,7 +447,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 String nextKey = fieldsIterator.next();
                 parent = ((JSONObject) parent).get(nextKey);
                 if(parent == null) {
-                    throw new AppsmithException(AppsmithError.INVALID_PARAMETER, nextKey);
+                    throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
                 }
             }
             dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));

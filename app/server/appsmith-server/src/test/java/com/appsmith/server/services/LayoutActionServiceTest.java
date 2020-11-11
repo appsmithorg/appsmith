@@ -87,7 +87,7 @@ public class LayoutActionServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-
+        newPageService.deleteAll();
         User apiUser = userService.findByEmail("api_user").block();
         String orgId = apiUser.getOrganizationIds().iterator().next();
         Organization organization = organizationService.getById(orgId).block();
@@ -131,7 +131,6 @@ public class LayoutActionServiceTest {
         applicationPageService.deleteApplication(testApp.getId()).block();
         testApp = null;
         testPage = null;
-
     }
 
     @Test
