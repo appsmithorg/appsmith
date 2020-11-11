@@ -538,7 +538,6 @@ function dependencySortedEvaluateDataTree(
       tree,
     );
   } catch (e) {
-    debugger;
     ERRORS.push({
       type: EvalErrorTypes.EVAL_TREE_ERROR,
       message: e.message,

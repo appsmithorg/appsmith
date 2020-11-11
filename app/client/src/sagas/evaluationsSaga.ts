@@ -34,6 +34,7 @@ import { WidgetProps } from "../widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "../utils/PerformanceTracker";
+import * as Sentry from "@sentry/react";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
@@ -62,6 +63,13 @@ const evalErrorHandler = (errors: EvalError[]) => {
         message: error.message,
         type: ToastType.ERROR,
       });
+    }
+    if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
+      AppToaster.show({
+        message: "Unexpected error occurred while evaluating the app",
+        type: ToastType.ERROR,
+      });
+      Sentry.captureException(error);
     }
     log.debug(error);
   });
