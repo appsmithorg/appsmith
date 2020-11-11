@@ -44,6 +44,6 @@ describe("Confirm run action", function() {
       200,
     );
 
-    cy.deletePostgresDatasource(datasourceName);
+    cy.deleteDatasource(datasourceName);
   });
 });
