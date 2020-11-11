@@ -36,7 +36,6 @@ describe("Loadash basic test with input Widget", function() {
 
   it("publish widget and validate the data displayed in input widgets from loadash function", function() {
     cy.PublishtheApp();
-    cy.wait(2000);
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
