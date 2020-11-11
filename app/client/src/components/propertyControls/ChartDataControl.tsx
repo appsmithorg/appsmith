@@ -168,7 +168,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
   };
 
   getEvaluatedValue = () => {
-    if (this.props.evaluatedValue && Array.isArray(this.props.evaluatedValue)) {
+    if (Array.isArray(this.props.evaluatedValue)) {
       return this.props.evaluatedValue;
     }
     return [];
