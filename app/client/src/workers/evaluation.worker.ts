@@ -1417,31 +1417,34 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
+    try {
+      const isValidOption = (option: { label: any; value: any }) =>
+        _.isObject(option) &&
+        _.isString(option.label) &&
+        _.isString(option.value) &&
+        !_.isEmpty(option.label) &&
+        !_.isEmpty(option.value);
 
-    const isValidOption = (option: { label: any; value: any }) =>
-      _.isString(option.label) &&
-      _.isString(option.value) &&
-      !_.isEmpty(option.label) &&
-      !_.isEmpty(option.value);
+      const hasOptions = every(parsed, isValidOption);
+      const validOptions = parsed.filter(isValidOption);
+      const uniqValidOptions = _.uniqBy(validOptions, "value");
 
-    const hasOptions = every(parsed, (datum: { label: any; value: any }) => {
-      if (isObject(datum)) {
-        return isValidOption(datum);
-      } else {
-        return false;
+      if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
+        return {
+          isValid: false,
+          parsed: uniqValidOptions,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+        };
       }
-    });
-    const validOptions = parsed.filter(isValidOption);
-    const uniqValidOptions = _.uniqBy(validOptions, "value");
-
-    if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
+      return { isValid, parsed };
+    } catch (e) {
+      console.error(e);
       return {
         isValid: false,
-        parsed: uniqValidOptions,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+        parsed: [],
+        transformed: parsed,
       };
     }
-    return { isValid, parsed };
   },
   [VALIDATION_TYPES.DATE]: (
     dateString: string,
