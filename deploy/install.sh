@@ -708,5 +708,7 @@ else
 fi
 echo -e "Thank you for installing appsmith! We want to be transparent and inform you that we do perform telemetry in our on-prem installations."
 echo -e "All telemetry is 100% anonymous and only statistical in nature."
-echo -e "This helps us understand your needs, prioritise features & provide better support to your on-prem instance. You can read more about it and how to disable it in our documentation https://docs.appsmith.com/telemetry/telemetry"
+echo -e "This helps us understand your needs, prioritise features & provide better support to your on-prem instance."
+echo -e "You can read more about it and how to disable it in our documentation https://docs.appsmith.com/telemetry/telemetry"
+echo -e "This requires setting APPSMITH_DISABLE_TELEMETRY=true in your docker.env file and restarting your docker containers"
 echo -e "\nPeace out ✌️\n"
