@@ -1610,4 +1610,49 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       parsed: values,
     };
   },
+  [VALIDATION_TYPES.DEFAULT_SELECTED_ROW]: (
+    value: string | string[],
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ) => {
+    let values = value;
+
+    if (props) {
+      if (props.multiRowSelection) {
+        if (typeof value === "string") {
+          try {
+            values = JSON.parse(value);
+            if (!Array.isArray(values)) {
+              throw new Error();
+            }
+          } catch {
+            values = value.length ? value.split(",") : [];
+            if (values.length > 0) {
+              let numbericValues = values.map(value => {
+                return isNumber(value.trim()) ? -1 : Number(value.trim());
+              });
+              numbericValues = _.uniq(numbericValues);
+              return {
+                isValid: true,
+                parsed: numbericValues,
+              };
+            }
+          }
+        }
+      } else {
+        if (isUndefined(value)) {
+          return {
+            isValid: true,
+            parsed: -1,
+          };
+        } else {
+          return VALIDATORS[VALIDATION_TYPES.NUMBER](value, props, dataTree);
+        }
+      }
+    }
+    return {
+      isValid: true,
+      parsed: values,
+    };
+  },
 };
