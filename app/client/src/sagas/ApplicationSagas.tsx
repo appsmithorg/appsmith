@@ -88,6 +88,7 @@ export function* getAllApplicationSaga() {
       const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
         (userOrgs: OrganizationApplicationObject) => ({
           organization: userOrgs.organization,
+          userRoles: userOrgs.userRoles,
           applications: !userOrgs.applications
             ? []
             : userOrgs.applications.map((application: ApplicationObject) => {
