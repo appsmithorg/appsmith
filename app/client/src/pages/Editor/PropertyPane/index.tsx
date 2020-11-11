@@ -219,19 +219,20 @@ class PropertyPane extends Component<
   }
 
   onPropertyChange(propertyName: string, propertyValue: any) {
-    this.props.widgetId &&
+    if (this.props.widgetId) {
       this.props.updateWidgetProperty(
         this.props.widgetId,
         propertyName,
         propertyValue,
       );
-    if (this.props.widgetProperties) {
-      AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
-        widgetType: this.props.widgetProperties.type,
-        widgetName: this.props.widgetProperties.widgetName,
-        propertyName: propertyName,
-        updatedValue: propertyValue,
-      });
+      if (this.props.widgetProperties) {
+        AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
+          widgetType: this.props.widgetProperties.type,
+          widgetName: this.props.widgetProperties.widgetName,
+          propertyName: propertyName,
+          updatedValue: propertyValue,
+        });
+      }
     }
   }
 }
