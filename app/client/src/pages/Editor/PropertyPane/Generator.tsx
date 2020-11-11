@@ -32,7 +32,7 @@ export const generatePropertyControl = (
       return (
         <PropertySection
           key={config.id}
-          id={config.id}
+          id={config.id || sectionConfig.sectionName}
           name={sectionConfig.sectionName}
           hidden={sectionConfig.hidden}
           propertyPath={sectionConfig.propertySectionPath}
