@@ -101,6 +101,7 @@ public class ApplicationFetcher {
                                     OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();
                                     organizationApplicationsDTO.setOrganization(organization);
                                     organizationApplicationsDTO.setApplications(applicationList);
+                                    organizationApplicationsDTO.setUserRoles(organization.getUserRoles());
 
                                     organizationApplicationsDTOS.add(organizationApplicationsDTO);
                                 }

@@ -18,7 +18,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { change, initialize } from "redux-form";
+import { autofill, change, initialize } from "redux-form";
 import {
   getAction,
   getPluginEditorConfigs,
@@ -39,8 +39,8 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   // // Typescript says Element does not have blur function but it does;
   // document.activeElement &&
   //   "blur" in document.activeElement &&
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  //   // @ts-ignore
+  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //   // @ts-ignore: No types available
   //   document.activeElement.blur();
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
@@ -68,6 +68,30 @@ function* formValueChangeSaga(
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
+
+  if (field === "datasource.id") {
+    const editorConfigs = yield select(getPluginEditorConfigs);
+    const datasource = yield select(getDatasource, actionPayload.payload);
+
+    // Update the datasource not just the datasource id.
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: "datasource",
+        value: datasource,
+      }),
+    );
+
+    if (!editorConfigs[datasource.pluginId]) {
+      yield put(fetchPluginForm({ id: datasource.pluginId }));
+    }
+
+    // Update the datasource of the form as well
+    yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
+
+    return;
+  }
+
   yield put(
     setActionProperty({
       actionId: values.id,
@@ -75,15 +99,6 @@ function* formValueChangeSaga(
       value: actionPayload.payload,
     }),
   );
-
-  if (field === "datasource.id") {
-    const editorConfigs = yield select(getPluginEditorConfigs);
-    const datasource = yield select(getDatasource, actionPayload.payload);
-
-    if (!editorConfigs[datasource.pluginId]) {
-      yield put(fetchPluginForm({ id: datasource.pluginId }));
-    }
-  }
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {

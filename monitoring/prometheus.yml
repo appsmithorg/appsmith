@@ -1,0 +1,19 @@
+global:
+    scrape_interval: 10s
+  
+  scrape_configs:
+    - job_name: 'spring_micrometer'
+      metrics_path: '/actuator/prometheus'
+      scrape_interval: 5s
+      static_configs:
+        - targets: ['localhost:8080']
+      basic_auth:
+        username: {$APPSMITH_USERNAME}
+        password: {$APPSMITH_PASSWORD}
+  
+  remote_write:
+  - url: https://prometheus-us-central1.grafana.net/api/prom/push
+    basic_auth:
+      username: {$GRAFANA_USERNAME}
+      password: {$GRAFANA_PASSWORD}
+  

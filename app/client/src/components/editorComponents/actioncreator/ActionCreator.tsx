@@ -37,6 +37,7 @@ const ALERT_STYLE_OPTIONS = [
 ];
 
 const FILE_TYPE_OPTIONS = [
+  { label: "Select file type (optional)", value: "", id: "" },
   { label: "Plain text", value: "'text/plain'", id: "text/plain" },
   { label: "HTML", value: "'text/html'", id: "text/html" },
   { label: "CSV", value: "'text/csv'", id: "text/csv" },
@@ -53,11 +54,14 @@ const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?
 const IS_URL_OR_MODAL = /^'.*'$/;
 const modalSetter = (changeValue: any, currentValue: string) => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
-  if (isDynamicValue(changeValue)) {
-    args[0] = `${changeValue.substring(2, changeValue.length - 2)}`;
-  } else {
-    args[0] = `'${changeValue}'`;
+  let args: string[] = [];
+  if (matches.length) {
+    args = matches[0][2].split(",");
+    if (isDynamicValue(changeValue)) {
+      args[0] = `${changeValue.substring(2, changeValue.length - 2)}`;
+    } else {
+      args[0] = `'${changeValue}'`;
+    }
   }
   return currentValue.replace(
     ACTION_TRIGGER_REGEX,
@@ -106,13 +110,21 @@ const JSToString = (js: string): string => {
 
 const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
-  return argsplitMatches
-    .map(match => {
-      return match[0];
-    })
-    .filter(arg => {
-      return arg !== "";
-    });
+  const arr: string[] = [];
+  let isPrevUndefined = true;
+  argsplitMatches.forEach(match => {
+    const matchVal = match[0];
+    if (!matchVal || matchVal === "") {
+      if (isPrevUndefined) {
+        arr.push(matchVal);
+      }
+      isPrevUndefined = true;
+    } else {
+      isPrevUndefined = false;
+      arr.push(matchVal);
+    }
+  });
+  return arr;
 };
 
 const textSetter = (
@@ -121,9 +133,12 @@ const textSetter = (
   argNum: number,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = argsStringToArray(matches[0][2]);
-  const jsVal = stringToJS(changeValue);
-  args[argNum] = jsVal;
+  let args: string[] = [];
+  if (matches.length) {
+    args = argsStringToArray(matches[0][2]);
+    const jsVal = stringToJS(changeValue);
+    args[argNum] = jsVal;
+  }
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
@@ -148,8 +163,11 @@ const enumTypeSetter = (
   argNum: number,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = argsStringToArray(matches[0][2]);
-  args[argNum] = changeValue as string;
+  let args: string[] = [];
+  if (matches.length) {
+    args = argsStringToArray(matches[0][2]);
+    args[argNum] = changeValue as string;
+  }
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
@@ -207,7 +225,7 @@ type ViewProps = {
 type SelectorViewProps = ViewProps & {
   options: TreeDropdownOption[];
   defaultText: string;
-  getDefaults?: Function;
+  getDefaults?: (value?: any) => any;
   displayValue?: string;
   selectedLabelModifier?: (
     option: TreeDropdownOption,

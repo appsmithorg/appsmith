@@ -15,6 +15,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
+import AppErrorBoundary from "./AppErrorBoundry";
 appInitializer();
 
 const App = () => {
@@ -31,7 +32,7 @@ const App = () => {
 
 class ThemedApp extends React.Component<{
   currentTheme: any;
-  setTheme: Function;
+  setTheme: (themeMode: ThemeMode) => void;
 }> {
   componentDidMount() {
     if (localStorage.getItem("THEME") === "LIGHT") {
@@ -48,7 +49,9 @@ class ThemedApp extends React.Component<{
           autoClose={5000}
           closeButton={false}
         />
-        <AppRouter />
+        <AppErrorBoundary>
+          <AppRouter />
+        </AppErrorBoundary>
       </ThemeProvider>
     );
   }

@@ -5,7 +5,7 @@
 import { Component } from "react";
 import _ from "lodash";
 import { ControlType } from "constants/PropertyControlConstants";
-
+// eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
   S

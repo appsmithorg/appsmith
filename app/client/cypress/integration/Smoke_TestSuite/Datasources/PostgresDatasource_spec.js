@@ -31,6 +31,6 @@ describe("Postgres datasource test cases", function() {
       200,
     );
 
-    cy.deletePostgresDatasource(datasourceName);
+    cy.deleteDatasource(datasourceName);
   });
 });

@@ -31,12 +31,13 @@ import { ImportReduxState } from "reducers/uiReducers/importReducer";
 import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
-import { PageDSLsReduxState } from "./uiReducers/pageDSLReducer";
+import { PageCanvasStructureReduxState } from "./uiReducers/pageCanvasStructure";
 import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
 import { EvaluatedTreeState } from "./evalutationReducers/treeReducer";
 import { EvaluationDependencyState } from "./evalutationReducers/dependencyReducer";
+import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -68,7 +69,8 @@ export interface AppState {
     help: HelpReduxState;
     apiName: ApiNameReduxState;
     explorer: ExplorerReduxState;
-    pageDSLs: PageDSLsReduxState;
+    pageCanvasStructure: PageCanvasStructureReduxState;
+    pageWidgets: PageWidgetsReduxState;
     confirmRunAction: ConfirmRunActionReduxState;
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;

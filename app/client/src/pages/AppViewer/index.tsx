@@ -10,7 +10,10 @@ import {
   getApplicationViewerPageURL,
 } from "constants/routes";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getIsInitialized } from "selectors/appViewSelectors";
+import {
+  getIsInitialized,
+  getIsInitializeError,
+} from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
 import { ExecuteActionPayload } from "constants/ActionConstants";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
@@ -23,6 +26,8 @@ import {
 } from "actions/metaActions";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
+import log from "loglevel";
+import ServerTimeout from "../common/ServerTimeout";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppViewerBody = styled.section`
@@ -36,6 +41,7 @@ const AppViewerBody = styled.section`
 export type AppViewerProps = {
   initializeAppViewer: (applicationId: string, pageId?: string) => void;
   isInitialized: boolean;
+  isInitializeError: boolean;
   executeAction: (actionPayload: ExecuteActionPayload) => void;
   updateWidgetProperty: (
     widgetId: string,
@@ -62,7 +68,7 @@ class AppViewer extends Component<
       this.setState({ registered: true });
     });
     const { applicationId, pageId } = this.props.match.params;
-    console.log({ applicationId, pageId });
+    log.debug({ applicationId, pageId });
     if (applicationId) {
       this.props.initializeAppViewer(applicationId, pageId);
     }
@@ -73,7 +79,10 @@ class AppViewer extends Component<
   };
 
   public render() {
-    const { isInitialized } = this.props;
+    const { isInitialized, isInitializeError } = this.props;
+    if (isInitializeError) {
+      return <ServerTimeout />;
+    }
     return (
       <EditorContext.Provider
         value={{
@@ -100,6 +109,7 @@ class AppViewer extends Component<
 
 const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
+  isInitializeError: getIsInitializeError(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

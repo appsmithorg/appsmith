@@ -178,7 +178,7 @@ const apiPaneReducer = createReducer(initialState, {
 
   [ReduxActionTypes.SET_EXTRA_FORMDATA]: (
     state: ApiPaneReduxState,
-    action: ReduxAction<{ id: string; values: {} }>,
+    action: ReduxAction<{ id: string; values: Record<string, unknown> }>,
   ) => {
     const { id, values } = action.payload;
     return {

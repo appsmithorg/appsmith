@@ -942,15 +942,15 @@ const evaluate = (
 
       // Set it to self
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         self[key] = GLOBAL_DATA[key];
       });
 
       ///// Adding extra libraries separately
       extraLibraries.forEach(library => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         self[library.accessor] = library.lib;
       });
 
@@ -959,8 +959,8 @@ const evaluate = (
       // Remove it from self
       // This is needed so that next eval can have a clean sheet
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         delete self[key];
       });
 
@@ -1417,31 +1417,34 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
+    try {
+      const isValidOption = (option: { label: any; value: any }) =>
+        _.isObject(option) &&
+        _.isString(option.label) &&
+        _.isString(option.value) &&
+        !_.isEmpty(option.label) &&
+        !_.isEmpty(option.value);
 
-    const isValidOption = (option: { label: any; value: any }) =>
-      _.isString(option.label) &&
-      _.isString(option.value) &&
-      !_.isEmpty(option.label) &&
-      !_.isEmpty(option.value);
+      const hasOptions = every(parsed, isValidOption);
+      const validOptions = parsed.filter(isValidOption);
+      const uniqValidOptions = _.uniqBy(validOptions, "value");
 
-    const hasOptions = every(parsed, (datum: { label: any; value: any }) => {
-      if (isObject(datum)) {
-        return isValidOption(datum);
-      } else {
-        return false;
+      if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
+        return {
+          isValid: false,
+          parsed: uniqValidOptions,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+        };
       }
-    });
-    const validOptions = parsed.filter(isValidOption);
-    const uniqValidOptions = _.uniqBy(validOptions, "value");
-
-    if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
+      return { isValid, parsed };
+    } catch (e) {
+      console.error(e);
       return {
         isValid: false,
-        parsed: uniqValidOptions,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+        parsed: [],
+        transformed: parsed,
       };
     }
-    return { isValid, parsed };
   },
   [VALIDATION_TYPES.DATE]: (
     dateString: string,

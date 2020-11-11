@@ -8,7 +8,7 @@ import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
 import { isString } from "lodash";
 
 interface TableDataDownloadProps {
-  data: object[];
+  data: Array<Record<string, unknown>>;
   columns: ReactTableColumnProps[];
   widgetName: string;
 }
