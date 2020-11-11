@@ -22,10 +22,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,37 +76,44 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     @Override
     public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
-        JSONObject dsl = layout.getDsl();
-        if (dsl == null) {
-            // There is no DSL here. No need to process anything. Return as is.
-            return Mono.just(layout);
-        }
+        return Mono.fromSupplier(() -> {
+                    JSONObject dsl = layout.getDsl();
+                    if (dsl == null) {
+                        // There is no DSL here. No need to process anything. Return as is.
+                        return Mono.just(layout);
+                    }
 
-        Set<String> widgetNames = new HashSet<>();
-        Set<String> dynamicBindings = new HashSet<>();
-        extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
-        layout.setWidgetNames(widgetNames);
+                    Set<String> widgetNames = new HashSet<>();
+                    Set<String> dynamicBindings = new HashSet<>();
+                    try {
+                        extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
+                    } catch (Throwable t) {
+                        Exceptions.propagate(t);
+                    }
+                    layout.setWidgetNames(widgetNames);
 
-        // dynamicBindingNames is a reference to all kinds of Actions that can be performed on the page
-        Set<String> dynamicBindingNames = new HashSet<>();
-        if (!CollectionUtils.isEmpty(dynamicBindings)) {
-            for (String mustacheKey : dynamicBindings) {
-                // Extract all the words in the dynamic bindings
-                extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
-            }
-        }
-
-        // Update these actions to be executed on load, unless the user has touched the setting for this
-        Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findAndUpdateOnLoadActionsInPage(dynamicBindingNames, pageId);
+                    // dynamicBindingNames is a set of all words extracted from mustaches which would also contain the names
+                    // of the actions being used to read data from into the widget fields
+                    Set<String> dynamicBindingNames = new HashSet<>();
+                    if (!CollectionUtils.isEmpty(dynamicBindings)) {
+                        for (String mustacheKey : dynamicBindings) {
+                            // Extract all the words in the dynamic bindings
+                            extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
+                        }
+                    }
+                    return dynamicBindingNames;
+                }).flatMap(dynamicBindingNames -> {// Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
+            Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findAndUpdateOnLoadActionsInPage((Set<String>) dynamicBindingNames, pageId);
+            return onLoadActionsMono;})
+          .zipWith(
 
         // Update the list of actions to be executed on load in the layout as well
-        return newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
+         newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
-                        FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId)))
-                .zipWith(onLoadActionsMono)
+                        FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
                 .map(tuple -> {
-                    PageDTO page = tuple.getT1();
-                    List<HashSet<DslActionDTO>> onLoadActions = tuple.getT2();
+                    PageDTO page = tuple.getT2();
+                    List<HashSet<DslActionDTO>> onLoadActions = tuple.getT1();
 
                     List<Layout> layoutList = page.getLayouts();
 
@@ -395,11 +409,16 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     /**
      * Walks the DSL and extracts all the widget names from it.
+     * A widget is expected to have a few properties defining its own behaviour, with any mustache bindings present
+     * in them aggregated in the field dynamicBindingsPathList.
+     * A widget may also have other widgets as children, each of which will follow the same structure
+     * Refer to FieldName.DEFAULT_PAGE_LAYOUT for a template
      *
      * @param dsl
      * @param widgetNames
+     * @param dynamicBindings
      */
-    private void extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl, Set<String> widgetNames, Set<String> dynamicBindings) {
+    private void extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl, Set<String> widgetNames, Set<String> dynamicBindings) throws AppsmithException {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
             // This isnt a valid widget configuration. No need to traverse this.
             return;
@@ -409,23 +428,30 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         // Since we are parsing this widget in this, add it.
         widgetNames.add(widgetName);
 
+
         // Start by picking all fields where we expect to find dynamic bindings for this particular widget
         ArrayList<Object> dynamicallyBoundedPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
         // Each of these might have nested structures, so we iterate through them to find the leaf node for each
-        dynamicallyBoundedPathList.forEach(x -> {
+        for(Object x : dynamicallyBoundedPathList) {
             final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
             String[] fields = fieldPath.split(Pattern.quote("."));
             // For nested fields, the parent dsl to search in would shift by one level every iteration
             Object parent = dsl;
             Iterator<String> fieldsIterator = Arrays.stream(fields).iterator();
             // This loop will end at either a leaf node, or the last identified JSONObject
-            // For instance, if the tokens in the fieldPath refer to a child of a string, or a list
-            // We will simply take the entire string, or list as a potential dynamically bound field
+            // For instance, if the tokens in the fieldPath refer to a member of a multidimensional list for charts,
+            // or tables, we will simply take the entire list as a potential dynamically bound field
+            // This extra condition is to future proof the search against changes to the structure of the pathList
+            // It will default to searching the entire tree from the last identified parent
             while(fieldsIterator.hasNext() && parent instanceof JSONObject) {
-                parent = ((JSONObject) parent).get(fieldsIterator.next());
+                String nextKey = fieldsIterator.next();
+                parent = ((JSONObject) parent).get(nextKey);
+                if(parent == null) {
+                    throw new AppsmithException(AppsmithError.INVALID_PARAMETER, nextKey);
+                }
             }
             dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
-        });
+        };
 
 
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);

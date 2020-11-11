@@ -673,11 +673,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     /**
-     * Given a list of names of actions and pageId, find all the actions matching this criteria of name, and pageId in unpublishedActions
+     * Given a list of names of actions and pageId, find all the actions matching this criteria of names and pageId
      *
      * @param names Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
      * @param pageId Id of the Page within which to look for Actions.
-     * @return A Flux of Actions that are identified to be updated as being executed on page-load
+     * @return A Flux of Actions that are identified to be executed on page-load.
      */
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId) {

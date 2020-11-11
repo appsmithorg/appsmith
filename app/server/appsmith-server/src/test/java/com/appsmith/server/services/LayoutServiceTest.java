@@ -18,6 +18,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -303,6 +304,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
+                    action.setUserSetOnLoad(true);
                     monos.add(newActionService.createAction(action));
 
                     action = new ActionDTO();
@@ -341,6 +343,7 @@ public class LayoutServiceTest {
                     Layout newLayout = new Layout();
 
                     JSONObject obj = new JSONObject(Map.of(
+                            "widgetName", "testWidget",
                             "key", "value-updated",
                             "another", "Hello people of the {{input1.text}} planet!",
                             "dynamicGet", "some dynamic {{aGetAction.data}}",
@@ -348,6 +351,11 @@ public class LayoutServiceTest {
                             "dynamicPostWithAutoExec", "some dynamic {{aPostActionWithAutoExec.data}}",
                             "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
                     ));
+                    JSONArray dynamicBindingsPathList = new JSONArray();
+                    dynamicBindingsPathList.addAll(List.of(
+                            new JSONObject(Map.of("key", "dynamicGet")),
+                            new JSONObject(Map.of("key", "dynamicPostWithAutoExec"))));
+                    obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
                     return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
@@ -359,6 +367,7 @@ public class LayoutServiceTest {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
+                    layout.getLayoutOnLoadActions().get(0).stream().forEach(x -> log.debug(x.getName()));
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(Set.of("aPostTertiaryAction"));

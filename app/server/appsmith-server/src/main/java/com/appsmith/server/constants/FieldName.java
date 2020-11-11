@@ -45,7 +45,7 @@ public class FieldName {
             "        \"parentRowSpace\": 1,\n" +
             "        \"type\": \"CANVAS_WIDGET\",\n" +
             "        \"canExtend\": true,\n" +
-            "        \"dynamicBindings\": {},\n" +
+            "        \"dynamicBindingPathList\": [],\n" +
             "        \"version\": 4,\n" +
             "        \"minHeight\": 1292,\n" +
             "        \"parentColumnSpace\": 1,\n" +
