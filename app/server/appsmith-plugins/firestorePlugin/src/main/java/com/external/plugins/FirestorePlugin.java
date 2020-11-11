@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
@@ -11,13 +12,16 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.cloud.FirestoreClient;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -28,12 +32,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Datasource properties:
@@ -53,7 +60,7 @@ public class FirestorePlugin extends BasePlugin {
         super(wrapper);
     }
 
-    //    @Slf4j
+    @Slf4j
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
 
@@ -94,7 +101,6 @@ public class FirestorePlugin extends BasePlugin {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 }
             }
-
 
             ApiFuture<Object> objFuture;
             Object objResult = null;
@@ -138,20 +144,23 @@ public class FirestorePlugin extends BasePlugin {
             ActionExecutionResult result = new ActionExecutionResult();
             result.setIsExecutionSuccess(true);
             if (objResult != null) {
-                result.setBody(resultToMap(objResult));
+                Map resultMap = resultToMap(objResult);
+                result.setBody(resultMap);
             }
 
             return Mono.just(result);
         }
 
         private Map resultToMap(Object objResult) {
-            Map<String, Object> resultMap = new HashMap<String, Object>();
+            Map<String, Object> resultMap = new HashMap<>();
             if (objResult instanceof WriteResult) {
                 WriteResult writeResult = (WriteResult) objResult;
                 resultMap.put("lastUpdateTime", writeResult.getUpdateTime());
             } else if (objResult instanceof DocumentSnapshot) {
                 DocumentSnapshot documentSnapshot = (DocumentSnapshot) objResult;
-                resultMap = documentSnapshot.getData();
+                if (documentSnapshot.getData() != null) {
+                    resultMap = documentSnapshot.getData();
+                }
             }
             return resultMap;
         }
@@ -187,6 +196,14 @@ public class FirestorePlugin extends BasePlugin {
                         .build();
                 FirebaseApp firebaseApp;
                 try {
+                    List<FirebaseApp> apps = FirebaseApp.getApps();
+                    for(FirebaseApp app : apps) {
+                        if(app.getName().equals(projectId)) {
+                            System.out.println("Got appName: " + projectId+ ". Going to delete it now");
+                            // The Firebase app already exists. We have to delete it first before initializing
+                            app.delete();
+                        }
+                    }
                     firebaseApp = FirebaseApp.initializeApp(options, projectId);
                 } catch (IllegalStateException e) {
                     e.printStackTrace();
@@ -202,14 +219,8 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Firestore connection) {
-            System.out.println("*** Going to close Firestore connection: " + connection.toString());
-//            if (connection != null) {
-//                try {
-//                    connection.close();
-//                } catch (Exception e) {
-//                    System.out.println("Error closing Firestore connection." + e.getMessage());
-//                }
-//            }
+            // This is empty because there's no concept of destroying a Firestore connection here.
+            // When the datasource is updated, the FirebaseApp instance will delete & re-create the app
         }
 
         @Override
@@ -250,18 +261,31 @@ public class FirestorePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceCreate(datasourceConfiguration)
-                    .map(connection -> {
-                        try {
-                            if (connection != null) {
-                                connection.close();
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Error closing Firestore connection that was made for testing the datasource." + e.getMessage());
-                        }
-
-                        return new DatasourceTestResult();
-                    })
+                    .map(connection -> new DatasourceTestResult())
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+        }
+
+        @Override
+        public Mono<DatasourceStructure> getStructure(Firestore connection, DatasourceConfiguration datasourceConfiguration) {
+            Iterable<CollectionReference> collectionReferences = connection.listCollections();
+
+            List<DatasourceStructure.Table> tables = StreamSupport.stream(collectionReferences.spliterator(), false)
+                    .map(collectionReference -> {
+                        String id = collectionReference.getId();
+                        final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
+                        return new DatasourceStructure.Table(
+                                DatasourceStructure.TableType.COLLECTION,
+                                id,
+                                new ArrayList<>(),
+                                new ArrayList<>(),
+                                templates
+                        );
+                    })
+                    .collect(Collectors.toList());
+            DatasourceStructure structure = new DatasourceStructure();
+            structure.setTables(tables);
+
+            return Mono.just(structure);
         }
     }
 }
