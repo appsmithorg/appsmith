@@ -21,6 +21,7 @@ jobs:
     defaults:
       run:
         working-directory: app/client
+        shell: bash
 
     steps:
     # Checkout the code
@@ -91,6 +92,7 @@ jobs:
     defaults:
       run:
         working-directory: app/client
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -161,8 +163,8 @@ jobs:
         --env APPSMITH_ENCRYPTION_PASSWORD=password \
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
-        appsmith/appsmith-server:release
-  
+        appsmith/appsmith-server-ee:release
+
     - name: Pull master server docker container and start it locally
       if: github.ref == 'refs/heads/master'
       shell: bash
@@ -175,7 +177,7 @@ jobs:
         --env APPSMITH_ENCRYPTION_PASSWORD=password \
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
-        appsmith/appsmith-server:nightly
+        appsmith/appsmith-server-ee:nightly
 
     - name: Installing Yarn serve
       run: |
@@ -269,15 +271,15 @@ jobs:
     - name: Push release image to Docker Hub
       if: success() && github.ref == 'refs/heads/release' && github.event_name == 'push'
       run: |
-        docker build -t appsmith/appsmith-editor:${{steps.branch_name.outputs.tag}} .
+        docker build -t appsmith/appsmith-editor-ee:${{steps.branch_name.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        docker push appsmith/appsmith-editor
+        docker push appsmith/appsmith-editor-ee
     
     # Build master Docker image and push to Docker Hub
     - name: Push production image to Docker Hub with commit tag
       if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: |
-        docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
-        docker build -t appsmith/appsmith-editor:nightly .
+        docker build -t appsmith/appsmith-editor-ee:${GITHUB_SHA} .
+        docker build -t appsmith/appsmith-editor-ee:nightly .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        docker push appsmith/appsmith-editor
+        docker push appsmith/appsmith-editor-ee
