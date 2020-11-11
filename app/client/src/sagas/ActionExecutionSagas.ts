@@ -27,7 +27,6 @@ import {
   ActionDescription,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
-import { ToastTypeOptions } from "components/editorComponents/ToastComponent";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
@@ -182,24 +181,27 @@ function* showAlertSaga(
     if (event.callback) event.callback({ success: false });
     return;
   }
-  if (payload.style && !ToastTypeOptions.includes(payload.style)) {
-    console.error(
-      "Toast type needs to be a one of " + ToastTypeOptions.join(", "),
-    );
-    if (event.callback) event.callback({ success: false });
-    return;
-  }
-  let variant = Variant.info;
+  let variant;
   switch (payload.style) {
-    case "error":
-      variant = Variant.danger;
+    case "info":
+      variant = Variant.info;
+      break;
+    case "success":
+      variant = Variant.success;
       break;
     case "warning":
       variant = Variant.warning;
       break;
-    default:
-      variant = Variant.success;
+    case "error":
+      variant = Variant.danger;
       break;
+  }
+  if (payload.style && !variant) {
+    console.error(
+      "Toast type needs to be a one of " + Object.values(Variant).join(", "),
+    );
+    if (event.callback) event.callback({ success: false });
+    return;
   }
   Toaster.show({
     text: payload.message,
