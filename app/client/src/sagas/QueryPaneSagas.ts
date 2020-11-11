@@ -18,7 +18,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { change, initialize } from "redux-form";
+import { autofill, change, initialize } from "redux-form";
 import {
   getAction,
   getPluginEditorConfigs,
@@ -85,6 +85,9 @@ function* formValueChangeSaga(
     if (!editorConfigs[datasource.pluginId]) {
       yield put(fetchPluginForm({ id: datasource.pluginId }));
     }
+
+    // Update the datasource of the form as well
+    yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
 
     return;
   }
