@@ -373,6 +373,31 @@ bye() {  # Prints a friendly good bye message and exits the script.
     fi
 }
 
+ask_telemetry() {
+    echo ""
+    echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
+    echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
+    echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
+    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
+    echo -e ""
+    if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
+        disable_telemetry="false"
+    else
+        disable_telemetry="true"
+    fi
+    echo "++++++++++++++++++++++++++++++++++++++++++++"
+
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Telemetry",
+        "data": {
+            "disable-telemetry": "'"$disable_telemetry"'"
+        }
+    }' > /dev/null
+}
+
 echo -e "👋 Thank you for trying out Appsmith! "
 echo ""
 
@@ -594,6 +619,7 @@ if [[ -z $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
+ask_telemetry
 echo ""
 echo "Downloading the configuration templates..."
 templates_dir="$(mktemp -d)"
@@ -694,13 +720,7 @@ else
     echo "Need help Getting Started?"
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
     echo ""
-    echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
-    echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
-    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
-    if confirm y "Would you like to share anonymous usage data and receive better support?"; then
-        optIn="Yes"
-    fi
-    echo "Please share your email to receive updates about appsmith!"
+    echo "Please share your email to receive support & updates about appsmith!"
     read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
@@ -710,7 +730,6 @@ else
       "data": {
           "os": "'"$os"'",
           "email": "'"$email"'"
-          "optIn": "'"$optIn"'"
        }
     }' > /dev/null
 fi
