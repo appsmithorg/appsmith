@@ -693,7 +693,14 @@ else
     echo ""
     echo "Need help Getting Started?"
     echo "Join our Discord server https://discord.com/invite/rBTTVJp"
-    echo "Please share your email to receive support & updates about appsmith!"
+    echo ""
+    echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
+    echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
+    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
+    if confirm y "Would you like to share anonymous usage data and receive better support?"; then
+        optIn="Yes"
+    fi
+    echo "Please share your email to receive updates about appsmith!"
     read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
@@ -703,12 +710,8 @@ else
       "data": {
           "os": "'"$os"'",
           "email": "'"$email"'"
+          "optIn": "'"$optIn"'"
        }
     }' > /dev/null
 fi
-echo -e "Thank you for installing appsmith! We want to be transparent and inform you that we do perform telemetry in our on-prem installations."
-echo -e "All telemetry is 100% anonymous and only statistical in nature."
-echo -e "This helps us understand your needs, prioritise features & provide better support to your on-prem instance."
-echo -e "You can read more about it in our documentation https://docs.appsmith.com/telemetry/telemetry"
-echo -e "To disable telemetry, set APPSMITH_DISABLE_TELEMETRY=true in your docker.env file and restarting your docker containers"
-echo -e "\nPeace out ✌️\n"
+echo -e "\Thank you!\n"

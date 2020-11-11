@@ -50,4 +50,7 @@ APPSMITH_MONGODB_URI=mongodb://$encoded_mongo_root_user:$encoded_mongo_root_pass
 # APPSMITH_SEGMENT_KEY=
 # *******************************
 
+# ******** ANALYTICS *************
+APPSMITH_DISABLE_TELEMETRY=$disable_telemetry
+# *******************************
 EOF
