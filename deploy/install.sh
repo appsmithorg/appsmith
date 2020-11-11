@@ -374,6 +374,7 @@ bye() {  # Prints a friendly good bye message and exits the script.
 }
 
 ask_telemetry() {
+    echo ""
     echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
     echo -e "We want to be transparent and inform you that we do perform telemetry in our on-prem installations."
     echo -e "All telemetry is 100% anonymous and only statistical in nature."
