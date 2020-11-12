@@ -1643,13 +1643,17 @@ const VALIDATORS: Record<ValidationType, Validator> = {
           }
         }
       } else {
-        if (isUndefined(value) || !isNumber(value)) {
+        try {
+          const parsed = toNumber(value);
+          return {
+            isValid: true,
+            parsed: parsed,
+          };
+        } catch (e) {
           return {
             isValid: true,
             parsed: -1,
           };
-        } else {
-          return VALIDATORS[VALIDATION_TYPES.NUMBER](value, props, dataTree);
         }
       }
     }
