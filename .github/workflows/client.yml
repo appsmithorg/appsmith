@@ -21,6 +21,7 @@ jobs:
     defaults:
       run:
         working-directory: app/client
+        shell: bash
 
     steps:
     # Checkout the code
@@ -73,8 +74,10 @@ jobs:
     - name: Run the jest tests
       run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
+    # We burn React environment & the Segment analytics key into the build itself.
+    # This is to ensure that we don't need to configure it in each installation
     - name: Create the bundle
-      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn build
+      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} yarn build
 
     # Upload the build artifact so that it can be used by the test & deploy job in the workflow
     - name: Upload react build bundle
@@ -89,6 +92,7 @@ jobs:
     defaults:
       run:
         working-directory: app/client
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -160,7 +164,7 @@ jobs:
         --env APPSMITH_ENCRYPTION_SALT=salt \
         --env APPSMITH_IS_SELF_HOSTED=false \
         appsmith/appsmith-server:release
-  
+
     - name: Pull master server docker container and start it locally
       if: github.ref == 'refs/heads/master'
       shell: bash
@@ -192,6 +196,7 @@ jobs:
         CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+        APPSMITH_DISABLE_TELEMETRY: true
         POSTGRES_PASSWORD: postgres
       run: |
         ./cypress/setup-test.sh

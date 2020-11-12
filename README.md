@@ -70,7 +70,7 @@ Connect your own data to build apps for your team. [Read more here.](https://doc
 
 If you encountered a bug or need help troubleshooting an issue, you can use one of the following channels:
 
-* Self Help: [Documentation](https://docs.appsmith.com/)
+* Self Help: [Documentation](https://docs.appsmith.com/core-concepts/building-the-ui)
 * Community Support: [Discord](https://discord.gg/rBTTVJp)
 * Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
 
