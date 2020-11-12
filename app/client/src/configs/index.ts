@@ -178,9 +178,21 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS.segment.ceKey,
   );
 
+  let sentryTelemetry = true;
+  // Turn off all analytics if telemetry is disabled
+  if (APPSMITH_FEATURE_CONFIGS.disableTelemetry) {
+    smartLook.enabled = false;
+    segment.enabled = false;
+    sentryTelemetry = false;
+  }
+
   return {
     sentry: {
-      enabled: sentryDSN.enabled && sentryRelease.enabled && sentryENV.enabled,
+      enabled:
+        sentryDSN.enabled &&
+        sentryRelease.enabled &&
+        sentryENV.enabled &&
+        sentryTelemetry,
       dsn: sentryDSN.value,
       release: sentryRelease.value,
       environment: sentryENV.value,

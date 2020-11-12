@@ -23,6 +23,7 @@ import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
+import BackButton from "./BackButton";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -54,7 +55,7 @@ type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
 
 const DBForm = styled.div`
-  padding: 24px;
+  padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
   max-height: 93vh;
@@ -316,22 +317,11 @@ class DatasourceDBEditor extends React.Component<
           e.preventDefault();
         }}
       >
-        <Icon
-          icon="chevron-left"
-          iconSize={16}
-          className="backBtn"
+        <BackButton
           onClick={() =>
             history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
           }
         />
-        <span
-          className="backBtnText"
-          onClick={() =>
-            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
-          }
-        >
-          {" Back"}
-        </span>
         <br />
         <Header>
           <FormTitleContainer>
