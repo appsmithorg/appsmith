@@ -41,6 +41,7 @@ describe("Image Widget Functionality", function() {
       .should("contain", "zoom-in");
     cy.get(commonlocators.imgWidget).click();
     cy.get(commonlocators.imgWidget).click();
+    cy.get(commonlocators.imgWidget).click();
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("not.contain", "zoom-in");
