@@ -281,14 +281,39 @@ wait_for_application_start() {
     echo ""
 }
 
-echo -e "\U1F44B  Thank you for trying out Appsmith! "
+ask_telemetry() {
+    echo ""
+    echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
+    echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
+    echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
+    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
+    echo -e ""
+    if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
+        disable_telemetry="false"
+    else
+        disable_telemetry="true"
+    fi
+    echo "++++++++++++++++++++++++++++++++++++++++++++"
+
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Installation Telemetry",
+        "data": {
+            "disable-telemetry": "'"$disable_telemetry"'"
+        }
+    }' > /dev/null
+}
+
+echo -e "👋  Thank you for trying out Appsmith! "
 echo ""
 
 
 # Checking OS and assigning package manager
 desired_os=0
 os=""
-echo -e "\U1F575  Detecting your OS"
+echo -e "🕵️  Detecting your OS"
 check_os
 APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
 
@@ -442,6 +467,10 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     fi
 fi
 
+# Setting the default telemetry choice to false
+disable_telemetry="true"
+ask_telemetry
+
 echo ""
 echo "Downloading the configuration templates..."
 download_template_file
@@ -454,7 +483,7 @@ cd "$templates_dir"
 
 mkdir -p "$install_dir/config-template"
 
-bash "$templates_dir/appsmith-configmap.yaml.sh" "$mongo_protocol" "$mongo_host" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_database" > appsmith-configmap.yaml
+bash "$templates_dir/appsmith-configmap.yaml.sh" "$mongo_protocol" "$mongo_host" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_database" "$disable_telemetry" > appsmith-configmap.yaml
 if [[ "$setup_encryption" == "true" ]]; then
     bash "$templates_dir/encryption-configmap.yaml.sh" "$user_encryption_password" "$user_encryption_salt" > encryption-configmap.yaml
     overwrite_file "config-template" "encryption-configmap.yaml"

@@ -66,6 +66,7 @@ server {
 server {
     listen 443 ssl http2;
     server_name dev.appsmith.com;
+    client_max_body_size 10m;
 
     ssl_certificate /etc/certificate/dev.appsmith.com.pem;
     ssl_certificate_key /etc/certificate/dev.appsmith.com-key.pem;
