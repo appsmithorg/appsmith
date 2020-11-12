@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from "react";
+import React, { createRef, useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import {
   getApplicationViewerPageURL,
@@ -44,6 +44,8 @@ import {
   getIsSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
+import TooltipComponent from "components/ads/Tooltip";
+import { isEllipsisActive } from "utils/helpers";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -194,6 +196,8 @@ const MoreOptionsContainer = styled.div`
 const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   padding: 12px;
   padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 12px;
   ${props =>
     props.isFetching
       ? `
@@ -202,6 +206,13 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
     margin-left: 10px;
   `
       : null};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* number of lines to show */
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+  color: ${props => props.theme.colors.text.heading};
 `;
 type ApplicationCardProps = {
   application: ApplicationPayload;
@@ -247,6 +258,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
+  const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSelectedColor(colorCode);
@@ -343,6 +355,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const editApplicationURL = BUILDER_PAGE_URL(
     props.application.id,
     props.application.defaultPageId,
+  );
+  const appNameText = (
+    <Text type={TextType.H3} cypressSelector="t--app-card-name">
+      {props.application.name}
+    </Text>
   );
 
   const ContextMenu = (
@@ -503,12 +520,17 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           )}
         </Wrapper>
         <AppNameWrapper
+          ref={appNameWrapperRef}
           isFetching={isFetchingApplications}
           className={isFetchingApplications ? Classes.SKELETON : ""}
         >
-          <Text type={TextType.H3} cypressSelector="t--app-card-name">
-            {props.application.name}
-          </Text>
+          {isEllipsisActive(appNameWrapperRef?.current) ? (
+            <TooltipComponent maxWidth={400} content={props.application.name}>
+              {appNameText}
+            </TooltipComponent>
+          ) : (
+            appNameText
+          )}
         </AppNameWrapper>
       </>
     </NameWrapper>

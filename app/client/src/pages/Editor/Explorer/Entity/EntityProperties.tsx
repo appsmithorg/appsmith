@@ -110,7 +110,7 @@ export const EntityProperties = memo(
   },
 );
 
-EntityProperties.displayName = "EntityPrperties";
+EntityProperties.displayName = "EntityProperties";
 
 (EntityProperties as any).whyDidYouRender = {
   logOnDifferentValues: false,
