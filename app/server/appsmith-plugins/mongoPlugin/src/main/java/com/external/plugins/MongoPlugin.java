@@ -419,20 +419,10 @@ public class MongoPlugin extends BasePlugin {
 
             return Mono.just(database)
                     .flatMapMany(db -> {
-                        Mono<List<String>> collectionNamesMono = Mono.empty();
-                        Publisher<String> listCollectionNamesPublisher = db.listCollectionNames();
 
-                        // Assumption is that the returned publisher type would be of type flux and not mono. Code handling
-                        // in the next block is due to this assumption
-                        if (listCollectionNamesPublisher.getClass().equals(Mono.class)) {
-                            collectionNamesMono = (Mono) listCollectionNamesPublisher;
-                        } else if (listCollectionNamesPublisher.getClass().equals(Flux.class)) {
-                            Flux collectionNamesFlux = (Flux) listCollectionNamesPublisher;
-                            collectionNamesMono = collectionNamesFlux.collectList();
-                        }
+                        Flux<String> collectionNamesFlux = Flux.from(db.listCollectionNames());
 
-                        return collectionNamesMono
-                                .flatMapMany(Flux::fromIterable)
+                        return collectionNamesFlux
                                 .flatMap(collectionName -> {
                                     tables.add(new DatasourceStructure.Table(
                                             DatasourceStructure.TableType.COLLECTION,
@@ -457,7 +447,6 @@ public class MongoPlugin extends BasePlugin {
                                 });
                     })
                     .collectList()
-                    .thenReturn(tables)
                     .map(documents -> {
                         log.debug("Added structures of {} collections to the Datasource Structure Table", documents.size());
                         tables.sort(Comparator.comparing(DatasourceStructure.Table::getName));
