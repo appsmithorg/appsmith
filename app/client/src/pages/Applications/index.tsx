@@ -631,7 +631,6 @@ const ApplicationsSection = (props: any) => {
                   <PaddingWrapper>
                     <ApplicationAddCardWrapper
                       onClick={() => {
-                        console.log({ creatingApplicationMap });
                         if (
                           Object.entries(creatingApplicationMap).length === 0 ||
                           (creatingApplicationMap &&
