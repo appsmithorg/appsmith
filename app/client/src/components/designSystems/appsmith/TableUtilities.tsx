@@ -529,7 +529,8 @@ export const renderCell = (
         const buttonProps = {
           isSelected: !!isSelected,
           onCommandClick: buttonProperties.onCommandClick,
-          intent: buttonProperties.buttonStyle,
+          backgroundColor: buttonProperties.buttonStyle,
+          buttonLabelColor: buttonProperties.buttonLabelColor,
           columnActions: [
             {
               id: buttonProperties.id,
@@ -538,11 +539,7 @@ export const renderCell = (
             },
           ],
         };
-        return (
-          <CellWrapper isHidden={isHidden}>
-            {renderActions(buttonProps)}
-          </CellWrapper>
-        );
+        return renderActions(buttonProps, isHidden);
       } else {
         return (
           <AutoToolTipComponent
@@ -560,21 +557,24 @@ export const renderCell = (
 interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
-  intent: string;
+  backgroundColor: string;
+  buttonLabelColor: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
-export const renderActions = (props: RenderActionProps) => {
-  if (!props.columnActions) return <CellWrapper isHidden={false}></CellWrapper>;
+export const renderActions = (props: RenderActionProps, isHidden: boolean) => {
+  if (!props.columnActions)
+    return <CellWrapper isHidden={isHidden}></CellWrapper>;
   return (
-    <CellWrapper isHidden={false}>
+    <CellWrapper isHidden={isHidden}>
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <TableAction
             key={index}
             action={action}
             isSelected={props.isSelected}
-            intent={props.intent}
+            backgroundColor={props.backgroundColor}
+            buttonLabelColor={props.buttonLabelColor}
             onCommandClick={props.onCommandClick}
           />
         );
@@ -599,7 +599,8 @@ const mapButtonStyleToStyleName = (buttonStyle: string) => {
 const TableAction = (props: {
   isSelected: boolean;
   action: ColumnAction;
-  intent: string;
+  backgroundColor: string;
+  buttonLabelColor: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) => {
   const [loading, setLoading] = useState(false);
@@ -608,6 +609,8 @@ const TableAction = (props: {
   };
   return (
     <ActionWrapper
+      background={props.backgroundColor}
+      buttonLabelColor={props.buttonLabelColor}
       onClick={e => {
         if (props.isSelected) {
           e.stopPropagation();
@@ -615,7 +618,7 @@ const TableAction = (props: {
       }}
     >
       <Button
-        intent={mapButtonStyleToStyleName(props.intent)}
+        intent="PRIMARY_BUTTON"
         loading={loading}
         onClick={() => {
           setLoading(true);

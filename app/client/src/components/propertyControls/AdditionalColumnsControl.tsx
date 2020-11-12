@@ -137,7 +137,8 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
     const column = {
       ...columnProps,
       isDerived: true,
-      buttonStyle: "PRIMARY_BUTTON",
+      buttonStyle: "#29CCA3",
+      buttonLabelColor: "#FFFFFF",
     };
     const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
     updatedDerivedColumns.push(column);

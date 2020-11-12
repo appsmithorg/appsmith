@@ -351,23 +351,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                     {
                       propertyName: "buttonStyle",
-                      label: "Button Style",
-                      controlType: "DROP_DOWN",
-                      helpText: "Changes the style of the button",
-                      options: [
-                        {
-                          label: "Primary Button",
-                          value: "PRIMARY_BUTTON",
-                        },
-                        {
-                          label: "Secondary Button",
-                          value: "SECONDARY_BUTTON",
-                        },
-                        {
-                          label: "Danger Button",
-                          value: "DANGER_BUTTON",
-                        },
-                      ],
+                      label: "Button Color",
+                      controlType: "COLOR_PICKER",
+                      helpText: "Changes the color of the button",
+                    },
+                    {
+                      propertyName: "buttonLabelColor",
+                      label: "Label Color",
+                      controlType: "COLOR_PICKER",
+                      isJSConvertible: true,
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
@@ -591,23 +583,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                     {
                       propertyName: "buttonStyle",
-                      label: "Button Style",
-                      controlType: "DROP_DOWN",
-                      helpText: "Changes the style of the button",
-                      options: [
-                        {
-                          label: "Primary Button",
-                          value: "PRIMARY_BUTTON",
-                        },
-                        {
-                          label: "Secondary Button",
-                          value: "SECONDARY_BUTTON",
-                        },
-                        {
-                          label: "Danger Button",
-                          value: "DANGER_BUTTON",
-                        },
-                      ],
+                      label: "Button Color",
+                      controlType: "COLOR_PICKER",
+                      helpText: "Changes the color of the button",
+                    },
+                    {
+                      propertyName: "buttonLabelColor",
+                      label: "Label Color",
+                      controlType: "COLOR_PICKER",
+                      isJSConvertible: true,
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
@@ -754,8 +738,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     label: columnProperties.buttonLabel,
                     id: columnProperties.id,
                     dynamicTrigger: columnProperties.dynamicTrigger,
-                    buttonStyle:
-                      columnProperties.buttonStyle || "PRIMARY_BUTTON",
+                    buttonStyle: columnProperties.buttonStyle || "#29CCA3",
+                    buttonLabelColor:
+                      columnProperties.buttonLabelColor || "#FFFFFF",
                     onCommandClick: this.onCommandClick,
                   }
                 : undefined,
@@ -788,26 +773,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         }
       }
       // columns = reorderColumns(columns, this.props.columnOrder || []);
-      if (columnActions?.length) {
-        columns.push({
-          Header:
-            columnNameMap && columnNameMap["actions"]
-              ? columnNameMap["actions"]
-              : "Actions",
-          accessor: "actions",
-          width: 150,
-          minWidth: 60,
-          draggable: true,
-          Cell: (props: any) => {
-            return renderActions({
-              isSelected: props.row.isSelected,
-              columnActions: columnActions,
-              onCommandClick: this.onCommandClick,
-              intent: "PRIMARY_BUTTON",
-            });
-          },
-        });
-      }
       if (
         hiddenColumns.length &&
         this.props.renderMode === RenderModes.CANVAS
@@ -1419,6 +1384,7 @@ export interface ButtonProperties {
   label?: string;
   id: string;
   buttonStyle: string;
+  buttonLabelColor: string;
   dynamicTrigger?: string;
   onCommandClick: (action: string, onComplete: () => void) => void;
 }
@@ -1463,6 +1429,7 @@ export interface ColumnProperties {
   computedValue: string;
   buttonLabel?: string;
   buttonStyle?: string;
+  buttonLabelColor?: string;
   dynamicTrigger?: string;
   format?: {
     input?: string;
