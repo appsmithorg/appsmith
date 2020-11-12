@@ -9,22 +9,15 @@ import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-//import com.mongodb.MongoClient;
-//import com.mongodb.client.MongoCollection;
-
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.ClientSession;
 import com.mongodb.reactivestreams.client.MongoCollection;
-import com.mongodb.reactivestreams.client.MongoDatabase;
-import com.mongodb.reactivestreams.client.Success;
-import org.reactivestreams.Publisher;
-
 import org.bson.Document;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -39,10 +32,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+
 /**
  * Unit tests for MongoPlugin
  */
-/*
+
 public class MongoPluginTest {
 
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
@@ -62,9 +56,9 @@ public class MongoPluginTest {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
 
-        //final MongoClient mongoClient = new MongoClient(address, port);
         final MongoClient mongoClient = MongoClients.create();
-        if (!mongoClient.getDatabase("test").listCollectionNames().iterator().hasNext()) {
+        List<String> collectionNames = Flux.from(mongoClient.getDatabase("test").listCollectionNames()).collectList().block();
+        if (!collectionNames.iterator().hasNext()) {
             final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
             usersCollection.insertMany(List.of(
                     new Document(Map.of(
@@ -324,4 +318,3 @@ public class MongoPluginTest {
     }
 
 }
-*/

@@ -53,10 +53,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-//import com.mongodb.MongoClient;
-//import com.mongodb.client.ClientSession;
-//import com.mongodb.client.MongoDatabase;
-
 public class MongoPlugin extends BasePlugin {
 
     private static final Set<AuthenticationDTO.Type> VALID_AUTH_TYPES = Set.of(
@@ -109,17 +105,19 @@ public class MongoPlugin extends BasePlugin {
             // Execute the mongo db command now
             Publisher<Document> mongoOutputPublisher = database.runCommand(command);
 
-            Mono<Document> mongoOutputMono = Mono.empty();
-            if (mongoOutputPublisher.getClass().equals(Mono.class)) {
-                mongoOutputMono = (Mono) mongoOutputPublisher;
-            } else if (mongoOutputPublisher.getClass().equals(Flux.class)) {
-                /**
-                 * TODO : Check if this is even required. Its quite possible that mongo db would still return a Document as a result
-                 * and not Flux of Documents.
-                 */
-                Flux object = (Flux) mongoOutputPublisher;
-                mongoOutputMono = object.collectList();
-            }
+//            Mono<Document> mongoOutputMono = Mono.empty();
+//            if (mongoOutputPublisher.getClass().equals(Mono.class)) {
+//                mongoOutputMono = Mono.from(mongoOutputPublisher);
+//            } else if (mongoOutputPublisher.getClass().equals(Flux.class)) {
+//                /**
+//                 * TODO : Check if this is even required. Its quite possible that mongo db would still return a Document as a result
+//                 * and not Flux of Documents.
+//                 */
+//                Flux object = Flux.from(mongoOutputPublisher);
+//                mongoOutputMono = object.collectList();
+//            }
+
+            Mono<Document> mongoOutputMono = Mono.from(mongoOutputPublisher);
 
             // Parse the output from the execution and set it in Appsmith specific structure before returning back to Appsmith Server
             return mongoOutputMono
@@ -211,7 +209,6 @@ public class MongoPlugin extends BasePlugin {
             // TODO: ReadOnly seems to be not supported at the driver level. The recommendation is to connect with a
             //   user that doesn't have write permissions on the database.
             //   Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
-
 
             try {
                 //return Mono.just(new MongoClient(buildClientURI(datasourceConfiguration)));
@@ -349,7 +346,7 @@ public class MongoPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             final Connection.Type connectionType = datasourceConfiguration.getConnection().getType();
             return datasourceCreate(datasourceConfiguration)
-                    .map(mongoClient -> {
+                    .flatMap(mongoClient -> {
                         //ClientSession clientSession = null;
                         Mono<ClientSession> clientSession = null;
 
@@ -364,27 +361,29 @@ public class MongoPlugin extends BasePlugin {
                             } else {
                                 // For DIRECT connections, we check by running a DB command, as it's the only reliable
                                 // method of checking if the connection is usable.
-                                mongoClient
+                                Mono outputMono = (Mono) mongoClient
                                         .getDatabase("admin")
                                         .runCommand(new Document("listDatabases", 1));
-                                return new DatasourceTestResult();
+
+                                return outputMono
+                                        .then(Mono.just(new DatasourceTestResult()));
 
                             }
 
                         } catch (MongoTimeoutException e) {
                             log.warn("Timeout connecting to MongoDB from MongoPlugin.", e);
-                            return new DatasourceTestResult("Timed out trying to connect to MongoDB host.");
+                            return Mono.just(new DatasourceTestResult("Timed out trying to connect to MongoDB host."));
 
                         } catch (MongoCommandException e) {
                             // The fact that we got a response saying "Unauthorized" means that the connection to the
                             // MongoDB instance is valid. It also means we don't have access to the admin database, but
                             // that's okay for our purposes here.
                             return "Unauthorized".equals(e.getErrorCodeName())
-                                    ? new DatasourceTestResult()
-                                    : new DatasourceTestResult(e.getMessage());
+                                    ? Mono.just(new DatasourceTestResult())
+                                    : Mono.just(new DatasourceTestResult(e.getMessage()));
 
                         } catch (Exception e) {
-                            return new DatasourceTestResult(e.getMessage());
+                            return Mono.just(new DatasourceTestResult(e.getMessage()));
 
                         } finally {
                             if (clientSession != null) {
@@ -397,9 +396,12 @@ public class MongoPlugin extends BasePlugin {
 
                         }
 
-                        return new DatasourceTestResult();
+                        return Mono.just(new DatasourceTestResult());
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+                    .onErrorResume(error -> {
+                        Exception e = (Exception) error;
+                        return Mono.just(new DatasourceTestResult(e.getMessage()));
+                    });
         }
 
         @Override
@@ -414,7 +416,7 @@ public class MongoPlugin extends BasePlugin {
 
             final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
             final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
-            
+
             return Mono.just(database)
                     .flatMapMany(db -> {
                         Mono<List<String>> collectionNamesMono = Mono.empty();
@@ -428,7 +430,6 @@ public class MongoPlugin extends BasePlugin {
                             Flux collectionNamesFlux = (Flux) listCollectionNamesPublisher;
                             collectionNamesMono = collectionNamesFlux.collectList();
                         }
-
 
                         return collectionNamesMono
                                 .flatMapMany(Flux::fromIterable)
@@ -453,11 +454,12 @@ public class MongoPlugin extends BasePlugin {
                                      */
                                     generateTemplatesAndStructureForACollection(document, columns, templates);
                                     return document;
-
                                 });
                     })
                     .collectList()
+                    .thenReturn(tables)
                     .map(documents -> {
+                        log.debug("Added structures of {} collections to the Datasource Structure Table", documents.size());
                         tables.sort(Comparator.comparing(DatasourceStructure.Table::getName));
                         return structure;
                     });
