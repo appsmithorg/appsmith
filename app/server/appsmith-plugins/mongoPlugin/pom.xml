@@ -46,8 +46,8 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.11.1</version>
+            <artifactId>mongodb-driver-reactivestreams</artifactId>
+            <version>1.13.1</version>
         </dependency>
 
         <!-- Test Dependencies -->
