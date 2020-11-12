@@ -159,6 +159,6 @@ export const isEllipsisActive = (element: HTMLElement | null) => {
  *
  * @param arr string[]
  */
-export const toSentence = (arr: string[]) => {
+export const convertArrayToSentence = (arr: string[]) => {
   return arr.join(", ").replace(/,\s([^,]+)$/, " and $1");
 };

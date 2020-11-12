@@ -22,7 +22,7 @@ import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { toSentence } from "utils/helpers";
+import { convertArrayToSentence } from "utils/helpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -355,7 +355,7 @@ class DatasourceDBEditor extends React.Component<
         {cloudHosting && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
-              <span>{`Whitelist the IP ${toSentence(
+              <span>{`Whitelist the IP ${convertArrayToSentence(
                 APPSMITH_IP_ADDRESSES,
               )}  on your database instance to connect to it. `}</span>
               <a
