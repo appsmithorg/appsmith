@@ -21,8 +21,7 @@ export const TableWrapper = styled.div<{
   .tableWrap {
     height: 100%;
     display: block;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: auto;
   }
   .table {
     border-spacing: 0;
@@ -36,13 +35,6 @@ export const TableWrapper = styled.div<{
       overflow: hidden;
     }
     .tbody {
-      overflow-y: scroll;
-      /* Subtracting 9px to handling widget padding */
-      height: ${props =>
-        props.height -
-        props.tableSizes.TABLE_HEADER_HEIGHT -
-        props.tableSizes.COLUMN_HEADER_HEIGHT -
-        9}px;
       .tr {
         width: 100%;
       }
@@ -103,6 +95,11 @@ export const TableWrapper = styled.div<{
       height: ${props => props.tableSizes.ROW_HEIGHT}px;
       line-height: ${props => props.tableSizes.ROW_HEIGHT}px;
       padding: 0 10px;
+    }
+    .thead {
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
   }
   .draggable-header,

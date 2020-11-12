@@ -83,6 +83,7 @@ class DatePickerComponent extends React.Component<
     const year = now.get("year");
     const minDate = now.clone().set({ month: 0, date: 1, year: year - 100 });
     const maxDate = now.clone().set({ month: 11, date: 31, year: year + 5 });
+
     return (
       <StyledControlGroup
         fill
@@ -144,10 +145,23 @@ class DatePickerComponent extends React.Component<
     return moment(dateStr, this.props.dateFormat).toDate();
   };
 
+  /**
+   * checks if selelectedDate is null or not,
+   * sets state and calls props onDateSelected
+   * if its null, don't call onDateSelected
+   *
+   * @param selectedDate
+   */
   onDateSelected = (selectedDate: Date) => {
+    const { onDateSelected } = this.props;
+
     const date = selectedDate ? this.formatDate(selectedDate) : "";
     this.setState({ selectedDate: date });
-    this.props.onDateSelected(date);
+
+    // if date is null ( if date is cleared ), don't call onDateSelected
+    if (!selectedDate) return false;
+
+    onDateSelected(date);
   };
 }
 

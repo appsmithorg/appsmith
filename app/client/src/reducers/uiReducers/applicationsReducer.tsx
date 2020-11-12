@@ -80,17 +80,6 @@ const applicationsReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionTypes.FETCH_APPLICATION_LIST_INIT]: (
-    state: ApplicationsReduxState,
-  ) => ({ ...state, isFetchingApplications: true }),
-  [ReduxActionTypes.FETCH_APPLICATION_LIST_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<{ applicationList: ApplicationPayload[] }>,
-  ) => ({
-    ...state,
-    applicationList: action.payload,
-    isFetchingApplications: false,
-  }),
   [ReduxActionTypes.GET_ALL_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplications: true }),

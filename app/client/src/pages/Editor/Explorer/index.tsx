@@ -70,10 +70,13 @@ const EntityExplorer = (props: IPanelProps) => {
     noResults = noWidgets && noActions && noDatasource;
   }
   const { openPanel } = props;
-  const showWidgetsSidebar = useCallback(() => {
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
-    openPanel({ component: WidgetSidebar });
-  }, [openPanel, applicationId, pageId]);
+  const showWidgetsSidebar = useCallback(
+    (pageId: string) => {
+      history.push(BUILDER_PAGE_URL(applicationId, pageId));
+      openPanel({ component: WidgetSidebar });
+    },
+    [openPanel, applicationId],
+  );
   return (
     <Wrapper ref={explorerRef}>
       <Search ref={searchInputRef} clear={clearSearch} />

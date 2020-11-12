@@ -95,7 +95,7 @@ const Toaster = {
       console.error("Toast message needs to be a string");
       return;
     }
-    if (config.type && !ToastTypeOptions.includes(config.type.toLowerCase())) {
+    if (config.type && !ToastTypeOptions.includes(config.type)) {
       console.error(
         "Toast type needs to be a one of " + ToastTypeOptions.join(", "),
       );
