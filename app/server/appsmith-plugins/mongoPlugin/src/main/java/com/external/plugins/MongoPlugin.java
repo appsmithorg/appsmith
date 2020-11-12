@@ -14,21 +14,12 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-//import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoTimeoutException;
-//import com.mongodb.client.ClientSession;
-//import com.mongodb.client.MongoDatabase;
-
+import com.mongodb.reactivestreams.client.ClientSession;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.ClientSession;
-import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-import com.mongodb.reactivestreams.client.Success;
-import org.reactivestreams.Publisher;
-
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -38,8 +29,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.reactivestreams.Publisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -58,6 +51,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+//import com.mongodb.MongoClient;
+//import com.mongodb.client.ClientSession;
+//import com.mongodb.client.MongoDatabase;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -107,62 +104,71 @@ public class MongoPlugin extends BasePlugin {
 
             MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
             Bson command = Document.parse(actionConfiguration.getBody());
-            Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
+            Publisher<Document> mongoOutputPublisher = database.runCommand(command);
 
-            return mongoOutputMono.flatMap(mongoOutput -> {
-                ActionExecutionResult result = new ActionExecutionResult();
-                JSONObject outputJson = new JSONObject(mongoOutput.toJson());
-                //The output json contains the key "ok". This is the status of the command
-                BigInteger status = outputJson.getBigInteger("ok");
-                JSONArray headerArray = new JSONArray();
+            Mono<Document> mongoOutputMono = Mono.empty();
+            if (mongoOutputPublisher.getClass().equals(Mono.class)) {
+                mongoOutputMono = (Mono) mongoOutputPublisher;
+            } else if (mongoOutputPublisher.getClass().equals(Flux.class)) {
+                Flux object = (Flux) mongoOutputPublisher;
+                mongoOutputMono = object.collectList();
+            }
 
-                if (BigInteger.ONE.equals(status)) {
-                    result.setIsExecutionSuccess(true);
+            return mongoOutputMono
+                    .flatMap(mongoOutput -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        JSONObject outputJson = new JSONObject(mongoOutput.toJson());
+                        //The output json contains the key "ok". This is the status of the command
+                        BigInteger status = outputJson.getBigInteger("ok");
+                        JSONArray headerArray = new JSONArray();
 
-                    // For the `findAndModify` command, we don't get the count of modifications made. Instead, we either
-                    // get the modified new value or the pre-modified old value (depending on the `new` field in the
-                    // command. Let's return that value to the user.
-                    if (outputJson.has(VALUE_STR)) {
-                        result.setBody(objectMapper.readTree(
-                                cleanUp(new JSONObject().put(VALUE_STR, outputJson.get(VALUE_STR))).toString()
-                        ));
-                    }
+                        if (BigInteger.ONE.equals(status)) {
+                            result.setIsExecutionSuccess(true);
 
-                    //The json contains key "cursor" when find command was issued and there are 1 or more results. In case
-                    //there are no results for find, this key is not present in the result json.
-                    if (outputJson.has("cursor")) {
-                        JSONArray outputResult = (JSONArray) cleanUp(
-                                outputJson.getJSONObject("cursor").getJSONArray("firstBatch"));
-                        result.setBody(objectMapper.readTree(outputResult.toString()));
-                    }
+                            // For the `findAndModify` command, we don't get the count of modifications made. Instead, we either
+                            // get the modified new value or the pre-modified old value (depending on the `new` field in the
+                            // command. Let's return that value to the user.
+                            if (outputJson.has(VALUE_STR)) {
+                                result.setBody(objectMapper.readTree(
+                                        cleanUp(new JSONObject().put(VALUE_STR, outputJson.get(VALUE_STR))).toString()
+                                ));
+                            }
 
-                    //The json contains key "n" when insert/update command is issued. "n" for update signifies the no of
-                    //documents selected for update. "n" in case of insert signifies the number of documents inserted.
-                    if (outputJson.has("n")) {
-                        JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
-                        result.setBody(body);
-                        headerArray.put(body);
-                    }
+                            //The json contains key "cursor" when find command was issued and there are 1 or more results. In case
+                            //there are no results for find, this key is not present in the result json.
+                            if (outputJson.has("cursor")) {
+                                JSONArray outputResult = (JSONArray) cleanUp(
+                                        outputJson.getJSONObject("cursor").getJSONArray("firstBatch"));
+                                result.setBody(objectMapper.readTree(outputResult.toString()));
+                            }
 
-                    //The json key contains key "nModified" in case of update command. This signifies the no of
-                    //documents updated.
-                    if (outputJson.has(N_MODIFIED)) {
-                        JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
-                        result.setBody(body);
-                        headerArray.put(body);
-                    }
+                            //The json contains key "n" when insert/update command is issued. "n" for update signifies the no of
+                            //documents selected for update. "n" in case of insert signifies the number of documents inserted.
+                            if (outputJson.has("n")) {
+                                JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
+                                result.setBody(body);
+                                headerArray.put(body);
+                            }
 
-                    /** TODO
-                     * Go through all the possible fields that are returned in the output JSON and add all the fields
-                     * that are important to the headerArray.
-                     */
-                }
+                            //The json key contains key "nModified" in case of update command. This signifies the no of
+                            //documents updated.
+                            if (outputJson.has(N_MODIFIED)) {
+                                JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
+                                result.setBody(body);
+                                headerArray.put(body);
+                            }
 
-                JSONObject statusJson = new JSONObject().put("ok", status);
-                headerArray.put(statusJson);
-                result.setHeaders(objectMapper.readTree(headerArray.toString()));
+                            /** TODO
+                             * Go through all the possible fields that are returned in the output JSON and add all the fields
+                             * that are important to the headerArray.
+                             */
+                        }
 
-                return Mono.just(result);
+                        JSONObject statusJson = new JSONObject().put("ok", status);
+                        headerArray.put(statusJson);
+                        result.setHeaders(objectMapper.readTree(headerArray.toString()));
+
+                        return Mono.just(result);
             });
 
             //return Mono.just(new ActionExecutionResult());
