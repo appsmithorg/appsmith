@@ -1,6 +1,6 @@
 // TODO Abhinav, this is not passing
 // import { getPropertyControlTypes } from "./index";
-import _ from "lodash";
+// import _ from "lodash";
 
 // const types = getPropertyControlTypes();
 

@@ -1,6 +1,6 @@
 import { CommonComponentProps } from "./common";
 
-type ToastProps = CommonComponentProps & {
+export type ToastProps = CommonComponentProps & {
   text: string;
   duration: number;
   variant?: "success" | "info" | "warning" | "danger"; //default info
@@ -15,6 +15,6 @@ type ToastProps = CommonComponentProps & {
     | "bottom-left";
 };
 
-export default function Toast(props: ToastProps) {
+export default function Toast() {
   return null;
 }

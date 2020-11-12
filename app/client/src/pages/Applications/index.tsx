@@ -432,7 +432,7 @@ const ApplicationsSection = (props: any) => {
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
-  const deleteApplication = (applicationId: string, orgId: string) => {
+  const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,

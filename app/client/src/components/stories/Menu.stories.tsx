@@ -14,20 +14,12 @@ import EditableText, {
   EditInteractionKind,
 } from "components/ads/EditableText";
 import { IconCollection, IconName } from "components/ads/Icon";
-import { theme, light, dark } from "constants/DefaultTheme";
+import { light } from "constants/DefaultTheme";
 
 export default {
   title: "Menu",
   component: Menu,
   decorators: [withKnobs, withDesign],
-};
-
-const calls = (value: string, callback: any) => {
-  setTimeout(() => {
-    return callback(false, SavingState.SUCCESS);
-  }, 2000);
-
-  return callback(true);
 };
 
 const errorFunction = (name: string) => {

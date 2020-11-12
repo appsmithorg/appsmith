@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-const ICON_SIZE = 14;
 
 const Wrapper = styled.div`
   display: flex;
@@ -12,28 +11,11 @@ const Wrapper = styled.div`
     font-weight: ${props => props.theme.fontWeights[2]};
   }
 `;
-const ActionIconGroup = styled.div`
-  width: ${ICON_SIZE * 3}px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
 
-export const ExplorerTitle = (props: {
-  isCollapsed: boolean;
-  onCollapseToggle: () => void;
-}) => {
+export const ExplorerTitle = () => {
   return (
     <Wrapper>
       <h1>EXPLORER</h1>
-      <ActionIconGroup>
-        {/* <Icon
-          iconSize={ICON_SIZE}
-          icon={props.isCollapsed ? "remove" : "add"}
-          onClick={props.onCollapseToggle}
-        />
-        <Icon icon="pin" iconSize={ICON_SIZE} /> */}
-      </ActionIconGroup>
     </Wrapper>
   );
 };

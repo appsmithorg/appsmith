@@ -31,7 +31,6 @@ import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import moment from "moment";
-import { ButtonStyle } from "widgets/ButtonWidget";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -655,7 +654,7 @@ const RenameColumn = (props: {
       defaultValue={columnName}
       onChange={onColumnNameChange}
       onKeyPress={e => onKeyPress(e.key)}
-      onBlur={e => handleColumnNameUpdate()}
+      onBlur={handleColumnNameUpdate}
     />
   );
 };

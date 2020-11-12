@@ -3,7 +3,7 @@ import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
-import { Classes, CommonComponentProps } from "./common";
+import { CommonComponentProps } from "./common";
 import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
 import { getThemeDetails } from "selectors/themeSelectors";

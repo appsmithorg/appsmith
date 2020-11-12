@@ -873,7 +873,7 @@ function Fields(props: {
               );
             } else {
               return (
-                <li>
+                <li key={field.field}>
                   {renderField({
                     field: field,
                     ...otherProps,

@@ -58,7 +58,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
       props.hidden(get(widgetProps, props.propertyPath))
     ) {
       return null;
-    } else if (props.hidden(widgetProps)) {
+    } else if (!props.propertyPath && props.hidden(widgetProps)) {
       return null;
     }
   }
