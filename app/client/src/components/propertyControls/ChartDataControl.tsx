@@ -216,9 +216,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
       isValid,
       chartData.length,
     );
-    if (this.props.widgetProperties.chartType === "PIE_CHART") {
-      chartData.splice(1, chartData.length - 1);
-    }
 
     const evaluatedValue = this.getEvaluatedValue();
 
