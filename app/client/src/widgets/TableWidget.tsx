@@ -438,9 +438,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "computedValue",
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType === "button";
-                      },
                     },
                     {
                       propertyName: "enableFilter",
@@ -914,6 +911,30 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return [];
     }
     const derivedTableData: Array<Record<string, unknown>> = [...tableData];
+    if (this.props.primaryColumns) {
+      for (let i = 0; i < this.props.primaryColumns.length; i++) {
+        const column: ColumnProperties = this.props.primaryColumns[i];
+        const columnId = column.id;
+        if (column.computedValue) {
+          try {
+            let computedValues: Array<unknown> = [];
+            if (isString(column.computedValue)) {
+              computedValues = JSON.parse(column.computedValue);
+            } else {
+              computedValues = column.computedValue;
+            }
+            for (let index = 0; index < computedValues.length; index++) {
+              derivedTableData[index] = {
+                ...derivedTableData[index],
+                [columnId]: computedValues[index],
+              };
+            }
+          } catch (e) {
+            console.log({ e });
+          }
+        }
+      }
+    }
     if (this.props.derivedColumns) {
       for (let i = 0; i < this.props.derivedColumns.length; i++) {
         const column: ColumnProperties = this.props.derivedColumns[i];
@@ -1069,31 +1090,33 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("selectedRows", []);
       this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
     }
-    // if (
-    //   JSON.stringify(this.props.derivedColumns) !==
-    //   JSON.stringify(prevProps.derivedColumns)
-    // ) {
-    //   const filteredTableData = this.filterTableData();
-    //   this.props.updateWidgetMetaProperty(
-    //     "filteredTableData",
-    //     filteredTableData,
-    //   );
-    //   if (!this.props.multiRowSelection) {
-    //     this.props.updateWidgetMetaProperty(
-    //       "selectedRow",
-    //       this.getSelectedRow(filteredTableData),
-    //     );
-    //   } else {
-    //     this.props.updateWidgetMetaProperty(
-    //       "selectedRows",
-    //       filteredTableData.filter(
-    //         (item: Record<string, unknown>, i: number) => {
-    //           return this.props.selectedRowIndices.includes(i);
-    //         },
-    //       ),
-    //     );
-    //   }
-    // }
+    if (
+      JSON.stringify(this.props.derivedColumns) !==
+        JSON.stringify(prevProps.derivedColumns) ||
+      JSON.stringify(this.props.primaryColumns) !==
+        JSON.stringify(prevProps.primaryColumns)
+    ) {
+      const filteredTableData = this.filterTableData();
+      this.props.updateWidgetMetaProperty(
+        "filteredTableData",
+        filteredTableData,
+      );
+      if (!this.props.multiRowSelection) {
+        this.props.updateWidgetMetaProperty(
+          "selectedRow",
+          this.getSelectedRow(filteredTableData),
+        );
+      } else {
+        this.props.updateWidgetMetaProperty(
+          "selectedRows",
+          filteredTableData.filter(
+            (item: Record<string, unknown>, i: number) => {
+              return this.props.selectedRowIndices.includes(i);
+            },
+          ),
+        );
+      }
+    }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       if (this.props.multiRowSelection) {
         const selectedRowIndices = this.props.selectedRowIndex

@@ -45,7 +45,10 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
 
 const AddColumnButton = styled(StyledPropertyPaneButton)`
   width: 100%;
-  margin-top: 16px;
+  &&&& {
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
 `;
 
 type RenderComponentProps = {
