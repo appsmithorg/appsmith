@@ -48,12 +48,14 @@ export const appInitializer = () => {
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init(appsmithConfigs.sentry);
   }
-  if (!appsmithConfigs.disableTelemetry) {
-    if (appsmithConfigs.smartLook.enabled) {
-      const { id } = appsmithConfigs.smartLook;
-      AnalyticsUtil.initializeSmartLook(id);
-    }
-    if (appsmithConfigs.segment.enabled && appsmithConfigs.segment.apiKey) {
+
+  if (appsmithConfigs.smartLook.enabled) {
+    const { id } = appsmithConfigs.smartLook;
+    AnalyticsUtil.initializeSmartLook(id);
+  }
+
+  if (appsmithConfigs.segment.enabled) {
+    if (appsmithConfigs.segment.apiKey) {
       // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
       AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
     } else if (appsmithConfigs.segment.ceKey) {
@@ -61,6 +63,7 @@ export const appInitializer = () => {
       AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
     }
   }
+
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
 };
 
