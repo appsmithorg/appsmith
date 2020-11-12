@@ -19,11 +19,12 @@ export const Profile = styled.div<{ backgroundColor?: string }>`
 export default function ProfileImage(props: {
   userName?: string;
   className?: string;
+  commonName?: string;
 }) {
   const themeDetails = useSelector(getThemeDetails);
 
   const initialsAndColorCode = getInitialsAndColorCode(
-    props.userName,
+    props.commonName || props.userName,
     themeDetails.theme.colors.appCardColors,
   );
 
@@ -33,7 +34,7 @@ export default function ProfileImage(props: {
       className={props.className}
     >
       <Text type={TextType.H6} highlight>
-        {initialsAndColorCode[0]}
+        {props.commonName || initialsAndColorCode[0]}
       </Text>
     </Profile>
   );
