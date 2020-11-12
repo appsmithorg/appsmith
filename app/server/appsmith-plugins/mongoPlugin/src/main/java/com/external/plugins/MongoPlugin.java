@@ -20,7 +20,6 @@ import com.mongodb.reactivestreams.client.ClientSession;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-import com.querydsl.core.Tuple;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -409,6 +408,13 @@ public class MongoPlugin extends BasePlugin {
             String databaseName = getDatabaseName(datasourceConfiguration);
             final MongoDatabase database = mongoClient.getDatabase(databaseName);
 
+            final DatasourceStructure structure = new DatasourceStructure();
+            List<DatasourceStructure.Table> tables = new ArrayList<>();
+            structure.setTables(tables);
+
+            final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
+            final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
+            
             return Mono.just(database)
                     .flatMapMany(db -> {
                         Mono<List<String>> collectionNamesMono = Mono.empty();
@@ -423,12 +429,6 @@ public class MongoPlugin extends BasePlugin {
                             collectionNamesMono = collectionNamesFlux.collectList();
                         }
 
-                        final DatasourceStructure structure = new DatasourceStructure();
-                        List<DatasourceStructure.Table> tables = new ArrayList<>();
-                        structure.setTables(tables);
-
-                        final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
-                        final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
 
                         return collectionNamesMono
                                 .flatMapMany(Flux::fromIterable)
@@ -441,7 +441,7 @@ public class MongoPlugin extends BasePlugin {
                                             templates
                                     ));
 
-                                    return database.getCollection(collectionName).find().limit(1).first());
+                                    return database.getCollection(collectionName).find().limit(1).first();
                                     /**
                                      * TODO : In case the first document fetched does not have any data, skip the collection. Handle this scenario
                                      * in case its not handled automatically by mongo returning Mono.void
@@ -454,12 +454,12 @@ public class MongoPlugin extends BasePlugin {
                                     generateTemplatesAndStructureForACollection(document, columns, templates);
                                     return document;
 
-                                })
-                                .collectList()
-                                .map(documents -> {
-                                    tables.sort(Comparator.comparing(DatasourceStructure.Table::getName));
-                                    return structure;
                                 });
+                    })
+                    .collectList()
+                    .map(documents -> {
+                        tables.sort(Comparator.comparing(DatasourceStructure.Table::getName));
+                        return structure;
                     });
         }
 
