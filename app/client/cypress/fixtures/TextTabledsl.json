@@ -13,7 +13,7 @@
       "parentRowSpace": 1,
       "type": "CANVAS_WIDGET",
       "canExtend": true,
-      "dynamicBindings": {},
+      "dynamicBindingPathList": [],
       "version": 4,
       "minHeight": 1292,
       "parentColumnSpace": 1,
@@ -28,7 +28,7 @@
           "isLoading": false,
           "parentColumnSpace": 75.25,
           "parentRowSpace": 38,
-          "dynamicBindings": {},
+          "dynamicBindingPathList": [],
           "leftColumn": 0,
           "rightColumn": 8,
           "topRow": 0,
@@ -86,7 +86,7 @@
           "isLoading": false,
           "parentColumnSpace": 75.25,
           "parentRowSpace": 38,
-          "dynamicBindings": {},
+          "dynamicBindingPathList": [],
           "leftColumn": 0,
           "rightColumn": 16,
           "topRow": 9,
@@ -125,9 +125,11 @@
                   "bottomRow": 8,
                   "parentId": "tyiwk4xuq0",
                   "widgetId": "c5h0m17qxj",
-                  "dynamicBindings": {
-                    "selectedRow": true
-                  }
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "selectedRow"
+                    }
+                  ]
                 }
               ],
               "widgetId": "tyiwk4xuq0",
@@ -146,7 +148,7 @@
           "isLoading": false,
           "parentColumnSpace": 75.25,
           "parentRowSpace": 38,
-          "dynamicBindings": {},
+          "dynamicBindingPathList": [],
           "leftColumn": 8,
           "rightColumn": 16,
           "topRow": 0,
