@@ -199,6 +199,9 @@ const Icon = forwardRef(
       case "manage":
         returnIcon = <ManageIcon />;
         break;
+      case "warning":
+        returnIcon = <WarningIcon />;
+        break;
       default:
         returnIcon = null;
         break;
