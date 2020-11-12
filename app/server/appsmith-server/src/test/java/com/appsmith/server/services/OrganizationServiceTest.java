@@ -4,6 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
+import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
@@ -18,17 +19,18 @@ import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.Part;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -36,12 +38,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.annotation.NonNull;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -954,28 +954,70 @@ public class OrganizationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void uploadOrganizationLogo() throws IOException {
-        final InputStream imageResourceStream = getClass().getClassLoader()
-                .getResourceAsStream("test_assets/OrganizationServiceTest/my_organization_logo.png");
-        assertThat(imageResourceStream).isNotNull();
+    public void uploadOrganizationLogo_nullFilePart() throws IOException {
+        Mono<Organization> createOrganization = organizationService.create(organization).cache();
+        final Mono<Organization> resultMono = createOrganization
+                .flatMap(organization -> organizationService.uploadLogo(organization.getId(), null));
 
-        final byte[] bytes = imageResourceStream.readAllBytes();
-        final InMemoryFilePart filePart = new InMemoryFilePart(bytes, MediaType.IMAGE_PNG);
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.VALIDATION_FAILURE.getMessage("Please upload a valid image.")))
+                .verify();
+    }
 
-        final String organizationId = organizationRepository
-                .findByName("Spring Test Organization")
-                .blockOptional(Duration.ofSeconds(3))
-                .map(Organization::getId)
-                .orElse(null);
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void uploadOrganizationLogo_largeFilePart() throws IOException {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo_large.png"), new DefaultDataBufferFactory(), 4096);
+        assertThat(dataBufferFlux.count().block()).isGreaterThan((int) Math.ceil(Constraint.ORGANIZATION_LOGO_SIZE_KB/4.0));
 
-        assertThat(organizationId).isNotNull();
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
 
-        final Mono<Tuple2<Organization, Asset>> resultMono = organizationService
-                .uploadLogo(organizationId, filePart)
-                .flatMap(organizationWithLogo -> Mono.zip(
-                        Mono.just(organizationWithLogo),
-                        assetRepository.findById(organizationWithLogo.getLogoAssetId())
-                ));
+        // The pre-requisite of creating an organization has been blocked for code readability
+        // The duration sets an upper limit for this test to run
+        String orgId = organizationService.create(organization).blockOptional(Duration.ofSeconds(3)).map(Organization::getId).orElse(null);
+        assertThat(orgId).isNotNull();
+
+        final Mono<Organization> resultMono = organizationService.uploadLogo(orgId, filepart);
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.PAYLOAD_TOO_LARGE.getMessage(Constraint.ORGANIZATION_LOGO_SIZE_KB)))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDeleteLogo_invalidOrganization() {
+        Mono<Organization> deleteLogo = organizationService.deleteLogo("");
+        StepVerifier.create(deleteLogo)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, "")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateAndDeleteLogo_validLogo() throws IOException {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
+        assertThat(dataBufferFlux.count().block()).isLessThanOrEqualTo((int) Math.ceil(Constraint.ORGANIZATION_LOGO_SIZE_KB/4.0));
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
+
+        Mono<Organization> createOrganization = organizationService.create(organization).cache();
+
+        final Mono<Tuple2<Organization, Asset>> resultMono = createOrganization
+                .flatMap(organization -> organizationService.uploadLogo(organization.getId(), filepart)
+                        .flatMap(organizationWithLogo -> Mono.zip(
+                                Mono.just(organizationWithLogo),
+                                assetRepository.findById(organizationWithLogo.getLogoAssetId()))
+                        ));
 
         StepVerifier.create(resultMono)
                 .assertNext(tuple -> {
@@ -985,41 +1027,19 @@ public class OrganizationServiceTest {
 
                     final Asset asset = tuple.getT2();
                     assertThat(asset).isNotNull();
-                    assertThat(asset.getData()).isEqualTo(bytes);
+                    DataBuffer buffer = DataBufferUtils.join(dataBufferFlux).block(Duration.ofSeconds(3));
+                    byte[] res = new byte[buffer.readableByteCount()];
+                    buffer.read(res);
+                    assertThat(asset.getData()).isEqualTo(res);
+                })
+                .verifyComplete();
+
+        Mono<Organization> deleteLogo = createOrganization.flatMap(organization -> organizationService.deleteLogo(organization.getId()));
+        StepVerifier.create(deleteLogo)
+                .assertNext(x -> {
+                    assertThat(x.getLogoAssetId()).isNull();
+                    log.debug("Deleted logo for org: {}", x.getId());
                 })
                 .verifyComplete();
     }
-
-    private static class InMemoryFilePart implements Part {
-
-        private final DataBuffer buffer;
-        private final HttpHeaders headers;
-
-        public InMemoryFilePart(byte[] bytes, MediaType contentType) {
-            this.buffer = new DefaultDataBufferFactory().wrap(bytes);
-            headers = new HttpHeaders();
-            headers.setContentType(contentType);
-        }
-
-        @Override
-        @NonNull
-        public String name() {
-            throw new NotImplementedException(
-                    "This is a FilePart made for testing. The name() method is not implemented.");
-        }
-
-        @Override
-        @NonNull
-        public HttpHeaders headers() {
-            return headers;
-        }
-
-        @Override
-        @NonNull
-        public Flux<DataBuffer> content() {
-            return Flux.just(buffer);
-        }
-
-    }
-
 }

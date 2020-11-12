@@ -15,6 +15,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
+import AppErrorBoundary from "./AppErrorBoundry";
 appInitializer();
 
 const App = () => {
@@ -48,7 +49,9 @@ class ThemedApp extends React.Component<{
           autoClose={5000}
           closeButton={false}
         />
-        <AppRouter />
+        <AppErrorBoundary>
+          <AppRouter />
+        </AppErrorBoundary>
       </ThemeProvider>
     );
   }

@@ -673,6 +673,10 @@ function* updateWidgetPropertySaga(
   const {
     payload: { propertyValue, propertyName, widgetId },
   } = updateAction;
+  if (!widgetId) {
+    // Handling the case where sometimes widget id is not passed through here
+    return;
+  }
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   const widget = { ...stateWidget };
 
@@ -681,8 +685,9 @@ function* updateWidgetPropertySaga(
     propertyName,
     propertyValue,
   );
-  if (!dynamicTriggersUpdated)
+  if (!dynamicTriggersUpdated) {
     yield updateDynamicBindings(widget, propertyName, propertyValue);
+  }
 
   yield put(updateWidgetProperty(widgetId, propertyName, propertyValue));
   const stateWidgets = yield select(getWidgets);

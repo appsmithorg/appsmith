@@ -114,8 +114,9 @@ abstract class BaseWidget<
   updateWidgetProperty(propertyName: string, propertyValue: any): void {
     const { updateWidgetProperty } = this.context;
     const { widgetId } = this.props;
-    updateWidgetProperty &&
+    if (updateWidgetProperty && widgetId) {
       updateWidgetProperty(widgetId, propertyName, propertyValue);
+    }
   }
 
   resetChildrenMetaProperty(widgetId: string) {
