@@ -83,15 +83,16 @@ class HelpModal extends React.Component<Props> {
    *
    * @param event
    */
-  onClose = (event: SyntheticEvent<HTMLElement>) => {
+  onClose = (event: MouseEvent) => {
     const { dispatch, isHelpModalOpen } = this.props;
+
+    event.stopPropagation();
+    event.preventDefault();
 
     if (isHelpModalOpen === false) return false;
 
     dispatch(setHelpModalVisibility(false));
     dispatch(setHelpDefaultRefinement(""));
-    event.stopPropagation();
-    event.preventDefault();
   };
 
   /**
@@ -101,6 +102,7 @@ class HelpModal extends React.Component<Props> {
     const { dispatch, isHelpModalOpen, page } = this.props;
 
     event.stopPropagation();
+    event.preventDefault();
     AnalyticsUtil.logEvent("OPEN_HELP", { page });
     dispatch(setHelpModalVisibility(!isHelpModalOpen));
   };
@@ -124,7 +126,7 @@ class HelpModal extends React.Component<Props> {
             hasBackDrop={false}
             onClose={this.onClose}
             isOpen
-            zIndex={layers.max}
+            zIndex={layers.help}
           >
             <DocumentationSearch hitsPerPage={4} />
           </ModalComponent>
@@ -133,10 +135,14 @@ class HelpModal extends React.Component<Props> {
           <HelpButton
             className="t--helpGlobalButton"
             highlight={!isHelpModalOpen}
-            layer={layers.help}
+            layer={layers.max}
             onClick={this.onOpen}
           >
-            {isHelpModalOpen ? <CloseIcon /> : <HelpIcon />}
+            {isHelpModalOpen ? (
+              <CloseIcon height={50} width={50} />
+            ) : (
+              <HelpIcon height={50} width={50} />
+            )}
           </HelpButton>
         )}
       </>
