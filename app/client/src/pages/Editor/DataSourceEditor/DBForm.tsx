@@ -352,7 +352,7 @@ class DatasourceDBEditor extends React.Component<
             />
           )}
         </Header>
-        {true && (
+        {cloudHosting && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
               <span>{`Whitelist the IP ${toSentence(
