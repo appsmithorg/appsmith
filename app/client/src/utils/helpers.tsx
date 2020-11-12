@@ -152,3 +152,13 @@ export const isEllipsisActive = (element: HTMLElement | null) => {
       element.offsetHeight < element.scrollHeight)
   );
 };
+
+/**
+ * converts array to sentences
+ * for e.g - ['Pawan', 'Abhinav', 'Hetu'] --> 'Pawan, Abhinav and Hetu'
+ *
+ * @param arr string[]
+ */
+export const convertArrayToSentence = (arr: string[]) => {
+  return arr.join(", ").replace(/,\s([^,]+)$/, " and $1");
+};

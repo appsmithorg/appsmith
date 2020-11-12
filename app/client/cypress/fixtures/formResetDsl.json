@@ -13,8 +13,7 @@
     "parentRowSpace": 1,
     "type": "CANVAS_WIDGET",
     "canExtend": true,
-    "dynamicBindings": {
-    },
+    "dynamicBindingPathList": [],
     "version": 5,
     "minHeight": 1292,
     "parentColumnSpace": 1,
@@ -97,8 +96,7 @@
                 "bottomRow": 8,
                 "parentId": "qrqizehc5b",
                 "widgetId": "xptqefixji",
-                "dynamicBindings": {
-                }
+                "dynamicBindingPathList": []
               },
               {
                 "isVisible": true,
@@ -115,11 +113,17 @@
                 "bottomRow": 11,
                 "parentId": "qrqizehc5b",
                 "widgetId": "r3xvjtuhad",
-                "dynamicBindings": {
-                  "defaultText": true,
-                  "isValid": true,
-                  "value": true
-                },
+                "dynamicBindingPathList": [
+                  {
+                    "key": "defaultText"
+                  },
+                  {
+                    "key": "isValid"
+                  },
+                  {
+                    "key": "value"
+                  }
+                ],
                 "defaultText": "{{Table1.selectedRow.email}}"
               },
               {
@@ -138,9 +142,11 @@
                 "bottomRow": 10,
                 "parentId": "qrqizehc5b",
                 "widgetId": "672gf8vm2q",
-                "dynamicBindings": {
-                  "value": true
-                }
+                "dynamicBindingPathList": [
+                  {
+                    "key": "value"
+                  }
+                ]
               }
             ],
             "blueprint": {
