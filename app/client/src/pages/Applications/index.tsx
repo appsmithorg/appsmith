@@ -13,6 +13,7 @@ import {
   getUserApplicationsOrgs,
   getIsDuplicatingApplication,
   getApplicationSearchKeyword,
+  getIsSavingOrgInfo,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -153,15 +154,20 @@ const PaddingWrapper = styled.div`
 
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   && {
-    background: white;
-    & .bp3-dialog-header {
+    background: ${props => props.theme.colors.modal.bg};
+    & .${BlueprintClasses.DIALOG_HEADER} {
+      background: ${props => props.theme.colors.modal.bg};
       padding: ${props => props.theme.spaces[4]}px
         ${props => props.theme.spaces[4]}px;
     }
-    & .bp3-dialog-footer-actions {
+    & .${BlueprintClasses.DIALOG_FOOTER_ACTIONS} {
       display: block;
     }
     ${props => props.setMaxWidth && `width: 100vh;`}
+
+    .${BlueprintClasses.HEADING} {
+      color: ${props => props.theme.colors.modal.headerText};
+    }
   }
 `;
 
@@ -401,12 +407,17 @@ ${props => {
   color: ${props => props.theme.colors.applications.iconColor};
 }
 `;
+const OrgRename = styled(EditableText)`
+  padding: 0 2px;
+`;
+
 const NoSearchResultImg = styled.img`
   margin: 1em;
 `;
 
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
+  const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
@@ -436,6 +447,7 @@ const ApplicationsSection = (props: any) => {
   const Form: any = OrgInviteUsersForm;
 
   const ApplicationNameChange = (newName: string, orgId: string) => {
+    console.log("dispatch action");
     dispatch(
       saveOrg({
         id: orgId as string,
@@ -444,13 +456,8 @@ const ApplicationsSection = (props: any) => {
     );
   };
 
-  const OrgMenu = (props: {
-    orgName: string;
-    orgId: string;
-    disabled?: boolean;
-    setSelectedOrgId: (orgId: string) => void;
-  }) => {
-    const { orgName, orgId, disabled } = props;
+  const OrgMenuTarget = (props: { orgName: string; disabled?: boolean }) => {
+    const { orgName, disabled } = props;
 
     const OrgName = (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
@@ -469,53 +476,7 @@ const ApplicationsSection = (props: any) => {
         </OrgNameHolder>
       </OrgNameWrapper>
     );
-    return disabled ? (
-      OrgName
-    ) : (
-      <Menu
-        target={OrgName}
-        position={Position.BOTTOM_RIGHT}
-        className="t--org-name"
-      >
-        <OrgRename
-          defaultValue={orgName}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          placeholder="Workspace name"
-          hideEditIcon={false}
-          isInvalid={(value: string) => {
-            return notEmptyValidator(value).message;
-          }}
-          savingState={SavingState.NOT_STARTED}
-          isEditingDefault={false}
-          fill={true}
-          onBlur={(value: string) => ApplicationNameChange(value, orgId)}
-        />
-        <MenuItem
-          icon="general"
-          text="Organization Settings"
-          cypressSelector="t--org-setting"
-          onSelect={() =>
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: `/org/${orgId}/settings/general`,
-            })
-          }
-        />
-        <MenuItem
-          text="Share"
-          icon="share"
-          onSelect={() => setSelectedOrgId(orgId)}
-        ></MenuItem>
-        <MenuItem
-          icon="user"
-          text="Members"
-          onSelect={() =>
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: `/org/${orgId}/settings/members`,
-            })
-          }
-        />
-      </Menu>
-    );
+    return OrgName;
   };
 
   const createNewApplication = (applicationName: string, orgId: string) => {
@@ -563,12 +524,60 @@ const ApplicationsSection = (props: any) => {
           <OrgSection className="t--org-section" key={index}>
             <OrgDropDown>
               {(currentUser || isFetchingApplications) && (
-                <OrgMenu
-                  setSelectedOrgId={setSelectedOrgId}
-                  orgId={organization.id}
-                  orgName={organization.name}
-                  disabled={!hasManageOrgPermissions}
-                ></OrgMenu>
+                <Menu
+                  target={OrgMenuTarget({
+                    orgName: organization.name,
+                    disabled: !hasManageOrgPermissions,
+                  })}
+                  position={Position.BOTTOM_RIGHT}
+                  className="t--org-name"
+                  disabled={!hasManageOrgPermissions || isFetchingApplications}
+                >
+                  <OrgRename
+                    defaultValue={organization.name}
+                    editInteractionKind={EditInteractionKind.SINGLE}
+                    placeholder="Workspace name"
+                    hideEditIcon={false}
+                    isInvalid={(value: string) => {
+                      return notEmptyValidator(value).message;
+                    }}
+                    savingState={
+                      isSavingOrgInfo
+                        ? SavingState.STARTED
+                        : SavingState.NOT_STARTED
+                    }
+                    isEditingDefault={false}
+                    fill={true}
+                    onBlur={(value: string) => {
+                      console.log("onBlur");
+                      ApplicationNameChange(value, organization.id);
+                    }}
+                  />
+                  <MenuItem
+                    icon="general"
+                    text="Organization Settings"
+                    cypressSelector="t--org-setting"
+                    onSelect={() =>
+                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                        path: `/org/${organization.id}/settings/general`,
+                      })
+                    }
+                  />
+                  <MenuItem
+                    text="Share"
+                    icon="share"
+                    onSelect={() => setSelectedOrgId(organization.id)}
+                  ></MenuItem>
+                  <MenuItem
+                    icon="user"
+                    text="Members"
+                    onSelect={() =>
+                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                        path: `/org/${organization.id}/settings/members`,
+                      })
+                    }
+                  />
+                </Menu>
               )}
 
               {hasManageOrgPermissions && (

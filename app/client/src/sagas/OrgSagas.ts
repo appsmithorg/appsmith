@@ -172,6 +172,9 @@ export function* fetchAllRolesSaga(action: ReduxAction<FetchAllRolesRequest>) {
 
 export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
   try {
+    yield put({
+      type: ReduxActionTypes.SAVING_ORG_INFO,
+    });
     const request: SaveOrgRequest = action.payload;
     const response: ApiResponse = yield call(OrgApi.saveOrg, request);
     const isValidResponse = yield validateResponse(response);
@@ -193,7 +196,7 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_ORG_ERROR,
       payload: {
-        error,
+        error: error.message,
       },
     });
   }

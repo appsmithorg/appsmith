@@ -135,6 +135,9 @@ const User = styled.div`
 const UserInfo = styled.div`
   display: inline-flex;
   align-items: center;
+  div:first-child {
+    cursor: default;
+  }
 `;
 
 const UserRole = styled.div`

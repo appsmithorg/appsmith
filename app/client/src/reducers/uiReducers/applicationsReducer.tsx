@@ -20,6 +20,7 @@ const initialState: ApplicationsReduxState = {
   deletingApplication: false,
   duplicatingApplication: false,
   userOrgs: [],
+  isSavingOrgInfo: false,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -156,6 +157,12 @@ const applicationsReducer = createReducer(initialState, {
       createApplicationError: ERROR_MESSAGE_CREATE_APPLICATION,
     };
   },
+  [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isSavingOrgInfo: true,
+    };
+  },
   [ReduxActionTypes.SAVE_ORG_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{
@@ -185,6 +192,13 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       userOrgs: _organizations,
+      isSavingOrgInfo: false,
+    };
+  },
+  [ReduxActionTypes.SAVE_ORG_ERROR]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isSavingOrgInfo: false,
     };
   },
   [ReduxActionTypes.SEARCH_APPLICATIONS]: (
@@ -272,6 +286,7 @@ export interface ApplicationsReduxState {
   duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
   userOrgs: Organization[];
+  isSavingOrgInfo: boolean;
 }
 
 export interface Application {
