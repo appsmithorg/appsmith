@@ -117,7 +117,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   };
 
   handleFocus = (instance: any) => {
-    if (!instance.state.completeActive) {
+    if (!instance.state.completionActive) {
       const hinter = this.handleDatasourceHint();
       hinter().showHint(instance);
     }
@@ -157,7 +157,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           const cursorPosition = editor.getDoc().getCursor();
           if (
             parsed.path === "" &&
-            (!!value || !!cursorPosition.sticky) &&
+            !!cursorPosition.sticky &&
             this.props.datasource &&
             !("id" in this.props.datasource)
           ) {
@@ -218,7 +218,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       marking: [bindingMarker, this.handleDatasourceHighlight()],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
-      onCursorActivity: this.handleFocus,
+      onFocus: this.handleFocus,
     };
     if (datasource && !("id" in datasource) && !!displayValue) {
       props.rightIcon = <StoreAsDatasource />;
