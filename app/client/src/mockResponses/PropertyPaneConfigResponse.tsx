@@ -205,11 +205,11 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           },
           {
             id: "7.1.7",
-            helpText: "Selects the default selected row(s)",
+            helpText: "Selects the default selected row",
             propertyName: "defaultSelectedRow",
-            label: "Default Selected Row(s)",
+            label: "Default Selected Row",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter row index(s)",
+            placeholderText: "Enter row index",
           },
           {
             id: "7.1.3",

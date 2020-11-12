@@ -115,24 +115,21 @@ describe("Text-Table Binding Functionality", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
-    cy.openPropertyPane("textwidget");
-    cy.testJsontext("defaultSelectedRow", "2");
+    cy.openPropertyPane("tablewidget");
+    cy.testJsontext("defaultselectedrow", "2");
+    cy.wait("@updateLayout");
     cy.get(commonlocators.TableRow)
       .find(".tr.selected-row")
       .then(listing => {
         const listingCount = listing.length;
         expect(listingCount).to.be.equal(1);
       });
-    cy.readTabledata("2", "1").then(tabData => {
-      const tabValue = tabData;
-      cy.get(commonlocators.TextInside).should("have.text", tabValue);
-      cy.EvaluateDataType("string");
-      cy.EvaluateCurrentValue(tabValue);
-      cy.PublishtheApp();
-      cy.readTabledataPublish("2", "1").then(tabDataP => {
-        const tabValueP = tabDataP;
-        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
-      });
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{Table1.selectedRow.email}}");
+    cy.PublishtheApp();
+    cy.readTabledataPublish("2", "1").then(tabDataP => {
+      const tabValueP = tabDataP;
+      cy.get(commonlocators.TextInside).should("have.text", tabValueP);
     });
   });
 });

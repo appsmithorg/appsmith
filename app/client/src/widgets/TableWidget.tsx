@@ -20,7 +20,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined } from "lodash";
+import { isNumber, isString, isUndefined, isEqual } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -439,6 +439,41 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty(
           "selectedRow",
           this.getSelectedRow(filteredTableData),
+        );
+      }
+    }
+    if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
+      console.log(
+        "selectedRow",
+        this.props.defaultSelectedRow,
+        this.props.selectedRowIndex,
+      );
+      if (!this.props.multiRowSelection) {
+        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : -1;
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndex",
+          selectedRowIndex,
+        );
+        this.props.updateWidgetMetaProperty(
+          "selectedRow",
+          this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
+        );
+      } else {
+        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : [];
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+        );
+        this.props.updateWidgetMetaProperty(
+          "selectedRows",
+          this.getSelectedRows(
+            this.props.filteredTableData,
+            selectedRowIndices,
+          ),
         );
       }
     }
