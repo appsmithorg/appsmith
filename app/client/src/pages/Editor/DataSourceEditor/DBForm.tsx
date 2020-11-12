@@ -19,10 +19,12 @@ import Button from "components/editorComponents/Button";
 import { Datasource } from "api/DatasourcesApi";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import { APPSMITH_IP_ADDRESS } from "constants/DatasourceEditorConstants";
+import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { convertArrayToSentence } from "utils/helpers";
 import BackButton from "./BackButton";
+
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps {
@@ -343,7 +345,9 @@ class DatasourceDBEditor extends React.Component<
         {cloudHosting && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
-              <span>{`Whitelist the IP ${APPSMITH_IP_ADDRESS} on your database instance to connect to it. `}</span>
+              <span>{`Whitelist the IP ${convertArrayToSentence(
+                APPSMITH_IP_ADDRESSES,
+              )}  on your database instance to connect to it. `}</span>
               <a
                 href={`${HelpBaseURL}${HelpMap["DATASOURCE_FORM"].path}`}
                 target="_blank"
