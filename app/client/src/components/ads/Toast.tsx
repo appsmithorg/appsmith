@@ -33,6 +33,9 @@ const WrappedToastContainer = styled.div`
     font-family: ${props => props.theme.fonts.text};
     margin-bottom: ${props => props.theme.spaces[4]}px;
   }
+  .Toastify__toast-container--top-right {
+    top: 4em;
+  }
 `;
 export const StyledToastContainer = (props: ToastOptions) => {
   return (
