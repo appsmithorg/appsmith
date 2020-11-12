@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - release
+    # Only trigger if files have changed in this specific path
+    paths:
+      - 'app/client/**'
+      - 'app/server/**'
+      
 
 jobs:
   update_release_draft:
