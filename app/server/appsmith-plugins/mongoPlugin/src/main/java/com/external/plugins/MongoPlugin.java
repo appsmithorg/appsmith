@@ -14,12 +14,21 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.mongodb.MongoClient;
+//import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoTimeoutException;
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.MongoDatabase;
+//import com.mongodb.client.ClientSession;
+//import com.mongodb.client.MongoDatabase;
+
+import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.MongoClients;
+import com.mongodb.reactivestreams.client.ClientSession;
+import com.mongodb.reactivestreams.client.MongoCollection;
+import com.mongodb.reactivestreams.client.MongoDatabase;
+import com.mongodb.reactivestreams.client.Success;
+import org.reactivestreams.Publisher;
+
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -96,17 +105,13 @@ public class MongoPlugin extends BasePlugin {
                 throw new StaleConnectionException();
             }
 
-            ActionExecutionResult result = new ActionExecutionResult();
-
             MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
-
             Bson command = Document.parse(actionConfiguration.getBody());
+            Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
 
-            try {
-                Document mongoOutput = database.runCommand(command);
-
+            return mongoOutputMono.flatMap(mongoOutput -> {
+                ActionExecutionResult result = new ActionExecutionResult();
                 JSONObject outputJson = new JSONObject(mongoOutput.toJson());
-
                 //The output json contains the key "ok". This is the status of the command
                 BigInteger status = outputJson.getBigInteger("ok");
                 JSONArray headerArray = new JSONArray();
@@ -156,11 +161,81 @@ public class MongoPlugin extends BasePlugin {
                 JSONObject statusJson = new JSONObject().put("ok", status);
                 headerArray.put(statusJson);
                 result.setHeaders(objectMapper.readTree(headerArray.toString()));
+
+                return Mono.just(result);
+            });
+
+            //return Mono.just(new ActionExecutionResult());
+
+            //Mono<ActionExecutionResult> resultMono = Mono.from()
+
+            /*
+            ActionExecutionResult result = new ActionExecutionResult();
+
+            MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
+
+
+            Bson command = Document.parse(actionConfiguration.getBody());
+
+            try {
+                Document mongoOutput = database.runCommand(command);
+
+                JSONObject outputJson = new JSONObject(mongoOutput.toJson());
+
+                //The output json contains the key "ok". This is the status of the command
+                BigInteger status = outputJson.getBigInteger("ok");
+                JSONArray headerArray = new JSONArray();
+
+                if (BigInteger.ONE.equals(status)) {
+                    result.setIsExecutionSuccess(true);
+
+                    // For the `findAndModify` command, we don't get the count of modifications made. Instead, we either
+                    // get the modified new value or the pre-modified old value (depending on the `new` field in the
+                    // command. Let's return that value to the user.
+                    if (outputJson.has(VALUE_STR)) {
+                        result.setBody(objectMapper.readTree(
+                                cleanUp(new JSONObject().put(VALUE_STR, outputJson.get(VALUE_STR))).toString()
+                        ));
+                    }
+
+                    //The json contains key "cursor" when find command was issued and there are 1 or more results. In case
+                    //there are no results for find, this key is not present in the result json.
+                    if (outputJson.has("cursor")) {
+                        JSONArray outputResult = (JSONArray) cleanUp(
+                                outputJson.getJSONObject("cursor").getJSONArray("firstBatch"));
+                        result.setBody(objectMapper.readTree(outputResult.toString()));
+                    }
+
+                    //The json contains key "n" when insert/update command is issued. "n" for update signifies the no of
+                    //documents selected for update. "n" in case of insert signifies the number of documents inserted.
+                    if (outputJson.has("n")) {
+                        JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
+                        result.setBody(body);
+                        headerArray.put(body);
+                    }
+
+                    //The json key contains key "nModified" in case of update command. This signifies the no of
+                    //documents updated.
+                    if (outputJson.has(N_MODIFIED)) {
+                        JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
+                        result.setBody(body);
+                        headerArray.put(body);
+                    }
+
+                    *//** TODO
+                     * Go through all the possible fields that are returned in the output JSON and add all the fields
+                     * that are important to the headerArray.
+                     *//*
+                }
+
+                JSONObject statusJson = new JSONObject().put("ok", status);
+                headerArray.put(statusJson);
+                result.setHeaders(objectMapper.readTree(headerArray.toString()));
             } catch (Exception e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
             }
 
-            return Mono.just(result);
+            return Mono.just(result);*/
         }
 
         private String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
@@ -182,14 +257,17 @@ public class MongoPlugin extends BasePlugin {
             //   user that doesn't have write permissions on the database.
             //   Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
 
+
             try {
-                return Mono.just(new MongoClient(buildClientURI(datasourceConfiguration)));
+                //return Mono.just(new MongoClient(buildClientURI(datasourceConfiguration)));
+                return Mono.just(MongoClients.create(buildClientURI(datasourceConfiguration)));
             } catch (Exception e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
             }
         }
 
-        public static MongoClientURI buildClientURI(DatasourceConfiguration datasourceConfiguration) {
+        //public static MongoClientURI buildClientURI(DatasourceConfiguration datasourceConfiguration) {
+        public static String buildClientURI(DatasourceConfiguration datasourceConfiguration) {
             StringBuilder builder = new StringBuilder();
 
             final Connection connection = datasourceConfiguration.getConnection();
@@ -252,9 +330,10 @@ public class MongoPlugin extends BasePlugin {
                 builder.deleteCharAt(builder.length() - 1);
             }
 
-            final String uri = builder.toString();
+            return builder.toString();
+            /*final String uri = builder.toString();
             log.info("MongoPlugin URI: `{}`.", uri);
-            return new MongoClientURI(uri);
+            return new MongoClientURI(uri);*/
         }
 
         @Override
@@ -316,14 +395,16 @@ public class MongoPlugin extends BasePlugin {
             final Connection.Type connectionType = datasourceConfiguration.getConnection().getType();
             return datasourceCreate(datasourceConfiguration)
                     .map(mongoClient -> {
-                        ClientSession clientSession = null;
+                        //ClientSession clientSession = null;
+                        Mono<ClientSession> clientSession = null;
 
                         try {
                             // Not using try-with-resources here since we want to close the *session* before closing the
                             // MongoClient instance.
                             if (Connection.Type.REPLICA_SET.equals(connectionType)) {
                                 // For REPLICA_SET connections, we check by creating a session, as this is faster.
-                                clientSession = mongoClient.startSession();
+                                //clientSession = mongoClient.startSession();
+                                clientSession = Mono.from(mongoClient.startSession());
 
                             } else {
                                 // For DIRECT connections, we check by running a DB command, as it's the only reliable
@@ -352,7 +433,8 @@ public class MongoPlugin extends BasePlugin {
 
                         } finally {
                             if (clientSession != null) {
-                                clientSession.close();
+                                //clientSession.close();
+                                // TODO: ??
                             }
                             if (mongoClient != null) {
                                 mongoClient.close();
@@ -367,13 +449,181 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(MongoClient mongoClient, DatasourceConfiguration datasourceConfiguration) {
-            final DatasourceStructure structure = new DatasourceStructure();
-            List<DatasourceStructure.Table> tables = new ArrayList<>();
-            structure.setTables(tables);
 
-            final MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
+            final Mono<MongoDatabase> databaseMono =
+                    Mono.just(mongoClient.getDatabase(getDatabaseName(datasourceConfiguration)));
 
-            for (Document collection : database.listCollections()) {
+            Mono<DatasourceStructure> structureMono =
+                    databaseMono.flatMap(database -> {return Mono.from(database.listCollections());
+                    }).flatMap(doc -> {
+                final DatasourceStructure structure = new DatasourceStructure();
+                List<DatasourceStructure.Table> tables = new ArrayList<>();
+                structure.setTables(tables);
+
+                // TODO: fix it.
+                /*for (Document collection : doc.get("cursor", Document.class).get("firstBatch",
+                        ListCollectionsIterable<Document>.class)) {*/
+                for (Document collection : new ArrayList<Document>()) {
+                    final String collectionName = collection.getString("name");
+
+                    final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
+                    final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
+                    tables.add(new DatasourceStructure.Table(
+                            DatasourceStructure.TableType.COLLECTION,
+                            collectionName,
+                            columns,
+                            new ArrayList<>(),
+                            templates
+                    ));
+
+                    //TODO: fix it.
+                    final Document first = database.getCollection(collectionName).find().limit(1).first();
+                    if (first == null) {
+                        continue;
+                    }
+
+                    String filterFieldName = null;
+                    String filterFieldValue = null;
+                    Map<String, String> sampleInsertValues = new LinkedHashMap<>();
+
+                    for (Map.Entry<String, Object> entry : first.entrySet()) {
+                        final String name = entry.getKey();
+                        final Object value = entry.getValue();
+                        String type;
+
+                        if (value instanceof Integer) {
+                            type = "Integer";
+                            sampleInsertValues.put(name, "1");
+                        } else if (value instanceof Long) {
+                            type = "Long";
+                            sampleInsertValues.put(name, "NumberLong(\"1\")");
+                        } else if (value instanceof Double) {
+                            type = "Double";
+                            sampleInsertValues.put(name, "1");
+                        } else if (value instanceof Decimal128) {
+                            type = "BigDecimal";
+                            sampleInsertValues.put(name, "NumberDecimal(\"1\")");
+                        } else if (value instanceof String) {
+                            type = "String";
+                            sampleInsertValues.put(name, "\"new value\"");
+                            if (filterFieldName == null || filterFieldName.compareTo(name) > 0) {
+                                filterFieldName = name;
+                                filterFieldValue = (String) value;
+                            }
+                        } else if (value instanceof ObjectId) {
+                            type = "ObjectId";
+                            if (!value.equals("_id")) {
+                                sampleInsertValues.put(name, "ObjectId(\"a_valid_object_id_hex\")");
+                            }
+                        } else if (value instanceof Collection) {
+                            type = "Array";
+                            sampleInsertValues.put(name, "[1, 2, 3]");
+                        } else if (value instanceof Date) {
+                            type = "Date";
+                            sampleInsertValues.put(name, "new Date(\"2019-07-01\")");
+                        } else {
+                            type = "Object";
+                            sampleInsertValues.put(name, "{}");
+                        }
+
+                        columns.add(new DatasourceStructure.Column(name, type, null));
+                    }
+
+                    columns.sort(Comparator.naturalOrder());
+
+                    templates.add(
+                            new DatasourceStructure.Template(
+                                    "Find",
+                                    "{\n" +
+                                            "  \"find\": \"" + collectionName + "\",\n" +
+                                            (
+                                                    filterFieldName == null ? "" :
+                                                            "  \"filter\": {\n" +
+                                                                    "    \"" + filterFieldName + "\": \"" + filterFieldValue + "\"\n" +
+                                                                    "  },\n"
+                                            ) +
+                                            "  \"sort\": {\n" +
+                                            "    \"_id\": 1\n" +
+                                            "  },\n" +
+                                            "  \"limit\": 10\n" +
+                                            "}\n"
+                            )
+                    );
+
+                    templates.add(
+                            new DatasourceStructure.Template(
+                                    "Find by ID",
+                                    "{\n" +
+                                            "  \"find\": \"" + collectionName + "\",\n" +
+                                            "  \"filter\": {\n" +
+                                            "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
+                                            "  }\n" +
+                                            "}\n"
+                            )
+                    );
+
+                    sampleInsertValues.entrySet().stream()
+                            .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
+                            .collect(Collectors.joining(""));
+                    templates.add(
+                            new DatasourceStructure.Template(
+                                    "Insert",
+                                    "{\n" +
+                                            "  \"insert\": \"" + collectionName + "\",\n" +
+                                            "  \"documents\": [\n" +
+                                            "    {\n" +
+                                            sampleInsertValues.entrySet().stream()
+                                                    .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
+                                                    .sorted()
+                                                    .collect(Collectors.joining("")) +
+                                            "    }\n" +
+                                            "  ]\n" +
+                                            "}\n"
+                            )
+                    );
+
+                    templates.add(
+                            new DatasourceStructure.Template(
+                                    "Update",
+                                    "{\n" +
+                                            "  \"update\": \"" + collectionName + "\",\n" +
+                                            "  \"updates\": [\n" +
+                                            "    {\n" +
+                                            "      \"q\": {\n" +
+                                            "        \"_id\": ObjectId(\"id_of_document_to_update\")\n" +
+                                            "      },\n" +
+                                            "      \"u\": { \"$set\": { \"" + filterFieldName + "\": \"new value\" } }\n" +
+                                            "    }\n" +
+                                            "  ]\n" +
+                                            "}\n"
+                            )
+                    );
+
+                    templates.add(
+                            new DatasourceStructure.Template(
+                                    "Delete",
+                                    "{\n" +
+                                            "  \"delete\": \"" + collectionName + "\",\n" +
+                                            "  \"deletes\": [\n" +
+                                            "    {\n" +
+                                            "      \"q\": {\n" +
+                                            "        \"_id\": \"id_of_document_to_delete\"\n" +
+                                            "      },\n" +
+                                            "      \"limit\": 1\n" +
+                                            "    }\n" +
+                                            "  ]\n" +
+                                            "}\n"
+                            )
+                    );
+                }
+                tables.sort(Comparator.comparing(DatasourceStructure.Table::getName));
+                return Mono.just(structure);
+            });
+
+            return structureMono;
+            //TODO: remove it.
+
+            /*for (Document collection : database.listCollections()) {
                 final String collectionName = collection.getString("name");
 
                 final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
@@ -524,10 +774,10 @@ public class MongoPlugin extends BasePlugin {
                                         "}\n"
                         )
                 );
-            }
+            }*/
 
-            tables.sort(Comparator.comparing(DatasourceStructure.Table::getName));
-            return Mono.just(structure);
+            //tables.sort(Comparator.comparing(DatasourceStructure.Table::getName));
+            //return Mono.just(structure);
         }
 
     }
