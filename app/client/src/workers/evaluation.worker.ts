@@ -1643,7 +1643,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
           }
         }
       } else {
-        if (isUndefined(value)) {
+        if (isUndefined(value) || !isNumber(value)) {
           return {
             isValid: true,
             parsed: -1,
