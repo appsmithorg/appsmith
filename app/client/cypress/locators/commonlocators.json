@@ -76,6 +76,5 @@
   "onPlay": ".t--property-control-onplay .t--open-dropdown-Select-Action",
   "chooseAction": ".single-select",
   "chooseMsgType": ".t--open-dropdown-Select-type",
-  "onPause": ".t--property-control-onpause .t--open-dropdown-Select-Action",
-  "collapsibleHelp": ".t--collapsible-help"
+  "onPause": ".t--property-control-onpause .t--open-dropdown-Select-Action"
 }
