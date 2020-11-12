@@ -173,12 +173,12 @@ export const EditorWrapper = styled.div<{
       text-decoration: none; 
       color: ${props =>
         props.editorTheme === EditorTheme.DARK
-          ? "#000000"
-          : "#FFFFFF"} !important;
-      background-color: ${props =>
+          ? "#FFFFFF"
+          : "#000000"} !important;
+      outline: 1px solid ${props =>
         props.editorTheme === EditorTheme.DARK
-          ? "rgba(255, 255, 255, 0.5)"
-          : "rgba(0, 0, 0, 0.5)"};
+          ? "#FFFFFF"
+          : "#000000"} !important;
     }
     .datasource-highlight {
       background-color: rgba(104, 113, 239, 0.1);
