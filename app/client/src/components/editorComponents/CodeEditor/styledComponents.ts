@@ -144,6 +144,7 @@ export const EditorWrapper = styled.div<{
   && {
     .CodeMirror-cursor {
       border-right: none;
+      border-left-width: 2px;
       border-left-color: ${props =>
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.textOnDarkBG
@@ -177,8 +178,8 @@ export const EditorWrapper = styled.div<{
           : "#000000"} !important;
       outline: 1px solid ${props =>
         props.editorTheme === EditorTheme.DARK
-          ? "#FFFFFF"
-          : "#000000"} !important;
+          ? "rgba(255, 255, 255, 0.5)"
+          : "rgba(0, 0, 0, 0.5)"} !important;
     }
     .datasource-highlight {
       background-color: rgba(104, 113, 239, 0.1);
