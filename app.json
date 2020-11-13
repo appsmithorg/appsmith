@@ -1,0 +1,99 @@
+{
+    "name": "Appsmith",
+    "description": "Appsmith is an open-source platform to build and deploy internal tools or admin panels.",
+    "keywords": [
+      "java",
+      "react",
+      "admin"
+    ],
+    "addons": [
+        {
+            "plan": "heroku-redis:hobby-dev",
+            "as": "APPSMITH_REDIS"
+        }
+    ],
+
+    "website": "https://appsmith.com/",
+    "logo": "https://raw.githubusercontent.com/appsmithorg/appsmith/release/static/logo.png",
+    "success_url": "/",
+    "stack": "container",
+    "env": {
+      "APPSMITH_MONGODB_URI": {
+        "description": "Your Mongo Database URI",
+        "value": ""
+      },
+      "APPSMITH_ENCRYPTION_PASSWORD": {
+        "description": "Encryption password to encrypt all credentials in the database",
+        "value": ""
+      },
+      "APPSMITH_ENCRYPTION_SALT": {
+        "description" : "Encryption salt used to encrypt all credentials in the database",
+        "value": ""
+      },
+      "APPSMITH_MAIL_ENABLED": {
+        "description" : "Set this value to true to enable email sending",
+        "value": "false",
+        "required": false
+      },
+      "APPSMITH_MAIL_FROM": {
+        "description" : "Email ID using which emails will be sent from your installation ",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_REPLY_TO": {
+        "description" : "Email ID to which all email replies will be sent to",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_MAIL_HOST": {
+        "description" : "The host endpoint for the SMTP server",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_MAIL_SMTP_TLS_ENABLED" : {
+        "description": "Set this value to enable TLS for your SMTP server",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_MAIL_USERNAME": {
+        "description" : "SMTP username",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_MAIL_PASSWORD": {
+        "description" : "SMTP password",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_MAIL_SMTP_AUTH" : {
+        "description" : "Set this value to true if your SMTP server requires authentication",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID": {
+        "description": "Client ID provided by Google for OAuth2 login",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET": {
+        "description" : "Client secret provided by Google for OAuth2 login",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_OAUTH2_GITHUB_CLIENT_ID": {
+        "description" : "Client ID provided by Github for OAuth2 login",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET": {
+        "description" : "Client secret provided by Github for OAuth2 login",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_GOOGLE_MAPS_API_KEY": {
+        "description" : "Google Map API key",
+        "value": "",
+        "required": false
+      }
+   }
+}
