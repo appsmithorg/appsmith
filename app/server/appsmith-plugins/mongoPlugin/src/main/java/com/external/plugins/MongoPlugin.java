@@ -403,14 +403,17 @@ public class MongoPlugin extends BasePlugin {
                         return Mono.zip(
                                 Mono.just(columns),
                                 Mono.just(templates),
+                                Mono.just(collectionName),
                                 Mono.from(database.getCollection(collectionName).find().limit(1).first())
                         );
                     }).
                     flatMap(tuple -> {
                         final ArrayList<DatasourceStructure.Column> columns = tuple.getT1();
                         final ArrayList<DatasourceStructure.Template> templates = tuple.getT2();
-                        Document document = tuple.getT3();
-                        generateTemplatesAndStructureForACollection(document, columns, templates);
+                        String collectionName = tuple.getT3();
+                        Document document = tuple.getT4();
+
+                        generateTemplatesAndStructureForACollection(collectionName, document, columns, templates);
 
                         return Mono.just(structure);
                     }).
@@ -420,10 +423,10 @@ public class MongoPlugin extends BasePlugin {
                     });
         }
 
-        private static void generateTemplatesAndStructureForACollection(Document document,
+        private static void generateTemplatesAndStructureForACollection(String collectionName,
+                                                                        Document document,
                                                                         ArrayList<DatasourceStructure.Column> columns,
                                                                         ArrayList<DatasourceStructure.Template> templates) {
-            String collectionName = (String) document.get("name");
             String filterFieldName = null;
             String filterFieldValue = null;
             Map<String, String> sampleInsertValues = new LinkedHashMap<>();

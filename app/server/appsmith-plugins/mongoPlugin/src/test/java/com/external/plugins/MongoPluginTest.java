@@ -20,6 +20,7 @@ import com.mongodb.reactivestreams.client.MongoDatabase;
 import com.mongodb.reactivestreams.client.Success;
 import org.json.JSONObject;
 import org.reactivestreams.Publisher;
+import java.util.concurrent.TimeUnit;
 
 import org.bson.Document;
 import org.junit.BeforeClass;
@@ -64,14 +65,20 @@ public class MongoPluginTest {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
         String uri = "mongodb://" + address + ":" + Integer.toString(port);
+        //TODO: remove it.
+        System.out.println("devtest: uri: " + uri);
+
         final MongoClient mongoClient = MongoClients.create(uri);
 
-        Flux.from(mongoClient.getDatabase("test").listCollectionNames()).buffer().
+        Flux.from(mongoClient.getDatabase("test").listCollectionNames()).collectList().
         flatMap(collectionNamesList -> {
+            final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
+                    "users");
+            //TODO: remove it.
+            //System.out.println("devtest: collection size: " + Integer.toString(collectionNamesList.size()));
+            //System.exit(0);
             if(collectionNamesList.size() == 0) {
-                final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
-                        "users");
-                usersCollection.insertMany(List.of(
+                Mono.from(usersCollection.insertMany(List.of(
                         new Document(Map.of(
                                 "name", "Cierra Vega",
                                 "gender", "F",
@@ -82,9 +89,20 @@ public class MongoPluginTest {
                         )),
                         new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
                         new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
-                ));
+                ))).block();
             }
-        });
+            //TODO: remove it.
+            System.out.println("created doc mono");
+            //System.exit(0);
+            try {
+                //TimeUnit.HOURS.sleep(1000);
+            }
+            catch (Exception e) {
+                System.out.println("devtest: timeout over");
+            }
+
+            return Mono.just(usersCollection);
+        }).block();
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
