@@ -37,10 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for MongoPlugin
@@ -65,18 +62,12 @@ public class MongoPluginTest {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
         String uri = "mongodb://" + address + ":" + Integer.toString(port);
-        //TODO: remove it.
-        System.out.println("devtest: uri: " + uri);
-
         final MongoClient mongoClient = MongoClients.create(uri);
 
         Flux.from(mongoClient.getDatabase("test").listCollectionNames()).collectList().
         flatMap(collectionNamesList -> {
             final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
                     "users");
-            //TODO: remove it.
-            //System.out.println("devtest: collection size: " + Integer.toString(collectionNamesList.size()));
-            //System.exit(0);
             if(collectionNamesList.size() == 0) {
                 Mono.from(usersCollection.insertMany(List.of(
                         new Document(Map.of(
@@ -90,15 +81,6 @@ public class MongoPluginTest {
                         new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
                         new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
                 ))).block();
-            }
-            //TODO: remove it.
-            System.out.println("created doc mono");
-            //System.exit(0);
-            try {
-                //TimeUnit.HOURS.sleep(1000);
-            }
-            catch (Exception e) {
-                System.out.println("devtest: timeout over");
             }
 
             return Mono.just(usersCollection);
@@ -134,6 +116,25 @@ public class MongoPluginTest {
                     MongoClient client = (MongoClient) obj;
                     System.out.println(client);
                     assertNotNull(client);
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * 1. Test "testDatasource" method in MongoPluginExecutor class.
+     */
+    @Test
+    public void testDatasourceFail() {
+        System.out.println(mongoContainer.getContainerIpAddress());
+        System.out.println(mongoContainer.getFirstMappedPort());
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("badHost");
+        System.out.println(dsConfig);
+
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertFalse(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
     }
@@ -346,5 +347,4 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
-
 }

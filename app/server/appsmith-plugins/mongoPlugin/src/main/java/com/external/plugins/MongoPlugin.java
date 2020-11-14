@@ -23,7 +23,6 @@ import com.mongodb.reactivestreams.client.ClientSession;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import com.mongodb.reactivestreams.client.Success;
-import org.reactivestreams.Publisher;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -39,7 +38,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
@@ -170,7 +168,7 @@ public class MongoPlugin extends BasePlugin {
                             JSONObject statusJson = new JSONObject().put("ok", status);
                             headerArray.put(statusJson);
                             result.setHeaders(objectMapper.readTree(headerArray.toString()));
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                         }
 
@@ -328,57 +326,22 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            final Connection.Type connectionType = datasourceConfiguration.getConnection().getType();
             return datasourceCreate(datasourceConfiguration)
-                    .map(mongoClient -> {
-                        Mono<ClientSession> clientSession = null;
-
-                        try {
-                            // Not using try-with-resources here since we want to close the *session* before closing the
-                            // MongoClient instance.
-                            if (Connection.Type.REPLICA_SET.equals(connectionType)) {
-                                // For REPLICA_SET connections, we check by creating a session, as this is faster.
-                                //clientSession = mongoClient.startSession();
-                                clientSession = Mono.from(mongoClient.startSession());
-
-                            } else {
-                                // For DIRECT connections, we check by running a DB command, as it's the only reliable
-                                // method of checking if the connection is usable.
-                                mongoClient
-                                        .getDatabase("admin")
-                                        .runCommand(new Document("listDatabases", 1));
-                                return new DatasourceTestResult();
-
-                            }
-
-                        } catch (MongoTimeoutException e) {
-                            log.warn("Timeout connecting to MongoDB from MongoPlugin.", e);
-                            return new DatasourceTestResult("Timed out trying to connect to MongoDB host.");
-
-                        } catch (MongoCommandException e) {
-                            // The fact that we got a response saying "Unauthorized" means that the connection to the
-                            // MongoDB instance is valid. It also means we don't have access to the admin database, but
-                            // that's okay for our purposes here.
-                            return "Unauthorized".equals(e.getErrorCodeName())
-                                    ? new DatasourceTestResult()
-                                    : new DatasourceTestResult(e.getMessage());
-
-                        } catch (Exception e) {
-                            return new DatasourceTestResult(e.getMessage());
-
-                        } finally {
-                            if (clientSession != null) {
-                                //clientSession.close();
-                                // TODO: ??
-                            }
-                            if (mongoClient != null) {
-                                mongoClient.close();
-                            }
-                        }
-
-                        return new DatasourceTestResult();
+                    .flatMap(mongoClient -> {
+                        return Mono.zip(Mono.just(mongoClient),
+                                Mono.from(mongoClient.getDatabase("admin").runCommand(new Document(
+                                "listDatabases", 1))));
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+                    .doOnSuccess(tuple -> {
+                        MongoClient mongoClient = tuple.getT1();
+
+                        if(mongoClient != null) {
+                            mongoClient.close();
+                        }
+                    })
+                    .then(Mono.just(new DatasourceTestResult()))
+                    .onErrorResume(error -> {
+                        return Mono.just(new DatasourceTestResult(error.getMessage()));});
         }
 
         @Override
