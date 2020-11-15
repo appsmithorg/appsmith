@@ -31,7 +31,7 @@ class PageNotFound extends React.PureComponent<RouteComponentProps> {
             className="page-unavailable-img"
           />
           <div>
-            <p className="bold-text">Page not found</p>
+            <p className="bold-text">Login to the correct account to access this page. </p>
             <p>
               Either this page doesn&apos;t exist, or you don&apos;t have access
               to <br />
