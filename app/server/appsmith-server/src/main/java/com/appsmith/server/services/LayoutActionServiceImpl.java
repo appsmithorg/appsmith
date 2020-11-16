@@ -427,9 +427,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         // Since we are parsing this widget in this, add it.
         widgetNames.add(widgetName);
 
-
         // Start by picking all fields where we expect to find dynamic bindings for this particular widget
         ArrayList<Object> dynamicallyBoundedPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
+        if(dynamicallyBoundedPathList == null) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DYNAMIC_BINDING_PATH_LIST);
+        }
+
         // Each of these might have nested structures, so we iterate through them to find the leaf node for each
         for (Object x : dynamicallyBoundedPathList) {
             final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
