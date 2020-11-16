@@ -25,7 +25,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
     cy.reload();
   });
 
-  it("Will not crash the app for failure", function() {
+  it("Input widget updated with deafult data", function() {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput)
       .type(testdata.command)
@@ -42,7 +42,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
       .should("contain", "3");
   });
 
-  it("Binding second input widget with API on PageLoad and default input1 widget ", function() {
+  it("Binding second input widget with API on PageLoad data and default data from input1 widget ", function() {
     cy.SearchEntityandOpen("Input3");
     cy.get(widgetsPage.defaultInput).type(testdata.pageloadBinding, {
       parseSpecialCharSequences: false,
@@ -53,7 +53,6 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.reload();
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
       .last()
