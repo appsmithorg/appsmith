@@ -1,0 +1,151 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": {
+    "body": [
+      {
+        "id": 7,
+        "name": "Ximenez Kainz",
+        "createdAt": "2019-08-07T21:36:27Z",
+        "updatedAt": "2019-10-21T03:23:42Z",
+        "status": "APPROVED",
+        "gender": "Male",
+        "avatar": "https://robohash.org/quiofficiadicta.jpg?size=100x100&set=set1",
+        "email": "xkainz6@ihg.com",
+        "address": "19624 Scofield Way",
+        "role": "Admin",
+        "dob": "1993-08-14",
+        "phoneNo": null
+      },
+      {
+        "id": 9,
+        "name": "Selestina Naisbit",
+        "createdAt": "2019-08-17T21:32:48Z",
+        "updatedAt": "2020-03-15T12:54:25Z",
+        "status": "PENDING",
+        "gender": "Female",
+        "avatar": "https://robohash.org/veniamlaborumrerum.bmp?size=100x100&set=set1",
+        "email": "snaisbit8@e-recht24.de",
+        "address": "527 Carioca Lane",
+        "role": "Viewer",
+        "dob": "1998-06-23",
+        "phoneNo": null
+      },
+      {
+        "id": 11,
+        "name": "Bev Whyffen",
+        "createdAt": "2020-05-31T14:20:52Z",
+        "updatedAt": "2019-11-01T13:38:33Z",
+        "status": "REJECTED",
+        "gender": "Female",
+        "avatar": "https://robohash.org/quiamolestiaset.jpg?size=100x100&set=set1",
+        "email": "bwhyffena@123-reg.co.uk",
+        "address": "4 Weeping Birch Crossing",
+        "role": "Viewer",
+        "dob": "2002-12-09",
+        "phoneNo": null
+      },
+      {
+        "id": 13,
+        "name": "Nicolette Heathwood",
+        "createdAt": "2019-09-24T12:04:04Z",
+        "updatedAt": "2020-05-22T02:23:21Z",
+        "status": "REJECTED",
+        "gender": "Female",
+        "avatar": "https://robohash.org/velutdolore.jpg?size=100x100&set=set1",
+        "email": "nheathwoodc@twitter.com",
+        "address": "8407 Fairview Junction",
+        "role": "Viewer",
+        "dob": "1995-11-28",
+        "phoneNo": null
+      },
+      {
+        "id": 14,
+        "name": "Stace Sanches",
+        "createdAt": "2020-03-18T03:37:08Z",
+        "updatedAt": "2020-05-07T02:58:52Z",
+        "status": "APPROVED",
+        "gender": "Female",
+        "avatar": "https://robohash.org/sintvoluptatesaut.jpg?size=100x100&set=set1",
+        "email": "ssanchesd@whitehouse.gov",
+        "address": "55 Rigney Terrace",
+        "role": "Viewer",
+        "dob": "2001-10-12",
+        "phoneNo": null
+      },
+      {
+        "id": 16,
+        "name": "Mallorie Stevens",
+        "createdAt": "2020-01-05T14:33:22Z",
+        "updatedAt": "2020-06-11T03:32:20Z",
+        "status": "PENDING",
+        "gender": "Female",
+        "avatar": "https://robohash.org/voluptatesitaqueet.jpg?size=100x100&set=set1",
+        "email": "mstevensf@smugmug.com",
+        "address": "719 Debs Avenue",
+        "role": "Admin",
+        "dob": "1999-09-13",
+        "phoneNo": null
+      },
+      {
+        "id": 17,
+        "name": "Loralyn Jarrel",
+        "createdAt": "2020-05-04T19:05:49Z",
+        "updatedAt": "2020-02-29T08:47:11Z",
+        "status": "REJECTED",
+        "gender": "Female",
+        "avatar": "https://robohash.org/namiuremolestiae.jpg?size=100x100&set=set1",
+        "email": "ljarrelg@disqus.com",
+        "address": "79343 Birchwood Center",
+        "role": "Admin",
+        "dob": "2006-01-02",
+        "phoneNo": null
+      },
+      {
+        "id": 1,
+        "name": "Barty Crouch",
+        "createdAt": "2020-03-16T18:00:05Z",
+        "updatedAt": "2020-08-12T17:29:31.98Z",
+        "status": "APPROVED",
+        "gender": "Male",
+        "avatar": "https://robohash.org/sednecessitatibuset.png?size=100x100&set=set1",
+        "email": "barty.crouch@gmail.com",
+        "address": "St Petersberg #911 4th main",
+        "role": "Admin",
+        "dob": "1990-09-30",
+        "phoneNo": "8888888888"
+      },
+      {
+        "id": 12,
+        "name": "Shelton Strain",
+        "createdAt": "2019-10-28T06:53:52Z",
+        "updatedAt": "2020-08-01T21:19:10Z",
+        "status": "APPROVED",
+        "gender": "Male",
+        "avatar": "https://robohash.org/ipsaetea.png?size=100x100&set=set1",
+        "email": "sstrainb@usnews.com",
+        "address": "07 Derek Junction",
+        "role": "Admin",
+        "dob": "1992-07-17",
+        "phoneNo": null
+      },
+      {
+        "id": 8,
+        "name": "Mil Govinlock ",
+        "createdAt": "2019-09-09T21:58:23Z",
+        "updatedAt": "2020-04-14T04:37:38Z",
+        "status": "REJECTED",
+        "gender": "Female",
+        "avatar": "https://robohash.org/illumaliquamdolores.bmp?size=100x100&set=set1",
+        "email": "mgovinlock7@ezinearticles.com",
+        "address": "29 Helena Point",
+        "role": "Viewer",
+        "dob": "2004-11-04",
+        "phoneNo": null
+      }
+    ],
+    "isExecutionSuccess": true
+  }
+}

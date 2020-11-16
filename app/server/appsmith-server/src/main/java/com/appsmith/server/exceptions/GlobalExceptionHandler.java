@@ -2,7 +2,6 @@ package com.appsmith.server.exceptions;
 
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.rollbar.notifier.Rollbar;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,10 +13,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebInputException;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import io.sentry.Sentry;
+import io.sentry.SentryEvent;
+import io.sentry.SentryOptions;
+import io.sentry.SentryLevel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 
 
 /**
@@ -28,25 +34,34 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    private final Rollbar rollbar;
-
-    @Autowired
-    public GlobalExceptionHandler(@Autowired(required = false) Rollbar rollbar) {
-        this.rollbar = rollbar;
-    }
+    public GlobalExceptionHandler() {}
 
     private void doLog(Throwable error) {
         log.error("", error);
 
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        error.printStackTrace(printWriter);
+        String stringStackTrace = stringWriter.toString();
+
+        Sentry.configureScope(
+                scope -> {
+                    /**
+                     * Send stack trace as a string message. This is a work around till it is figured out why raw
+                     * stack trace is not visible on Sentry dashboard.
+                     * */
+                    scope.setExtra("Stack Trace", stringStackTrace);
+                    scope.setLevel(SentryLevel.ERROR);
+                }
+        );
+
         if (error instanceof AppsmithException) {
-            if (rollbar != null && ((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
-                rollbar.log(error);
+            if (((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+                Sentry.captureException(error);
             }
         }
         else {
-            if(rollbar != null) {
-                rollbar.log(error);
-            }
+            Sentry.captureException(error);
         }
     }
 
