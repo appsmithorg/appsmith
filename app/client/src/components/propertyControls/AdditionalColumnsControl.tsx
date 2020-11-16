@@ -45,7 +45,10 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
 
 const AddColumnButton = styled(StyledPropertyPaneButton)`
   width: 100%;
-  margin-top: 16px;
+  &&&& {
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
 `;
 
 type RenderComponentProps = {
@@ -134,7 +137,8 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
     const column = {
       ...columnProps,
       isDerived: true,
-      buttonStyle: "PRIMARY_BUTTON",
+      buttonStyle: "#29CCA3",
+      buttonLabelColor: "#FFFFFF",
     };
     const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
     updatedDerivedColumns.push(column);

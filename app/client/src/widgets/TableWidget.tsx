@@ -351,23 +351,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                     {
                       propertyName: "buttonStyle",
-                      label: "Button Style",
-                      controlType: "DROP_DOWN",
-                      helpText: "Changes the style of the button",
-                      options: [
-                        {
-                          label: "Primary Button",
-                          value: "PRIMARY_BUTTON",
-                        },
-                        {
-                          label: "Secondary Button",
-                          value: "SECONDARY_BUTTON",
-                        },
-                        {
-                          label: "Danger Button",
-                          value: "DANGER_BUTTON",
-                        },
-                      ],
+                      label: "Button Color",
+                      controlType: "COLOR_PICKER",
+                      helpText: "Changes the color of the button",
+                    },
+                    {
+                      propertyName: "buttonLabelColor",
+                      label: "Label Color",
+                      controlType: "COLOR_PICKER",
+                      isJSConvertible: true,
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
@@ -438,9 +430,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "computedValue",
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType === "button";
-                      },
                     },
                     {
                       propertyName: "enableFilter",
@@ -594,23 +583,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                     {
                       propertyName: "buttonStyle",
-                      label: "Button Style",
-                      controlType: "DROP_DOWN",
-                      helpText: "Changes the style of the button",
-                      options: [
-                        {
-                          label: "Primary Button",
-                          value: "PRIMARY_BUTTON",
-                        },
-                        {
-                          label: "Secondary Button",
-                          value: "SECONDARY_BUTTON",
-                        },
-                        {
-                          label: "Danger Button",
-                          value: "DANGER_BUTTON",
-                        },
-                      ],
+                      label: "Button Color",
+                      controlType: "COLOR_PICKER",
+                      helpText: "Changes the color of the button",
+                    },
+                    {
+                      propertyName: "buttonLabelColor",
+                      label: "Label Color",
+                      controlType: "COLOR_PICKER",
+                      isJSConvertible: true,
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
@@ -757,8 +738,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     label: columnProperties.buttonLabel,
                     id: columnProperties.id,
                     dynamicTrigger: columnProperties.dynamicTrigger,
-                    buttonStyle:
-                      columnProperties.buttonStyle || "PRIMARY_BUTTON",
+                    buttonStyle: columnProperties.buttonStyle || "#29CCA3",
+                    buttonLabelColor:
+                      columnProperties.buttonLabelColor || "#FFFFFF",
                     onCommandClick: this.onCommandClick,
                   }
                 : undefined,
@@ -791,26 +773,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         }
       }
       // columns = reorderColumns(columns, this.props.columnOrder || []);
-      if (columnActions?.length) {
-        columns.push({
-          Header:
-            columnNameMap && columnNameMap["actions"]
-              ? columnNameMap["actions"]
-              : "Actions",
-          accessor: "actions",
-          width: 150,
-          minWidth: 60,
-          draggable: true,
-          Cell: (props: any) => {
-            return renderActions({
-              isSelected: props.row.isSelected,
-              columnActions: columnActions,
-              onCommandClick: this.onCommandClick,
-              intent: "PRIMARY_BUTTON",
-            });
-          },
-        });
-      }
       if (
         hiddenColumns.length &&
         this.props.renderMode === RenderModes.CANVAS
@@ -914,6 +876,30 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return [];
     }
     const derivedTableData: Array<Record<string, unknown>> = [...tableData];
+    if (this.props.primaryColumns) {
+      for (let i = 0; i < this.props.primaryColumns.length; i++) {
+        const column: ColumnProperties = this.props.primaryColumns[i];
+        const columnId = column.id;
+        if (column.computedValue) {
+          try {
+            let computedValues: Array<unknown> = [];
+            if (isString(column.computedValue)) {
+              computedValues = JSON.parse(column.computedValue);
+            } else {
+              computedValues = column.computedValue;
+            }
+            for (let index = 0; index < computedValues.length; index++) {
+              derivedTableData[index] = {
+                ...derivedTableData[index],
+                [columnId]: computedValues[index],
+              };
+            }
+          } catch (e) {
+            console.log({ e });
+          }
+        }
+      }
+    }
     if (this.props.derivedColumns) {
       for (let i = 0; i < this.props.derivedColumns.length; i++) {
         const column: ColumnProperties = this.props.derivedColumns[i];
@@ -1069,31 +1055,33 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("selectedRows", []);
       this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
     }
-    // if (
-    //   JSON.stringify(this.props.derivedColumns) !==
-    //   JSON.stringify(prevProps.derivedColumns)
-    // ) {
-    //   const filteredTableData = this.filterTableData();
-    //   this.props.updateWidgetMetaProperty(
-    //     "filteredTableData",
-    //     filteredTableData,
-    //   );
-    //   if (!this.props.multiRowSelection) {
-    //     this.props.updateWidgetMetaProperty(
-    //       "selectedRow",
-    //       this.getSelectedRow(filteredTableData),
-    //     );
-    //   } else {
-    //     this.props.updateWidgetMetaProperty(
-    //       "selectedRows",
-    //       filteredTableData.filter(
-    //         (item: Record<string, unknown>, i: number) => {
-    //           return this.props.selectedRowIndices.includes(i);
-    //         },
-    //       ),
-    //     );
-    //   }
-    // }
+    if (
+      JSON.stringify(this.props.derivedColumns) !==
+        JSON.stringify(prevProps.derivedColumns) ||
+      JSON.stringify(this.props.primaryColumns) !==
+        JSON.stringify(prevProps.primaryColumns)
+    ) {
+      const filteredTableData = this.filterTableData();
+      this.props.updateWidgetMetaProperty(
+        "filteredTableData",
+        filteredTableData,
+      );
+      if (!this.props.multiRowSelection) {
+        this.props.updateWidgetMetaProperty(
+          "selectedRow",
+          this.getSelectedRow(filteredTableData),
+        );
+      } else {
+        this.props.updateWidgetMetaProperty(
+          "selectedRows",
+          filteredTableData.filter(
+            (item: Record<string, unknown>, i: number) => {
+              return this.props.selectedRowIndices.includes(i);
+            },
+          ),
+        );
+      }
+    }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       if (this.props.multiRowSelection) {
         const selectedRowIndices = this.props.selectedRowIndex
@@ -1396,6 +1384,7 @@ export interface ButtonProperties {
   label?: string;
   id: string;
   buttonStyle: string;
+  buttonLabelColor: string;
   dynamicTrigger?: string;
   onCommandClick: (action: string, onComplete: () => void) => void;
 }
@@ -1440,6 +1429,7 @@ export interface ColumnProperties {
   computedValue: string;
   buttonLabel?: string;
   buttonStyle?: string;
+  buttonLabelColor?: string;
   dynamicTrigger?: string;
   format?: {
     input?: string;
