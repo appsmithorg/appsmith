@@ -175,7 +175,10 @@ class TabControl extends BaseControl<ControlProps> {
     }> = this.props.propertyValue;
     const updatedTabs = tabs.map((tab, tabIndex) => {
       if (index === tabIndex) {
-        tab.label = updatedLabel;
+        return {
+          ...tab,
+          label: updatedLabel,
+        };
       }
       return tab;
     });

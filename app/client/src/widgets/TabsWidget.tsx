@@ -161,7 +161,7 @@ class TabsWidget extends BaseWidget<
           const tabs = [
             { id: "tab1", widgetId: newTabContainerWidgetId, label: "Tab 1" },
           ];
-          this.updateWidgetProperty("tabs", JSON.stringify(tabs));
+          this.updateWidgetProperty("tabs", tabs);
         }
       }
     }
