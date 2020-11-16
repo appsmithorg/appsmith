@@ -328,7 +328,6 @@ public class LayoutServiceTest {
                     action = new ActionDTO();
                     action.setName("aDBAction");
                     action.setActionConfiguration(new ActionConfiguration());
-                    action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
@@ -338,7 +337,15 @@ public class LayoutServiceTest {
                     action = new ActionDTO();
                     action.setName("anotherDBAction");
                     action.setActionConfiguration(new ActionConfiguration());
-                    action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
+                    action.setPageId(page1.getId());
+                    action.setExecuteOnLoad(true);
+                    action.setDatasource(datasource);
+                    action.setPluginType(PluginType.DB);
+                    monos.add(newActionService.createAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("aTableAction");
+                    action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
@@ -374,13 +381,19 @@ public class LayoutServiceTest {
                     ));
                     obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.irrelevant}}")));
                     obj.put("dynamicDB2", List.of("{{ anotherDBAction.optional }}"));
+                    obj.put("tableWidget", new JSONObject(
+                            Map.of("test",
+                                    List.of(
+                                            Map.of("content",
+                                                    Map.of("child", "{{aTableAction.child}}"))))));
                     JSONArray dynamicBindingsPathList = new JSONArray();
                     dynamicBindingsPathList.addAll(List.of(
                             new JSONObject(Map.of("key", "dynamicGet")),
                             new JSONObject(Map.of("key", "dynamicPostWithAutoExec")),
                             new JSONObject(Map.of("key", "dynamicDB.test")),
-                            new JSONObject(Map.of("key", "dynamicDB2.0"))
-                            ));
+                            new JSONObject(Map.of("key", "dynamicDB2.0")),
+                            new JSONObject(Map.of("key", "tableWidget.test[0].content.child"))
+                    ));
 
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
@@ -394,12 +407,13 @@ public class LayoutServiceTest {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
+                    layout.getLayoutOnLoadActions().get(1).forEach(x -> log.debug(x.getName()));
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(Set.of("aPostTertiaryAction"));
-                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(4);
+                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(5);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aGetAction", "aPostActionWithAutoExec", "aDBAction", "anotherDBAction"));
+                            .hasSameElementsAs(Set.of("aGetAction", "aPostActionWithAutoExec", "aDBAction", "anotherDBAction", "aTableAction"));
                 })
                 .verifyComplete();
     }
@@ -468,7 +482,7 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(testMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("dynamicGet_IncorrectKey")))
+                        throwable.getMessage().equals(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("dynamicGet_IncorrectKey")))
                 .verify();
     }
 
