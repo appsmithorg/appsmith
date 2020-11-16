@@ -37,8 +37,12 @@ describe("Add widget", function() {
       .focus()
       .type("select * from configs");
     cy.wait(500);
+    cy.server();
+    cy.route("POST", "/api/v1/actions/execute", "fx:actionResponse").as(
+      "postExecuteStub",
+    );
     cy.get(queryLocators.runQuery).click();
-    cy.wait("@postExecute").then(httpResponse => {
+    cy.wait("@postExecuteStub").then(httpResponse => {
       cy.log(JSON.stringify(httpResponse.response.body));
       expect(httpResponse.status).to.eq(200);
     });
@@ -47,7 +51,7 @@ describe("Add widget", function() {
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then(tabData => {
       const tabValue = tabData;
-      expect(tabValue).to.be.equal("5");
+      expect(tabValue).to.be.equal("9");
       cy.log("the value is " + tabValue);
     });
   });

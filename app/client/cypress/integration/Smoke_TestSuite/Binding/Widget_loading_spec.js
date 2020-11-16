@@ -50,8 +50,12 @@ describe("Binding the multiple widgets and validating default data", function() 
       .focus()
       .type("select * from users limit 10");
     cy.EvaluateCurrentValue("select * from users limit 10");
+    cy.server();
+    cy.route("POST", "/api/v1/actions/execute", "fx:actionResponse").as(
+      "postExecuteStub",
+    );
     cy.get(queryLocators.runQuery).click();
-    cy.wait("@postExecute").then(httpResponse => {
+    cy.wait("@postExecuteStub").then(httpResponse => {
       cy.log(JSON.stringify(httpResponse.response.body));
       expect(httpResponse.status).to.eq(200);
     });
