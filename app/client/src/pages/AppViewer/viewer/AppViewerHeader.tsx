@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
@@ -10,6 +10,7 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import {
+  Page,
   ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
@@ -30,6 +31,8 @@ import { HeaderIcons } from "icons/HeaderIcons";
 import { Colors } from "constants/Colors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import { isEllipsisActive } from "utils/helpers";
+import TooltipComponent from "components/ads/Tooltip";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   background: ${Colors.BALTIC_SEA};
@@ -132,12 +135,26 @@ type AppViewerHeaderProps = {
   currentUser?: User;
 };
 
+const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
+  const tabNameRef = useRef<HTMLSpanElement>(null);
+  const tabNameText = <span ref={tabNameRef}>{name}</span>;
+
+  return isEllipsisActive(tabNameRef?.current) ? (
+    <TooltipComponent maxWidth={400} content={name}>
+      {tabNameText}
+    </TooltipComponent>
+  ) : (
+    <>{tabNameText}</>
+  );
+};
+
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const { currentApplicationDetails, pages, currentOrgId, currentUser } = props;
   const isExampleApp = currentApplicationDetails?.appIsExample;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
+
   // Mark default page as first page
   const appPages = pages;
   if (appPages.length > 1) {
@@ -251,7 +268,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
               activeClassName="is-active"
               className="t--page-switch-tab"
             >
-              <span>{page.pageName}</span>
+              <PageTabName name={page.pageName} />
             </PageTab>
           ))}
         </HeaderRow>
