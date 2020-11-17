@@ -584,6 +584,26 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
     .type(path, { parseSpecialCharSequences: false });
 });
 
+Cypress.Commands.add("changeZoomLevel", zoomValue => {
+  cy.get(commonlocators.changeZoomlevel).click();
+  cy.get("ul.bp3-menu")
+    .children()
+    .contains(zoomValue)
+    .click();
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(commonlocators.selectedZoomlevel)
+    .first()
+    .invoke("text")
+    .then(text => {
+      const someText = text;
+      expect(someText).to.equal(zoomValue);
+    });
+});
+
 Cypress.Commands.add(
   "EnterSourceDetailsWithHeader",
   (baseUrl, v1method, hKey, hValue) => {

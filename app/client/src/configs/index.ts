@@ -106,7 +106,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
-    disableTelemetry: false,
+    disableTelemetry: true,
   };
 };
 
@@ -178,9 +178,24 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS.segment.ceKey,
   );
 
+  // We enable segment tracking if either the Cloud API key is set or the self-hosted CE key is set
+  segment.enabled = segment.enabled || segmentCEKey.enabled;
+
+  let sentryTelemetry = true;
+  // Turn off all analytics if telemetry is disabled
+  if (APPSMITH_FEATURE_CONFIGS.disableTelemetry) {
+    smartLook.enabled = false;
+    segment.enabled = false;
+    sentryTelemetry = false;
+  }
+
   return {
     sentry: {
-      enabled: sentryDSN.enabled && sentryRelease.enabled && sentryENV.enabled,
+      enabled:
+        sentryDSN.enabled &&
+        sentryRelease.enabled &&
+        sentryENV.enabled &&
+        sentryTelemetry,
       dsn: sentryDSN.value,
       release: sentryRelease.value,
       environment: sentryENV.value,
