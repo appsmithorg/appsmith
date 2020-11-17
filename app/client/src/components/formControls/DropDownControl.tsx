@@ -8,10 +8,6 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 import { theme } from "constants/DefaultTheme";
 import FormLabel from "components/editorComponents/FormLabel";
-import { connect } from "react-redux";
-import { AppState } from "reducers";
-import { getFormValues } from "redux-form";
-import { isHidden } from "./utils";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
@@ -44,11 +40,7 @@ const customSelectStyles = {
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const { configProperty, options, label, isRequired, hidden } = this.props;
-
-    if (hidden) {
-      return null;
-    }
+    const { configProperty, options, label, isRequired } = this.props;
 
     return (
       <div>
@@ -93,19 +85,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   }
 }
 
-const mapStateToProps = (state: AppState, ownProps: DropDownControlProps) => {
-  const values = getFormValues(ownProps.formName)(state);
-  const hidden = isHidden(values, ownProps.hidden);
-
-  return {
-    hidden,
-  };
-};
-
 export interface DropDownControlProps extends ControlProps {
   options: DropdownOption[];
   placeholderText: string;
   propertyValue: string;
 }
 
-export default connect(mapStateToProps)(DropDownControl);
+export default DropDownControl;

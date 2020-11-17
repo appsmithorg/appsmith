@@ -1,7 +1,7 @@
 import _ from "lodash";
-import { ComparisonOperations } from "./BaseControl";
+import { ComparisonOperations, HiddenType } from "./BaseControl";
 
-export const isHidden = (values: any, hiddenConfig: any) => {
+export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
   if (!!hiddenConfig && !_.isBoolean(hiddenConfig)) {
     const valueAtPath = _.get(values, hiddenConfig.path);
     const value = hiddenConfig.value;

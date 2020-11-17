@@ -1,6 +1,6 @@
 import React from "react";
-import FormControlFactory from "utils/FormControlFactory";
 import { ControlProps } from "components/formControls/BaseControl";
+import FormControl from "./FormControl";
 
 interface ActionSettingsProps {
   actionSettingsConfig: any;
@@ -18,18 +18,15 @@ const ActionSettings = (props: ActionSettingsProps): JSX.Element => {
 };
 
 const renderEachConfig = (section: any, formName: string): any => {
-  return section.children.map((propertyControlOrSection: ControlProps) => {
-    if ("children" in propertyControlOrSection) {
-      return renderEachConfig(propertyControlOrSection, formName);
+  return section.children.map((formControlOrSection: ControlProps) => {
+    if ("children" in formControlOrSection) {
+      return renderEachConfig(formControlOrSection, formName);
     } else {
       try {
-        const { configProperty } = propertyControlOrSection;
+        const { configProperty } = formControlOrSection;
         return (
           <div key={configProperty} style={{ marginTop: "18px" }}>
-            {FormControlFactory.createControl(
-              { ...propertyControlOrSection },
-              formName,
-            )}
+            <FormControl config={formControlOrSection} formName={formName} />
           </div>
         );
       } catch (e) {

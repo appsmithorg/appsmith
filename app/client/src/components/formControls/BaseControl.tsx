@@ -16,6 +16,10 @@ export enum ComparisonOperations {
   LESSER = "LESSER",
 }
 
+export type HiddenType =
+  | boolean
+  | { path: string; comparison: ComparisonOperations; value: any };
+
 export interface ControlBuilder<T extends ControlProps> {
   buildPropertyControl(controlProps: T): JSX.Element;
 }
@@ -37,9 +41,7 @@ export interface ControlData {
   validationRegex?: string;
   dataType?: InputType;
   isRequired?: boolean;
-  hidden?:
-    | boolean
-    | { path: string; comparison: ComparisonOperations; value: any };
+  hidden?: HiddenType;
 }
 
 export interface ControlFunctions {

@@ -3,10 +3,6 @@ import CheckboxField from "components/editorComponents/form/fields/CheckboxField
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import styled from "styled-components";
-import { connect } from "react-redux";
-import { AppState } from "reducers";
-import { getFormValues } from "redux-form";
-import { isHidden } from "./utils";
 
 const StyledCheckbox = styled(CheckboxField)`
   &&& {
@@ -21,11 +17,7 @@ class CheckboxControl extends BaseControl<CheckboxControlProps> {
   }
 
   render() {
-    const { configProperty, label, hidden } = this.props;
-
-    if (hidden) {
-      return null;
-    }
+    const { configProperty, label } = this.props;
 
     return (
       <StyledCheckbox
@@ -38,15 +30,6 @@ class CheckboxControl extends BaseControl<CheckboxControlProps> {
   }
 }
 
-const mapStateToProps = (state: AppState, ownProps: CheckboxControlProps) => {
-  const values = getFormValues(ownProps.formName)(state);
-  const hidden = isHidden(values, ownProps.hidden);
-
-  return {
-    hidden,
-  };
-};
-
 export type CheckboxControlProps = ControlProps;
 
-export default connect(mapStateToProps)(CheckboxControl);
+export default CheckboxControl;

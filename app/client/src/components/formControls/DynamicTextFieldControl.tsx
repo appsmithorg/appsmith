@@ -1,5 +1,5 @@
 import React from "react";
-import { formValueSelector, change, getFormValues } from "redux-form";
+import { formValueSelector, change } from "redux-form";
 import { connect } from "react-redux";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
@@ -20,7 +20,6 @@ import {
   convertObjectToQueryParams,
   getQueryParams,
 } from "utils/AppsmithUtils";
-import { isHidden } from "./utils";
 
 const Wrapper = styled.div`
   .dynamic-text-field {
@@ -57,7 +56,7 @@ class DynamicTextControl extends BaseControl<
   }
 
   render() {
-    const { responseType, hidden } = this.props;
+    const { responseType } = this.props;
     const isNewQuery =
       new URLSearchParams(window.location.search).get("showTemplate") ===
       "true";
@@ -67,10 +66,6 @@ class DynamicTextControl extends BaseControl<
       responseType === "TABLE"
         ? EditorModes.SQL_WITH_BINDING
         : EditorModes.JSON_WITH_BINDING;
-
-    if (hidden) {
-      return null;
-    }
 
     return (
       <Wrapper>
@@ -109,9 +104,7 @@ export interface DynamicTextFieldProps extends ControlProps {
 }
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
-const mapStateToProps = (state: AppState, ownProps: DynamicTextFieldProps) => {
-  const values = getFormValues(QUERY_EDITOR_FORM_NAME)(state);
-  const hidden = isHidden(values, ownProps.hidden);
+const mapStateToProps = (state: AppState) => {
   const actionName = valueSelector(state, "name");
   const pluginId = valueSelector(state, "datasource.pluginId");
   const responseTypes = getPluginResponseTypes(state);
@@ -120,7 +113,6 @@ const mapStateToProps = (state: AppState, ownProps: DynamicTextFieldProps) => {
     actionName,
     pluginId,
     responseType: responseTypes[pluginId],
-    hidden,
   };
 };
 

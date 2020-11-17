@@ -3,11 +3,8 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledSwitch } from "./StyledControls";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
-import { Field, getFormValues, WrappedFieldProps } from "redux-form";
+import { Field, WrappedFieldProps } from "redux-form";
 import styled from "styled-components";
-import { AppState } from "reducers";
-import { isHidden } from "./utils";
-import { connect } from "react-redux";
 
 type Props = WrappedFieldProps & {
   label: string;
@@ -58,11 +55,7 @@ export class SwitchField extends React.Component<Props, any> {
 
 class SwitchControl extends BaseControl<SwitchControlProps> {
   render() {
-    const { configProperty, label, isRequired, info, hidden } = this.props;
-
-    if (hidden) {
-      return null;
-    }
+    const { configProperty, label, isRequired, info } = this.props;
 
     return (
       <React.Fragment>
@@ -82,17 +75,8 @@ class SwitchControl extends BaseControl<SwitchControlProps> {
   }
 }
 
-const mapStateToProps = (state: AppState, ownProps: SwitchControlProps) => {
-  const values = getFormValues(ownProps.formName)(state);
-  const hidden = isHidden(values, ownProps.hidden);
-
-  return {
-    hidden,
-  };
-};
-
 export interface SwitchControlProps extends ControlProps {
   info?: string;
 }
 
-export default connect(mapStateToProps)(SwitchControl);
+export default SwitchControl;
