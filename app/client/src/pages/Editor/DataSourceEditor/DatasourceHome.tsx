@@ -7,6 +7,7 @@ import {
   getDatasourcePlugins,
   getPluginImages,
 } from "selectors/entitiesSelector";
+import history from "utils/history";
 import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import {
@@ -18,9 +19,10 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import BackButton from "./BackButton";
 
 const DatasourceHomePage = styled.div`
-  font-size: 20px;
   padding: 20px;
   margin-left: 10px;
   max-height: 95vh;
@@ -135,10 +137,27 @@ class DatasourceHomeScreen extends React.Component<Props> {
   };
 
   render() {
-    const { plugins, isSaving, pluginImages } = this.props;
+    const {
+      plugins,
+      isSaving,
+      pluginImages,
+      applicationId,
+      pageId,
+    } = this.props;
 
     return (
       <DatasourceHomePage>
+        <BackButton
+          onClick={() =>
+            history.push(
+              QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+                applicationId,
+                pageId,
+                pageId,
+              ),
+            )
+          }
+        />
         <StyledContainer>
           <p className="sectionHeadings">Select Datasource Type</p>
         </StyledContainer>

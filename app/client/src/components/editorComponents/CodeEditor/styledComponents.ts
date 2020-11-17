@@ -163,10 +163,16 @@ export const EditorWrapper = styled.div<{
       color: #FFFFFF;
     }
     .binding-brackets {
-      color: ${props =>
-        props.editorTheme === EditorTheme.DARK
-          ? props.theme.colors.bindingTextDark
-          : props.theme.colors.bindingText};
+      ${props =>
+        props.hasError
+          ? `
+      color: ${props.theme.colors.error};
+      `
+          : `color: ${
+              props.editorTheme === EditorTheme.DARK
+                ? props.theme.colors.bindingTextDark
+                : props.theme.colors.bindingText
+            };`}
       font-weight: 700;
     }
     .datasource-highlight {
