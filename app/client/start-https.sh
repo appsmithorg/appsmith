@@ -55,7 +55,7 @@ default_linux_server_proxy="http://localhost:8080"
 default_linux_client_proxy="http://localhost:3000"
 
 # default server to internal docker
-server_proxy_pass="${1:-default_server_proxy}"
+server_proxy_pass="${1:-$default_server_proxy}"
 
 uname_out="$(uname -s)"
 vars_to_substitute="$(printf '\$%s,' $(grep -o "^APPSMITH_[A-Z0-9_]\+" ../../.env | xargs))"
