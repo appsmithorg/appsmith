@@ -136,11 +136,7 @@
                 "bottomRow": 10,
                 "parentId": "qrqizehc5b",
                 "widgetId": "672gf8vm2q",
-                "dynamicBindingPathList": [
-                  {
-                    "key": "value"
-                  }
-                ]
+                "dynamicBindingPathList": []
               }
             ],
             "blueprint": {
