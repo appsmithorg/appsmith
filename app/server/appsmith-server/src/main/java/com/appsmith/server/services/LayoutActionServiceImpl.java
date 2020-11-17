@@ -429,40 +429,40 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         // Start by picking all fields where we expect to find dynamic bindings for this particular widget
         ArrayList<Object> dynamicallyBoundedPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
-        if(dynamicallyBoundedPathList == null) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DYNAMIC_BINDING_PATH_LIST);
-        }
 
-        // Each of these might have nested structures, so we iterate through them to find the leaf node for each
-        for (Object x : dynamicallyBoundedPathList) {
-            final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
-            String[] fields = fieldPath.split("[].\\[]");
-            // For nested fields, the parent dsl to search in would shift by one level every iteration
-            Object parent = dsl;
-            Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
-            // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
-            // Valid forms of the fieldPath for this search could be:
-            // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
-            while (fieldsIterator.hasNext()) {
-                String nextKey = fieldsIterator.next();
-                if(parent instanceof  JSONObject) {
-                    parent = ((JSONObject) parent).get(nextKey);
-                } else if(parent instanceof List) {
-                    if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
-                        parent = ((List) parent).get(Integer.parseInt(nextKey));
-                    } else {
+        // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no bindings in that widget.
+        // Hence we skip over the extraction of the bindings from that widget.
+        if(dynamicallyBoundedPathList != null) {
+            // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+            for (Object x : dynamicallyBoundedPathList) {
+                final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
+                String[] fields = fieldPath.split("[].\\[]");
+                // For nested fields, the parent dsl to search in would shift by one level every iteration
+                Object parent = dsl;
+                Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
+                // Valid forms of the fieldPath for this search could be:
+                // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
+                while (fieldsIterator.hasNext()) {
+                    String nextKey = fieldsIterator.next();
+                    if (parent instanceof JSONObject) {
+                        parent = ((JSONObject) parent).get(nextKey);
+                    } else if (parent instanceof List) {
+                        if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                            parent = ((List) parent).get(Integer.parseInt(nextKey));
+                        } else {
+                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
+                        }
+                    }
+                    if (parent == null) {
                         throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
                     }
                 }
-                if (parent == null) {
-                    throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
-                }
+                dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
             }
-            dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
         }
-        ;
 
-
+        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         if (children != null) {
             for (int i = 0; i < children.size(); i++) {
