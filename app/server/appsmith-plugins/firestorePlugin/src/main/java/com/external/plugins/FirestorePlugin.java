@@ -19,7 +19,6 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.cloud.FirestoreClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -69,31 +68,30 @@ public class FirestorePlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            List<Property> formDataList = actionConfiguration.getBodyFormData();
-            String method = "";
-            String collection = "";
-            String documentKey = "";
+            final String path = actionConfiguration.getPath();
 
-            for (Property formData : formDataList) {
-                if (!StringUtils.isBlank(formData.getKey())) {
-                    switch (formData.getKey()) {
-                        case "method":
-                            method = formData.getValue().toLowerCase();
-                            break;
-                        case "collection":
-                            collection = formData.getValue();
-                            break;
-                        case "documentKey":
-                            documentKey = formData.getValue();
-                            break;
-                        default:
-                            break;
-                    }
+            if (path.startsWith("/") || path.endsWith("/")) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Firestore paths should not begin or end with `/` character."
+                ));
+            }
+
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            com.external.plugins.Method method = null;
+
+            for (Property formData : properties) {
+                if ("method".equals(formData.getKey())) {
+                    method = com.external.plugins.Method.valueOf(formData.getValue());
                 }
             }
 
+            if (method == null) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid method."));
+            }
+
             String strBody = actionConfiguration.getBody();
-            HashMap mapBody = null;
+            Map<String, Object> mapBody = null;
             if (StringUtils.isNotBlank(actionConfiguration.getBody())) {
                 try {
                     mapBody = objectMapper.readValue(strBody, HashMap.class);
@@ -102,29 +100,38 @@ public class FirestorePlugin extends BasePlugin {
                 }
             }
 
-            ApiFuture<Object> objFuture;
-            Object objResult = null;
+            if (strBody == null
+                    && (
+                    method == com.external.plugins.Method.SET_DOCUMENT
+                            || method == com.external.plugins.Method.CREATE_DOCUMENT
+                            || method == com.external.plugins.Method.UPDATE_DOCUMENT
+            )
+            ) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "The method " + method.toString() + " needs a non-empty body to work."
+                ));
+            }
+
+            Object objResult;
             try {
-                DocumentReference document = connection.collection(collection).document(documentKey);
+                DocumentReference document = connection.document(path);
                 Method operationMethod = null;
+                final String methodName = method.toString().split("_")[0].toLowerCase();
+
                 switch (method) {
-                    case "get":
-                    case "delete":
-                        operationMethod = DocumentReference.class.getMethod(method);
+                    case GET_DOCUMENT:
+                    case DELETE_DOCUMENT:
+                        operationMethod = DocumentReference.class.getMethod(methodName);
                         break;
-                    case "set":
-                    case "create":
-                    case "update":
-                        operationMethod = DocumentReference.class.getMethod(method, Map.class);
-                        break;
-                    default:
+                    case SET_DOCUMENT:
+                    case CREATE_DOCUMENT:
+                    case UPDATE_DOCUMENT:
+                        operationMethod = DocumentReference.class.getMethod(methodName, Map.class);
                         break;
                 }
 
-                if (operationMethod == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported operation: " + method));
-                }
-
+                ApiFuture<Object> objFuture;
                 if (mapBody == null) {
                     objFuture = (ApiFuture<Object>) operationMethod.invoke(document);
                 } else {
@@ -197,9 +204,9 @@ public class FirestorePlugin extends BasePlugin {
                 FirebaseApp firebaseApp;
                 try {
                     List<FirebaseApp> apps = FirebaseApp.getApps();
-                    for(FirebaseApp app : apps) {
-                        if(app.getName().equals(projectId)) {
-                            System.out.println("Got appName: " + projectId+ ". Going to delete it now");
+                    for (FirebaseApp app : apps) {
+                        if (app.getName().equals(projectId)) {
+                            System.out.println("Got appName: " + projectId + ". Going to delete it now");
                             // The Firebase app already exists. We have to delete it first before initializing
                             app.delete();
                         }

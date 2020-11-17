@@ -5,61 +5,46 @@
       "id": 1,
       "children": [
         {
-          "label": "Method Key",
-          "configProperty": "actionConfiguration.bodyFormData[0].key",
+          "label": "Method Key (DO NOT EDIT)",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
           "controlType": "INPUT_TEXT",
           "initialValue": "method"
         },
         {
           "label": "Method",
-          "configProperty": "actionConfiguration.bodyFormData[0].value",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "DROP_DOWN",
           "isRequired": true,
-          "initialValue": "GET",
+          "initialValue": "GET_DOCUMENT",
           "options": [
             {
-              "label": "GET",
-              "value": "get"
+              "label": "Get Document",
+              "value": "GET_DOCUMENT"
             },
             {
-              "label": "SET",
-              "value": "set"
+              "label": "Set Document",
+              "value": "SET_DOCUMENT"
             },
             {
-              "label": "CREATE",
-              "value": "create"
+              "label": "Create Document",
+              "value": "CREATE_DOCUMENT"
             },
             {
-              "label": "UPDATE",
-              "value": "update"
+              "label": "Update Document",
+              "value": "UPDATE_DOCUMENT"
             },
             {
-              "label": "DELETE",
-              "value": "delete"
+              "label": "Delete Document",
+              "value": "DELETE_DOCUMENT"
             }
           ]
         },
         {
-          "label": "Collection Key",
-          "configProperty": "actionConfiguration.bodyFormData[1].key",
+          "label": "Document Path",
+          "configProperty": "actionConfiguration.path",
           "controlType": "INPUT_TEXT",
-          "initialValue": "collection"
-        },
-        {
-          "label": "Collection Value",
-          "configProperty": "actionConfiguration.bodyFormData[1].value",
-          "controlType": "INPUT_TEXT"
-        },
-        {
-          "label": "Document Reference Key",
-          "configProperty": "actionConfiguration.bodyFormData[2].key",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "documentKey"
-        },
-        {
-          "label": "Document Reference Value",
-          "configProperty": "actionConfiguration.bodyFormData[2].value",
-          "controlType": "INPUT_TEXT"
+          "isRequired": true,
+          "initialValue": ""
         },
         {
           "label": "Body",
