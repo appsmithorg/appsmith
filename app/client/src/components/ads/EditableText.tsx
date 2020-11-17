@@ -177,7 +177,7 @@ export const EditableText = (props: EditableTextProps) => {
       const finalVal: string = _value.trim();
       if (finalVal === "") {
         AppToaster.show({
-          message: "Application Name can't be empty.",
+          message: "Application name can't be empty",
           type: "error",
         });
       } else {

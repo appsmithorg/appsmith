@@ -23,6 +23,7 @@ describe("Update Application", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.applicationName).type(appname + "{enter}");
+    cy.get(homePage.toastMessage).should("contain", "Application name updated");
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -75,5 +76,29 @@ describe("Update Application", function() {
       .trigger("mouseover");
 
     cy.get(".bp3-popover-target.bp3-popover-open").should("have.length", 1);
+  });
+
+  it("Check for errors in updating application name", function() {
+    cy.get(commonlocators.homeIcon).click({ force: true });
+    console.log("Appname", appname);
+    cy.get(homePage.searchInput).type(appname);
+    cy.wait(2000);
+
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
+    cy.get(homePage.appMoreIcon)
+      .first()
+      .click({ force: true });
+    cy.get(homePage.applicationName).type("  " + "{enter}");
+    cy.get(homePage.toastMessage).should(
+      "contain",
+      "Application name can't be empty",
+    );
+    cy.wait("@updateApplication").should(
+      "have.nested.property",
+      "response.body.data.name",
+      appname,
+    );
   });
 });

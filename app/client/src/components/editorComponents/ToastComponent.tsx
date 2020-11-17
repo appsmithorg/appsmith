@@ -73,7 +73,9 @@ const ToastComponent = (props: Props) => {
       action={!!props.action ? "enabled" : "disabled"}
     >
       <Icon color={theme.alert[alertType].color} width={20} height={20} />
-      <ToastMessage>{props.message}</ToastMessage>
+      <ToastMessage className="t--toast-message-text">
+        {props.message}
+      </ToastMessage>
       {props.action && (
         <ToastAction
           className="t--toast-action"
