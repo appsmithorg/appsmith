@@ -692,93 +692,81 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
-    const {
-      columnNameMap,
-      columnActions,
-      primaryColumns,
-      derivedColumns,
-      sortedColumn,
-    } = this.props;
-    if (primaryColumns && primaryColumns.length) {
-      const allColumns = derivedColumns
-        ? [...primaryColumns, ...derivedColumns]
-        : [...primaryColumns];
-      const sortColumn = sortedColumn?.column;
-      const sortOrder = sortedColumn?.asc;
-      for (let index = 0; index < allColumns.length; index++) {
-        const columnProperties = allColumns[index];
-        const isHidden = !columnProperties.isVisible;
-        const cellProperties: CellLayoutProperties = {
-          horizontalAlignment: columnProperties.horizontalAlignment,
-          verticalAlignment: columnProperties.verticalAlignment,
-          textSize: columnProperties.textSize,
-          fontStyle: columnProperties.fontStyle,
-          textColor: columnProperties.textColor,
-          cellBackground: columnProperties.cellBackground,
-        };
-        const columnData = {
-          Header: columnProperties.label,
-          accessor: columnProperties.id,
-          width: columnProperties.width,
-          minWidth: 60,
-          draggable: true,
-          isHidden: false,
-          isAscOrder:
-            columnProperties.id === sortColumn ? sortOrder : undefined,
-          isDerived: columnProperties.isDerived,
-          metaProperties: {
-            isHidden: isHidden,
-            type: columnProperties.columnType,
-            format: columnProperties?.format?.output || "",
-            inputFormat: columnProperties?.format?.input || "",
-            cellProperties: cellProperties,
-            buttonProperties:
-              columnProperties.columnType === "button"
-                ? {
-                    label: columnProperties.buttonLabel,
-                    id: columnProperties.id,
-                    dynamicTrigger: columnProperties.dynamicTrigger,
-                    buttonStyle: columnProperties.buttonStyle || "#29CCA3",
-                    buttonLabelColor:
-                      columnProperties.buttonLabelColor || "#FFFFFF",
-                    onCommandClick: this.onCommandClick,
-                  }
-                : undefined,
-          },
-          Cell: (props: any) => {
-            if (columnProperties.columnType === "button") {
-              return renderCell(
-                props.cell.value,
-                columnProperties.columnType,
-                isHidden,
-                cellProperties,
-                columnData.metaProperties.buttonProperties,
-                props.row.isSelected,
-              );
-            } else {
-              return renderCell(
-                props.cell.value,
-                columnProperties.columnType,
-                isHidden,
-                cellProperties,
-              );
-            }
-          },
-        };
-        if (isHidden) {
-          columnData.isHidden = true;
-          hiddenColumns.push(columnData);
-        } else {
-          columns.push(columnData);
-        }
+    const { primaryColumns, derivedColumns, sortedColumn } = this.props;
+    const allColumns = derivedColumns
+      ? [...(primaryColumns || []), ...derivedColumns]
+      : [...(primaryColumns || [])];
+    const sortColumn = sortedColumn?.column;
+    const sortOrder = sortedColumn?.asc;
+    for (let index = 0; index < allColumns.length; index++) {
+      const columnProperties = allColumns[index];
+      const isHidden = !columnProperties.isVisible;
+      const cellProperties: CellLayoutProperties = {
+        horizontalAlignment: columnProperties.horizontalAlignment,
+        verticalAlignment: columnProperties.verticalAlignment,
+        textSize: columnProperties.textSize,
+        fontStyle: columnProperties.fontStyle,
+        textColor: columnProperties.textColor,
+        cellBackground: columnProperties.cellBackground,
+      };
+      const columnData = {
+        Header: columnProperties.label,
+        accessor: columnProperties.id,
+        width: columnProperties.width,
+        minWidth: 60,
+        draggable: true,
+        isHidden: false,
+        isAscOrder: columnProperties.id === sortColumn ? sortOrder : undefined,
+        isDerived: columnProperties.isDerived,
+        metaProperties: {
+          isHidden: isHidden,
+          type: columnProperties.columnType,
+          format: columnProperties?.format?.output || "",
+          inputFormat: columnProperties?.format?.input || "",
+          cellProperties: cellProperties,
+          buttonProperties:
+            columnProperties.columnType === "button"
+              ? {
+                  label: columnProperties.buttonLabel,
+                  id: columnProperties.id,
+                  dynamicTrigger: columnProperties.dynamicTrigger,
+                  buttonStyle: columnProperties.buttonStyle || "#29CCA3",
+                  buttonLabelColor:
+                    columnProperties.buttonLabelColor || "#FFFFFF",
+                  onCommandClick: this.onCommandClick,
+                }
+              : undefined,
+        },
+        Cell: (props: any) => {
+          if (columnProperties.columnType === "button") {
+            return renderCell(
+              props.cell.value,
+              columnProperties.columnType,
+              isHidden,
+              cellProperties,
+              columnData.metaProperties.buttonProperties,
+              props.row.isSelected,
+            );
+          } else {
+            return renderCell(
+              props.cell.value,
+              columnProperties.columnType,
+              isHidden,
+              cellProperties,
+            );
+          }
+        },
+      };
+      if (isHidden) {
+        columnData.isHidden = true;
+        hiddenColumns.push(columnData);
+      } else {
+        columns.push(columnData);
       }
-      // columns = reorderColumns(columns, this.props.columnOrder || []);
-      if (
-        hiddenColumns.length &&
-        this.props.renderMode === RenderModes.CANVAS
-      ) {
-        columns = columns.concat(hiddenColumns);
-      }
+    }
+    // columns = reorderColumns(columns, this.props.columnOrder || []);
+    if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
+      columns = columns.concat(hiddenColumns);
     }
     return columns.filter((column: ReactTableColumnProps) => column.accessor);
   };
