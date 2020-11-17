@@ -400,12 +400,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         filteredTableData,
       );
       if (!this.props.multiRowSelection) {
-        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : this.props.selectedRowIndex
-          ? this.props.selectedRowIndex
-          : -1;
-        console.log({ selectedRowIndex, filteredTableData });
+        const selectedRowIndex =
+          this.props.selectedRowIndex !== -1 &&
+          this.props.selectedRowIndex !== undefined &&
+          filteredTableData[this.props.selectedRowIndex]
+            ? this.props.selectedRowIndex
+            : isNumber(this.props.defaultSelectedRow)
+            ? this.props.defaultSelectedRow
+            : -1;
         this.props.updateWidgetMetaProperty(
           "selectedRowIndex",
           selectedRowIndex,
@@ -415,12 +417,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           this.getSelectedRow(filteredTableData, selectedRowIndex),
         );
       } else {
-        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : this.props.selectedRowIndices.length
+        const selectedRowIndices = this.props.selectedRowIndices.length
           ? this.props.selectedRowIndices
+          : Array.isArray(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
           : [];
-        console.log({ selectedRowIndices });
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,
@@ -461,6 +462,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
     if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
+      //Runs only when defaultSelectedRow is changed from property pane
       if (!this.props.multiRowSelection) {
         const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
           ? this.props.defaultSelectedRow
