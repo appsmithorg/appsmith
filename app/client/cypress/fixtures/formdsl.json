@@ -456,11 +456,7 @@
                   "label": "Upload Files",
                   "maxFileSize": "",
                   "type": "FILE_PICKER_WIDGET",
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "isValid"
-                    }
-                  ],
+                  "dynamicBindingPathList": [],
                   "isLoading": false,
                   "parentColumnSpace": 34.6875,
                   "leftColumn": 4,
@@ -479,11 +475,7 @@
                   "datePickerType": "DATE_PICKER",
                   "label": "From Date",
                   "type": "DATE_PICKER_WIDGET",
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "isValid"
-                    }
-                  ],
+                  "dynamicBindingPathList": [],
                   "isLoading": false,
                   "enableTimePicker": true,
                   "parentColumnSpace": 34.6875,

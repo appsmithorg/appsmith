@@ -116,12 +116,6 @@
                 "dynamicBindingPathList": [
                   {
                     "key": "defaultText"
-                  },
-                  {
-                    "key": "isValid"
-                  },
-                  {
-                    "key": "value"
                   }
                 ],
                 "defaultText": "{{Table1.selectedRow.email}}"
