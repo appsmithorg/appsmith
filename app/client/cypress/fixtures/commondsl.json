@@ -185,9 +185,6 @@
                 "dynamicBindingPathList": [
                   {
                     "key": "tableData"
-                  },
-                  {
-                    "key": "selectedRow"
                   }
                 ],
                 "isLoading": false,
