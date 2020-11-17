@@ -662,7 +662,9 @@ const ApplicationsSection = (props: any) => {
                     <ApplicationAddCardWrapper
                       onClick={() => {
                         if (
-                          Object.entries(creatingApplicationMap).length === 0
+                          Object.entries(creatingApplicationMap).length === 0 ||
+                          (creatingApplicationMap &&
+                            !creatingApplicationMap[organization.id])
                         ) {
                           createNewApplication(
                             getNextEntityName(

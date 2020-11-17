@@ -524,7 +524,7 @@ public class ActionServiceTest {
                 new Property("random-header-key", "random-header-value"),
                 new Property("", "")
         ));
-        actionConfiguration.setTimeoutInMillisecond(10);
+        actionConfiguration.setTimeoutInMillisecond(1000);
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteSecondaryStaleConnection");
