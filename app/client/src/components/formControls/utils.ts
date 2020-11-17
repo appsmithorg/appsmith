@@ -1,19 +1,19 @@
-import _ from "lodash";
-import { ComparisonOperations, HiddenType } from "./BaseControl";
+import { isBoolean, get } from "lodash";
+import { HiddenType } from "./BaseControl";
 
 export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
-  if (!!hiddenConfig && !_.isBoolean(hiddenConfig)) {
-    const valueAtPath = _.get(values, hiddenConfig.path);
+  if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
+    const valueAtPath = get(values, hiddenConfig.path);
     const value = hiddenConfig.value;
 
     switch (hiddenConfig.comparison) {
-      case ComparisonOperations.EQUALS:
+      case "EQUALS":
         return valueAtPath === value;
-      case ComparisonOperations.NOT_EQUALS:
+      case "NOT_EQUALS":
         return valueAtPath !== value;
-      case ComparisonOperations.GREATER:
+      case "GREATER":
         return valueAtPath > value;
-      case ComparisonOperations.LESSER:
+      case "LESSER":
         return valueAtPath < value;
       default:
         return true;

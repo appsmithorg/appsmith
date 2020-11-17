@@ -9,12 +9,11 @@ abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   abstract getControlType(): ControlType;
 }
 
-export enum ComparisonOperations {
-  EQUALS = "EQUALS",
-  NOT_EQUALS = "NOT_EQUALS",
-  GREATER = "GREATER",
-  LESSER = "LESSER",
-}
+export type ComparisonOperations =
+  | "EQUALS"
+  | "NOT_EQUALS"
+  | "LESSER"
+  | "GREATER";
 
 export type HiddenType =
   | boolean
