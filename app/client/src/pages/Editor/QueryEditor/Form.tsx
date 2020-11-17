@@ -370,7 +370,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     return (
       <>
         <components.Option {...props}>
-          <Container>
+          <Container className="t--datasource-option">
             <img
               className="plugin-image"
               src={props.data.image}
@@ -400,6 +400,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         <ActionsWrapper>
           <DropdownSelect>
             <DropdownField
+              className={"t--switch-datasource"}
               placeholder="Datasource"
               name="datasource.id"
               options={DATASOURCES_OPTIONS}

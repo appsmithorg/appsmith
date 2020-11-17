@@ -27,6 +27,11 @@ export const HelpIcons: {
       <HelpIcon />
     </IconWrapper>
   ),
+  CLOSE_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <Icon icon={"cross"} />
+    </IconWrapper>
+  ),
   GITHUB: (props: IconProps) => (
     <IconWrapper {...props}>
       <GithubIcon />
