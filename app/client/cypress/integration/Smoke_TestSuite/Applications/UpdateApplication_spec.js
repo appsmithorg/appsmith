@@ -9,6 +9,7 @@ describe("Update Application", function() {
   let veryLongAppName = `gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1${Math.random()
     .toString(36)
     .slice(2, -1)}`;
+  let veryLongPageName = `gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1`;
 
   it("Open the application menu and update name and then check whether update is reflected in the application card", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
@@ -72,6 +73,18 @@ describe("Update Application", function() {
     cy.get(homePage.applicationCard)
       .first()
       .find(homePage.applicationCardName)
+      .trigger("mouseover");
+
+    cy.get(".bp3-popover-target.bp3-popover-open").should("have.length", 1);
+  });
+
+  it("Creates a page with long name and checks if it shows tooltip on hover", () => {
+    cy.Createpage(veryLongPageName);
+    cy.PublishtheApp();
+    cy.get(".t--page-switch-tab")
+      .contains("Page1")
+      .parent()
+      .next()
       .trigger("mouseover");
 
     cy.get(".bp3-popover-target.bp3-popover-open").should("have.length", 1);
