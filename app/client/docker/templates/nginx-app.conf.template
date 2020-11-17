@@ -5,6 +5,14 @@ server {
     return 301 https://$host$request_uri;
 }
 
+upstream @frontend {
+    server __APPSMITH_LOCAL_HOSTNAME__:3000;
+}
+
+upstream @backend {
+    server __APPSMITH_LOCAL_HOSTNAME__:8080;
+}
+
 server {
     listen 443 ssl http2;
     server_name dev.appsmith.com;
@@ -20,13 +28,20 @@ server {
     proxy_ssl_server_name on;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
     proxy_set_header Accept-Encoding "";
 
-    index index.html index.htm;
+    location @release_fallback {
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_pass https://release.app.appsmith.com;
+    }
+    error_page 502 = @release_fallback;
 
     sub_filter_once off;
     location / {
-        proxy_pass http://host.docker.internal:3000;
+        proxy_pass http://@frontend;
         sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN}';
         sub_filter __APPSMITH_SMART_LOOK_ID__ '${APPSMITH_SMART_LOOK_ID}';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
@@ -49,7 +64,6 @@ server {
         sub_filter __APPSMITH_DISABLE_TELEMETRY__ '${APPSMITH_DISABLE_TELEMETRY}';
     }
 
-
     location /f {
        proxy_pass https://cdn.optimizely.com/;
     }
@@ -57,20 +71,19 @@ server {
     location /api {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass http://host.docker.internal:8080;
+        proxy_pass http://@backend;
     }
 
     location /oauth2 {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-
-        proxy_pass http://host.docker.internal:8080;
+        proxy_pass http://@backend;
     }
 
     location /login {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-
-        proxy_pass http://host.docker.internal:8080;
+        proxy_pass http://@backend;
     }
 }
+
