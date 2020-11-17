@@ -380,6 +380,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.getSelectedRow(filteredTableData, selectedRowIndex),
     );
   }
+
   componentDidUpdate(prevProps: TableWidgetProps) {
     const tableDataUpdated =
       JSON.stringify(this.props.tableData) !==
@@ -399,17 +400,34 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         filteredTableData,
       );
       if (!this.props.multiRowSelection) {
+        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : this.props.selectedRowIndex
+          ? this.props.selectedRowIndex
+          : -1;
+        console.log({ selectedRowIndex, filteredTableData });
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndex",
+          selectedRowIndex,
+        );
         this.props.updateWidgetMetaProperty(
           "selectedRow",
-          this.getSelectedRow(filteredTableData, this.props.selectedRowIndex),
+          this.getSelectedRow(filteredTableData, selectedRowIndex),
         );
       } else {
+        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : this.props.selectedRowIndices.length
+          ? this.props.selectedRowIndices
+          : [];
+        console.log({ selectedRowIndices });
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+        );
         this.props.updateWidgetMetaProperty(
           "selectedRows",
-          this.getSelectedRows(
-            filteredTableData,
-            this.props.selectedRowIndices,
-          ),
+          this.getSelectedRows(filteredTableData, selectedRowIndices),
         );
       }
     }
@@ -443,11 +461,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
     if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
-      console.log(
-        "selectedRow",
-        this.props.defaultSelectedRow,
-        this.props.selectedRowIndex,
-      );
       if (!this.props.multiRowSelection) {
         const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
           ? this.props.defaultSelectedRow
@@ -486,12 +499,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const {
-      tableData,
-      hiddenColumns,
-      filteredTableData,
-      selectedRowIndices,
-    } = this.props;
+    const { tableData, hiddenColumns, filteredTableData } = this.props;
     const computedSelectedRowIndices = Array.isArray(
       this.props.selectedRowIndices,
     )
@@ -711,8 +719,28 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   resetSelectedRowIndex = () => {
-    this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-    this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+    if (!this.props.multiRowSelection) {
+      const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : -1;
+      this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
+      this.props.updateWidgetMetaProperty(
+        "selectedRow",
+        this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
+      );
+    } else {
+      const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : [];
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+      this.props.updateWidgetMetaProperty(
+        "selectedRows",
+        this.getSelectedRows(this.props.filteredTableData, selectedRowIndices),
+      );
+    }
   };
 
   handlePrevPageClick = () => {
