@@ -407,7 +407,6 @@ public class LayoutServiceTest {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
-                    layout.getLayoutOnLoadActions().get(1).forEach(x -> log.debug(x.getName()));
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(Set.of("aPostTertiaryAction"));
