@@ -201,20 +201,12 @@ public class FirestorePlugin extends BasePlugin {
                         .setProjectId(projectId)
                         .setCredentials(credentials)
                         .build();
+
                 FirebaseApp firebaseApp;
                 try {
-                    List<FirebaseApp> apps = FirebaseApp.getApps();
-                    for (FirebaseApp app : apps) {
-                        if (app.getName().equals(projectId)) {
-                            System.out.println("Got appName: " + projectId + ". Going to delete it now");
-                            // The Firebase app already exists. We have to delete it first before initializing
-                            app.delete();
-                        }
-                    }
-                    firebaseApp = FirebaseApp.initializeApp(options, projectId);
-                } catch (IllegalStateException e) {
-                    e.printStackTrace();
                     firebaseApp = FirebaseApp.getInstance(projectId);
+                } catch (IllegalStateException e) {
+                    firebaseApp = FirebaseApp.initializeApp(options, projectId);
                 }
 
                 Firestore db = FirestoreClient.getFirestore(firebaseApp);
