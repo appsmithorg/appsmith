@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useRouteMatch,
   useLocation,
@@ -18,7 +18,6 @@ import IconComponent from "components/designSystems/appsmith/IconComponent";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";
-import { AppState } from "reducers";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const LinkToApplications = styled(Link)`
@@ -39,9 +38,10 @@ const SettingsWrapper = styled.div`
 `;
 export default function Settings() {
   const { orgId } = useParams<{ orgId: string }>();
-  const currentOrg = useSelector((state: AppState) => {
-    return getCurrentOrg(state, orgId);
-  });
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === orgId,
+  )[0];
+
   const { path } = useRouteMatch();
   const location = useLocation();
   const dispatch = useDispatch();

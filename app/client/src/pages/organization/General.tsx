@@ -2,7 +2,7 @@ import React from "react";
 
 import { saveOrg } from "actions/orgActions";
 import { SaveOrgRequest } from "api/OrgApi";
-import { throttle } from "lodash";
+import { debounce } from "lodash";
 import TextInput, {
   emailValidator,
   notEmptyValidator,
@@ -14,7 +14,6 @@ import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "@blueprintjs/core";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
-import { AppState } from "reducers";
 
 const InputLabelWrapper = styled.div`
   width: 200px;
@@ -44,35 +43,35 @@ const Loader = styled.div`
 export function GeneralSettings() {
   const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
-  const currentOrg = useSelector((state: AppState) =>
-    getCurrentOrg(state, orgId),
-  );
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === orgId,
+  )[0];
   function saveChanges(settings: SaveOrgRequest) {
     dispatch(saveOrg(settings));
   }
 
-  const throttleTimeout = 1000;
+  const timeout = 1000;
 
-  const onWorkspaceNameChange = throttle((newName: string) => {
+  const onWorkspaceNameChange = debounce((newName: string) => {
     saveChanges({
       id: orgId as string,
       name: newName,
     });
-  }, throttleTimeout);
+  }, timeout);
 
-  const onWebsiteChange = throttle((newWebsite: string) => {
+  const onWebsiteChange = debounce((newWebsite: string) => {
     saveChanges({
       id: orgId as string,
       website: newWebsite,
     });
-  }, throttleTimeout);
+  }, timeout);
 
-  const onEmailChange = throttle((newEmail: string) => {
+  const onEmailChange = debounce((newEmail: string) => {
     saveChanges({
       id: orgId as string,
       email: newEmail,
     });
-  }, throttleTimeout);
+  }, timeout);
 
   const isFetchingApplications = useSelector(getIsFetchingApplications);
 
@@ -89,7 +88,7 @@ export function GeneralSettings() {
         {!isFetchingApplications && (
           <TextInput
             validator={notEmptyValidator}
-            placeholder="Workspace name"
+            placeholder="Organization Name"
             onChange={onWorkspaceNameChange}
             defaultValue={currentOrg && currentOrg.name}
             cypressSelector="t--org-name-input"

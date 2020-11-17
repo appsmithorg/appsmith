@@ -44,9 +44,9 @@ const AppInviteUsersForm = (props: any) => {
     defaultPageId,
   } = props;
 
-  const currentOrg = useSelector((state: AppState) =>
-    getCurrentOrg(state, props.orgId),
-  );
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === props.orgId,
+  )[0];
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
   const canInviteToOrg = isPermitted(
