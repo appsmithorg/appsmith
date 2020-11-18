@@ -40,6 +40,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       enablePickLocation: VALIDATION_TYPES.BOOLEAN,
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
+      mapCenter: VALIDATION_TYPES.OBJECT,
     };
   }
 
@@ -189,6 +190,7 @@ export interface MapWidgetProps extends WidgetProps, WithMeta {
   mapCenter: {
     lat: number;
     long: number;
+    title?: string;
   };
   center?: {
     lat: number;

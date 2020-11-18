@@ -5,9 +5,6 @@ import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
 import { getAppsmithConfigs } from "configs";
 
-const { compose, withProps, lifecycle } = require("recompose");
-const { withScriptjs } = require("react-google-maps");
-
 const StyledInput = styled.input`
   box-sizing: border-box;
   border: 1px solid transparent;
@@ -29,61 +26,47 @@ interface StandaloneSearchBoxProps {
 
 const { google } = getAppsmithConfigs();
 
-const PlacesWithStandaloneSearchBox = compose(
-  withProps({
-    googleMapURL: `https://maps.googleapis.com/maps/api/js?key=${google.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
-    loadingElement: <div style={{ height: `100%` }} />,
-    containerElement: <div style={{ height: `400px` }} />,
-  }),
-  lifecycle({
-    componentWillMount() {
-      let searchBox: any = React.createRef<SearchBox>();
-      this.setState({
-        places: [],
-        onSearchBoxMounted: (ref: any) => {
-          searchBox = ref;
-        },
-        onPlacesChanged: () => {
-          if (searchBox === null) return;
-          if (searchBox.getPlaces === null) return;
-          const places = searchBox.getPlaces();
-          this.setState({
-            places,
-          });
-          this.props.onLocationSelection(places);
-        },
-      });
-    },
-  }),
-  withScriptjs,
-)((props: any) => (
-  <div data-standalone-searchbox="">
-    <StandaloneSearchBox
-      ref={props.onSearchBoxMounted}
-      onPlacesChanged={props.onPlacesChanged}
-    >
-      <StyledInput type="text" placeholder="Enter location" />
-    </StandaloneSearchBox>
-  </div>
-));
-
 class LocationSearchControl extends BaseControl<ControlProps> {
-  onLocationSelection = (
-    places: Array<{
-      geometry: { location: { lat: () => number; lng: () => number } };
-    }>,
-  ) => {
+  searchBox: any = null;
+  state: any = { title: "" };
+
+  handleChange = (ev: any) => {
+    const val = ev.target.value;
+    this.setState({ title: val });
+  };
+
+  onLocationSelection = () => {
+    const places = this.searchBox.getPlaces();
     const location = places[0].geometry.location;
+    const title = places[0].formatted_address;
     const lat = location.lat();
     const long = location.lng();
-    const value = { lat, long };
+    const value = { lat, long, title };
     this.updateProperty(this.props.propertyName, value);
+    this.setState({ title: title });
   };
+
+  onSearchBoxMounted = (ref: SearchBox) => {
+    this.searchBox = ref;
+  };
+
   render() {
+    // Todo: figure out why there's a race here.
+    if (!window.google) return null;
     return (
-      <PlacesWithStandaloneSearchBox
-        onLocationSelection={this.onLocationSelection}
-      />
+      <div data-standalone-searchbox="">
+        <StandaloneSearchBox
+          ref={this.onSearchBoxMounted}
+          onPlacesChanged={this.onLocationSelection}
+        >
+          <StyledInput
+            type="text"
+            placeholder="Enter location"
+            value={this.state.title || this.props.propertyValue.title}
+            onChange={this.handleChange}
+          />
+        </StandaloneSearchBox>
+      </div>
     );
   }
 
