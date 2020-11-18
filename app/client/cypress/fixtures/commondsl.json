@@ -69,11 +69,7 @@
                 "isVisible": true,
                 "label": "Test Input Label",
                 "type": "INPUT_WIDGET",
-                "dynamicBindingPathList": [
-                  {
-                    "key": "isValid"
-                  }
-                ],
+                "dynamicBindingPathList": [],
                 "parentId": "iw4o07jvik",
                 "isLoading": false,
                 "parentColumnSpace": 34.6875,
@@ -185,9 +181,6 @@
                 "dynamicBindingPathList": [
                   {
                     "key": "tableData"
-                  },
-                  {
-                    "key": "selectedRow"
                   }
                 ],
                 "isLoading": false,

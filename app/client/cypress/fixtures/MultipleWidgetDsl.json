@@ -52,29 +52,7 @@
                 "bottomRow": 3,
                 "parentId": "0",
                 "widgetId": "9iofg44qjm",
-                "dynamicBindingPathList": [
-                  {
-                    "key": "selectedOptionArr"
-                  },
-                  {
-                    "key": "isValid"
-                  },
-                  {
-                    "key": "selectedIndexArr"
-                  },
-                  {
-                    "key": "selectedOption"
-                  },
-                  {
-                    "key": "selectedIndex"
-                  },
-                  {
-                    "key": "value"
-                  },
-                  {
-                    "key": "selectedOptionValues"
-                  }
-                ]
+                "dynamicBindingPathList": []
             },
             {
                 "isVisible": true,
