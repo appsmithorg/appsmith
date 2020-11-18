@@ -109,7 +109,7 @@ public class FirestorePlugin extends BasePlugin {
             if (method.isDocumentLevel()) {
                 return handleDocumentLevelMethod(connection, path, method, mapBody);
             } else {
-                return handleCollectionLevelMethod(connection, path, method, properties, mapBody);
+                return handleCollectionLevelMethod(connection, path, method, properties);
             }
         }
 
@@ -172,8 +172,7 @@ public class FirestorePlugin extends BasePlugin {
                 Firestore connection,
                 String path,
                 com.external.plugins.Method method,
-                List<Property> properties,
-                Map<String, Object> mapBody
+                List<Property> properties
         ) {
             final String orderBy = properties.size() > 1 ? properties.get(1).getValue() : null;
             final int limit = properties.size() > 2 ? Integer.parseInt(properties.get(2).getValue()) : 10;
