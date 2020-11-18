@@ -75,6 +75,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
         defaultValue={item.label}
       />
       <StyledDeleteIcon
+        className="t--delete-column-btn"
         height={20}
         width={20}
         onClick={() => {
@@ -82,6 +83,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
         }}
       />
       <StyledEditIcon
+        className="t--edit-column-btn"
         height={20}
         width={20}
         onClick={() => {
@@ -107,6 +109,7 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
           onEdit={this.onEdit}
         />
         <AddColumnButton
+          className="t--add-column-btn"
           text="Add a new column"
           icon="plus"
           color="#FFFFFF"

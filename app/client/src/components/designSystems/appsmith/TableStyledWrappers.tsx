@@ -265,6 +265,14 @@ const ALIGN_ITEMS = {
   BOTTOM: "flex-end",
 };
 
+const TEXT_SIZES = {
+  HEADING1: "24px",
+  HEADING2: "18px",
+  HEADING3: "16px",
+  PARAGRAPH: "14px",
+  BULLETPOINTS: "12px",
+};
+
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
   cellProperties?: CellLayoutProperties;
@@ -290,6 +298,9 @@ export const CellWrapper = styled.div<{
     props?.cellProperties?.verticalAlignment &&
     ALIGN_ITEMS[props?.cellProperties?.verticalAlignment]};
   background: ${props => props?.cellProperties?.cellBackground};
+  font-size: ${props =>
+    props?.cellProperties?.textSize &&
+    TEXT_SIZES[props?.cellProperties?.textSize]};
   padding: 0 10px;
   .image-cell {
     width: 40px;
