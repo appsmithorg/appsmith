@@ -480,9 +480,13 @@ public class LayoutServiceTest {
 
         StepVerifier
                 .create(testMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("dynamicGet_IncorrectKey")))
-                .verify();
+                .assertNext(layout -> {
+                    assertThat(layout).isNotNull();
+                    assertThat(layout.getId()).isNotNull();
+                    assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
+                    assertThat(layout.getLayoutOnLoadActions()).hasSize(0);
+                })
+                .verifyComplete();
     }
 
     @After
