@@ -31,4 +31,3 @@ mvn -B clean package
 ```
 
 Please make sure that you have a local Redis instance running for the test cases. During tests, the MongoDB is run in-memory. So you don't require to be running a local MongoDB instance. 
-
