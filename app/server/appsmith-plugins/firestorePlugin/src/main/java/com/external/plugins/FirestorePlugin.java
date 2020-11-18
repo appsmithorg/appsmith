@@ -16,6 +16,7 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
@@ -88,8 +89,6 @@ public class FirestorePlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid method."));
             }
 
-            final int limit = properties.size() > 1 ? Integer.parseInt(properties.get(1).getValue()) : 10;
-
             String strBody = actionConfiguration.getBody();
             Map<String, Object> mapBody = null;
             if (StringUtils.isNotBlank(actionConfiguration.getBody())) {
@@ -110,7 +109,7 @@ public class FirestorePlugin extends BasePlugin {
             if (method.isDocumentLevel()) {
                 return handleDocumentLevelMethod(connection, path, method, mapBody);
             } else {
-                return handleCollectionLevelMethod(connection, path, method, limit, mapBody);
+                return handleCollectionLevelMethod(connection, path, method, properties, mapBody);
             }
         }
 
@@ -173,17 +172,78 @@ public class FirestorePlugin extends BasePlugin {
                 Firestore connection,
                 String path,
                 com.external.plugins.Method method,
-                int limit,
+                List<Property> properties,
                 Map<String, Object> mapBody
         ) {
+            final String orderBy = properties.size() > 1 ? properties.get(1).getValue() : null;
+            final int limit = properties.size() > 2 ? Integer.parseInt(properties.get(2).getValue()) : 10;
+            final String queryFieldPath = properties.size() > 3 ? properties.get(3).getValue() : null;
+            final Op operator = properties.size() > 4 ? Op.valueOf(properties.get(4).getValue()) : null;
+            final String queryValue = properties.size() > 5 ? properties.get(5).getValue() : null;
+
             Object objResult;
             try {
-                CollectionReference collection = connection.collection(path);
+                Query query = connection.collection(path);
+                if (StringUtils.isNotEmpty(orderBy)) {
+                    query = query.orderBy(orderBy);
+                }
+
+                if (StringUtils.isNotEmpty(queryFieldPath) && operator != null && queryValue != null) {
+                    switch(operator) {
+                        case LT:
+                            query = query.whereLessThan(queryFieldPath, queryValue);
+                            break;
+                        case LTE:
+                            query = query.whereLessThanOrEqualTo(queryFieldPath, queryValue);
+                            break;
+                        case EQ:
+                            query = query.whereEqualTo(queryFieldPath, queryValue);
+                            break;
+                        // case NOT_EQ:
+                        //     query = query.whereNotEqualTo(queryFieldPath, queryValue);
+                        //     break;
+                        case GT:
+                            query = query.whereGreaterThan(queryFieldPath, queryValue);
+                            break;
+                        case GTE:
+                            query = query.whereGreaterThanOrEqualTo(queryFieldPath, queryValue);
+                            break;
+                        case ARRAY_CONTAINS:
+                            query = query.whereArrayContains(queryFieldPath, queryValue);
+                            break;
+                        case ARRAY_CONTAINS_ANY:
+                            try {
+                                query = query.whereArrayContainsAny(queryFieldPath, parseList(queryValue));
+                            } catch (IOException e) {
+                                return Mono.error(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        "Unable to parse condition value as a JSON list."
+                                ));
+                            }
+                            break;
+                        case IN:
+                            try {
+                                query = query.whereIn(queryFieldPath, parseList(queryValue));
+                            } catch (IOException e) {
+                                return Mono.error(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        "Unable to parse condition value as a JSON list."
+                                ));
+                            }
+                            break;
+                        // case NOT_IN:
+                        //     query = query.whereNotIn(queryFieldPath, queryValue);
+                        //     break;
+                    }
+                }
+
+                query = query.limit(limit);
+
                 ApiFuture<?> resultFuture;
 
                 switch (method) {
                     case GET_COLLECTION:
-                        resultFuture = collection.limit(limit).get();
+                        resultFuture = query.get();
                         break;
                     default:
                         return Mono.error(new AppsmithPluginException(
@@ -197,6 +257,7 @@ public class FirestorePlugin extends BasePlugin {
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+
             }
 
             ActionExecutionResult result = new ActionExecutionResult();
@@ -327,6 +388,10 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             return invalids;
+        }
+
+        private <T> List<T> parseList(String arrayJson) throws IOException {
+            return objectMapper.readValue(arrayJson, ArrayList.class);
         }
 
         @Override
