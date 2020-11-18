@@ -9,7 +9,7 @@ server {
     root /var/www/appsmith;
     index index.html index.htm;
 
-    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
     proxy_set_header X-Forwarded-Host $host;
 
     location / {
@@ -31,6 +31,7 @@ server {
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
         sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';
         sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED}';
+        sub_filter __APPSMITH_DISABLE_TELEMETRY__ '${APPSMITH_DISABLE_TELEMETRY}';
     }
 
     location /f {
@@ -38,20 +39,14 @@ server {
     }
 
     location /api {
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
         proxy_pass http://localhost:8080;
     }
 
     location /oauth2 {
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
         proxy_pass http://localhost:8080;
     }
 
     location /login {
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
         proxy_pass http://localhost:8080;
     }
 
