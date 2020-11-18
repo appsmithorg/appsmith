@@ -50,7 +50,6 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import {
-  getEvalTree,
   getAllPageIds,
   getEditorConfigs,
   getExistingActionNames,
@@ -58,6 +57,7 @@ import {
   getExistingWidgetNames,
   getWidgets,
 } from "./selectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
@@ -531,7 +531,7 @@ export function* updateWidgetNameSaga(
   try {
     const { widgetName } = yield select(getWidgetName, action.payload.id);
     const layoutId = yield select(getCurrentLayoutId);
-    const evalTree = yield select(getEvalTree);
+    const evalTree = yield select(getDataTree);
     const pageId = yield select(getCurrentPageId);
     const existingWidgetNames = yield select(getExistingWidgetNames);
     const existingActionNames = yield select(getExistingActionNames);
