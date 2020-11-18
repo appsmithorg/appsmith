@@ -54,11 +54,14 @@ const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?
 const IS_URL_OR_MODAL = /^'.*'$/;
 const modalSetter = (changeValue: any, currentValue: string) => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = matches[0][2].split(",");
-  if (isDynamicValue(changeValue)) {
-    args[0] = `${changeValue.substring(2, changeValue.length - 2)}`;
-  } else {
-    args[0] = `'${changeValue}'`;
+  let args: string[] = [];
+  if (matches.length) {
+    args = matches[0][2].split(",");
+    if (isDynamicValue(changeValue)) {
+      args[0] = `${changeValue.substring(2, changeValue.length - 2)}`;
+    } else {
+      args[0] = `'${changeValue}'`;
+    }
   }
   return currentValue.replace(
     ACTION_TRIGGER_REGEX,
@@ -130,9 +133,12 @@ const textSetter = (
   argNum: number,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = argsStringToArray(matches[0][2]);
-  const jsVal = stringToJS(changeValue);
-  args[argNum] = jsVal;
+  let args: string[] = [];
+  if (matches.length) {
+    args = argsStringToArray(matches[0][2]);
+    const jsVal = stringToJS(changeValue);
+    args[argNum] = jsVal;
+  }
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
@@ -157,8 +163,11 @@ const enumTypeSetter = (
   argNum: number,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  const args = argsStringToArray(matches[0][2]);
-  args[argNum] = changeValue as string;
+  let args: string[] = [];
+  if (matches.length) {
+    args = argsStringToArray(matches[0][2]);
+    args[argNum] = changeValue as string;
+  }
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,

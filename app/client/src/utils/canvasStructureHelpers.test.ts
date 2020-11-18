@@ -95,7 +95,7 @@ const newDSL: any = {
   parentRowSpace: 1,
   type: "CANVAS_WIDGET",
   canExtend: true,
-  dynamicBindings: {},
+  dynamicBindingPathList: [],
   version: 6,
   minHeight: 1292,
   parentColumnSpace: 1,
@@ -118,7 +118,7 @@ const newDSL: any = {
       bottomRow: 50,
       parentId: "0",
       widgetId: "77rkwd5hm7",
-      dynamicTriggers: { onClick: true },
+      dynamicTriggerPathList: [{ key: "onClick" }],
       onClick: "{{showModal('Modal1')}}",
     },
     {
@@ -264,7 +264,7 @@ const newDSL: any = {
       bottomRow: 8,
       parentId: "0",
       widgetId: "iwsi8fleku",
-      dynamicTriggers: { onClick: true },
+      dynamicTriggerPathList: [{ key: "onClick" }],
       onClick: "{{showModal('Modal1')}}",
     },
     {
@@ -343,7 +343,7 @@ const newDSL: any = {
           renderMode: "CANVAS",
         },
       ],
-      dynamicBindings: { selectedTab: true },
+      dynamicBindingPathList: [{ key: "selectedTab" }],
     },
   ],
 };

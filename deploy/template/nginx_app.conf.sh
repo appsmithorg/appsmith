@@ -48,7 +48,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\${APPSMITH_VERSION_RELEASE_DATE}';
         sub_filter __APPSMITH_INTERCOM_APP_ID__ '\${APPSMITH_INTERCOM_APP_ID}';
         sub_filter __APPSMITH_MAIL_ENABLED__ '\${APPSMITH_MAIL_ENABLED}';
-        sub_filter __APPSMITH_DISABLE_TELEMETRY__ '${APPSMITH_DISABLE_TELEMETRY}';
+        sub_filter __APPSMITH_DISABLE_TELEMETRY__ '\${APPSMITH_DISABLE_TELEMETRY}';
     }
 
     location /f {
@@ -71,6 +71,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
 $NGINX_SSL_CMNT server {
 $NGINX_SSL_CMNT    listen 443 ssl;
 $NGINX_SSL_CMNT    server_name $custom_domain;
+$NGINX_SSL_CMNT    client_max_body_size 10m;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    ssl_certificate /etc/letsencrypt/live/$custom_domain/fullchain.pem;
 $NGINX_SSL_CMNT    ssl_certificate_key /etc/letsencrypt/live/$custom_domain/privkey.pem;
@@ -104,7 +105,7 @@ $NGINX_SSL_CMNT        sub_filter __APPSMITH_VERSION_ID__ '\${APPSMITH_VERSION_I
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\${APPSMITH_VERSION_RELEASE_DATE}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_INTERCOM_APP_ID__ '\${APPSMITH_INTERCOM_APP_ID}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_MAIL_ENABLED__ '\${APPSMITH_MAIL_ENABLED}';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_DISABLE_TELEMETRY__ '${APPSMITH_DISABLE_TELEMETRY}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_DISABLE_TELEMETRY__ '\${APPSMITH_DISABLE_TELEMETRY}';
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /f {

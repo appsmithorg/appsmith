@@ -13,7 +13,7 @@
       "parentRowSpace": 1,
       "type": "CANVAS_WIDGET",
       "canExtend": true,
-      "dynamicBindings": {},
+      "dynamicBindingPathList": [],
       "version": 4,
       "minHeight": 1292,
       "parentColumnSpace": 1,
@@ -34,13 +34,13 @@
           "bottomRow": 17,
           "parentId": "0",
           "widgetId": "o3i9y2ya2i",
-          "dynamicBindings": {
-            "selectedRow": true
-          },
+          "dynamicBindingPathList": [],
           "serverSidePaginationEnabled": true,
-          "dynamicTriggers": {
-            "onPageChange": true
-          },
+          "dynamicTriggerPathList": [
+            {
+              "key": "onPageChange"
+            }
+          ],
           "onPageChange": "{{Api1.run(() => showAlert('done'), () => {})}}"
         },
         {

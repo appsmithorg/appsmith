@@ -1215,4 +1215,15 @@ public class DatabaseChangelog {
 
     }
 
+    @ChangeSet(order = "041", id = "new-action-add-index-pageId", author = "")
+    public void addNewActionIndexForPageId(MongoTemplate mongoTemplate) {
+
+        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_createdAt_compound_index");
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("applicationId", "deleted", "unpublishedAction.pageId")
+                          .named("applicationId_deleted_unpublishedPageId_compound_index")
+                );
+    }
+
 }

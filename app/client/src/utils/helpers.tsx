@@ -136,3 +136,29 @@ export const trimTrailingSlash = (path: string) => {
   const trailingUrlRegex = /\/+$/;
   return path.replace(trailingUrlRegex, "");
 };
+
+/**
+ * checks if ellipsis is active
+ * this function is meant for checking the existence of ellipsis by CSS.
+ * Since ellipsis by CSS are not part of DOM, we are checking with scroll width\height and offsetidth\height.
+ * ScrollWidth\ScrollHeight is always greater than the offsetWidth\OffsetHeight when ellipsis made by CSS is active.
+ *
+ * @param element
+ */
+export const isEllipsisActive = (element: HTMLElement | null) => {
+  return (
+    element &&
+    (element.offsetWidth < element.scrollWidth ||
+      element.offsetHeight < element.scrollHeight)
+  );
+};
+
+/**
+ * converts array to sentences
+ * for e.g - ['Pawan', 'Abhinav', 'Hetu'] --> 'Pawan, Abhinav and Hetu'
+ *
+ * @param arr string[]
+ */
+export const convertArrayToSentence = (arr: string[]) => {
+  return arr.join(", ").replace(/,\s([^,]+)$/, " and $1");
+};

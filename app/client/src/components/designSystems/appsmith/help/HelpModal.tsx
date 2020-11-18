@@ -16,6 +16,7 @@ import { AppState } from "reducers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Icon } from "@blueprintjs/core";
 
 const { algolia, cloudHosting, intercomAppID } = getAppsmithConfigs();
 const HelpButton = styled.button<{
@@ -48,11 +49,12 @@ const HelpButton = styled.button<{
 `;
 
 const MODAL_WIDTH = 240;
-const MODAL_HEIGHT = 210;
+const MODAL_HEIGHT = 198;
 const MODAL_BOTTOM_DISTANCE = 45;
 const MODAL_RIGHT_DISTANCE = 30;
 
 const HelpIcon = HelpIcons.HELP_ICON;
+const CloseIcon = HelpIcons.CLOSE_ICON;
 
 type Props = {
   isHelpModalOpen: boolean;
@@ -76,44 +78,71 @@ class HelpModal extends React.Component<Props> {
     }
   }
 
-  render() {
+  /**
+   * closes help modal
+   *
+   * @param event
+   */
+  onClose = (event: MouseEvent) => {
     const { dispatch, isHelpModalOpen } = this.props;
+
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (isHelpModalOpen === false) return false;
+
+    dispatch(setHelpModalVisibility(false));
+    dispatch(setHelpDefaultRefinement(""));
+  };
+
+  /**
+   * opens help modal
+   */
+  onOpen = (event: SyntheticEvent<HTMLElement>) => {
+    const { dispatch, isHelpModalOpen, page } = this.props;
+
+    event.stopPropagation();
+    event.preventDefault();
+    AnalyticsUtil.logEvent("OPEN_HELP", { page });
+    dispatch(setHelpModalVisibility(!isHelpModalOpen));
+  };
+
+  render() {
+    const { isHelpModalOpen } = this.props;
     const layers = this.context;
 
     return (
       <>
-        <ModalComponent
-          canOutsideClickClose
-          canEscapeKeyClose
-          scrollContents
-          height={MODAL_HEIGHT}
-          width={MODAL_WIDTH}
-          top={window.innerHeight - MODAL_BOTTOM_DISTANCE - MODAL_HEIGHT}
-          left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
-          data-cy={"help-modal"}
-          hasBackDrop={false}
-          onClose={(event: SyntheticEvent<HTMLElement>) => {
-            dispatch(setHelpModalVisibility(false));
-            dispatch(setHelpDefaultRefinement(""));
-            event.stopPropagation();
-            event.preventDefault();
-          }}
-          isOpen={isHelpModalOpen}
-          zIndex={layers.help}
-        >
-          <DocumentationSearch hitsPerPage={4} />
-        </ModalComponent>
+        {isHelpModalOpen && (
+          <ModalComponent
+            canOutsideClickClose={true}
+            canEscapeKeyClose
+            scrollContents
+            height={MODAL_HEIGHT}
+            width={MODAL_WIDTH}
+            top={window.innerHeight - MODAL_BOTTOM_DISTANCE - MODAL_HEIGHT}
+            left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
+            data-cy={"help-modal"}
+            hasBackDrop={false}
+            onClose={this.onClose}
+            isOpen
+            zIndex={layers.help}
+          >
+            <DocumentationSearch hitsPerPage={4} />
+          </ModalComponent>
+        )}
         {algolia.enabled && (
           <HelpButton
             className="t--helpGlobalButton"
             highlight={!isHelpModalOpen}
-            layer={layers.help}
-            onClick={() => {
-              AnalyticsUtil.logEvent("OPEN_HELP", { page: this.props.page });
-              dispatch(setHelpModalVisibility(!isHelpModalOpen));
-            }}
+            layer={layers.max}
+            onClick={this.onOpen}
           >
-            <HelpIcon />
+            {isHelpModalOpen ? (
+              <CloseIcon height={50} width={50} />
+            ) : (
+              <HelpIcon height={50} width={50} />
+            )}
           </HelpButton>
         )}
       </>

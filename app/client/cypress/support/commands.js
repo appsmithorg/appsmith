@@ -584,6 +584,26 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
     .type(path, { parseSpecialCharSequences: false });
 });
 
+Cypress.Commands.add("changeZoomLevel", zoomValue => {
+  cy.get(commonlocators.changeZoomlevel).click();
+  cy.get("ul.bp3-menu")
+    .children()
+    .contains(zoomValue)
+    .click();
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(commonlocators.selectedZoomlevel)
+    .first()
+    .invoke("text")
+    .then(text => {
+      const someText = text;
+      expect(someText).to.equal(zoomValue);
+    });
+});
+
 Cypress.Commands.add(
   "EnterSourceDetailsWithHeader",
   (baseUrl, v1method, hKey, hValue) => {
@@ -1403,7 +1423,7 @@ Cypress.Commands.add("createPostgresDatasource", () => {
   cy.testSaveDatasource();
 });
 
-Cypress.Commands.add("deletePostgresDatasource", datasourceName => {
+Cypress.Commands.add("deleteDatasource", datasourceName => {
   cy.NavigateToQueryEditor();
 
   cy.contains(".t--datasource-name", datasourceName)
@@ -1622,7 +1642,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
   cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(

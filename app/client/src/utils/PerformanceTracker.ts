@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { Span, SpanStatus } from "@sentry/tracing";
+import { getAppsmithConfigs } from "configs";
 import _ from "lodash";
 import * as log from "loglevel";
 
@@ -52,6 +53,8 @@ export interface PerfLog {
   eventName: string;
 }
 
+const appsmithConfigs = getAppsmithConfigs();
+
 class PerformanceTracker {
   private static perfLogQueue: PerfLog[] = [];
   private static perfAsyncMap: Map<string, PerfLog> = new Map();
@@ -61,61 +64,66 @@ class PerformanceTracker {
     data?: any,
     skipLog = false,
   ) => {
-    const currentTransaction = Sentry.getCurrentHub()
-      .getScope()
-      ?.getTransaction();
-    if (
-      PerformanceTracker.perfLogQueue.length === 0 &&
-      currentTransaction !== undefined &&
-      currentTransaction.status === SpanStatus.Ok
-    ) {
-      PerformanceTracker.perfLogQueue.push({
-        sentrySpan: currentTransaction,
-        skipLog: skipLog,
-        eventName: eventName,
-      });
-    }
-    if (PerformanceTracker.perfLogQueue.length === 0) {
-      if (!skipLog) {
-        log.debug(
-          PerformanceTracker.generateSpaces(
-            PerformanceTracker.perfLogQueue.length + 1,
-          ) +
-            eventName +
-            " Track Transaction ",
-        );
+    if (appsmithConfigs.sentry.enabled) {
+      const currentTransaction = Sentry.getCurrentHub()
+        .getScope()
+        ?.getTransaction();
+      if (
+        PerformanceTracker.perfLogQueue.length === 0 &&
+        currentTransaction !== undefined &&
+        currentTransaction.status === SpanStatus.Ok
+      ) {
+        PerformanceTracker.perfLogQueue.push({
+          sentrySpan: currentTransaction,
+          skipLog: skipLog,
+          eventName: eventName,
+        });
       }
-      const newTransaction = Sentry.startTransaction({ name: eventName });
-      newTransaction.setData("startData", data);
-      Sentry.getCurrentHub().configureScope(scope =>
-        scope.setSpan(newTransaction),
-      );
-      PerformanceTracker.perfLogQueue.push({
-        sentrySpan: newTransaction,
-        skipLog: skipLog,
-        eventName: eventName,
-      });
-    } else {
-      if (!skipLog) {
-        log.debug(
-          PerformanceTracker.generateSpaces(
-            PerformanceTracker.perfLogQueue.length + 1,
-          ) +
-            eventName +
-            " Track Span ",
+      if (PerformanceTracker.perfLogQueue.length === 0) {
+        if (!skipLog) {
+          log.debug(
+            PerformanceTracker.generateSpaces(
+              PerformanceTracker.perfLogQueue.length + 1,
+            ) +
+              eventName +
+              " Track Transaction ",
+          );
+        }
+        const newTransaction = Sentry.startTransaction({ name: eventName });
+        newTransaction.setData("startData", data);
+        Sentry.getCurrentHub().configureScope(scope =>
+          scope.setSpan(newTransaction),
         );
+        PerformanceTracker.perfLogQueue.push({
+          sentrySpan: newTransaction,
+          skipLog: skipLog,
+          eventName: eventName,
+        });
+      } else {
+        if (!skipLog) {
+          log.debug(
+            PerformanceTracker.generateSpaces(
+              PerformanceTracker.perfLogQueue.length + 1,
+            ) +
+              eventName +
+              " Track Span ",
+          );
+        }
+        const currentPerfLog =
+          PerformanceTracker.perfLogQueue[
+            PerformanceTracker.perfLogQueue.length - 1
+          ];
+        const currentRunningSpan = currentPerfLog.sentrySpan;
+        const span = currentRunningSpan.startChild({
+          op: eventName,
+          data: data,
+        });
+        PerformanceTracker.perfLogQueue.push({
+          sentrySpan: span,
+          skipLog: skipLog,
+          eventName: eventName,
+        });
       }
-      const currentPerfLog =
-        PerformanceTracker.perfLogQueue[
-          PerformanceTracker.perfLogQueue.length - 1
-        ];
-      const currentRunningSpan = currentPerfLog.sentrySpan;
-      const span = currentRunningSpan.startChild({ op: eventName, data: data });
-      PerformanceTracker.perfLogQueue.push({
-        sentrySpan: span,
-        skipLog: skipLog,
-        eventName: eventName,
-      });
     }
   };
 
@@ -123,47 +131,49 @@ class PerformanceTracker {
     eventName?: PerformanceTransactionName,
     data?: any,
   ) => {
-    if (eventName) {
-      const index = _.findLastIndex(
-        PerformanceTracker.perfLogQueue,
-        (perfLog, i) => {
-          return perfLog.eventName === eventName;
-        },
-      );
-      if (index !== -1) {
-        for (
-          let i = PerformanceTracker.perfLogQueue.length - 1;
-          i >= index;
-          i--
-        ) {
-          const perfLog = PerformanceTracker.perfLogQueue.pop();
-          if (perfLog) {
-            const currentSpan = perfLog.sentrySpan;
-            currentSpan.finish();
-            if (!perfLog?.skipLog) {
-              PerformanceTracker.printDuration(
-                perfLog.eventName,
-                i + 1,
-                currentSpan.startTimestamp,
-                currentSpan.endTimestamp,
-              );
+    if (appsmithConfigs.sentry.enabled) {
+      if (eventName) {
+        const index = _.findLastIndex(
+          PerformanceTracker.perfLogQueue,
+          (perfLog, i) => {
+            return perfLog.eventName === eventName;
+          },
+        );
+        if (index !== -1) {
+          for (
+            let i = PerformanceTracker.perfLogQueue.length - 1;
+            i >= index;
+            i--
+          ) {
+            const perfLog = PerformanceTracker.perfLogQueue.pop();
+            if (perfLog) {
+              const currentSpan = perfLog.sentrySpan;
+              currentSpan.finish();
+              if (!perfLog?.skipLog) {
+                PerformanceTracker.printDuration(
+                  perfLog.eventName,
+                  i + 1,
+                  currentSpan.startTimestamp,
+                  currentSpan.endTimestamp,
+                );
+              }
             }
           }
         }
-      }
-    } else {
-      const perfLog = PerformanceTracker.perfLogQueue.pop();
-      if (perfLog) {
-        const currentRunningSpan = perfLog?.sentrySpan;
-        currentRunningSpan.setData("endData", data);
-        currentRunningSpan.finish();
-        if (!perfLog?.skipLog) {
-          PerformanceTracker.printDuration(
-            perfLog.eventName,
-            PerformanceTracker.perfLogQueue.length + 1,
-            currentRunningSpan.startTimestamp,
-            currentRunningSpan.endTimestamp,
-          );
+      } else {
+        const perfLog = PerformanceTracker.perfLogQueue.pop();
+        if (perfLog) {
+          const currentRunningSpan = perfLog?.sentrySpan;
+          currentRunningSpan.setData("endData", data);
+          currentRunningSpan.finish();
+          if (!perfLog?.skipLog) {
+            PerformanceTracker.printDuration(
+              perfLog.eventName,
+              PerformanceTracker.perfLogQueue.length + 1,
+              currentRunningSpan.startTimestamp,
+              currentRunningSpan.endTimestamp,
+            );
+          }
         }
       }
     }
