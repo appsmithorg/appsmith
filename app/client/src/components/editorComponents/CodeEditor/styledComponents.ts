@@ -148,7 +148,7 @@ export const EditorWrapper = styled.div<{
       border-left-color: ${props =>
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.textOnDarkBG
-          : props.theme.colors.textDefault} !important
+          : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
       background: #ffffff;
@@ -172,14 +172,8 @@ export const EditorWrapper = styled.div<{
     }
     .CodeMirror-matchingbracket { 
       text-decoration: none; 
-      color: ${props =>
-        props.editorTheme === EditorTheme.DARK
-          ? "#FFFFFF"
-          : "#000000"} !important;
-      outline: 1px solid ${props =>
-        props.editorTheme === EditorTheme.DARK
-          ? "rgba(255, 255, 255, 0.5)"
-          : "rgba(0, 0, 0, 0.5)"} !important;
+      color: #FFD600 !important;
+      background-color: #A74444;
     }
     .datasource-highlight {
       background-color: rgba(104, 113, 239, 0.1);
