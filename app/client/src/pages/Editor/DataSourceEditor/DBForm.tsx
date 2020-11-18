@@ -24,6 +24,7 @@ import { getAppsmithConfigs } from "configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import BackButton from "./BackButton";
+import { PluginType } from "entities/Action";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -45,6 +46,7 @@ interface DatasourceDBEditorProps {
   isNewDatasource: boolean;
   pluginImage: string;
   viewMode: boolean;
+  pluginType: string;
 }
 
 interface DatasourceDBEditorState {
@@ -308,6 +310,7 @@ class DatasourceDBEditor extends React.Component<
       isDeleting,
       datasourceId,
       handleDelete,
+      pluginType,
     } = this.props;
     const { viewMode } = this.props;
 
@@ -342,7 +345,7 @@ class DatasourceDBEditor extends React.Component<
             />
           )}
         </Header>
-        {cloudHosting && (
+        {cloudHosting && pluginType === PluginType.DB && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
               <span>{`Whitelist the IP ${convertArrayToSentence(
