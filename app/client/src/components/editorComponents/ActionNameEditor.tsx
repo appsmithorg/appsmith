@@ -6,10 +6,11 @@ import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { removeSpecialChars } from "utils/helpers";
+import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { RestAction } from "entities/Action";
 import { Page } from "constants/ReduxActionConstants";
+import { getDataTree } from "selectors/dataTreeSelectors";
 
 import { saveActionName } from "actions/actionActions";
 import { Spinner } from "@blueprintjs/core";
@@ -56,6 +57,9 @@ export const ActionNameEditor = () => {
     ),
   );
 
+  const evalTree = useSelector(getDataTree);
+  const evalTreeKeyNames = Object.keys(evalTree);
+
   const saveStatus: {
     isSaving: boolean;
     error: boolean;
@@ -69,11 +73,7 @@ export const ActionNameEditor = () => {
 
   const hasActionNameConflict = useCallback(
     (name: string) =>
-      !(
-        existingPageNames.indexOf(name) === -1 &&
-        actions.findIndex(action => action.name === name) === -1 &&
-        existingWidgetNames.indexOf(name) === -1
-      ),
+      !isNameValid(name, [...existingPageNames, ...evalTreeKeyNames]),
     [existingPageNames, actions, existingWidgetNames],
   );
 

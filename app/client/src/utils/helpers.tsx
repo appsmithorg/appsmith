@@ -162,3 +162,72 @@ export const isEllipsisActive = (element: HTMLElement | null) => {
 export const convertArrayToSentence = (arr: string[]) => {
   return arr.join(", ").replace(/,\s([^,]+)$/, " and $1");
 };
+
+/**
+ * checks if the name is conflciting with
+ * 1. API names,
+ * 2. Queries name
+ * 3. Javascript reserved names
+ * 4. Few internal function names that are in the evaluation tree
+ *
+ * return if false name conflicts with anything from the above list
+ *
+ * @param name
+ * @param invalidNames
+ */
+export const isNameValid = (name: string, invalidNames: string[]) => {
+  const keywords = [
+    "await",
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "enum",
+    "export",
+    "extends",
+    "false",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "implements",
+    "import",
+    "in",
+    "instanceof",
+    "interface",
+    "let",
+    "new",
+    "null",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "return",
+    "super",
+    "switch",
+    "static",
+    "this",
+    "throw",
+    "try",
+    "True",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "yield",
+  ];
+
+  if (keywords.indexOf(name) > -1 || invalidNames.indexOf(name) > -1) {
+    return false;
+  }
+
+  return true;
+};
