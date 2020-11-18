@@ -138,10 +138,10 @@ public class FirestorePlugin extends BasePlugin {
                 }
 
                 ApiFuture<Object> objFuture;
-                if (mapBody == null) {
-                    objFuture = (ApiFuture<Object>) operationMethod.invoke(document);
-                } else {
+                if (method.isBodyNeeded()) {
                     objFuture = (ApiFuture<Object>) operationMethod.invoke(document, mapBody);
+                } else {
+                    objFuture = (ApiFuture<Object>) operationMethod.invoke(document);
                 }
                 objResult = objFuture.get();
 
@@ -174,11 +174,11 @@ public class FirestorePlugin extends BasePlugin {
                 com.external.plugins.Method method,
                 List<Property> properties
         ) {
-            final String orderBy = properties.size() > 1 ? properties.get(1).getValue() : null;
-            final int limit = properties.size() > 2 ? Integer.parseInt(properties.get(2).getValue()) : 10;
-            final String queryFieldPath = properties.size() > 3 ? properties.get(3).getValue() : null;
-            final Op operator = properties.size() > 4 ? Op.valueOf(properties.get(4).getValue()) : null;
-            final String queryValue = properties.size() > 5 ? properties.get(5).getValue() : null;
+            final String orderBy = properties.size() > 1 && properties.get(1) != null ? properties.get(1).getValue() : null;
+            final int limit = properties.size() > 2 && properties.get(2) != null ? Integer.parseInt(properties.get(2).getValue()) : 10;
+            final String queryFieldPath = properties.size() > 3 && properties.get(3) != null? properties.get(3).getValue() : null;
+            final Op operator = properties.size() > 4 && properties.get(4) != null ? Op.valueOf(properties.get(4).getValue()) : null;
+            final String queryValue = properties.size() > 5 && properties.get(5) != null? properties.get(5).getValue() : null;
 
             Object objResult;
             try {
