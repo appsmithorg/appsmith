@@ -79,7 +79,7 @@ public class PostgresPlugin extends BasePlugin {
                 "         left join pg_catalog.pg_type t1 on t1.oid = a.atttypid\n" +
                 "         inner join pg_catalog.pg_class c on a.attrelid = c.oid\n" +
                 "         left join pg_catalog.pg_namespace n on c.relnamespace = n.oid\n" +
-                "         left join pg_catalog.pg_attrdef d on d.adrelid = c.oid\n" +
+                "         left join pg_catalog.pg_attrdef d on d.adrelid = c.oid and d.adnum = a.attnum\n" +
                 "where a.attnum > 0\n" +
                 "  and not a.attisdropped\n" +
                 "  and n.nspname not in ('information_schema', 'pg_catalog')\n" +
