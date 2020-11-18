@@ -50,6 +50,7 @@ const ToastBody = styled.div<{
   onUndo?: () => void;
   dispatchableAction?: { type: ReduxActionType; payload: any };
 }>`
+  max-width: 300px;
   background: ${props =>
     props.variant === Variant.danger
       ? props.theme.colors.toast.dangerBg
@@ -103,6 +104,10 @@ const ToastBody = styled.div<{
       : null}
 `;
 
+const ToastIcon = styled(Icon)`
+  margin-right: ${props => props.theme.spaces[3]}px;
+`;
+
 const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
   const dispatch = useDispatch();
 
@@ -114,12 +119,12 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
       className="t--toast-action"
     >
       {props.variant === Variant.success ? (
-        <Icon name="success" size={IconSize.LARGE} />
+        <ToastIcon name="success" size={IconSize.XXL} />
       ) : props.variant === Variant.warning ? (
-        <Icon name="warning" size={IconSize.LARGE} />
+        <ToastIcon name="warning" size={IconSize.XXL} />
       ) : null}
       {props.variant === Variant.danger ? (
-        <Icon name="error" size={IconSize.LARGE} />
+        <ToastIcon name="error" size={IconSize.XXL} />
       ) : null}
       <Text type={TextType.P1}>{props.text}</Text>
       {props.onUndo || props.dispatchableAction ? (
