@@ -32,6 +32,10 @@ import {
 } from "widgets/TableWidget";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import {
+  getAllTableColumnKeys,
+  getDefaultColumnProperties,
+} from "components/designSystems/appsmith/TableUtilities";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -246,11 +250,27 @@ const tableWidgetPropertyPaneMigrations = (
 ) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (children.type === WidgetTypes.TABLE_WIDGET) {
-      const primaryColumns = children.columnOrder || [];
       const hiddenColumns = children.hiddenColumns || [];
       const columnNameMap = children.columnNameMap;
       const columnSizeMap = children.columnSizeMap;
       const columnTypeMap = children.columnTypeMap;
+      let tableColumns: string[] = [];
+      if (children.tableData.length) {
+        let tableData = [];
+        try {
+          if (!Array.isArray(children.tableData)) {
+            tableData = JSON.parse(children.tableData);
+          } else {
+            tableData = children.tableData;
+          }
+        } catch (e) {
+          tableData = [];
+        }
+        tableColumns = getAllTableColumnKeys(tableData);
+      }
+      const primaryColumns = children.columnOrder?.length
+        ? children.columnOrder
+        : tableColumns;
       children.primaryColumns = primaryColumns.map(
         (accessor: string, index: number) => {
           const column: ColumnProperties = {
@@ -288,6 +308,7 @@ const tableWidgetPropertyPaneMigrations = (
           return column;
         },
       );
+
       const derivedColumns = children.columnActions || [];
       children.derivedColumns = derivedColumns.map(
         (action: ColumnAction, index: number) => {
@@ -295,6 +316,7 @@ const tableWidgetPropertyPaneMigrations = (
             index: index,
             width: 150,
             id: action.id,
+            label: action.label,
             columnType: "button",
             isVisible: true,
             isDerived: true,

@@ -318,7 +318,7 @@ export const StyledEditIcon = styled(
   position: absolute;
   margin-left: 15px;
   cursor: pointer;
-  right: 22.5px;
+  right: 12.5px;
   & svg {
     circle {
       fill: none;
@@ -350,7 +350,7 @@ export const StyledDeleteIcon = styled(
   position: absolute;
   margin-right: 15px;
   cursor: pointer;
-  right: 25px;
+  right: 15px;
   svg {
     path {
       fill: ${props => props.theme.colors.paneSectionLabel};
@@ -369,7 +369,7 @@ export const StyledVisibleIcon = styled(
   position: absolute;
   margin-right: 15px;
   cursor: pointer;
-  right: 25px;
+  right: 15px;
   svg {
     path {
       fill: ${props => props.theme.colors.paneSectionLabel};

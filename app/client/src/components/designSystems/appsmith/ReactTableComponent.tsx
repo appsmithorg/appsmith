@@ -89,74 +89,6 @@ interface ReactTableComponentProps {
 }
 
 const ReactTableComponent = (props: ReactTableComponentProps) => {
-  useEffect(() => {
-    let dragIndex = -1;
-    const headers = Array.prototype.slice.call(
-      document.querySelectorAll(`#table${props.widgetId} .draggable-header`),
-    );
-    headers.forEach((header, i) => {
-      header.setAttribute("draggable", true);
-
-      header.ondragstart = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style =
-          "background: #efefef; border-radius: 4px; z-index: 100; width: 100%; text-overflow: none; overflow: none;";
-        e.stopPropagation();
-        dragIndex = i;
-      };
-
-      header.ondrag = (e: React.DragEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-      };
-
-      header.ondragend = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        e.stopPropagation();
-        setTimeout(() => (dragIndex = -1), 1000);
-      };
-
-      // the dropped header
-      header.ondragover = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== dragIndex && dragIndex !== -1) {
-          if (dragIndex > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (dragIndex < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragenter = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== dragIndex && dragIndex !== -1) {
-          if (dragIndex > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (dragIndex < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragleave = (e: React.DragEvent<HTMLDivElement>) => {
-        header.parentElement.className = "th header-reorder";
-        e.preventDefault();
-      };
-
-      header.ondrop = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        header.parentElement.className = "th header-reorder";
-        if (i !== dragIndex && dragIndex !== -1) {
-          e.preventDefault();
-          handleColumnDrag(dragIndex, i);
-        } else {
-          dragIndex = -1;
-        }
-      };
-    });
-  });
-
   const getColumnMenu = (columnIndex: number) => {
     const column = props.columns[columnIndex];
     const columnId = column.accessor;
@@ -178,21 +110,10 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     return columnMenuOptions;
   };
 
-  const handleColumnDrag = (dragIndex: number, targetIndex: number) => {
-    const primaryColumns: ColumnProperties[] = props.primaryColumns || [];
-    const column: ColumnProperties = primaryColumns.splice(dragIndex, 1)[0];
-    primaryColumns.splice(targetIndex, 0, column);
-    props.updatePrimaryColumnProperties([...primaryColumns]);
-  };
-
   const hideColumn = (columnIndex: number, isColumnHidden: boolean) => {
     const column = props.columns[columnIndex];
     if (!column.isDerived) {
       const primaryColumns = props.primaryColumns || [];
-      // const updatedPrimaryColumn = primaryColumns[columnIndex];
-      // updatedPrimaryColumn.isVisible = isColumnHidden;
-      // primaryColumns.splice(columnIndex, 1);
-      // primaryColumns.push(updatedPrimaryColumn);
       primaryColumns[columnIndex].isVisible = isColumnHidden;
       props.updatePrimaryColumnProperties([...primaryColumns]);
     }
