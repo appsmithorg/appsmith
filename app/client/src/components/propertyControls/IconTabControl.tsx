@@ -44,6 +44,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
               key={index}
               selected={propertyValue === option.value}
               onClick={() => this.selectOption(option.value)}
+              className={`t--icon-tab-${option.value}`}
             >
               <ControlIcon color={Colors.WHITE} width={24} height={24} />
             </ItemWrapper>

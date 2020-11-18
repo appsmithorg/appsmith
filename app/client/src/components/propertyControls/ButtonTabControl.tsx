@@ -40,6 +40,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
               key={index}
               selected={propertyValue === option.value}
               onClick={() => this.selectButton(option.value)}
+              className={`t--button-tab-${option.value}`}
             >
               <ControlIcon color={Colors.WHITE} width={24} height={24} />
             </ItemWrapper>
