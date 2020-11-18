@@ -44,11 +44,17 @@
           ]
         },
         {
-          "label": "Document Path",
+          "label": "Document/Collection Path",
           "configProperty": "actionConfiguration.path",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
           "initialValue": ""
+        },
+        {
+          "label": "Limit Documents",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "10"
         },
         {
           "label": "Body",

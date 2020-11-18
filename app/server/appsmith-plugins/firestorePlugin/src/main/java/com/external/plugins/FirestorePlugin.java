@@ -80,17 +80,15 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            com.external.plugins.Method method = null;
-
-            for (Property formData : properties) {
-                if ("method".equals(formData.getKey())) {
-                    method = com.external.plugins.Method.valueOf(formData.getValue());
-                }
-            }
+            final com.external.plugins.Method method = properties.isEmpty()
+                    ? null
+                    : com.external.plugins.Method.valueOf(properties.get(0).getValue());
 
             if (method == null) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid method."));
             }
+
+            final int limit = properties.size() > 1 ? Integer.parseInt(properties.get(1).getValue()) : 10;
 
             String strBody = actionConfiguration.getBody();
             Map<String, Object> mapBody = null;
@@ -112,7 +110,7 @@ public class FirestorePlugin extends BasePlugin {
             if (method.isDocumentLevel()) {
                 return handleDocumentLevelMethod(connection, path, method, mapBody);
             } else {
-                return handleCollectionLevelMethod(connection, path, method, mapBody);
+                return handleCollectionLevelMethod(connection, path, method, limit, mapBody);
             }
         }
 
@@ -155,6 +153,7 @@ public class FirestorePlugin extends BasePlugin {
                     ExecutionException e) {
                 e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+
             }
 
             ActionExecutionResult result = new ActionExecutionResult();
@@ -174,17 +173,17 @@ public class FirestorePlugin extends BasePlugin {
                 Firestore connection,
                 String path,
                 com.external.plugins.Method method,
+                int limit,
                 Map<String, Object> mapBody
         ) {
             Object objResult;
             try {
                 CollectionReference collection = connection.collection(path);
-                Method operationMethod = null;
-                final String methodName = method.toString().split("_")[0].toLowerCase();
+                ApiFuture<?> resultFuture;
 
                 switch (method) {
                     case GET_COLLECTION:
-                        operationMethod = DocumentReference.class.getMethod(methodName);
+                        resultFuture = collection.limit(limit).get();
                         break;
                     default:
                         return Mono.error(new AppsmithPluginException(
@@ -193,19 +192,9 @@ public class FirestorePlugin extends BasePlugin {
                         ));
                 }
 
-                ApiFuture<Object> objFuture;
-                if (mapBody == null) {
-                    objFuture = (ApiFuture<Object>) operationMethod.invoke(collection);
-                } else {
-                    objFuture = (ApiFuture<Object>) operationMethod.invoke(collection, mapBody);
-                }
-                objResult = objFuture.get();
+                objResult = resultFuture.get();
 
-            } catch (NoSuchMethodException |
-                    IllegalAccessException |
-                    InvocationTargetException |
-                    InterruptedException |
-                    ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
             }
