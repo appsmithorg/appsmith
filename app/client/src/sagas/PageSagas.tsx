@@ -50,6 +50,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import {
+  getEvalTree,
   getAllPageIds,
   getEditorConfigs,
   getExistingActionNames,
@@ -530,6 +531,7 @@ export function* updateWidgetNameSaga(
   try {
     const { widgetName } = yield select(getWidgetName, action.payload.id);
     const layoutId = yield select(getCurrentLayoutId);
+    const evalTree = yield select(getEvalTree);
     const pageId = yield select(getCurrentPageId);
     const existingWidgetNames = yield select(getExistingWidgetNames);
     const existingActionNames = yield select(getExistingActionNames);
@@ -537,7 +539,8 @@ export function* updateWidgetNameSaga(
     const hasWidgetNameConflict =
       existingWidgetNames.indexOf(action.payload.newName) > -1 ||
       existingActionNames.indexOf(action.payload.newName) > -1 ||
-      existingPageNames.indexOf(action.payload.newName) > -1;
+      existingPageNames.indexOf(action.payload.newName) > -1 ||
+      Object.keys(evalTree).indexOf(action.payload.newName) > -1;
     if (!hasWidgetNameConflict) {
       const request: UpdateWidgetNameRequest = {
         newName: action.payload.newName,
