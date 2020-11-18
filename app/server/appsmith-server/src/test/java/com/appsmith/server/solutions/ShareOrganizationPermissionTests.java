@@ -75,7 +75,7 @@ public class ShareOrganizationPermissionTests {
         emails.add("admin@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
         inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-        userService.inviteUser(inviteUsersDTO, "http://localhost:8080").blockLast();
+        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").blockLast();
 
         emails.clear();
 
@@ -83,7 +83,7 @@ public class ShareOrganizationPermissionTests {
         emails.add("developer@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
         inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_DEVELOPER.getName());
-        userService.inviteUser(inviteUsersDTO, "http://localhost:8080").blockLast();
+        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").blockLast();
     }
 
     @Test
