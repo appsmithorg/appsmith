@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,10 +19,11 @@ import java.util.Map;
 
 /**
  * This class represents a scheduled task that pings a data point indicating that this server installation is live.
+ * This ping is only invoked if the Appsmith server is NOT running in Appsmith Clouud & the user has given Appsmith
+ * permissions to collect anonymized data
  */
 @Component
-//@ConditionalOnProperty(prefix = "is", name = "cloud-hosted")
-@ConditionalOnExpression("${is.cloud-hosted:false} && !${disable.telemetry:true}")
+@ConditionalOnExpression("!${is.cloud-hosted:false} && !${disable.telemetry:true}")
 @Slf4j
 @RequiredArgsConstructor
 public class PingScheduledTask {
@@ -32,8 +32,8 @@ public class PingScheduledTask {
 
     public static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
 
-    @Value("${APPSMITH_SEGMENT_CE_KEY}")
-    private final String segmentCEKey;
+    @Value("${segment.ce.key}")
+    private String segmentCEKey;
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -89,7 +89,6 @@ public class PingScheduledTask {
                 .post()
                 .uri("/v1/track")
                 .headers(headers -> headers.setBasicAuth(segmentCEKey, ""))
-//                .header("Authorization", "Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(Map.of(
                         "userId", ipAddress,
