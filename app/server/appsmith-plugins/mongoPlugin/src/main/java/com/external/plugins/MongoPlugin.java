@@ -341,7 +341,19 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .then(Mono.just(new DatasourceTestResult()))
                     .onErrorResume(error -> {
-                        return Mono.just(new DatasourceTestResult(error.getMessage()));});
+                        /**
+                         * 1. Return OK response on "Unauthorized" exception.
+                         * 2. If we get an exception with error code "Unauthorized" then it means that the connection to
+                         *    the MongoDB instance is valid. It also means we don't have access to the admin database,
+                         *    but that's okay for our purposes here.
+                         */
+                        if(error instanceof MongoCommandException &&
+                                ((MongoCommandException) error).getErrorCodeName().equals("Unauthorized")) {
+                            return Mono.just(new DatasourceTestResult());
+                        }
+
+                        return Mono.just(new DatasourceTestResult(error.getMessage()));
+                    });
         }
 
         @Override
