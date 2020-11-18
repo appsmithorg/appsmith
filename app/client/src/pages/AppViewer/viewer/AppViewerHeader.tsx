@@ -161,7 +161,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
-
+  const queryParams = new URLSearchParams(useLocation().search);
+  const hideHeader = !!queryParams.get("embed");
+  if (hideHeader) return null;
   // Mark default page as first page
   const appPages = pages;
   if (appPages.length > 1) {
