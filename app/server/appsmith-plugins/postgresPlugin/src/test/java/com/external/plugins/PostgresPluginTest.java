@@ -104,6 +104,12 @@ public class PostgresPluginTest {
                         "    user_id int NOT NULL,\n" +
                         "    constraint user_fk foreign key (user_id) references users(id)" +
                         ")");
+
+                // Testing <https://github.com/appsmithorg/appsmith/issues/1758>.
+                statement.execute("CREATE TABLE campus (\n" +
+                        "    id timestamptz default now(),\n" +
+                        "    name timestamptz default now()\n" +
+                        ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -277,9 +283,21 @@ public class PostgresPluginTest {
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
                     assertNotNull(structure);
-                    assertEquals(2, structure.getTables().size());
+                    assertEquals(3, structure.getTables().size());
 
-                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(0);
+                    final DatasourceStructure.Table campusTable = structure.getTables().get(0);
+                    assertEquals("public.campus", campusTable.getName());
+                    assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[]{
+                                    new DatasourceStructure.Column("id", "timestamptz", "now()"),
+                                    new DatasourceStructure.Column("name", "timestamptz", "now()")
+                            },
+                            campusTable.getColumns().toArray()
+                    );
+                    assertEquals(campusTable.getKeys().size(), 0);
+
+                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(1);
                     assertEquals("public.possessions", possessionsTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
@@ -318,7 +336,7 @@ public class PostgresPluginTest {
                             possessionsTable.getTemplates().toArray()
                     );
 
-                    final DatasourceStructure.Table usersTable = structure.getTables().get(1);
+                    final DatasourceStructure.Table usersTable = structure.getTables().get(2);
                     assertEquals("public.users", usersTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(

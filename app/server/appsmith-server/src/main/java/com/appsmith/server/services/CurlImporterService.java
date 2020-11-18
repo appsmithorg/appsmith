@@ -128,7 +128,7 @@ public class CurlImporterService extends BaseApiImporter {
                     currentToken.append(currentChar);
                     isEscaped = false;
 
-                } else if (currentChar == '\\') {
+                } else if (currentChar == '\\' && quote != '\'') {
                     isEscaped = true;
 
                 } else if (currentChar == quote) {
