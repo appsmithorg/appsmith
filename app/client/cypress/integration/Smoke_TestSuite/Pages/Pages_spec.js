@@ -27,6 +27,7 @@ describe("Pages", function() {
       .next()
       .next()
       .trigger("mouseover");
+
     cy.get(".bp3-popover-target.bp3-popover-open").should("have.length", 1);
   });
 });
