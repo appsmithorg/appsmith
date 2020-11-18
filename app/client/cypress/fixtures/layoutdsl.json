@@ -13,7 +13,7 @@
      "parentRowSpace": 1,
      "type": "CANVAS_WIDGET",
      "canExtend": true,
-     "dynamicBindings": {},
+     "dynamicBindingPathList": [],
      "version": 4,
      "minHeight": 1292,
      "parentColumnSpace": 1,
@@ -28,7 +28,7 @@
              "isLoading": false,
              "parentColumnSpace": 75.25,
              "parentRowSpace": 38,
-             "dynamicBindings": {},
+             "dynamicBindingPathList": [],
              "leftColumn": 0,
              "rightColumn": 8,
              "topRow": 0,
@@ -63,7 +63,7 @@
                              "isLoading": false,
                              "parentColumnSpace": 35.25,
                              "parentRowSpace": 38,
-                             "dynamicBindings": {},
+                             "dynamicBindingPathList": [],
                              "leftColumn": 0,
                              "rightColumn": 3,
                              "topRow": 0,
@@ -88,7 +88,7 @@
              "isLoading": false,
              "parentColumnSpace": 75.25,
              "parentRowSpace": 38,
-             "dynamicBindings": {},
+             "dynamicBindingPathList": [],
              "leftColumn": 0,
              "rightColumn": 16,
              "topRow": 9,
@@ -123,7 +123,7 @@
                              "isLoading": false,
                              "parentColumnSpace": 72.875,
                              "parentRowSpace": 38,
-                             "dynamicBindings": {},
+                             "dynamicBindingPathList": [],
                              "leftColumn": 0,
                              "rightColumn": 3,
                              "topRow": 0,
@@ -257,7 +257,7 @@
              "isLoading": false,
              "parentColumnSpace": 75.25,
              "parentRowSpace": 38,
-             "dynamicBindings": {},
+             "dynamicBindingPathList": [],
              "leftColumn": 8,
              "rightColumn": 16,
              "topRow": 0,
@@ -292,7 +292,7 @@
                              "isLoading": false,
                              "parentColumnSpace": 35.25,
                              "parentRowSpace": 38,
-                             "dynamicBindings": {},
+                             "dynamicBindingPathList": [],
                              "leftColumn": 0,
                              "rightColumn": 3,
                              "topRow": 0,
@@ -312,6 +312,5 @@
   },
   "layoutOnLoadActions": []
 }
-   
-  
-  
+
+

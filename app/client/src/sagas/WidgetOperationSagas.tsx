@@ -39,7 +39,15 @@ import {
   updateWidgetProperty,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import {
+  DynamicPath,
+  getEntityDynamicBindingPathList,
+  getWidgetDynamicPropertyPathList,
+  getWidgetDynamicTriggerPathList,
+  isDynamicValue,
+  isPathADynamicBinding,
+  isPathADynamicTrigger,
+} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _, { isString } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
@@ -593,25 +601,33 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
 function* updateDynamicTriggers(
   widget: WidgetProps,
-  propertyName: string,
+  propertyPath: string,
   propertyValue: string,
 ) {
   // TODO WIDGETFACTORY
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
-  if (propertyName in triggerProperties) {
-    let dynamicTriggers: Record<string, true> = widget.dynamicTriggers
-      ? { ...widget.dynamicTriggers }
-      : {};
-    if (propertyValue && !(propertyName in dynamicTriggers)) {
-      dynamicTriggers[propertyName] = true;
+  if (propertyPath in triggerProperties) {
+    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+      widget,
+    );
+    if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+      dynamicTriggerPathList.push({
+        key: propertyPath,
+      });
     }
-    if (!propertyValue && propertyName in dynamicTriggers) {
-      dynamicTriggers = _.omit(dynamicTriggers, propertyName);
+    if (!propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+      dynamicTriggerPathList = _.reject(dynamicTriggerPathList, {
+        key: propertyValue,
+      });
     }
     yield put(
-      updateWidgetProperty(widget.widgetId, "dynamicTriggers", dynamicTriggers),
+      updateWidgetProperty(
+        widget.widgetId,
+        "dynamicTriggerPathList",
+        dynamicTriggerPathList,
+      ),
     );
     return true;
   }
@@ -629,16 +645,25 @@ function* updateDynamicBindings(
     stringProp = JSON.stringify(propertyValue);
   }
   const isDynamic = isDynamicValue(stringProp);
-  let dynamicBindings: Record<string, boolean> =
-    { ...widget.dynamicBindings } || {};
-  if (!isDynamic && propertyName in dynamicBindings) {
-    dynamicBindings = _.omit(dynamicBindings, propertyName);
+  let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+    widget,
+  );
+  if (!isDynamic && isPathADynamicBinding(widget, propertyName)) {
+    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
+      key: propertyName,
+    });
   }
-  if (isDynamic && !(propertyName in dynamicBindings)) {
-    dynamicBindings[propertyName] = true;
+  if (isDynamic && !isPathADynamicBinding(widget, propertyName)) {
+    dynamicBindingPathList.push({
+      key: propertyName,
+    });
   }
   yield put(
-    updateWidgetProperty(widget.widgetId, "dynamicBindings", dynamicBindings),
+    updateWidgetProperty(
+      widget.widgetId,
+      "dynamicBindingPathList",
+      dynamicBindingPathList,
+    ),
   );
 }
 
@@ -676,16 +701,18 @@ function* setWidgetDynamicPropertySaga(
   const { isDynamic, propertyName, widgetId } = action.payload;
   const widget: WidgetProps = yield select(getWidget, widgetId);
   // const tree = yield select(evaluateDataTree);
-  const propertyValue = widget[propertyName];
-  const dynamicProperties: Record<string, true> = {
-    ...widget.dynamicProperties,
-  };
+  const propertyValue = _.get(widget, propertyName);
+  let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
   if (isDynamic) {
-    dynamicProperties[propertyName] = true;
+    dynamicPropertyPathList.push({
+      key: propertyName,
+    });
     const value = convertToString(propertyValue);
     yield put(updateWidgetProperty(widgetId, propertyName, value));
   } else {
-    delete dynamicProperties[propertyName];
+    dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
+      key: propertyName,
+    });
     const { parsed } = yield call(
       validateProperty,
       widget.type,
@@ -696,7 +723,11 @@ function* setWidgetDynamicPropertySaga(
     yield put(updateWidgetProperty(widgetId, propertyName, parsed));
   }
   yield put(
-    updateWidgetProperty(widgetId, "dynamicProperties", dynamicProperties),
+    updateWidgetProperty(
+      widgetId,
+      "dynamicPropertyPathList",
+      dynamicPropertyPathList,
+    ),
   );
 }
 
@@ -1082,9 +1113,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       isLoading: false,
       props: {
         tableData: `{{${queryName}.data}}`,
-        dynamicBindings: {
-          tableData: true,
-        },
+        dynamicBindingPathList: [{ key: "tableData" }],
       },
     };
     const {

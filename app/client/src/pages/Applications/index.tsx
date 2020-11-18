@@ -554,6 +554,7 @@ const ApplicationsSection = (props: any) => {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
         const { organization, applications, userRoles } = organizationObject;
+        const userProfiles = userRoles && userRoles.splice(5);
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -598,6 +599,12 @@ const ApplicationsSection = (props: any) => {
                           key={el.username}
                         />
                       ))}
+                      {userProfiles && userProfiles.length > 0 ? (
+                        <ProfileImage
+                          className="org-share-user-icons"
+                          commonName={`+${userProfiles.length}`}
+                        />
+                      ) : null}
                     </UserImageContainer>
                     <FormDialogComponent
                       trigger={
