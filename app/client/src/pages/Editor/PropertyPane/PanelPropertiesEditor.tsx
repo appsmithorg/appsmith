@@ -49,7 +49,10 @@ const PanelHeader = (props: PanelHeaderProps) => {
         e.stopPropagation();
       }}
     >
-      <StyledBackIcon onClick={props.closePanel} />
+      <StyledBackIcon
+        onClick={props.closePanel}
+        className="t--property-pane-back-btn"
+      />
       <PropertyTitleEditor
         title={props.title}
         updatePropertyTitle={props.updatePropertyTitle}

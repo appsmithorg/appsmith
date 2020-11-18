@@ -13,6 +13,7 @@ const SectionWrapper = styled.div`
 const SectionTitle = styled.div`
   display: grid;
   grid-template-columns: 1fr 30px;
+  cursor: pointer;
   & span {
     color: ${props => props.theme.colors.paneSectionLabel};
     padding: ${props => props.theme.spaces[2]}px 0;
@@ -62,20 +63,30 @@ export const PropertySection = memo((props: PropertySectionProps) => {
       return null;
     }
   }
-
+  const className = props.name
+    .split(" ")
+    .join("")
+    .toLowerCase();
   return (
     <SectionWrapper>
-      <SectionTitle>
+      <SectionTitle
+        onClick={() => open(!isOpen)}
+        className={`t--property-pane-section-collapse-${className}`}
+      >
         <span>{props.name}</span>
         <Icon
           icon={IconNames.CHEVRON_RIGHT}
           className={isOpen ? "open-collapse" : ""}
-          onClick={() => open(!isOpen)}
         />
       </SectionTitle>
       {props.children && (
         <Collapse isOpen={isOpen} keepChildrenMounted>
-          <div style={{ position: "relative" }}>{props.children}</div>
+          <div
+            className={`t--property-pane-section-${className}`}
+            style={{ position: "relative" }}
+          >
+            {props.children}
+          </div>
         </Collapse>
       )}
     </SectionWrapper>

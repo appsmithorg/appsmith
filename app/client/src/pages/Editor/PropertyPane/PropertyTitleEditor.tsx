@@ -65,6 +65,7 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
         editInteractionKind={EditInteractionKind.SINGLE}
         isEditingDefault={false}
         onBlur={exitEditMode}
+        className="t--property-pane-edit-title"
       />
       <Tooltip
         content={
@@ -89,7 +90,7 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
           iconSize={16}
           color={theme.colors.paneSectionLabel}
           icon="cross"
-          className={"t--property-pane-close-btn"}
+          className="t--property-pane-close-btn"
         />
       </Tooltip>
     </Wrapper>

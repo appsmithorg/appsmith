@@ -53,6 +53,7 @@ type RenderComponentProps = {
 
 function ColumnControlComponent(props: RenderComponentProps) {
   const { updateOption, onEdit, item, deleteOption, index } = props;
+  console.log({ props });
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
@@ -65,6 +66,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
         defaultValue={item.label}
       />
       <StyledVisibleIcon
+        className="t--show-column-btn"
         height={20}
         width={20}
         onClick={() => {
@@ -72,6 +74,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
         }}
       />
       <StyledEditIcon
+        className="t--edit-column-btn"
         height={20}
         width={20}
         onClick={() => {
