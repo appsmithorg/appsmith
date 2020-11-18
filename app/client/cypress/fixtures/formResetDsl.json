@@ -116,12 +116,6 @@
                 "dynamicBindingPathList": [
                   {
                     "key": "defaultText"
-                  },
-                  {
-                    "key": "isValid"
-                  },
-                  {
-                    "key": "value"
                   }
                 ],
                 "defaultText": "{{Table1.selectedRow.email}}"
@@ -142,11 +136,7 @@
                 "bottomRow": 10,
                 "parentId": "qrqizehc5b",
                 "widgetId": "672gf8vm2q",
-                "dynamicBindingPathList": [
-                  {
-                    "key": "value"
-                  }
-                ]
+                "dynamicBindingPathList": []
               }
             ],
             "blueprint": {
