@@ -18,8 +18,12 @@
           "initialValue": "GET_DOCUMENT",
           "options": [
             {
-              "label": "Get Document",
+              "label": "Get Single Document",
               "value": "GET_DOCUMENT"
+            },
+            {
+              "label": "Get Documents in Collection",
+              "value": "GET_COLLECTION"
             },
             {
               "label": "Set Document",

@@ -16,6 +16,8 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -100,19 +102,26 @@ public class FirestorePlugin extends BasePlugin {
                 }
             }
 
-            if (strBody == null
-                    && (
-                    method == com.external.plugins.Method.SET_DOCUMENT
-                            || method == com.external.plugins.Method.CREATE_DOCUMENT
-                            || method == com.external.plugins.Method.UPDATE_DOCUMENT
-            )
-            ) {
+            if (mapBody == null && method.isBodyNeeded()) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "The method " + method.toString() + " needs a non-empty body to work."
                 ));
             }
 
+            if (method.isDocumentLevel()) {
+                return handleDocumentLevelMethod(connection, path, method, mapBody);
+            } else {
+                return handleCollectionLevelMethod(connection, path, method, mapBody);
+            }
+        }
+
+        public Mono<ActionExecutionResult> handleDocumentLevelMethod(
+                Firestore connection,
+                String path,
+                com.external.plugins.Method method,
+                Map<String, Object> mapBody
+        ) {
             Object objResult;
             try {
                 DocumentReference document = connection.document(path);
@@ -151,25 +160,99 @@ public class FirestorePlugin extends BasePlugin {
             ActionExecutionResult result = new ActionExecutionResult();
             result.setIsExecutionSuccess(true);
             if (objResult != null) {
-                Map resultMap = resultToMap(objResult);
-                result.setBody(resultMap);
+                try {
+                    result.setBody(resultToMap(objResult));
+                } catch (AppsmithPluginException e) {
+                    return Mono.error(e);
+                }
             }
 
             return Mono.just(result);
         }
 
-        private Map resultToMap(Object objResult) {
-            Map<String, Object> resultMap = new HashMap<>();
+        public Mono<ActionExecutionResult> handleCollectionLevelMethod(
+                Firestore connection,
+                String path,
+                com.external.plugins.Method method,
+                Map<String, Object> mapBody
+        ) {
+            Object objResult;
+            try {
+                CollectionReference collection = connection.collection(path);
+                Method operationMethod = null;
+                final String methodName = method.toString().split("_")[0].toLowerCase();
+
+                switch (method) {
+                    case GET_COLLECTION:
+                        operationMethod = DocumentReference.class.getMethod(methodName);
+                        break;
+                    default:
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Unknown collection method: " + method.toString()
+                        ));
+                }
+
+                ApiFuture<Object> objFuture;
+                if (mapBody == null) {
+                    objFuture = (ApiFuture<Object>) operationMethod.invoke(collection);
+                } else {
+                    objFuture = (ApiFuture<Object>) operationMethod.invoke(collection, mapBody);
+                }
+                objResult = objFuture.get();
+
+            } catch (NoSuchMethodException |
+                    IllegalAccessException |
+                    InvocationTargetException |
+                    InterruptedException |
+                    ExecutionException e) {
+                e.printStackTrace();
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+            }
+
+            ActionExecutionResult result = new ActionExecutionResult();
+            result.setIsExecutionSuccess(true);
+            if (objResult != null) {
+                try {
+                    result.setBody(resultToMap(objResult));
+                } catch (AppsmithPluginException e) {
+                    return Mono.error(e);
+                }
+            }
+
+            return Mono.just(result);
+        }
+
+        private Object resultToMap(Object objResult) throws AppsmithPluginException {
             if (objResult instanceof WriteResult) {
                 WriteResult writeResult = (WriteResult) objResult;
+                Map<String, Object> resultMap = new HashMap<>();
                 resultMap.put("lastUpdateTime", writeResult.getUpdateTime());
+                return resultMap;
+
             } else if (objResult instanceof DocumentSnapshot) {
                 DocumentSnapshot documentSnapshot = (DocumentSnapshot) objResult;
+                Map<String, Object> resultMap = new HashMap<>();
                 if (documentSnapshot.getData() != null) {
                     resultMap = documentSnapshot.getData();
                 }
+                return resultMap;
+
+            } else if (objResult instanceof QuerySnapshot) {
+                QuerySnapshot querySnapshot = (QuerySnapshot) objResult;
+                List<Map<String, Object>> documents = new ArrayList<>();
+                for (QueryDocumentSnapshot documentSnapshot : querySnapshot.getDocuments()) {
+                    documents.add(documentSnapshot.getData());
+                }
+                return documents;
+
+            } else {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Unable to serialize object of type " + objResult.getClass().getName()
+                );
+
             }
-            return resultMap;
         }
 
         @Override
