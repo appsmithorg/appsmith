@@ -696,11 +696,9 @@ type ColorType = {
   toast: {
     undo: string;
     warningColor: string;
-    warningBg: string;
     dangerColor: string;
-    dangerBg: string;
-    infoColor: string;
-    infoBg: ShadeColor;
+    textColor: string;
+    bg: ShadeColor;
   };
 };
 
@@ -975,11 +973,9 @@ export const dark: ColorType = {
   toast: {
     undo: "#CB4810",
     warningColor: "#E0B30E",
-    warningBg: "#29251A",
     dangerColor: "#E22C2C",
-    dangerBg: "rgba(226, 44, 44, 0.08)",
-    infoColor: "#090707",
-    infoBg: darkShades[8],
+    textColor: "#090707",
+    bg: darkShades[8],
   },
 };
 
@@ -1254,11 +1250,9 @@ export const light: ColorType = {
   toast: {
     undo: "#F86A2B",
     warningColor: "#DCAD00",
-    warningBg: "#FAF6E6",
     dangerColor: "#F22B2B",
-    dangerBg: "rgba(242, 43, 43, 0.06)",
-    infoColor: "#F7F7F7",
-    infoBg: lightShades[10],
+    textColor: "#F7F7F7",
+    bg: lightShades[10],
   },
 };
 

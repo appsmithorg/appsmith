@@ -51,12 +51,7 @@ const ToastBody = styled.div<{
   dispatchableAction?: { type: ReduxActionType; payload: any };
 }>`
   max-width: 300px;
-  background: ${props =>
-    props.variant === Variant.danger
-      ? props.theme.colors.toast.dangerBg
-      : props.variant === Variant.warning
-      ? props.theme.colors.toast.warningBg
-      : props.theme.colors.toast.infoBg};
+  background: ${props => props.theme.colors.toast.bg};
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[5]}px;
   display: flex;
@@ -84,12 +79,7 @@ const ToastBody = styled.div<{
   }
 
   .${Classes.TEXT} {
-    color: ${props =>
-      props.variant === Variant.danger
-        ? props.theme.colors.toast.dangerColor
-        : props.variant === Variant.warning
-        ? props.theme.colors.toast.warningColor
-        : props.theme.colors.toast.infoColor};
+    color: ${props => props.theme.colors.toast.textColor};
   }
 
   ${props =>
@@ -99,13 +89,11 @@ const ToastBody = styled.div<{
       cursor: pointer;
       margin-left: ${props.theme.spaces[3]}px;
       color: ${props.theme.colors.toast.undo};
+      line-height: 18px;
+      font-weight: 600;
     }
     `
       : null}
-`;
-
-const ToastIcon = styled(Icon)`
-  margin-right: ${props => props.theme.spaces[3]}px;
 `;
 
 const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
@@ -119,12 +107,12 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
       className="t--toast-action"
     >
       {props.variant === Variant.success ? (
-        <ToastIcon name="success" size={IconSize.XXL} />
+        <Icon name="success" size={IconSize.XXL} />
       ) : props.variant === Variant.warning ? (
-        <ToastIcon name="warning" size={IconSize.XXL} />
+        <Icon name="warning" size={IconSize.XXL} />
       ) : null}
       {props.variant === Variant.danger ? (
-        <ToastIcon name="error" size={IconSize.XXL} />
+        <Icon name="error" size={IconSize.XXL} />
       ) : null}
       <Text type={TextType.P1}>{props.text}</Text>
       {props.onUndo || props.dispatchableAction ? (
