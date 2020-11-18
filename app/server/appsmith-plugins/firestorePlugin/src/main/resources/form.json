@@ -12,30 +12,17 @@
           "initialValue": ""
         },
         {
-          "label": "ProjectId Key",
-          "configProperty": "datasourceConfiguration.properties[1].key",
-          "controlType": "INPUT_TEXT",
-          "isRequired": true,
-          "initialValue": "projectId"
-        },
-        {
           "label": "Project Id",
-          "configProperty": "datasourceConfiguration.properties[1].value",
+          "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
           "initialValue": ""
         },
         {
-          "label": "ClientJSON",
-          "configProperty": "datasourceConfiguration.properties[0].key",
-          "controlType": "INPUT_TEXT",
-          "isRequired": true,
-          "initialValue": "clientJSON"
-        },
-        {
           "label": "Service Account Credentials",
-          "configProperty": "datasourceConfiguration.properties[0].value",
+          "configProperty": "datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
           "isRequired": true,
           "initialValue": ""
         }

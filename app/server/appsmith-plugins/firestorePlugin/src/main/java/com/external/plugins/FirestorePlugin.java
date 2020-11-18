@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -176,9 +177,9 @@ public class FirestorePlugin extends BasePlugin {
         ) {
             final String orderBy = properties.size() > 1 && properties.get(1) != null ? properties.get(1).getValue() : null;
             final int limit = properties.size() > 2 && properties.get(2) != null ? Integer.parseInt(properties.get(2).getValue()) : 10;
-            final String queryFieldPath = properties.size() > 3 && properties.get(3) != null? properties.get(3).getValue() : null;
+            final String queryFieldPath = properties.size() > 3 && properties.get(3) != null ? properties.get(3).getValue() : null;
             final Op operator = properties.size() > 4 && properties.get(4) != null ? Op.valueOf(properties.get(4).getValue()) : null;
-            final String queryValue = properties.size() > 5 && properties.get(5) != null? properties.get(5).getValue() : null;
+            final String queryValue = properties.size() > 5 && properties.get(5) != null ? properties.get(5).getValue() : null;
 
             Object objResult;
             try {
@@ -188,7 +189,7 @@ public class FirestorePlugin extends BasePlugin {
                 }
 
                 if (StringUtils.isNotEmpty(queryFieldPath) && operator != null && queryValue != null) {
-                    switch(operator) {
+                    switch (operator) {
                         case LT:
                             query = query.whereLessThan(queryFieldPath, queryValue);
                             break;
@@ -306,21 +307,14 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Mono<Firestore> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            String clientJson = null;
-            String projectId = null;
-            for (Property property : datasourceConfiguration.getProperties()) {
-                String key = property.getKey();
-                if (CLIENT_JSON_FIELD.equals(key)) {
-                    clientJson = property.getValue();
-                }
-                if (PROJECT_ID_FIELD.equals(key)) {
-                    projectId = property.getValue();
-                }
-            }
+            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
 
-            if (StringUtils.isEmpty(clientJson) || StringUtils.isEmpty(projectId)) {
+            if (authentication == null || StringUtils.isEmpty(authentication.getUsername()) || StringUtils.isEmpty(authentication.getPassword())) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid datasource fields"));
             }
+
+            final String projectId = authentication.getUsername();
+            final String clientJson = authentication.getPassword();
 
             InputStream serviceAccount = new ByteArrayInputStream(clientJson.getBytes());
             GoogleCredentials credentials;
@@ -356,34 +350,26 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+
             Set<String> invalids = new HashSet<>();
-            if (datasourceConfiguration.getProperties() == null || datasourceConfiguration.getProperties().isEmpty()) {
-                invalids.add("Missing datasource configuration properties");
-                return invalids;
-            }
-            String clientJson = "";
-            String projectId = "";
 
-            for (Property property : datasourceConfiguration.getProperties()) {
-                String key = property.getKey();
-                if (CLIENT_JSON_FIELD.equals(key)) {
-                    clientJson = property.getValue();
+            if (authentication == null) {
+                invalids.add("Missing ProjectID and ClientJSON in datasource.");
+
+            } else {
+                if (StringUtils.isEmpty(authentication.getUsername())) {
+                    invalids.add("Missing ProjectID in datasource.");
                 }
-                if (PROJECT_ID_FIELD.equals(key)) {
-                    projectId = property.getValue();
+
+                if (StringUtils.isEmpty(authentication.getPassword())) {
+                    invalids.add("Missing ClientJSON in datasource.");
                 }
-            }
 
-            if (StringUtils.isBlank(clientJson)) {
-                invalids.add("Missing client json. Please generate this from Firebase Console");
-            }
-
-            if (StringUtils.isBlank(projectId)) {
-                invalids.add("Missing projectId");
             }
 
             if (StringUtils.isBlank(datasourceConfiguration.getUrl())) {
-                invalids.add("Missing database URL");
+                invalids.add("Missing Firestore URL.");
             }
 
             return invalids;
