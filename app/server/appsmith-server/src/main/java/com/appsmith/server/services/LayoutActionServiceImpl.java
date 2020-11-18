@@ -456,6 +456,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     }
                     if (parent == null) {
                         log.warn("Unable to find dynamically bound key {} for the widget with id {}", nextKey, dsl.get(FieldName.WIDGET_ID));
+                        break;
                     }
                 }
                 if(parent != null) {
