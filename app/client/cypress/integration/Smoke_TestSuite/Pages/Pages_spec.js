@@ -1,7 +1,7 @@
 const pages = require("../../../locators/Pages.json");
 
 describe("Pages", function() {
-  let veryLongPageName = `gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1`;
+  let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
 
   it("Clone page", function() {
     cy.xpath(pages.popover)
@@ -21,6 +21,9 @@ describe("Pages", function() {
   it("Creates a page with long name and checks if it shows tooltip on hover", () => {
     cy.Createpage(veryLongPageName);
     cy.PublishtheApp();
-    cy.get(".t--page-switch-tab .bp3-popover-wrapper").should("have.length", 1);
+    cy.get(".t--page-switch-tab:nth-child(2)").trigger("mouseover");
+    cy.get(".bp3-popover-content").should($x => {
+      expect($x).contain(veryLongPageName);
+    });
   });
 });
