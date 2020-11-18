@@ -21,13 +21,6 @@ describe("Pages", function() {
   it("Creates a page with long name and checks if it shows tooltip on hover", () => {
     cy.Createpage(veryLongPageName);
     cy.PublishtheApp();
-    cy.get(".t--page-switch-tab")
-      .contains("Page1")
-      .parent()
-      .next()
-      .next()
-      .trigger("mouseover");
-
-    cy.get(".bp3-popover-target.bp3-popover-open").should("have.length", 1);
+    cy.get(".t--page-switch-tab .bp3-popover-wrapper").should("have.length", 1);
   });
 });
