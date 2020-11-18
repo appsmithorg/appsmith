@@ -1010,6 +1010,40 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
   cy.wait(200);
 });
 
+Cypress.Commands.add("tableDataHide", (endp, value) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .should("not.be.visible");
+});
+
+Cypress.Commands.add("tableDataVisiblity", (endp, value) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .should("be.visible");
+});
+
+Cypress.Commands.add("tableColumnDataValidation", columnName => {
+  cy.get("[data-rbd-draggable-id='" + columnName + "']")
+    .first()
+    .focus({ force: true })
+    .should("be.visible");
+});
+
+Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] input").click({
+    force: true,
+  });
+  cy.get("[data-rbd-draggable-id='" + colId + "'] input").clear({
+    force: true,
+  });
+  cy.get("[data-rbd-draggable-id='" + colId + "'] input").type(newColName);
+  cy.get(".draggable-header ")
+    .contains(newColName)
+    .should("be.visible");
+});
+
 Cypress.Commands.add("selectShowMsg", value => {
   cy.get(commonlocators.chooseAction)
     .children()
