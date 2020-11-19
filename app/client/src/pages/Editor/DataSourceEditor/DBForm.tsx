@@ -4,6 +4,7 @@ import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { Spinner } from "@blueprintjs/core";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
+import FormControl from "../FormControl";
 import Collapsible from "./Collapsible";
 import history from "utils/history";
 import { Icon } from "@blueprintjs/core";
@@ -13,7 +14,6 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 
-import FormControlFactory from "utils/FormControlFactory";
 import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "api/DatasourcesApi";
@@ -445,12 +445,11 @@ class DatasourceDBEditor extends React.Component<
 
                 return (
                   <div key={configProperty} style={{ marginTop: "16px" }}>
-                    {FormControlFactory.createControl(
-                      config,
-                      {},
-                      false,
-                      multipleConfig,
-                    )}
+                    <FormControl
+                      config={config}
+                      formName={DATASOURCE_DB_FORM}
+                      multipleConfig={multipleConfig}
+                    />
                   </div>
                 );
               } catch (e) {
