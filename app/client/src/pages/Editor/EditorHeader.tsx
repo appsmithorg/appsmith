@@ -195,7 +195,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             editInteractionKind={EditInteractionKind.SINGLE}
             hideEditIcon={true}
             className="t--application-name"
-            fill={false}
             savingState={
               isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
             }

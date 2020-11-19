@@ -25,7 +25,6 @@ import { isNumber, isString, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
-import { DropdownOption } from "widgets/DropdownWidget";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -107,9 +106,7 @@ export enum OperatorTypes {
   OR = "OR",
   AND = "AND",
 }
-type ColumnProps = {
-  columnType: ColumnTypes;
-};
+
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -157,6 +154,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Column Type",
                       controlType: "DROP_DOWN",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
                           label: "Plain Text",
@@ -223,6 +221,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                         },
                       ],
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType !== "date";
                       },
@@ -232,6 +231,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Converted Date Format",
                       controlType: "DROP_DOWN",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
                           label: "UNIX timestamp (s)",
@@ -283,6 +283,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Filtering",
                       controlType: "SWITCH",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
                       },
@@ -292,6 +293,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Sorting",
                       controlType: "SWITCH",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
                       },
@@ -327,12 +329,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                       defaultValue: "LEFT",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "textSize",
                       label: "Text Size",
                       controlType: "DROP_DOWN",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
                           label: "Heading 1",
@@ -382,6 +386,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                       defaultValue: "NORMAL",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "verticalAlignment",
@@ -403,18 +408,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                       defaultValue: "LEFT",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "textColor",
                       label: "Text Color",
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "cellBackground",
                       label: "Cell Background",
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                   ],
                 },
@@ -442,10 +450,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Label Color",
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
-                      propertyName: "dynamicTrigger",
+                      propertyName: "onClick",
                       label: "onClick",
                       controlType: "ACTION_SELECTOR",
                       isJSConvertible: true,
@@ -473,6 +482,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Column Type",
                       controlType: "DROP_DOWN",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
                           label: "Plain Text",
@@ -539,6 +549,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                         },
                       ],
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType !== "date";
                       },
@@ -548,6 +559,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Converted Date Format",
                       controlType: "DROP_DOWN",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
                           label: "UNIX timestamp (s)",
@@ -596,6 +608,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Filtering",
                       controlType: "SWITCH",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
                       },
@@ -605,6 +618,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Sorting",
                       controlType: "SWITCH",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
                       },
@@ -640,12 +654,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                       defaultValue: "LEFT",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "textSize",
                       label: "Text Size",
                       controlType: "DROP_DOWN",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
                           label: "Heading 1",
@@ -695,6 +711,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                       defaultValue: "NORMAL",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "verticalAlignment",
@@ -716,18 +733,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                       defaultValue: "LEFT",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "textColor",
                       label: "Text Color",
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "cellBackground",
                       label: "Cell Background",
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                   ],
                 },
@@ -755,10 +775,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Label Color",
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
-                      propertyName: "dynamicTrigger",
+                      propertyName: "onClick",
                       label: "onClick",
                       controlType: "ACTION_SELECTOR",
                       isJSConvertible: true,
@@ -916,7 +937,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               ? {
                   label: columnProperties.buttonLabel,
                   id: columnProperties.id,
-                  dynamicTrigger: columnProperties.dynamicTrigger,
+                  dynamicTrigger: columnProperties.onClick,
                   buttonStyle: columnProperties.buttonStyle || "#29CCA3",
                   buttonLabelColor:
                     columnProperties.buttonLabelColor || "#FFFFFF",
@@ -1463,6 +1484,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onCommandClick = (action: string, onComplete: () => void) => {
+    console.log({ action });
     super.executeAction({
       dynamicString: action,
       event: {
@@ -1472,7 +1494,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  onItemSelect = (action: string, item: DropdownOption) => {
+  onItemSelect = (action: string) => {
     super.executeAction({
       dynamicString: action,
       event: {
@@ -1653,7 +1675,7 @@ export interface ColumnProperties {
   buttonLabel?: string;
   buttonStyle?: string;
   buttonLabelColor?: string;
-  dynamicTrigger?: string;
+  onClick?: string;
   outputFormat?: string;
   inputFormat?: string;
   dropdownOptions?: string;

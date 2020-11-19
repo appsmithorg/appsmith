@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-import React, { useEffect } from "react";
+import React from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
 import { debounce } from "lodash";

@@ -53,7 +53,6 @@ type RenderComponentProps = {
 
 function ColumnControlComponent(props: RenderComponentProps) {
   const { updateOption, onEdit, item, deleteOption, index } = props;
-  console.log({ props });
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />

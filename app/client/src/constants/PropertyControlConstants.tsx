@@ -23,6 +23,7 @@ export type PropertyPaneControlConfig = {
   propertyName: string;
   helpText?: string;
   isJSConvertible?: boolean;
+  customJSControl?: string;
   controlType: ControlType;
   validationMessage?: string;
   dataTreePath?: string;

@@ -25,7 +25,6 @@ import {
   FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
-  ButtonProperties,
   TextSizes,
 } from "widgets/TableWidget";
 import { isString, isEmpty, findIndex } from "lodash";
@@ -40,11 +39,7 @@ import { Colors } from "constants/Colors";
 import moment from "moment";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
-import {
-  Select,
-  IItemRendererProps,
-  Classes as MultiSelectClasses,
-} from "@blueprintjs/select";
+import { Select, IItemRendererProps } from "@blueprintjs/select";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -480,8 +475,6 @@ export const renderCell = (
   columnType: string,
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
-  buttonProperties?: ButtonProperties,
-  isSelected?: boolean,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -577,19 +570,6 @@ export const renderActions = (props: RenderActionProps, isHidden: boolean) => {
       })}
     </CellWrapper>
   );
-};
-
-const mapButtonStyleToStyleName = (buttonStyle: string) => {
-  switch (buttonStyle) {
-    case "PRIMARY_BUTTON":
-      return "primary";
-    case "SECONDARY_BUTTON":
-      return "secondary";
-    case "DANGER_BUTTON":
-      return "error";
-    default:
-      return undefined;
-  }
 };
 
 const TableAction = (props: {

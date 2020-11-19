@@ -6,7 +6,6 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -15,18 +14,6 @@ const ChartComponent = lazy(() =>
     ),
   ),
 );
-type ChartSeries = { seriesName: string; data: string };
-type ChartDataType = Array<ChartSeries>;
-
-// const chartDataValidator = (
-//   value: ChartDataType,
-//   props: WidgetProps,
-//   dataTree?: DataTree,
-// ): ValidationResponse => ({
-//   isValid: true,
-//   parsed: value,
-//   message: "",
-// });
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {

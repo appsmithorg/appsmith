@@ -191,6 +191,7 @@ const applicationsReducer = createReducer(initialState, {
       const appIndex = org.applications.findIndex(
         app => app.id === action.payload.id,
       );
+      //eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...rest } = action.payload;
       if (appIndex !== -1) {
         org.applications[appIndex] = {

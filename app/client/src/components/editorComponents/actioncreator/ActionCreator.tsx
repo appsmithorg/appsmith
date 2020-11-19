@@ -343,11 +343,7 @@ const fieldConfigs: FieldConfigs = {
       }
       return mainFuncSelectedValue;
     },
-    setter: (
-      option: TreeDropdownOption,
-      currentValue: string,
-      defaultValue?: string,
-    ) => {
+    setter: (option: TreeDropdownOption) => {
       const type: ActionType = option.type || option.value;
       let value = option.value;
       switch (type) {

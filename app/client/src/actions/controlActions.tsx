@@ -7,6 +7,7 @@ export const updateWidgetPropertyRequest = (
   propertyName: string,
   propertyValue: any,
   renderMode: RenderMode,
+  isDynamicTrigger?: boolean,
 ): ReduxAction<UpdateWidgetPropertyRequestPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
@@ -15,6 +16,7 @@ export const updateWidgetPropertyRequest = (
       propertyName,
       propertyValue,
       renderMode,
+      isDynamicTrigger,
     },
   };
 };
@@ -54,6 +56,7 @@ export interface UpdateWidgetPropertyRequestPayload {
   propertyName: string;
   propertyValue: any;
   renderMode: RenderMode;
+  isDynamicTrigger?: boolean;
 }
 
 export interface UpdateWidgetPropertyPayload {
