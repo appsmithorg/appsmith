@@ -50,7 +50,7 @@ const ToastBody = styled.div<{
   onUndo?: () => void;
   dispatchableAction?: { type: ReduxActionType; payload: any };
 }>`
-  max-width: 300px;
+  width: 264px;
   background: ${props => props.theme.colors.toast.bg};
   padding: ${props => props.theme.spaces[4]}px
     ${props => props.theme.spaces[5]}px;
