@@ -35,6 +35,9 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
   yarn run test
 ```
 
+Please check out our [Testing Contribution](docs/TestAutomation.md) guide for more details on setting up & troubleshooting Cypress runs on your machine.
+
+
 2. In order to run the Jest unit tests, run:
 ```bash
   cd app/client
