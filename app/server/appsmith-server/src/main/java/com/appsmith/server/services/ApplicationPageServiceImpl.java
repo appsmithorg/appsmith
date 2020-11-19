@@ -436,15 +436,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     String newName = tuple.getT2();
 
                     // Create a new clone application object without the pages using the parametrized Application constructor
-                    Application newApplication = new Application(
-                            newName,
-                            sourceApplication.getOrganizationId(),
-                            false,
-                            new ArrayList<>(),
-                            new ArrayList<>(),
-                            sourceApplication.getId(),
-                            sourceApplication.getColor(),
-                            sourceApplication.getIcon());
+                    Application newApplication = new Application(sourceApplication);
+                    newApplication.setName(newName);
                     
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application

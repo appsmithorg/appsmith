@@ -50,23 +50,16 @@ public class Application extends BaseDomain {
 
     String icon;
 
-    public Application(String name,
-                       String organizationId,
-                       Boolean isPublic,
-                       ArrayList<ApplicationPage> pages,
-                       ArrayList<ApplicationPage> publishedPages,
-                       String clonedFromApplicationId,
-                       String color,
-                       String icon) {
+    // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
+    // initialized newly or is left up to the calling function to set.
+    public Application(Application application) {
         super();
-        this.name = name;
-        this.organizationId = organizationId;
-        this.isPublic = isPublic;
-        this.pages = pages;
-        this.publishedPages = publishedPages;
-        this.clonedFromApplicationId = clonedFromApplicationId;
-        this.color = color;
-        this.icon = icon;
+        this.organizationId = application.getOrganizationId();
+        this.pages = new ArrayList<>();
+        this.publishedPages = new ArrayList<>();
+        this.clonedFromApplicationId = application.getId();
+        this.color = application.getColor();
+        this.icon = application.getIcon();
     }
 
     public List<ApplicationPage> getPages() {
