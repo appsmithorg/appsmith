@@ -44,6 +44,7 @@ import {
   isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
+import { diff } from "deep-diff";
 
 const ctx: Worker = self as any;
 
@@ -55,9 +56,19 @@ ctx.addEventListener("message", e => {
 
   switch (action as EVAL_WORKER_ACTIONS) {
     case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-      const { widgetTypeConfigMap, dataTree } = rest;
+      const {
+        widgetTypeConfigMap,
+        dataTree,
+        newUnEvalTree,
+        oldUnEvalTree,
+      } = rest;
       WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
-      const response = getEvaluatedDataTree(dataTree);
+      console.log({ rest });
+      const response = getEvaluatedDataTree(
+        dataTree,
+        oldUnEvalTree,
+        newUnEvalTree,
+      );
       // We need to clean it to remove any possible functions inside the tree.
       // If functions exist, it will crash the web worker
       const cleanDataTree = JSON.stringify(response);
@@ -75,7 +86,7 @@ ctx.addEventListener("message", e => {
     }
     case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
       const { dynamicTrigger, callbackData, dataTree } = rest;
-      const evalTree = getEvaluatedDataTree(dataTree);
+      const evalTree = getEvaluatedDataTree(dataTree, {}, {});
       const withFunctions = addFunctions(evalTree);
       const triggers = getDynamicValue(
         dynamicTrigger,
@@ -116,33 +127,27 @@ ctx.addEventListener("message", e => {
   }
 });
 
-let dependencyTreeCache: any = {};
-let cachedDataTreeString = "";
-
-function getEvaluatedDataTree(dataTree: DataTree): DataTree {
+function getEvaluatedDataTree(
+  dataTree: DataTree,
+  oldUnEvalTree: DataTree,
+  newUnEvalTree: DataTree,
+): DataTree {
   const totalStart = performance.now();
   // Add functions to the tre
   const withFunctions = addFunctions(dataTree);
   // Create Dependencies DAG
   const createDepsStart = performance.now();
-  const dataTreeString = JSON.stringify(dataTree);
-  // Stringify before doing a fast equals because the data tree has functions and fast equal will always treat those as changed values
-  // Better solve will be to prune functions
-  if (!equal(dataTreeString, cachedDataTreeString)) {
-    cachedDataTreeString = dataTreeString;
-    dependencyTreeCache = createDependencyTree(withFunctions);
-  }
-  const createDepsEnd = performance.now();
   const {
     dependencyMap,
     sortedDependencies,
     dependencyTree,
-  } = dependencyTreeCache;
-
+  } = createDependencyTree(newUnEvalTree, oldUnEvalTree);
+  const createDepsEnd = performance.now();
+  console.log({ dependencyMap, sortedDependencies, dependencyTree });
   // Evaluate Tree
   const evaluatedTreeStart = performance.now();
   const evaluatedTree = dependencySortedEvaluateDataTree(
-    dataTree,
+    withFunctions,
     dependencyMap,
     sortedDependencies,
   );
@@ -173,6 +178,161 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   // dataTreeCache = validated;
   return withoutFunctions;
 }
+
+const convertPathToString = (arrPath: Array<string | number>) => {
+  let string = "";
+  arrPath.forEach(segment => {
+    if (typeof segment === "string") {
+      if (string.length !== 0) {
+        string = string + ".";
+      }
+      string = string + segment;
+    } else {
+      string = string + "[" + segment + "]";
+    }
+  });
+  return string;
+};
+
+const getUpdatedDynamicBindingDependencies = (
+  oldTree: DataTree,
+  dataTree: DataTree,
+): DynamicDependencyMap => {
+  const differences = diff(oldTree, dataTree);
+  console.log({ differences });
+  if (differences === undefined) {
+    return {};
+  }
+  const entityNameAndTypeMap: Record<string, string> = {};
+  Object.keys(dataTree).forEach(entityName => {
+    const entity = dataTree[entityName];
+    let entityType;
+    if (typeof entity === "object" && "ENTITY_TYPE" in entity) {
+      entityType = entity.ENTITY_TYPE;
+    } else {
+      entityType = "noop";
+    }
+    entityNameAndTypeMap[entityName] = entityType;
+  });
+  const updatedDags: DynamicDependencyMap = {};
+
+  differences.forEach(difference => {
+    if (!difference.path) {
+      return;
+    }
+    const propertyPath = convertPathToString(difference.path);
+    const entityName = difference.path[0];
+    if (entityNameAndTypeMap[entityName] === "noop") {
+      return;
+    }
+    if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.ACTION) {
+      // Handle for action
+      return;
+    }
+    if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) {
+      const entity: DataTreeWidget = dataTree[entityName] as DataTreeWidget;
+      // New widget was added, add all bindings for this widget
+      if (difference.kind === "N" && propertyPath === entityName) {
+        const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
+        if (dynamicBindingPathList.length) {
+          dynamicBindingPathList.forEach(dynamicPath => {
+            const propertyPath = dynamicPath.key;
+            const unevalPropValue = _.get(entity, propertyPath);
+            const { jsSnippets } = getDynamicBindings(unevalPropValue);
+            const existingDeps =
+              updatedDags[`${entityName}.${propertyPath}`] || [];
+            updatedDags[`${entityName}.${propertyPath}`] = existingDeps.concat(
+              jsSnippets.filter(jsSnippet => !!jsSnippet),
+            );
+          });
+        }
+      }
+      if (difference.kind !== "A") {
+        const rhsChange =
+          "rhs" in difference &&
+          typeof difference.rhs === "string" &&
+          isDynamicValue(difference.rhs);
+        const lhsChange =
+          "lhs" in difference &&
+          typeof difference.lhs === "string" &&
+          isDynamicValue(difference.lhs);
+        if (rhsChange || lhsChange) {
+          if ("rhs" in difference) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const { jsSnippets } = getDynamicBindings(difference.rhs);
+            updatedDags[propertyPath] = jsSnippets.filter(
+              jsSnippet => !!jsSnippet,
+            );
+          } else {
+            updatedDags[propertyPath] = [];
+          }
+          return;
+        }
+        return;
+      }
+    }
+  });
+
+  return updatedDags;
+};
+
+const getInverseDependencyTree = (
+  sortedDependencies: Array<string>,
+  dag: DynamicDependencyMap,
+): DynamicDependencyMap => {
+  const inverseDag: DynamicDependencyMap = {};
+  sortedDependencies.forEach(propertyPath => {
+    const incomingEdges: Array<string> = dag[propertyPath];
+    incomingEdges.forEach(edge => {
+      const node = inverseDag[edge];
+      if (node) {
+        node.push(propertyPath);
+      } else {
+        inverseDag[edge] = [propertyPath];
+      }
+    });
+  });
+  return inverseDag;
+};
+
+// const updateInverseDAG = (
+//   propertyPath: string,
+//   lhsDependencies: Array<string>,
+//   rhsDependencies: Array<string>,
+//   inverseDag: DynamicDependencyMap,
+// ): DynamicDependencyMap => {
+//   lhsDependencies.forEach((dependency: string) => {
+//     inverseDag[dependency] = inverseDag[dependency].filter(
+//       edge => edge === propertyPath,
+//     );
+//   });
+//   rhsDependencies.forEach((dependency: string) => {
+//     const incomingEdge = inverseDag[dependency];
+//     if (incomingEdge) incomingEdge.push(propertyPath);
+//     else inverseDag[dependency] = [propertyPath];
+//   });
+//   return inverseDag;
+// };
+//
+// const updateInverseDAG = (
+//   propertyPath: string,
+//   lhsDependencies: Array<string>,
+//   rhsDependencies: Array<string>,
+//   inverseDag: DynamicDependencyMap,
+// ): DynamicDependencyMap => {
+//   lhsDependencies.forEach((dependency: string) => {
+//     inverseDag[dependency] = inverseDag[dependency].filter(
+//       edge => edge === propertyPath,
+//     );
+//   });
+//   rhsDependencies.forEach((dependency: string) => {
+//     const incomingEdge = inverseDag[dependency];
+//     if (incomingEdge) incomingEdge.push(propertyPath);
+//     else inverseDag[dependency] = [propertyPath];
+//   });
+//   return inverseDag;
+// };
 
 const addFunctions = (dataTree: DataTree): DataTree => {
   dataTree.actionPaths = [];
@@ -279,50 +439,36 @@ const removeFunctions = (value: any) => {
 type DynamicDependencyMap = Record<string, Array<string>>;
 const createDependencyTree = (
   dataTree: DataTree,
+  oldTree: DataTree,
 ): {
   sortedDependencies: Array<string>;
   dependencyTree: Array<[string, string]>;
   dependencyMap: DynamicDependencyMap;
 } => {
-  const dependencyMap: DynamicDependencyMap = {};
+  let dependencyMap: DynamicDependencyMap = {};
   const allKeys = getAllPaths(dataTree);
+  // Calculate diff
+  dependencyMap = getUpdatedDynamicBindingDependencies(oldTree, dataTree);
+  // Add dependent properties based on updated dag
+  console.log({ dependencyMap });
   Object.keys(dataTree).forEach(entityKey => {
     const entity = dataTree[entityKey];
     if (entity && "ENTITY_TYPE" in entity) {
-      if (
-        entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET ||
-        entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
-      ) {
-        const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
-        if (dynamicBindingPathList.length) {
-          dynamicBindingPathList.forEach(dynamicPath => {
-            const propertyPath = dynamicPath.key;
-            const unevalPropValue = _.get(entity, propertyPath);
-            const { jsSnippets } = getDynamicBindings(unevalPropValue);
-            const existingDeps =
-              dependencyMap[`${entityKey}.${propertyPath}`] || [];
-            dependencyMap[`${entityKey}.${propertyPath}`] = existingDeps.concat(
-              jsSnippets.filter(jsSnippet => !!jsSnippet),
-            );
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+        // Set default property dependency
+        const defaultProperties =
+          WIDGET_TYPE_CONFIG_MAP[entity.type].defaultProperties;
+        Object.keys(defaultProperties).forEach(property => {
+          dependencyMap[`${entityKey}.${property}`] = [
+            `${entityKey}.${defaultProperties[property]}`,
+          ];
+        });
+        // Set triggers. TODO check if needed
+        const dynamicTriggerPathList = getWidgetDynamicTriggerPathList(entity);
+        if (dynamicTriggerPathList.length) {
+          dynamicTriggerPathList.forEach(dynamicPath => {
+            dependencyMap[`${entityKey}.${dynamicPath.key}`] = [];
           });
-        }
-        if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
-          // Set default property dependency
-          const defaultProperties =
-            WIDGET_TYPE_CONFIG_MAP[entity.type].defaultProperties;
-          Object.keys(defaultProperties).forEach(property => {
-            dependencyMap[`${entityKey}.${property}`] = [
-              `${entityKey}.${defaultProperties[property]}`,
-            ];
-          });
-          const dynamicTriggerPathList = getWidgetDynamicTriggerPathList(
-            entity,
-          );
-          if (dynamicTriggerPathList.length) {
-            dynamicTriggerPathList.forEach(dynamicPath => {
-              dependencyMap[`${entityKey}.${dynamicPath.key}`] = [];
-            });
-          }
         }
       }
     }
