@@ -82,14 +82,13 @@ describe("Update Application", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).type(appname);
     cy.wait(2000);
-
     cy.get(homePage.applicationCard)
       .first()
       .trigger("mouseover");
     cy.get(homePage.appEditIcon)
       .first()
       .click({ force: true });
-    cy.wait(2000);
+    cy.wait(3000);
     cy.get(homePage.applicationName).type("  ");
     cy.get(homePage.toastMessage).should(
       "contain",
