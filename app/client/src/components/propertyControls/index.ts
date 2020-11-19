@@ -29,6 +29,9 @@ import ColumnActionSelectorControl from "components/propertyControls/ColumnActio
 import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
+import DateRangePickerControl, {
+  DateRangePickerControlProps,
+} from "components/propertyControls/DateRangePickerControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -45,6 +48,7 @@ export const PropertyControls = {
   LocationSearchControl,
   StepControl,
   TabControl,
+  DateRangePickerControl,
 };
 
 export type PropertyControlPropsType =
@@ -55,7 +59,8 @@ export type PropertyControlPropsType =
   | MultiSelectControlProps
   | DatePickerControlProps
   | MultiSwitchControlProps
-  | StepControlProps;
+  | StepControlProps
+  | DateRangePickerControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};
