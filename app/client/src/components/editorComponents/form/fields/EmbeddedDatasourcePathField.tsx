@@ -248,7 +248,7 @@ const EmbeddedDatasourcePathConnectedComponent = connect(
 )(EmbeddedDatasourcePathComponent);
 
 const EmbeddedDatasourcePathField = (
-  props: BaseFieldProps & { pluginId: string },
+  props: BaseFieldProps & { pluginId: string; placeholder?: string },
 ) => {
   return (
     <Field component={EmbeddedDatasourcePathConnectedComponent} {...props} />
