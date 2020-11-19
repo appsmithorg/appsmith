@@ -20,7 +20,6 @@ import java.util.List;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
 @QueryEntity
 @Document
 public class Application extends BaseDomain {
