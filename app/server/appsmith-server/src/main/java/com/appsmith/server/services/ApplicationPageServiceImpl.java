@@ -444,8 +444,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     newApplication.setOrganizationId(sourceApplication.getOrganizationId());
                     newApplication.setColor(sourceApplication.getColor());
                     newApplication.setIcon(sourceApplication.getIcon());
-                    newApplication.setIsPublic(sourceApplication.getIsPublic());
-
+                    
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
