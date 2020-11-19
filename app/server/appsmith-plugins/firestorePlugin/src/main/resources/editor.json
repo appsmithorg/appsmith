@@ -62,6 +62,11 @@
           "label": "Order By",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
           "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
           "initialValue": ""
         },
         {
@@ -75,6 +80,11 @@
           "label": "Limit Documents",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
           "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
           "initialValue": "10"
         },
         {
