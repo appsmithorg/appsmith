@@ -42,6 +42,7 @@ import DatasourcesApi, {
 import PluginApi, { DatasourceForm } from "api/PluginApi";
 
 import {
+  API_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
@@ -55,6 +56,7 @@ import { getFormData } from "selectors/formSelectors";
 import { changeApi } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { AppState } from "reducers";
+import { setActionProperty } from "actions/actionActions";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -478,6 +480,11 @@ function* storeAsDatasourceSaga() {
   );
   const createdDatasource = createDatasourceSuccessAction.payload;
 
+  // Set datasource page to edit mode
+  yield put(
+    setDatsourceEditorMode({ id: createdDatasource.id, viewMode: false }),
+  );
+
   yield put({
     type: ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE,
     payload: {
@@ -502,7 +509,21 @@ function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
   ) {
     const { apiId } = actionRouteInfo;
 
+    yield put(
+      setActionProperty({
+        actionId: actionRouteInfo.apiId,
+        propertyName: "datasource",
+        value: updatedDatasource,
+      }),
+    );
     yield put(changeApi(apiId));
+    history.push(
+      API_EDITOR_ID_URL(
+        actionRouteInfo.applicationId,
+        actionRouteInfo.pageId,
+        actionRouteInfo.apiId,
+      ),
+    );
   }
 
   yield put({
