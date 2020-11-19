@@ -455,10 +455,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         }
                     }
                     if (parent == null) {
-                        throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
+                        log.error("Unable to find dynamically bound key {} for the widget with id {}", nextKey, dsl.get(FieldName.WIDGET_ID));
+                        break;
                     }
                 }
-                dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
+                if(parent != null) {
+                    dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
+                }
             }
         }
 

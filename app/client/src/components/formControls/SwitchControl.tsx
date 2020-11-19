@@ -6,7 +6,11 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { Field, WrappedFieldProps } from "redux-form";
 import styled from "styled-components";
 
-type Props = WrappedFieldProps & SwitchControlProps;
+type Props = WrappedFieldProps & {
+  label: string;
+  isRequired: boolean;
+  info: string;
+};
 
 const StyledFormLabel = styled(FormLabel)`
   margin-bottom: 0px;
@@ -27,13 +31,13 @@ const Info = styled.div`
   margin-top: 8px;
 `;
 
-export class SwitchField extends React.Component<Props> {
+export class SwitchField extends React.Component<Props, any> {
   render() {
     const { label, isRequired, input, info } = this.props;
 
     return (
       <div>
-        <SwitchWrapped data-cy={this.props.configProperty}>
+        <SwitchWrapped data-cy={this.props.input.name}>
           <StyledFormLabel>
             {label} {isRequired && "*"}
           </StyledFormLabel>
@@ -51,11 +55,17 @@ export class SwitchField extends React.Component<Props> {
 
 class SwitchControl extends BaseControl<SwitchControlProps> {
   render() {
-    const { configProperty } = this.props;
+    const { configProperty, label, isRequired, info } = this.props;
 
     return (
       <React.Fragment>
-        <Field name={configProperty} component={SwitchField} {...this.props} />
+        <Field
+          name={configProperty}
+          component={SwitchField}
+          label={label}
+          isRequired={isRequired}
+          info={info}
+        />
       </React.Fragment>
     );
   }
