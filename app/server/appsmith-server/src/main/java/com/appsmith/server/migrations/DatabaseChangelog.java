@@ -1215,25 +1215,35 @@ public class DatabaseChangelog {
 
     }
 
-    @ChangeSet(order = "041", id = "add-firestore-plugin", author = "")
-    public void addFirestorePlugin(MongoTemplate mongoTemplate) {
+    @ChangeSet(order = "041", id = "new-action-add-index-pageId", author = "")
+    public void addNewActionIndexForPageId(MongoTemplate mongoTemplate) {
 
-        Plugin plugin1 = new Plugin();
-        plugin1.setName("Firestore");
-        plugin1.setType(PluginType.DB);
-        plugin1.setPackageName("firestore-plugin");
-        plugin1.setUiComponent("DbEditorForm");
-        plugin1.setResponseType(Plugin.ResponseType.JSON);
-        plugin1.setIconLocation("https://image.winudf.com/v2/image1/Y29tLmFua2l0Ym9ocmE3Ni5DbG91ZF9GaXJlc3RvcmVfaWNvbl8xNTQzNzgxNDQ1XzAxNA/icon.png?w=170&fakeurl=1");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-firestore");
-        plugin1.setDefaultInstall(true);
+        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_createdAt_compound_index");
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("applicationId", "deleted", "unpublishedAction.pageId")
+                          .named("applicationId_deleted_unpublishedPageId_compound_index")
+                );
+    }
+
+    @ChangeSet(order = "042", id = "add-firestore-plugin", author = "")
+    public void addFirestorePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Firestore");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("firestore-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://image.winudf.com/v2/image1/Y29tLmFua2l0Ym9ocmE3Ni5DbG91ZF9GaXJlc3RvcmVfaWNvbl8xNTQzNzgxNDQ1XzAxNA/icon.png?w=170&fakeurl=1");
+        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-firestore");
+        plugin.setDefaultInstall(true);
         try {
-            mongoTemplate.insert(plugin1);
+            mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin1.getPackageName() + " already present in database.");
+            log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 
 }

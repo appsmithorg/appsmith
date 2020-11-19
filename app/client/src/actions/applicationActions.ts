@@ -15,12 +15,6 @@ export const setDefaultApplicationPageSuccess = (
   };
 };
 
-export const fetchApplications = () => {
-  return {
-    type: ReduxActionTypes.FETCH_APPLICATION_LIST_INIT,
-  };
-};
-
 export interface FetchApplicationPayload {
   applicationId: string;
   mode: APP_MODE;
