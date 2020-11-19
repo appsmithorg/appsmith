@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.util.CollectionUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -342,8 +343,9 @@ public class FirestorePlugin extends BasePlugin {
         public Mono<Firestore> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
 
-            if (authentication == null || StringUtils.isEmpty(authentication.getUsername()) || StringUtils.isEmpty(authentication.getPassword())) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid datasource fields"));
+            final Set<String> errors = validateDatasource(datasourceConfiguration);
+            if (!CollectionUtils.isEmpty(errors)) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, errors.iterator().next()));
             }
 
             final String projectId = authentication.getUsername();

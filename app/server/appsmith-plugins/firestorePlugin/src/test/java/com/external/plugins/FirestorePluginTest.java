@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.google.cloud.NoCredentials;
@@ -53,8 +54,10 @@ public class FirestorePluginTest {
 
     private DatasourceConfiguration createDatasourceConfiguration() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        Property clientJsonProperty = new Property("clientJSON", SERVICE_ACCOUNT);
-        datasourceConfiguration.setProperties(List.of(clientJsonProperty));
+        datasourceConfiguration.setUrl(emulator.getEmulatorEndpoint());
+        datasourceConfiguration.setAuthentication(new AuthenticationDTO());
+        datasourceConfiguration.getAuthentication().setUsername("test-project");
+        datasourceConfiguration.getAuthentication().setPassword(SERVICE_ACCOUNT);
         return datasourceConfiguration;
     }
 
