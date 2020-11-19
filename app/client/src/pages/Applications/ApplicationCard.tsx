@@ -115,7 +115,9 @@ const Wrapper = styled(
   height: ${props => props.theme.card.minHeight}px;
   position: relative;
   background-color: ${props => props.backgroundColor};
-  margin: ${props => props.theme.spaces[4]}px;
+  margin: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[4]}px ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[5] + 1}px;
   .overlay {
     display: block;
     position: absolute;
