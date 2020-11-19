@@ -163,6 +163,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                   .map(datasource => ({
                     text: datasource.datasourceConfiguration.url,
                     data: datasource,
+                    className: "datasource-hint",
                   }));
                 const hints = {
                   list,
