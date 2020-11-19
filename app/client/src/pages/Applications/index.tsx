@@ -464,9 +464,9 @@ const ApplicationsSection = (props: any) => {
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
-  const ApplicationNameChange = (newName: string, orgId: string) => {
+  const OrgNameChange = (newName: string, orgId: string) => {
     AppToaster.show({
-      message: "updating organization name...",
+      message: "Updating organization name...",
     });
     dispatch(
       saveOrg({
@@ -570,8 +570,7 @@ const ApplicationsSection = (props: any) => {
                     isEditingDefault={false}
                     fill={true}
                     onBlur={(value: string) => {
-                      console.log("onBlur");
-                      ApplicationNameChange(value, organization.id);
+                      OrgNameChange(value, organization.id);
                     }}
                   />
                   <MenuItem
