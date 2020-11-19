@@ -137,8 +137,10 @@ class CodeEditor extends Component<Props, State> {
 
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);
+      this.editor.on("change", this.onChangeTigger);
       this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
+      this.editor.on("focus", this.onFocusTrigger);
       this.editor.on("blur", this.handleEditorBlur);
       if (this.props.height) {
         this.editor.setSize(0, this.props.height);
@@ -201,6 +203,18 @@ class CodeEditor extends Component<Props, State> {
       return helper(this.editor, this.props.dynamicData);
     });
   }
+
+  onFocusTrigger = (cm: CodeMirror.Editor) => {
+    if (!cm.state.completionActive) {
+      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+    }
+  };
+
+  onChangeTigger = (cm: CodeMirror.Editor) => {
+    if (this.state.isFocused) {
+      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+    }
+  };
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
