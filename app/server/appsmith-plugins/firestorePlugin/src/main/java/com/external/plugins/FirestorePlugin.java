@@ -29,6 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -66,6 +68,8 @@ public class FirestorePlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
+
+        private final Scheduler scheduler = Schedulers.newParallel("FirebaseThreads");
 
         @Override
         public Mono<ActionExecutionResult> execute(Firestore connection,
@@ -181,96 +185,93 @@ public class FirestorePlugin extends BasePlugin {
             final Op operator = properties.size() > 4 && properties.get(4) != null ? Op.valueOf(properties.get(4).getValue()) : null;
             final String queryValue = properties.size() > 5 && properties.get(5) != null ? properties.get(5).getValue() : null;
 
-            Object objResult;
-            try {
-                Query query = connection.collection(path);
-                if (StringUtils.isNotEmpty(orderBy)) {
-                    query = query.orderBy(orderBy);
-                }
+            Query query = connection.collection(path);
+            if (StringUtils.isNotEmpty(orderBy)) {
+                query = query.orderBy(orderBy);
+            }
 
-                if (StringUtils.isNotEmpty(queryFieldPath) && operator != null && queryValue != null) {
-                    switch (operator) {
-                        case LT:
-                            query = query.whereLessThan(queryFieldPath, queryValue);
-                            break;
-                        case LTE:
-                            query = query.whereLessThanOrEqualTo(queryFieldPath, queryValue);
-                            break;
-                        case EQ:
-                            query = query.whereEqualTo(queryFieldPath, queryValue);
-                            break;
-                        // case NOT_EQ:
-                        //     query = query.whereNotEqualTo(queryFieldPath, queryValue);
-                        //     break;
-                        case GT:
-                            query = query.whereGreaterThan(queryFieldPath, queryValue);
-                            break;
-                        case GTE:
-                            query = query.whereGreaterThanOrEqualTo(queryFieldPath, queryValue);
-                            break;
-                        case ARRAY_CONTAINS:
-                            query = query.whereArrayContains(queryFieldPath, queryValue);
-                            break;
-                        case ARRAY_CONTAINS_ANY:
-                            try {
-                                query = query.whereArrayContainsAny(queryFieldPath, parseList(queryValue));
-                            } catch (IOException e) {
-                                return Mono.error(new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        "Unable to parse condition value as a JSON list."
-                                ));
-                            }
-                            break;
-                        case IN:
-                            try {
-                                query = query.whereIn(queryFieldPath, parseList(queryValue));
-                            } catch (IOException e) {
-                                return Mono.error(new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        "Unable to parse condition value as a JSON list."
-                                ));
-                            }
-                            break;
-                        // case NOT_IN:
-                        //     query = query.whereNotIn(queryFieldPath, queryValue);
-                        //     break;
-                    }
-                }
-
-                query = query.limit(limit);
-
-                ApiFuture<?> resultFuture;
-
-                switch (method) {
-                    case GET_COLLECTION:
-                        resultFuture = query.get();
+            if (StringUtils.isNotEmpty(queryFieldPath) && operator != null && queryValue != null) {
+                switch (operator) {
+                    case LT:
+                        query = query.whereLessThan(queryFieldPath, queryValue);
                         break;
-                    default:
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Unknown collection method: " + method.toString()
-                        ));
+                    case LTE:
+                        query = query.whereLessThanOrEqualTo(queryFieldPath, queryValue);
+                        break;
+                    case EQ:
+                        query = query.whereEqualTo(queryFieldPath, queryValue);
+                        break;
+                    // case NOT_EQ:
+                    //     query = query.whereNotEqualTo(queryFieldPath, queryValue);
+                    //     break;
+                    case GT:
+                        query = query.whereGreaterThan(queryFieldPath, queryValue);
+                        break;
+                    case GTE:
+                        query = query.whereGreaterThanOrEqualTo(queryFieldPath, queryValue);
+                        break;
+                    case ARRAY_CONTAINS:
+                        query = query.whereArrayContains(queryFieldPath, queryValue);
+                        break;
+                    case ARRAY_CONTAINS_ANY:
+                        try {
+                            query = query.whereArrayContainsAny(queryFieldPath, parseList(queryValue));
+                        } catch (IOException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    "Unable to parse condition value as a JSON list."
+                            ));
+                        }
+                        break;
+                    case IN:
+                        try {
+                            query = query.whereIn(queryFieldPath, parseList(queryValue));
+                        } catch (IOException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    "Unable to parse condition value as a JSON list."
+                            ));
+                        }
+                        break;
+                    // case NOT_IN:
+                    //     query = query.whereNotIn(queryFieldPath, queryValue);
+                    //     break;
                 }
-
-                objResult = resultFuture.get();
-
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
-
             }
 
-            ActionExecutionResult result = new ActionExecutionResult();
-            result.setIsExecutionSuccess(true);
-            if (objResult != null) {
-                try {
-                    result.setBody(resultToMap(objResult));
-                } catch (AppsmithPluginException e) {
-                    return Mono.error(e);
-                }
-            }
+            query = query.limit(limit);
 
-            return Mono.just(result);
+            return Mono.just(query)
+                    .flatMap(query1 -> {
+                        switch (method) {
+                            case GET_COLLECTION:
+                                return Mono.fromSupplier(query1::get);
+                            default:
+                                return Mono.error(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        "Unknown collection method: " + method.toString()
+                                ));
+                        }
+                    })
+                    .flatMap(resultFuture -> Mono
+                            .fromSupplier(() -> {
+                                try {
+                                    return resultFuture.get();
+                                } catch (InterruptedException | ExecutionException e) {
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                                }
+                            }))
+                    .flatMap(objResult1 -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        try {
+                            result.setBody(resultToMap(objResult1));
+                        } catch (AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
+                        result.setIsExecutionSuccess(true);
+                        return Mono.just(result);
+                    })
+                    .subscribeOn(scheduler);
         }
 
         private Object resultToMap(Object objResult) throws AppsmithPluginException {
