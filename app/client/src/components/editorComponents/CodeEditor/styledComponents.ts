@@ -144,10 +144,11 @@ export const EditorWrapper = styled.div<{
   && {
     .CodeMirror-cursor {
       border-right: none;
+      border-left-width: 2px;
       border-left-color: ${props =>
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.textOnDarkBG
-          : props.theme.colors.textDefault} !important
+          : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
       background: #ffffff;
@@ -174,6 +175,11 @@ export const EditorWrapper = styled.div<{
                 : props.theme.colors.bindingText
             };`}
       font-weight: 700;
+    }
+    .CodeMirror-matchingbracket { 
+      text-decoration: none; 
+      color: #FFD600 !important;
+      background-color: #A74444;
     }
     .datasource-highlight {
       background-color: rgba(104, 113, 239, 0.1);

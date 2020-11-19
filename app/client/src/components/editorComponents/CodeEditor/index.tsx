@@ -6,6 +6,7 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
 import "codemirror/theme/duotone-light.css";
 import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/edit/matchbrackets";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
 import "codemirror/addon/display/autorefresh";
@@ -118,6 +119,7 @@ class CodeEditor extends Component<Props, State> {
         lineWrapping: this.props.size !== EditorSize.COMPACT,
         lineNumbers: this.props.showLineNumbers,
         addModeClass: true,
+        matchBrackets: false,
         scrollbarStyle:
           this.props.size !== EditorSize.COMPACT ? "native" : "null",
       };
@@ -206,6 +208,11 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", true);
     }
+
+    // Highlight matching brackets only when focused and not in readonly mode
+    if (this.props.input.onChange && !this.props.disabled) {
+      this.editor.setOption("matchBrackets", true);
+    }
   };
 
   handleEditorBlur = () => {
@@ -214,6 +221,8 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
+
+    this.editor.setOption("matchBrackets", false);
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
