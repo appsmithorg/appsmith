@@ -219,7 +219,7 @@ const applicationsReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
   ) => {
-    return { ...state, isSavingAppName: true };
+    return { ...state, isSavingAppName: false };
   },
   [ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
