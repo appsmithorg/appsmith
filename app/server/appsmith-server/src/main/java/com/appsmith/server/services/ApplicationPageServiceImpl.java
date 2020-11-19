@@ -310,7 +310,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId,
-                                                   @Nullable String newPageNameSuffix) {
+                                                      @Nullable String newPageNameSuffix) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
         Mono<PageDTO> sourcePageMono = newPageService.findPageById(pageId, MANAGE_PAGES, false)
@@ -430,7 +430,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             return name;
                         }));
 
-        return Mono.zip(applicationMono, newAppNameMono)
+        Mono<Application> clonedResultMono = Mono.zip(applicationMono, newAppNameMono)
                 .flatMap(tuple -> {
                     Application sourceApplication = tuple.getT1();
                     String newName = tuple.getT2();
@@ -451,27 +451,38 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
                             // Create the cloned application with the new name and policies before proceeding further.
                             .flatMap(applicationService::createDefault)
-                           // Now fetch the pages of the source application, clone and add them to this new application
-                           .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
-                                           .flatMap(applicationPage -> {
-                                               String pageId = applicationPage.getId();
-                                               Boolean isDefault = applicationPage.getIsDefault();
-                                               return this.clonePageGivenApplicationId(pageId, savedApplication.getId())
-                                                       .map(clonedPage -> {
-                                                           ApplicationPage newApplicationPage = new ApplicationPage();
-                                                           newApplicationPage.setId(clonedPage.getId());
-                                                           newApplicationPage.setIsDefault(isDefault);
-                                                           return newApplicationPage;
-                                                       });
-                                           })
-                                           .collectList()
-                                   // Set the cloned pages into the cloned application and save.
-                                   .flatMap(clonedPages -> {
-                                       savedApplication.setPages(clonedPages);
-                                       return applicationService.save(savedApplication);
-                                   })
-                           );
+                            // Now fetch the pages of the source application, clone and add them to this new application
+                            .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
+                                    .flatMap(applicationPage -> {
+                                        String pageId = applicationPage.getId();
+                                        Boolean isDefault = applicationPage.getIsDefault();
+                                        return this.clonePageGivenApplicationId(pageId, savedApplication.getId())
+                                                .map(clonedPage -> {
+                                                    ApplicationPage newApplicationPage = new ApplicationPage();
+                                                    newApplicationPage.setId(clonedPage.getId());
+                                                    newApplicationPage.setIsDefault(isDefault);
+                                                    return newApplicationPage;
+                                                });
+                                    })
+                                    .collectList()
+                                    // Set the cloned pages into the cloned application and save.
+                                    .flatMap(clonedPages -> {
+                                        savedApplication.setPages(clonedPages);
+                                        return applicationService.save(savedApplication);
+                                    })
+                            );
                 });
+
+        // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
+        // clone all the actions. This process may take time and the client may cancel the request. This leads to the flow
+        // getting stopped mid way producing corrupted clones. The following ensures that even though the client may have
+        // cancelled the flow, the cloning of the application should proceed uninterrupted and whenever the user refreshes
+        // the page, the cloned application is available and is in sane state.
+        // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
+        // means that even if the subscriber has cancelled its subscription, the create method still generates its event.
+        return Mono.create(sink -> clonedResultMono
+                                    .subscribe(sink::success, sink::error, null, sink.currentContext())
+               );
     }
 
     /**
