@@ -17,7 +17,6 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
@@ -28,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -36,8 +36,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,9 +58,6 @@ import java.util.stream.StreamSupport;
  */
 public class FirestorePlugin extends BasePlugin {
 
-    private static final String CLIENT_JSON_FIELD = "clientJSON";
-    private static final String PROJECT_ID_FIELD = "projectId";
-
     public FirestorePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -69,7 +66,7 @@ public class FirestorePlugin extends BasePlugin {
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
 
-        private final Scheduler scheduler = Schedulers.newParallel("FirebaseThreads");
+        private final Scheduler scheduler = Schedulers.newParallel("FirestorePluginThreads");
 
         @Override
         public Mono<ActionExecutionResult> execute(Firestore connection,
@@ -94,28 +91,42 @@ public class FirestorePlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid method."));
             }
 
-            String strBody = actionConfiguration.getBody();
-            Map<String, Object> mapBody = null;
-            if (StringUtils.isNotBlank(actionConfiguration.getBody())) {
-                try {
-                    mapBody = objectMapper.readValue(strBody, HashMap.class);
-                } catch (IOException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
-                }
-            }
+            return Mono.just(actionConfiguration.getBody())
+                    .flatMap(strBody -> {
+                        if (StringUtils.isBlank(strBody)) {
+                            return Mono.just(Collections.emptyMap());
+                        }
 
-            if (mapBody == null && method.isBodyNeeded()) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "The method " + method.toString() + " needs a non-empty body to work."
-                ));
-            }
-
-            if (method.isDocumentLevel()) {
-                return handleDocumentLevelMethod(connection, path, method, mapBody);
-            } else {
-                return handleCollectionLevelMethod(connection, path, method, properties);
-            }
+                        return Mono
+                                .fromSupplier(() -> {
+                                    try {
+                                        return objectMapper.readValue(strBody, HashMap.class);
+                                    } catch (IOException e) {
+                                        throw Exceptions.propagate(new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_ERROR,
+                                                e.getMessage()
+                                        ));
+                                    }
+                                })
+                                .onErrorMap(Exceptions::unwrap)
+                                .subscribeOn(scheduler);
+                    })
+                    .flatMap(mapBody -> {
+                        if (mapBody.isEmpty() && method.isBodyNeeded()) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    "The method " + method.toString() + " needs a non-empty body to work."
+                            ));
+                        }
+                        return Mono.just((Map<String, Object>) mapBody);
+                    })
+                    .flatMap(mapBody -> {
+                        if (method.isDocumentLevel()) {
+                            return handleDocumentLevelMethod(connection, path, method, mapBody);
+                        } else {
+                            return handleCollectionLevelMethod(connection, path, method, properties);
+                        }
+                    });
         }
 
         public Mono<ActionExecutionResult> handleDocumentLevelMethod(
@@ -124,53 +135,75 @@ public class FirestorePlugin extends BasePlugin {
                 com.external.plugins.Method method,
                 Map<String, Object> mapBody
         ) {
-            Object objResult;
-            try {
-                DocumentReference document = connection.document(path);
-                Method operationMethod = null;
-                final String methodName = method.toString().split("_")[0].toLowerCase();
+            return Mono.just(method)
+                    // Get the actual Java method to be called.
+                    .flatMap(method1 -> {
+                        final String methodName = method1.toString().split("_")[0].toLowerCase();
 
-                switch (method) {
-                    case GET_DOCUMENT:
-                    case DELETE_DOCUMENT:
-                        operationMethod = DocumentReference.class.getMethod(methodName);
-                        break;
-                    case SET_DOCUMENT:
-                    case CREATE_DOCUMENT:
-                    case UPDATE_DOCUMENT:
-                        operationMethod = DocumentReference.class.getMethod(methodName, Map.class);
-                        break;
-                }
+                        try {
+                            switch (method1) {
+                                case GET_DOCUMENT:
+                                case DELETE_DOCUMENT:
+                                    return Mono.justOrEmpty(DocumentReference.class.getMethod(methodName));
+                                case SET_DOCUMENT:
+                                case CREATE_DOCUMENT:
+                                case UPDATE_DOCUMENT:
+                                    return Mono.justOrEmpty(DocumentReference.class.getMethod(methodName, Map.class));
+                                default:
+                                    return Mono.error(new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Invalid document-level method " + method1.toString()
+                                    ));
+                            }
 
-                ApiFuture<Object> objFuture;
-                if (method.isBodyNeeded()) {
-                    objFuture = (ApiFuture<Object>) operationMethod.invoke(document, mapBody);
-                } else {
-                    objFuture = (ApiFuture<Object>) operationMethod.invoke(document);
-                }
-                objResult = objFuture.get();
+                        } catch (NoSuchMethodException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    "Error getting actual method for operation " + method1.toString()
+                            ));
 
-            } catch (NoSuchMethodException |
-                    IllegalAccessException |
-                    InvocationTargetException |
-                    InterruptedException |
-                    ExecutionException e) {
-                e.printStackTrace();
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                        }
+                    })
+                    // Call that method and get a Future of the result.
+                    .flatMap(operationMethod -> {
+                        DocumentReference document = connection.document(path);
+                        Object objFuture;
 
-            }
+                        try {
+                            if (operationMethod.getParameterCount() == 2) {
+                                objFuture = operationMethod.invoke(document, mapBody);
+                            } else {
+                                objFuture = operationMethod.invoke(document);
+                            }
 
-            ActionExecutionResult result = new ActionExecutionResult();
-            result.setIsExecutionSuccess(true);
-            if (objResult != null) {
-                try {
-                    result.setBody(resultToMap(objResult));
-                } catch (AppsmithPluginException e) {
-                    return Mono.error(e);
-                }
-            }
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
 
-            return Mono.just(result);
+                        }
+
+                        return Mono.just((ApiFuture<Object>) objFuture);
+                    })
+                    // Consume the Future to get the actual result object.
+                    .flatMap(resultFuture -> Mono
+                            .fromSupplier(() -> {
+                                try {
+                                    return resultFuture.get();
+                                } catch (InterruptedException | ExecutionException e) {
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                                }
+                            })
+                            .subscribeOn(scheduler))
+                    // Build a response object with the result.
+                    .flatMap(objResult1 -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        try {
+                            result.setBody(resultToMap(objResult1));
+                        } catch (AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
+                        result.setIsExecutionSuccess(true);
+                        return Mono.just(result);
+                    });
         }
 
         public Mono<ActionExecutionResult> handleCollectionLevelMethod(
@@ -185,63 +218,60 @@ public class FirestorePlugin extends BasePlugin {
             final Op operator = properties.size() > 4 && properties.get(4) != null ? Op.valueOf(properties.get(4).getValue()) : null;
             final String queryValue = properties.size() > 5 && properties.get(5) != null ? properties.get(5).getValue() : null;
 
-            Query query = connection.collection(path);
-            if (StringUtils.isNotEmpty(orderBy)) {
-                query = query.orderBy(orderBy);
-            }
-
-            if (StringUtils.isNotEmpty(queryFieldPath) && operator != null && queryValue != null) {
-                switch (operator) {
-                    case LT:
-                        query = query.whereLessThan(queryFieldPath, queryValue);
-                        break;
-                    case LTE:
-                        query = query.whereLessThanOrEqualTo(queryFieldPath, queryValue);
-                        break;
-                    case EQ:
-                        query = query.whereEqualTo(queryFieldPath, queryValue);
-                        break;
-                    // case NOT_EQ:
-                    //     query = query.whereNotEqualTo(queryFieldPath, queryValue);
-                    //     break;
-                    case GT:
-                        query = query.whereGreaterThan(queryFieldPath, queryValue);
-                        break;
-                    case GTE:
-                        query = query.whereGreaterThanOrEqualTo(queryFieldPath, queryValue);
-                        break;
-                    case ARRAY_CONTAINS:
-                        query = query.whereArrayContains(queryFieldPath, queryValue);
-                        break;
-                    case ARRAY_CONTAINS_ANY:
-                        try {
-                            query = query.whereArrayContainsAny(queryFieldPath, parseList(queryValue));
-                        } catch (IOException e) {
-                            return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    "Unable to parse condition value as a JSON list."
-                            ));
+            return Mono.just(connection.collection(path))
+                    // Apply ordering, if provided.
+                    .map(query1 -> StringUtils.isEmpty(orderBy) ? query1 : query1.orderBy(orderBy))
+                    // Apply where condition, if provided.
+                    .flatMap(query1 -> {
+                        if (StringUtils.isEmpty(queryFieldPath) || operator == null || queryValue == null) {
+                            return Mono.just(query1);
                         }
-                        break;
-                    case IN:
-                        try {
-                            query = query.whereIn(queryFieldPath, parseList(queryValue));
-                        } catch (IOException e) {
-                            return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    "Unable to parse condition value as a JSON list."
-                            ));
+
+                        switch (operator) {
+                            case LT:
+                                return Mono.just(query1.whereLessThan(queryFieldPath, queryValue));
+                            case LTE:
+                                return Mono.just(query1.whereLessThanOrEqualTo(queryFieldPath, queryValue));
+                            case EQ:
+                                return Mono.just(query1.whereEqualTo(queryFieldPath, queryValue));
+                            // case NOT_EQ:
+                            //     return Mono.just(query1.whereNotEqualTo(queryFieldPath, queryValue));
+                            case GT:
+                                return Mono.just(query1.whereGreaterThan(queryFieldPath, queryValue));
+                            case GTE:
+                                return Mono.just(query1.whereGreaterThanOrEqualTo(queryFieldPath, queryValue));
+                            case ARRAY_CONTAINS:
+                                return Mono.just(query1.whereArrayContains(queryFieldPath, queryValue));
+                            case ARRAY_CONTAINS_ANY:
+                                try {
+                                    return Mono.just(query1.whereArrayContainsAny(queryFieldPath, parseList(queryValue)));
+                                } catch (IOException e) {
+                                    return Mono.error(new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Unable to parse condition value as a JSON list."
+                                    ));
+                                }
+                            case IN:
+                                try {
+                                    return Mono.just(query1.whereIn(queryFieldPath, parseList(queryValue)));
+                                } catch (IOException e) {
+                                    return Mono.error(new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Unable to parse condition value as a JSON list."
+                                    ));
+                                }
+                                // case NOT_IN:
+                                //     return Mono.just(query1.whereNotIn(queryFieldPath, queryValue));
+                            default:
+                                return Mono.error(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        "Unsupported operator for `where` condition " + operator.toString() + "."
+                                ));
                         }
-                        break;
-                    // case NOT_IN:
-                    //     query = query.whereNotIn(queryFieldPath, queryValue);
-                    //     break;
-                }
-            }
-
-            query = query.limit(limit);
-
-            return Mono.just(query)
+                    })
+                    // Apply limit, always provided, since without it we can inadvertently end up processing too much data.
+                    .map(query1 -> query1.limit(limit))
+                    // Run the Firestore query to get a Future of the results.
                     .flatMap(query1 -> {
                         switch (method) {
                             case GET_COLLECTION:
@@ -249,10 +279,11 @@ public class FirestorePlugin extends BasePlugin {
                             default:
                                 return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
-                                        "Unknown collection method: " + method.toString()
+                                        "Unknown collection method: " + method.toString() + "."
                                 ));
                         }
                     })
+                    // Consume the future to get the actual results.
                     .flatMap(resultFuture -> Mono
                             .fromSupplier(() -> {
                                 try {
@@ -260,7 +291,9 @@ public class FirestorePlugin extends BasePlugin {
                                 } catch (InterruptedException | ExecutionException e) {
                                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                                 }
-                            }))
+                            })
+                            .subscribeOn(scheduler))
+                    // Build response object with the results from the Future.
                     .flatMap(objResult1 -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         try {
@@ -270,8 +303,7 @@ public class FirestorePlugin extends BasePlugin {
                         }
                         result.setIsExecutionSuccess(true);
                         return Mono.just(result);
-                    })
-                    .subscribeOn(scheduler);
+                    });
         }
 
         private Object resultToMap(Object objResult) throws AppsmithPluginException {
@@ -300,7 +332,7 @@ public class FirestorePlugin extends BasePlugin {
             } else {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to serialize object of type " + objResult.getClass().getName()
+                        "Unable to serialize object of type " + objResult.getClass().getName() + "."
                 );
 
             }
