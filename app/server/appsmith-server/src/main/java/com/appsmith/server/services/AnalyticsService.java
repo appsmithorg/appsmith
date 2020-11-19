@@ -79,6 +79,7 @@ public class AnalyticsService {
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);
                     analyticsProperties.put("oid", object.getId());
+                    analyticsProperties.put("originService", "appsmith-server");
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                     }
