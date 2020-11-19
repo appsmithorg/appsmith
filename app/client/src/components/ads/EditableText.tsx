@@ -175,17 +175,6 @@ export const EditableText = (props: EditableTextProps) => {
   const onConfirm = useCallback(
     (_value: string) => {
       const finalVal: string = _value.trim();
-      if (finalVal === "") {
-        AppToaster.show({
-          message: "Application name can't be empty",
-          type: "error",
-        });
-      } else {
-        AppToaster.show({
-          message: "Application name updated",
-          type: "success",
-        });
-      }
       if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
         setValue(lastValidValue);
         onBlur(lastValidValue);
