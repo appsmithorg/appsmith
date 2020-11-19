@@ -76,6 +76,13 @@ public class FirestorePlugin extends BasePlugin {
 
             final String path = actionConfiguration.getPath();
 
+            if (StringUtils.isBlank(path)) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Document/Collection path cannot be empty"
+                ));
+            }
+
             if (path.startsWith("/") || path.endsWith("/")) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
@@ -84,15 +91,20 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            final com.external.plugins.Method method = properties.isEmpty()
+            final com.external.plugins.Method method = CollectionUtils.isEmpty(properties)
                     ? null
                     : com.external.plugins.Method.valueOf(properties.get(0).getValue());
 
             if (method == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid method."));
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Missing Firestore method."
+                ));
             }
 
-            return Mono.just(actionConfiguration.getBody())
+            return Mono
+                    .justOrEmpty(actionConfiguration.getBody())
+                    .defaultIfEmpty("")
                     .flatMap(strBody -> {
                         if (StringUtils.isBlank(strBody)) {
                             return Mono.just(Collections.emptyMap());
@@ -171,7 +183,7 @@ public class FirestorePlugin extends BasePlugin {
                         Object objFuture;
 
                         try {
-                            if (operationMethod.getParameterCount() == 2) {
+                            if (operationMethod.getParameterCount() == 1) {
                                 objFuture = operationMethod.invoke(document, mapBody);
                             } else {
                                 objFuture = operationMethod.invoke(document);
