@@ -10,7 +10,7 @@ import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { RestAction } from "entities/Action";
 import { Page } from "constants/ReduxActionConstants";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getDataTreeKeys } from "selectors/dataTreeSelectors";
 
 import { saveActionName } from "actions/actionActions";
 import { Spinner } from "@blueprintjs/core";
@@ -57,8 +57,7 @@ export const ActionNameEditor = () => {
     ),
   );
 
-  const evalTree = useSelector(getDataTree);
-  const evalTreeKeyNames = Object.keys(evalTree);
+  const evalTreeKeyNames = useSelector(getDataTreeKeys);
 
   const saveStatus: {
     isSaving: boolean;

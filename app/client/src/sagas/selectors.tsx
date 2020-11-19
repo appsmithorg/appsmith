@@ -7,8 +7,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "constants/ReduxActionConstants";
 
-export const getEvalTree = (state: AppState) => state.evaluations.tree;
-
 export const getWidgets = (
   state: AppState,
 ): { [widgetId: string]: FlattenedWidgetProps } => {

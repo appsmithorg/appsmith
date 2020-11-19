@@ -10,7 +10,7 @@ import { getDatasource } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "api/DatasourcesApi";
 import { getDataSources } from "selectors/editorSelectors";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getDataTreeKeys } from "selectors/dataTreeSelectors";
 import { isNameValid } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
@@ -37,8 +37,7 @@ const FormTitle = (props: FormTitleProps) => {
     getDatasource(state, params.datasourceId),
   );
   const datasources: Datasource[] = useSelector(getDataSources);
-  const evalTree = useSelector(getDataTree);
-  const evalTreeKeyNames = Object.keys(evalTree);
+  const evalTreeKeyNames = useSelector(getDataTreeKeys);
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   const saveStatus: {

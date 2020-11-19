@@ -164,6 +164,29 @@ export const convertArrayToSentence = (arr: string[]) => {
 };
 
 /**
+ * checks if a value exists in array.
+ * We are using for loop instead of findIndex/indexOf because of
+ * performance gains
+ *
+ * https://nikitahl.com/how-to-find-an-item-in-a-javascript-array/
+ *
+ * @param value
+ * @param array
+ */
+export const valueExistsInArray = (value: any, array: any) => {
+  let exists = false;
+
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] === value) {
+      exists = true;
+
+      break;
+    }
+  }
+
+  return exists;
+};
+/**
  * checks if the name is conflciting with
  * 1. API names,
  * 2. Queries name
@@ -225,7 +248,7 @@ export const isNameValid = (name: string, invalidNames: string[]) => {
     "yield",
   ];
 
-  if (keywords.indexOf(name) > -1 || invalidNames.indexOf(name) > -1) {
+  if (valueExistsInArray(name, [...keywords, ...invalidNames])) {
     return false;
   }
 
