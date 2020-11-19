@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryEntity;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,12 +13,14 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 @QueryEntity
 @Document
 public class Application extends BaseDomain {
@@ -48,6 +51,25 @@ public class Application extends BaseDomain {
     String color;
 
     String icon;
+
+    public Application(String name,
+                       String organizationId,
+                       Boolean isPublic,
+                       ArrayList<ApplicationPage> pages,
+                       ArrayList<ApplicationPage> publishedPages,
+                       String clonedFromApplicationId,
+                       String color,
+                       String icon) {
+        super();
+        this.name = name;
+        this.organizationId = organizationId;
+        this.isPublic = isPublic;
+        this.pages = pages;
+        this.publishedPages = publishedPages;
+        this.clonedFromApplicationId = clonedFromApplicationId;
+        this.color = color;
+        this.icon = icon;
+    }
 
     public List<ApplicationPage> getPages() {
         return viewMode ? publishedPages : pages;

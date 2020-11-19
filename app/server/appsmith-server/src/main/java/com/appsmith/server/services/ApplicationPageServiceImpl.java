@@ -435,15 +435,16 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Application sourceApplication = tuple.getT1();
                     String newName = tuple.getT2();
 
-                    // Create a new application object and copy the essential fields which would remain the same over cloning
-                    Application newApplication = new Application();
-                    newApplication.setClonedFromApplicationId(sourceApplication.getId());
-                    newApplication.setName(newName);
-                    newApplication.setPages(new ArrayList<>());
-                    newApplication.setPublishedPages(new ArrayList<>());
-                    newApplication.setOrganizationId(sourceApplication.getOrganizationId());
-                    newApplication.setColor(sourceApplication.getColor());
-                    newApplication.setIcon(sourceApplication.getIcon());
+                    // Create a new clone application object without the pages using the parametrized Application constructor
+                    Application newApplication = new Application(
+                            newName,
+                            sourceApplication.getOrganizationId(),
+                            false,
+                            new ArrayList<>(),
+                            new ArrayList<>(),
+                            sourceApplication.getId(),
+                            sourceApplication.getColor(),
+                            sourceApplication.getIcon());
                     
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
