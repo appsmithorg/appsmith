@@ -45,6 +45,7 @@ import reactor.test.StepVerifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -613,6 +614,11 @@ public class ApplicationServiceTest {
                     assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getOrganizationId().equals(orgId));
+                    List<ApplicationPage> pages = application.getPages();
+                    Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
+
+                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb));
 
                     assertThat(pageList).isNotEmpty();
                     for (PageDTO page : pageList) {

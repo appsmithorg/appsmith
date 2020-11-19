@@ -328,9 +328,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         .map(layouts -> {
                             page.setLayouts(layouts);
                             return page;
-                        }));
+                        })
+                );
 
-        // This call is without
         Flux<NewAction> sourceActionFlux = newActionService.findByPageId(pageId, MANAGE_ACTIONS)
                 // In case there are no actions in the page being cloned, return empty
                 .switchIfEmpty(Flux.empty());
@@ -367,8 +367,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 return newPageService.createDefault(page);
                             });
                 })
-                .flatMap(page -> {
-                    String newPageId = page.getId();
+                .flatMap(clonedPage -> {
+                    String newPageId = clonedPage.getId();
                     return sourceActionFlux
                             .flatMap(action -> {
                                 // Set new page id in the actionDTO
@@ -378,7 +378,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 return newActionService.createAction(action.getUnpublishedAction());
                             })
                             .collectList()
-                            .thenReturn(page);
+                            .thenReturn(clonedPage);
                 })
                 // Calculate the onload actions for this page now that the page and actions have been created
                 .flatMap(savedPage -> {
@@ -420,7 +420,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         .map(application1 -> application1.getName())
                         .collect(Collectors.toSet())
                         .map(appNames -> {
-                            log.debug("app names for this organization are : {}", appNames);
                             String newAppName = application.getName() + " Copy";
                             int i = 0;
                             String name = newAppName;
@@ -436,31 +435,36 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Application sourceApplication = tuple.getT1();
                     String newName = tuple.getT2();
 
-                    sourceApplication.setId(null);
-                    sourceApplication.setIsPublic(false);
-                    sourceApplication.setName(newName);
+                    // Create a new application object and copy the essential fields which would remain the same over cloning
+                    Application newApplication = new Application();
+                    newApplication.setClonedFromApplicationId(sourceApplication.getId());
+                    newApplication.setName(newName);
+                    newApplication.setPages(new ArrayList<>());
+                    newApplication.setPublishedPages(new ArrayList<>());
+                    newApplication.setOrganizationId(sourceApplication.getOrganizationId());
+                    newApplication.setColor(sourceApplication.getColor());
+                    newApplication.setIcon(sourceApplication.getIcon());
+                    newApplication.setIsPublic(sourceApplication.getIsPublic());
 
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
-                   return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), sourceApplication)
-                           // Create the cloned application with the new name and policies before proceeding further.
-                           .flatMap(applicationService::createDefault)
+                    return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
+                            // Create the cloned application with the new name and policies before proceeding further.
+                            .flatMap(applicationService::createDefault)
                            // Now fetch the pages of the source application, clone and add them to this new application
-                           .flatMap(savedApplication -> applicationMono
-                                   .flatMap(application -> Flux.fromIterable(application.getPages())
+                           .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                            .flatMap(applicationPage -> {
                                                String pageId = applicationPage.getId();
                                                Boolean isDefault = applicationPage.getIsDefault();
                                                return this.clonePageGivenApplicationId(pageId, savedApplication.getId())
-                                                       .map(page -> {
+                                                       .map(clonedPage -> {
                                                            ApplicationPage newApplicationPage = new ApplicationPage();
-                                                           newApplicationPage.setId(page.getId());
+                                                           newApplicationPage.setId(clonedPage.getId());
                                                            newApplicationPage.setIsDefault(isDefault);
                                                            return newApplicationPage;
                                                        });
                                            })
                                            .collectList()
-                                   )
                                    // Set the cloned pages into the cloned application and save.
                                    .flatMap(clonedPages -> {
                                        savedApplication.setPages(clonedPages);
