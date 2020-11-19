@@ -122,7 +122,8 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   const updateColumnType = (columnIndex: number, columnType: string) => {
     updateColumnProperties(columnIndex, {
       columnType: columnType,
-      format: undefined,
+      inputFormat: undefined,
+      outputFormat: undefined,
     });
   };
 
@@ -138,9 +139,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   ) => {
     updateColumnProperties(columnIndex, {
       columnType: "currency",
-      format: {
-        output: currencySymbol,
-      },
+      outputFormat: currencySymbol,
     });
   };
 
@@ -151,10 +150,8 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   ) => {
     updateColumnProperties(columnIndex, {
       columnType: "date",
-      format: {
-        output: dateFormat,
-        input: dateInputFormat,
-      },
+      outputFormat: dateFormat,
+      inputFormat: dateInputFormat,
     });
   };
 

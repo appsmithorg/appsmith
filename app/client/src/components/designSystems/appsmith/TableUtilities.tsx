@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Icon, InputGroup, Tag } from "@blueprintjs/core";
+import {
+  Icon,
+  InputGroup,
+  Tag,
+  MenuItem,
+  Classes,
+  Button as BButton,
+} from "@blueprintjs/core";
 import {
   MenuColumnWrapper,
   CellWrapper,
@@ -21,7 +28,7 @@ import {
   ButtonProperties,
   TextSizes,
 } from "widgets/TableWidget";
-import { isString } from "lodash";
+import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
@@ -31,6 +38,13 @@ import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import moment from "moment";
+import { DropdownOption } from "widgets/DropdownWidget";
+import { IconNames } from "@blueprintjs/icons";
+import {
+  Select,
+  IItemRendererProps,
+  Classes as MultiSelectClasses,
+} from "@blueprintjs/select";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -524,32 +538,15 @@ export const renderCell = (
         );
       }
     default:
-      if (columnType === "button" && buttonProperties) {
-        const buttonProps = {
-          isSelected: !!isSelected,
-          onCommandClick: buttonProperties.onCommandClick,
-          backgroundColor: buttonProperties.buttonStyle,
-          buttonLabelColor: buttonProperties.buttonLabelColor,
-          columnActions: [
-            {
-              id: buttonProperties.id,
-              label: buttonProperties.label || "",
-              dynamicTrigger: buttonProperties.dynamicTrigger || "",
-            },
-          ],
-        };
-        return renderActions(buttonProps, isHidden);
-      } else {
-        return (
-          <AutoToolTipComponent
-            title={value.toString()}
-            isHidden={isHidden}
-            cellProperties={cellProperties}
-          >
-            {value.toString()}
-          </AutoToolTipComponent>
-        );
-      }
+      return (
+        <AutoToolTipComponent
+          title={value.toString()}
+          isHidden={isHidden}
+          cellProperties={cellProperties}
+        >
+          {value.toString()}
+        </AutoToolTipComponent>
+      );
   }
 };
 
@@ -833,41 +830,6 @@ export const getAllTableColumnKeys = (
   return columnKeys;
 };
 
-export const reorderColumns = (
-  columns: ReactTableColumnProps[],
-  columnOrder: string[],
-) => {
-  const reorderedColumns = [];
-  const reorderedFlagMap: { [key: string]: boolean } = {};
-  for (let index = 0; index < columns.length; index++) {
-    const accessor = columnOrder[index];
-    if (accessor) {
-      const column = columns.filter((col: ReactTableColumnProps) => {
-        return col.accessor === accessor;
-      });
-      if (column.length && !reorderedFlagMap[column[0].accessor]) {
-        reorderedColumns.push(column[0]);
-        reorderedFlagMap[column[0].accessor] = true;
-      } else if (!reorderedFlagMap[columns[index].accessor]) {
-        reorderedColumns.push(columns[index]);
-        reorderedFlagMap[columns[index].accessor] = true;
-      }
-    } else if (!reorderedFlagMap[columns[index].accessor]) {
-      reorderedColumns.push(columns[index]);
-      reorderedFlagMap[columns[index].accessor] = true;
-    }
-  }
-  if (reorderedColumns.length < columns.length) {
-    for (let index = 0; index < columns.length; index++) {
-      if (!reorderedFlagMap[columns[index].accessor]) {
-        reorderedColumns.push(columns[index]);
-        reorderedFlagMap[columns[index].accessor] = true;
-      }
-    }
-  }
-  return reorderedColumns;
-};
-
 export function sortTableFunction(
   filteredTableData: Array<Record<string, unknown>>,
   columns: ReactTableColumnProps[],
@@ -1015,6 +977,8 @@ export function compare(a: any, b: any, condition: Condition) {
 export function getDefaultColumnProperties(
   accessor: string,
   index: number,
+  widgetName: string,
+  isDerived?: boolean,
 ): ColumnProperties {
   return {
     index: index,
@@ -1023,7 +987,7 @@ export function getDefaultColumnProperties(
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
-    textColor: Colors.BLUE_BAYOUX,
+    textColor: Colors.THUNDER,
     textSize: TextSizes.PARAGRAPH,
     fontStyle: FontStyleTypes.NORMAL,
     enableFilter: true,
@@ -1031,6 +995,113 @@ export function getDefaultColumnProperties(
     isVisible: true,
     isDerived: false,
     label: accessor,
-    computedValue: "",
+    computedValue: isDerived
+      ? ""
+      : `{{${widgetName}.tableData.map((currentRow) => currentRow.${accessor})}}`,
   };
 }
+
+const SingleDropDown = Select.ofType<DropdownOption>();
+
+const StyledSingleDropDown = styled(SingleDropDown)`
+  div {
+    padding: 0 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  span {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .${Classes.BUTTON} {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: none;
+    background: transparent;
+    min-height: 32px;
+  }
+  .${Classes.BUTTON_TEXT} {
+    text-overflow: ellipsis;
+    text-align: left;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+  && {
+    .${Classes.ICON} {
+      width: fit-content;
+      color: ${Colors.SLATE_GRAY};
+    }
+  }
+`;
+
+export const renderDropdown = (props: {
+  options: DropdownOption[];
+  onItemSelect: (onOptionChange: string, item: DropdownOption) => void;
+  onOptionChange: string;
+  selectedIndex?: number;
+}) => {
+  const isOptionSelected = (selectedOption: DropdownOption) => {
+    const optionIndex = findIndex(props.options, option => {
+      return option.value === selectedOption.value;
+    });
+    return optionIndex === props.selectedIndex;
+  };
+  const renderSingleSelectItem = (
+    option: DropdownOption,
+    itemProps: IItemRendererProps,
+  ) => {
+    if (!itemProps.modifiers.matchesPredicate) {
+      return null;
+    }
+    const isSelected: boolean = isOptionSelected(option);
+    return (
+      <MenuItem
+        className="single-select"
+        active={isSelected}
+        key={option.value}
+        onClick={itemProps.handleClick}
+        text={option.label}
+      />
+    );
+  };
+  return (
+    <div
+      style={{ height: "100%" }}
+      onClick={(e: React.MouseEvent<HTMLElement>) => {
+        e.stopPropagation();
+      }}
+    >
+      <StyledSingleDropDown
+        items={props.options}
+        itemRenderer={renderSingleSelectItem}
+        onItemSelect={(item: DropdownOption) => {
+          props.onItemSelect(props.onOptionChange, item);
+        }}
+        popoverProps={{
+          minimal: true,
+          usePortal: true,
+          popoverClassName: "select-popover-wrapper",
+        }}
+        filterable={false}
+      >
+        <BButton
+          rightIcon={IconNames.CHEVRON_DOWN}
+          text={
+            !isEmpty(props.options) &&
+            props.selectedIndex !== undefined &&
+            props.selectedIndex > -1
+              ? props.options[props.selectedIndex].label
+              : "-- Select --"
+          }
+        />
+      </StyledSingleDropDown>
+    </div>
+  );
+};

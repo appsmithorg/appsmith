@@ -6,10 +6,10 @@ import {
   compare,
   ConditionFunctions,
   getAllTableColumnKeys,
-  renderActions,
   getDefaultColumnProperties,
   renderCell,
-  reorderColumns,
+  renderDropdown,
+  renderActions,
   sortTableFunction,
 } from "components/designSystems/appsmith/TableUtilities";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
@@ -25,6 +25,7 @@ import { isNumber, isString, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { DropdownOption } from "widgets/DropdownWidget";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -189,7 +190,85 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Button",
                           value: "button",
                         },
+                        {
+                          label: "Dropdown",
+                          value: "dropdown",
+                        },
                       ],
+                    },
+                    {
+                      propertyName: "inputFormat",
+                      label: "Previous Date Format",
+                      controlType: "DROP_DOWN",
+                      options: [
+                        {
+                          label: "UNIX timestamp (s)",
+                          value: "Epoch",
+                        },
+                        {
+                          label: "UNIX timestamp (ms)",
+                          value: "Milliseconds",
+                        },
+                        {
+                          label: "YYYY-MM-DD",
+                          value: "YYYY-MM-DD",
+                        },
+                        {
+                          label: "YYYY-MM-DDTHH:mm:ss",
+                          value: "YYYY-MM-DDTHH:mm:ss",
+                        },
+                        {
+                          label: "YYYY-MM-DD hh:mm:ss",
+                          value: "YYYY-MM-DD hh:mm:ss",
+                        },
+                      ],
+                      isJSConvertible: true,
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType !== "date";
+                      },
+                    },
+                    {
+                      propertyName: "outputFormat",
+                      label: "Converted Date Format",
+                      controlType: "DROP_DOWN",
+                      isJSConvertible: true,
+                      options: [
+                        {
+                          label: "UNIX timestamp (s)",
+                          value: "Epoch",
+                        },
+                        {
+                          label: "UNIX timestamp (ms)",
+                          value: "Milliseconds",
+                        },
+                        {
+                          label: "YYYY-MM-DD",
+                          value: "YYYY-MM-DD",
+                        },
+                        {
+                          label: "YYYY-MM-DDTHH:mm:ss",
+                          value: "YYYY-MM-DDTHH:mm:ss",
+                        },
+                        {
+                          label: "YYYY-MM-DD hh:mm:ss",
+                          value: "YYYY-MM-DD hh:mm:ss",
+                        },
+                        {
+                          label: "DD-MM-YYYY HH:mm",
+                          value: "DD-MM-YYYY HH:mm",
+                        },
+                        {
+                          label: "DD-MM-YYYY",
+                          value: "DD-MM-YYYY",
+                        },
+                        {
+                          label: "Do MMM YYYY",
+                          value: "Do MMM YYYY",
+                        },
+                      ],
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType !== "date";
+                      },
                     },
                     {
                       propertyName: "computedValue",
@@ -222,7 +301,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 {
                   sectionName: "Text",
                   hidden: (props: ColumnProperties) => {
-                    return props.columnType === "button";
+                    return (
+                      props.columnType === "button" ||
+                      props.columnType === "dropdown"
+                    );
                   },
                   children: [
                     {
@@ -424,7 +506,85 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Button",
                           value: "button",
                         },
+                        {
+                          label: "Dropdown",
+                          value: "dropdown",
+                        },
                       ],
+                    },
+                    {
+                      propertyName: "inputFormat",
+                      label: "Previous Date Format",
+                      controlType: "DROP_DOWN",
+                      options: [
+                        {
+                          label: "UNIX timestamp (s)",
+                          value: "Epoch",
+                        },
+                        {
+                          label: "UNIX timestamp (ms)",
+                          value: "Milliseconds",
+                        },
+                        {
+                          label: "YYYY-MM-DD",
+                          value: "YYYY-MM-DD",
+                        },
+                        {
+                          label: "YYYY-MM-DDTHH:mm:ss",
+                          value: "YYYY-MM-DDTHH:mm:ss",
+                        },
+                        {
+                          label: "YYYY-MM-DD hh:mm:ss",
+                          value: "YYYY-MM-DD hh:mm:ss",
+                        },
+                      ],
+                      isJSConvertible: true,
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType !== "date";
+                      },
+                    },
+                    {
+                      propertyName: "outputFormat",
+                      label: "Converted Date Format",
+                      controlType: "DROP_DOWN",
+                      isJSConvertible: true,
+                      options: [
+                        {
+                          label: "UNIX timestamp (s)",
+                          value: "Epoch",
+                        },
+                        {
+                          label: "UNIX timestamp (ms)",
+                          value: "Milliseconds",
+                        },
+                        {
+                          label: "YYYY-MM-DD",
+                          value: "YYYY-MM-DD",
+                        },
+                        {
+                          label: "YYYY-MM-DDTHH:mm:ss",
+                          value: "YYYY-MM-DDTHH:mm:ss",
+                        },
+                        {
+                          label: "YYYY-MM-DD hh:mm:ss",
+                          value: "YYYY-MM-DD hh:mm:ss",
+                        },
+                        {
+                          label: "DD-MM-YYYY HH:mm",
+                          value: "DD-MM-YYYY HH:mm",
+                        },
+                        {
+                          label: "DD-MM-YYYY",
+                          value: "DD-MM-YYYY",
+                        },
+                        {
+                          label: "Do MMM YYYY",
+                          value: "Do MMM YYYY",
+                        },
+                      ],
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType !== "date";
+                      },
                     },
                     {
                       propertyName: "computedValue",
@@ -454,7 +614,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 {
                   sectionName: "Text",
                   hidden: (props: ColumnProperties) => {
-                    return props.columnType === "button";
+                    return (
+                      props.columnType === "button" ||
+                      props.columnType === "dropdown"
+                    );
                   },
                   children: [
                     {
@@ -602,6 +765,30 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                   ],
                 },
+                {
+                  sectionName: "Dropdown Properties",
+                  hidden: (props: ColumnProperties) => {
+                    return props.columnType !== "dropdown";
+                  },
+                  children: [
+                    {
+                      helpText:
+                        "Allows users to select either a single option or multiple options. Values must be unique",
+                      propertyName: "dropdownOptions",
+                      label: "Options",
+                      controlType: "INPUT_TEXT",
+                      placeholderText: `Enter [{label: "label1", value: "value2"}]`,
+                    },
+                    {
+                      helpText:
+                        "Triggers an action when a user selects an option",
+                      propertyName: "onOptionChange",
+                      label: "onOptionChange",
+                      controlType: "ACTION_SELECTOR",
+                      isJSConvertible: true,
+                    },
+                  ],
+                },
               ],
             },
           },
@@ -721,8 +908,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         metaProperties: {
           isHidden: isHidden,
           type: columnProperties.columnType,
-          format: columnProperties?.format?.output || "",
-          inputFormat: columnProperties?.format?.input || "",
+          format: columnProperties?.outputFormat || "",
+          inputFormat: columnProperties?.inputFormat || "",
           cellProperties: cellProperties,
           buttonProperties:
             columnProperties.columnType === "button"
@@ -736,17 +923,49 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   onCommandClick: this.onCommandClick,
                 }
               : undefined,
+          dropdownProperties:
+            columnProperties.columnType === "dropdown"
+              ? {
+                  dropdownOptions: columnProperties.dropdownOptions || "",
+                  onOptionChange: columnProperties.onOptionChange,
+                }
+              : undefined,
         },
         Cell: (props: any) => {
-          if (columnProperties.columnType === "button") {
-            return renderCell(
-              props.cell.value,
-              columnProperties.columnType,
-              isHidden,
-              cellProperties,
-              columnData.metaProperties.buttonProperties,
-              props.row.isSelected,
-            );
+          const buttonProperties = columnData.metaProperties.buttonProperties;
+          const dropdownProperties =
+            columnData.metaProperties.dropdownProperties;
+          if (columnProperties.columnType === "button" && buttonProperties) {
+            const buttonProps = {
+              isSelected: !!props.row.isSelected,
+              onCommandClick: buttonProperties.onCommandClick,
+              backgroundColor: buttonProperties.buttonStyle,
+              buttonLabelColor: buttonProperties.buttonLabelColor,
+              columnActions: [
+                {
+                  id: buttonProperties.id,
+                  label: buttonProperties.label || "",
+                  dynamicTrigger: buttonProperties.dynamicTrigger || "",
+                },
+              ],
+            };
+            return renderActions(buttonProps, isHidden);
+          } else if (
+            columnProperties.columnType === "dropdown" &&
+            dropdownProperties
+          ) {
+            let options = [];
+            try {
+              options = JSON.parse(dropdownProperties.dropdownOptions);
+            } catch (e) {}
+            return renderDropdown({
+              options: options,
+              onItemSelect: this.onItemSelect,
+              onOptionChange: dropdownProperties.onOptionChange || "",
+              selectedIndex: isNumber(props.cell.value)
+                ? props.cell.value
+                : undefined,
+            });
           } else {
             return renderCell(
               props.cell.value,
@@ -764,7 +983,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columns.push(columnData);
       }
     }
-    // columns = reorderColumns(columns, this.props.columnOrder || []);
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       columns = columns.concat(hiddenColumns);
     }
@@ -981,7 +1199,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
-        tableColumns.push(getDefaultColumnProperties(i, index));
+        tableColumns.push(
+          getDefaultColumnProperties(i, index, this.props.widgetName),
+        );
       }
       super.updateWidgetProperty("primaryColumns", tableColumns);
     }
@@ -1252,6 +1472,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
+  onItemSelect = (action: string, item: DropdownOption) => {
+    super.executeAction({
+      dynamicString: action,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
+  };
+
   handleRowClick = (rowData: Record<string, unknown>, index: number) => {
     const { selectedRowIndices } = this.props;
     if (this.props.multiRowSelection) {
@@ -1377,6 +1606,10 @@ export interface ButtonProperties {
   onCommandClick: (action: string, onComplete: () => void) => void;
 }
 
+export interface DropdownProperties {
+  dropdownOptions: string;
+  onOptionChange?: string;
+}
 export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
@@ -1384,7 +1617,9 @@ export interface TableColumnMetaProps {
   type: string;
   cellProperties: CellLayoutProperties;
   buttonProperties?: ButtonProperties;
+  dropdownProperties?: DropdownProperties;
 }
+
 export interface ReactTableColumnProps {
   Header: string;
   accessor: string;
@@ -1419,10 +1654,10 @@ export interface ColumnProperties {
   buttonStyle?: string;
   buttonLabelColor?: string;
   dynamicTrigger?: string;
-  format?: {
-    input?: string;
-    output: string;
-  };
+  outputFormat?: string;
+  inputFormat?: string;
+  dropdownOptions?: string;
+  onOptionChange?: string;
 }
 
 export interface TableWidgetProps extends WidgetProps, WithMeta {

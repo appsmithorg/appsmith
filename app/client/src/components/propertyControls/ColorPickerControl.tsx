@@ -63,6 +63,7 @@ const defaultColors: string[] = [
   "#3366FF",
   "#2E3D49",
   "#F6F7F8",
+  "#231F20",
 ];
 
 interface ColorBoardProps {
@@ -87,6 +88,30 @@ const ColorBoard = (props: ColorBoardProps) => {
   );
 };
 
+const NoColorIcon = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: #ffffff;
+  position: absolute;
+  z-index: 1;
+  top: 3px;
+  left: 3px;
+  &:after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: "\2F";
+    transform: rotate(30deg);
+    text-align: center;
+    color: red;
+    font-size: 24px;
+    line-height: 24px;
+  }
+`;
+
 interface ColorPickerProps {
   color: string;
   changeColor: (color: string) => void;
@@ -100,7 +125,7 @@ const ColorPicker = (props: ColorPickerProps) => {
   );
   const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    if (/^#[0-9A-F]*$/i.test(value) && value.length <= 7) {
+    if (value === "" || (/^#[0-9A-F]*$/i.test(value) && value.length <= 7)) {
       setColor(value);
       debouncedOnChange(value);
     }
@@ -119,7 +144,9 @@ const ColorPicker = (props: ColorPickerProps) => {
       }}
     >
       <StyledInputGroup
-        leftIcon={<ColorIcon color={props.color} />}
+        leftIcon={
+          props.color ? <ColorIcon color={props.color} /> : <NoColorIcon />
+        }
         onChange={handleChangeColor}
         placeholder="enter color name or hex"
         value={color}

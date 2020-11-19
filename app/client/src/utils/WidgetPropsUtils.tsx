@@ -32,10 +32,7 @@ import {
 } from "widgets/TableWidget";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import {
-  getAllTableColumnKeys,
-  getDefaultColumnProperties,
-} from "components/designSystems/appsmith/TableUtilities";
+import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableUtilities";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -286,7 +283,7 @@ const tableWidgetPropertyPaneMigrations = (
               columnTypeMap && columnTypeMap[accessor]
                 ? columnTypeMap[accessor].type
                 : ColumnTypes.TEXT,
-            textColor: Colors.BLUE_BAYOUX,
+            textColor: Colors.THUNDER,
             textSize: TextSizes.PARAGRAPH,
             fontStyle: FontStyleTypes.NORMAL,
             enableFilter: true,
@@ -300,10 +297,8 @@ const tableWidgetPropertyPaneMigrations = (
             computedValue: "",
           };
           if (columnTypeMap && columnTypeMap[accessor]) {
-            column.format = {
-              output: columnTypeMap[accessor].format || "",
-              input: columnTypeMap[accessor].inputFormat || "",
-            };
+            column.outputFormat = columnTypeMap[accessor].format || "";
+            column.inputFormat = columnTypeMap[accessor].inputFormat || "";
           }
           return column;
         },
