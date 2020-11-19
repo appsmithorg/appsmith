@@ -38,8 +38,8 @@ import { Classes } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import { getThemeDetails } from "selectors/themeSelectors";
-import { ProfileImage } from "pages/common/ProfileDropdown";
 import { scrollbarDark } from "constants/DefaultTheme";
+import ProfileImage from "pages/common/ProfileImage";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -280,7 +280,6 @@ const OrgInviteUsersForm = (props: any) => {
           );
           return {
             ...user,
-            imageBackground: details[1],
             initials: details[0],
           };
         },
@@ -358,18 +357,13 @@ const OrgInviteUsersForm = (props: any) => {
                   username: string;
                   name: string;
                   roleName: string;
-                  imageBackground: string;
                   initials: string;
                 }) => {
                   return (
                     <Fragment key={user.username}>
                       <User>
                         <UserInfo>
-                          <ProfileImage backgroundColor={user.imageBackground}>
-                            <Text type={TextType.H6} highlight>
-                              {user.initials}
-                            </Text>
-                          </ProfileImage>
+                          <ProfileImage userName={user.initials} />
                           <UserName>
                             <Text type={TextType.H5}>{user.name}</Text>
                             <Text type={TextType.P2}>{user.username}</Text>

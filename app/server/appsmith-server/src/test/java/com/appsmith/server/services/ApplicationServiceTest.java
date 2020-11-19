@@ -343,6 +343,9 @@ public class ApplicationServiceTest {
                             Application application = organizationApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
+
+                            assertThat(organizationApplicationDTO.getUserRoles().get(0).getRole().getName()).isEqualTo("Administrator");
+                            log.debug(organizationApplicationDTO.getUserRoles().toString());
                         }
                     }
 

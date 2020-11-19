@@ -174,5 +174,10 @@
     }
   ],
   "addInputWidgetBinding": "{{Table1.selectedRow.id",
-  "externalPage": "https://www.appsmith.com/"
+  "externalPage": "https://www.appsmith.com/",
+  "loadashInput": "{{_.add(3,4)",
+  "momentInput": "{{moment(new Date).format('yyyy')",
+  "atobInput": "{{atob('QQ==')",
+  "btoaInput": "{{btoa('A')",
+  "defaultInputBinding": "{{Input2.text"
 }
