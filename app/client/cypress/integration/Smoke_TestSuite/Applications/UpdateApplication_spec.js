@@ -88,7 +88,8 @@ describe("Update Application", function() {
     cy.get(homePage.appEditIcon)
       .first()
       .click({ force: true });
-    cy.wait(3000);
+    cy.get("#loading").should("not.exist");
+    cy.wait(2000);
     cy.get(homePage.applicationName).type("  ");
     cy.get(homePage.toastMessage).should(
       "contain",
