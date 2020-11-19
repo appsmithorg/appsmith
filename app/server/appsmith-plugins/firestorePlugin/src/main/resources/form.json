@@ -9,7 +9,7 @@
           "configProperty": "datasourceConfiguration.url",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
-          "initialValue": ""
+          "initialValue": "something.firebase.io"
         },
         {
           "label": "Project Id",

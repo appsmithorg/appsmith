@@ -5,6 +5,13 @@
       "id": 1,
       "children": [
         {
+          "label": "Method Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "method"
+        },
+        {
           "label": "Method",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "DROP_DOWN",
@@ -45,10 +52,24 @@
           "initialValue": ""
         },
         {
+          "label": "Order By Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "orderBy"
+        },
+        {
           "label": "Order By",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
           "controlType": "INPUT_TEXT",
           "initialValue": ""
+        },
+        {
+          "label": "Limit Documents Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "limit"
         },
         {
           "label": "Limit Documents",
@@ -61,15 +82,39 @@
           "id": 2,
           "children": [
             {
-              "label": "Field Path (leave emtpy to not apply any conditions)",
+              "label": "Field Path Key",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
+              "controlType": "INPUT_TEXT",
+              "hidden": true,
+              "initialValue": "fieldPath"
+            },
+            {
+              "label": "Where Condition: Field Path (leave emtpy to not apply any conditions)",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
               "controlType": "INPUT_TEXT",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET_COLLECTION"
+              },
               "initialValue": ""
             },
             {
-              "label": "Operator",
+              "label": "Operator Key",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
+              "controlType": "INPUT_TEXT",
+              "hidden": true,
+              "initialValue": "operator"
+            },
+            {
+              "label": "Where Condition: Operator",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
               "controlType": "DROP_DOWN",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET_COLLECTION"
+              },
               "initialValue": "EQ",
               "options": [
                 {
@@ -107,9 +152,21 @@
               ]
             },
             {
-              "label": "Value",
+              "label": "Value Key",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
+              "controlType": "INPUT_TEXT",
+              "hidden": true,
+              "initialValue": "fieldValue"
+            },
+            {
+              "label": "Where Condition: Value",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
               "controlType": "INPUT_TEXT",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET_COLLECTION"
+              },
               "initialValue": ""
             }
           ]
