@@ -1,5 +1,5 @@
 import React, { ReactElement, useRef } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo_white.png";
@@ -154,7 +154,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
-
+  const queryParams = new URLSearchParams(useLocation().search);
+  const hideHeader = !!queryParams.get("embed");
+  if (hideHeader) return null;
   // Mark default page as first page
   const appPages = pages;
   if (appPages.length > 1) {

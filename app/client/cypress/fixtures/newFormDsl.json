@@ -84,23 +84,7 @@
                   "bottomRow": 2,
                   "parentId": "e3tq9qwta6",
                   "widgetId": "nl5sy9cuaa",
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "selectedOptionArr"
-                    },
-                    {
-                      "key": "isValid"
-                    },
-                    {
-                      "key": "selectedIndexArr"
-                    },
-                    {
-                      "key": "selectedOption"
-                    },
-                    {
-                      "key": "selectedIndex"
-                    }
-                  ]
+                  "dynamicBindingPathList": []
                 },
                 {
                   "isVisible": true,
