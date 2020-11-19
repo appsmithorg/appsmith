@@ -16,6 +16,7 @@ import {
 } from "constants/ReduxActionConstants";
 import {
   getDataTree,
+  getOldUnevaluatedDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
@@ -36,6 +37,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
+import { diff } from "deep-diff";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
@@ -87,12 +89,15 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  const unEvalTree = yield select(getUnevaluatedDataTree);
-  log.debug({ unEvalTree });
+  const newUnEvalTree = yield select(getUnevaluatedDataTree);
+  const oldUnEvalTree = yield select(getOldUnevaluatedDataTree);
+  const evalDataTree = yield select(getDataTree);
   evaluationWorker.postMessage({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
-    dataTree: unEvalTree,
+    newUnEvalTree,
     widgetTypeConfigMap,
+    oldUnEvalTree,
+    dataTree: evalDataTree,
   });
   const workerResponse = yield take(workerChannel);
   const { errors, dataTree } = workerResponse.data;
@@ -102,6 +107,10 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: parsedDataTree,
+  });
+  yield put({
+    type: ReduxActionTypes.SET_UNEVALUATED_TREE,
+    payload: newUnEvalTree,
   });
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -276,3 +285,6 @@ export default function* evaluationSagaListeners() {
     takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
   ]);
 }
+
+// - Diff to find paths
+// - if
