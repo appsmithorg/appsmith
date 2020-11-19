@@ -1044,6 +1044,48 @@ Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
     .should("be.visible");
 });
 
+Cypress.Commands.add("hideColumn", colId => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
+    force: true,
+  });
+  cy.get(".draggable-header ")
+    .contains(colId)
+    .should("not.be.visible");
+});
+
+Cypress.Commands.add("showColumn", colId => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
+    force: true,
+  });
+  cy.get(".draggable-header ")
+    .contains(colId)
+    .should("be.visible");
+});
+
+Cypress.Commands.add("addColumn", colId => {
+  cy.get(widgetsPage.addColumn)
+    .should("be.visible")
+    .click({ force: true });
+  cy.get(widgetsPage.editCreatedColumn)
+    .should("be.visible")
+    .clear({ force: true });
+  cy.get(widgetsPage.editCreatedColumn).type(colId);
+});
+
+Cypress.Commands.add("editColumn", colId => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click({
+    force: true,
+  });
+});
+
+Cypress.Commands.add(
+  "readTabledataValidateCSS",
+  (rowNum, colNum, cssProperty, cssValue) => {
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+    cy.get(selector).should("have.css", cssProperty, cssValue);
+  },
+);
+
 Cypress.Commands.add("selectShowMsg", value => {
   cy.get(commonlocators.chooseAction)
     .children()
