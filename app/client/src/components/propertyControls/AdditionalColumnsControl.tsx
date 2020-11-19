@@ -136,10 +136,11 @@ class AdditionalColumnsControl extends BaseControl<ControlProps> {
     const columnProps: ColumnProperties = getDefaultColumnProperties(
       newColumnName,
       index,
+      this.props.widgetProperties.widgetName,
+      true,
     );
     const column = {
       ...columnProps,
-      isDerived: true,
       buttonStyle: "#29CCA3",
       buttonLabelColor: "#FFFFFF",
     };
