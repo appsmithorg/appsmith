@@ -17,7 +17,7 @@ const DropdownSelect = styled.div`
 const customSelectStyles = {
   option: (
     styles: { [x: string]: any },
-    { data, isDisabled, isFocused, isSelected }: any,
+    { isDisabled, isFocused, isSelected }: any,
   ) => {
     return {
       ...styles,

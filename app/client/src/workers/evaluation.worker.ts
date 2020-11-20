@@ -39,6 +39,10 @@ import {
   EvalError,
   EvalErrorTypes,
   extraLibraries,
+  getEntityDynamicBindingPathList,
+  getWidgetDynamicTriggerPathList,
+  isPathADynamicBinding,
+  isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
 
 const ctx: Worker = self as any;
@@ -279,45 +283,40 @@ const createDependencyTree = (
   Object.keys(dataTree).forEach(entityKey => {
     const entity = dataTree[entityKey];
     if (entity && "ENTITY_TYPE" in entity) {
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
-        // Set default property dependency
-        const defaultProperties =
-          WIDGET_TYPE_CONFIG_MAP[entity.type].defaultProperties;
-        Object.keys(defaultProperties).forEach(property => {
-          dependencyMap[`${entityKey}.${property}`] = [
-            `${entityKey}.${defaultProperties[property]}`,
-          ];
-        });
-        if (entity.dynamicBindings) {
-          Object.keys(entity.dynamicBindings).forEach(propertyName => {
-            // using unescape to remove new lines from bindings which interfere with our regex extraction
-            const unevalPropValue = _.get(entity, propertyName);
+      if (
+        entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET ||
+        entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+      ) {
+        const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
+        if (dynamicBindingPathList.length) {
+          dynamicBindingPathList.forEach(dynamicPath => {
+            const propertyPath = dynamicPath.key;
+            const unevalPropValue = _.get(entity, propertyPath);
             const { jsSnippets } = getDynamicBindings(unevalPropValue);
             const existingDeps =
-              dependencyMap[`${entityKey}.${propertyName}`] || [];
-            dependencyMap[`${entityKey}.${propertyName}`] = existingDeps.concat(
+              dependencyMap[`${entityKey}.${propertyPath}`] || [];
+            dependencyMap[`${entityKey}.${propertyPath}`] = existingDeps.concat(
               jsSnippets.filter(jsSnippet => !!jsSnippet),
             );
           });
         }
-        if (entity.dynamicTriggers) {
-          Object.keys(entity.dynamicTriggers).forEach(prop => {
-            dependencyMap[`${entityKey}.${prop}`] = [];
+        if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+          // Set default property dependency
+          const defaultProperties =
+            WIDGET_TYPE_CONFIG_MAP[entity.type].defaultProperties;
+          Object.keys(defaultProperties).forEach(property => {
+            dependencyMap[`${entityKey}.${property}`] = [
+              `${entityKey}.${defaultProperties[property]}`,
+            ];
           });
-        }
-      }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        if (entity.dynamicBindingPathList.length) {
-          entity.dynamicBindingPathList.forEach(prop => {
-            // using unescape to remove new lines from bindings which interfere with our regex extraction
-            const unevalPropValue = _.get(entity, prop.key);
-            const { jsSnippets } = getDynamicBindings(unevalPropValue);
-            const existingDeps =
-              dependencyMap[`${entityKey}.${prop.key}`] || [];
-            dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(
-              jsSnippets.filter(jsSnippet => !!jsSnippet),
-            );
-          });
+          const dynamicTriggerPathList = getWidgetDynamicTriggerPathList(
+            entity,
+          );
+          if (dynamicTriggerPathList.length) {
+            dynamicTriggerPathList.forEach(dynamicPath => {
+              dependencyMap[`${entityKey}.${dynamicPath.key}`] = [];
+            });
+          }
         }
       }
     }
@@ -577,16 +576,16 @@ const getValidatedTree = (tree: any) => {
         );
         const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
         const isSpecialField = [
-          "dynamicBindings",
-          "dynamicTriggers",
-          "dynamicProperties",
+          "dynamicBindingPathList",
+          "dynamicTriggerPathList",
+          "dynamicPropertyPathList",
           "evaluatedValues",
           "invalidProps",
           "validationMessages",
         ].includes(property);
         const isDynamicField =
-          _.has(parsedEntity, `dynamicBindings.${property}`) ||
-          _.has(parsedEntity, `dynamicTriggers.${property}`);
+          isPathADynamicBinding(parsedEntity, property) ||
+          isPathADynamicTrigger(parsedEntity, property);
 
         if (
           !isSpecialField &&
@@ -784,9 +783,9 @@ function validateAndParseWidgetProperty(
   currentDependencyValues: Array<string>,
   cachedDependencyValues?: Array<string>,
 ): any {
-  const propertyName = propertyPath.split(".")[1];
+  const entityPropertyName = _.drop(propertyPath.split(".")).join(".");
   let valueToValidate = evalPropertyValue;
-  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+  if (isPathADynamicTrigger(widget, propertyPath)) {
     const { triggers } = getDynamicValue(
       unEvalPropertyValue,
       currentTree,
@@ -797,7 +796,7 @@ function validateAndParseWidgetProperty(
   }
   const { parsed, isValid, message, transformed } = validateWidgetProperty(
     widget.type,
-    propertyName,
+    entityPropertyName,
     valueToValidate,
     widget,
     currentTree,
@@ -808,13 +807,13 @@ function validateAndParseWidgetProperty(
     ? evalPropertyValue
     : transformed;
   const safeEvaluatedValue = removeFunctions(evaluatedValue);
-  _.set(widget, `evaluatedValues.${propertyName}`, safeEvaluatedValue);
+  _.set(widget, `evaluatedValues.${entityPropertyName}`, safeEvaluatedValue);
   if (!isValid) {
-    _.set(widget, `invalidProps.${propertyName}`, true);
-    _.set(widget, `validationMessages.${propertyName}`, message);
+    _.set(widget, `invalidProps.${entityPropertyName}`, true);
+    _.set(widget, `validationMessages.${entityPropertyName}`, message);
   }
 
-  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+  if (isPathADynamicTrigger(widget, entityPropertyName)) {
     return unEvalPropertyValue;
   } else {
     const parsedCache = getParsedValueCache(propertyPath);
@@ -872,7 +871,7 @@ type EvalResult = {
 const evaluateDynamicBoundValue = (
   data: DataTree,
   path: string,
-  callbackData?: any,
+  callbackData?: Array<any>,
 ): EvalResult => {
   try {
     const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
@@ -892,7 +891,7 @@ const evaluateDynamicBoundValue = (
 const evaluate = (
   js: string,
   data: DataTree,
-  callbackData: any,
+  callbackData?: Array<any>,
 ): EvalResult => {
   const scriptToEvaluate = `
         function closedFunction () {
@@ -904,7 +903,7 @@ const evaluate = (
   const scriptWithCallback = `
          function callback (script) {
             const userFunction = script;
-            const result = userFunction(CALLBACK_DATA);
+            const result = userFunction.apply(self, CALLBACK_DATA);
             return { result, triggers: self.triggers };
          }
          callback(${js});
@@ -1008,7 +1007,7 @@ const getDynamicValue = (
   dynamicBinding: string,
   data: DataTree,
   returnTriggers: boolean,
-  callBackData?: any,
+  callBackData?: Array<any>,
 ) => {
   // Get the {{binding}} bound values
   const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
@@ -1608,6 +1607,55 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       values = _.uniq(values);
     }
 
+    return {
+      isValid: true,
+      parsed: values,
+    };
+  },
+  [VALIDATION_TYPES.DEFAULT_SELECTED_ROW]: (
+    value: string | string[],
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ) => {
+    let values = value;
+
+    if (props) {
+      if (props.multiRowSelection) {
+        if (typeof value === "string") {
+          try {
+            values = JSON.parse(value);
+            if (!Array.isArray(values)) {
+              throw new Error();
+            }
+          } catch {
+            values = value.length ? value.split(",") : [];
+            if (values.length > 0) {
+              let numbericValues = values.map(value => {
+                return isNumber(value.trim()) ? -1 : Number(value.trim());
+              });
+              numbericValues = _.uniq(numbericValues);
+              return {
+                isValid: true,
+                parsed: numbericValues,
+              };
+            }
+          }
+        }
+      } else {
+        try {
+          const parsed = toNumber(value);
+          return {
+            isValid: true,
+            parsed: parsed,
+          };
+        } catch (e) {
+          return {
+            isValid: true,
+            parsed: -1,
+          };
+        }
+      }
+    }
     return {
       isValid: true,
       parsed: values,

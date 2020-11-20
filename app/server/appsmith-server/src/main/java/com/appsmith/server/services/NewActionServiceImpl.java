@@ -673,8 +673,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     /**
-     * Given a list of names of actions and pageId, find all the actions matching this criteria of name, pageId, http
-     * method 'GET' (for API actions only) or have isExecuteOnLoad be true.
+     * Given a list of names of actions and pageId, find all the actions matching this criteria of names and pageId
      *
      * @param names Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
      * @param pageId Id of the Page within which to look for Actions.
@@ -682,14 +681,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      */
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId) {
-        final Flux<NewAction> getApiActions = repository
-                .findUnpublishedActionsForRestApiOnLoad(names,
-                        pageId, "GET", false, MANAGE_ACTIONS);
-
-        final Flux<NewAction> explicitOnLoadActions = repository
-                .findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId, MANAGE_ACTIONS);
-
-        return getApiActions.concatWith(explicitOnLoadActions);
+        return repository.findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
     }
 
     @Override

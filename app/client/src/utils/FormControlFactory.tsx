@@ -3,7 +3,6 @@ import {
   ControlBuilder,
   ControlProps,
   ControlData,
-  ControlFunctions,
 } from "components/formControls/BaseControl";
 
 class FormControlFacotory {
@@ -18,17 +17,15 @@ class FormControlFacotory {
 
   static createControl(
     controlData: ControlData,
-    controlFunctions: ControlFunctions,
-    preferEditor: boolean,
+    formName: string,
     extraData?: ControlData[],
   ): JSX.Element {
-    const controlBuilder = preferEditor
-      ? this.controlMap.get("CODE_EDITOR")
-      : this.controlMap.get(controlData.controlType);
+    const controlBuilder = this.controlMap.get(controlData.controlType);
+
     if (controlBuilder) {
       const controlProps: ControlProps = {
         ...controlData,
-        ...controlFunctions,
+        formName,
         extraData,
         key: controlData.id,
       };

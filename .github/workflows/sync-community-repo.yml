@@ -15,6 +15,7 @@ jobs:
         persist-credentials: false
         ref: release
         fetch-depth: 0
+        token: ${{ secrets.PAT_GITHUB }}
 
     # This step pulls the merges the latest release branch from the Appsmith CE into EE repository
     - name: Sync release branch from community repo
@@ -27,6 +28,6 @@ jobs:
     - name: Push changes to the release branch
       uses: ad-m/github-push-action@master
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.PAT_GITHUB }}
         branch: release
 

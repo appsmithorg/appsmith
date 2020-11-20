@@ -13,7 +13,7 @@
       "parentRowSpace": 1,
       "type": "CANVAS_WIDGET",
       "canExtend": true,
-      "dynamicBindings": {},
+      "dynamicBindingPathList": [],
       "version": 4,
       "minHeight": 1292,
       "parentColumnSpace": 1,
@@ -28,7 +28,7 @@
           "isLoading": false,
           "parentColumnSpace": 75.25,
           "parentRowSpace": 38,
-          "dynamicBindings": {},
+          "dynamicBindingPathList": [],
           "leftColumn": 0,
           "rightColumn": 15,
           "topRow": 0,
@@ -84,13 +84,7 @@
                   "bottomRow": 2,
                   "parentId": "e3tq9qwta6",
                   "widgetId": "nl5sy9cuaa",
-                  "dynamicBindings": {
-                    "isValid": true,
-                    "selectedOption": true,
-                    "selectedOptionArr": true,
-                    "selectedIndex": true,
-                    "selectedIndexArr": true
-                  }
+                  "dynamicBindingPathList": []
                 },
                 {
                   "isVisible": true,
@@ -109,7 +103,7 @@
                   "bottomRow": 5,
                   "parentId": "e3tq9qwta6",
                   "widgetId": "gn6ug210ef",
-                  "dynamicBindings": {}
+                  "dynamicBindingPathList": []
                 },
                 {
                   "isVisible": true,
@@ -173,9 +167,9 @@
                   "bottomRow": 8,
                   "parentId": "e3tq9qwta6",
                   "widgetId": "kyrvcdcm4e",
-                  "dynamicTriggers": {
-                    "onDateSelected": true
-                  },
+                  "dynamicTriggerPathList": [{
+                    "key": "onDateSelected"
+                  }],
                   "onDateSelected": "{{showModal()}}"
                 },
                 {
@@ -211,7 +205,7 @@
                   "bottomRow": 16,
                   "parentId": "e3tq9qwta6",
                   "widgetId": "2uvezzlkn5",
-                  "dynamicBindings": {}
+                  "dynamicBindingPathList": []
                 }
               ],
               "widgetId": "e3tq9qwta6",

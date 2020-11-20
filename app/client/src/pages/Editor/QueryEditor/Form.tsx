@@ -21,6 +21,7 @@ import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
+import FormControl from "../FormControl";
 import Table from "./Table";
 import { RestAction } from "entities/Action";
 import { connect, useDispatch } from "react-redux";
@@ -31,7 +32,6 @@ import {
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
 
-import FormControlFactory from "utils/FormControlFactory";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
@@ -565,6 +565,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                 <SettingsWrapper>
                   <ActionSettings
                     actionSettingsConfig={queryActionSettingsConfig}
+                    formName={QUERY_EDITOR_FORM_NAME}
                   />
                 </SettingsWrapper>
               ),
@@ -577,19 +578,18 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 };
 
 const renderEachConfig = (section: any): any => {
-  return section.children.map((propertyControlOrSection: ControlProps) => {
-    if ("children" in propertyControlOrSection) {
-      return renderEachConfig(propertyControlOrSection);
+  return section.children.map((formControlOrSection: ControlProps) => {
+    if ("children" in formControlOrSection) {
+      return renderEachConfig(formControlOrSection);
     } else {
       try {
-        const { configProperty } = propertyControlOrSection;
+        const { configProperty } = formControlOrSection;
         return (
           <FieldWrapper key={configProperty}>
-            {FormControlFactory.createControl(
-              { ...propertyControlOrSection },
-              {},
-              false,
-            )}
+            <FormControl
+              config={formControlOrSection}
+              formName={QUERY_EDITOR_FORM_NAME}
+            />
           </FieldWrapper>
         );
       } catch (e) {
