@@ -903,7 +903,7 @@ const evaluate = (
   const scriptWithCallback = `
          function callback (script) {
             const userFunction = script;
-            const result = userFunction(CALLBACK_DATA);
+            const result = userFunction.apply(self, Object.values(CALLBACK_DATA));
             return { result, triggers: self.triggers };
          }
          callback(${js});
