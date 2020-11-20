@@ -57,4 +57,5 @@ public class FieldName {
     public static String USERNAMES = "usernames";
     public static String ACTION = "action";
     public static String ASSET = "asset";
+    public static String APPLICATION = "application";
 }
