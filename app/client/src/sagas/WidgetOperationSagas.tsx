@@ -606,10 +606,11 @@ function* updateDynamicTriggers(
   propertyValue: string,
   isDynamicTrigger?: boolean,
 ) {
-  // TODO WIDGETFACTORY
+  // TODO: Figure out if isDynamicTrigger can do the job
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
+
   if (propertyPath in triggerProperties || !!isDynamicTrigger) {
     let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
       widget,
@@ -646,7 +647,12 @@ function* updateDynamicBindings(
     // Stringify this because composite controls may have bindings in the sub controls
     stringProp = JSON.stringify(propertyValue);
   }
+  if (propertyName === "primaryColumns" || propertyName === "derivedColumns") {
+    return;
+  }
+
   const isDynamic = isDynamicValue(stringProp);
+
   let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
     widget,
   );
