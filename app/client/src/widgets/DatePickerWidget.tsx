@@ -1,4 +1,5 @@
 import React from "react";
+import moment from "moment-timezone";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
@@ -13,6 +14,7 @@ import {
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import { DateRange } from "@blueprintjs/datetime";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
@@ -69,9 +71,23 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.selectedDate}
         isLoading={this.props.isLoading}
+        minDate={this.props.minDate}
+        maxDate={this.props.maxDate}
       />
     );
   }
+
+  /**
+   * converts string date into moment date
+   *
+   * @param dateStr
+   */
+  parseDate = (dateStr: string): Date => {
+    return moment(
+      dateStr,
+      this.props.widgetProperties.dateFormat || "DD/MM/YYYY HH:mm",
+    ).toDate();
+  };
 
   onDateSelected = (selectedDate: string) => {
     this.props.updateWidgetMetaProperty("selectedDate", selectedDate, {
