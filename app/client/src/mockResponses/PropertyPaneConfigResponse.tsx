@@ -204,6 +204,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             placeholderText: "Enter default search text",
           },
           {
+            id: "7.1.7",
+            helpText: "Selects the default selected row",
+            propertyName: "defaultSelectedRow",
+            label: "Default Selected Row",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter row index",
+          },
+          {
             id: "7.1.3",
             helpText:
               "Bind the Table.pageNo property in your API and call it onPageChange",

@@ -12,6 +12,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -48,6 +49,18 @@ public class Application extends BaseDomain {
     String color;
 
     String icon;
+
+    // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
+    // initialized newly or is left up to the calling function to set.
+    public Application(Application application) {
+        super();
+        this.organizationId = application.getOrganizationId();
+        this.pages = new ArrayList<>();
+        this.publishedPages = new ArrayList<>();
+        this.clonedFromApplicationId = application.getId();
+        this.color = application.getColor();
+        this.icon = application.getIcon();
+    }
 
     public List<ApplicationPage> getPages() {
         return viewMode ? publishedPages : pages;
