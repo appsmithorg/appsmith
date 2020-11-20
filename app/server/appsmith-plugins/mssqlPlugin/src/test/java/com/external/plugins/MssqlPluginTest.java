@@ -121,7 +121,7 @@ public class MssqlPluginTest {
     }
 
     @Test
-    public void testConnectPostgresContainer() {
+    public void testConnectMsSqlContainer() {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
