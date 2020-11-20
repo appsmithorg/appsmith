@@ -871,7 +871,7 @@ type EvalResult = {
 const evaluateDynamicBoundValue = (
   data: DataTree,
   path: string,
-  callbackData?: any,
+  callbackData?: Array<any>,
 ): EvalResult => {
   try {
     const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
@@ -891,7 +891,7 @@ const evaluateDynamicBoundValue = (
 const evaluate = (
   js: string,
   data: DataTree,
-  callbackData: any,
+  callbackData?: Array<any>,
 ): EvalResult => {
   const scriptToEvaluate = `
         function closedFunction () {
@@ -903,7 +903,7 @@ const evaluate = (
   const scriptWithCallback = `
          function callback (script) {
             const userFunction = script;
-            const result = userFunction.apply(self, Object.values(CALLBACK_DATA));
+            const result = userFunction.apply(self, CALLBACK_DATA);
             return { result, triggers: self.triggers };
          }
          callback(${js});
@@ -1007,7 +1007,7 @@ const getDynamicValue = (
   dynamicBinding: string,
   data: DataTree,
   returnTriggers: boolean,
-  callBackData?: any,
+  callBackData?: Array<any>,
 ) => {
   // Get the {{binding}} bound values
   const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);

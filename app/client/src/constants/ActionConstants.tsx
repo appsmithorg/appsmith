@@ -10,7 +10,7 @@ export type ExecutionResult = {
 export type ExecuteActionPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
-  responseData?: any;
+  responseData?: Array<any>;
 };
 
 export enum EventType {

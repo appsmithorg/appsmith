@@ -126,7 +126,7 @@ export function* evaluateSingleValue(binding: string) {
 
 export function* evaluateDynamicTrigger(
   dynamicTrigger: string,
-  callbackData: any,
+  callbackData?: Array<any>,
 ) {
   if (evaluationWorker) {
     const unEvalTree = yield select(getUnevaluatedDataTree);
