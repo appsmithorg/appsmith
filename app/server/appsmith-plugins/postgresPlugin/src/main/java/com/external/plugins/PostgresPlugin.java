@@ -114,27 +114,28 @@ public class PostgresPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-
-            try {
-                if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                    log.info("Encountered stale connection in Postgres plugin. Reporting back.");
-                    throw new StaleConnectionException();
-                }
-            } catch (SQLException error) {
-                // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
-                // here, this should never happen.
-                log.error("Error checking validity of Postgres connection.", error);
-            }
-
-            String query = actionConfiguration.getBody();
-
-            if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
-            }
-
-            List<Map<String, Object>> rowsList = new ArrayList<>(50);
-
+            
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+
+                try {
+                    if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
+                        log.info("Encountered stale connection in Postgres plugin. Reporting back.");
+                        throw new StaleConnectionException();
+                    }
+                } catch (SQLException error) {
+                    // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
+                    // here, this should never happen.
+                    log.error("Error checking validity of Postgres connection.", error);
+                }
+
+                String query = actionConfiguration.getBody();
+
+                if (query == null) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                }
+
+                List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
                 Statement statement = null;
                 ResultSet resultSet = null;
                 try {
