@@ -49,3 +49,18 @@ Config add your registered username and password.
 ```
 12. Once the cypress.json file is ready, we can actually run tests from the cypress client.
 13. Cypress supports Chrome/Firefox/electron browsers. Select a suitable browser and check the status of your tests.
+
+## How do I add environment variables required for Cypress tests?
+
+**Note:** This can only be done by the project maintainers. Please contact one of them if you require this step to be accomplished.
+
+1. Go to [https://github.com/appsmithorg/appsmith/settings/secrets/actions](https://github.com/appsmithorg/appsmith/settings/secrets/actions).
+2. Click on "New Repository Secret"
+3. Add the secret key & value here. These values will be masked in the CI output logs incase they are printed out.
+4. Save the value.
+5. In the file `.github/workflows/client.yml`, find the steps named: "Setting up the cypress tests" & "Run the cypress test". These steps are responsible for setting up & executing the Cypress tests.
+6. Add the env variable there in the form:
+```
+YOUR_SECRET_KEY: ${{ secrets.APPSMITH_YOUR_SECRET_KEY }}
+```
+7. Commit & push the file `.github/workflows/client.yml` to the default branch (`release`). Please remember that the changes to the build file will not take effect unless they are committed against the default branch.
