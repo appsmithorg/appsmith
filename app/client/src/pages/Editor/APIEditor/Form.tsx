@@ -207,6 +207,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             <EmbeddedDatasourcePathField
               name="actionConfiguration.path"
               pluginId={pluginId}
+              placeholder="https://mock-api.appsmith.com/users"
             />
           </DatasourceWrapper>
         </FormRow>
@@ -273,6 +274,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   <SettingsWrapper>
                     <ActionSettings
                       actionSettingsConfig={apiActionSettingsConfig}
+                      formName={API_EDITOR_FORM_NAME}
                     />
                   </SettingsWrapper>
                 ),

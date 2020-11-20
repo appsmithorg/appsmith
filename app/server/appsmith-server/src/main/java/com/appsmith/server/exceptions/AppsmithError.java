@@ -32,6 +32,7 @@ public enum AppsmithError {
     PAGE_DOESNT_BELONG_TO_APPLICATION(400, 4018, "Page {0} does not belong to the application {1}",
             AppsmithErrorAction.LOG_EXTERNALLY),
     NO_DSL_FOUND_IN_PAGE(400, 4020, "The page {0} doesn't have a DSL. This is an unexpected state", AppsmithErrorAction.DEFAULT),
+    INVALID_DYNAMIC_BINDING_REFERENCE(400, 4022, "The dynamically bounded key {0} you are referring to was not found.", AppsmithErrorAction.LOG_EXTERNALLY),
     USER_ALREADY_EXISTS_IN_ORGANIZATION(400, 4021, "The user {0} has already been added to the organization with role {1}", AppsmithErrorAction.DEFAULT),
     UNAUTHORIZED_DOMAIN(401, 4019, "Invalid email domain provided. Please sign in with a valid work email ID", AppsmithErrorAction.DEFAULT),
     USER_NOT_SIGNED_IN(401, 4020, "User is not logged in. Please sign in with the registered email ID or sign up",
