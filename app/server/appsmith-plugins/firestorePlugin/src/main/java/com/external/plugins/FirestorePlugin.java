@@ -67,7 +67,7 @@ public class FirestorePlugin extends BasePlugin {
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
 
-        private final Scheduler scheduler = Schedulers.newParallel("FirestorePluginThreads");
+        private final Scheduler scheduler = Schedulers.newElastic("FirestorePluginThreads");
 
         @Override
         public Mono<ActionExecutionResult> execute(Firestore connection,
@@ -247,6 +247,7 @@ public class FirestorePlugin extends BasePlugin {
                                 return Mono.just(query1.whereLessThanOrEqualTo(queryFieldPath, queryValue));
                             case EQ:
                                 return Mono.just(query1.whereEqualTo(queryFieldPath, queryValue));
+                            // TODO: NOT_EQ operator support is awaited in the next version of Firestore driver.
                             // case NOT_EQ:
                             //     return Mono.just(query1.whereNotEqualTo(queryFieldPath, queryValue));
                             case GT:
@@ -273,8 +274,9 @@ public class FirestorePlugin extends BasePlugin {
                                             "Unable to parse condition value as a JSON list."
                                     ));
                                 }
-                                // case NOT_IN:
-                                //     return Mono.just(query1.whereNotIn(queryFieldPath, queryValue));
+                            // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
+                            // case NOT_IN:
+                            //     return Mono.just(query1.whereNotIn(queryFieldPath, queryValue));
                             default:
                                 return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
