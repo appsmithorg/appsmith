@@ -188,10 +188,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Button",
                           value: "button",
                         },
-                        {
-                          label: "Dropdown",
-                          value: "dropdown",
-                        },
+                        // {
+                        //   label: "Dropdown",
+                        //   value: "dropdown",
+                        // },
                       ],
                     },
                     {
@@ -516,10 +516,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Button",
                           value: "button",
                         },
-                        {
-                          label: "Dropdown",
-                          value: "dropdown",
-                        },
+                        // {
+                        //   label: "Dropdown",
+                        //   value: "dropdown",
+                        // },
                       ],
                     },
                     {
@@ -1107,7 +1107,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       for (let i = 0; i < this.props.primaryColumns.length; i++) {
         const column: ColumnProperties = this.props.primaryColumns[i];
         const columnId = column.id;
-        if (column.computedValue) {
+        if (column.computedValue && Array.isArray(column.computedValue)) {
           try {
             let computedValues: Array<unknown> = [];
             if (isString(column.computedValue)) {
@@ -1131,7 +1131,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       for (let i = 0; i < this.props.derivedColumns.length; i++) {
         const column: ColumnProperties = this.props.derivedColumns[i];
         const columnId = column.id;
-        if (column.computedValue) {
+        if (column.computedValue && Array.isArray(column.computedValue)) {
           try {
             let computedValues: Array<unknown> = [];
             if (isString(column.computedValue)) {
