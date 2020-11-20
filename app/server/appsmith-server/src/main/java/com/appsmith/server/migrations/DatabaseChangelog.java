@@ -1227,7 +1227,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
-    public void updateCompoundIndex3(MongoTemplate mongoTemplate) {
+    public void updateActionIndexToSingleMultipleIndices(MongoTemplate mongoTemplate) {
 
         dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_unpublishedPageId_compound_index");
 
