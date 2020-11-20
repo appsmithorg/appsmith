@@ -23,7 +23,6 @@ export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
   return !!hiddenConfig;
 };
 
-// TODO (Akash): Add test
 export const getConfigInitialValues = (config: Record<string, any>[]) => {
   const configInitialValues = {};
   const parseConfig = (section: any): any => {
