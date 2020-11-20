@@ -40,13 +40,6 @@ export const getUnevaluatedDataTree = createSelector(
  */
 export const getDataTree = (state: AppState) => state.evaluations.tree;
 
-/**
- * returns array of key names of data
- */
-export const getDataTreeKeys = createSelector(getDataTree, (tree: DataTree) => {
-  return Object.keys(tree);
-});
-
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
 export const getDataTreeForAutocomplete = createSelector(

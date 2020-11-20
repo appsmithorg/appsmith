@@ -55,7 +55,7 @@ import {
   getExistingPageNames,
   getWidgets,
 } from "./selectors";
-import { getDataTree, getDataTreeKeys } from "selectors/dataTreeSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
