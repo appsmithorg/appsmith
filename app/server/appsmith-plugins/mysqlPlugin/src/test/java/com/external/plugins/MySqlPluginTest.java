@@ -19,7 +19,9 @@ import org.testcontainers.containers.MySQLContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.sql.Connection;
+//TODO: replace with specific packages.
+import io.r2dbc.spi.*;
+//import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -69,71 +71,59 @@ public class MySqlPluginTest {
         username = mySQLContainer.getUsername();
         password = mySQLContainer.getPassword();
         database = mySQLContainer.getDatabaseName();
-        createDatasourceConfiguration();
 
-        Properties properties = new Properties();
-        properties.putAll(Map.of(
-                "user", username,
-                "password", password
-        ));
+        ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+        //TODO: check if required.
+        //ob = ob.option(ConnectionFactoryOptions.DRIVER, "mysql");
 
-        try (Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://" + address + ":" + port + "/" + database,
-                properties
-        )) {
+        ob = ob.option(ConnectionFactoryOptions.HOST, address);
+        ob = ob.option(ConnectionFactoryOptions.PORT, port);
+        ob = ob.option(ConnectionFactoryOptions.DATABASE, database);
+        ob = ob.option(ConnectionFactoryOptions.USER, username);
+        ob = ob.option(ConnectionFactoryOptions.PASSWORD, password);
 
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("DROP TABLE IF EXISTS users");
-            }
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .flatMap(connection -> {
+                    Mono.from(connection.createStatement("create table users (\n" +
+                            "    id int primary key,\n" +
+                            "    username varchar (250) unique not null,\n" +
+                            "    password varchar (250) not null,\n" +
+                            "    email varchar (250) unique not null,\n" +
+                            "    spouse_dob date,\n" +
+                            "    dob date not null,\n" +
+                            "    yob year not null,\n" +
+                            "    time1 time not null,\n" +
+                            "    created_on timestamp not null,\n" +
+                            "    updated_on datetime not null,\n" +
+                            "    constraint unique index (username, email)\n" +
+                            ")")
+                            .execute())
+                            .block();
 
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("create table users (\n" +
-                        "    id int primary key,\n" +
-                        "    username varchar (250) unique not null,\n" +
-                        "    password varchar (250) not null,\n" +
-                        "    email varchar (250) unique not null,\n" +
-                        "    spouse_dob date,\n" +
-                        "    dob date not null,\n" +
-                        "    yob year not null,\n" +
-                        "    time1 time not null,\n" +
-                        "    created_on timestamp not null,\n" +
-                        "    updated_on datetime not null,\n" +
-                        "    constraint unique index (username, email)\n" +
-                        ")");
+                    Mono.from(connection.createStatement("create table possessions (\n" +
+                            "    id int primary key,\n" +
+                            "    title varchar (250) not null,\n" +
+                            "    user_id int not null,\n" +
+                            "    username varchar (250) not null,\n" +
+                            "    email varchar (250) not null\n" +
+                            ")")
+                            .execute())
+                            .block();
 
-                statement.execute("create table possessions (\n" +
-                        "    id int primary key,\n" +
-                        "    title varchar (250) not null,\n" +
-                        "    user_id int not null,\n" +
-                        "    username varchar (250) not null,\n" +
-                        "    email varchar (250) not null\n" +
-                        ")");
+                    Mono.from(connection.createStatement("alter table possessions add foreign key (username, email) " +
+                            "references users (username, email)")
+                            .execute())
+                            .block();
 
-                statement.execute("alter table possessions add foreign key (username, email) references users (username, email)");
-                statement.execute("SET SESSION sql_mode = '';\n");
-            }
+                    Mono.from(connection.createStatement("SET SESSION sql_mode = '';\n")
+                            .execute())
+                            .block();
 
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(
-                        "INSERT INTO users VALUES (" +
-                                "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018," +
-                                " '18:32:45'," +
-                                " '2018-11-30 20:45:15', '0000-00-00 00:00:00'" +
-                                ")");
-            }
+                    return Mono.empty();
+                })
+                .block();
 
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(
-                        "INSERT INTO users VALUES (" +
-                                "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019," +
-                                " '15:45:30'," +
-                                " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
-                                ")");
-            }
-
-        } catch (SQLException throwable) {
-            throwable.printStackTrace();
-        }
     }
 
     private static DatasourceConfiguration createDatasourceConfiguration() {
@@ -238,6 +228,7 @@ public class MySqlPluginTest {
 
     @Test
     public void testValidateDatasourceInvalidEndpoint() {
+        //TODO: check how to change.
         String hostname = "jdbc://localhost";
         dsConfig.getEndpoints().get(0).setHost(hostname);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
@@ -256,7 +247,7 @@ public class MySqlPluginTest {
                 .assertNext(connection -> {
                     pluginExecutor.datasourceDestroy(connection);
                     try {
-                        assertTrue(connection.isClosed());
+                        assertTrue(connection.);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }

@@ -100,17 +100,6 @@ public class MySqlPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            try {
-                if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                    log.info("Encountered stale connection in MySQL plugin. Reporting back.");
-                    throw new StaleConnectionException();
-                }
-            } catch (SQLException error) {
-                // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
-                // here, this should never happen.
-                log.error("Error checking validity of MySQL connection.", error);
-            }
-
             String query = actionConfiguration.getBody();
 
             if (query == null) {
@@ -234,7 +223,7 @@ public class MySqlPlugin extends BasePlugin {
             //TODO: check if required.
             //ob = ob.option(ConnectionFactoryOptions.DRIVER, "mysql");
 
-            return (Mono<Connection>) ConnectionFactories.get(ob.build()).create();
+            return Mono.from(ConnectionFactories.get(ob.build()).create());
         }
 
         @Override
