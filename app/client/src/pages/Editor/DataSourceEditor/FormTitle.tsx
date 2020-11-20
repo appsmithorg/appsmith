@@ -10,7 +10,7 @@ import { getDatasource } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "api/DatasourcesApi";
 import { getDataSources } from "selectors/editorSelectors";
-import { getDataTreeKeys } from "selectors/dataTreeSelectors";
+import { getDataTree, getDataTreeKeys } from "selectors/dataTreeSelectors";
 import { isNameValid } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
@@ -37,7 +37,7 @@ const FormTitle = (props: FormTitleProps) => {
     getDatasource(state, params.datasourceId),
   );
   const datasources: Datasource[] = useSelector(getDataSources);
-  const evalTreeKeyNames = useSelector(getDataTreeKeys);
+  const evalTree = useSelector(getDataTree);
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   const saveStatus: {
@@ -54,11 +54,14 @@ const FormTitle = (props: FormTitleProps) => {
 
   const hasNameConflict = React.useCallback(
     (name: string) => {
-      const datasourcesName = datasources
+      const datasourcesNames: { [key: string]: any } = {};
+      datasources
         .filter(datasource => datasource.id !== currentDatasource?.id)
-        .map(datasource => datasource.name);
+        .map(datasource => {
+          datasourcesNames[datasource.name] = datasource;
+        });
 
-      return !isNameValid(name, [...datasourcesName, ...evalTreeKeyNames]);
+      return !isNameValid(name, { ...datasourcesNames, ...evalTree });
     },
     [datasources, currentDatasource],
   );

@@ -10,7 +10,8 @@ import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { RestAction } from "entities/Action";
 import { Page } from "constants/ReduxActionConstants";
-import { getDataTreeKeys } from "selectors/dataTreeSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getExistingPageNames } from "sagas/selectors";
 
 import { saveActionName } from "actions/actionActions";
 import { Spinner } from "@blueprintjs/core";
@@ -43,10 +44,6 @@ export const ActionNameEditor = () => {
     state.entities.actions.map(action => action.config),
   );
 
-  const existingPageNames: string[] = useSelector((state: AppState) =>
-    state.entities.pageList.pages.map((page: Page) => page.pageName),
-  );
-
   const currentActionConfig: RestAction | undefined = actions.find(
     action => action.id === params.apiId || action.id === params.queryId,
   );
@@ -57,7 +54,8 @@ export const ActionNameEditor = () => {
     ),
   );
 
-  const evalTreeKeyNames = useSelector(getDataTreeKeys);
+  const evalTree = useSelector(getDataTree);
+  const existingPageNames = useSelector(getExistingPageNames);
 
   const saveStatus: {
     isSaving: boolean;
@@ -71,8 +69,7 @@ export const ActionNameEditor = () => {
   });
 
   const hasActionNameConflict = useCallback(
-    (name: string) =>
-      !isNameValid(name, [...existingPageNames, ...evalTreeKeyNames]),
+    (name: string) => !isNameValid(name, { ...existingPageNames, ...evalTree }),
     [existingPageNames, actions, existingWidgetNames],
   );
 

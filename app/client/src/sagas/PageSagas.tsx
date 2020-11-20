@@ -55,7 +55,7 @@ import {
   getExistingPageNames,
   getWidgets,
 } from "./selectors";
-import { getDataTreeKeys } from "selectors/dataTreeSelectors";
+import { getDataTree, getDataTreeKeys } from "selectors/dataTreeSelectors";
 import { validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
@@ -537,17 +537,17 @@ export function* updateWidgetNameSaga(
   try {
     const { widgetName } = yield select(getWidgetName, action.payload.id);
     const layoutId = yield select(getCurrentLayoutId);
-    const evalTreeKeyNames = yield select(getDataTreeKeys);
+    const evalTree = yield select(getDataTree);
     const pageId = yield select(getCurrentPageId);
     const existingPageNames = yield select(getExistingPageNames);
 
     // check if name is not conflicting with any
     // existing entity/api/queries/reserved words
     if (
-      isNameValid(action.payload.newName, [
-        ...evalTreeKeyNames,
+      isNameValid(action.payload.newName, {
+        ...evalTree,
         ...existingPageNames,
-      ])
+      })
     ) {
       const request: UpdateWidgetNameRequest = {
         newName: action.payload.newName,
