@@ -90,7 +90,7 @@ export const getExistingActionNames = createSelector(
  * @param state
  */
 export const getExistingPageNames = (state: AppState) => {
-  const map: { [key: string]: any } = {};
+  const map: Record<string, any> = {};
 
   state.entities.pageList.pages.map((page: Page) => {
     map[page.pageName] = page.pageName;

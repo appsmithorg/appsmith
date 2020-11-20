@@ -1,4 +1,5 @@
 import { GridDefaults } from "constants/WidgetConstants";
+import { JAVSCRIPT_KEYWORDS } from "constants/WidgetValidation";
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -164,29 +165,6 @@ export const convertArrayToSentence = (arr: string[]) => {
 };
 
 /**
- * checks if a value exists in array.
- * We are using for loop instead of findIndex/indexOf because of
- * performance gains
- *
- * https://nikitahl.com/how-to-find-an-item-in-a-javascript-array/
- *
- * @param value
- * @param array
- */
-export const valueExistsInArray = (value: any, array: any) => {
-  let exists = false;
-
-  for (let i = 0; i < array.length; i++) {
-    if (array[i] === value) {
-      exists = true;
-
-      break;
-    }
-  }
-
-  return exists;
-};
-/**
  * checks if the name is conflciting with
  * 1. API names,
  * 2. Queries name
@@ -200,58 +178,9 @@ export const valueExistsInArray = (value: any, array: any) => {
  */
 export const isNameValid = (
   name: string,
-  invalidNames: { [key: string]: any },
+  invalidNames: Record<string, any>,
 ) => {
-  const keywords = {
-    true: "true",
-    await: "await",
-    break: "break",
-    case: "case",
-    catch: "catch",
-    class: "class",
-    const: "const",
-    continue: "continue",
-    debugger: "debugger",
-    default: "default",
-    delete: "delete",
-    do: "do",
-    else: "else",
-    enum: "enum",
-    export: "export",
-    extends: "extends",
-    false: "false",
-    finally: "finally",
-    for: "for",
-    function: "function",
-    if: "if",
-    implements: "implements",
-    import: "import",
-    in: "in",
-    instanceof: "instanceof",
-    interface: "interface",
-    let: "let",
-    new: "new",
-    null: "null",
-    package: "package",
-    private: "private",
-    protected: "protected",
-    public: "public",
-    return: "return",
-    static: "static",
-    super: "super",
-    switch: "switch",
-    this: "this",
-    throw: "throw",
-    try: "try",
-    typeof: "typeof",
-    var: "var",
-    void: "void",
-    while: "while",
-    with: "with",
-    yield: "yield",
-  };
-
-  if (name in keywords || name in invalidNames) {
+  if (name in JAVSCRIPT_KEYWORDS || name in invalidNames) {
     return false;
   }
 

@@ -54,7 +54,7 @@ const FormTitle = (props: FormTitleProps) => {
 
   const hasNameConflict = React.useCallback(
     (name: string) => {
-      const datasourcesNames: { [key: string]: any } = {};
+      const datasourcesNames: Record<string, any> = {};
       datasources
         .filter(datasource => datasource.id !== currentDatasource?.id)
         .map(datasource => {
