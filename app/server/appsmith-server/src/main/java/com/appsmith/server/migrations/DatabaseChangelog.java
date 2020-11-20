@@ -1226,38 +1226,25 @@ public class DatabaseChangelog {
                 );
     }
 
-    @ChangeSet(order = "042", id = "update-action-add-index-pageId", author = "")
-    public void updateNewActionIndexForPageId(MongoTemplate mongoTemplate) {
+    @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
+    public void updateCompoundIndex3(MongoTemplate mongoTemplate) {
+
+        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_unpublishedPageId_compound_index");
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("applicationId")
+                        .named("applicationId")
+        );
 
         ensureIndexes(mongoTemplate, NewAction.class,
                 makeIndex("unpublishedAction.pageId")
-                        .named("unpublishedActionPageId_index")
+                        .named("unpublishedAction_pageId")
         );
-    }
-
-    @ChangeSet(order = "043", id = "update-compound-index1", author = "")
-    public void updateCompoundIndex1(MongoTemplate mongoTemplate) {
-
-        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_unpublishedPageId_compound_index");
-        dropIndexIfExists(mongoTemplate, NewAction.class, "unpublishedActionPageId_index");
 
         ensureIndexes(mongoTemplate, NewAction.class,
-                makeIndex("deleted", "unpublishedAction.pageId")
-                        .named("applicationId_deleted_unpublishedPageId_compound_index")
+                makeIndex("deleted")
+                        .named("deleted")
         );
-        // This worked for fetching actions by page id
-    }
-
-    @ChangeSet(order = "044", id = "update-compound-index2", author = "")
-    public void updateCompoundIndex2(MongoTemplate mongoTemplate) {
-
-        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_unpublishedPageId_compound_index");
-
-        ensureIndexes(mongoTemplate, NewAction.class,
-                makeIndex("applicationId", "unpublishedAction.pageId")
-                        .named("applicationId_deleted_unpublishedPageId_compound_index")
-        );
-        // Does not work for fetching actions by page id.
     }
 
 }
