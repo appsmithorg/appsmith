@@ -59,36 +59,23 @@ class DateRangePickerControl extends BaseControl<
     return (
       <DateRangePickerControlWrapper>
         <StyledDateRangePicker
-        // formatDate={this.formatDate}
-        // parseDate={this.parseDate}
-        // placeholder="DD/MM/YYYY HH:mm"
-        // showActionsBar
-        // timePrecision={TimePrecision.MINUTE}
-        // closeOnSelection
-        // onChange={this.onDateSelected}
-        // maxDate={this.maxDate}
-        // minDate={this.minDate}
-        // value={
-        //   this.props.propertyValue
-        //     ? this.parseDate(this.props.propertyValue)
-        //     : null
-        // }
+          formatDate={this.formatDate}
+          parseDate={this.parseDate}
+          // placeholder="DD/MM/YYYY HH:mm"
+          // timePrecision={TimePrecision.MINUTE}
+          // closeOnSelection
+          // onChange={this.onDateSelected}
+          // maxDate={this.maxDate}
+          // minDate={this.minDate}
+          value={this.parseDates(this.props.propertyValue)}
         />
       </DateRangePickerControlWrapper>
     );
   }
 
-  onDateSelected = (dates: DateRange): void => {
-    const selectedDates = dates
-      ? dates.map(date => {
-          if (date) {
-            this.formatDate(date);
-          }
+  onDateSelected = (dates: DateRange | undefined): void => {
+    const selectedDates = [null, null];
 
-          return null;
-        })
-      : undefined;
-    this.setState({ selectedDates });
     this.updateProperty(this.props.propertyName, selectedDates);
   };
 
@@ -105,6 +92,12 @@ class DateRangePickerControl extends BaseControl<
     ).toDate();
   };
 
+  parseDates = (
+    dates: [string | null, string | null] | undefined,
+  ): DateRange => {
+    return [null, null];
+  };
+
   static getControlType() {
     return "DATE_RANGE_PICKER";
   }
@@ -112,12 +105,12 @@ class DateRangePickerControl extends BaseControl<
 
 export interface DateRangePickerControlProps extends ControlProps {
   placeholderText: string;
-  propertyValue: (Date | null)[];
+  propertyValue: [string | null, string | null];
   widgetProperties: WidgetProps;
 }
 
 interface DateRangePickerControlState {
-  selectedDates?: (Date | null)[];
+  selectedDates?: [string | null, string | null];
 }
 
 export default DateRangePickerControl;
