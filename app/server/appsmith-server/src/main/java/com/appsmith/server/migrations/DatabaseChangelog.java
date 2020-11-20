@@ -1234,7 +1234,7 @@ public class DatabaseChangelog {
         plugin.setPackageName("firestore-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://image.winudf.com/v2/image1/Y29tLmFua2l0Ym9ocmE3Ni5DbG91ZF9GaXJlc3RvcmVfaWNvbl8xNTQzNzgxNDQ1XzAxNA/icon.png?w=170&fakeurl=1");
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Firestore.png");
         plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-firestore");
         plugin.setDefaultInstall(true);
         try {
