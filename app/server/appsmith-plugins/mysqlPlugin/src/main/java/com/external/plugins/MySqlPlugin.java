@@ -169,7 +169,8 @@ public class MySqlPlugin extends BasePlugin {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading MySQL JDBC Driver class."));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading MySQL " +
+                        "R2DBC Driver class."));
             }
 
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
@@ -190,8 +191,7 @@ public class MySqlPlugin extends BasePlugin {
                 urlBuilder.append(datasourceConfiguration.getUrl());
 
             } else {
-                //TODO: check how to change.
-                urlBuilder.append("jdbc:mysql://");
+                urlBuilder.append("r2dbc:mysql://");
 
                 final List<String> hosts = new ArrayList<>();
                 for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
@@ -220,22 +220,18 @@ public class MySqlPlugin extends BasePlugin {
 
             ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
             ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-            //TODO: check if required.
-            //ob = ob.option(ConnectionFactoryOptions.DRIVER, "mysql");
 
             return Mono.from(ConnectionFactories.get(ob.build()).create());
         }
 
         @Override
         public void datasourceDestroy(Connection connection) {
-            try {
-                if (connection != null) {
-                    //TODO: how to deal with a void return type and publisher<Void>
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                log.error("Error closing MySQL Connection.", e);
+            if (connection != null) {
+                //TODO: fix it.
+                Mono.from(connection.close()).block();
             }
+
+            return;
         }
 
         @Override

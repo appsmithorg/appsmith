@@ -72,11 +72,9 @@ public class MySqlPluginTest {
         password = mySQLContainer.getPassword();
         database = mySQLContainer.getDatabaseName();
 
-        ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
+        ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse("");
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-        //TODO: check if required.
-        //ob = ob.option(ConnectionFactoryOptions.DRIVER, "mysql");
-
+        ob = ob.option(ConnectionFactoryOptions.DRIVER, "mysql");
         ob = ob.option(ConnectionFactoryOptions.HOST, address);
         ob = ob.option(ConnectionFactoryOptions.PORT, port);
         ob = ob.option(ConnectionFactoryOptions.DATABASE, database);
@@ -228,14 +226,13 @@ public class MySqlPluginTest {
 
     @Test
     public void testValidateDatasourceInvalidEndpoint() {
-        //TODO: check how to change.
-        String hostname = "jdbc://localhost";
+        String hostname = "r2dbc:mysql://localhost";
         dsConfig.getEndpoints().get(0).setHost(hostname);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
     }
 
-    /* checking that the connection is being closed after the datadourceDestroy method is being called
+    /* checking that the connection is being closed after the datasourceDestroy method is being called
     NOT : this test case will fail in case of a SQL Exception
      */
     @Test
@@ -246,11 +243,6 @@ public class MySqlPluginTest {
         StepVerifier.create(connectionMono)
                 .assertNext(connection -> {
                     pluginExecutor.datasourceDestroy(connection);
-                    try {
-                        assertTrue(connection.);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
                 })
                 .verifyComplete();
     }
