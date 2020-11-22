@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+//TODO: check what to do for test container.
 import org.testcontainers.containers.MySQLContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -22,9 +23,11 @@ import reactor.test.StepVerifier;
 //TODO: replace with specific packages.
 import io.r2dbc.spi.*;
 //import java.sql.Connection;
+/*
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+*/
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

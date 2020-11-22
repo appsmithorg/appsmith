@@ -28,11 +28,13 @@ import org.springframework.data.r2dbc.core.DatabaseClient;
 
 //TODO: remove them
 //import java.sql.Connection;
+/*
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+*/
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -166,25 +168,11 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            try {
-                Class.forName(JDBC_DRIVER);
-            } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading MySQL " +
-                        "R2DBC Driver class."));
-            }
-
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
 
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
             Properties properties = new Properties();
-            // TODO: Set SSL connection parameters as well.
-            if (authentication.getUsername() != null) {
-                properties.put(USER, authentication.getUsername());
-            }
-            if (authentication.getPassword() != null) {
-                properties.put(PASSWORD, authentication.getPassword());
-            }
 
             StringBuilder urlBuilder = new StringBuilder();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -218,9 +206,27 @@ public class MySqlPlugin extends BasePlugin {
                 }
             }
 
-            ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
+            ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse("r2dbc:mysql://test" +
+                    ":mydbpassword@localhost:3306");
             ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
 
+            // TODO: Set SSL connection parameters as well.
+            /*if (authentication.getUsername() != null) {
+                ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
+            }
+
+            if (authentication.getPassword() != null) {
+                ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
+            }
+
+            if (authentication.getDatabaseName() != null) {
+                ob = ob.option(ConnectionFactoryOptions.DATABASE, authentication.getDatabaseName());
+            }
+
+            ob = ob.option(ConnectionFactoryOptions.DRIVER, "mysql");
+            ob = ob.option(ConnectionFactoryOptions.HOST, "localhost");
+            ob = ob.option(ConnectionFactoryOptions.PORT, 3306);
+*/
             return Mono.from(ConnectionFactories.get(ob.build()).create());
         }
 
