@@ -16,7 +16,6 @@ import { AppState } from "reducers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon } from "@blueprintjs/core";
 
 const { algolia, cloudHosting, intercomAppID } = getAppsmithConfigs();
 const HelpButton = styled.button<{

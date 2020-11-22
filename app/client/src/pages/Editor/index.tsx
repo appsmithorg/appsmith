@@ -92,9 +92,7 @@ class Editor extends Component<Props> {
           combo="mod + c"
           label="Copy Widget"
           group="Canvas"
-          onKeyDown={(e: any) => {
-            this.props.copySelectedWidget();
-          }}
+          onKeyDown={this.props.copySelectedWidget}
           preventDefault
           stopPropagation
         />
@@ -103,9 +101,7 @@ class Editor extends Component<Props> {
           combo="mod + v"
           label="Paste Widget"
           group="Canvas"
-          onKeyDown={(e: any) => {
-            this.props.pasteCopiedWidget();
-          }}
+          onKeyDown={this.props.pasteCopiedWidget}
           preventDefault
           stopPropagation
         />
@@ -114,7 +110,7 @@ class Editor extends Component<Props> {
           combo="del"
           label="Delete Widget"
           group="Canvas"
-          onKeyDown={(e: any) => {
+          onKeyDown={() => {
             if (!isMac()) this.props.deleteSelectedWidget();
           }}
           preventDefault
@@ -125,7 +121,7 @@ class Editor extends Component<Props> {
           combo="backspace"
           label="Delete Widget"
           group="Canvas"
-          onKeyDown={(e: any) => {
+          onKeyDown={() => {
             if (isMac()) this.props.deleteSelectedWidget();
           }}
           preventDefault
@@ -136,9 +132,7 @@ class Editor extends Component<Props> {
           combo="del"
           label="Delete Widget"
           group="Canvas"
-          onKeyDown={(e: any) => {
-            this.props.deleteSelectedWidget();
-          }}
+          onKeyDown={this.props.deleteSelectedWidget}
           preventDefault
           stopPropagation
         />
@@ -147,9 +141,7 @@ class Editor extends Component<Props> {
           combo="mod + x"
           label="Cut Widget"
           group="Canvas"
-          onKeyDown={(e: any) => {
-            this.props.cutSelectedWidget();
-          }}
+          onKeyDown={this.props.cutSelectedWidget}
           preventDefault
           stopPropagation
         />

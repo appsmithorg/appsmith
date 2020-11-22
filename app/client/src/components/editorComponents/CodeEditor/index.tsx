@@ -76,6 +76,8 @@ export type EditorStyleProps = {
 export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
+  } & {
+    additionalDynamicData?: Record<string, Record<string, unknown>>;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -196,7 +198,11 @@ class CodeEditor extends Component<Props, State> {
 
   startAutocomplete() {
     this.hinters = this.props.hinting.map(helper => {
-      return helper(this.editor, this.props.dynamicData);
+      return helper(
+        this.editor,
+        this.props.dynamicData,
+        this.props.additionalDynamicData,
+      );
     });
   }
 

@@ -97,6 +97,7 @@ function getChildWidgetProps(
   const { leftColumn, topRow, newWidgetId, props, type } = params;
   let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { blueprint = undefined, ...restDefaultConfig } = {
     ...(WidgetConfigResponse as any).config[type],
   };
@@ -603,12 +604,14 @@ function* updateDynamicTriggers(
   widget: WidgetProps,
   propertyPath: string,
   propertyValue: string,
+  isDynamicTrigger?: boolean,
 ) {
-  // TODO WIDGETFACTORY
+  // TODO: Figure out if isDynamicTrigger can do the job
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
-  if (propertyPath in triggerProperties) {
+
+  if (propertyPath in triggerProperties || !!isDynamicTrigger) {
     let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
       widget,
     );
@@ -644,7 +647,12 @@ function* updateDynamicBindings(
     // Stringify this because composite controls may have bindings in the sub controls
     stringProp = JSON.stringify(propertyValue);
   }
+  if (propertyName === "primaryColumns" || propertyName === "derivedColumns") {
+    return;
+  }
+
   const isDynamic = isDynamicValue(stringProp);
+
   let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
     widget,
   );
@@ -671,7 +679,7 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyName, widgetId },
+    payload: { propertyValue, propertyName, widgetId, isDynamicTrigger },
   } = updateAction;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
@@ -684,6 +692,7 @@ function* updateWidgetPropertySaga(
     widget,
     propertyName,
     propertyValue,
+    isDynamicTrigger,
   );
   if (!dynamicTriggersUpdated) {
     yield updateDynamicBindings(widget, propertyName, propertyValue);

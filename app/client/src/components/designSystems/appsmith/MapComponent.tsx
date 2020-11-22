@@ -153,7 +153,7 @@ const MyMapComponent = withScriptjs(
               props.selectedMarker.lat === marker.lat &&
               props.selectedMarker.long === marker.long
             }
-            onClick={e => {
+            onClick={() => {
               setMapCenter({
                 ...marker,
                 lng: marker.long,

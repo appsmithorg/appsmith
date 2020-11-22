@@ -65,24 +65,6 @@ const AppsmithLogoImg = styled.img`
   max-width: 110px;
 `;
 
-const ApplicationName = styled.span`
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 14px;
-  color: #fff;
-  margin-bottom: 6px;
-`;
-
-const PageName = styled.span`
-  display: flex;
-  flex: 1;
-  font-size: 12px;
-  line-height: 12px;
-  letter-spacing: 0.04em;
-  color: #ffffff;
-  opacity: 0.5;
-`;
-
 const SaveStatusContainer = styled.div`
   margin: 0 10px;
   border: 1px solid rgb(95, 105, 116);
@@ -146,7 +128,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     isPublishing,
     orgId,
     applicationId,
-    pageName,
     publishApplication,
   } = props;
 
@@ -214,7 +195,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             editInteractionKind={EditInteractionKind.SINGLE}
             hideEditIcon={true}
             className="t--application-name"
-            fill={false}
             savingState={
               isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
             }

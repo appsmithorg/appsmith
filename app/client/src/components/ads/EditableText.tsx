@@ -3,7 +3,7 @@ import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
-import { Classes, CommonComponentProps } from "./common";
+import { CommonComponentProps } from "./common";
 import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
 import { getThemeDetails } from "selectors/themeSelectors";
@@ -39,9 +39,9 @@ export type EditableTextProps = CommonComponentProps & {
 };
 
 const EditableTextWrapper = styled.div<{
-  fill?: boolean;
+  filled: boolean;
 }>`
-  width: ${props => (!props.fill ? "234px" : "100%")};
+  width: ${props => (!props.filled ? "234px" : "100%")};
   .error-message {
     margin-left: ${props => props.theme.spaces[5]}px;
     color: ${props => props.theme.colors.danger.main};
@@ -227,7 +227,7 @@ export const EditableText = (props: EditableTextProps) => {
 
   return (
     <EditableTextWrapper
-      fill={props.fill}
+      filled={!!props.fill}
       onMouseEnter={nonEditMode}
       onDoubleClick={
         props.editInteractionKind === EditInteractionKind.DOUBLE
@@ -274,10 +274,6 @@ export const EditableText = (props: EditableTextProps) => {
       ) : null}
     </EditableTextWrapper>
   );
-};
-
-EditableText.defaultProps = {
-  fill: false,
 };
 
 export default EditableText;

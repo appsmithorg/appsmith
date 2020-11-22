@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-import React, { useEffect } from "react";
+import React from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
 import { debounce } from "lodash";
@@ -122,7 +122,8 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   const updateColumnType = (columnIndex: number, columnType: string) => {
     updateColumnProperties(columnIndex, {
       columnType: columnType,
-      format: undefined,
+      inputFormat: undefined,
+      outputFormat: undefined,
     });
   };
 
@@ -138,9 +139,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   ) => {
     updateColumnProperties(columnIndex, {
       columnType: "currency",
-      format: {
-        output: currencySymbol,
-      },
+      outputFormat: currencySymbol,
     });
   };
 
@@ -151,10 +150,8 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   ) => {
     updateColumnProperties(columnIndex, {
       columnType: "date",
-      format: {
-        output: dateFormat,
-        input: dateInputFormat,
-      },
+      outputFormat: dateFormat,
+      inputFormat: dateInputFormat,
     });
   };
 

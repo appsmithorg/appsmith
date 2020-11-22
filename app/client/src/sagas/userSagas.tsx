@@ -208,11 +208,6 @@ export function* invitedUserSignupSaga(
   }
 }
 
-type InviteUserPayload = {
-  email: string;
-  groupIds: string[];
-};
-
 export function* inviteUser(
   payload: { email: string; orgId: string; roleName: string },
   reject: any,

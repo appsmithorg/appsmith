@@ -43,7 +43,7 @@ export const RichtextEditorComponent = (
         const content = props.defaultValue
           ? props.defaultValue.replace(/\n/g, "<br/>")
           : props.defaultValue;
-        editorInstance.setContent(props.defaultValue, { format: "html" });
+        editorInstance.setContent(content, { format: "html" });
       }, 200);
     }
   }, [props.defaultValue]);

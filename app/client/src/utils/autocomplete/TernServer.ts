@@ -7,6 +7,7 @@ import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
   getDynamicStringSegments,
@@ -56,11 +57,20 @@ class TernServer {
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
 
-  constructor(dataTree: DataTree) {
+  constructor(
+    dataTree: DataTree,
+    additionalDataTree?: Record<string, Record<string, unknown>>,
+  ) {
     const dataTreeDef = dataTreeTypeDefCreator(dataTree);
+    let customDataTreeDef = undefined;
+    if (additionalDataTree) {
+      customDataTreeDef = customTreeTypeDefCreator(additionalDataTree);
+    }
     this.server = new tern.Server({
       async: true,
-      defs: [...DEFS, dataTreeDef],
+      defs: customDataTreeDef
+        ? [...DEFS, dataTreeDef, customDataTreeDef]
+        : [...DEFS, dataTreeDef],
     });
   }
 

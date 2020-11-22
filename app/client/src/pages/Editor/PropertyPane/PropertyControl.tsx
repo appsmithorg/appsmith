@@ -58,7 +58,7 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const onPropertyChange = useCallback(
-    (propertyName: string, propertyValue: any) => {
+    (propertyName: string, propertyValue: any, isDynamicTrigger?: boolean) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
         widgetName: widgetProperties.widgetName,
@@ -71,6 +71,7 @@ const PropertyControl = memo((props: Props) => {
           propertyName,
           propertyValue,
           RenderModes.CANVAS, // This seems to be not needed anymore.
+          isDynamicTrigger,
         ),
       );
     },
@@ -203,6 +204,7 @@ const PropertyControl = memo((props: Props) => {
               openNextPanel: openPanel,
             },
             isDynamic,
+            props.customJSControl,
           )}
         </ControlWrapper>
       );

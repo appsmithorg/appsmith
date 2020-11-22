@@ -22,11 +22,6 @@ const StyledInput = styled.input`
   color: ${props => props.theme.colors.textOnDarkBG};
 `;
 
-interface StandaloneSearchBoxProps {
-  onSearchBoxMounted: (ref: any) => void;
-  onPlacesChanged: () => void;
-}
-
 const { google } = getAppsmithConfigs();
 
 const PlacesWithStandaloneSearchBox = compose(

@@ -356,7 +356,7 @@ export const RowWrapper = styled.div`
   justify-content: center;
   font-size: 12px;
   line-height: 20px;
-  color: ${Colors.BLUE_BAYOUX};
+  color: ${Colors.THUNDER};
   margin: 0 4px;
   white-space: nowrap;
 `;
