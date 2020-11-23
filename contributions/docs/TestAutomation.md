@@ -18,8 +18,8 @@
 
    ```json
    {
-     "USERNAME": “Enter username”,
-     "PASSWORD": “Enter password”,
+     "USERNAME": "Enter username",
+     "PASSWORD": "Enter password"
    }
    ```
 
