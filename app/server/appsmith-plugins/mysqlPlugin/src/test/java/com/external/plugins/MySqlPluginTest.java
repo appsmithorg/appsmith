@@ -17,8 +17,15 @@ import org.junit.ClassRule;
 import org.junit.Test;
 //TODO: check what to do for test container.
 import org.testcontainers.containers.MySQLContainer;
-import reactor.core.publisher.Mono;
+
 import reactor.test.StepVerifier;
+import reactor.test.publisher.TestPublisher;
+import org.reactivestreams.Publisher;
+import reactor.core.Exceptions;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.publisher.*;
 
 //TODO: replace with specific packages.
 import io.r2dbc.spi.*;
@@ -75,18 +82,22 @@ public class MySqlPluginTest {
         password = mySQLContainer.getPassword();
         database = mySQLContainer.getDatabaseName();
 
-        ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse("");
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append("r2dbc:mysql://")
+                .append(address)
+                .append(":")
+                .append(port);
+
+        ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-        ob = ob.option(ConnectionFactoryOptions.DRIVER, "mysql");
-        ob = ob.option(ConnectionFactoryOptions.HOST, address);
-        ob = ob.option(ConnectionFactoryOptions.PORT, port);
         ob = ob.option(ConnectionFactoryOptions.DATABASE, database);
         ob = ob.option(ConnectionFactoryOptions.USER, username);
         ob = ob.option(ConnectionFactoryOptions.PASSWORD, password);
 
-        Mono.from(ConnectionFactories.get(ob.build()).create())
+        Flux.from(ConnectionFactories.get(ob.build()).create())
                 .flatMap(connection -> {
-                    Mono.from(connection.createStatement("create table users (\n" +
+                    return Flux.from(connection.createBatch()
+                        .add("create table users (\n" +
                             "    id int primary key,\n" +
                             "    username varchar (250) unique not null,\n" +
                             "    password varchar (250) not null,\n" +
@@ -98,33 +109,25 @@ public class MySqlPluginTest {
                             "    created_on timestamp not null,\n" +
                             "    updated_on datetime not null,\n" +
                             "    constraint unique index (username, email)\n" +
-                            ")")
-                            .execute())
-                            .block();
-
-                    Mono.from(connection.createStatement("create table possessions (\n" +
+                            ")"
+                        )
+                        .add("create table possessions (\n" +
                             "    id int primary key,\n" +
                             "    title varchar (250) not null,\n" +
                             "    user_id int not null,\n" +
                             "    username varchar (250) not null,\n" +
                             "    email varchar (250) not null\n" +
-                            ")")
-                            .execute())
-                            .block();
-
-                    Mono.from(connection.createStatement("alter table possessions add foreign key (username, email) " +
-                            "references users (username, email)")
-                            .execute())
-                            .block();
-
-                    Mono.from(connection.createStatement("SET SESSION sql_mode = '';\n")
-                            .execute())
-                            .block();
-
-                    return Mono.empty();
+                            ")"
+                        )
+                        .add("alter table possessions add foreign key (username, email) " +
+                            "references users (username, email)"
+                        )
+                        .add("SET SESSION sql_mode = '';\n")
+                        .execute());
                 })
-                .block();
+                .subscribe();
 
+        return;
     }
 
     private static DatasourceConfiguration createDatasourceConfiguration() {

@@ -10,7 +10,6 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import io.r2dbc.spi.*;
@@ -18,23 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.reactivestreams.Publisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
-
-import org.springframework.data.r2dbc.core.DatabaseClient;
-
-
-//TODO: remove them
-//import java.sql.Connection;
-/*
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-*/
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -108,62 +97,57 @@ public class MySqlPlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
             }
 
-            List<Map<String, Object>> rowsList = new ArrayList<>(50);
+            final List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
-            return Mono.from(connection.createStatement(query).execute())
+            return Flux.from(connection.createStatement(query).execute())
                     .flatMap(result -> {
-                        result.map((row, meta) -> {
-                            Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
-                            Map<String, Object> processedRow = new LinkedHashMap<>();
+                        return result.map((row, meta) -> {
+                                    Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
+                                    Map<String, Object> processedRow = new LinkedHashMap<>();
 
-                            while(iterator.hasNext()) {
-                                String columnName = iterator.next().getName();
-                                String typeName = iterator.next().getJavaType().toString();
-                                Object columnValue = null;
+                                    while(iterator.hasNext()) {
+                                        ColumnMetadata metaData = iterator.next();
+                                        String columnName = metaData.getName();
+                                        String typeName = metaData.getJavaType().toString();
+                                        Object columnValue = null;
 
-                                if(DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
-                                            LocalDate.class));
-                                }
-                                else if (DATETIME_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)
-                                        || TIMESTAMP_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
-                                            LocalDateTime.of(
-                                                    row.get(columnName, LocalDateTime.class).toLocalDate(),
-                                                    row.get(columnName, LocalDateTime.class).toLocalTime()
-                                            )
-                                    ) + "Z";
-                                }
-                                else if ("year".equalsIgnoreCase(typeName)) {
-                                    columnValue = row.get(columnName, LocalDate.class).getYear();
-                                }
-                                else {
-                                    columnValue = row.get(columnName);
-                                }
+                                        if(DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                            columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
+                                                    LocalDate.class));
+                                        }
+                                        else if (DATETIME_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)
+                                                || TIMESTAMP_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                            columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
+                                                    LocalDateTime.of(
+                                                            row.get(columnName, LocalDateTime.class).toLocalDate(),
+                                                            row.get(columnName, LocalDateTime.class).toLocalTime()
+                                                    )
+                                            ) + "Z";
+                                        }
+                                        else if ("year".equalsIgnoreCase(typeName)) {
+                                            columnValue = row.get(columnName, LocalDate.class).getYear();
+                                        }
+                                        else {
+                                            columnValue = row.get(columnName);
+                                        }
 
-                                processedRow.put(columnName, columnValue);
-                            }
+                                        processedRow.put(columnName, columnValue);
+                                    }
 
-                            rowsList.add(processedRow);
+                                    rowsList.add(processedRow);
 
-                            return Mono.empty();
-                        });
-
-                        return Mono.from(result.getRowsUpdated());
+                                    return result;
+                                });
                     })
-                    .flatMap(numRowsUpdated -> {
-                        if(rowsList.size() == 0) {
-                            rowsList.add(Map.of(
-                                    "affectedRows",
-                                    ObjectUtils.defaultIfNull(numRowsUpdated, 0)));
-                        }
-
+                    .collectList()
+                    .flatMap(execResult -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setIsExecutionSuccess(true);
                         log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
                         return Mono.just(result);
-                    });
+                    })
+                    .subscribeOn(Schedulers.elastic());
         }
 
         @Override
@@ -206,35 +190,24 @@ public class MySqlPlugin extends BasePlugin {
                 }
             }
 
-            ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse("r2dbc:mysql://test" +
-                    ":mydbpassword@localhost:3306");
+
+            ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
             ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+            ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
+            ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
+            Publisher<Connection> connection = (Publisher<Connection>) ConnectionFactories.get(ob.build()).create();
 
-            // TODO: Set SSL connection parameters as well.
-            /*if (authentication.getUsername() != null) {
-                ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
-            }
-
-            if (authentication.getPassword() != null) {
-                ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
-            }
-
-            if (authentication.getDatabaseName() != null) {
-                ob = ob.option(ConnectionFactoryOptions.DATABASE, authentication.getDatabaseName());
-            }
-
-            ob = ob.option(ConnectionFactoryOptions.DRIVER, "mysql");
-            ob = ob.option(ConnectionFactoryOptions.HOST, "localhost");
-            ob = ob.option(ConnectionFactoryOptions.PORT, 3306);
-*/
-            return Mono.from(ConnectionFactories.get(ob.build()).create());
+            return Mono.from(connection)
+                    .subscribeOn(Schedulers.elastic());
         }
 
         @Override
         public void datasourceDestroy(Connection connection) {
+            //TODO: catch exception and log it.
             if (connection != null) {
-                //TODO: fix it.
-                Mono.from(connection.close()).block();
+                Mono.from(connection.close())
+                        .subscribeOn(Schedulers.elastic())
+                        .subscribe();
             }
 
             return;
@@ -438,7 +411,8 @@ public class MySqlPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         return Mono.error(Exceptions.propagate(error));
-                    });
+                    })
+                    .subscribeOn(Schedulers.elastic());
         }
     }
 }
