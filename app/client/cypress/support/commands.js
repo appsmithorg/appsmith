@@ -922,6 +922,14 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(innercss).should("have.text", text);
 });
 
+Cypress.Commands.add("editColName", text => {
+  cy.get(commonlocators.editColTitle)
+    .click({ force: true })
+    .type(text)
+    .type("{enter}");
+  cy.get(commonlocators.editColText).should("have.text", text);
+});
+
 Cypress.Commands.add("EvaluateDataType", dataType => {
   cy.get(commonlocators.evaluatedType)
     .should("be.visible")
@@ -981,6 +989,33 @@ Cypress.Commands.add("testCodeMirror", value => {
       cy.wait(200);
       cy.get(".CodeMirror textarea")
         .first()
+        .should("have.value", value);
+    });
+});
+
+Cypress.Commands.add("testCodeMirrorLast", value => {
+  cy.get(".CodeMirror textarea")
+    .last()
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then($cm => {
+      if ($cm.val() !== "") {
+        cy.get(".CodeMirror textarea")
+          .first()
+          .clear({
+            force: true,
+          });
+      }
+
+      cy.get(".CodeMirror textarea")
+        .last()
+        .type(value, {
+          force: true,
+          parseSpecialCharSequences: false,
+        });
+      cy.wait(200);
+      cy.get(".CodeMirror textarea")
+        .last()
         .should("have.value", value);
     });
 });
@@ -1048,9 +1083,6 @@ Cypress.Commands.add("hideColumn", colId => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
     force: true,
   });
-  cy.get(".draggable-header ")
-    .contains(colId)
-    .should("not.be.visible");
 });
 
 Cypress.Commands.add("showColumn", colId => {

@@ -31,6 +31,11 @@ describe("Table Widget property pane feature validation", function() {
     cy.tableColumnDataValidation("orderAmount");
     cy.tableColumnPopertyUpdate("id", "TestUpdated");
     cy.addColumn("CustomColumn");
+    cy.hideColumn("email");
+    cy.hideColumn("userName");
+    cy.hideColumn("productName");
+    cy.hideColumn("orderAmount");
+    cy.tableColumnDataValidation("DERIVED1"); //To be updated later
   });
 
   it("Update table json data and check the column names updated", function() {
@@ -58,6 +63,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Edit column data in property pane validate text allignment", function() {
     cy.editColumn("id");
+    cy.editColName("updatedId");
     cy.get(".t--icon-tab-CENTER")
       .first()
       .click({ force: true });
@@ -101,19 +107,29 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(41, 204, 163)");
     cy.get(".t--property-control-textcolor .t--js-toggle").click();
-    cy.testCodeMirror("purple");
+    cy.testCodeMirrorLast("purple");
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(35, 31, 32)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     cy.get(".t--property-control-cellbackground input")
       .first()
       .click({ force: true });
     cy.xpath("//div[@color='#29CCA3']").click();
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "background", "rgb(41, 204, 163)");
+    cy.readTabledataValidateCSS(
+      "1",
+      "0",
+      "background",
+      "rgb(41, 204, 163) none repeat scroll 0% 0% / auto padding-box border-box",
+    );
     cy.get(".t--property-control-cellbackground .t--js-toggle").click();
-    cy.testCodeMirror("purple");
+    cy.testCodeMirrorLast("purple");
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "background", "rgb(35, 31, 32)");
+    cy.readTabledataValidateCSS(
+      "1",
+      "0",
+      "background",
+      "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
+    );
     /*
     cy.get(".draggable-header ")
       .contains("CustomColumn")

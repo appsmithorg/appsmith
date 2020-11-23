@@ -20,7 +20,7 @@ describe("Table Widget Functionality", function() {
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
-    cy.get(widgetsPage.ColumnAction).click({ force: true });
+    //cy.get(widgetsPage.ColumnAction).click({ force: true });
     cy.get(widgetsPage.tableOnRowSelected)
       .get(commonlocators.dropdownSelectButton)
       .first()
