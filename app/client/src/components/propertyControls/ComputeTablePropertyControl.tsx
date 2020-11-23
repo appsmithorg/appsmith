@@ -80,7 +80,7 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
             propertyValue.length - 3,
           )}}}`
         : propertyValue;
-    const evaluatedProperties = this.props.widgetProperties.evaluatedValues;
+    const evaluatedProperties = this.props.widgetProperties;
     const columns: ColumnProperties[] = [
       ...evaluatedProperties.primaryColumns,
       ...evaluatedProperties.derivedColumns,
