@@ -446,6 +446,40 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
       widgets[widget.widgetId] = widget;
       // If the widget in question is the deleted widget
       if (widget.widgetId === action.payload.widgetId) {
+        //SPECIAL HANDLING FOR TAB IN A TABS WIDGET
+        if (widget.tabId && widget.type === WidgetTypes.CANVAS_WIDGET) {
+          const parent = { ...widgets[widget.parentId] };
+          if (parent.tabs) {
+            try {
+              parent.tabs.push({
+                id: widget.tabId,
+                widgetId: widget.widgetId,
+                label: widget.tabName || widget.widgetName,
+              });
+              widgets = {
+                ...widgets,
+                [widget.parentId]: {
+                  ...widgets[widget.parentId],
+                  tabs: parent.tabs,
+                },
+              };
+            } catch (error) {
+              log.debug("Error deleting tabs widget: ", { error });
+            }
+          } else {
+            parent.tabs = JSON.stringify([
+              {
+                id: widget.tabId,
+                widgetId: widget.widgetId,
+                label: widget.tabName || widget.widgetName,
+              },
+            ]);
+            widgets = {
+              ...widgets,
+              [widget.parentId]: parent,
+            };
+          }
+        }
         let newChildren = [widget.widgetId];
         if (widgets[widget.parentId].children) {
           // Concatenate the list of paren't children with the current widgetId
@@ -943,6 +977,21 @@ function* pasteWidgetSaga() {
             widget.children[index] = widgetIdMap[childWidgetId];
           }
         });
+      }
+
+      // Update the tabs for the tabs widget.
+      if (widget.tabs && widget.type === WidgetTypes.TABS_WIDGET) {
+        try {
+          const tabs = widget.tabs;
+          if (Array.isArray(tabs)) {
+            widget.tabs = tabs.map(tab => {
+              tab.widgetId = widgetIdMap[tab.widgetId];
+              return tab;
+            });
+          }
+        } catch (error) {
+          log.debug("Error updating tabs", error);
+        }
       }
 
       // If it is the copied widget, update position properties
