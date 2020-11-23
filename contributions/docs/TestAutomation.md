@@ -1,14 +1,14 @@
 # How can I contribute to the Cypress Test Suite?
 
-1. Follow the setup document to set up [Appsmith locally](/contributions/ClientSetup.md) and go through [the docs](https://docs.appsmith.com). The docs are backed by the [appsmith-docs](https://github.com/appsmithorg/appsmith-docs) repository.
+1. Follow the setup document to set up [Appsmith locally](contributions/ClientSetup.md) and go through [the docs](https://docs.appsmith.com). The docs are backed by the [appsmith-docs](https://github.com/appsmithorg/appsmith-docs) repository.
 
 1. Once we have the setup in place, all dependencies will be available locally for test execution.
 
-1. Change your directory to `appsmith/app/client`.
+1. Change your directory to `app/client`.
 
-1. Cypress tests are located within, cypress folder.
+1. Cypress tests are located within, `app/client/cypress` folder.
 
-1. All the test spec must be within the integration folder only i.e `appsmith/app/client/cypress/integration`
+1. All the test spec must be within the integration folder only i.e `app/client/cypress/integration`
 
 1. You can create folders within the cypress folder but make sure you place the spec within the integrations folder.
 
