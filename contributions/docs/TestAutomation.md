@@ -4,7 +4,7 @@
 
 1. Once we have the setup in place, all dependencies will be available locally for test execution.
 
-1. Cypress tests are located within the `app/client/cypress` directory.
+1. Cypress tests are located in the `app/client/cypress` directory.
 
 1. All the test spec _must_ be in the integration directory only i.e `app/client/cypress/integration`
 
