@@ -100,7 +100,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                 }
 
                 result.setIsExecutionSuccess(true);
-                log.debug("In the Elastic Search Plugin, got action execution result: " + result.toString());
+                System.out.println(Thread.currentThread().getName() + ": In the Elastic Search Plugin, got action execution result: " + result.toString());
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
