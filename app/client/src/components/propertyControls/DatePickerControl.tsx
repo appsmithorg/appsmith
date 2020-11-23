@@ -5,8 +5,10 @@ import moment from "moment-timezone";
 import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { WidgetProps } from "widgets/BaseWidget";
+import { AppToaster } from "components/editorComponents/ToastComponent";
+import { ToastType } from "react-toastify";
 
-const DatePickerControlWrapper = styled.div`
+const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
   display: flex;
   flex-direction: column;
   margin: 8px 0 0 0;
@@ -16,6 +18,8 @@ const DatePickerControlWrapper = styled.div`
       color: ${props => props.theme.colors.textOnDarkBG};
       font-size: ${props => props.theme.fontSizes[3]}px;
       box-shadow: none;
+      border: ${props =>
+        !props.isValid ? `1px solid ${props.theme.colors.error}` : null};
     }
   }
   .vertical-center {
@@ -57,7 +61,7 @@ class DatePickerControl extends BaseControl<
 
   render() {
     return (
-      <DatePickerControlWrapper>
+      <DatePickerControlWrapper isValid={this.props.isValid}>
         <StyledDatePicker
           formatDate={this.formatDate}
           parseDate={this.parseDate}
@@ -78,8 +82,64 @@ class DatePickerControl extends BaseControl<
     );
   }
 
+  /**
+   * here we put the selected state into state
+   * before putting it into state, we check if widget date is in range
+   * of property value ( min /max range )
+   *
+   * @param date
+   */
   onDateSelected = (date: Date): void => {
     const selectedDate = date ? this.formatDate(date) : undefined;
+
+    if (this.props.widgetProperties?.evaluatedValues?.value) {
+      const parsedWidgetDate = moment(
+        this.props.widgetProperties.evaluatedValues.value,
+        this.props.widgetProperties.dateFormat,
+      );
+
+      // checking if widget date is after min date
+      if (this.props.propertyName === "minDate") {
+        const parsedMinDate = moment(
+          selectedDate,
+          this.props.widgetProperties.dateFormat,
+        );
+
+        if (
+          parsedMinDate.isValid() &&
+          parsedWidgetDate.isBefore(parsedMinDate)
+        ) {
+          AppToaster.show({
+            message: "Min date cannot be greater than current widget value.",
+            type: ToastType.ERROR,
+          });
+
+          return;
+        }
+      }
+
+      // checking if widget date is before max date
+      if (this.props.propertyName === "maxDate") {
+        const parsedMaxDate = moment(
+          selectedDate,
+          this.props.widgetProperties.dateFormat,
+        );
+
+        if (
+          parsedMaxDate.isValid() &&
+          parsedWidgetDate.isAfter(parsedMaxDate)
+        ) {
+          AppToaster.show({
+            message: "Max date cannot be less than current widget value.",
+            type: ToastType.ERROR,
+          });
+
+          return;
+        }
+      }
+    }
+
+    // if everything is ok, put date in state
     this.setState({ selectedDate: selectedDate });
     this.updateProperty(this.props.propertyName, selectedDate);
   };

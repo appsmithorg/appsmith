@@ -88,8 +88,6 @@ class DatePickerComponent extends React.Component<
       ? moment(this.props.maxDate)
       : now.clone().set({ month: 11, date: 31, year: year + 5 });
 
-    console.log({ minDate, maxDate });
-
     return (
       <StyledControlGroup
         fill
@@ -124,8 +122,16 @@ class DatePickerComponent extends React.Component<
                 ? this.parseDate(this.state.selectedDate)
                 : null
             }
-            // maxDate={maxDate.toDate()}
-            // minDate={minDate.toDate()}
+            minDate={
+              this.props.minDate
+                ? this.parseDate(this.props.minDate)
+                : undefined
+            }
+            maxDate={
+              this.props.maxDate
+                ? this.parseDate(this.props.maxDate)
+                : undefined
+            }
           />
         ) : (
           <DateRangeInput
@@ -134,8 +140,8 @@ class DatePickerComponent extends React.Component<
             disabled={this.props.isDisabled}
             contiguousCalendarMonths={false}
             formatDate={this.formatDate}
-            minDate={this.props.minDate}
-            maxDate={this.props.maxDate}
+            minDate={minDate.toDate()}
+            maxDate={maxDate.toDate()}
             closeOnSelection={true}
           />
         )}
@@ -176,8 +182,8 @@ interface DatePickerComponentProps extends ComponentProps {
   dateFormat: string;
   enableTimePicker?: boolean;
   selectedDate?: string;
-  minDate?: Date;
-  maxDate?: Date;
+  minDate?: string;
+  maxDate?: string;
   timezone?: string;
   datePickerType: DatePickerType;
   isDisabled: boolean;

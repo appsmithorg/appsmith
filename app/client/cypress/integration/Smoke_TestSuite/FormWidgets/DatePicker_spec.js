@@ -63,6 +63,34 @@ describe("DatePicker Widget Functionality", function() {
     );
   });
 
+  it("Datepicker-Clear min/max validation", function() {
+    // checking for min date
+    cy.get(formWidgetsPage.minDate).click();
+    cy.setDate(1, "ddd MMM DD YYYY");
+    cy.get(commonlocators.toastBody)
+      .first()
+      .contains("Min date cannot be greater than current widget value.");
+
+    // checking for max date
+    cy.get(formWidgetsPage.maxDate).click();
+    cy.setDate(-1, "ddd MMM DD YYYY");
+    cy.get(commonlocators.toastBody)
+      .eq(1)
+      .contains("Max date cannot be less than current widget value.");
+
+    // default date should show a red border if its out of the range of min or max
+    cy.get(formWidgetsPage.minDate).click();
+    cy.setDate(-1, "ddd MMM DD YYYY");
+    cy.get(formWidgetsPage.defaultDate).click();
+    cy.setDate(-2, "ddd MMM DD YYYY");
+
+    cy.get(formWidgetsPage.defaultDate).should(
+      "have.css",
+      "border",
+      "1px solid #CE4257",
+    );
+  });
+
   // it("DatePicker-check Required field validation", function() {
   //   // Check the required checkbox
   //   cy.CheckWidgetProperties(commonlocators.requiredCheckbox);

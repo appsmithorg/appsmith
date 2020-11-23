@@ -21,7 +21,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
-      defaultDate: VALIDATION_TYPES.DATE,
+      defaultDate: VALIDATION_TYPES.DATE_RANGE,
       timezone: VALIDATION_TYPES.TEXT,
       enableTimePicker: VALIDATION_TYPES.BOOLEAN,
       dateFormat: VALIDATION_TYPES.TEXT,
@@ -77,18 +77,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     );
   }
 
-  /**
-   * converts string date into moment date
-   *
-   * @param dateStr
-   */
-  parseDate = (dateStr: string): Date => {
-    return moment(
-      dateStr,
-      this.props.widgetProperties.dateFormat || "DD/MM/YYYY HH:mm",
-    ).toDate();
-  };
-
   onDateSelected = (selectedDate: string) => {
     this.props.updateWidgetMetaProperty("selectedDate", selectedDate, {
       dynamicString: this.props.onDateSelected,
@@ -114,8 +102,8 @@ export interface DatePickerWidgetProps extends WidgetProps, WithMeta {
   datePickerType: DatePickerType;
   onDateSelected?: string;
   onDateRangeSelected?: string;
-  maxDate: Date;
-  minDate: Date;
+  maxDate: string;
+  minDate: string;
   isRequired?: boolean;
 }
 
