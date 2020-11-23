@@ -12,7 +12,7 @@
 
 1. Directory name under `app/client/cypress/integration` suggests the specific area the test belongs to. Example: All our [Smoke tests](<https://en.wikipedia.org/wiki/Smoke_testing_(software)>) are in `app/client/cypress/integration/Smoke_TestSuite`
 
-1. For default settings, check the `[app/client/cypress.json](app/client/cypress.json)` file.
+1. For default settings, check the `app/client/cypress.json` file.
 
 1. You can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
 
