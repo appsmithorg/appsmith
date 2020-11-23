@@ -121,8 +121,7 @@ public class FirestorePlugin extends BasePlugin {
                                         ));
                                     }
                                 })
-                                .onErrorMap(Exceptions::unwrap)
-                                .subscribeOn(scheduler);
+                                .onErrorMap(Exceptions::unwrap);
                     })
                     .flatMap(mapBody -> {
                         if (mapBody.isEmpty() && method.isBodyNeeded()) {
@@ -139,7 +138,8 @@ public class FirestorePlugin extends BasePlugin {
                         } else {
                             return handleCollectionLevelMethod(connection, path, method, properties);
                         }
-                    });
+                    })
+                    .subscribeOn(scheduler);
         }
 
         public Mono<ActionExecutionResult> handleDocumentLevelMethod(
@@ -204,8 +204,7 @@ public class FirestorePlugin extends BasePlugin {
                                 } catch (InterruptedException | ExecutionException e) {
                                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                                 }
-                            })
-                            .subscribeOn(scheduler))
+                            }))
                     // Build a response object with the result.
                     .flatMap(objResult1 -> {
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -257,26 +256,22 @@ public class FirestorePlugin extends BasePlugin {
                             case ARRAY_CONTAINS:
                                 return Mono.just(query1.whereArrayContains(queryFieldPath, queryValue));
                             case ARRAY_CONTAINS_ANY:
-                                try {
-                                    return Mono.just(query1.whereArrayContainsAny(queryFieldPath, parseList(queryValue)));
-                                } catch (IOException e) {
-                                    return Mono.error(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
-                                            "Unable to parse condition value as a JSON list."
-                                    ));
-                                }
+                                return parseList(queryValue)
+                                        .map(data -> query1.whereArrayContainsAny(queryFieldPath, data))
+                                        .onErrorMap(IOException.class, error -> new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_ERROR,
+                                                "Unable to parse condition value as a JSON list."
+                                        ));
                             case IN:
-                                try {
-                                    return Mono.just(query1.whereIn(queryFieldPath, parseList(queryValue)));
-                                } catch (IOException e) {
-                                    return Mono.error(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
-                                            "Unable to parse condition value as a JSON list."
-                                    ));
-                                }
-                            // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
-                            // case NOT_IN:
-                            //     return Mono.just(query1.whereNotIn(queryFieldPath, queryValue));
+                                return parseList(queryValue)
+                                        .map(data -> query1.whereIn(queryFieldPath, data))
+                                        .onErrorMap(IOException.class, error -> new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_ERROR,
+                                                "Unable to parse condition value as a JSON list."
+                                        ));
+                                // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
+                                // case NOT_IN:
+                                //     return Mono.just(query1.whereNotIn(queryFieldPath, queryValue));
                             default:
                                 return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
@@ -306,8 +301,7 @@ public class FirestorePlugin extends BasePlugin {
                                 } catch (InterruptedException | ExecutionException e) {
                                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                                 }
-                            })
-                            .subscribeOn(scheduler))
+                            }))
                     // Build response object with the results from the Future.
                     .flatMap(objResult1 -> {
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -366,29 +360,35 @@ public class FirestorePlugin extends BasePlugin {
             final String clientJson = authentication.getPassword();
 
             InputStream serviceAccount = new ByteArrayInputStream(clientJson.getBytes());
-            GoogleCredentials credentials;
 
-            try {
-                credentials = GoogleCredentials.fromStream(serviceAccount);
+            return Mono
+                    .fromSupplier(() -> {
+                        GoogleCredentials credentials;
+                        try {
+                            credentials = GoogleCredentials.fromStream(serviceAccount);
+                        } catch (IOException e) {
+                            throw Exceptions.propagate(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    e.getMessage()
+                            ));
+                        }
 
-                FirebaseOptions options = FirebaseOptions.builder()
-                        .setDatabaseUrl(datasourceConfiguration.getUrl())
-                        .setProjectId(projectId)
-                        .setCredentials(credentials)
-                        .build();
-
-                FirebaseApp firebaseApp;
-                try {
-                    firebaseApp = FirebaseApp.getInstance(projectId);
-                } catch (IllegalStateException e) {
-                    firebaseApp = FirebaseApp.initializeApp(options, projectId);
-                }
-
-                Firestore db = FirestoreClient.getFirestore(firebaseApp);
-                return Mono.just(db);
-            } catch (IOException e) {
-                return Mono.error(new Exception("Unable to initialize Firestore. Cause: " + e.getMessage()));
-            }
+                        return FirebaseOptions.builder()
+                                .setDatabaseUrl(datasourceConfiguration.getUrl())
+                                .setProjectId(projectId)
+                                .setCredentials(credentials)
+                                .build();
+                    })
+                    .onErrorMap(Exceptions::unwrap)
+                    .map(options -> {
+                        try {
+                            return FirebaseApp.getInstance(projectId);
+                        } catch (IllegalStateException e) {
+                            return FirebaseApp.initializeApp(options, projectId);
+                        }
+                    })
+                    .map(FirestoreClient::getFirestore)
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -424,8 +424,16 @@ public class FirestorePlugin extends BasePlugin {
             return invalids;
         }
 
-        private <T> List<T> parseList(String arrayJson) throws IOException {
-            return objectMapper.readValue(arrayJson, ArrayList.class);
+        private <T> Mono<List<T>> parseList(String arrayJson) {
+            return Mono
+                    .fromSupplier(() -> {
+                        try {
+                            return (List<T>) objectMapper.readValue(arrayJson, ArrayList.class);
+                        } catch (IOException e) {
+                            throw Exceptions.propagate(e);
+                        }
+                    })
+                    .subscribeOn(scheduler);
         }
 
         @Override
