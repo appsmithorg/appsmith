@@ -986,10 +986,34 @@ Cypress.Commands.add("testCodeMirror", value => {
           force: true,
           parseSpecialCharSequences: false,
         });
-      cy.wait(200);
+      cy.wait(2000);
       cy.get(".CodeMirror textarea")
         .first()
         .should("have.value", value);
+    });
+});
+
+Cypress.Commands.add("updateComputedValue", value => {
+  cy.get(".CodeMirror textarea")
+    .first()
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then($cm => {
+      if ($cm.val() !== "") {
+        cy.get(".CodeMirror textarea")
+          .first()
+          .clear({
+            force: true,
+          });
+      }
+
+      cy.get(".CodeMirror textarea")
+        .first()
+        .type(value, {
+          force: true,
+          parseSpecialCharSequences: false,
+        });
+      cy.wait(2000);
     });
 });
 

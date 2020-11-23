@@ -31,11 +31,16 @@ describe("Table Widget property pane feature validation", function() {
     cy.tableColumnDataValidation("orderAmount");
     cy.tableColumnPopertyUpdate("id", "TestUpdated");
     cy.addColumn("CustomColumn");
+    cy.tableColumnDataValidation("DERIVED1"); //To be updated later
+    /*
     cy.hideColumn("email");
     cy.hideColumn("userName");
     cy.hideColumn("productName");
     cy.hideColumn("orderAmount");
-    cy.tableColumnDataValidation("DERIVED1"); //To be updated later
+    cy.get(".draggable-header ")
+      .contains("CustomColumn")
+      .should("be.visible");
+      */
   });
 
   it("Update table json data and check the column names updated", function() {
@@ -61,9 +66,18 @@ describe("Table Widget property pane feature validation", function() {
       .should("not.be.visible");
   });
 
-  it("Edit column data in property pane validate text allignment", function() {
+  it("Edit column data in property pane validate text allignment and basic check for computed value", function() {
     cy.editColumn("id");
     cy.editColName("updatedId");
+    cy.readTabledataPublish("1", "1").then(tabData => {
+      const tabValue = tabData;
+      expect(tabData).to.not.equal("2736212");
+      cy.updateComputedValue("{{currentRow.email}}");
+      cy.readTabledataPublish("1", "0").then(tabData => {
+        expect(tabData).to.be.equal(tabValue);
+        cy.log("the value is" + tabData);
+      });
+    });
     cy.get(".t--icon-tab-CENTER")
       .first()
       .click({ force: true });
