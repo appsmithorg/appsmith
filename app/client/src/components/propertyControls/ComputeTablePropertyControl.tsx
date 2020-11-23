@@ -81,9 +81,10 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
           )}}}`
         : propertyValue;
     const evaluatedProperties = this.props.widgetProperties;
+
     const columns: ColumnProperties[] = [
       ...evaluatedProperties.primaryColumns,
-      ...evaluatedProperties.derivedColumns,
+      ...(evaluatedProperties.derivedColumns || []),
     ];
     const currentRow: { [key: string]: any } = {};
     for (let i = 0; i < columns.length; i++) {
