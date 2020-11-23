@@ -1,50 +1,25 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Property;
+import com.appsmith.external.models.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.r2dbc.spi.Connection;
+import io.r2dbc.spi.*;
 import lombok.extern.log4j.Log4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-//TODO: check what to do for test container.
 import org.testcontainers.containers.MySQLContainer;
-
-import reactor.test.StepVerifier;
-import reactor.test.publisher.TestPublisher;
-import org.reactivestreams.Publisher;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.publisher.*;
+import reactor.test.StepVerifier;
 
-//TODO: replace with specific packages.
-import io.r2dbc.spi.*;
-//import java.sql.Connection;
-/*
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-*/
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @Log4j
 public class MySqlPluginTest {
@@ -94,9 +69,40 @@ public class MySqlPluginTest {
         ob = ob.option(ConnectionFactoryOptions.USER, username);
         ob = ob.option(ConnectionFactoryOptions.PASSWORD, password);
 
-        Flux.from(ConnectionFactories.get(ob.build()).create())
-                .flatMap(connection -> {
-                    return Flux.from(connection.createBatch()
+        Connection connection = Mono.from(ConnectionFactories.get(ob.build()).create()).block();
+        Batch batch = connection.createBatch()
+                .add("create table users (\n" +
+                        "    id int primary key,\n" +
+                        "    username varchar (250) unique not null,\n" +
+                        "    password varchar (250) not null,\n" +
+                        "    email varchar (250) unique not null,\n" +
+                        "    spouse_dob date,\n" +
+                        "    dob date not null,\n" +
+                        "    yob year not null,\n" +
+                        "    time1 time not null,\n" +
+                        "    created_on timestamp not null,\n" +
+                        "    updated_on datetime not null,\n" +
+                        "    constraint unique index (username, email)\n" +
+                        ")"
+                )
+                .add("create table possessions (\n" +
+                        "    id int primary key,\n" +
+                        "    title varchar (250) not null,\n" +
+                        "    user_id int not null,\n" +
+                        "    username varchar (250) not null,\n" +
+                        "    email varchar (250) not null\n" +
+                        ")"
+                )
+                .add("alter table possessions add foreign key (username, email) \n" +
+                        "references users (username, email)"
+                )
+                .add("SET SESSION sql_mode = '';\n");
+
+        Result result = Mono.from(batch.execute()).block();
+
+        /*Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection -> {
+                    return (connection.createBatch()
                         .add("create table users (\n" +
                             "    id int primary key,\n" +
                             "    username varchar (250) unique not null,\n" +
@@ -125,8 +131,8 @@ public class MySqlPluginTest {
                         .add("SET SESSION sql_mode = '';\n")
                         .execute());
                 })
-                .subscribe();
-
+                .block();
+*/
         return;
     }
 
