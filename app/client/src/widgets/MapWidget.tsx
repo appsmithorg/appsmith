@@ -159,7 +159,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             selectMarker={this.onMarkerClick}
             unselectMarker={this.unselectMarker}
             markers={this.props.markers || []}
-            disableDrag={() => {
+            enableDrag={() => {
               this.disableDrag(false);
             }}
           />
