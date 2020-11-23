@@ -67,28 +67,35 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             ],
             isJSConvertible: true,
           },
+          // {
+          //   helpText: "Populates the chart with the data",
+          //   propertyName: "chartData",
+          //   placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
+          //   label: "Chart Data",
+          //   controlType: "CONTROL_GROUP_LIST",
+          //   hidden: (props: ChartWidgetProps) =>
+          //     props && props.chartType === "PIE_CHART",
+          //   children: [
+          //     {
+          //       helpText: "Series Name",
+          //       propertyName: "seriesName",
+          //       label: "Series Name",
+          //       controlType: "INPUT_TEXT",
+          //     },
+          //     {
+          //       helpText: "Series data",
+          //       propertyName: "data",
+          //       label: "Series Data",
+          //       controlType: "INPUT_TEXT_AREA",
+          //     },
+          //   ],
+          // },
           {
             helpText: "Populates the chart with the data",
             propertyName: "chartData",
             placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
             label: "Chart Data",
-            controlType: "CONTROL_GROUP_LIST",
-            hidden: (props: ChartWidgetProps) =>
-              props.chartType === "PIE_CHART",
-            children: [
-              {
-                helpText: "Series Name",
-                propertyName: "seriesName",
-                label: "Series Name",
-                controlType: "INPUT_TEXT",
-              },
-              {
-                helpText: "Series data",
-                propertyName: "data",
-                label: "Series Data",
-                controlType: "INPUT_TEXT_AREA",
-              },
-            ],
+            controlType: "CHART_DATA",
           },
           {
             helpText: "Specifies the label of the x-axis",
@@ -160,7 +167,7 @@ export interface ChartDataPoint {
 
 export interface ChartData {
   seriesName?: string;
-  data: string;
+  data: ChartDataPoint[];
 }
 
 export interface ChartWidgetProps extends WidgetProps {

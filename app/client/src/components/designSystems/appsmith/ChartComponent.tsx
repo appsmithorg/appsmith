@@ -81,7 +81,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       ];
     }
 
-    const data: ChartDataPoint[] = JSON.parse(chartData[0].data);
+    const data: ChartDataPoint[] = chartData[0].data;
     if (data.length === 0) {
       return [
         {
@@ -101,7 +101,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartCategoriesMutliSeries = (chartData: ChartData[]) => {
     const categories: string[] = [];
     for (let index = 0; index < chartData.length; index++) {
-      const data: ChartDataPoint[] = JSON.parse(chartData[index].data);
+      const data: ChartDataPoint[] = chartData[index].data;
       for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
         const category = data[dataIndex].x;
         if (!categories.includes(category)) {
@@ -152,7 +152,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       const seriesChartData: Array<Record<
         string,
         unknown
-      >> = this.getSeriesChartData(JSON.parse(item.data), categories);
+      >> = this.getSeriesChartData(item.data, categories);
       return {
         seriesName: item.seriesName,
         data: seriesChartData,

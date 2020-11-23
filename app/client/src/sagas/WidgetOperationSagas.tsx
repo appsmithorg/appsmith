@@ -647,6 +647,9 @@ function* updateDynamicBindings(
     // Stringify this because composite controls may have bindings in the sub controls
     stringProp = JSON.stringify(propertyValue);
   }
+
+  //TODO(abhinav): This is not appropriate from the platform's archtecture's point of view.
+  // Figure out a holistic solutions where we donot have to stringify above.
   if (propertyName === "primaryColumns" || propertyName === "derivedColumns") {
     return;
   }

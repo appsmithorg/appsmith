@@ -279,6 +279,7 @@ export default class WidgetBuilderRegistry {
       TabsWidget.getTriggerPropertyMap(),
       TabsWidget.getDefaultPropertiesMap(),
       TabsWidget.getMetaPropertiesMap(),
+      TabsWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,
