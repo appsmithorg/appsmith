@@ -8,7 +8,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import { change, initialize, getFormValues } from "redux-form";
-import _ from "lodash";
+import _, { merge } from "lodash";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -42,6 +42,7 @@ import DatasourcesApi, {
 import PluginApi, { DatasourceForm } from "api/PluginApi";
 
 import {
+  API_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
@@ -55,6 +56,8 @@ import { getFormData } from "selectors/formSelectors";
 import { changeApi } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { AppState } from "reducers";
+import { getConfigInitialValues } from "components/formControls/utils";
+import { setActionProperty } from "actions/actionActions";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -302,35 +305,6 @@ function* createDatasourceFromFormSaga(
   try {
     let formConfig;
     const organizationId = yield select(getCurrentOrgId);
-    const initialValues = {};
-    const parseConfig = (section: any): any => {
-      return _.map(section.children, (subSection: any) => {
-        if ("children" in subSection) {
-          return parseConfig(subSection);
-        }
-
-        if (subSection.initialValue) {
-          if (subSection.controlType === "KEYVALUE_ARRAY") {
-            subSection.initialValue.forEach(
-              (initialValue: string | number, index: number) => {
-                const configProperty = subSection.configProperty.replace(
-                  "*",
-                  index,
-                );
-
-                _.set(initialValues, configProperty, initialValue);
-              },
-            );
-          } else {
-            _.set(
-              initialValues,
-              subSection.configProperty,
-              subSection.initialValue,
-            );
-          }
-        }
-      });
-    };
     formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
 
     if (!formConfig) {
@@ -349,14 +323,9 @@ function* createDatasourceFromFormSaga(
       formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
     }
 
-    formConfig.forEach((section: any) => {
-      parseConfig(section);
-    });
+    const initialValues = yield call(getConfigInitialValues, formConfig);
 
-    const payload = {
-      ...initialValues,
-      ...actionPayload.payload,
-    };
+    const payload = merge(initialValues, actionPayload.payload);
 
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       {
@@ -478,6 +447,11 @@ function* storeAsDatasourceSaga() {
   );
   const createdDatasource = createDatasourceSuccessAction.payload;
 
+  // Set datasource page to edit mode
+  yield put(
+    setDatsourceEditorMode({ id: createdDatasource.id, viewMode: false }),
+  );
+
   yield put({
     type: ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE,
     payload: {
@@ -502,7 +476,21 @@ function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
   ) {
     const { apiId } = actionRouteInfo;
 
+    yield put(
+      setActionProperty({
+        actionId: actionRouteInfo.apiId,
+        propertyName: "datasource",
+        value: updatedDatasource,
+      }),
+    );
     yield put(changeApi(apiId));
+    history.push(
+      API_EDITOR_ID_URL(
+        actionRouteInfo.applicationId,
+        actionRouteInfo.pageId,
+        actionRouteInfo.apiId,
+      ),
+    );
   }
 
   yield put({

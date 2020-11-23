@@ -17,8 +17,11 @@ public class FieldName {
     public static String PLUGIN = "plugin";
     public static String DEFAULT_PAGE_NAME = "Page1";
     public static String TYPE = "type";
+    public static final String WIDGET_ID = "widgetId";
     public static String WIDGET_NAME = "widgetName";
     public static String DYNAMIC_BINDINGS = "dynamicBindings";
+    public static String DYNAMIC_BINDING_PATH_LIST = "dynamicBindingPathList";
+    public static String KEY = "key";
     public static String CHILDREN = "children";
     public static String ORIGIN = "origin";
     public static String USER = "user";
@@ -43,7 +46,7 @@ public class FieldName {
             "        \"parentRowSpace\": 1,\n" +
             "        \"type\": \"CANVAS_WIDGET\",\n" +
             "        \"canExtend\": true,\n" +
-            "        \"dynamicBindings\": {},\n" +
+            "        \"dynamicBindingPathList\": [],\n" +
             "        \"version\": 4,\n" +
             "        \"minHeight\": 1292,\n" +
             "        \"parentColumnSpace\": 1,\n" +
@@ -54,4 +57,5 @@ public class FieldName {
     public static String USERNAMES = "usernames";
     public static String ACTION = "action";
     public static String ASSET = "asset";
+    public static String APPLICATION = "application";
 }
