@@ -4,18 +4,11 @@
 
 1. Once we have the setup in place, all dependencies will be available locally for test execution.
 
-1. Change your directory to `app/client`.
-
 1. Cypress tests are located within, `app/client/cypress` folder.
 
 1. All the test spec must be within the integration folder only i.e `app/client/cypress/integration`
 
-1. You can create folders within the cypress folder but make sure you place the spec within the integrations folder.
-
-1. Cypress tests can be executed in 2 modes: run mode and open mode.
-   If you are willing to execute tests in headless mode through command line follow [run mode](https://docs.cypress.io/guides/guides/command-line.html#How-to-run-commands) else you can use cypress client to run in [open mode](https://docs.cypress.io/guides/guides/launching-browsers.html#Browsers)
-
-1. Command to open cypress client `./node_modules/.bin/cypress open`
+1. You can create folders within the `app/client/cypress` folder but make sure you place the spec within the `app/client/cypress/integration` folder.
 
 1. Cypress client looks something like this and you will have all the e2e spec’s within [Smoke_TestSuite](https://docs.cypress.io/guides/getting-started/writing-your-first-test.html#Step-1-Visit-a-page)
 
@@ -32,9 +25,18 @@
    }
    ```
 
-1. Once the cypress.env.json file is ready, we can actually run tests from the cypress client.
+1. Once the `app/client/cypress.env.json` file is ready, we can actually run tests from the cypress client.
+
+1. Change your directory to `app/client`.
+
+1. Cypress tests can be executed in 2 modes: run mode and open mode.
+   If you are willing to execute tests in headless mode through command line follow [run mode](https://docs.cypress.io/guides/guides/command-line.html#How-to-run-commands) else you can use cypress client to run in [open mode](https://docs.cypress.io/guides/guides/launching-browsers.html#Browsers)
 
 1. Cypress supports Chrome/Firefox/electron browsers. Select a suitable browser and check the status of your tests.
+
+1. Command to open cypress client `$(npm bin)/cypress open`
+
+1. For run mode, you can use CLI args. To run the entire `Smoke_TestSuite`, use `$(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Smoke_TestSuite/*/*"`
 
 ## How do I add environment variables required for Cypress tests?
 
