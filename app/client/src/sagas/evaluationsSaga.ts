@@ -16,6 +16,7 @@ import {
 } from "constants/ReduxActionConstants";
 import {
   getDataTree,
+  getEvaluationDependencies,
   getOldUnevaluatedDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
@@ -90,15 +91,17 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   const newUnEvalTree = yield select(getUnevaluatedDataTree);
   const oldUnEvalTree = yield select(getOldUnevaluatedDataTree);
   const evalDataTree = yield select(getDataTree);
+  const evaluationDependencies = yield select(getEvaluationDependencies);
   evaluationWorker.postMessage({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     newUnEvalTree,
     widgetTypeConfigMap,
     oldUnEvalTree,
     dataTree: evalDataTree,
+    evaluationDependencies,
   });
   const workerResponse = yield take(workerChannel);
-  const { errors, dataTree } = workerResponse.data;
+  const { errors, dataTree, dependencies } = workerResponse.data;
   const parsedDataTree = JSON.parse(dataTree);
   log.debug({ dataTree: parsedDataTree });
   evalErrorHandler(errors);
@@ -109,6 +112,10 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   yield put({
     type: ReduxActionTypes.SET_UNEVALUATED_TREE,
     payload: newUnEvalTree,
+  });
+  yield put({
+    type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
+    payload: dependencies,
   });
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,

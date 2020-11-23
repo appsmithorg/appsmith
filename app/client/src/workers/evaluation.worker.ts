@@ -44,7 +44,8 @@ import {
   isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
-import { diff } from "deep-diff";
+import { diff, Diff, applyChange } from "deep-diff";
+import { EvaluationDependencyState } from "../reducers/evalutationReducers/dependencyReducer";
 
 const ctx: Worker = self as any;
 
@@ -61,6 +62,7 @@ ctx.addEventListener("message", e => {
         dataTree,
         newUnEvalTree,
         oldUnEvalTree,
+        evaluationDependencies,
       } = rest;
       WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
       console.log({ rest });
@@ -68,11 +70,16 @@ ctx.addEventListener("message", e => {
         dataTree,
         oldUnEvalTree,
         newUnEvalTree,
+        evaluationDependencies,
       );
       // We need to clean it to remove any possible functions inside the tree.
       // If functions exist, it will crash the web worker
-      const cleanDataTree = JSON.stringify(response);
-      ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS });
+      const cleanDataTree = JSON.stringify(response.tree);
+      ctx.postMessage({
+        dataTree: cleanDataTree,
+        dependencies: response.dependencies,
+        errors: ERRORS,
+      });
       ERRORS = [];
       break;
     }
@@ -86,8 +93,13 @@ ctx.addEventListener("message", e => {
     }
     case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
       const { dynamicTrigger, callbackData, dataTree } = rest;
-      const evalTree = getEvaluatedDataTree(dataTree, {}, {});
-      const withFunctions = addFunctions(evalTree);
+      const evalTree = getEvaluatedDataTree(
+        dataTree,
+        {},
+        {},
+        { dependencyTree: [], dependencyMap: {} },
+      );
+      const withFunctions = addFunctions(evalTree.tree);
       const triggers = getDynamicValue(
         dynamicTrigger,
         withFunctions,
@@ -131,7 +143,8 @@ function getEvaluatedDataTree(
   dataTree: DataTree,
   oldUnEvalTree: DataTree,
   newUnEvalTree: DataTree,
-): DataTree {
+  evaluationDependencies: EvaluationDependencyState,
+): { tree: DataTree; dependencies: EvaluationDependencyState } {
   const totalStart = performance.now();
   // Add functions to the tre
   const withFunctions = addFunctions(dataTree);
@@ -141,11 +154,17 @@ function getEvaluatedDataTree(
     dependencyMap,
     sortedDependencies,
     dependencyTree,
-  } = createDependencyTree(newUnEvalTree, oldUnEvalTree);
+    differences,
+  } = createDependencyTree(
+    newUnEvalTree,
+    oldUnEvalTree,
+    evaluationDependencies,
+  );
   const createDepsEnd = performance.now();
   console.log({ dependencyMap, sortedDependencies, dependencyTree });
   // Evaluate Tree
   const evaluatedTreeStart = performance.now();
+  differences.forEach(diff => applyChange(dataTree, undefined, diff));
   const evaluatedTree = dependencySortedEvaluateDataTree(
     withFunctions,
     dependencyMap,
@@ -176,7 +195,10 @@ function getEvaluatedDataTree(
   log.debug("data tree evaluated");
   log.debug(timeTaken);
   // dataTreeCache = validated;
-  return withoutFunctions;
+  return {
+    tree: withoutFunctions,
+    dependencies: { dependencyMap, dependencyTree },
+  };
 }
 
 const convertPathToString = (arrPath: Array<string | number>) => {
@@ -195,11 +217,10 @@ const convertPathToString = (arrPath: Array<string | number>) => {
 };
 
 const getUpdatedDynamicBindingDependencies = (
+  differences: Array<Diff<any, any>> | undefined,
   oldTree: DataTree,
   dataTree: DataTree,
 ): DynamicDependencyMap => {
-  const differences = diff(oldTree, dataTree);
-  console.log({ differences });
   if (differences === undefined) {
     return {};
   }
@@ -440,15 +461,23 @@ type DynamicDependencyMap = Record<string, Array<string>>;
 const createDependencyTree = (
   dataTree: DataTree,
   oldTree: DataTree,
+  evaluationDependencies: EvaluationDependencyState,
 ): {
   sortedDependencies: Array<string>;
   dependencyTree: Array<[string, string]>;
   dependencyMap: DynamicDependencyMap;
+  differences: Array<Diff<any, any>>;
 } => {
   let dependencyMap: DynamicDependencyMap = {};
   const allKeys = getAllPaths(dataTree);
   // Calculate diff
-  dependencyMap = getUpdatedDynamicBindingDependencies(oldTree, dataTree);
+  const differences = diff(oldTree, dataTree) || [];
+  console.log({ differences });
+  dependencyMap = getUpdatedDynamicBindingDependencies(
+    differences,
+    oldTree,
+    dataTree,
+  );
   // Add dependent properties based on updated dag
   console.log({ dependencyMap });
   Object.keys(dataTree).forEach(entityKey => {
@@ -494,13 +523,18 @@ const createDependencyTree = (
       .reverse()
       .filter(d => !!d);
 
-    return { sortedDependencies, dependencyMap, dependencyTree };
+    return { sortedDependencies, dependencyMap, dependencyTree, differences };
   } catch (e) {
     ERRORS.push({
       type: EvalErrorTypes.DEPENDENCY_ERROR,
       message: e.message,
     });
-    return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
+    return {
+      sortedDependencies: [],
+      dependencyMap: {},
+      dependencyTree: [],
+      differences: [],
+    };
   }
 };
 
