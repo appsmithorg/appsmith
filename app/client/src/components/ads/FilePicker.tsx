@@ -213,7 +213,6 @@ const FilePickerComponent = (props: FilePickerProps) => {
   }
 
   function onUpload(url: string) {
-    setFileUrl(url);
     props.onFileUploaded && props.onFileUploaded(url);
   }
 
@@ -252,6 +251,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
 
   function removeFile() {
     if (fileContainerRef.current && bgRef.current) {
+      setFileUrl("");
       fileContainerRef.current.style.display = "flex";
       bgRef.current.style.backgroundImage = "url('')";
       setIsUploaded(false);
@@ -266,12 +266,14 @@ const FilePickerComponent = (props: FilePickerProps) => {
       const urlKeys = props.url.split("/");
       if (urlKeys[urlKeys.length - 1] !== "null") {
         setFileUrl(props.url);
+      } else {
+        setFileUrl("");
       }
     }
   }, [props.url]);
 
   useEffect(() => {
-    if (fileUrl) {
+    if (fileUrl && !isUploaded) {
       setIsUploaded(true);
       if (bgRef.current) {
         bgRef.current.style.backgroundImage = `url(${fileUrl})`;
@@ -306,6 +308,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
               multiple={false}
               ref={inputRef}
               accept=".jpeg,.png,.svg"
+              value={""}
               onChange={el => handleFileUpload(el.target.files)}
             />
             <Button
