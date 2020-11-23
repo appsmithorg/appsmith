@@ -67,7 +67,7 @@ public class FirestorePlugin extends BasePlugin {
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
 
-        private final Scheduler scheduler = Schedulers.newElastic("FirestorePluginThreads");
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Firestore connection,
@@ -110,18 +110,14 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.just(Collections.emptyMap());
                         }
 
-                        return Mono
-                                .fromSupplier(() -> {
-                                    try {
-                                        return objectMapper.readValue(strBody, HashMap.class);
-                                    } catch (IOException e) {
-                                        throw Exceptions.propagate(new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_ERROR,
-                                                e.getMessage()
-                                        ));
-                                    }
-                                })
-                                .onErrorMap(Exceptions::unwrap);
+                        try {
+                            return Mono.just(objectMapper.readValue(strBody, HashMap.class));
+                        } catch (IOException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    e.getMessage()
+                            ));
+                        }
                     })
                     .flatMap(mapBody -> {
                         if (mapBody.isEmpty() && method.isBodyNeeded()) {
@@ -197,14 +193,14 @@ public class FirestorePlugin extends BasePlugin {
                         return Mono.just((ApiFuture<Object>) objFuture);
                     })
                     // Consume the Future to get the actual result object.
-                    .flatMap(resultFuture -> Mono
-                            .fromSupplier(() -> {
-                                try {
-                                    return resultFuture.get();
-                                } catch (InterruptedException | ExecutionException e) {
-                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
-                                }
-                            }))
+                    .flatMap(resultFuture -> {
+                        try {
+
+                            return Mono.just(resultFuture.get());
+                        } catch (InterruptedException | ExecutionException e) {
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                        }
+                    })
                     // Build a response object with the result.
                     .flatMap(objResult1 -> {
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -214,6 +210,11 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                         result.setIsExecutionSuccess(true);
+                        System.out.println(
+                                Thread.currentThread().getName()
+                                        + ": In the Firestore Plugin, got action execution result: "
+                                        + result.toString()
+                        );
                         return Mono.just(result);
                     });
         }
@@ -256,19 +257,23 @@ public class FirestorePlugin extends BasePlugin {
                             case ARRAY_CONTAINS:
                                 return Mono.just(query1.whereArrayContains(queryFieldPath, queryValue));
                             case ARRAY_CONTAINS_ANY:
-                                return parseList(queryValue)
-                                        .map(data -> query1.whereArrayContainsAny(queryFieldPath, data))
-                                        .onErrorMap(IOException.class, error -> new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_ERROR,
-                                                "Unable to parse condition value as a JSON list."
-                                        ));
+                                try {
+                                    return Mono.just(query1.whereArrayContainsAny(queryFieldPath, parseList(queryValue)));
+                                } catch (IOException e) {
+                                    return Mono.error(new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Unable to parse condition value as a JSON list."
+                                    ));
+                                }
                             case IN:
-                                return parseList(queryValue)
-                                        .map(data -> query1.whereIn(queryFieldPath, data))
-                                        .onErrorMap(IOException.class, error -> new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_ERROR,
-                                                "Unable to parse condition value as a JSON list."
-                                        ));
+                                try {
+                                    return Mono.just(query1.whereIn(queryFieldPath, parseList(queryValue)));
+                                } catch (IOException e) {
+                                    return Mono.error(new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Unable to parse condition value as a JSON list."
+                                    ));
+                                }
                                 // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
                                 // case NOT_IN:
                                 //     return Mono.just(query1.whereNotIn(queryFieldPath, queryValue));
@@ -285,7 +290,7 @@ public class FirestorePlugin extends BasePlugin {
                     .flatMap(query1 -> {
                         switch (method) {
                             case GET_COLLECTION:
-                                return Mono.fromSupplier(query1::get);
+                                return Mono.just(query1.get());
                             default:
                                 return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
@@ -294,14 +299,13 @@ public class FirestorePlugin extends BasePlugin {
                         }
                     })
                     // Consume the future to get the actual results.
-                    .flatMap(resultFuture -> Mono
-                            .fromSupplier(() -> {
-                                try {
-                                    return resultFuture.get();
-                                } catch (InterruptedException | ExecutionException e) {
-                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
-                                }
-                            }))
+                    .flatMap(resultFuture -> {
+                        try {
+                            return Mono.just(resultFuture.get());
+                        } catch (InterruptedException | ExecutionException e) {
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                        }
+                    })
                     // Build response object with the results from the Future.
                     .flatMap(objResult1 -> {
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -311,6 +315,11 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                         result.setIsExecutionSuccess(true);
+                        System.out.println(
+                                Thread.currentThread().getName()
+                                        + ": In the Firestore Plugin, got action execution result: "
+                                        + result.toString()
+                        );
                         return Mono.just(result);
                     });
         }
@@ -424,16 +433,8 @@ public class FirestorePlugin extends BasePlugin {
             return invalids;
         }
 
-        private <T> Mono<List<T>> parseList(String arrayJson) {
-            return Mono
-                    .fromSupplier(() -> {
-                        try {
-                            return (List<T>) objectMapper.readValue(arrayJson, ArrayList.class);
-                        } catch (IOException e) {
-                            throw Exceptions.propagate(e);
-                        }
-                    })
-                    .subscribeOn(scheduler);
+        private <T> List<T> parseList(String arrayJson) throws IOException {
+            return (List<T>) objectMapper.readValue(arrayJson, ArrayList.class);
         }
 
         @Override
@@ -445,25 +446,30 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(Firestore connection, DatasourceConfiguration datasourceConfiguration) {
-            Iterable<CollectionReference> collectionReferences = connection.listCollections();
+            return Mono
+                    .fromSupplier(() -> {
+                        Iterable<CollectionReference> collectionReferences = connection.listCollections();
 
-            List<DatasourceStructure.Table> tables = StreamSupport.stream(collectionReferences.spliterator(), false)
-                    .map(collectionReference -> {
-                        String id = collectionReference.getId();
-                        final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
-                        return new DatasourceStructure.Table(
-                                DatasourceStructure.TableType.COLLECTION,
-                                id,
-                                new ArrayList<>(),
-                                new ArrayList<>(),
-                                templates
-                        );
+                        List<DatasourceStructure.Table> tables = StreamSupport.stream(collectionReferences.spliterator(), false)
+                                .map(collectionReference -> {
+                                    String id = collectionReference.getId();
+                                    final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
+                                    return new DatasourceStructure.Table(
+                                            DatasourceStructure.TableType.COLLECTION,
+                                            id,
+                                            new ArrayList<>(),
+                                            new ArrayList<>(),
+                                            templates
+                                    );
+                                })
+                                .collect(Collectors.toList());
+
+                        DatasourceStructure structure = new DatasourceStructure();
+                        structure.setTables(tables);
+
+                        return structure;
                     })
-                    .collect(Collectors.toList());
-            DatasourceStructure structure = new DatasourceStructure();
-            structure.setTables(tables);
-
-            return Mono.just(structure);
+                    .subscribeOn(scheduler);
         }
     }
 }
