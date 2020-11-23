@@ -143,12 +143,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const { datasourceList } = this.props;
     return () => {
       return {
-        showHint: (editor: CodeMirror.Editor) => {
+        trigger: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
           const parsed = this.parseInputValue(value);
           if (
             parsed.path === "" &&
-            !!value &&
             this.props.datasource &&
             !("id" in this.props.datasource)
           ) {
@@ -164,6 +163,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                   .map(datasource => ({
                     text: datasource.datasourceConfiguration.url,
                     data: datasource,
+                    className: "datasource-hint",
                   }));
                 const hints = {
                   list,
@@ -181,6 +181,9 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               },
             });
           }
+        },
+        showHint: () => {
+          return;
         },
       };
     };

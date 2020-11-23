@@ -84,8 +84,20 @@ export const getExistingActionNames = createSelector(
   },
 );
 
-export const getExistingPageNames = (state: AppState) =>
-  state.entities.pageList.pages.map((page: Page) => page.pageName);
+/**
+ * returns a objects of existing page name in data tree
+ *
+ * @param state
+ */
+export const getExistingPageNames = (state: AppState) => {
+  const map: Record<string, any> = {};
+
+  state.entities.pageList.pages.map((page: Page) => {
+    map[page.pageName] = page.pageName;
+  });
+
+  return map;
+};
 
 export const getWidgetByName = (
   state: AppState,

@@ -1226,7 +1226,28 @@ public class DatabaseChangelog {
                 );
     }
 
-    @ChangeSet(order = "042", id = "add-firestore-plugin", author = "")
+    @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
+    public void updateActionIndexToSingleMultipleIndices(MongoTemplate mongoTemplate) {
+
+        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_unpublishedPageId_compound_index");
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("applicationId")
+                        .named("applicationId")
+        );
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("unpublishedAction.pageId")
+                        .named("unpublishedAction_pageId")
+        );
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("deleted")
+                        .named("deleted")
+        );
+    }
+
+    @ChangeSet(order = "043", id = "add-firestore-plugin", author = "")
     public void addFirestorePlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Firestore");
