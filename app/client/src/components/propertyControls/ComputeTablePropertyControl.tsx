@@ -8,6 +8,8 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ColumnProperties } from "widgets/TableWidget";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 export function InputText(props: {
   label: string;
@@ -19,6 +21,7 @@ export function InputText(props: {
   expected?: string;
   placeholder?: string;
   dataTreePath?: string;
+  additionalDynamicData: Record<string, Record<string, unknown>>;
 }) {
   const {
     errorMessage,
@@ -29,6 +32,7 @@ export function InputText(props: {
     placeholder,
     dataTreePath,
     evaluatedValue,
+    additionalDynamicData,
   } = props;
   return (
     <StyledDynamicInput>
@@ -49,6 +53,7 @@ export function InputText(props: {
         tabBehaviour={TabBehaviour.INDENT}
         size={EditorSize.EXTENDED}
         placeholder={placeholder}
+        additionalDynamicData={additionalDynamicData}
       />
     </StyledDynamicInput>
   );
@@ -64,13 +69,26 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
       dataTreePath,
       validationMessage,
     } = this.props;
-    const value = propertyValue
-      ? propertyValue.substring(
-          `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => `
-            .length,
-          propertyValue.length - 3,
-        )
-      : "";
+    const value =
+      propertyValue &&
+      propertyValue.includes(
+        `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => `,
+      )
+        ? `{{${propertyValue.substring(
+            `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => `
+              .length,
+            propertyValue.length - 3,
+          )}}}`
+        : propertyValue;
+    const evaluatedProperties = this.props.widgetProperties;
+    const columns: ColumnProperties[] = [
+      ...evaluatedProperties.primaryColumns,
+      ...evaluatedProperties.derivedColumns,
+    ];
+    const currentRow: { [key: string]: any } = {};
+    for (let i = 0; i < columns.length; i++) {
+      currentRow[columns[i].id] = undefined;
+    }
     return (
       <InputText
         label={label}
@@ -80,20 +98,32 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
         errorMessage={validationMessage}
         expected={expected}
         dataTreePath={dataTreePath}
+        additionalDynamicData={{
+          currentRow,
+        }}
       />
     );
   }
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
-    let value = event;
+    let value = "";
     if (typeof event !== "string") {
       value = event.target.value;
-    }
-    if (value) {
-      const computedValue = `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => ${value})}}`;
-      this.updateProperty(this.props.propertyName, computedValue);
     } else {
-      this.updateProperty(this.props.propertyName, "");
+      value = event;
+    }
+    if (value && isDynamicValue(value)) {
+      const trimmedValue = value.substring(2, value.length - 2);
+      if (trimmedValue) {
+        this.updateProperty(
+          this.props.propertyName,
+          `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => ${trimmedValue})}}`,
+        );
+      } else {
+        this.updateProperty(this.props.propertyName, "");
+      }
+    } else {
+      this.updateProperty(this.props.propertyName, value);
     }
   };
 

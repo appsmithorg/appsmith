@@ -153,7 +153,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "columnType",
                       label: "Column Type",
                       controlType: "DROP_DOWN",
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
@@ -188,10 +187,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Button",
                           value: "button",
                         },
-                        {
-                          label: "Dropdown",
-                          value: "dropdown",
-                        },
+                        // {
+                        //   label: "Dropdown",
+                        //   value: "dropdown",
+                        // },
                       ],
                     },
                     {
@@ -220,7 +219,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           value: "YYYY-MM-DD hh:mm:ss",
                         },
                       ],
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType !== "date";
@@ -230,7 +228,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "outputFormat",
                       label: "Converted Date Format",
                       controlType: "DROP_DOWN",
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
@@ -282,7 +279,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "enableFilter",
                       label: "Filtering",
                       controlType: "SWITCH",
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
@@ -292,7 +288,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "enableSort",
                       label: "Sorting",
                       controlType: "SWITCH",
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
@@ -438,12 +433,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       helpText: "Sets the label of the button",
                       controlType: "INPUT_TEXT",
                       placeholderText: "Enter label text",
+                      isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "buttonStyle",
                       label: "Button Color",
                       controlType: "COLOR_PICKER",
                       helpText: "Changes the color of the button",
+                      isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "buttonLabelColor",
@@ -481,7 +480,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "columnType",
                       label: "Column Type",
                       controlType: "DROP_DOWN",
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
@@ -516,10 +514,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Button",
                           value: "button",
                         },
-                        {
-                          label: "Dropdown",
-                          value: "dropdown",
-                        },
+                        // {
+                        //   label: "Dropdown",
+                        //   value: "dropdown",
+                        // },
                       ],
                     },
                     {
@@ -548,7 +546,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           value: "YYYY-MM-DD hh:mm:ss",
                         },
                       ],
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType !== "date";
@@ -558,7 +555,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "outputFormat",
                       label: "Converted Date Format",
                       controlType: "DROP_DOWN",
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       options: [
                         {
@@ -602,12 +598,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "computedValue",
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType === "button";
+                      },
                     },
                     {
                       propertyName: "enableFilter",
                       label: "Filtering",
                       controlType: "SWITCH",
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
@@ -617,7 +615,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "enableSort",
                       label: "Sorting",
                       controlType: "SWITCH",
-                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
@@ -763,12 +760,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       helpText: "Sets the label of the button",
                       controlType: "INPUT_TEXT",
                       placeholderText: "Enter label text",
+                      isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "buttonStyle",
                       label: "Button Color",
                       controlType: "COLOR_PICKER",
                       helpText: "Changes the color of the button",
+                      isJSConvertible: true,
+                      customJSControl: "COMPUTE_VALUE",
                     },
                     {
                       propertyName: "buttonLabelColor",
@@ -897,6 +898,42 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  getCellProperties = (
+    columnProperties: ColumnProperties,
+    rowIndex: number,
+  ) => {
+    const cellProperties: CellLayoutProperties = {
+      horizontalAlignment: Array.isArray(columnProperties.horizontalAlignment)
+        ? columnProperties.horizontalAlignment[rowIndex]
+        : columnProperties.horizontalAlignment,
+      verticalAlignment: Array.isArray(columnProperties.verticalAlignment)
+        ? columnProperties.verticalAlignment[rowIndex]
+        : columnProperties.verticalAlignment,
+      textSize: Array.isArray(columnProperties.textSize)
+        ? columnProperties.textSize[rowIndex]
+        : columnProperties.textSize,
+      fontStyle: Array.isArray(columnProperties.fontStyle)
+        ? columnProperties.fontStyle[rowIndex]
+        : columnProperties.fontStyle,
+      textColor: Array.isArray(columnProperties.textColor)
+        ? columnProperties.textColor[rowIndex]
+        : columnProperties.textColor,
+      cellBackground: Array.isArray(columnProperties.cellBackground)
+        ? columnProperties.cellBackground[rowIndex]
+        : columnProperties.cellBackground,
+      buttonStyle: Array.isArray(columnProperties.buttonStyle)
+        ? columnProperties.buttonStyle[rowIndex]
+        : columnProperties.buttonStyle,
+      buttonLabelColor: Array.isArray(columnProperties.buttonLabelColor)
+        ? columnProperties.buttonLabelColor[rowIndex]
+        : columnProperties.buttonLabelColor,
+      buttonLabel: Array.isArray(columnProperties.buttonLabel)
+        ? columnProperties.buttonLabel[rowIndex]
+        : columnProperties.buttonLabel,
+    };
+    return cellProperties;
+  };
+
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -909,14 +946,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     for (let index = 0; index < allColumns.length; index++) {
       const columnProperties = allColumns[index];
       const isHidden = !columnProperties.isVisible;
-      const cellProperties: CellLayoutProperties = {
-        horizontalAlignment: columnProperties.horizontalAlignment,
-        verticalAlignment: columnProperties.verticalAlignment,
-        textSize: columnProperties.textSize,
-        fontStyle: columnProperties.fontStyle,
-        textColor: columnProperties.textColor,
-        cellBackground: columnProperties.cellBackground,
-      };
       const columnData = {
         Header: columnProperties.label,
         accessor: columnProperties.id,
@@ -931,58 +960,38 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           type: columnProperties.columnType,
           format: columnProperties?.outputFormat || "",
           inputFormat: columnProperties?.inputFormat || "",
-          cellProperties: cellProperties,
-          buttonProperties:
-            columnProperties.columnType === "button"
-              ? {
-                  label: columnProperties.buttonLabel,
-                  id: columnProperties.id,
-                  dynamicTrigger: columnProperties.onClick,
-                  buttonStyle: columnProperties.buttonStyle || "#29CCA3",
-                  buttonLabelColor:
-                    columnProperties.buttonLabelColor || "#FFFFFF",
-                  onCommandClick: this.onCommandClick,
-                }
-              : undefined,
-          dropdownProperties:
-            columnProperties.columnType === "dropdown"
-              ? {
-                  dropdownOptions: columnProperties.dropdownOptions || "",
-                  onOptionChange: columnProperties.onOptionChange,
-                }
-              : undefined,
         },
+        columnProperties: JSON.stringify(columnProperties),
         Cell: (props: any) => {
-          const buttonProperties = columnData.metaProperties.buttonProperties;
-          const dropdownProperties =
-            columnData.metaProperties.dropdownProperties;
-          if (columnProperties.columnType === "button" && buttonProperties) {
+          const rowIndex: number = props.cell.row.index;
+          const cellProperties = this.getCellProperties(
+            columnProperties,
+            rowIndex,
+          );
+          if (columnProperties.columnType === "button") {
             const buttonProps = {
               isSelected: !!props.row.isSelected,
-              onCommandClick: buttonProperties.onCommandClick,
-              backgroundColor: buttonProperties.buttonStyle,
-              buttonLabelColor: buttonProperties.buttonLabelColor,
+              onCommandClick: this.onCommandClick,
+              backgroundColor: cellProperties.buttonStyle || "#29CCA3",
+              buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               columnActions: [
                 {
-                  id: buttonProperties.id,
-                  label: buttonProperties.label || "",
-                  dynamicTrigger: buttonProperties.dynamicTrigger || "",
+                  id: columnProperties.id,
+                  label: cellProperties.buttonLabel || "",
+                  dynamicTrigger: columnProperties.onClick || "",
                 },
               ],
             };
             return renderActions(buttonProps, isHidden);
-          } else if (
-            columnProperties.columnType === "dropdown" &&
-            dropdownProperties
-          ) {
+          } else if (columnProperties.columnType === "dropdown") {
             let options = [];
             try {
-              options = JSON.parse(dropdownProperties.dropdownOptions);
+              options = JSON.parse(columnProperties.dropdownOptions || "");
             } catch (e) {}
             return renderDropdown({
               options: options,
               onItemSelect: this.onItemSelect,
-              onOptionChange: dropdownProperties.onOptionChange || "",
+              onOptionChange: columnProperties.onOptionChange || "",
               selectedIndex: isNumber(props.cell.value)
                 ? props.cell.value
                 : undefined,
@@ -1107,7 +1116,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       for (let i = 0; i < this.props.primaryColumns.length; i++) {
         const column: ColumnProperties = this.props.primaryColumns[i];
         const columnId = column.id;
-        if (column.computedValue) {
+        if (column.computedValue && Array.isArray(column.computedValue)) {
           try {
             let computedValues: Array<unknown> = [];
             if (isString(column.computedValue)) {
@@ -1131,7 +1140,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       for (let i = 0; i < this.props.derivedColumns.length; i++) {
         const column: ColumnProperties = this.props.derivedColumns[i];
         const columnId = column.id;
-        if (column.computedValue) {
+        if (column.computedValue && Array.isArray(column.computedValue)) {
           try {
             let computedValues: Array<unknown> = [];
             if (isString(column.computedValue)) {
@@ -1484,7 +1493,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onCommandClick = (action: string, onComplete: () => void) => {
-    console.log({ action });
     super.executeAction({
       dynamicString: action,
       event: {
@@ -1617,29 +1625,16 @@ export interface CellLayoutProperties {
   fontStyle?: FontStyle;
   textColor?: string;
   cellBackground?: string;
+  buttonStyle?: string;
+  buttonLabelColor?: string;
+  buttonLabel?: string;
 }
 
-export interface ButtonProperties {
-  label?: string;
-  id: string;
-  buttonStyle: string;
-  buttonLabelColor: string;
-  dynamicTrigger?: string;
-  onCommandClick: (action: string, onComplete: () => void) => void;
-}
-
-export interface DropdownProperties {
-  dropdownOptions: string;
-  onOptionChange?: string;
-}
 export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
   inputFormat?: string;
   type: string;
-  cellProperties: CellLayoutProperties;
-  buttonProperties?: ButtonProperties;
-  dropdownProperties?: DropdownProperties;
 }
 
 export interface ReactTableColumnProps {
@@ -1652,6 +1647,7 @@ export interface ReactTableColumnProps {
   isAscOrder?: boolean;
   metaProperties?: TableColumnMetaProps;
   isDerived?: boolean;
+  columnProperties: string;
   Cell: (props: any) => JSX.Element;
 }
 
