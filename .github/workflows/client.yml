@@ -197,6 +197,7 @@ jobs:
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         APPSMITH_DISABLE_TELEMETRY: true
+        APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
         POSTGRES_PASSWORD: postgres
       run: |
         ./cypress/setup-test.sh
@@ -213,6 +214,8 @@ jobs:
         CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
         CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
         CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+        APPSMITH_DISABLE_TELEMETRY: true
+        APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
         COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
       with:
         browser: chrome

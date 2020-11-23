@@ -5,10 +5,12 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -121,7 +123,7 @@ public class MssqlPluginTest {
     }
 
     @Test
-    public void testConnectPostgresContainer() {
+    public void testConnectMsSqlContainer() {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
@@ -199,6 +201,21 @@ public class MssqlPluginTest {
                     );
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void invalidTestConnectMsSqlContainer() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        // Set up random username and password and try to connect
+        dsConfig.getAuthentication().setUsername(new ObjectId().toString());
+        dsConfig.getAuthentication().setPassword(new ObjectId().toString());
+
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithPluginException)
+                .verify();
     }
 
 }
