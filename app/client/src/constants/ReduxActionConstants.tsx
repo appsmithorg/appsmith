@@ -289,6 +289,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_CANVAS_STRUCTURE: "UPDATE_CANVAS_STRUCTURE",
   SET_SELECTED_WIDGET_ANCESTORY: "SET_SELECTED_WIDGET_ANCESTORY",
   START_EVALUATION: "START_EVALUATION",
+  CURRENT_APPLICATION_NAME_UPDATE: "CURRENT_APPLICATION_NAME_UPDATE",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

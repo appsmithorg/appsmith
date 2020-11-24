@@ -106,6 +106,16 @@ const applicationsReducer = createReducer(initialState, {
     currentApplication: action.payload,
     isFetchingApplication: false,
   }),
+  [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ name: string }>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      name: action.payload,
+    },
+  }),
   [ReduxActionTypes.CREATE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
     action: ReduxAction<CreateApplicationFormValues>,

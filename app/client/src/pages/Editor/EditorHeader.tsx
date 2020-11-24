@@ -191,7 +191,10 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     }
   }
 
-  const updateApplicationDispatch = (id: string, data: { name: string }) => {
+  const updateApplicationDispatch = (
+    id: string,
+    data: { name: string; currentApp: boolean },
+  ) => {
     dispatch(updateApplication(id, data));
   };
 
@@ -210,7 +213,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         {currentApplication ? (
           <EditableTextWrapper
             variant="UNDERLINE"
-            defaultValue={currentApplication?.name || ""}
+            defaultValue={currentApplication.name || ""}
             editInteractionKind={EditInteractionKind.SINGLE}
             hideEditIcon={true}
             className="t--application-name"
@@ -222,7 +225,10 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               applicationList.filter(el => el.id === applicationId).length > 0
             }
             onBlur={(value: string) =>
-              updateApplicationDispatch(applicationId || "", { name: value })
+              updateApplicationDispatch(applicationId || "", {
+                name: value,
+                currentApp: true,
+              })
             }
           />
         ) : null}

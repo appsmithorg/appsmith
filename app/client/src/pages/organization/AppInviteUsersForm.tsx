@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import {
@@ -44,10 +44,8 @@ const AppInviteUsersForm = (props: any) => {
     defaultPageId,
   } = props;
 
-  const currentOrg = useSelector(getCurrentOrg).filter(
-    el => el.id === props.orgId,
-  )[0];
-  const userOrgPermissions = currentOrg?.userPermissions ?? [];
+  const currentOrg = useSelector(getCurrentAppOrg);
+  const userOrgPermissions = currentOrg.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
   const canInviteToOrg = isPermitted(
     userOrgPermissions,
