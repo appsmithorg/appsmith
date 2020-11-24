@@ -385,7 +385,7 @@ export function* executeActionSaga(
               ...event,
               type: EventType.ON_ERROR,
             },
-            responseData: payload,
+            responseData: [payload.body, params],
           }),
         );
       } else {
@@ -412,7 +412,7 @@ export function* executeActionSaga(
               ...event,
               type: EventType.ON_SUCCESS,
             },
-            responseData: payload,
+            responseData: [payload.body, params],
           }),
         );
       } else {
@@ -441,7 +441,7 @@ export function* executeActionSaga(
             ...event,
             type: EventType.ON_ERROR,
           },
-          responseData: {},
+          responseData: [],
         }),
       );
     } else {

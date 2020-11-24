@@ -30,6 +30,7 @@ yarn-error.log*
 .storybook-out/
 cypress/videos
 cypress/screenshots
+/cypress.env.json
 results/
 
 /docker/*.pem

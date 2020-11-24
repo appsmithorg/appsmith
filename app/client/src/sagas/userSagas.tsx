@@ -357,6 +357,7 @@ export function* logoutSaga() {
       AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
       history.push(AUTH_LOGIN_URL);
+      localStorage.removeItem("THEME");
     }
   } catch (error) {
     console.log(error);

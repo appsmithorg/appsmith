@@ -1,4 +1,4 @@
-import { isHidden } from "./utils";
+import { isHidden, getConfigInitialValues } from "./utils";
 
 describe("isHidden test", () => {
   it("Test for isHidden true", () => {
@@ -72,6 +72,90 @@ describe("isHidden test", () => {
 
     hiddenFalseInputs.forEach((input: any) => {
       expect(isHidden(input.values, input.hidden)).toBeFalsy();
+    });
+  });
+});
+
+describe("getConfigInitialValues test", () => {
+  it("getConfigInitialValues test", () => {
+    const testCases = [
+      {
+        input: [
+          {
+            sectionName: "Connection",
+            children: [
+              {
+                label: "Region",
+                configProperty:
+                  "datasourceConfiguration.authentication.databaseName",
+                controlType: "DROP_DOWN",
+                initialValue: "ap-south-1",
+                options: [
+                  {
+                    label: "ap-south-1",
+                    value: "ap-south-1",
+                  },
+                  {
+                    label: "eu-south-1",
+                    value: "eu-south-1",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        output: {
+          datasourceConfiguration: {
+            authentication: { databaseName: "ap-south-1" },
+          },
+        },
+      },
+      {
+        input: [
+          {
+            sectionName: "Connection",
+            children: [
+              {
+                label: "Region",
+                configProperty:
+                  "datasourceConfiguration.authentication.databaseName",
+                controlType: "INPUT_TEXT",
+              },
+            ],
+          },
+        ],
+        output: {},
+      },
+      {
+        input: [
+          {
+            sectionName: "Connection",
+            children: [
+              {
+                label: "Host Address (for overriding endpoint only)",
+                configProperty: "datasourceConfiguration.endpoints[*].host",
+                controlType: "KEYVALUE_ARRAY",
+                initialValue: ["jsonplaceholder.typicode.com"],
+              },
+              {
+                label: "Port",
+                configProperty: "datasourceConfiguration.endpoints[*].port",
+                dataType: "NUMBER",
+                controlType: "KEYVALUE_ARRAY",
+              },
+            ],
+          },
+        ],
+        output: {
+          datasourceConfiguration: {
+            endpoints: [{ host: "jsonplaceholder.typicode.com" }],
+          },
+        },
+      },
+    ];
+
+    testCases.forEach(testCase => {
+      expect(getConfigInitialValues(testCase.input)).toEqual(testCase.output);
     });
   });
 });
