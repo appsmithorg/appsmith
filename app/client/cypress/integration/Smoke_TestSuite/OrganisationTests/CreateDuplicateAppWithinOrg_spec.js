@@ -6,7 +6,7 @@ describe("Create new org and an app within the same", function() {
   let orgid;
   let appid;
 
-  it("create org and then share with a user from UI", function() {
+  it("create multiple apps and validate", function() {
     cy.NavigateToHome();
     cy.generateUUID().then(uid => {
       orgid = uid;
@@ -15,19 +15,7 @@ describe("Create new org and an app within the same", function() {
       cy.createOrg(orgid);
       cy.CreateAppForOrg(orgid, appid);
       cy.NavigateToHome();
-      cy.get(homePage.searchInput).type(appid);
-      cy.CreateAppForOrg(orgid, appid);
-      cy.wait(2000);
-      cy.get(homePage.appsContainer).contains(orgid);
-      cy.get(homePage.applicationCard)
-        .first()
-        .trigger("mouseover");
-      cy.get(homePage.appEditIcon).should("be.visible");
-      cy.get(homePage.applicationCard)
-        .last()
-        .trigger("mouseover");
-      cy.get(homePage.appEditIcon).should("be.visible");
+      cy.CreateApp(appid);
     });
-    cy.LogOut();
   });
 });
