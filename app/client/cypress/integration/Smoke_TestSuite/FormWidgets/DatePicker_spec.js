@@ -65,21 +65,10 @@ describe("DatePicker Widget Functionality", function() {
 
   it("Datepicker min/max date validation", function() {
     cy.get(formWidgetsPage.defaultDate).click();
-    cy.SetDateToToday();
+    cy.setDate(1, "ddd MMM DD YYYY");
 
     cy.get(formWidgetsPage.minDate).click();
     cy.setDate(-2, "ddd MMM DD YYYY");
-
-    cy.get(formWidgetsPage.defaultDate).click();
-    cy.setDate(-3, "ddd MMM DD YYYY");
-    cy.get(formWidgetsPage.defaultDate).should(
-      "have.css",
-      "border",
-      "1px solid rgb(206, 66, 87)",
-    );
-
-    cy.get(formWidgetsPage.defaultDate).click();
-    cy.setDate(0, "ddd MMM DD YYYY");
 
     cy.get(formWidgetsPage.maxDate).click();
     cy.setDate(2, "ddd MMM DD YYYY");
@@ -104,6 +93,18 @@ describe("DatePicker Widget Functionality", function() {
       "aria-disabled",
       "true",
     );
+  });
+
+  it("Datepicker default date validation", function() {
+    cy.get(formWidgetsPage.defaultDate).click();
+    cy.setDate(-3, "ddd MMM DD YYYY");
+    cy.get(formWidgetsPage.defaultDate).should(
+      "have.css",
+      "border",
+      "1px solid rgb(206, 66, 87)",
+    );
+
+    cy.PublishtheApp();
   });
 
   // it("DatePicker-check Required field validation", function() {
