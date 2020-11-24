@@ -11,10 +11,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.convert.DefaultTypeMapper;
+import org.springframework.data.convert.SimpleTypeInformationMapper;
 import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoTypeMapper;
@@ -76,12 +79,12 @@ public class MongoConfig {
                 .Builder()
                 .withBasePackages(new String[]{"com.appsmith.external.models"})
                 .build();
-        return new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper));
+        return new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper, new SimpleTypeInformationMapper()));
     }
 
     @Bean
-    public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper typeMapper) {
-        MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, new MongoMappingContext());
+    public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper typeMapper, MongoMappingContext context) {
+        MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
         converter.setTypeMapper((MongoTypeMapper) typeMapper);
         return converter;
     }
