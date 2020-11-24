@@ -5,8 +5,8 @@ import moment from "moment-timezone";
 import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { WidgetProps } from "widgets/BaseWidget";
-import { AppToaster } from "components/editorComponents/ToastComponent";
-import { ToastType } from "react-toastify";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
   display: flex;
@@ -125,9 +125,9 @@ class DatePickerControl extends BaseControl<
           parsedSelectedDate.isValid() &&
           parsedWidgetDate.isBefore(parsedSelectedDate)
         ) {
-          AppToaster.show({
-            message: "Min date cannot be greater than current widget value.",
-            type: ToastType.ERROR,
+          Toaster.show({
+            text: "Min date cannot be greater than current widget value.",
+            variant: Variant.danger,
           });
 
           return false;
@@ -140,9 +140,9 @@ class DatePickerControl extends BaseControl<
           parsedSelectedDate.isValid() &&
           parsedWidgetDate.isAfter(parsedSelectedDate)
         ) {
-          AppToaster.show({
-            message: "Max date cannot be less than current widget value.",
-            type: ToastType.ERROR,
+          Toaster.show({
+            text: "Max date cannot be less than current widget value.",
+            variant: Variant.danger,
           });
 
           return false;
