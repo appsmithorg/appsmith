@@ -31,6 +31,7 @@ public class MDCFilter implements WebFilter {
     private static final String REQUEST_ID_LOG = "requestId";
     private static final String SESSION_ID_LOG = "sessionId";
     private static final String SESSION = "SESSION";
+    private static final String THREAD = "thread";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -52,6 +53,7 @@ public class MDCFilter implements WebFilter {
 
         contextMap.put(REQUEST_ID_LOG, getOrCreateRequestId(request));
         contextMap.put(SESSION_ID_LOG, getSessionId(request));
+        contextMap.put(THREAD, Thread.currentThread().getName());
 
         // Set the MDC context here for regular non-reactive logs
         MDC.setContextMap(contextMap);

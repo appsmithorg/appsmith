@@ -47,16 +47,15 @@ import {
 } from "redux-saga/effects";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
-
+import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import {
   getAllPageIds,
   getEditorConfigs,
-  getExistingActionNames,
   getExistingPageNames,
-  getExistingWidgetNames,
   getWidgets,
 } from "./selectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
@@ -524,21 +523,32 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
   }
 }
 
+/**
+ * this saga do two things
+ *
+ * 1. Checks if the name of page is conflicting with any used name
+ * 2. dispatches a action which triggers a request to update the name
+ *
+ * @param action
+ */
 export function* updateWidgetNameSaga(
   action: ReduxAction<{ id: string; newName: string }>,
 ) {
   try {
     const { widgetName } = yield select(getWidgetName, action.payload.id);
     const layoutId = yield select(getCurrentLayoutId);
+    const evalTree = yield select(getDataTree);
     const pageId = yield select(getCurrentPageId);
-    const existingWidgetNames = yield select(getExistingWidgetNames);
-    const existingActionNames = yield select(getExistingActionNames);
     const existingPageNames = yield select(getExistingPageNames);
-    const hasWidgetNameConflict =
-      existingWidgetNames.indexOf(action.payload.newName) > -1 ||
-      existingActionNames.indexOf(action.payload.newName) > -1 ||
-      existingPageNames.indexOf(action.payload.newName) > -1;
-    if (!hasWidgetNameConflict) {
+
+    // check if name is not conflicting with any
+    // existing entity/api/queries/reserved words
+    if (
+      isNameValid(action.payload.newName, {
+        ...evalTree,
+        ...existingPageNames,
+      })
+    ) {
       const request: UpdateWidgetNameRequest = {
         newName: action.payload.newName,
         oldName: widgetName,
