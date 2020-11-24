@@ -84,6 +84,27 @@ describe("Text-Table Binding Functionality", function() {
           });
       });
   });
+  it("Table Widget Functionality To Verify Default Row Selection is working", function() {
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
+    cy.openPropertyPane("tablewidget");
+    cy.testJsontext("defaultselectedrow", "2");
+    cy.wait("@updateLayout");
+    cy.get(commonlocators.TableRow)
+      .find(".tr.selected-row")
+      .then(listing => {
+        const listingCount = listing.length;
+        expect(listingCount).to.be.equal(1);
+      });
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{Table1.selectedRow.email}}");
+    cy.PublishtheApp();
+    cy.readTabledataPublish("2", "1").then(tabDataP => {
+      const tabValueP = tabDataP;
+      cy.get(commonlocators.TextInside).should("have.text", tabValueP);
+    });
+  });
   it("Text-Table Binding Functionality For Username", function() {
     cy.get(publish.backToEditor)
       .first()

@@ -871,7 +871,7 @@ type EvalResult = {
 const evaluateDynamicBoundValue = (
   data: DataTree,
   path: string,
-  callbackData?: any,
+  callbackData?: Array<any>,
 ): EvalResult => {
   try {
     const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
@@ -891,7 +891,7 @@ const evaluateDynamicBoundValue = (
 const evaluate = (
   js: string,
   data: DataTree,
-  callbackData: any,
+  callbackData?: Array<any>,
 ): EvalResult => {
   const scriptToEvaluate = `
         function closedFunction () {
@@ -903,7 +903,7 @@ const evaluate = (
   const scriptWithCallback = `
          function callback (script) {
             const userFunction = script;
-            const result = userFunction(CALLBACK_DATA);
+            const result = userFunction.apply(self, CALLBACK_DATA);
             return { result, triggers: self.triggers };
          }
          callback(${js});
@@ -1007,7 +1007,7 @@ const getDynamicValue = (
   dynamicBinding: string,
   data: DataTree,
   returnTriggers: boolean,
-  callBackData?: any,
+  callBackData?: Array<any>,
 ) => {
   // Get the {{binding}} bound values
   const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
@@ -1661,6 +1661,55 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       values = _.uniq(values);
     }
 
+    return {
+      isValid: true,
+      parsed: values,
+    };
+  },
+  [VALIDATION_TYPES.DEFAULT_SELECTED_ROW]: (
+    value: string | string[],
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ) => {
+    let values = value;
+
+    if (props) {
+      if (props.multiRowSelection) {
+        if (typeof value === "string") {
+          try {
+            values = JSON.parse(value);
+            if (!Array.isArray(values)) {
+              throw new Error();
+            }
+          } catch {
+            values = value.length ? value.split(",") : [];
+            if (values.length > 0) {
+              let numbericValues = values.map(value => {
+                return isNumber(value.trim()) ? -1 : Number(value.trim());
+              });
+              numbericValues = _.uniq(numbericValues);
+              return {
+                isValid: true,
+                parsed: numbericValues,
+              };
+            }
+          }
+        }
+      } else {
+        try {
+          const parsed = toNumber(value);
+          return {
+            isValid: true,
+            parsed: parsed,
+          };
+        } catch (e) {
+          return {
+            isValid: true,
+            parsed: -1,
+          };
+        }
+      }
+    }
     return {
       isValid: true,
       parsed: values,
