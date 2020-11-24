@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
@@ -137,8 +137,8 @@ public class MySqlPluginTest {
     }
 
     private static DatasourceConfiguration createDatasourceConfiguration() {
-        AuthenticationDTO authDTO = new AuthenticationDTO();
-        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
         authDTO.setDatabaseName(database);
@@ -165,8 +165,8 @@ public class MySqlPluginTest {
 
     @Test
     public void testConnectMySQLContainerWithInvalidTimezone() {
-        AuthenticationDTO authDTO = new AuthenticationDTO();
-        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
         authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
         authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
@@ -212,9 +212,10 @@ public class MySqlPluginTest {
     @Test
     public void testValidateDatasourceNullCredentials() {
         dsConfig.setConnection(new com.appsmith.external.models.Connection());
-        dsConfig.getAuthentication().setUsername(null);
-        dsConfig.getAuthentication().setPassword(null);
-        dsConfig.getAuthentication().setDatabaseName("someDbName");
+        DBAuth authentication = (DBAuth) dsConfig.getAuthentication();
+        authentication.setUsername(null);
+        authentication.setPassword(null);
+        authentication.setDatabaseName("someDbName");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.contains("Missing username for authentication."));
         assertTrue(output.contains("Missing password for authentication."));
@@ -222,7 +223,7 @@ public class MySqlPluginTest {
 
     @Test
     public void testValidateDatasourceMissingDBName() {
-        dsConfig.getAuthentication().setDatabaseName("");
+        ((DBAuth) dsConfig.getAuthentication()).setDatabaseName("");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertEquals(output.size(), 1);
         assertTrue(output.contains("Missing database name"));

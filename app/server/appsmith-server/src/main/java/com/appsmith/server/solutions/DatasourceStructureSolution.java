@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -84,11 +86,15 @@ public class DatasourceStructureSolution {
     }
 
     private Datasource decryptPasswordInDatasource(Datasource datasource) {
-        // If datasource has encrypted password, decrypt and set it in the datasource.
+        // If datasource has encrypted fields, decrypt and set it in the datasource.
         if (datasource.getDatasourceConfiguration() != null) {
             AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-            if (authentication != null && authentication.getPassword() != null) {
-                authentication.setPassword(encryptionService.decryptString(authentication.getPassword()));
+            if (authentication != null) {
+                Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                e -> encryptionService.decryptString(e.getValue())));
+                authentication.setEncryptionFields(decryptedFields);
             }
         }
 

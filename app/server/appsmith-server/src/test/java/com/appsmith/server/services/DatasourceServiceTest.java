@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
@@ -430,7 +431,7 @@ public class DatasourceServiceTest {
         datasource.setName("test datasource name for authenticated fields encryption test");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        DBAuth authenticationDTO = new DBAuth();
         String username = "username";
         String password = "password";
         authenticationDTO.setUsername(username);
@@ -447,7 +448,7 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
                 })
@@ -464,7 +465,7 @@ public class DatasourceServiceTest {
         datasource.setName("test datasource name for authenticated fields encryption test null password.");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        DBAuth authenticationDTO = new DBAuth();
         authenticationDTO.setDatabaseName("admin");
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -478,7 +479,7 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isNull();
                     assertThat(authentication.getPassword()).isNull();
                 })
@@ -495,7 +496,7 @@ public class DatasourceServiceTest {
         datasource.setName("test datasource name for authenticated fields encryption test post update");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        DBAuth authenticationDTO = new DBAuth();
         String username = "username";
         String password = "password";
         authenticationDTO.setUsername(username);
@@ -519,7 +520,7 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    AuthenticationDTO authentication = updatedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth authentication = (DBAuth) updatedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
                 })

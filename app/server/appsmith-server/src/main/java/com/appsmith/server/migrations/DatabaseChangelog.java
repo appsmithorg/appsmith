@@ -2,6 +2,7 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
@@ -555,7 +556,7 @@ public class DatabaseChangelog {
         );
 
         for (final Datasource datasource : datasources) {
-            AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
+            DBAuth authentication = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
             authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
             mongoTemplate.save(datasource);
         }

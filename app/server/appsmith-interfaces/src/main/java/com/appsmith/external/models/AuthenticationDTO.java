@@ -1,30 +1,28 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class AuthenticationDTO {
+import java.util.Map;
+import java.util.Set;
 
-    public enum Type {
-        SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
-    }
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        visible = true,
+        property = "type",
+        defaultImpl = DBAuth.class)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = DBAuth.class, name = "dbAuth"),
+        @JsonSubTypes.Type(value = OAuth2.class, name = "oAuth2")
+})
+public abstract class AuthenticationDTO {
 
-    Type authType;
-
-    String username;
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    String password;
-
-    String databaseName;
-
+    @JsonIgnore
+    public abstract Map<String, String> getEncryptionFields();
+    @JsonIgnore
+    public abstract void setEncryptionFields(Map<String, String> encryptedFields);
+    @JsonIgnore
+    public abstract Set<String> getEmptyEncryptionFields();
 }

@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -235,7 +235,7 @@ public class PostgresPlugin extends BasePlugin {
             }
 
             String url;
-            AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
@@ -320,15 +320,16 @@ public class PostgresPlugin extends BasePlugin {
                 invalids.add("Missing authentication details.");
 
             } else {
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (StringUtils.isEmpty(authentication.getUsername())) {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                if (StringUtils.isEmpty(authentication.getPassword())) {
                     invalids.add("Missing password for authentication.");
                 }
 
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getDatabaseName())) {
+                if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing database name.");
                 }
 

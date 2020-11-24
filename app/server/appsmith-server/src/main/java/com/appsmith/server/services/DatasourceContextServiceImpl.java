@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Datasource;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 
@@ -166,10 +168,14 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
     }
 
     @Override
-    public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authenticationDTO) {
-        if (authenticationDTO != null && authenticationDTO.getPassword() != null) {
-            authenticationDTO.setPassword(encryptionService.decryptString(authenticationDTO.getPassword()));
+    public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
+        if (authentication != null) {
+            Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> encryptionService.decryptString(e.getValue())));
+            authentication.setEncryptionFields(decryptedFields);
         }
-        return authenticationDTO;
+        return authentication;
     }
 }

@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
@@ -361,8 +362,8 @@ public class ExamplesOrganizationClonerTests {
                     ds2.setName("datasource 2");
                     ds2.setOrganizationId(organization.getId());
                     ds2.setDatasourceConfiguration(new DatasourceConfiguration());
-                    ds2.getDatasourceConfiguration().setAuthentication(new AuthenticationDTO());
-                    ds2.getDatasourceConfiguration().getAuthentication().setPassword("answer-to-life");
+                    ds2.getDatasourceConfiguration().setAuthentication(new DBAuth());
+                    ((DBAuth) ds2.getDatasourceConfiguration().getAuthentication()).setPassword("answer-to-life");
 
                     return Mono.when(
                             datasourceService.create(ds1),
@@ -398,7 +399,7 @@ public class ExamplesOrganizationClonerTests {
                             .findFirst()
                             .orElseThrow();
                     assertThat(ds2.getDatasourceConfiguration().getAuthentication()).isNotNull();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication().getPassword())
+                    assertThat(((DBAuth) ds2.getDatasourceConfiguration().getAuthentication()).getPassword())
                             .isEqualTo(encryptionService.encryptString("answer-to-life"));
 
                     assertThat(data.applications).isEmpty();
