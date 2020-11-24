@@ -63,15 +63,18 @@ client_proxy_pass="${default_client_proxy}"
 network_mode="bridge"
 case "${uname_out}" in
     Linux*)     machine=Linux
-        # If we're not in WSL, use the mode that works
-        if [[ "$(< /proc/version)" != *@(icrosoft|WSL)* ]]; then
-	        network_mode="host"
-	        client_proxy_pass=$default_linux_client_proxy
+
+        proc_version="$(cat /proc/version)"
+        case "$proc_version" in
+        *icrosoft*)
+            network_mode="host"
+            client_proxy_pass=$default_linux_client_proxy
             # if no server was passed
             if [[ -z $1 ]]; then
                 server_proxy_pass=$default_linux_server_proxy
             fi
-        fi
+            ;;
+        esac
                 echo "
     Starting nginx for Linux...
     "
