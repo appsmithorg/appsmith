@@ -693,6 +693,13 @@ type ColorType = {
   formFooter: {
     cancelBtn: ShadeColor;
   };
+  toast: {
+    undo: string;
+    warningColor: string;
+    dangerColor: string;
+    textColor: string;
+    bg: ShadeColor;
+  };
 };
 
 export const dark: ColorType = {
@@ -963,6 +970,13 @@ export const dark: ColorType = {
   formFooter: {
     cancelBtn: darkShades[9],
   },
+  toast: {
+    undo: "#CB4810",
+    warningColor: "#E0B30E",
+    dangerColor: "#E22C2C",
+    textColor: "#090707",
+    bg: darkShades[8],
+  },
 };
 
 export const light: ColorType = {
@@ -1232,6 +1246,13 @@ export const light: ColorType = {
   },
   formFooter: {
     cancelBtn: lightShades[9],
+  },
+  toast: {
+    undo: "#F86A2B",
+    warningColor: "#DCAD00",
+    dangerColor: "#F22B2B",
+    textColor: "#F7F7F7",
+    bg: lightShades[10],
   },
 };
 
