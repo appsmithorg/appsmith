@@ -57,7 +57,11 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
     cy.get(publish.inputWidget + " " + "input")
       .last()
       .invoke("attr", "value")
-      .should("contain", "23");
+      .should("contain", "3");
+    cy.get(publish.inputWidget + " " + "input")
+      .last()
+      .invoke("attr", "value")
+      .should("contain", "2");
     cy.get(publish.backToEditor)
       .first()
       .click();
