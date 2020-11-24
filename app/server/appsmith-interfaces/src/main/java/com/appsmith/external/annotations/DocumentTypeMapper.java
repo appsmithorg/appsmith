@@ -49,13 +49,15 @@ public class DocumentTypeMapper implements TypeInformationMapper {
                 }
             }
         }
+
+        System.out.println("finished populating map");
     }
 
     @Override
     public TypeInformation<?> resolveTypeFrom(Alias alias) {
-            if (aliasToTypeMap.containsKey((String) alias.getValue())) {
-                return aliasToTypeMap.get(alias.getValue());
-            }
+        if (aliasToTypeMap.containsKey((String) alias.getValue())) {
+            return aliasToTypeMap.get(alias.getValue());
+        }
         return null;
     }
 
@@ -64,7 +66,7 @@ public class DocumentTypeMapper implements TypeInformationMapper {
         if (typeToAliasMap.containsKey(typeInformation)) {
             return Alias.of(typeToAliasMap.get(typeInformation));
         }
-        return null;
+        return Alias.NONE;
     }
 
     public static class Builder {

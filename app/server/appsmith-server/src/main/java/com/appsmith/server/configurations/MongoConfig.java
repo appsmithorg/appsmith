@@ -5,21 +5,16 @@ import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactory
 import com.appsmith.server.repositories.BaseRepositoryImpl;
 import com.github.cloudyrock.mongock.SpringBootMongock;
 import com.github.cloudyrock.mongock.SpringBootMongockBuilder;
-import com.mongodb.ConnectionString;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.convert.DefaultTypeMapper;
 import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoClientDbFactory;
-import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoTypeMapper;
@@ -51,7 +46,7 @@ public class MongoConfig {
 
     @Bean
 //    public SpringBootMongock mongock(ApplicationContext springContext) {
-    public SpringBootMongock mongock(ApplicationContext springContext, MongoDbFactory mongoDbFactory) {
+    public SpringBootMongock mongock(ApplicationContext springContext, MongoTemplate mongoTemplate) {
 //        SimpleMongoClientDbFactory mongoDatabaseFactory = new SimpleMongoClientDbFactory(url);
 //        TypeInformationMapper typeInformationMapper = new DocumentTypeMapper
 //                .Builder()
@@ -62,7 +57,7 @@ public class MongoConfig {
 //        converter.setTypeMapper(typeMapper);
 //        MongoTemplate mongoTemplate = new MongoTemplate(mongoDatabaseFactory, converter);
         return new SpringBootMongockBuilder(
-                customMongoTemplate(mongoDbFactory),
+                mongoTemplate,
                 getClass().getPackageName().replaceFirst("\\.[^.]+$", ".migrations")
         )
                 .setApplicationContext(springContext)
@@ -70,17 +65,25 @@ public class MongoConfig {
                 .build();
     }
 
-    @Qualifier("customMongoTemplate")
     @Bean
-    public MongoTemplate customMongoTemplate(MongoDbFactory mongoDbFactory) {
+    public MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
+        return new MongoTemplate(mongoDbFactory, mappingMongoConverter);
+    }
+
+    @Bean
+    public DefaultTypeMapper typeMapper() {
         TypeInformationMapper typeInformationMapper = new DocumentTypeMapper
                 .Builder()
                 .withBasePackages(new String[]{"com.appsmith.external.models"})
                 .build();
-        MongoTypeMapper typeMapper = new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper));
+        return new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper));
+    }
+
+    @Bean
+    public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper typeMapper) {
         MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, new MongoMappingContext());
-        converter.setTypeMapper(typeMapper);
-        return new MongoTemplate(mongoDbFactory, converter);
+        converter.setTypeMapper((MongoTypeMapper) typeMapper);
+        return converter;
     }
 
 //    @Bean

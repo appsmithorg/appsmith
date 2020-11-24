@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,12 +18,20 @@ import java.util.Set;
         @JsonSubTypes.Type(value = DBAuth.class, name = "dbAuth"),
         @JsonSubTypes.Type(value = OAuth2.class, name = "oAuth2")
 })
-public abstract class AuthenticationDTO {
+public class AuthenticationDTO {
 
     @JsonIgnore
-    public abstract Map<String, String> getEncryptionFields();
+    public Map<String, String> getEncryptionFields() {
+        return Collections.emptyMap();
+    }
+
     @JsonIgnore
-    public abstract void setEncryptionFields(Map<String, String> encryptedFields);
+    public void setEncryptionFields(Map<String, String> encryptedFields) {
+    }
+
     @JsonIgnore
-    public abstract Set<String> getEmptyEncryptionFields();
+    public Set<String> getEmptyEncryptionFields() {
+        return Collections.emptySet();
+    }
+
 }
