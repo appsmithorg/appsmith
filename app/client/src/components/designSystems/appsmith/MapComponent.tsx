@@ -34,7 +34,7 @@ interface MapComponentProps {
   updateMarker: (lat: number, long: number, index: number) => void;
   saveMarker: (lat: number, long: number) => void;
   selectMarker: (lat: number, long: number, title: string) => void;
-  disableDrag: (e: any) => void;
+  enableDrag: (e: any) => void;
   unselectMarker: () => void;
 }
 
@@ -182,7 +182,7 @@ class MapComponent extends React.Component<MapComponentProps> {
   render() {
     const zoom = Math.floor(this.props.zoomLevel / 5);
     return (
-      <MapWrapper onMouseLeave={this.props.disableDrag}>
+      <MapWrapper onMouseLeave={this.props.enableDrag}>
         <MyMapComponent
           googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${this.props.apiKey}&v=3.exp&libraries=geometry,drawing,places`}
           loadingElement={<MapContainerWrapper />}
