@@ -8,7 +8,8 @@ import _ from "lodash";
 import Edit from "assets/images/EditPen.svg";
 import ErrorTooltip from "./ErrorTooltip";
 import { Colors } from "constants/Colors";
-import { AppToaster } from "components/editorComponents/ToastComponent";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -111,9 +112,9 @@ export const EditableText = (props: EditableTextProps) => {
       props.onTextChanged(_value);
       setIsEditing(false);
     } else {
-      AppToaster.show({
-        message: "Invalid name",
-        type: "error",
+      Toaster.show({
+        text: "Invalid name",
+        variant: Variant.danger,
       });
     }
   };

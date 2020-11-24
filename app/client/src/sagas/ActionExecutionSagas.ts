@@ -27,10 +27,6 @@ import {
   ActionDescription,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
-import {
-  AppToaster,
-  ToastTypeOptions,
-} from "components/editorComponents/ToastComponent";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
@@ -74,6 +70,8 @@ import { updateAppStore } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
+import { Toaster } from "components/ads/Toast";
+import { Variant, ToastVariant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -149,9 +147,9 @@ async function downloadSaga(
   try {
     const { data, name, type } = action;
     if (!name) {
-      AppToaster.show({
-        message: "Download failed. File name was not provided",
-        type: "error",
+      Toaster.show({
+        text: "Download failed. File name was not provided",
+        variant: Variant.danger,
       });
 
       if (event.callback) event.callback({ success: false });
@@ -166,9 +164,9 @@ async function downloadSaga(
     }
     if (event.callback) event.callback({ success: true });
   } catch (err) {
-    AppToaster.show({
-      message: `Download failed. ${err}`,
-      type: "error",
+    Toaster.show({
+      text: `Download failed. ${err}`,
+      variant: Variant.danger,
     });
     if (event.callback) event.callback({ success: false });
   }
@@ -183,16 +181,31 @@ function* showAlertSaga(
     if (event.callback) event.callback({ success: false });
     return;
   }
-  if (payload.style && !ToastTypeOptions.includes(payload.style)) {
+  let variant;
+  switch (payload.style) {
+    case "info":
+      variant = Variant.info;
+      break;
+    case "success":
+      variant = Variant.success;
+      break;
+    case "warning":
+      variant = Variant.warning;
+      break;
+    case "error":
+      variant = Variant.danger;
+      break;
+  }
+  if (payload.style && !variant) {
     console.error(
-      "Toast type needs to be a one of " + ToastTypeOptions.join(", "),
+      "Toast type needs to be a one of " + Object.values(Variant).join(", "),
     );
     if (event.callback) event.callback({ success: false });
     return;
   }
-  AppToaster.show({
-    message: payload.message,
-    type: payload.style,
+  Toaster.show({
+    text: payload.message,
+    variant: variant,
   });
   if (event.callback) event.callback({ success: true });
 }
@@ -393,10 +406,9 @@ export function* executeActionSaga(
           event.callback({ success: false });
         }
       }
-      AppToaster.show({
-        message:
-          api.name + " failed to execute. Please check it's configuration",
-        type: "error",
+      Toaster.show({
+        text: api.name + " failed to execute. Please check it's configuration",
+        variant: Variant.danger,
       });
     } else {
       PerformanceTracker.stopAsyncTracking(
@@ -429,9 +441,9 @@ export function* executeActionSaga(
         error,
       }),
     );
-    AppToaster.show({
-      message: "Action execution failed",
-      type: "error",
+    Toaster.show({
+      text: "Action execution failed",
+      variant: Variant.danger,
     });
     if (onError) {
       yield put(
@@ -597,14 +609,14 @@ function* runActionSaga(
         payload: { [actionId]: payload },
       });
       if (payload.isExecutionSuccess) {
-        AppToaster.show({
-          message: "Action ran successfully",
-          type: ToastType.SUCCESS,
+        Toaster.show({
+          text: "Action ran successfully",
+          variant: Variant.success,
         });
       } else {
-        AppToaster.show({
-          message: "Action returned an error response",
-          type: ToastType.WARNING,
+        Toaster.show({
+          text: "Action returned an error response",
+          variant: Variant.warning,
         });
       }
     } else {
@@ -725,9 +737,9 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     );
   } catch (e) {
     log.error(e);
-    AppToaster.show({
-      message: "Failed to load onPageLoad actions",
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: "Failed to load onPageLoad actions",
+      variant: Variant.danger,
     });
   }
 }

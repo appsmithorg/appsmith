@@ -50,12 +50,12 @@ import history from "utils/history";
 import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppToaster } from "components/editorComponents/ToastComponent";
-import { ToastType } from "react-toastify";
 import { getFormData } from "selectors/formSelectors";
 import { changeApi } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { AppState } from "reducers";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/actionActions";
 
@@ -136,9 +136,9 @@ export function* deleteDatasourceSaga(
         history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
       }
 
-      AppToaster.show({
-        message: `${response.data.name} datasource deleted`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} datasource deleted`,
+        variant: Variant.success,
       });
 
       yield put({
@@ -153,6 +153,10 @@ export function* deleteDatasourceSaga(
       });
     }
   } catch (error) {
+    Toaster.show({
+      text: error.message,
+      variant: Variant.danger,
+    });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
       payload: { error, id: actionPayload.payload.id, show: false },
@@ -173,9 +177,9 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceName: response.data.name,
       });
-      AppToaster.show({
-        message: `${response.data.name} Datasource updated`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Datasource updated`,
+        variant: Variant.success,
       });
 
       const state = yield select();
@@ -269,9 +273,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     if (isValidResponse) {
       const responseData = response.data;
       if (responseData.invalids && responseData.invalids.length) {
-        AppToaster.show({
-          message: responseData.invalids[0],
-          type: ToastType.ERROR,
+        Toaster.show({
+          text: responseData.invalids[0],
+          variant: Variant.danger,
         });
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
@@ -281,9 +285,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
           datasource: payload.name,
         });
-        AppToaster.show({
-          message: `${payload.name} is valid`,
-          type: ToastType.SUCCESS,
+        Toaster.show({
+          text: `${payload.name} is valid`,
+          variant: Variant.success,
         });
         yield put({
           type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
@@ -354,9 +358,9 @@ function* createDatasourceFromFormSaga(
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
       );
-      AppToaster.show({
-        message: `${response.data.name} Datasource created`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Datasource created`,
+        variant: Variant.success,
       });
     }
   } catch (error) {
