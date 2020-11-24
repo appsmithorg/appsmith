@@ -17,6 +17,7 @@ public class FieldName {
     public static String PLUGIN = "plugin";
     public static String DEFAULT_PAGE_NAME = "Page1";
     public static String TYPE = "type";
+    public static final String WIDGET_ID = "widgetId";
     public static String WIDGET_NAME = "widgetName";
     public static String DYNAMIC_BINDINGS = "dynamicBindings";
     public static String DYNAMIC_BINDING_PATH_LIST = "dynamicBindingPathList";
@@ -56,4 +57,5 @@ public class FieldName {
     public static String USERNAMES = "usernames";
     public static String ACTION = "action";
     public static String ASSET = "asset";
+    public static String APPLICATION = "application";
 }

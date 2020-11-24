@@ -361,7 +361,7 @@ public class UserServiceTest {
                     inviteUsersDTO.setOrgId(organization1.getId());
                     inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
-                    return userService.inviteUser(inviteUsersDTO, "http://localhost:8080")
+                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080")
                             .collectList();
                 }).block();
 

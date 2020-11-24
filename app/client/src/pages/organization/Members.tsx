@@ -22,12 +22,13 @@ import {
   changeOrgUserRole,
   deleteOrgUser,
 } from "actions/orgActions";
-import Button, { Size, Variant } from "components/ads/Button";
+import Button, { Size } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import { TextType } from "components/ads/Text";
 import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
+import { Variant } from "components/ads/common";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;

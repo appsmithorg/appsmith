@@ -37,13 +37,16 @@ export const RichtextEditorComponent = (
   useEffect(() => {
     if (
       editorInstance !== null &&
-      props.defaultValue !== editorContent.current
+      (editorContent.current.length === 0 ||
+        editorContent.current !== props.defaultValue)
     ) {
       setTimeout(() => {
         const content = props.defaultValue
           ? props.defaultValue.replace(/\n/g, "<br/>")
           : props.defaultValue;
-        editorInstance.setContent(props.defaultValue, { format: "html" });
+        editorInstance.setContent(content, {
+          format: "html",
+        });
       }, 200);
     }
   }, [props.defaultValue]);

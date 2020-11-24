@@ -59,6 +59,13 @@ const PostgresConfigResponse = [
             configProperty: "datasourceConfiguration.authentication.username",
             controlType: "INPUT_TEXT",
             placeholderText: "Username",
+            // Hide this field if the value at
+            // datasourceConfiguration.connection.mode is eqaul to READ_ONLY
+            hidden: {
+              path: "datasourceConfiguration.connection.mode",
+              comparison: "EQUALS",
+              value: "READ_ONLY",
+            },
           },
           {
             label: "Password",
@@ -105,6 +112,8 @@ const PostgresConfigResponse = [
             value: "VERIFY_FULL",
           },
         ],
+        // Hide this field
+        hidden: true,
       },
       {
         sectionName: null,

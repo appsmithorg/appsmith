@@ -7,6 +7,7 @@ import {
   getPluginPackageFromId,
   getPluginImages,
   getDatasource,
+  getPlugin,
 } from "selectors/entitiesSelector";
 import {
   updateDatasource,
@@ -33,6 +34,7 @@ interface ReduxStateProps {
   pluginImages: Record<string, string>;
   pluginId: string;
   viewMode: boolean;
+  pluginType: string;
 }
 
 type Props = ReduxStateProps &
@@ -84,6 +86,7 @@ class DataSourceEditor extends React.Component<Props> {
       pluginId,
       viewMode,
       setDatasourceEditorMode,
+      pluginType,
     } = this.props;
 
     return (
@@ -108,6 +111,7 @@ class DataSourceEditor extends React.Component<Props> {
             handleDelete={deleteDatasource}
             viewMode={viewMode}
             setDatasourceEditorMode={setDatasourceEditorMode}
+            pluginType={pluginType}
           />
         ) : (
           <DatasourceHome
@@ -129,11 +133,13 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const datasource = getDatasource(state, props.match.params.datasourceId);
   const { formConfigs, loadingFormConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
+  const pluginId = _.get(datasource, "pluginId", "");
+  const plugin = getPlugin(state, pluginId);
 
   return {
     pluginImages: getPluginImages(state),
     formData,
-    pluginId: _.get(datasource, "pluginId", ""),
+    pluginId,
     selectedPluginPackage: getPluginPackageFromId(
       state,
       datasourcePane.selectedPlugin,
@@ -145,6 +151,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     loadingFormConfigs,
     newDatasource: datasourcePane.newDatasource,
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
+    pluginType: plugin?.type ?? "",
   };
 };
 
