@@ -65,6 +65,7 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
         editInteractionKind={EditInteractionKind.SINGLE}
         isEditingDefault={false}
         onBlur={exitEditMode}
+        minimal
         className="t--property-pane-edit-title"
       />
       <Tooltip

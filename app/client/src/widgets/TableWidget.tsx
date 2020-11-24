@@ -25,6 +25,7 @@ import { isNumber, isString, isUndefined } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { Colors } from "constants/Colors";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -194,8 +195,47 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                     },
                     {
+                      propertyName: "outputFormat",
+                      label: "Currency Type",
+                      controlType: "DROP_DOWN",
+                      options: [
+                        {
+                          label: "USD - $",
+                          value: "$",
+                        },
+                        {
+                          label: "INR - ₹",
+                          value: "₹",
+                        },
+                        {
+                          label: "GBP - £",
+                          value: "£",
+                        },
+                        {
+                          label: "AUD - A$",
+                          value: "A$",
+                        },
+                        {
+                          label: "EUR - €",
+                          value: "€",
+                        },
+                        {
+                          label: "SGD - S$",
+                          value: "S$",
+                        },
+                        {
+                          label: "CAD - C$",
+                          value: "C$",
+                        },
+                      ],
+                      customJSControl: "COMPUTE_VALUE",
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType !== "currency";
+                      },
+                    },
+                    {
                       propertyName: "inputFormat",
-                      label: "Previous Date Format",
+                      label: "Original Date Format",
                       controlType: "DROP_DOWN",
                       options: [
                         {
@@ -226,7 +266,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                     {
                       propertyName: "outputFormat",
-                      label: "Converted Date Format",
+                      label: "Display Date Format",
                       controlType: "DROP_DOWN",
                       customJSControl: "COMPUTE_VALUE",
                       options: [
@@ -411,6 +451,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultColor: Colors.THUNDER,
                     },
                     {
                       propertyName: "cellBackground",
@@ -418,6 +459,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultColor: Colors.WHITE,
                     },
                   ],
                 },
@@ -435,6 +477,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       placeholderText: "Enter label text",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultValue: "Action",
                     },
                     {
                       propertyName: "buttonStyle",
@@ -443,6 +486,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       helpText: "Changes the color of the button",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultColor: Colors.GREEN,
                     },
                     {
                       propertyName: "buttonLabelColor",
@@ -450,6 +494,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultColor: Colors.WHITE,
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
@@ -521,8 +566,47 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       ],
                     },
                     {
+                      propertyName: "outputFormat",
+                      label: "Currency Type",
+                      controlType: "DROP_DOWN",
+                      options: [
+                        {
+                          label: "USD - $",
+                          value: "$",
+                        },
+                        {
+                          label: "INR - ₹",
+                          value: "₹",
+                        },
+                        {
+                          label: "GBP - £",
+                          value: "£",
+                        },
+                        {
+                          label: "AUD - A$",
+                          value: "A$",
+                        },
+                        {
+                          label: "EUR - €",
+                          value: "€",
+                        },
+                        {
+                          label: "SGD - S$",
+                          value: "S$",
+                        },
+                        {
+                          label: "CAD - C$",
+                          value: "C$",
+                        },
+                      ],
+                      customJSControl: "COMPUTE_VALUE",
+                      hidden: (props: ColumnProperties) => {
+                        return props.columnType !== "currency";
+                      },
+                    },
+                    {
                       propertyName: "inputFormat",
-                      label: "Previous Date Format",
+                      label: "Original Date Format",
                       controlType: "DROP_DOWN",
                       options: [
                         {
@@ -553,7 +637,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     },
                     {
                       propertyName: "outputFormat",
-                      label: "Converted Date Format",
+                      label: "Display Date Format",
                       controlType: "DROP_DOWN",
                       customJSControl: "COMPUTE_VALUE",
                       options: [
@@ -738,6 +822,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultColor: Colors.THUNDER,
                     },
                     {
                       propertyName: "cellBackground",
@@ -745,6 +830,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultColor: Colors.WHITE,
                     },
                   ],
                 },
@@ -762,6 +848,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       placeholderText: "Enter label text",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultValue: "Action",
                     },
                     {
                       propertyName: "buttonStyle",
@@ -770,6 +857,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       helpText: "Changes the color of the button",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultColor: Colors.GREEN,
                     },
                     {
                       propertyName: "buttonLabelColor",
@@ -777,6 +865,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
+                      defaultColor: Colors.WHITE,
                     },
                     {
                       helpText: "Triggers an action when the button is clicked",
@@ -977,7 +1066,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               columnActions: [
                 {
                   id: columnProperties.id,
-                  label: cellProperties.buttonLabel || "",
+                  label: cellProperties.buttonLabel || "Action",
                   dynamicTrigger: columnProperties.onClick || "",
                 },
               ],

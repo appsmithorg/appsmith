@@ -312,19 +312,20 @@ export const FieldWrapper = styled.div`
 `;
 
 export const StyledEditIcon = styled(
-  ControlIcons.EDIT_CONTROL as AnyStyledComponent,
+  ControlIcons.SETTINGS_CONTROL as AnyStyledComponent,
 )`
   padding: 0;
   position: absolute;
-  margin-left: 15px;
+  margin-left: 0;
   cursor: pointer;
-  right: 12.5px;
+  right: 35px;
   & svg {
-    circle {
-      fill: none;
-    }
+    width: 12px;
+    height: 12px;
+    position: relative;
+    top: 2px;
     path {
-      fill: ${Colors.SLATE_GRAY};
+      fill: ${props => props.theme.colors.paneSectionLabel};
     }
   }
 `;
@@ -333,10 +334,16 @@ export const StyledDragIcon = styled(
   ControlIcons.DRAG_CONTROL as AnyStyledComponent,
 )`
   padding: 0;
-  position: relative;
+  position: absolute;
   margin-right: 15px;
   cursor: move;
+  z-index: 1;
+  left: 4px;
   svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    top: 2px;
     path {
       fill: ${props => props.theme.colors.paneSectionLabel};
     }
@@ -348,10 +355,14 @@ export const StyledDeleteIcon = styled(
 )`
   padding: 0;
   position: absolute;
-  margin-right: 15px;
+  margin-left: 15px;
   cursor: pointer;
-  right: 15px;
+  right: 16px;
   svg {
+    width: 24px;
+    height: 24px;
+    top: -2px;
+    position: relative;
     path {
       fill: ${props => props.theme.colors.paneSectionLabel};
     }
@@ -367,10 +378,14 @@ export const StyledVisibleIcon = styled(
 )`
   padding: 0;
   position: absolute;
-  margin-right: 15px;
+  margin-left: 15px;
   cursor: pointer;
-  right: 15px;
+  right: 16px;
   svg {
+    width: 24px;
+    height: 24px;
+    top: -2px;
+    position: relative;
     path {
       fill: ${props => props.theme.colors.paneSectionLabel};
     }

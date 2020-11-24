@@ -78,6 +78,7 @@ export type EditorProps = EditorStyleProps &
     input: Partial<WrappedFieldInputProps>;
   } & {
     additionalDynamicData?: Record<string, Record<string, unknown>>;
+    promptMessage?: React.ReactNode | string;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -376,6 +377,7 @@ class CodeEditor extends Component<Props, State> {
             )}
             <BindingPrompt
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+              promptMessage={this.props.promptMessage}
             />
           </EditorWrapper>
         </EvaluatedValuePopup>

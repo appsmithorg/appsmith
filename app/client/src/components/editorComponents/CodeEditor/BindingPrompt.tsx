@@ -24,7 +24,10 @@ const CurlyBraces = styled.span`
   margin: 0px 2px;
 `;
 
-const BindingPrompt = (props: { isOpen: boolean }): JSX.Element => {
+const BindingPrompt = (props: {
+  isOpen: boolean;
+  promptMessage?: React.ReactNode | string;
+}): JSX.Element => {
   const promptRef = useRef<HTMLDivElement>(null);
   let bottomOffset = 30;
 
@@ -40,7 +43,13 @@ const BindingPrompt = (props: { isOpen: boolean }): JSX.Element => {
       visible={props.isOpen}
       bottomOffset={bottomOffset}
     >
-      Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
+      {props.promptMessage ? (
+        props.promptMessage
+      ) : (
+        <React.Fragment>
+          Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
+        </React.Fragment>
+      )}
     </Wrapper>
   );
 };
