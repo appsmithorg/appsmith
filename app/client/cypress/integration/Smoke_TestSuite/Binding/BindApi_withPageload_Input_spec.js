@@ -17,8 +17,8 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
     cy.CreateAPI("PageLoadApi");
     cy.enterDatasourceAndPath("https://reqres.in/api/", "users");
     cy.WaitAutoSave();
-    cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy=executeOnLoad]")
+    cy.get(apiwidget.settings).click({ force: true });
+    cy.get(apiwidget.onPageLoad)
       .find(".bp3-switch")
       .click();
     cy.wait("@setExecuteOnLoad");
