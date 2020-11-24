@@ -162,14 +162,18 @@ const ColorPicker = (props: ColorPickerProps) => {
   );
 };
 
-class ColorPickerControl extends BaseControl<ControlProps> {
+class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
   handleChangeColor = (color: string) => {
     this.updateProperty(this.props.propertyName, color);
   };
   render() {
     return (
       <ColorPicker
-        color={this.props.propertyValue}
+        color={
+          this.props.propertyValue
+            ? this.props.propertyValue
+            : this.props.defaultColor
+        }
         changeColor={this.handleChangeColor}
       />
     );
@@ -178,6 +182,10 @@ class ColorPickerControl extends BaseControl<ControlProps> {
   static getControlType() {
     return "COLOR_PICKER";
   }
+}
+
+export interface ColorPickerControlProps extends ControlProps {
+  defaultColor?: string;
 }
 
 export default ColorPickerControl;

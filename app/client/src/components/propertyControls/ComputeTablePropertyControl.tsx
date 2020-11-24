@@ -10,6 +10,15 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ColumnProperties } from "widgets/TableWidget";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import styled from "styled-components";
+
+const CurlyBraces = styled.span`
+  color: white;
+  background-color: #f3672a;
+  border-radius: 2px;
+  padding: 2px;
+  margin: 0px 2px;
+`;
 
 export function InputText(props: {
   label: string;
@@ -54,6 +63,12 @@ export function InputText(props: {
         size={EditorSize.EXTENDED}
         placeholder={placeholder}
         additionalDynamicData={additionalDynamicData}
+        promptMessage={
+          <React.Fragment>
+            Use <CurlyBraces>{"{{"}</CurlyBraces>currentRow.columnIdentifier
+            <CurlyBraces>{"}}"}</CurlyBraces> to access any column in the table
+          </React.Fragment>
+        }
       />
     </StyledDynamicInput>
   );

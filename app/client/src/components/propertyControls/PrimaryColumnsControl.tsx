@@ -29,6 +29,7 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   width: 100%;
   &&& {
     input {
+      padding-left: 24px;
       border: none;
       color: ${props => props.theme.colors.textOnDarkBG};
       background: ${props => props.theme.colors.paneInputBG};
@@ -64,20 +65,20 @@ function ColumnControlComponent(props: RenderComponentProps) {
         }}
         defaultValue={item.label}
       />
-      <StyledVisibleIcon
-        className="t--show-column-btn"
-        height={20}
-        width={20}
-        onClick={() => {
-          deleteOption && deleteOption(index);
-        }}
-      />
       <StyledEditIcon
         className="t--edit-column-btn"
         height={20}
         width={20}
         onClick={() => {
           onEdit && onEdit(index);
+        }}
+      />
+      <StyledVisibleIcon
+        className="t--show-column-btn"
+        height={20}
+        width={20}
+        onClick={() => {
+          deleteOption && deleteOption(index);
         }}
       />
     </ItemWrapper>

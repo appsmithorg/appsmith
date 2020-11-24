@@ -28,7 +28,9 @@ import ActionSelectorControl from "components/propertyControls/ActionSelectorCon
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
 import AdditionalColumnsControl from "components/propertyControls/AdditionalColumnsControl";
-import ColorPickerControl from "components/propertyControls/ColorPickerControl";
+import ColorPickerControl, {
+  ColorPickerControlProps,
+} from "components/propertyControls/ColorPickerControl";
 import ComputeTablePropertyControl from "components/propertyControls/ComputeTablePropertyControl";
 import IconTabControl, {
   IconTabControlProps,
@@ -73,7 +75,8 @@ export type PropertyControlPropsType =
   | MultiSwitchControlProps
   | IconTabControlProps
   | ButtonTabControlProps
-  | StepControlProps;
+  | StepControlProps
+  | ColorPickerControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};
