@@ -19,7 +19,9 @@ const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
       font-size: ${props => props.theme.fontSizes[3]}px;
       box-shadow: none;
       border: ${props =>
-        !props.isValid ? `1px solid ${props.theme.colors.error}` : null};
+        !props.isValid
+          ? `1px solid ${props.theme.colors.error}`
+          : `1px solid transparent`};
     }
   }
   .vertical-center {
@@ -91,6 +93,25 @@ class DatePickerControl extends BaseControl<
    */
   onDateSelected = (date: Date): void => {
     const selectedDate = date ? this.formatDate(date) : undefined;
+    const isValid = this.validateDate(date);
+
+    if (!isValid) return;
+
+    // if everything is ok, put date in state
+    this.setState({ selectedDate: selectedDate });
+    this.updateProperty(this.props.propertyName, selectedDate);
+  };
+
+  /**
+   * checks:
+   * 1. if max date is greater than the default date
+   * 2. if default date is in range of min and max date
+   */
+  validateDate = (date: Date): boolean => {
+    const parsedSelectedDate = moment(
+      date,
+      this.props.widgetProperties.dateFormat,
+    );
 
     if (this.props.widgetProperties?.evaluatedValues?.value) {
       const parsedWidgetDate = moment(
@@ -100,48 +121,36 @@ class DatePickerControl extends BaseControl<
 
       // checking if widget date is after min date
       if (this.props.propertyName === "minDate") {
-        const parsedMinDate = moment(
-          selectedDate,
-          this.props.widgetProperties.dateFormat,
-        );
-
         if (
-          parsedMinDate.isValid() &&
-          parsedWidgetDate.isBefore(parsedMinDate)
+          parsedSelectedDate.isValid() &&
+          parsedWidgetDate.isBefore(parsedSelectedDate)
         ) {
           AppToaster.show({
             message: "Min date cannot be greater than current widget value.",
             type: ToastType.ERROR,
           });
 
-          return;
+          return false;
         }
       }
 
       // checking if widget date is before max date
       if (this.props.propertyName === "maxDate") {
-        const parsedMaxDate = moment(
-          selectedDate,
-          this.props.widgetProperties.dateFormat,
-        );
-
         if (
-          parsedMaxDate.isValid() &&
-          parsedWidgetDate.isAfter(parsedMaxDate)
+          parsedSelectedDate.isValid() &&
+          parsedWidgetDate.isAfter(parsedSelectedDate)
         ) {
           AppToaster.show({
             message: "Max date cannot be less than current widget value.",
             type: ToastType.ERROR,
           });
 
-          return;
+          return false;
         }
       }
     }
 
-    // if everything is ok, put date in state
-    this.setState({ selectedDate: selectedDate });
-    this.updateProperty(this.props.propertyName, selectedDate);
+    return true;
   };
 
   formatDate = (date: Date): string => {

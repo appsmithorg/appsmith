@@ -21,7 +21,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
-      defaultDate: VALIDATION_TYPES.DATE_RANGE,
+      defaultDate: VALIDATION_TYPES.DEFAULT_DATE,
       timezone: VALIDATION_TYPES.TEXT,
       enableTimePicker: VALIDATION_TYPES.BOOLEAN,
       dateFormat: VALIDATION_TYPES.TEXT,

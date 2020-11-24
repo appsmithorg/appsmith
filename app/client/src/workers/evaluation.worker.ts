@@ -1476,7 +1476,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
     };
   },
-  [VALIDATION_TYPES.DATE_RANGE]: (
+  [VALIDATION_TYPES.DEFAULT_DATE]: (
     dateString: string,
     props: WidgetProps,
     dataTree?: DataTree,
