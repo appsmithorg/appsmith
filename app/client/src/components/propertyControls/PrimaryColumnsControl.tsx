@@ -116,23 +116,26 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   };
 
   deleteOption = (index: number) => {
-    const derivedColumns: ColumnProperties[] = this.props.propertyValue || [];
-    const updatedDerivedColumns: ColumnProperties[] = [...derivedColumns];
-    updatedDerivedColumns[index].isVisible = !updatedDerivedColumns[index]
-      .isVisible;
-    this.updateProperty(this.props.propertyName, updatedDerivedColumns);
+    const columns: ColumnProperties[] = this.props.propertyValue || [];
+    const updatedColumns: ColumnProperties[] = produce(
+      columns,
+      (draft: ColumnProperties[]) => {
+        draft[index].isVisible = !draft[index].isVisible;
+      },
+    );
+    this.updateProperty(this.props.propertyName, updatedColumns);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const derivedColumns: ColumnProperties[] = this.props.propertyValue || [];
-    const updatedDerivedColumns: ColumnProperties[] = produce(
-      derivedColumns,
+    const columns: ColumnProperties[] = this.props.propertyValue || [];
+    const updatedColumns: ColumnProperties[] = produce(
+      columns,
       (draft: ColumnProperties[]) => {
         draft[index].label = updatedLabel;
       },
     );
 
-    this.updateProperty(this.props.propertyName, updatedDerivedColumns);
+    this.updateProperty(this.props.propertyName, updatedColumns);
   };
 
   static getControlType() {

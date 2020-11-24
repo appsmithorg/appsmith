@@ -11,6 +11,7 @@ import {
   renderDropdown,
   renderActions,
   sortTableFunction,
+  reorderColumns,
 } from "components/designSystems/appsmith/TableUtilities";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
@@ -260,6 +261,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                         },
                       ],
                       customJSControl: "COMPUTE_VALUE",
+                      isJSConvertible: true,
                       hidden: (props: ColumnProperties) => {
                         return props.columnType !== "date";
                       },
@@ -269,6 +271,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Display Date Format",
                       controlType: "DROP_DOWN",
                       customJSControl: "COMPUTE_VALUE",
+                      isJSConvertible: true,
                       options: [
                         {
                           label: "UNIX timestamp (s)",
@@ -311,24 +314,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "computedValue",
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType === "button";
-                      },
-                    },
-                    {
-                      propertyName: "enableFilter",
-                      label: "Filtering",
-                      controlType: "SWITCH",
-                      customJSControl: "COMPUTE_VALUE",
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType === "button";
-                      },
-                    },
-                    {
-                      propertyName: "enableSort",
-                      label: "Sorting",
-                      controlType: "SWITCH",
-                      customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
                       },
@@ -472,11 +457,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     {
                       propertyName: "buttonLabel",
                       label: "Label",
-                      helpText: "Sets the label of the button",
-                      controlType: "INPUT_TEXT",
-                      placeholderText: "Enter label text",
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
+                      controlType: "COMPUTE_VALUE",
                       defaultValue: "Action",
                     },
                     {
@@ -559,10 +540,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Button",
                           value: "button",
                         },
-                        // {
-                        //   label: "Dropdown",
-                        //   value: "dropdown",
-                        // },
                       ],
                     },
                     {
@@ -630,6 +607,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           value: "YYYY-MM-DD hh:mm:ss",
                         },
                       ],
+                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType !== "date";
@@ -640,6 +618,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       label: "Display Date Format",
                       controlType: "DROP_DOWN",
                       customJSControl: "COMPUTE_VALUE",
+                      isJSConvertible: true,
                       options: [
                         {
                           label: "UNIX timestamp (s)",
@@ -682,24 +661,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                       propertyName: "computedValue",
                       label: "Computed Value",
                       controlType: "COMPUTE_VALUE",
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType === "button";
-                      },
-                    },
-                    {
-                      propertyName: "enableFilter",
-                      label: "Filtering",
-                      controlType: "SWITCH",
-                      customJSControl: "COMPUTE_VALUE",
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType === "button";
-                      },
-                    },
-                    {
-                      propertyName: "enableSort",
-                      label: "Sorting",
-                      controlType: "SWITCH",
-                      customJSControl: "COMPUTE_VALUE",
                       hidden: (props: ColumnProperties) => {
                         return props.columnType === "button";
                       },
@@ -843,11 +804,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     {
                       propertyName: "buttonLabel",
                       label: "Label",
-                      helpText: "Sets the label of the button",
-                      controlType: "INPUT_TEXT",
-                      placeholderText: "Enter label text",
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
+                      controlType: "COMPUTE_VALUE",
                       defaultValue: "Action",
                     },
                     {
@@ -1104,6 +1061,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       columns = columns.concat(hiddenColumns);
+    }
+    if (this.props.columnOrder) {
+      columns = reorderColumns(columns, this.props.columnOrder);
     }
     return columns.filter((column: ReactTableColumnProps) => column.accessor);
   };
