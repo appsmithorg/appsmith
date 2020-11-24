@@ -33,6 +33,11 @@ export const getUnevaluatedDataTree = createSelector(
   },
 );
 
+/**
+ * returns evaluation tree object
+ *
+ * @param state
+ */
 export const getDataTree = (state: AppState) => state.evaluations.tree;
 
 // For autocomplete. Use actions cached responses if
