@@ -67,11 +67,7 @@
                 "bottomRow": 10,
                 "parentId": "tyiwk4xuq0",
                 "widgetId": "5up3r2iuvs",
-                "dynamicBindingPathList": [
-                  {
-                    "key": "selectedRow"
-                  }
-                ]
+                "dynamicBindingPathList": []
               }
             ],
             "widgetId": "tyiwk4xuq0",

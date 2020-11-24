@@ -59,33 +59,14 @@
                 {
                   "widgetName": "Dropdown1",
                   "rightColumn": 8,
-                  "selectedOptionArr": "{{\n Dropdown1.selectionType === \"MULTI_SELECT\"\n  ? Dropdown1.options.filter((opt, index) =>\n _.includes(Dropdown1.selectedIndexArr, index),\n)\n : undefined\n}}",
                   "widgetId": "n9hyiainl8",
                   "topRow": 0,
                   "bottomRow": 1,
-                  "isValid": "{{Dropdown1.isRequired ? Dropdown1.selectionType === 'SINGLE_SELECT' ? !!Dropdown1.selectedOption : !!Dropdown1.selectedIndexArr && Dropdown1.selectedIndexArr.length > 0 : true}}",
                   "parentRowSpace": 38,
                   "isVisible": true,
                   "label": "Test Dropdown",
                   "type": "DROP_DOWN_WIDGET",
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "selectedOptionArr"
-                    },
-                    {
-                      "key": "isValid"
-                    },
-                    {
-                      "key": "selectedIndexArr"
-                    },
-                    {
-                      "key": "selectedOption"
-                    },
-                    {
-                      "key": "selectedIndex"
-                    }
-                  ],
-                  "selectedOption": "{{\nDropdown1.selectionType === 'SINGLE_SELECT'\n ? Dropdown1.options[Dropdown1.selectedIndex]\n: undefined\n}}",
+                  "dynamicBindingPathList": [],
                   "isLoading": false,
                   "selectionType": "",
                   "parentColumnSpace": 34.6875,
@@ -142,20 +123,11 @@
                   "widgetId": "76qupajn9l",
                   "topRow": 3,
                   "bottomRow": 5,
-                  "isValid": "{{ Adi12.isRequired ? !!Adi12.selectedOptionValue : true }}",
                   "parentRowSpace": 38,
                   "isVisible": true,
                   "label": "Test Radio",
                   "type": "RADIO_GROUP_WIDGET",
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "isValid"
-                    },
-                    {
-                      "key": "selectedOption"
-                    }
-                  ],
-                  "selectedOption": "{{_.find(Adi12.options, { value: Adi12.selectedOptionValue })}}",
+                  "dynamicBindingPathList": [],
                   "isLoading": false,
                   "defaultOptionValue": "1",
                   "parentColumnSpace": 34.6875,
@@ -484,11 +456,7 @@
                   "label": "Upload Files",
                   "maxFileSize": "",
                   "type": "FILE_PICKER_WIDGET",
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "isValid"
-                    }
-                  ],
+                  "dynamicBindingPathList": [],
                   "isLoading": false,
                   "parentColumnSpace": 34.6875,
                   "leftColumn": 4,
@@ -507,11 +475,7 @@
                   "datePickerType": "DATE_PICKER",
                   "label": "From Date",
                   "type": "DATE_PICKER_WIDGET",
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "isValid"
-                    }
-                  ],
+                  "dynamicBindingPathList": [],
                   "isLoading": false,
                   "enableTimePicker": true,
                   "parentColumnSpace": 34.6875,
