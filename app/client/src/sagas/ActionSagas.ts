@@ -13,7 +13,6 @@ import {
 } from "redux-saga/effects";
 import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
 import _ from "lodash";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "api/ApiResponses";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -42,7 +41,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { Action, RestAction } from "entities/Action";
@@ -61,6 +59,8 @@ import {
   QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
 } from "constants/routes";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -72,9 +72,9 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${actionPayload.payload.name} Action created`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${actionPayload.payload.name} Action created`,
+        variant: Variant.success,
       });
 
       const pageName = yield select(
@@ -296,9 +296,9 @@ export function* deleteActionSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${response.data.name} Action deleted`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Action deleted`,
+        variant: Variant.success,
       });
       if (isApi) {
         const pageName = yield select(getCurrentPageNameByActionId, id);
@@ -354,9 +354,9 @@ function* moveActionSaga(
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${response.data.name} Action moved`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Action moved`,
+        variant: Variant.success,
       });
     }
     const pageName = yield select(getPageNameByPageId, response.data.pageId);
@@ -367,9 +367,9 @@ function* moveActionSaga(
     });
     yield put(moveActionSuccess(response.data));
   } catch (e) {
-    AppToaster.show({
-      message: `Error while moving action ${actionObject.name}`,
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: `Error while moving action ${actionObject.name}`,
+      variant: Variant.danger,
     });
     yield put(
       moveActionError({
@@ -397,9 +397,9 @@ function* copyActionSaga(
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${actionObject.name} Action copied`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${actionObject.name} Action copied`,
+        variant: Variant.success,
       });
     }
 
@@ -411,9 +411,9 @@ function* copyActionSaga(
     });
     yield put(copyActionSuccess(response.data));
   } catch (e) {
-    AppToaster.show({
-      message: `Error while copying action ${actionObject.name}`,
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: `Error while copying action ${actionObject.name}`,
+      variant: Variant.danger,
     });
     yield put(copyActionError(action.payload));
   }
@@ -493,9 +493,9 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
         oldName: api.config.name,
       },
     });
-    AppToaster.show({
-      message: `Unable to update Action name`,
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: `Unable to update Action name`,
+      variant: Variant.danger,
     });
     console.error(e);
   }
