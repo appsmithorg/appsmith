@@ -11,6 +11,7 @@ import {
   renderDropdown,
   renderActions,
   sortTableFunction,
+  reorderColumns,
 } from "components/designSystems/appsmith/TableUtilities";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
@@ -1060,6 +1061,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       columns = columns.concat(hiddenColumns);
+    }
+    if (this.props.columnOrder) {
+      columns = reorderColumns(columns, this.props.columnOrder);
     }
     return columns.filter((column: ReactTableColumnProps) => column.accessor);
   };

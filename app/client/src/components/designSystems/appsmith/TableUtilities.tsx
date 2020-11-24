@@ -954,6 +954,41 @@ export function compare(a: any, b: any, condition: Condition) {
   return result;
 }
 
+export const reorderColumns = (
+  columns: ReactTableColumnProps[],
+  columnOrder: string[],
+) => {
+  const reorderedColumns = [];
+  const reorderedFlagMap: { [key: string]: boolean } = {};
+  for (let index = 0; index < columns.length; index++) {
+    const accessor = columnOrder[index];
+    if (accessor) {
+      const column = columns.filter((col: ReactTableColumnProps) => {
+        return col.accessor === accessor;
+      });
+      if (column.length && !reorderedFlagMap[column[0].accessor]) {
+        reorderedColumns.push(column[0]);
+        reorderedFlagMap[column[0].accessor] = true;
+      } else if (!reorderedFlagMap[columns[index].accessor]) {
+        reorderedColumns.push(columns[index]);
+        reorderedFlagMap[columns[index].accessor] = true;
+      }
+    } else if (!reorderedFlagMap[columns[index].accessor]) {
+      reorderedColumns.push(columns[index]);
+      reorderedFlagMap[columns[index].accessor] = true;
+    }
+  }
+  if (reorderedColumns.length < columns.length) {
+    for (let index = 0; index < columns.length; index++) {
+      if (!reorderedFlagMap[columns[index].accessor]) {
+        reorderedColumns.push(columns[index]);
+        reorderedFlagMap[columns[index].accessor] = true;
+      }
+    }
+  }
+  return reorderedColumns;
+};
+
 export function getDefaultColumnProperties(
   accessor: string,
   index: number,
