@@ -63,28 +63,35 @@ describe("DatePicker Widget Functionality", function() {
     );
   });
 
-  it("Datepicker-Clear min/max validation", function() {
+  it("Datepicker min/max date validation", function() {
     cy.get(formWidgetsPage.defaultDate).click();
     cy.SetDateToToday();
-    // checking for min date
-    cy.get(formWidgetsPage.minDate)
-      .first()
-      .click();
-    cy.setDate(1, "ddd MMM DD YYYY");
-    cy.get(commonlocators.toastBody)
-      .first()
-      .contains("Min date cannot be greater than current widget value.");
 
-    // checking for max date
-    cy.get(formWidgetsPage.maxDate)
-      .first()
-      .click();
-    cy.setDate(-1, "ddd MMM DD YYYY");
-    cy.get(commonlocators.toastBody)
-      .eq(1)
-      .contains("Max date cannot be less than current widget value.");
+    cy.get(formWidgetsPage.minDate).click();
+    cy.setDate(-2, "ddd MMM DD YYYY");
+    cy.get(formWidgetsPage.maxDate).click();
+    cy.setDate(2, "ddd MMM DD YYYY");
 
     cy.PublishtheApp();
+    cy.get(publishPage.datepickerWidget + " .bp3-input").click();
+
+    const minDate = Cypress.moment()
+      .add(3, "days")
+      .format("ddd MMM DD YYYY");
+    const maxDate = Cypress.moment()
+      .add(3, "days")
+      .format("ddd MMM DD YYYY");
+
+    cy.get(`.DayPicker-Day[aria-label=\"${minDate}\"]`).should(
+      "have.attr",
+      "aria-disabled",
+      "true",
+    );
+    cy.get(`.DayPicker-Day[aria-label=\"${maxDate}\"]`).should(
+      "have.attr",
+      "aria-disabled",
+      "true",
+    );
   });
 
   // it("DatePicker-check Required field validation", function() {
