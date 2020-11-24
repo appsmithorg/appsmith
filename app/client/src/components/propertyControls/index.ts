@@ -31,7 +31,9 @@ import AdditionalColumnsControl from "components/propertyControls/AdditionalColu
 import ColorPickerControl, {
   ColorPickerControlProps,
 } from "components/propertyControls/ColorPickerControl";
-import ComputeTablePropertyControl from "components/propertyControls/ComputeTablePropertyControl";
+import ComputeTablePropertyControl, {
+  ComputeTablePropertyControlProps,
+} from "components/propertyControls/ComputeTablePropertyControl";
 import IconTabControl, {
   IconTabControlProps,
 } from "components/propertyControls/IconTabControl";
@@ -76,7 +78,8 @@ export type PropertyControlPropsType =
   | IconTabControlProps
   | ButtonTabControlProps
   | StepControlProps
-  | ColorPickerControlProps;
+  | ColorPickerControlProps
+  | ComputeTablePropertyControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

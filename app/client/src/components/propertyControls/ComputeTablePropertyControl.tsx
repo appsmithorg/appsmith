@@ -74,7 +74,9 @@ export function InputText(props: {
   );
 }
 
-class ComputeTablePropertyControl extends BaseControl<ControlProps> {
+class ComputeTablePropertyControl extends BaseControl<
+  ComputeTablePropertyControlProps
+> {
   render() {
     const {
       expected,
@@ -83,6 +85,7 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
       label,
       dataTreePath,
       validationMessage,
+      defaultValue,
     } = this.props;
     const value =
       propertyValue &&
@@ -94,7 +97,9 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
               .length,
             propertyValue.length - 3,
           )}}}`
-        : propertyValue;
+        : propertyValue
+        ? propertyValue
+        : defaultValue;
     const evaluatedProperties = this.props.widgetProperties;
 
     const columns: ColumnProperties[] = [
@@ -146,6 +151,10 @@ class ComputeTablePropertyControl extends BaseControl<ControlProps> {
   static getControlType() {
     return "COMPUTE_VALUE";
   }
+}
+
+export interface ComputeTablePropertyControlProps extends ControlProps {
+  defaultValue?: string;
 }
 
 export default ComputeTablePropertyControl;
