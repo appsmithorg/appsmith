@@ -1,5 +1,9 @@
 import styled from "styled-components";
-import { TableSizes, CellLayoutProperties } from "widgets/TableWidget";
+import {
+  TableSizes,
+  CellLayoutProperties,
+  FontStyleTypes,
+} from "widgets/TableWidget";
 import { Colors, Color } from "constants/Colors";
 import { scrollbarLight } from "constants/DefaultTheme";
 
@@ -287,10 +291,18 @@ export const CellWrapper = styled.div<{
   white-space: nowrap;
   opacity: ${props => (props.isHidden ? "0.6" : "1")};
   font-weight: ${props =>
-    props?.cellProperties?.fontStyle === "BOLD" ? 500 : "normal"};
+    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.BOLD)
+      ? "bold"
+      : "normal"};
   color: ${props => props?.cellProperties?.textColor};
   font-style: ${props =>
-    props?.cellProperties?.fontStyle === "ITALIC" ? "italic" : ""};
+    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.ITALIC)
+      ? "italic"
+      : ""};
+  text-decoration: ${props =>
+    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.UNDERLINE)
+      ? "underline"
+      : ""};
   justify-content: ${props =>
     props?.cellProperties?.horizontalAlignment &&
     JUSTIFY_CONTENT[props?.cellProperties?.horizontalAlignment]};

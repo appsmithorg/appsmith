@@ -70,7 +70,8 @@ export enum TextSizes {
 export enum FontStyleTypes {
   BOLD = "BOLD",
   ITALIC = "ITALIC",
-  NORMAL = "NORMAL",
+  REGULAR = "REGULAR",
+  UNDERLINE = "UNDERLINE",
 }
 
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
@@ -404,8 +405,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           value: "ITALIC",
                         },
                       ],
-                      defaultValue: "NORMAL",
-                      isJSConvertible: true,
+                      isJSConvertible: false,
                       customJSControl: "COMPUTE_VALUE",
                     },
                     {
@@ -751,8 +751,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           value: "ITALIC",
                         },
                       ],
-                      defaultValue: "NORMAL",
-                      isJSConvertible: true,
+                      isJSConvertible: false,
                       customJSControl: "COMPUTE_VALUE",
                     },
                     {
@@ -958,9 +957,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       textSize: Array.isArray(columnProperties.textSize)
         ? columnProperties.textSize[rowIndex]
         : columnProperties.textSize,
-      fontStyle: Array.isArray(columnProperties.fontStyle)
-        ? columnProperties.fontStyle[rowIndex]
-        : columnProperties.fontStyle,
+      fontStyle: columnProperties.fontStyle,
       textColor: Array.isArray(columnProperties.textColor)
         ? columnProperties.textColor[rowIndex]
         : columnProperties.textColor,
@@ -1671,7 +1668,7 @@ export interface CellLayoutProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textSize?: TextSize;
-  fontStyle?: FontStyle;
+  fontStyle?: Array<FontStyle>;
   textColor?: string;
   cellBackground?: string;
   buttonStyle?: string;
@@ -1711,7 +1708,7 @@ export interface ColumnProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textSize?: TextSize;
-  fontStyle?: FontStyle;
+  fontStyle?: Array<FontStyle>;
   textColor?: string;
   enableFilter?: boolean;
   enableSort?: boolean;
