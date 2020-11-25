@@ -27,7 +27,7 @@ import unescapeJS from "unescape-js";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
 import { VALIDATORS } from "./validations";
-import { applyChange, Diff, diff } from "deep-diff";
+import { Diff, diff } from "deep-diff";
 
 const ctx: Worker = self as any;
 
@@ -177,7 +177,6 @@ export class DataTreeEvaluator {
     const evaluatedTree = this.evaluateTree(
       withFunctions,
       this.sortedDependencies,
-      [],
     );
     // Validate Widgets
     const validated = this.getValidatedTree(evaluatedTree);
@@ -231,7 +230,6 @@ export class DataTreeEvaluator {
     const evaluatedTree = this.evaluateTree(
       withFunctions,
       this.sortedDependencies,
-      newSortOrder,
     );
     // Validate Widgets
     const validated = this.getValidatedTree(evaluatedTree);
@@ -334,13 +332,13 @@ export class DataTreeEvaluator {
   evaluateTree(
     unEvalTree: DataTree,
     sortedDependencies: Array<string>,
-    changedSortOrder: Array<string>,
+    changedSortOrder?: Array<string>,
   ): DataTree {
     const tree = _.cloneDeep(unEvalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
-          if (!changedSortOrder.includes(propertyPath)) {
+          if (changedSortOrder && !changedSortOrder.includes(propertyPath)) {
             const lastEvalValue = _.get(this.evalTree, propertyPath);
             return _.set(currentTree, propertyPath, lastEvalValue);
           }
@@ -800,6 +798,7 @@ export class DataTreeEvaluator {
     if (differences === undefined) {
       return {};
     }
+    const allKeys = getAllPaths(dataTree);
     const entityNameAndTypeMap: Record<string, string> = {};
     Object.keys(dataTree).forEach(entityName => {
       const entity = dataTree[entityName];
@@ -830,25 +829,13 @@ export class DataTreeEvaluator {
         const entity: DataTreeWidget = dataTree[entityName] as DataTreeWidget;
         // New widget was added, add all bindings for this widget
         if (difference.kind === "N" && propertyPath === entityName) {
-          const dynamicBindingPathList = getEntityDynamicBindingPathList(
+          const widgetBindings = this.listEntityDependencies(
             entity,
+            entityName,
           );
-          if (dynamicBindingPathList.length) {
-            dynamicBindingPathList.forEach(dynamicPath => {
-              const propertyPath = dynamicPath.key;
-              const unevalPropValue = _.get(entity, propertyPath);
-              const { jsSnippets } = getDynamicBindings(unevalPropValue);
-              const existingDeps =
-                updatedDags[`${entityName}.${propertyPath}`] || [];
-              updatedDags[
-                `${entityName}.${propertyPath}`
-              ] = existingDeps.concat(
-                jsSnippets
-                  .filter(jsSnippet => !!jsSnippet)
-                  .map(jsSnippets => jsSnippets.trim()),
-              );
-            });
-          }
+          Object.keys(widgetBindings).forEach(path => {
+            updatedDags[path] = widgetBindings[path];
+          });
         }
         if (difference.kind !== "A") {
           const rhsChange =
@@ -875,6 +862,11 @@ export class DataTreeEvaluator {
           return;
         }
       }
+    });
+    Object.keys(updatedDags).forEach(key => {
+      updatedDags[key] = _.flatten(
+        updatedDags[key].map(path => calculateSubDependencies(path, allKeys)),
+      );
     });
 
     return updatedDags;
