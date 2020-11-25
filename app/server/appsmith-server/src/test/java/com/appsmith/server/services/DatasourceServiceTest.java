@@ -34,11 +34,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -74,7 +76,7 @@ public class DatasourceServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    String orgId =  "";
+    String orgId = "";
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -270,10 +272,10 @@ public class DatasourceServiceTest {
 
         final Mono<Tuple2<Datasource, Datasource>> datasourcesMono = pluginMono
                 .flatMap(plugin -> {
-                        datasource1.setPluginId(plugin.getId());
-                        datasource2.setPluginId(plugin.getId());
-                        return datasourceService.create(datasource1);
-                    })
+                    datasource1.setPluginId(plugin.getId());
+                    datasource2.setPluginId(plugin.getId());
+                    return datasourceService.create(datasource1);
+                })
                 .zipWhen(datasource -> datasourceService.create(datasource2));
 
         StepVerifier
@@ -424,7 +426,7 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void checkEncryptionOfAuthenticationDTOTest() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        
+
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name for authenticated fields encryption test");

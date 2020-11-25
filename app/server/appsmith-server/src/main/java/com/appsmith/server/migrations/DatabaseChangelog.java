@@ -38,14 +38,24 @@ import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.google.gson.Gson;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.ObjectUtils;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
+import org.springframework.data.mongodb.core.CollectionCallback;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
@@ -88,7 +98,7 @@ public class DatabaseChangelog {
      * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering and we try
      * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
      * WILL happen.
-     *
+     * <p>
      * Also, please check out the following blog on how to best create indexes :
      * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
@@ -964,7 +974,7 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, PasswordResetToken.class,
                 makeIndex(FieldName.CREATED_AT)
-                    .expire(2, TimeUnit.DAYS),
+                        .expire(2, TimeUnit.DAYS),
                 makeIndex(FieldName.EMAIL).unique()
         );
     }
@@ -1222,8 +1232,8 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, NewAction.class,
                 makeIndex("applicationId", "deleted", "unpublishedAction.pageId")
-                          .named("applicationId_deleted_unpublishedPageId_compound_index")
-                );
+                        .named("applicationId_deleted_unpublishedPageId_compound_index")
+        );
     }
 
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
@@ -1267,4 +1277,84 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 
+    @ChangeSet(order = "044", id = "update-authentication-type", author = "")
+    public void updateAuthenticationTypes(MongoTemplate mongoTemplate) {
+        mongoTemplate.execute("datasource", new CollectionCallback<String>() {
+            @Override
+            public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
+                // Only update _class for authentication objects that exist
+                MongoCursor cursor = collection.find(Filters.exists("datasourceConfiguration.authentication")).cursor();
+                while (cursor.hasNext()) {
+                    Document current = (Document) cursor.next();
+                    Document old = Document.parse(current.toJson());
+
+                    // Extra precaution to only update _class for authentication objects that don't already have this
+                    // Is this condition required? What does production datasource look like?
+                    ((Document) ((Document) current.get("datasourceConfiguration"))
+                            .get("authentication"))
+                            .putIfAbsent("_class", "dbAuth");
+
+                    // Replace old document with the new one
+                    collection.findOneAndReplace(old, current);
+                }
+                return null;
+            }
+        });
+
+        mongoTemplate.execute("newAction", new CollectionCallback<String>() {
+            @Override
+            public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
+                // Only update _class for authentication objects that exist
+                MongoCursor cursor = collection
+                        .find(Filters.and(
+                                Filters.exists("unpublishedAction.datasource"),
+                                Filters.exists("unpublishedAction.datasource.datasourceConfiguration"),
+                                Filters.exists("unpublishedAction.datasource.datasourceConfiguration.authentication"))).cursor();
+                while (cursor.hasNext()) {
+                    Document current = (Document) cursor.next();
+                    Document old = Document.parse(current.toJson());
+
+                    // Extra precaution to only update _class for authentication objects that don't already have this
+                    // Is this condition required? What does production datasource look like?
+                    ((Document) ((Document) ((Document) ((Document) current.get("unpublishedAction"))
+                            .get("datasource"))
+                            .get("datasourceConfiguration"))
+                            .get("authentication"))
+                            .putIfAbsent("_class", "dbAuth");
+
+                    // Replace old document with the new one
+                    collection.findOneAndReplace(old, current);
+                }
+                return null;
+            }
+        });
+
+        mongoTemplate.execute("newAction", new CollectionCallback<String>() {
+            @Override
+            public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
+                // Only update _class for authentication objects that exist
+                MongoCursor cursor = collection
+                        .find(Filters.and(
+                                Filters.exists("publishedAction.datasource"),
+                                Filters.exists("publishedAction.datasource.datasourceConfiguration"),
+                                Filters.exists("publishedAction.datasource.datasourceConfiguration.authentication"))).cursor();
+                while (cursor.hasNext()) {
+                    Document current = (Document) cursor.next();
+                    Document old = Document.parse(current.toJson());
+
+                    // Extra precaution to only update _class for authentication objects that don't already have this
+                    // Is this condition required? What does production datasource look like?
+                    ((Document) ((Document) ((Document) ((Document) current.get("publishedAction"))
+                            .get("datasource"))
+                            .get("datasourceConfiguration"))
+                            .get("authentication"))
+                            .putIfAbsent("_class", "dbAuth");
+
+                    // Replace old document with the new one
+                    collection.findOneAndReplace(old, current);
+                }
+                return null;
+            }
+        });
+    }
 }

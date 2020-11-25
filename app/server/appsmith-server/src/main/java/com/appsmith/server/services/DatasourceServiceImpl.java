@@ -111,7 +111,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(datasource1 ->
                         sessionUserService.getCurrentUser()
                                 .flatMap(user -> {
-                                    log.debug("DS: {}", datasource1);
                                     // Create policies for this datasource -> This datasource should inherit its permissions and policies from
                                     // the organization and this datasource should also allow the current user to crud this datasource.
                                     return organizationService.findById(datasource1.getOrganizationId(), AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
@@ -161,8 +160,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (authentication != null) {
             Map<String, String> encryptedFields = authentication.getEncryptionFields().entrySet().stream()
                     .collect(Collectors.toMap(
-                                    Map.Entry::getKey,
-                                    e -> encryptionService.encryptString(e.getValue())));
+                            Map.Entry::getKey,
+                            e -> encryptionService.encryptString(e.getValue())));
             authentication.setEncryptionFields(encryptedFields);
         }
         return authentication;
