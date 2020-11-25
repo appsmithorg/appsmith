@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Policy;

@@ -48,17 +48,7 @@ public class MongoConfig {
     private String url;
 
     @Bean
-//    public SpringBootMongock mongock(ApplicationContext springContext) {
     public SpringBootMongock mongock(ApplicationContext springContext, MongoTemplate mongoTemplate) {
-//        SimpleMongoClientDbFactory mongoDatabaseFactory = new SimpleMongoClientDbFactory(url);
-//        TypeInformationMapper typeInformationMapper = new DocumentTypeMapper
-//                .Builder()
-//                .withBasePackages(new String[] {"com.appsmith.external.models"})
-//                .build();
-//        MongoTypeMapper typeMapper = new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper));
-//        MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, new MongoMappingContext());
-//        converter.setTypeMapper(typeMapper);
-//        MongoTemplate mongoTemplate = new MongoTemplate(mongoDatabaseFactory, converter);
         return new SpringBootMongockBuilder(
                 mongoTemplate,
                 getClass().getPackageName().replaceFirst("\\.[^.]+$", ".migrations")
@@ -73,6 +63,7 @@ public class MongoConfig {
         return new MongoTemplate(mongoDbFactory, mappingMongoConverter);
     }
 
+    // Custom type mapper here includes our annotation based mapper that is meant to ensure corect mapping for sub-classes
     @Bean
     public DefaultTypeMapper typeMapper() {
         TypeInformationMapper typeInformationMapper = new DocumentTypeMapper
@@ -88,17 +79,4 @@ public class MongoConfig {
         converter.setTypeMapper((MongoTypeMapper) typeMapper);
         return converter;
     }
-
-//    @Bean
-//    public ReactiveMongoTemplate reactiveMongoTemplate(ReactiveMongoDatabaseFactory reactiveMongoDatabaseFactory, MongoMappingContext context) {
-//        TypeInformationMapper typeInformationMapper = new DocumentTypeMapper
-//                .Builder()
-//                .withBasePackages(new String[] {"com.appsmith.external.models", "com.appsmith.server.domains", "com.appsmith.server.dtos"})
-//                .build();
-//        MongoTypeMapper typeMapper = new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper));
-//        MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
-//        converter.setTypeMapper(typeMapper);
-//        return new ReactiveMongoTemplate(reactiveMongoDatabaseFactory, converter);
-//    }
-
 }

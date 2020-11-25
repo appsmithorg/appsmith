@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Policy;
@@ -28,7 +27,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -99,7 +97,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
-        Hooks.onOperatorDebug();
 
         if (StringUtils.isEmpty(datasource.getName())) {
             datasourceMono = sequenceService

@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Datasource;

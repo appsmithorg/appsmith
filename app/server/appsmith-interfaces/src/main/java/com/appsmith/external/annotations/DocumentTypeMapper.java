@@ -15,6 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This {@link TypeInformationMapper} implementation makes use of the {@link DocumentType} annotation to register all
+ * such entities as possible candidates for domain mapping.
+ */
 public class DocumentTypeMapper implements TypeInformationMapper {
 
     private final Map<String, ClassTypeInformation<?>> aliasToTypeMap;
@@ -24,6 +28,7 @@ public class DocumentTypeMapper implements TypeInformationMapper {
         aliasToTypeMap = new HashMap<>();
         typeToAliasMap = new HashMap<>();
 
+        // Upon initialization, read all aliases from annotated entities
         populateTypeMap(basePackagesToScan);
     }
 
@@ -49,8 +54,6 @@ public class DocumentTypeMapper implements TypeInformationMapper {
                 }
             }
         }
-
-        System.out.println("finished populating map");
     }
 
     @Override
