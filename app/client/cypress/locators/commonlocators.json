@@ -81,5 +81,7 @@
   "selectedZoomlevel": ".t--property-control-maxzoomlevel button span",
   "imgWidget": "div[data-testid='styledImage']",
   "editColTitle": ".t--property-pane-edit-title",
-  "editColText": ".t--property-pane-edit-title span"
+  "editColText": ".t--property-pane-edit-title span",
+  "changeColType": ".t--property-control-columntype .bp3-button",
+  "selectedColType": ".t--property-control-columntype button span"
 }

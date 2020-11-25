@@ -604,6 +604,26 @@ Cypress.Commands.add("changeZoomLevel", zoomValue => {
     });
 });
 
+Cypress.Commands.add("changeColumnType", dataType => {
+  cy.get(commonlocators.changeColType).click();
+  cy.get("ul.bp3-menu")
+    .children()
+    .contains(dataType)
+    .click();
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(commonlocators.selectedColType)
+    .first()
+    .invoke("text")
+    .then(text => {
+      const someText = text;
+      expect(someText).to.equal(dataType);
+    });
+});
+
 Cypress.Commands.add(
   "EnterSourceDetailsWithHeader",
   (baseUrl, v1method, hKey, hValue) => {
@@ -1006,9 +1026,9 @@ Cypress.Commands.add("updateComputedValue", value => {
             force: true,
           });
       }
-
       cy.get(".CodeMirror textarea")
         .first()
+        .type("{command}{A}{del}")
         .type(value, {
           force: true,
           parseSpecialCharSequences: false,

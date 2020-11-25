@@ -32,15 +32,11 @@ describe("Table Widget property pane feature validation", function() {
     cy.tableColumnPopertyUpdate("id", "TestUpdated");
     cy.addColumn("CustomColumn");
     cy.tableColumnDataValidation("DERIVED1"); //To be updated later
-    /*
     cy.hideColumn("email");
     cy.hideColumn("userName");
     cy.hideColumn("productName");
     cy.hideColumn("orderAmount");
-    cy.get(".draggable-header ")
-      .contains("CustomColumn")
-      .should("be.visible");
-      */
+    cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
   });
 
   it("Update table json data and check the column names updated", function() {
@@ -75,9 +71,55 @@ describe("Table Widget property pane feature validation", function() {
       cy.updateComputedValue("{{currentRow.email}}");
       cy.readTabledataPublish("1", "0").then(tabData => {
         expect(tabData).to.be.equal(tabValue);
-        cy.log("the value is" + tabData);
+        cy.log("computed value of plain text " + tabData);
       });
     });
+
+    cy.changeColumnType("Number");
+    cy.readTabledataPublish("1", "4").then(tabData => {
+      const tabValue = tabData;
+      expect(tabData).to.not.equal("lindsay.ferguson@reqres.in");
+      cy.updateComputedValue("{{currentRow.orderAmount}}");
+      cy.readTabledataPublish("1", "0").then(tabData => {
+        expect(tabData).to.be.equal(tabValue);
+        cy.log("computed value of number is " + tabData);
+      });
+    });
+
+    cy.changeColumnType("Date");
+    cy.updateComputedValue("{{moment()}}");
+    cy.readTabledataPublish("1", "0").then(tabData => {
+      expect(tabData).to.not.equal("9.99");
+      cy.log("computed value of Date is " + tabData);
+    });
+
+    cy.get(".t--draggable-tablewidget button").should("not.be.visible");
+    cy.changeColumnType("Button");
+    cy.get(".t--property-control-label .CodeMirror-line")
+      .first()
+      .click();
+    cy.get(".t--property-control-label .CodeMirror-line")
+      .type("{command}{A}{del}")
+      .type("Test", {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+    cy.get(".t--draggable-tablewidget button")
+      .first()
+      .should("be.visible")
+      .invoke("text")
+      .then(text => {
+        const someText = text;
+        expect(someText).to.equal("Test");
+      });
+
+    cy.changeColumnType("Time");
+    cy.updateComputedValue("{{moment()}}");
+    cy.readTabledataPublish("1", "0").then(tabData => {
+      expect(tabData).to.not.equal("2736212");
+      cy.log("computed value of time is " + tabData);
+    });
+
     cy.get(".t--icon-tab-CENTER")
       .first()
       .click({ force: true });
