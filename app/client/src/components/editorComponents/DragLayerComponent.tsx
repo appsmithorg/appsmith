@@ -116,7 +116,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
       : widget.rightColumn - widget.leftColumn;
     widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
   }
-  useLayoutEffect(() => {
+  useEffect(() => {
     const el = dropTargetMask.current;
     if (el) {
       const rect = el.getBoundingClientRect();
