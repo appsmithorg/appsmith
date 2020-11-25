@@ -13,6 +13,7 @@ import {
   getUserApplicationsOrgs,
   getIsDuplicatingApplication,
   getApplicationSearchKeyword,
+  getIsSavingOrgInfo,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -51,11 +52,18 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { loadingUserOrgs } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
+import EditableText, {
+  EditInteractionKind,
+  SavingState,
+} from "components/ads/EditableText";
+import { notEmptyValidator } from "components/ads/TextInput";
+import { saveOrg } from "actions/orgActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import Spinner from "components/ads/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
+import { Toaster } from "components/ads/Toast";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -145,15 +153,20 @@ const PaddingWrapper = styled.div`
 
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   && {
-    background: white;
-    & .bp3-dialog-header {
+    background: ${props => props.theme.colors.modal.bg};
+    & .${BlueprintClasses.DIALOG_HEADER} {
+      background: ${props => props.theme.colors.modal.bg};
       padding: ${props => props.theme.spaces[4]}px
         ${props => props.theme.spaces[4]}px;
     }
-    & .bp3-dialog-footer-actions {
+    & .${BlueprintClasses.DIALOG_FOOTER_ACTIONS} {
       display: block;
     }
     ${props => props.setMaxWidth && `width: 100vh;`}
+
+    .${BlueprintClasses.HEADING} {
+      color: ${props => props.theme.colors.modal.headerText};
+    }
   }
 `;
 
@@ -394,15 +407,6 @@ const OrgNameHolder = styled(Text)`
   align-items: center;
 `;
 
-const OrgNameInMenu = styled(Text)`
-  max-width: 100%;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  display: block;
-  padding: 9px ${props => props.theme.spaces[6]}px;
-`;
-
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
 cursor: ${props => (!props.disabled ? "pointer" : "inherit")};
 ${props => {
@@ -421,6 +425,9 @@ ${props => {
   color: ${props => props.theme.colors.applications.iconColor};
 }
 `;
+const OrgRename = styled(EditableText)`
+  padding: 0 2px;
+`;
 
 const NoSearchResultImg = styled.img`
   margin: 1em;
@@ -428,11 +435,12 @@ const NoSearchResultImg = styled.img`
 
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
+  const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
-  const deleteApplication = (applicationId: string, orgId: string) => {
+  const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
@@ -455,13 +463,21 @@ const ApplicationsSection = (props: any) => {
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
-  const OrgMenu = (props: {
-    orgName: string;
-    orgId: string;
-    disabled?: boolean;
-    setSelectedOrgId: (orgId: string) => void;
-  }) => {
-    const { orgName, orgId, disabled } = props;
+
+  const OrgNameChange = (newName: string, orgId: string) => {
+    Toaster.show({
+      text: "Updating organization name...",
+    });
+    dispatch(
+      saveOrg({
+        id: orgId as string,
+        name: newName,
+      }),
+    );
+  };
+
+  const OrgMenuTarget = (props: { orgName: string; disabled?: boolean }) => {
+    const { orgName, disabled } = props;
 
     const OrgName = (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
@@ -480,41 +496,7 @@ const ApplicationsSection = (props: any) => {
         </OrgNameHolder>
       </OrgNameWrapper>
     );
-    return disabled ? (
-      OrgName
-    ) : (
-      <Menu
-        target={OrgName}
-        position={Position.BOTTOM_RIGHT}
-        className="t--org-name"
-      >
-        <OrgNameInMenu type={TextType.H5}>{orgName}</OrgNameInMenu>
-        <MenuItem
-          icon="general"
-          text="Organization Settings"
-          cypressSelector="t--org-setting"
-          onSelect={() =>
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: `/org/${orgId}/settings/general`,
-            })
-          }
-        />
-        <MenuItem
-          text="Share"
-          icon="share"
-          onSelect={() => setSelectedOrgId(orgId)}
-        ></MenuItem>
-        <MenuItem
-          icon="user"
-          text="Members"
-          onSelect={() =>
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: `/org/${orgId}/settings/members`,
-            })
-          }
-        />
-      </Menu>
-    );
+    return OrgName;
   };
 
   const createNewApplication = (applicationName: string, orgId: string) => {
@@ -563,12 +545,59 @@ const ApplicationsSection = (props: any) => {
           <OrgSection className="t--org-section" key={index}>
             <OrgDropDown>
               {(currentUser || isFetchingApplications) && (
-                <OrgMenu
-                  setSelectedOrgId={setSelectedOrgId}
-                  orgId={organization.id}
-                  orgName={organization.name}
-                  disabled={!hasManageOrgPermissions}
-                ></OrgMenu>
+                <Menu
+                  target={OrgMenuTarget({
+                    orgName: organization.name,
+                    disabled: !hasManageOrgPermissions,
+                  })}
+                  position={Position.BOTTOM_RIGHT}
+                  className="t--org-name"
+                  disabled={!hasManageOrgPermissions || isFetchingApplications}
+                >
+                  <OrgRename
+                    defaultValue={organization.name}
+                    editInteractionKind={EditInteractionKind.SINGLE}
+                    placeholder="Workspace name"
+                    hideEditIcon={false}
+                    isInvalid={(value: string) => {
+                      return notEmptyValidator(value).message;
+                    }}
+                    savingState={
+                      isSavingOrgInfo
+                        ? SavingState.STARTED
+                        : SavingState.NOT_STARTED
+                    }
+                    isEditingDefault={false}
+                    fill={true}
+                    onBlur={(value: string) => {
+                      OrgNameChange(value, organization.id);
+                    }}
+                  />
+                  <MenuItem
+                    icon="general"
+                    text="Organization Settings"
+                    cypressSelector="t--org-setting"
+                    onSelect={() =>
+                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                        path: `/org/${organization.id}/settings/general`,
+                      })
+                    }
+                  />
+                  <MenuItem
+                    text="Share"
+                    icon="share"
+                    onSelect={() => setSelectedOrgId(organization.id)}
+                  ></MenuItem>
+                  <MenuItem
+                    icon="user"
+                    text="Members"
+                    onSelect={() =>
+                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                        path: `/org/${organization.id}/settings/members`,
+                      })
+                    }
+                  />
+                </Menu>
               )}
 
               {hasManageOrgPermissions && (
@@ -674,7 +703,6 @@ const ApplicationsSection = (props: any) => {
                       <ApplicationCard
                         key={application.id}
                         application={application}
-                        orgId={organization.id}
                         delete={deleteApplication}
                         update={updateApplicationDispatch}
                         duplicate={duplicateApplicationDispatch}

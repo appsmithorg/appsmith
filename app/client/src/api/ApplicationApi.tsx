@@ -67,6 +67,7 @@ export type UpdateApplicationPayload = {
   icon?: string;
   color?: string;
   name?: string;
+  currentApp?: boolean;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
