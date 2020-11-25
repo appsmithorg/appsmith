@@ -1,0 +1,43 @@
+---
+
+- name: Create installation folder
+  file: 
+    path: "{{ install_dir }}"
+    state: directory
+
+- name: Create mongo,nginx folder if not existed
+  file:
+    path: "{{ install_dir }}/data/{{ item }}"
+    state: directory
+  loop: ["nginx", "mongo"]
+
+- name: Check for encryption.env
+  stat: 
+    path: "{{ install_dir }}/encryption.env"
+  register: encryption_exists
+
+
+
+- name: Copy template file
+  template: src={{ item.src }} dest={{ item.dest }}
+  loop:
+    - { src: 'docker-compose.j2', dest: '{{ install_dir }}/docker-compose.yml'}
+    - { src: 'mongo-init.js.j2', dest: '{{ install_dir }}/data/mongo/init.js'}
+    - { src: 'docker.env.j2', dest: '{{ install_dir }}/docker.env'}
+  become: yes
+
+
+- name: Copy encryption template file
+  template: src="encryption.env.j2" dest="{{ install_dir }}/encryption.env"
+  when: not encryption_exists.stat.exists
+
+- name: Copy nginx template file with ssl enable
+  template: src="nginx_app_with_ssl.conf.j2" dest="{{ install_dir }}/data/nginx/app.conf.template"
+  when: ssl_enable | bool
+  become: yes
+
+- name: Copy nginx template file with ssl disable
+  template: src="nginx_app.conf.j2" dest="{{ install_dir }}/data/nginx/app.conf.template"
+  when: not ssl_enable | bool
+  become: yes
+

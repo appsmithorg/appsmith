@@ -1,0 +1,56 @@
+server {
+    listen 80;
+    server_name {{ custom_domain }};
+    client_max_body_size 10m;
+
+    gzip on;
+
+    root /var/www/appsmith;
+    index index.html index.htm;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+
+    location / {
+        try_files $uri /index.html =404;
+
+        sub_filter __APPSMITH_SENTRY_DSN__ '{{ sentry_dns }}';
+        sub_filter __APPSMITH_SMART_LOOK_ID__ '{{ smart_look_id }}';
+        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '{{ google_client_id }}';
+        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '{{ github_client_id }}';
+        sub_filter __APPSMITH_DISABLE_TELEMETRY__ '{{ disable_telemetry }}';
+        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '{{ marketplace_enabled }}';
+        sub_filter __APPSMITH_SEGMENT_KEY__ '{{ segment_key }}';
+        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '{{ segment_key }}';
+        sub_filter __APPSMITH_ALGOLIA_API_ID__ '{{ algolia_api_id }}';
+        sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '{{ algolia_search_index_name }}';
+        sub_filter __APPSMITH_ALGOLIA_API_KEY__ '{{ algolia_api_key }}';
+        sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '{{ client_log_level }}';
+        sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '{{ google_maps_api_key }}';
+        sub_filter __APPSMITH_TNC_PP__ '{{ tnc_pp }}';
+        sub_filter __APPSMITH_VERSION_ID__ '{{ version_id }}';
+        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '{{ version_release_date }}';
+        sub_filter __APPSMITH_INTERCOM_APP_ID__ '{{ intercom_app_id }}';
+        sub_filter __APPSMITH_MAIL_ENABLED__ '{{ mail_enabled }}';
+    }
+
+    location /f {
+       proxy_pass https://cdn.optimizely.com/;
+    }
+
+    location /api {
+        proxy_pass http://appsmith-internal-server:8080;
+    }
+
+    location /oauth2 {
+        proxy_pass http://appsmith-internal-server:8080;
+    }
+    
+    location /login {
+        proxy_pass http://appsmith-internal-server:8080;
+    }
+}
