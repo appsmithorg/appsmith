@@ -6,7 +6,7 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const testdata = require("../../../fixtures/testdata.json");
 
-describe("Binding the multiple input Widget", function() {
+describe("Binding the input Widget with tab Widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -32,11 +32,11 @@ describe("Binding the multiple input Widget", function() {
       .invoke("attr", "value")
       .should("contain", "Tab 2");
     cy.get(commonlocators.selectTab)
-      .last()
+      .first()
       .click();
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
-      .should("contain", "Tab 2");
+      .should("contain", "Tab 1");
   });
 });
