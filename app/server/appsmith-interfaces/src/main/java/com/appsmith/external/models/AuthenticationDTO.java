@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.constants.AuthType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -15,8 +16,8 @@ import java.util.Set;
         property = "type",
         defaultImpl = DBAuth.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = DBAuth.class, name = "dbAuth"),
-        @JsonSubTypes.Type(value = OAuth2.class, name = "oAuth2")
+        @JsonSubTypes.Type(value = DBAuth.class, name = AuthType.DB_AUTH),
+        @JsonSubTypes.Type(value = OAuth2.class, name = AuthType.OAUTH2)
 })
 public class AuthenticationDTO {
 

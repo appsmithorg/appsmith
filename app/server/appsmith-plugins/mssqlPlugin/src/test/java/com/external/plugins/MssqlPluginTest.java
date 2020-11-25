@@ -208,8 +208,8 @@ public class MssqlPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         // Set up random username and password and try to connect
-        dsConfig.getAuthentication().setUsername(new ObjectId().toString());
-        dsConfig.getAuthentication().setPassword(new ObjectId().toString());
+        ((DBAuth) dsConfig.getAuthentication()).setUsername(new ObjectId().toString());
+        ((DBAuth) dsConfig.getAuthentication()).setPassword(new ObjectId().toString());
 
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 

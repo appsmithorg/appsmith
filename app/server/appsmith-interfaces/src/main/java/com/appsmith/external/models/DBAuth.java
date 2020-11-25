@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.DocumentType;
+import com.appsmith.external.constants.AuthType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@DocumentType("dbAuth")
+@DocumentType(AuthType.DB_AUTH)
 public class DBAuth extends AuthenticationDTO {
     public enum Type {
         SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
