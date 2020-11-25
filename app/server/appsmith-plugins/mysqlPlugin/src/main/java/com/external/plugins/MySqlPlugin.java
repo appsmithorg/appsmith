@@ -12,7 +12,10 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import io.r2dbc.spi.*;
+import io.r2dbc.spi.ColumnMetadata;
+import io.r2dbc.spi.Connection;
+import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -21,25 +24,26 @@ import org.reactivestreams.Publisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
-
 public class MySqlPlugin extends BasePlugin {
-
-    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-
-    private static final String USER = "user";
-    private static final String PASSWORD = "password";
-    private static final int VALIDITY_CHECK_TIMEOUT = 5;
 
     private static final String DATE_COLUMN_TYPE_NAME = "date";
     private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";

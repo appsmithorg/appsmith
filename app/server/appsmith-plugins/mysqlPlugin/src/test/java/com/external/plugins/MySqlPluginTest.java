@@ -1,17 +1,28 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.r2dbc.spi.Batch;
 import io.r2dbc.spi.Connection;
-import io.r2dbc.spi.*;
+import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Result;
 import lombok.extern.log4j.Log4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.reactivestreams.Publisher;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -19,7 +30,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @Log4j
 public class MySqlPluginTest {
@@ -41,6 +55,9 @@ public class MySqlPluginTest {
             .withDatabaseName("test_db")
             .withEnv("TZ", "PDT");
 
+    public static MySQLR2DBCDatabaseContainer r2dbcContainer = new MySQLR2DBCDatabaseContainer(mySQLContainer);
+    public static MySQLR2DBCDatabaseContainer r2dbcContainerWithInvalidTimezone = new MySQLR2DBCDatabaseContainer(mySQLContainerWithInvalidTimezone);
+
     private static String address;
     private static Integer port;
     private static String username;
@@ -56,83 +73,55 @@ public class MySqlPluginTest {
         username = mySQLContainer.getUsername();
         password = mySQLContainer.getPassword();
         database = mySQLContainer.getDatabaseName();
+        createDatasourceConfiguration();
 
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("r2dbc:mysql://")
-                .append(address)
-                .append(":")
-                .append(port);
-
-        ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-        ob = ob.option(ConnectionFactoryOptions.DATABASE, database);
-        ob = ob.option(ConnectionFactoryOptions.USER, username);
-        ob = ob.option(ConnectionFactoryOptions.PASSWORD, password);
 
-        Connection connection = Mono.from(ConnectionFactories.get(ob.build()).create()).block();
-        Batch batch = connection.createBatch()
-                .add("create table users (\n" +
-                        "    id int primary key,\n" +
-                        "    username varchar (250) unique not null,\n" +
-                        "    password varchar (250) not null,\n" +
-                        "    email varchar (250) unique not null,\n" +
-                        "    spouse_dob date,\n" +
-                        "    dob date not null,\n" +
-                        "    yob year not null,\n" +
-                        "    time1 time not null,\n" +
-                        "    created_on timestamp not null,\n" +
-                        "    updated_on datetime not null,\n" +
-                        "    constraint unique index (username, email)\n" +
-                        ")"
-                )
-                .add("create table possessions (\n" +
-                        "    id int primary key,\n" +
-                        "    title varchar (250) not null,\n" +
-                        "    user_id int not null,\n" +
-                        "    username varchar (250) not null,\n" +
-                        "    email varchar (250) not null\n" +
-                        ")"
-                )
-                .add("alter table possessions add foreign key (username, email) \n" +
-                        "references users (username, email)"
-                )
-                .add("SET SESSION sql_mode = '';\n");
-
-        Result result = Mono.from(batch.execute()).block();
-
-        /*Mono.from(ConnectionFactories.get(ob.build()).create())
+        Mono<Connection> connectionMono = Mono.from(ConnectionFactories.get(ob.build()).create());
+        Mono<Batch> batchMono = connectionMono
                 .map(connection -> {
-                    return (connection.createBatch()
-                        .add("create table users (\n" +
-                            "    id int primary key,\n" +
-                            "    username varchar (250) unique not null,\n" +
-                            "    password varchar (250) not null,\n" +
-                            "    email varchar (250) unique not null,\n" +
-                            "    spouse_dob date,\n" +
-                            "    dob date not null,\n" +
-                            "    yob year not null,\n" +
-                            "    time1 time not null,\n" +
-                            "    created_on timestamp not null,\n" +
-                            "    updated_on datetime not null,\n" +
-                            "    constraint unique index (username, email)\n" +
-                            ")"
-                        )
-                        .add("create table possessions (\n" +
-                            "    id int primary key,\n" +
-                            "    title varchar (250) not null,\n" +
-                            "    user_id int not null,\n" +
-                            "    username varchar (250) not null,\n" +
-                            "    email varchar (250) not null\n" +
-                            ")"
-                        )
-                        .add("alter table possessions add foreign key (username, email) " +
-                            "references users (username, email)"
-                        )
-                        .add("SET SESSION sql_mode = '';\n")
-                        .execute());
-                })
+                    Batch batch = connection.createBatch()
+                            .add("create table users (\n" +
+                                    "    id int primary key,\n" +
+                                    "    username varchar (250) unique not null,\n" +
+                                    "    password varchar (250) not null,\n" +
+                                    "    email varchar (250) unique not null,\n" +
+                                    "    spouse_dob date,\n" +
+                                    "    dob date not null,\n" +
+                                    "    yob year not null,\n" +
+                                    "    time1 time not null,\n" +
+                                    "    created_on timestamp not null,\n" +
+                                    "    updated_on datetime not null,\n" +
+                                    "    constraint unique index (username, email)\n" +
+                                    ")"
+                            )
+                            .add("create table possessions (\n" +
+                                    "    id int primary key,\n" +
+                                    "    title varchar (250) not null,\n" +
+                                    "    user_id int not null,\n" +
+                                    "    username varchar (250) not null,\n" +
+                                    "    email varchar (250) not null\n" +
+                                    ")"
+                            )
+                            .add("alter table possessions add foreign key (username, email) \n" +
+                                    "references users (username, email)"
+                            )
+                            .add("SET SESSION sql_mode = '';\n");
+
+                    return batch;
+                });
+
+        Mono<? extends Publisher<? extends Result>> resultPublisher = batchMono
+                .map(Batch::execute);
+
+
+        Publisher<? extends Result> block = resultPublisher.block();
+
+        Result result = Mono.from(block)
                 .block();
-*/
+
+        System.out.println("Setup result is : " + result.toString());
         return;
     }
 
