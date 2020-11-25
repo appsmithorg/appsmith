@@ -55,9 +55,6 @@ public class MySqlPluginTest {
             .withDatabaseName("test_db")
             .withEnv("TZ", "PDT");
 
-    public static MySQLR2DBCDatabaseContainer r2dbcContainer = new MySQLR2DBCDatabaseContainer(mySQLContainer);
-    public static MySQLR2DBCDatabaseContainer r2dbcContainerWithInvalidTimezone = new MySQLR2DBCDatabaseContainer(mySQLContainerWithInvalidTimezone);
-
     private static String address;
     private static Integer port;
     private static String username;
