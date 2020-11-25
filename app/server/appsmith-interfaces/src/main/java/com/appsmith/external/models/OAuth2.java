@@ -20,37 +20,39 @@ import java.util.Set;
 @DocumentType(AuthType.OAUTH2)
 public class OAuth2 extends AuthenticationDTO {
     public enum Type {
-        SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
+        CLIENT_CREDENTIALS,
     }
 
     Type authType;
 
-    String username;
+    String clientId;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    String password;
+    String clientSecret;
 
-    String databaseName;
+    String accessTokenUrl;
+
+    String scope;
 
     @Override
     public Map<String, String> getEncryptionFields() {
-        if(this.password != null) {
-            return Map.of("password", this.password);
+        if(this.clientSecret != null) {
+            return Map.of("clientSecret", this.clientSecret);
         }
         return Map.of();
     }
 
     @Override
     public void setEncryptionFields(Map<String, String> encryptedFields) {
-        if(encryptedFields != null && encryptedFields.containsKey("password")) {
-            this.password = encryptedFields.get("password");
+        if(encryptedFields != null && encryptedFields.containsKey("clientSecret")) {
+            this.clientSecret = encryptedFields.get("clientSecret");
         }
     }
 
     @Override
     public Set<String> getEmptyEncryptionFields() {
-        if(this.password == null || this.password.isEmpty())
-            return Set.of("password", null);
+        if(this.clientSecret == null || this.clientSecret.isEmpty())
+            return Set.of("clientSecret", null);
         return Set.of();
     }
 
