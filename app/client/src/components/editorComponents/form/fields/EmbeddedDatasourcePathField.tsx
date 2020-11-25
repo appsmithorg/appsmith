@@ -79,7 +79,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       };
     }
     if ("id" in datasource && datasource.id) {
-      const datasourceUrl = datasource.datasourceConfiguration.url;
+      const datasourceUrl = datasource.datasourceConfiguration?.url ?? "";
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -125,7 +125,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         "id" in datasource &&
         datasource.id
       ) {
-        const end = datasource.datasourceConfiguration.url.length;
+        const end = datasource.datasourceConfiguration.url?.length ?? 0;
         editorInstance.markText(
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
@@ -155,10 +155,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               completeSingle: false,
               hint: () => {
                 const list = datasourceList
-                  .filter(datasource =>
-                    datasource.datasourceConfiguration.url.includes(
-                      parsed.datasourceUrl,
-                    ),
+                  .filter(
+                    datasource =>
+                      datasource.datasourceConfiguration.url?.includes(
+                        parsed.datasourceUrl,
+                      ) ?? false,
                   )
                   .map(datasource => ({
                     text: datasource.datasourceConfiguration.url,

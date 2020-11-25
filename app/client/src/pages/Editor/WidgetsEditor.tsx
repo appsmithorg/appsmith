@@ -1,5 +1,6 @@
 import React, { useEffect, ReactNode, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { Button } from "@blueprintjs/core";
 import styled from "styled-components";
 import Canvas from "./Canvas";
 import {
@@ -21,6 +22,7 @@ import { fetchPage } from "actions/pageActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { AppState } from "reducers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 
 const EditorWrapper = styled.div`
@@ -60,6 +62,12 @@ const WidgetsEditor = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
+  const showWelcomeScreen = useSelector(
+    (state: AppState) => state.ui.onBoarding.showWelcomeScreen,
+  );
+  const creatingDatabase = useSelector(
+    (state: AppState) => state.ui.onBoarding.creatingDatabase,
+  );
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
@@ -116,11 +124,25 @@ const WidgetsEditor = () => {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
-      <EditorWrapper onClick={handleWrapperClick}>
-        <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
-          {node}
-        </CanvasContainer>
-      </EditorWrapper>
+      {showWelcomeScreen ? (
+        <div>
+          <Button
+            text={"Explore Appsmith"}
+            loading={creatingDatabase}
+            onClick={() => {
+              dispatch({
+                type: "NEXT_ONBOARDING_STEP",
+              });
+            }}
+          />
+        </div>
+      ) : (
+        <EditorWrapper onClick={handleWrapperClick}>
+          <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
+            {node}
+          </CanvasContainer>
+        </EditorWrapper>
+      )}
     </EditorContextProvider>
   );
 };

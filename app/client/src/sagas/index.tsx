@@ -20,6 +20,7 @@ import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./evaluationsSaga";
+import onboardingSaga from "./OnboardingSagas";
 
 export function* rootSaga() {
   yield all([
@@ -44,5 +45,6 @@ export function* rootSaga() {
     spawn(batchSagas),
     spawn(themeSagas),
     spawn(evaluationsSaga),
+    spawn(onboardingSaga),
   ]);
 }

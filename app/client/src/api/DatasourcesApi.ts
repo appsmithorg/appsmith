@@ -43,7 +43,7 @@ export interface Datasource {
   pluginId: string;
   organizationId?: string;
   datasourceConfiguration: {
-    url: string;
+    url?: string;
     authentication?: DatasourceAuthentication;
     properties?: Record<string, string>;
     headers?: Property[];
