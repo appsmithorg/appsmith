@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.google.cloud.NoCredentials;
@@ -60,9 +61,10 @@ public class FirestorePluginTest {
         firestoreConnection.document("changing/to-delete").set(Map.of("value", 1)).get();
 
         dsConfig.setUrl(emulator.getEmulatorEndpoint());
-        dsConfig.setAuthentication(new AuthenticationDTO());
-        dsConfig.getAuthentication().setUsername("test-project");
-        dsConfig.getAuthentication().setPassword("");
+        DBAuth authentication = new DBAuth();
+        authentication.setUsername("test-project");
+        authentication.setPassword("");
+        dsConfig.setAuthentication(authentication);
     }
 
     @Test
