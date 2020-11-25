@@ -33,6 +33,7 @@ cypress/screenshots
 /cypress.env.json
 results/
 
+
 /docker/*.pem
 /docker/nginx.conf
 /docker/nginx-root.conf
