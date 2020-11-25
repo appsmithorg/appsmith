@@ -102,3 +102,12 @@ export const setOnboardingState = async (onboardingState: boolean) => {
     return false;
   }
 };
+
+export const getOnboardingState = async () => {
+  try {
+    const onboardingState = await store.getItem(STORAGE_KEYS.ONBOARDING_STATE);
+    return onboardingState;
+  } catch (error) {
+    console.log("An error occurred when getting onboarding state: ", error);
+  }
+};

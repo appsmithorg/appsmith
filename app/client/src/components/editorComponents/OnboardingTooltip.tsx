@@ -9,6 +9,10 @@ const ToolTipContent = styled.div`
   width: 280px;
   display: flex;
   justify-content: space-between;
+
+  span {
+    cursor: pointer;
+  }
 `;
 
 const OnboardingToolTip = (props: any) => {
@@ -35,7 +39,15 @@ const OnboardingToolTip = (props: any) => {
       >
         {props.children}
         <ToolTipContent>
-          <span>Click here to end</span>
+          <span
+            onClick={() => {
+              dispatch({
+                type: "END_ONBOARDING",
+              });
+            }}
+          >
+            Click here to end
+          </span>
           <Button
             text={"Got it"}
             onClick={() => {

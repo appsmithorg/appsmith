@@ -1,3 +1,4 @@
+import { isNull } from "lodash";
 import { createActionRequest } from "actions/actionActions";
 import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { Datasource } from "api/DatasourcesApi";
@@ -8,6 +9,7 @@ import { all, select, put, takeEvery, fork, take } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getOnboardingState, setOnboardingState } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { getWidgets } from "./selectors";
 
@@ -128,6 +130,9 @@ const OnboardingConfig = [
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
 
+// export const getOnboardingState = (state: AppState) =>
+//   state.ui.onBoarding.inOnboarding;
+
 function* listenForWidgetAdditions() {
   while (true) {
     yield take();
@@ -144,11 +149,20 @@ function* listenForWidgetAdditions() {
 }
 
 function* initiateOnboarding() {
-  yield put({
-    type: "NEXT_ONBOARDING_STEP",
-  });
+  const currentOnboardingState = yield getOnboardingState();
+  if (currentOnboardingState || isNull(currentOnboardingState)) {
+    const set = yield setOnboardingState(true);
 
-  // yield fork(listenForWidgetAdditions);
+    if (set) {
+      yield put({
+        type: "SET_ONBOARDING_STATE",
+        payload: true,
+      });
+      yield put({
+        type: "NEXT_ONBOARDING_STEP",
+      });
+    }
+  }
 }
 
 function* createOnboardingDatasource() {
@@ -211,12 +225,27 @@ function* createOnboardingDatasource() {
 }
 
 function* proceedOnboarding() {
-  yield put({
-    type: "INCREMENT_STEP",
-  });
-  const currentStep = yield select(getCurrentStep);
-  const currentConfig = OnboardingConfig[currentStep];
-  yield put(currentConfig.setup());
+  const inOnboarding = yield select(getOnboardingState);
+
+  if (inOnboarding) {
+    yield put({
+      type: "INCREMENT_STEP",
+    });
+    const currentStep = yield select(getCurrentStep);
+    const currentConfig = OnboardingConfig[currentStep];
+    yield put(currentConfig.setup());
+  }
+}
+
+function* skipOnboardingSaga() {
+  const set = yield setOnboardingState(false);
+
+  if (set) {
+    yield put({
+      type: "SET_ONBOARDING_STATE",
+      payload: false,
+    });
+  }
 }
 
 export default function* onboardingSagas() {
@@ -224,5 +253,6 @@ export default function* onboardingSagas() {
     takeEvery(ReduxActionTypes.CREATE_APPLICATION_SUCCESS, initiateOnboarding),
     takeEvery("CREATE_ONBOARDING_DBQUERY_INIT", createOnboardingDatasource),
     takeEvery("NEXT_ONBOARDING_STEP", proceedOnboarding),
+    takeEvery("END_ONBOARDING", skipOnboardingSaga),
   ]);
 }
