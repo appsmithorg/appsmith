@@ -1,12 +1,4 @@
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import { eventChannel, EventChannel } from "redux-saga";
 import {
   EvaluationReduxAction,
@@ -16,12 +8,10 @@ import {
 } from "constants/ReduxActionConstants";
 import {
   getDataTree,
-  getEvaluationDependencies,
-  getOldUnevaluatedDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
-import Worker from "worker-loader!../workers/evaluation.worker";
+import WidgetFactory from "../utils/WidgetFactory";
+import Worker from "worker-loader!../workers/evaluator.worker";
 import {
   EVAL_WORKER_ACTIONS,
   EvalError,
@@ -38,18 +28,15 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
-import { diff } from "deep-diff";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
-let widgetTypeConfigMap: WidgetTypeConfigMap;
 
-const initEvaluationWorkers = () => {
+function* initEvaluationWorkers() {
   // If an old worker exists, terminate it
   if (evaluationWorker) {
     evaluationWorker.terminate();
   }
-  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   evaluationWorker = new Worker();
   workerChannel = eventChannel(emitter => {
     evaluationWorker.addEventListener("message", emitter);
@@ -58,7 +45,28 @@ const initEvaluationWorkers = () => {
       evaluationWorker.removeEventListener("message", emitter);
     };
   });
-};
+  const widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  evaluationWorker.postMessage({
+    action: EVAL_WORKER_ACTIONS.INIT_EVALUATOR,
+    unevalTree,
+    widgetTypeConfigMap,
+  });
+  const workerResponse = yield take(workerChannel);
+  console.log({ workerResponse });
+  const { errors, dataTree, dependencies } = workerResponse.data;
+  const parsedDataTree = JSON.parse(dataTree);
+  log.debug({ dataTree: parsedDataTree });
+  evalErrorHandler(errors);
+  yield put({
+    type: ReduxActionTypes.SET_EVALUATED_TREE,
+    payload: parsedDataTree,
+  });
+  yield put({
+    type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
+    payload: dependencies,
+  });
+}
 
 const evalErrorHandler = (errors: EvalError[]) => {
   if (!errors) return;
@@ -90,17 +98,10 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  const newUnEvalTree = yield select(getUnevaluatedDataTree);
-  const oldUnEvalTree = yield select(getOldUnevaluatedDataTree);
-  const evalDataTree = yield select(getDataTree);
-  const evaluationDependencies = yield select(getEvaluationDependencies);
+  const unevalTree = yield select(getUnevaluatedDataTree);
   evaluationWorker.postMessage({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
-    newUnEvalTree,
-    widgetTypeConfigMap,
-    oldUnEvalTree,
-    dataTree: evalDataTree,
-    evaluationDependencies,
+    unevalTree,
   });
   const workerResponse = yield take(workerChannel);
   const { errors, dataTree, dependencies } = workerResponse.data;
@@ -111,10 +112,10 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: parsedDataTree,
   });
-  yield put({
-    type: ReduxActionTypes.SET_UNEVALUATED_TREE,
-    payload: newUnEvalTree,
-  });
+  // yield put({
+  //   type: ReduxActionTypes.SET_UNEVALUATED_TREE,
+  //   payload: unevalTree,
+  // });
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
     payload: dependencies,
@@ -260,8 +261,7 @@ const EVALUATE_REDUX_ACTIONS = [
 ];
 
 function* evaluationChangeListenerSaga() {
-  initEvaluationWorkers();
-  yield fork(evaluateTreeSaga);
+  yield call(initEvaluationWorkers);
   while (true) {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       EVALUATE_REDUX_ACTIONS,
@@ -282,7 +282,7 @@ function* evaluationChangeListenerSaga() {
       }
     }
     log.debug(`Evaluating`, { action });
-    yield fork(evaluateTreeSaga, action.postEvalActions);
+    yield call(evaluateTreeSaga, action.postEvalActions);
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
@@ -292,6 +292,3 @@ export default function* evaluationSagaListeners() {
     takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
   ]);
 }
-
-// - Diff to find paths
-// - if
