@@ -53,6 +53,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CheckboxComponent
+        isRequired={this.props.isRequired}
         isChecked={!!this.props.isChecked}
         label={this.props.label}
         widgetId={this.props.widgetId}
@@ -84,6 +85,7 @@ export interface CheckboxWidgetProps extends WidgetProps, WithMeta {
   isChecked?: boolean;
   isDisabled?: boolean;
   onCheckChange?: string;
+  isRequired?: boolean;
 }
 
 export default CheckboxWidget;
