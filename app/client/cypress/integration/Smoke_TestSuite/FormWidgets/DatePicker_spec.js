@@ -69,12 +69,14 @@ describe("DatePicker Widget Functionality", function() {
 
     cy.get(formWidgetsPage.minDate)
       .first()
-      .click({ force: true });
+      .click();
+    cy.wait(1000);
     cy.setDate(-2, "ddd MMM DD YYYY");
 
     cy.get(formWidgetsPage.maxDate)
       .first()
-      .click({ force: true });
+      .click();
+    cy.wait(1000);
     cy.setDate(2, "ddd MMM DD YYYY");
 
     cy.PublishtheApp();
@@ -101,6 +103,7 @@ describe("DatePicker Widget Functionality", function() {
 
   it("Datepicker default date validation", function() {
     cy.get(formWidgetsPage.defaultDate).click();
+    cy.wait(1000);
     cy.setDate(-3, "ddd MMM DD YYYY");
     cy.get(formWidgetsPage.defaultDate).should(
       "have.css",
