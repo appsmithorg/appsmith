@@ -1596,7 +1596,9 @@ Cypress.Commands.add("setDate", (date, dateFormate) => {
     .add(date, "days")
     .format(dateFormate);
   const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
-  cy.get(sel).click();
+  cy.get(sel)
+    .first()
+    .click();
 });
 
 Cypress.Commands.add("pageNo", index => {

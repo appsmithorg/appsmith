@@ -65,12 +65,16 @@ describe("DatePicker Widget Functionality", function() {
 
   it("Datepicker min/max date validation", function() {
     cy.get(formWidgetsPage.defaultDate).click({ force: true });
-    cy.setDate(1, "ddd MMM DD YYYY");
+    cy.SetDateToToday();
 
-    cy.get(formWidgetsPage.minDate).click({ force: true });
+    cy.get(formWidgetsPage.minDate)
+      .first()
+      .click({ force: true });
     cy.setDate(-2, "ddd MMM DD YYYY");
 
-    cy.get(formWidgetsPage.maxDate).click({ force: true });
+    cy.get(formWidgetsPage.maxDate)
+      .first()
+      .click({ force: true });
     cy.setDate(2, "ddd MMM DD YYYY");
 
     cy.PublishtheApp();
