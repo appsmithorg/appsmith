@@ -177,6 +177,7 @@ export class DataTreeEvaluator {
     const evaluatedTree = this.evaluateTree(
       withFunctions,
       this.sortedDependencies,
+      [],
     );
     // Validate Widgets
     const validated = this.getValidatedTree(evaluatedTree);
@@ -225,14 +226,12 @@ export class DataTreeEvaluator {
       newDependencyMap,
       updatedDependencyMap: this.dependencyMap,
     });
-    // TODO we cant do this. Need to find a better way
-    // Apply diff to old evaluated tree
-    // differences.forEach(diff => applyChange(this.evalTree, undefined, diff));
 
     // Evaluate
     const evaluatedTree = this.evaluateTree(
       withFunctions,
       this.sortedDependencies,
+      newSortOrder,
     );
     // Validate Widgets
     const validated = this.getValidatedTree(evaluatedTree);
@@ -335,11 +334,16 @@ export class DataTreeEvaluator {
   evaluateTree(
     unEvalTree: DataTree,
     sortedDependencies: Array<string>,
+    changedSortOrder: Array<string>,
   ): DataTree {
     const tree = _.cloneDeep(unEvalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
+          if (!changedSortOrder.includes(propertyPath)) {
+            const lastEvalValue = _.get(this.evalTree, propertyPath);
+            return _.set(currentTree, propertyPath, lastEvalValue);
+          }
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
