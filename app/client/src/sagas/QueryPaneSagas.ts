@@ -1,4 +1,12 @@
-import { all, select, put, take, takeEvery } from "redux-saga/effects";
+import {
+  all,
+  select,
+  put,
+  take,
+  takeEvery,
+  call,
+  race,
+} from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -30,12 +38,14 @@ import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { isEmpty } from "lodash";
+import { isEmpty, merge } from "lodash";
+import { getConfigInitialValues } from "components/formControls/utils";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const state = yield select();
   const editorConfigs = state.entities.plugins.editorConfigs;
+  let configInitialValues = {};
   // // Typescript says Element does not have blur function but it does;
   // document.activeElement &&
   //   "blur" in document.activeElement &&
@@ -53,12 +63,36 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     history.push(QUERIES_EDITOR_URL(applicationId, pageId));
     return;
   }
+  let currentEditorConfig = editorConfigs[action.datasource.pluginId];
 
-  if (!editorConfigs[action.datasource.pluginId]) {
+  if (!currentEditorConfig) {
     yield put(fetchPluginForm({ id: action.datasource.pluginId }));
+
+    // Wait for either these events
+    const { success } = yield race({
+      error: take(ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR),
+      success: take(ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS),
+    });
+
+    // Update the config
+    if (success) {
+      currentEditorConfig = success.payload.editor;
+    }
   }
 
-  yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
+  // If config exists
+  if (currentEditorConfig) {
+    // Get initial values
+    configInitialValues = yield call(
+      getConfigInitialValues,
+      currentEditorConfig,
+    );
+  }
+
+  // Merge the initial values and action.
+  const formInitialValues = merge(configInitialValues, action);
+
+  yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
 }
 
 function* formValueChangeSaga(

@@ -23,6 +23,9 @@ describe("Button Widget Functionality", function() {
       widgetsPage.buttonWidget + " " + commonlocators.widgetNameTag,
     );
 
+    // changing button to invalid name
+    cy.invalidWidgetText();
+
     //Changing the text on the Button
     cy.testCodeMirror(this.data.ButtonLabel);
     cy.EvaluateDataType("string");

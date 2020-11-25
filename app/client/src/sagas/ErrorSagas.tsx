@@ -4,12 +4,12 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import { DEFAULT_ERROR_MESSAGE, DEFAULT_ACTION_ERROR } from "constants/errors";
 import { ApiResponse } from "api/ApiResponses";
 import { put, takeLatest, call } from "redux-saga/effects";
 import { ERROR_401, ERROR_500, ERROR_0 } from "constants/messages";
-import { ToastType } from "react-toastify";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 import log from "loglevel";
 import { axiosConnectionAbortedCode } from "../api/Api";
 
@@ -99,7 +99,7 @@ export function* errorSaga(
 
   if (show && error) {
     // TODO Make different error channels.
-    AppToaster.show({ message, type: ToastType.ERROR });
+    Toaster.show({ text: message, variant: Variant.danger });
   }
 
   yield put({
