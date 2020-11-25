@@ -173,7 +173,7 @@ const TableHeader = (props: TableHeaderProps) => {
       {!props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <RowWrapper className="show-page-items">
-            {props.tableData?.length} records
+            {props.tableData?.length} Records
           </RowWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
