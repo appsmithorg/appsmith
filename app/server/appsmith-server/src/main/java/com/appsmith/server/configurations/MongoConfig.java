@@ -39,8 +39,7 @@ import java.util.Arrays;
 @EnableMongoAuditing
 @EnableReactiveMongoRepositories(repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
         basePackages = "com.appsmith.server.repositories",
-        repositoryBaseClass = BaseRepositoryImpl.class//,
-//        reactiveMongoTemplateRef = "reactiveTemplate"
+        repositoryBaseClass = BaseRepositoryImpl.class
 )
 public class MongoConfig {
 

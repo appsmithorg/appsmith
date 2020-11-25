@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
@@ -82,9 +81,9 @@ public class DatasourceContextServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
-                    AuthenticationDTO decryptedAuthentication = datasourceContextService.decryptSensitiveFields(authentication);
-                    assertThat(((DBAuth) decryptedAuthentication).getPassword()).isEqualTo(password);
+                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth decryptedAuthentication = (DBAuth) datasourceContextService.decryptSensitiveFields(authentication);
+                    assertThat(decryptedAuthentication.getPassword()).isEqualTo(password);
                 })
                 .verifyComplete();
     }
@@ -112,9 +111,9 @@ public class DatasourceContextServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
-                    AuthenticationDTO decryptedAuthentication = datasourceContextService.decryptSensitiveFields(authentication);
-                    assertThat(((DBAuth)decryptedAuthentication).getPassword()).isNull();
+                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth decryptedAuthentication = (DBAuth) datasourceContextService.decryptSensitiveFields(authentication);
+                    assertThat(decryptedAuthentication.getPassword()).isNull();
                 })
                 .verifyComplete();
     }
