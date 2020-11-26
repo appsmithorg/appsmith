@@ -19,6 +19,8 @@ import java.util.Set;
 @AllArgsConstructor
 @DocumentType(AuthType.DB_AUTH)
 public class DBAuth extends AuthenticationDTO {
+    private static final String PASSWORD = "password";
+
     public enum Type {
         SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
     }
@@ -34,23 +36,24 @@ public class DBAuth extends AuthenticationDTO {
 
     @Override
     public Map<String, String> getEncryptionFields() {
-        if(this.password != null) {
-            return Map.of("password", this.password);
+        if (this.password != null) {
+            return Map.of(PASSWORD, this.password);
         }
         return Map.of();
     }
 
     @Override
     public void setEncryptionFields(Map<String, String> encryptedFields) {
-        if(encryptedFields != null && encryptedFields.containsKey("password")) {
-            this.password = encryptedFields.get("password");
+        if (encryptedFields != null && encryptedFields.containsKey(PASSWORD)) {
+            this.password = encryptedFields.get(PASSWORD);
         }
     }
 
     @Override
     public Set<String> getEmptyEncryptionFields() {
-        if(this.password == null || this.password.isEmpty())
-            return Set.of("password", null);
+        if (this.password == null || this.password.isEmpty()) {
+            return Set.of(PASSWORD, null);
+        }
         return Set.of();
     }
 

@@ -19,6 +19,8 @@ import java.util.Set;
 @AllArgsConstructor
 @DocumentType(AuthType.OAUTH2)
 public class OAuth2 extends AuthenticationDTO {
+    private static final String CLIENT_SECRET = "clientSecret";
+
     public enum Type {
         CLIENT_CREDENTIALS,
     }
@@ -36,23 +38,24 @@ public class OAuth2 extends AuthenticationDTO {
 
     @Override
     public Map<String, String> getEncryptionFields() {
-        if(this.clientSecret != null) {
-            return Map.of("clientSecret", this.clientSecret);
+        if (this.clientSecret != null) {
+            return Map.of(CLIENT_SECRET, this.clientSecret);
         }
         return Map.of();
     }
 
     @Override
     public void setEncryptionFields(Map<String, String> encryptedFields) {
-        if(encryptedFields != null && encryptedFields.containsKey("clientSecret")) {
-            this.clientSecret = encryptedFields.get("clientSecret");
+        if (encryptedFields != null && encryptedFields.containsKey(CLIENT_SECRET)) {
+            this.clientSecret = encryptedFields.get(CLIENT_SECRET);
         }
     }
 
     @Override
     public Set<String> getEmptyEncryptionFields() {
-        if(this.clientSecret == null || this.clientSecret.isEmpty())
-            return Set.of("clientSecret", null);
+        if (this.clientSecret == null || this.clientSecret.isEmpty()) {
+            return Set.of(CLIENT_SECRET, null);
+        }
         return Set.of();
     }
 
