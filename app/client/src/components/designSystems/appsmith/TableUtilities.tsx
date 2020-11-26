@@ -1004,7 +1004,7 @@ export function getDefaultColumnProperties(
     columnType: ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
     textSize: TextSizes.PARAGRAPH,
-    fontStyle: FontStyleTypes.NORMAL,
+    fontStyle: [FontStyleTypes.REGULAR],
     enableFilter: true,
     enableSort: true,
     isVisible: true,
