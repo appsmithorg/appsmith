@@ -1,4 +1,4 @@
-import { call, takeLatest, put, all } from "redux-saga/effects";
+import { call, takeLatest, put, all, select } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -27,6 +27,7 @@ import OrgApi, {
 import { ApiResponse } from "api/ApiResponses";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { getCurrentOrg } from "selectors/organizationSelectors";
 
 export function* fetchRolesSaga() {
   try {
@@ -246,9 +247,9 @@ export function* uploadOrgLogoSaga(action: ReduxAction<SaveOrgLogo>) {
           type: ReduxActionTypes.SET_CURRENT_ORG,
           payload: updatedOrg,
         });
-        AppToaster.show({
-          message: "Logo uploaded successfully",
-          type: ToastType.SUCCESS,
+        Toaster.show({
+          text: "Logo uploaded successfully",
+          variant: Variant.success,
         });
       }
     }
@@ -273,9 +274,9 @@ export function* deleteOrgLogoSaga(action: ReduxAction<{ id: string }>) {
           type: ReduxActionTypes.SET_CURRENT_ORG,
           payload: updatedOrg,
         });
-        AppToaster.show({
-          message: "Logo removed successfully",
-          type: ToastType.SUCCESS,
+        Toaster.show({
+          text: "Logo removed successfully",
+          variant: Variant.success,
         });
       }
     }

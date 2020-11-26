@@ -6,8 +6,8 @@ import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg"
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
-import { AppToaster } from "components/editorComponents/ToastComponent";
-import { Classes } from "./common";
+import { Classes, Variant } from "./common";
+import { Toaster } from "./Toast";
 
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
@@ -242,9 +242,9 @@ const FilePickerComponent = (props: FilePickerProps) => {
       /* set form data and send api request */
       props.fileUploader && props.fileUploader(file, setProgress, onUpload);
     } else {
-      AppToaster.show({
-        message: "File size should be less than 250kb!",
-        type: "warning",
+      Toaster.show({
+        text: "File size should be less than 250kb!",
+        variant: Variant.warning,
       });
     }
   }
