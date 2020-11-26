@@ -439,6 +439,8 @@ public class MySqlPlugin extends BasePlugin {
                             table.getKeys().sort(Comparator.naturalOrder());
                         }
 
+                        //TODO: remove it.
+                        System.out.println("devtest: structure: " + structure.toString());
                         return Mono.just(structure);
                     })
                     .onErrorResume(error -> {
