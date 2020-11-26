@@ -1,4 +1,5 @@
 import { GridDefaults } from "constants/WidgetConstants";
+import { JAVSCRIPT_KEYWORDS } from "constants/WidgetValidation";
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -161,4 +162,27 @@ export const isEllipsisActive = (element: HTMLElement | null) => {
  */
 export const convertArrayToSentence = (arr: string[]) => {
   return arr.join(", ").replace(/,\s([^,]+)$/, " and $1");
+};
+
+/**
+ * checks if the name is conflciting with
+ * 1. API names,
+ * 2. Queries name
+ * 3. Javascript reserved names
+ * 4. Few internal function names that are in the evaluation tree
+ *
+ * return if false name conflicts with anything from the above list
+ *
+ * @param name
+ * @param invalidNames
+ */
+export const isNameValid = (
+  name: string,
+  invalidNames: Record<string, any>,
+) => {
+  if (name in JAVSCRIPT_KEYWORDS || name in invalidNames) {
+    return false;
+  }
+
+  return true;
 };

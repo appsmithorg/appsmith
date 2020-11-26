@@ -112,6 +112,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       enablePickLocation: VALIDATION_TYPES.BOOLEAN,
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
+      mapCenter: VALIDATION_TYPES.OBJECT,
     };
   }
 
@@ -230,7 +231,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             selectMarker={this.onMarkerClick}
             unselectMarker={this.unselectMarker}
             markers={this.props.markers || []}
-            disableDrag={() => {
+            enableDrag={() => {
               this.disableDrag(false);
             }}
           />
@@ -261,6 +262,7 @@ export interface MapWidgetProps extends WidgetProps, WithMeta {
   mapCenter: {
     lat: number;
     long: number;
+    title?: string;
   };
   center?: {
     lat: number;

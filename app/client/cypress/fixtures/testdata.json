@@ -179,5 +179,6 @@
   "momentInput": "{{moment(new Date).format('yyyy')",
   "atobInput": "{{atob('QQ==')",
   "btoaInput": "{{btoa('A')",
-  "defaultInputBinding": "{{Input2.text"
+  "defaultInputBinding": "{{Input2.text",
+  "pageloadBinding": "{{PageLoadApi.data.data[1].id}}{{Input1.text}}"
 }

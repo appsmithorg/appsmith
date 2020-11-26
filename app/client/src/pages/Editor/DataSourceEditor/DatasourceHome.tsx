@@ -3,10 +3,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { initialize } from "redux-form";
 import { Card, Spinner } from "@blueprintjs/core";
-import {
-  getDatasourcePlugins,
-  getPluginImages,
-} from "selectors/entitiesSelector";
+import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "constants/forms";
@@ -198,7 +195,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {
     pluginImages: getPluginImages(state),
-    plugins: getDatasourcePlugins(state),
+    plugins: getDBPlugins(state),
     currentApplication: getCurrentApplication(state),
   };
 };

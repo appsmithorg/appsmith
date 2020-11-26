@@ -955,7 +955,7 @@ export function compare(a: any, b: any, condition: Condition) {
 }
 
 export const reorderColumns = (
-  columns: ReactTableColumnProps[],
+  columns: ColumnProperties[],
   columnOrder: string[],
 ) => {
   const reorderedColumns = [];
@@ -963,26 +963,26 @@ export const reorderColumns = (
   for (let index = 0; index < columns.length; index++) {
     const accessor = columnOrder[index];
     if (accessor) {
-      const column = columns.filter((col: ReactTableColumnProps) => {
-        return col.accessor === accessor;
+      const column = columns.filter((col: ColumnProperties) => {
+        return col.id === accessor;
       });
-      if (column.length && !reorderedFlagMap[column[0].accessor]) {
+      if (column.length && !reorderedFlagMap[column[0].id]) {
         reorderedColumns.push(column[0]);
-        reorderedFlagMap[column[0].accessor] = true;
-      } else if (!reorderedFlagMap[columns[index].accessor]) {
+        reorderedFlagMap[column[0].id] = true;
+      } else if (!reorderedFlagMap[columns[index].id]) {
         reorderedColumns.push(columns[index]);
-        reorderedFlagMap[columns[index].accessor] = true;
+        reorderedFlagMap[columns[index].id] = true;
       }
-    } else if (!reorderedFlagMap[columns[index].accessor]) {
+    } else if (!reorderedFlagMap[columns[index].id]) {
       reorderedColumns.push(columns[index]);
-      reorderedFlagMap[columns[index].accessor] = true;
+      reorderedFlagMap[columns[index].id] = true;
     }
   }
   if (reorderedColumns.length < columns.length) {
     for (let index = 0; index < columns.length; index++) {
-      if (!reorderedFlagMap[columns[index].accessor]) {
+      if (!reorderedFlagMap[columns[index].id]) {
         reorderedColumns.push(columns[index]);
-        reorderedFlagMap[columns[index].accessor] = true;
+        reorderedFlagMap[columns[index].id] = true;
       }
     }
   }
@@ -1008,7 +1008,7 @@ export function getDefaultColumnProperties(
     enableFilter: true,
     enableSort: true,
     isVisible: true,
-    isDerived: false,
+    isDerived: !!isDerived,
     label: accessor,
     computedValue: isDerived
       ? ""

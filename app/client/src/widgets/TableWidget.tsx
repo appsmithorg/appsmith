@@ -22,7 +22,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined } from "lodash";
+import { isNumber, isString, isUndefined, isEqual } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -121,7 +121,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
       primaryColumns: VALIDATION_TYPES.ARRAY,
-      derivedColumns: VALIDATION_TYPES.ARRAY,
+      defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
     };
   }
 
@@ -490,376 +490,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             },
           },
           {
-            helpText: "Created Columns",
-            propertyName: "derivedColumns",
-            controlType: "ADDITIONAL_COLUMNS",
-            label: "Created Columns",
-            panelConfig: {
-              editableTitle: true,
-              titlePropertyName: "label",
-              panelIdPropertyName: "id",
-              children: [
-                {
-                  sectionName: "Column Control",
-                  children: [
-                    {
-                      propertyName: "columnType",
-                      label: "Column Type",
-                      controlType: "DROP_DOWN",
-                      customJSControl: "COMPUTE_VALUE",
-                      options: [
-                        {
-                          label: "Plain Text",
-                          value: "text",
-                        },
-                        {
-                          label: "Number",
-                          value: "number",
-                        },
-                        {
-                          label: "Image",
-                          value: "image",
-                        },
-                        {
-                          label: "Video",
-                          value: "video",
-                        },
-                        {
-                          label: "Date",
-                          value: "date",
-                        },
-                        {
-                          label: "Time",
-                          value: "time",
-                        },
-                        {
-                          label: "Currency",
-                          value: "currencys",
-                        },
-                        {
-                          label: "Button",
-                          value: "button",
-                        },
-                      ],
-                    },
-                    {
-                      propertyName: "outputFormat",
-                      label: "Currency Type",
-                      controlType: "DROP_DOWN",
-                      options: [
-                        {
-                          label: "USD - $",
-                          value: "$",
-                        },
-                        {
-                          label: "INR - ₹",
-                          value: "₹",
-                        },
-                        {
-                          label: "GBP - £",
-                          value: "£",
-                        },
-                        {
-                          label: "AUD - A$",
-                          value: "A$",
-                        },
-                        {
-                          label: "EUR - €",
-                          value: "€",
-                        },
-                        {
-                          label: "SGD - S$",
-                          value: "S$",
-                        },
-                        {
-                          label: "CAD - C$",
-                          value: "C$",
-                        },
-                      ],
-                      customJSControl: "COMPUTE_VALUE",
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType !== "currency";
-                      },
-                    },
-                    {
-                      propertyName: "inputFormat",
-                      label: "Original Date Format",
-                      controlType: "DROP_DOWN",
-                      options: [
-                        {
-                          label: "UNIX timestamp (s)",
-                          value: "Epoch",
-                        },
-                        {
-                          label: "UNIX timestamp (ms)",
-                          value: "Milliseconds",
-                        },
-                        {
-                          label: "YYYY-MM-DD",
-                          value: "YYYY-MM-DD",
-                        },
-                        {
-                          label: "YYYY-MM-DDTHH:mm:ss",
-                          value: "YYYY-MM-DDTHH:mm:ss",
-                        },
-                        {
-                          label: "YYYY-MM-DD hh:mm:ss",
-                          value: "YYYY-MM-DD hh:mm:ss",
-                        },
-                      ],
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType !== "date";
-                      },
-                    },
-                    {
-                      propertyName: "outputFormat",
-                      label: "Display Date Format",
-                      controlType: "DROP_DOWN",
-                      customJSControl: "COMPUTE_VALUE",
-                      isJSConvertible: true,
-                      options: [
-                        {
-                          label: "UNIX timestamp (s)",
-                          value: "Epoch",
-                        },
-                        {
-                          label: "UNIX timestamp (ms)",
-                          value: "Milliseconds",
-                        },
-                        {
-                          label: "YYYY-MM-DD",
-                          value: "YYYY-MM-DD",
-                        },
-                        {
-                          label: "YYYY-MM-DDTHH:mm:ss",
-                          value: "YYYY-MM-DDTHH:mm:ss",
-                        },
-                        {
-                          label: "YYYY-MM-DD hh:mm:ss",
-                          value: "YYYY-MM-DD hh:mm:ss",
-                        },
-                        {
-                          label: "DD-MM-YYYY HH:mm",
-                          value: "DD-MM-YYYY HH:mm",
-                        },
-                        {
-                          label: "DD-MM-YYYY",
-                          value: "DD-MM-YYYY",
-                        },
-                        {
-                          label: "Do MMM YYYY",
-                          value: "Do MMM YYYY",
-                        },
-                      ],
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType !== "date";
-                      },
-                    },
-                    {
-                      propertyName: "computedValue",
-                      label: "Computed Value",
-                      controlType: "COMPUTE_VALUE",
-                      hidden: (props: ColumnProperties) => {
-                        return props.columnType === "button";
-                      },
-                    },
-                  ],
-                },
-                {
-                  sectionName: "Text",
-                  hidden: (props: ColumnProperties) => {
-                    return (
-                      props.columnType === "button" ||
-                      props.columnType === "dropdown"
-                    );
-                  },
-                  children: [
-                    {
-                      propertyName: "horizontalAlignment",
-                      label: "Text Align",
-                      controlType: "ICON_TABS",
-                      options: [
-                        {
-                          icon: "LEFT_ALIGN",
-                          value: "LEFT",
-                        },
-                        {
-                          icon: "CENTER_ALIGN",
-                          value: "CENTER",
-                        },
-                        {
-                          icon: "RIGHT_ALIGN",
-                          value: "RIGHT",
-                        },
-                      ],
-                      defaultValue: "LEFT",
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
-                    },
-                    {
-                      propertyName: "textSize",
-                      label: "Text Size",
-                      controlType: "DROP_DOWN",
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
-                      options: [
-                        {
-                          label: "Heading 1",
-                          value: "HEADING1",
-                          subText: "24px",
-                          icon: "HEADING_ONE",
-                        },
-                        {
-                          label: "Heading 2",
-                          value: "HEADING2",
-                          subText: "18px",
-                          icon: "HEADING_TWO",
-                        },
-                        {
-                          label: "Heading 3",
-                          value: "HEADING3",
-                          subText: "16px",
-                          icon: "HEADING_THREE",
-                        },
-                        {
-                          label: "Paragraph",
-                          value: "PARAGRAPH",
-                          subText: "14px",
-                          icon: "PARAGRAPH",
-                        },
-                        {
-                          label: "Bullet Points",
-                          value: "BULLETPOINTS",
-                          subText: "14px",
-                          icon: "BULLETS",
-                        },
-                      ],
-                    },
-                    {
-                      propertyName: "fontStyle",
-                      label: "Font Style",
-                      controlType: "BUTTON_TABS",
-                      options: [
-                        {
-                          icon: "BOLD_FONT",
-                          value: "BOLD",
-                        },
-                        {
-                          icon: "ITALICS_FONT",
-                          value: "ITALIC",
-                        },
-                      ],
-                      isJSConvertible: false,
-                      customJSControl: "COMPUTE_VALUE",
-                    },
-                    {
-                      propertyName: "verticalAlignment",
-                      label: "Vertical Alignment",
-                      controlType: "ICON_TABS",
-                      options: [
-                        {
-                          icon: "VERTICAL_TOP",
-                          value: "TOP",
-                        },
-                        {
-                          icon: "VERTICAL_CENTER",
-                          value: "CENTER",
-                        },
-                        {
-                          icon: "VERTICAL_BOTTOM",
-                          value: "BOTTOM",
-                        },
-                      ],
-                      defaultValue: "LEFT",
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
-                    },
-                    {
-                      propertyName: "textColor",
-                      label: "Text Color",
-                      controlType: "COLOR_PICKER",
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
-                      defaultColor: Colors.THUNDER,
-                    },
-                    {
-                      propertyName: "cellBackground",
-                      label: "Cell Background",
-                      controlType: "COLOR_PICKER",
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
-                      defaultColor: Colors.WHITE,
-                    },
-                  ],
-                },
-                {
-                  sectionName: "Button Properties",
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType !== "button";
-                  },
-                  children: [
-                    {
-                      propertyName: "buttonLabel",
-                      label: "Label",
-                      controlType: "COMPUTE_VALUE",
-                      defaultValue: "Action",
-                    },
-                    {
-                      propertyName: "buttonStyle",
-                      label: "Button Color",
-                      controlType: "COLOR_PICKER",
-                      helpText: "Changes the color of the button",
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
-                      defaultColor: Colors.GREEN,
-                    },
-                    {
-                      propertyName: "buttonLabelColor",
-                      label: "Label Color",
-                      controlType: "COLOR_PICKER",
-                      isJSConvertible: true,
-                      customJSControl: "COMPUTE_VALUE",
-                      defaultColor: Colors.WHITE,
-                    },
-                    {
-                      helpText: "Triggers an action when the button is clicked",
-                      propertyName: "onClick",
-                      label: "onClick",
-                      controlType: "ACTION_SELECTOR",
-                      isJSConvertible: true,
-                    },
-                  ],
-                },
-                {
-                  sectionName: "Dropdown Properties",
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType !== "dropdown";
-                  },
-                  children: [
-                    {
-                      helpText:
-                        "Allows users to select either a single option or multiple options. Values must be unique",
-                      propertyName: "dropdownOptions",
-                      label: "Options",
-                      controlType: "INPUT_TEXT",
-                      placeholderText: `Enter [{label: "label1", value: "value2"}]`,
-                    },
-                    {
-                      helpText:
-                        "Triggers an action when a user selects an option",
-                      propertyName: "onOptionChange",
-                      label: "onOptionChange",
-                      controlType: "ACTION_SELECTOR",
-                      isJSConvertible: true,
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
             propertyName: "defaultSearchText",
             label: "Default Search Text",
             controlType: "INPUT_TEXT",
@@ -918,8 +548,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       pageNo: 1,
       pageSize: undefined,
-      selectedRowIndex: -1,
-      selectedRowIndices: [],
+      selectedRowIndex: undefined,
+      selectedRowIndices: undefined,
       searchText: undefined,
       selectedRow: {},
       selectedRows: [],
@@ -931,6 +561,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       searchText: "defaultSearchText",
+      selectedRowIndex: "defaultSelectedRow",
+      selectedRowIndices: "defaultSelectedRow",
     };
   }
 
@@ -980,12 +612,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
-    const { primaryColumns, derivedColumns, sortedColumn } = this.props;
-    const allColumns = derivedColumns
-      ? [...(primaryColumns || []), ...derivedColumns]
-      : [...(primaryColumns || [])];
+    const { primaryColumns, sortedColumn } = this.props;
+    let allColumns = [...(primaryColumns || [])];
     const sortColumn = sortedColumn?.column;
     const sortOrder = sortedColumn?.asc;
+    const columnOrder: string[] = new Array(allColumns.length);
+    for (let i = 0; i < allColumns.length; i++) {
+      const item: ColumnProperties = allColumns[i];
+      columnOrder[item.index] = item.id;
+    }
+    allColumns = reorderColumns(allColumns, columnOrder);
     for (let index = 0; index < allColumns.length; index++) {
       const columnProperties = allColumns[index];
       const isHidden = !columnProperties.isVisible;
@@ -1058,9 +694,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       columns = columns.concat(hiddenColumns);
-    }
-    if (this.props.columnOrder) {
-      columns = reorderColumns(columns, this.props.columnOrder);
     }
     return columns.filter((column: ReactTableColumnProps) => column.accessor);
   };
@@ -1182,30 +815,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         }
       }
     }
-    if (this.props.derivedColumns) {
-      for (let i = 0; i < this.props.derivedColumns.length; i++) {
-        const column: ColumnProperties = this.props.derivedColumns[i];
-        const columnId = column.id;
-        if (column.computedValue && Array.isArray(column.computedValue)) {
-          try {
-            let computedValues: Array<unknown> = [];
-            if (isString(column.computedValue)) {
-              computedValues = JSON.parse(column.computedValue);
-            } else {
-              computedValues = column.computedValue;
-            }
-            for (let index = 0; index < computedValues.length; index++) {
-              derivedTableData[index] = {
-                ...derivedTableData[index],
-                [columnId]: computedValues[index],
-              };
-            }
-          } catch (e) {
-            console.log({ e });
-          }
-        }
-      }
-    }
     let sortedTableData: any[];
     const columns = this.getTableColumns();
     const searchKey = searchText ? searchText.toUpperCase() : "";
@@ -1282,6 +891,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateWidgetProperty("primaryColumns", tableColumns);
     }
   };
+  getSelectedRows = (
+    filteredTableData: Array<Record<string, unknown>>,
+    selectedRowIndices: Array<number>,
+  ) => {
+    return filteredTableData.filter(
+      (item: Record<string, unknown>, i: number) => {
+        return selectedRowIndices.includes(i);
+      },
+    );
+  };
 
   componentDidMount() {
     const filteredTableData = this.filterTableData();
@@ -1297,6 +916,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }, 0);
   }
+
   componentDidUpdate(prevProps: TableWidgetProps) {
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==
@@ -1316,53 +936,35 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         filteredTableData,
       );
       if (!this.props.multiRowSelection) {
+        const selectedRowIndex =
+          this.props.selectedRowIndex !== -1 &&
+          this.props.selectedRowIndex !== undefined &&
+          filteredTableData[this.props.selectedRowIndex]
+            ? this.props.selectedRowIndex
+            : isNumber(this.props.defaultSelectedRow)
+            ? this.props.defaultSelectedRow
+            : -1;
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndex",
+          selectedRowIndex,
+        );
         this.props.updateWidgetMetaProperty(
           "selectedRow",
-          this.getSelectedRow(filteredTableData),
+          this.getSelectedRow(filteredTableData, selectedRowIndex),
         );
       } else {
+        const selectedRowIndices = this.props.selectedRowIndices.length
+          ? this.props.selectedRowIndices
+          : Array.isArray(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : [];
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+        );
         this.props.updateWidgetMetaProperty(
           "selectedRows",
-          filteredTableData.filter(
-            (item: Record<string, unknown>, i: number) => {
-              return this.props.selectedRowIndices.includes(i);
-            },
-          ),
-        );
-      }
-    }
-    if (tableDataModified) {
-      setTimeout(() => {
-        this.createTablePrimaryColumns();
-      }, 0);
-      this.props.updateWidgetMetaProperty("selectedRowIndices", []);
-      this.props.updateWidgetMetaProperty("selectedRows", []);
-      this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-    }
-    if (
-      JSON.stringify(this.props.derivedColumns) !==
-        JSON.stringify(prevProps.derivedColumns) ||
-      JSON.stringify(this.props.primaryColumns) !==
-        JSON.stringify(prevProps.primaryColumns)
-    ) {
-      const filteredTableData = this.filterTableData();
-      this.props.updateWidgetMetaProperty(
-        "filteredTableData",
-        filteredTableData,
-      );
-      if (!this.props.multiRowSelection) {
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData),
-        );
-      } else {
-        this.props.updateWidgetMetaProperty(
-          "selectedRows",
-          filteredTableData.filter(
-            (item: Record<string, unknown>, i: number) => {
-              return this.props.selectedRowIndices.includes(i);
-            },
-          ),
+          this.getSelectedRows(filteredTableData, selectedRowIndices),
         );
       }
     }
@@ -1379,11 +981,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const filteredTableData = this.filterTableData();
         this.props.updateWidgetMetaProperty(
           "selectedRows",
-          filteredTableData.filter(
-            (item: Record<string, unknown>, i: number) => {
-              return selectedRowIndices.includes(i);
-            },
-          ),
+          this.getSelectedRows(filteredTableData, selectedRowIndices),
         );
         this.props.updateWidgetMetaProperty(
           "selectedRow",
@@ -1399,17 +997,53 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
     }
+    if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
+      //Runs only when defaultSelectedRow is changed from property pane
+      if (!this.props.multiRowSelection) {
+        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : -1;
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndex",
+          selectedRowIndex,
+        );
+        this.props.updateWidgetMetaProperty(
+          "selectedRow",
+          this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
+        );
+      } else {
+        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : [];
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+        );
+        this.props.updateWidgetMetaProperty(
+          "selectedRows",
+          this.getSelectedRows(
+            this.props.filteredTableData,
+            selectedRowIndices,
+          ),
+        );
+      }
+    }
   }
 
-  getSelectedRowIndexes = (selectedRowIndexes: string) => {
-    return selectedRowIndexes
-      ? selectedRowIndexes.split(",").map(i => Number(i))
+  getSelectedRowIndexes = (selectedRowIndices: string) => {
+    return selectedRowIndices
+      ? selectedRowIndices.split(",").map(i => Number(i))
       : [];
   };
 
   getPageView() {
-    const { hiddenColumns, filteredTableData, selectedRowIndices } = this.props;
-    const tableColumns = this.getTableColumns();
+    const { tableData, hiddenColumns, filteredTableData } = this.props;
+    const computedSelectedRowIndices = Array.isArray(
+      this.props.selectedRowIndices,
+    )
+      ? this.props.selectedRowIndices
+      : [];
+    const tableColumns = this.getTableColumns(tableData);
 
     const transformedData = this.transformData(
       filteredTableData || [],
@@ -1468,7 +1102,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               : this.props.selectedRowIndex
           }
           multiRowSelection={this.props.multiRowSelection}
-          selectedRowIndices={selectedRowIndices}
+          selectedRowIndices={computedSelectedRowIndices}
           serverSidePaginationEnabled={serverSidePaginationEnabled}
           onRowClick={this.handleRowClick}
           pageNo={pageNo}
@@ -1624,8 +1258,28 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   resetSelectedRowIndex = () => {
-    this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-    this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+    if (!this.props.multiRowSelection) {
+      const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : -1;
+      this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
+      this.props.updateWidgetMetaProperty(
+        "selectedRow",
+        this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
+      );
+    } else {
+      const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : [];
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+      this.props.updateWidgetMetaProperty(
+        "selectedRows",
+        this.getSelectedRows(this.props.filteredTableData, selectedRowIndices),
+      );
+    }
   };
 
   handlePrevPageClick = () => {
@@ -1730,6 +1384,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta {
   label: string;
   searchText: string;
   defaultSearchText: string;
+  defaultSelectedRow?: number | number[];
   tableData: Array<Record<string, unknown>>;
   onPageChange?: string;
   pageSize: number;
@@ -1749,7 +1404,6 @@ export interface TableWidgetProps extends WidgetProps, WithMeta {
   columnSizeMap?: { [key: string]: number };
   filters?: ReactTableFilter[];
   compactMode?: CompactMode;
-  derivedColumns?: ColumnProperties[];
   primaryColumns?: ColumnProperties[];
   sortedColumn?: {
     column: string;

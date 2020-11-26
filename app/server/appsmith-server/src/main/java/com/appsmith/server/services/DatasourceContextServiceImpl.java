@@ -54,7 +54,11 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         if (datasourceId == null) {
             log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this scenario");
 
-        } else if (datasourceContextMap.get(datasourceId) != null && !isStale) {
+        } else if (datasourceContextMap.get(datasourceId) != null
+                // The following condition happens when there's a timout in the middle of destroying a connection and
+                // the reactive flow interrupts, resulting in the destroy operation not completing.
+                && datasourceContextMap.get(datasourceId).getConnection() != null
+                && !isStale) {
             log.debug("resource context exists. Returning the same.");
             return Mono.just(datasourceContextMap.get(datasourceId));
         }
