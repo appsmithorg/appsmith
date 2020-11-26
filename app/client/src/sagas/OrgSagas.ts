@@ -1,4 +1,4 @@
-import { call, takeLatest, put, all, select } from "redux-saga/effects";
+import { call, takeLatest, put, all } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -24,7 +24,6 @@ import OrgApi, {
   FetchAllRolesRequest,
 } from "api/OrgApi";
 import { ApiResponse } from "api/ApiResponses";
-import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 
@@ -172,30 +171,23 @@ export function* fetchAllRolesSaga(action: ReduxAction<FetchAllRolesRequest>) {
 
 export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
   try {
+    yield put({
+      type: ReduxActionTypes.SAVING_ORG_INFO,
+    });
     const request: SaveOrgRequest = action.payload;
     const response: ApiResponse = yield call(OrgApi.saveOrg, request);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const currentOrg = yield select(getCurrentOrg);
-      if (currentOrg && currentOrg.id === request.id) {
-        const updatedOrg = {
-          ...currentOrg,
-          ...request,
-        };
-        yield put({
-          type: ReduxActionTypes.SET_CURRENT_ORG,
-          payload: updatedOrg,
-        });
-      }
       yield put({
         type: ReduxActionTypes.SAVE_ORG_SUCCESS,
+        payload: request,
       });
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_ORG_ERROR,
       payload: {
-        error,
+        error: error.message,
       },
     });
   }

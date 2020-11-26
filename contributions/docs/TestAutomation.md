@@ -36,6 +36,11 @@
 
 1. If you need help with writing the tests, their syntax or flow, cypress [getting started docs](https://docs.cypress.io/guides/getting-started/writing-your-first-test.html) is a great starting point.
 
+## A word about env variables in Cypress tests
+
+If you want to add a new env variable to cypress tests, add it to the `cypress.env.json` file and also in the documentation above.
+
+All ENV variables from your `.env` file and all `APPSMITH_*` env variables from `process.env` are accessible with the `Cypress.env()` method.
 ## How do I add environment variables required for Cypress tests?
 
 **Note:** This can only be done by the project maintainers. Please contact one of them if you require this step to be accomplished.
