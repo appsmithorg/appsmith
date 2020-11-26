@@ -5,13 +5,14 @@ import DatasourcesApi, { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
-import { all, select, put, takeEvery, fork, take } from "redux-saga/effects";
+import { all, select, put, takeEvery, take } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getOnboardingState, setOnboardingState } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
-import { getWidgets } from "./selectors";
+import { getSelectedWidget, getWidgetsMeta } from "./selectors";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const OnboardingConfig = [
   {
@@ -20,9 +21,11 @@ const OnboardingConfig = [
     setup: () => {
       // To setup the state if any
       // Return action that needs to be dispatched
-      return {
-        type: "SHOW_WELCOME",
-      };
+      return [
+        {
+          type: "SHOW_WELCOME",
+        },
+      ];
     },
     tip: {
       title: "",
@@ -32,7 +35,7 @@ const OnboardingConfig = [
         return false;
       },
     },
-    // May not be required. This step is complete the current step count
+    // May not be required. This step is complete when the current step count
     // is greater than this step count.
     isComplete: (): boolean => {
       return false;
@@ -42,9 +45,17 @@ const OnboardingConfig = [
     step: 1,
     name: "Example Database",
     setup: () => {
-      return {
-        type: "CREATE_ONBOARDING_DBQUERY_INIT",
-      };
+      return [
+        {
+          type: "CREATE_ONBOARDING_DBQUERY_INIT",
+        },
+        {
+          type: "LISTEN_FOR_ADD_WIDGET",
+        },
+        {
+          type: "LISTEN_FOR_TABLE_WIDGET_BINDING",
+        },
+      ];
     },
     tip: {
       title: "Say hello to your example database",
@@ -62,11 +73,7 @@ const OnboardingConfig = [
     step: 2,
     name: "Add widget",
     setup: () => {
-      // TODO: Should check whether a widget is present or not.
-      // or listen for ADD_WIDGET action
-      return {
-        type: "",
-      };
+      return [];
     },
     tip: {
       title:
@@ -88,9 +95,7 @@ const OnboardingConfig = [
     setup: () => {
       // TODO: Should check whether the table widget's `tableData` prop
       // has a succesfull binding
-      return {
-        type: "",
-      };
+      return [];
     },
     tip: {
       title: "This table is now connected to Example Query",
@@ -109,9 +114,7 @@ const OnboardingConfig = [
     name: "Deploy",
     setup: () => {
       // TODO: Listen for DEPLOY action.
-      return {
-        type: "",
-      };
+      return [];
     },
     tip: {
       title: "You’re almost done! Just Hit Deploy",
@@ -130,20 +133,45 @@ const OnboardingConfig = [
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
 
-// export const getOnboardingState = (state: AppState) =>
-//   state.ui.onBoarding.inOnboarding;
-
 function* listenForWidgetAdditions() {
   while (true) {
     yield take();
-    const widgets = yield select(getWidgets);
-    if (Object.keys(widgets).length) {
-      console.log(Object.keys(widgets).length, "number of widgets");
+    const { payload } = yield take("WIDGET_ADD_CHILD");
+
+    if (payload.type === "TABLE_WIDGET") {
       yield put({
         type: "SET_CURRENT_STEP",
         payload: 2,
       });
+
       return;
+    }
+  }
+}
+
+function* listenForSuccessfullBinding() {
+  while (true) {
+    yield take();
+    let bindSuccessfull = true;
+    const selectedWidget = yield select(getSelectedWidget);
+    if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
+      const widgetMeta = yield select(getWidgetsMeta);
+
+      if (widgetMeta[selectedWidget.widgetId]) {
+        const tableData = widgetMeta[selectedWidget.widgetId].filteredTableData;
+        bindSuccessfull =
+          bindSuccessfull && isDynamicValue(selectedWidget.tableData);
+        bindSuccessfull = bindSuccessfull && Array.isArray(tableData);
+
+        if (bindSuccessfull) {
+          yield put({
+            type: "SET_CURRENT_STEP",
+            payload: 3,
+          });
+
+          return;
+        }
+      }
     }
   }
 }
@@ -224,16 +252,26 @@ function* createOnboardingDatasource() {
   }
 }
 
-function* proceedOnboarding() {
+function* proceedOnboardingSaga() {
   const inOnboarding = yield select(getOnboardingState);
 
   if (inOnboarding) {
     yield put({
       type: "INCREMENT_STEP",
     });
-    const currentStep = yield select(getCurrentStep);
-    const currentConfig = OnboardingConfig[currentStep];
-    yield put(currentConfig.setup());
+
+    yield setupOnboardingStep();
+  }
+}
+
+function* setupOnboardingStep() {
+  const currentStep = yield select(getCurrentStep);
+  const currentConfig = OnboardingConfig[currentStep];
+  let actions = currentConfig.setup();
+
+  if (actions.length) {
+    actions = actions.map(action => put(action));
+    yield all(actions);
   }
 }
 
@@ -252,7 +290,10 @@ export default function* onboardingSagas() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_APPLICATION_SUCCESS, initiateOnboarding),
     takeEvery("CREATE_ONBOARDING_DBQUERY_INIT", createOnboardingDatasource),
-    takeEvery("NEXT_ONBOARDING_STEP", proceedOnboarding),
+    takeEvery("NEXT_ONBOARDING_STEP", proceedOnboardingSaga),
     takeEvery("END_ONBOARDING", skipOnboardingSaga),
+    takeEvery("LISTEN_FOR_ADD_WIDGET", listenForWidgetAdditions),
+    takeEvery("LISTEN_FOR_TABLE_WIDGET_BINDING", listenForSuccessfullBinding),
+    takeEvery("SET_CURRENT_STEP", setupOnboardingStep),
   ]);
 }

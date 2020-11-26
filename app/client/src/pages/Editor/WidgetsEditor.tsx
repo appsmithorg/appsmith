@@ -131,7 +131,8 @@ const WidgetsEditor = () => {
             loading={creatingDatabase}
             onClick={() => {
               dispatch({
-                type: "NEXT_ONBOARDING_STEP",
+                type: "SET_CURRENT_STEP",
+                payload: 1,
               });
             }}
           />

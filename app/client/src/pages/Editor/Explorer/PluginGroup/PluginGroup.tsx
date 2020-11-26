@@ -86,7 +86,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
           {props.datasources.map((datasource: Datasource, index: number) => {
             return (
               <OnboardingTooltip
-                step={1}
+                step={[1]}
                 key={datasource.id}
                 show={index === 0}
               >

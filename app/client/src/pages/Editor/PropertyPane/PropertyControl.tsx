@@ -116,7 +116,7 @@ const PropertyControl = (props: Props) => {
             )}
           </ControlPropertyLabelContainer>
           <OnboardingToolTip
-            step={2}
+            step={[2, 3]}
             show={propertyName === "tableData"}
             position={Position.LEFT_TOP}
           >

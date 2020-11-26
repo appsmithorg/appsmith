@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Position, Tooltip, Button } from "@blueprintjs/core";
+import { Position, Popover } from "@blueprintjs/core";
 import { useSelector } from "store";
 import { getCurrentStep } from "sagas/OnboardingSagas";
 import { useDispatch } from "react-redux";
@@ -16,12 +16,12 @@ const ToolTipContent = styled.div`
 `;
 
 const OnboardingToolTip = (props: any) => {
-  const [isOpen, setIsOpen] = useState(props.isOpen);
+  const [isOpen, setIsOpen] = useState(false);
   const currentStep = useSelector(getCurrentStep);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (currentStep === props.step && props.show) {
+    if (props.step.includes(currentStep) && props.show) {
       setIsOpen(true);
     } else {
       setIsOpen(false);
@@ -30,8 +30,8 @@ const OnboardingToolTip = (props: any) => {
 
   if (isOpen) {
     return (
-      <Tooltip
-        isOpen={isOpen}
+      <Popover
+        isOpen={true}
         autoFocus={false}
         enforceFocus={false}
         boundary={"viewport"}
@@ -46,18 +46,18 @@ const OnboardingToolTip = (props: any) => {
               });
             }}
           >
-            Click here to end
+            Click here to end {currentStep}
           </span>
-          <Button
+          {/* <Button
             text={"Got it"}
             onClick={() => {
               dispatch({
                 type: "NEXT_ONBOARDING_STEP",
               });
             }}
-          />
+          /> */}
         </ToolTipContent>
-      </Tooltip>
+      </Popover>
     );
   }
 
