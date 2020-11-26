@@ -29,6 +29,7 @@ import reactor.test.StepVerifier;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -104,7 +105,19 @@ public class MySqlPluginTest {
                             .add("alter table possessions add foreign key (username, email) \n" +
                                     "references users (username, email)"
                             )
-                            .add("SET SESSION sql_mode = '';\n");
+                            .add("SET SESSION sql_mode = '';\n")
+                            .add("INSERT INTO users VALUES (" +
+                                    "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018," +
+                                    " '18:32:45'," +
+                                    " '2018-11-30 20:45:15', '0000-00-00 00:00:00'" +
+                                    ")"
+                            )
+                            .add("INSERT INTO users VALUES (" +
+                                    "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019," +
+                                    " '15:45:30'," +
+                                    " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
+                                    ")"
+                            );
 
                     return batch;
                 });
@@ -188,6 +201,9 @@ public class MySqlPluginTest {
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     System.out.println(result);
+                   //TODO: remove it.
+                    System.out.println(dsConfig.toString());
+                    //TimeUnit.HOURS.sleep(1000);
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -252,12 +268,22 @@ public class MySqlPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
+        //actionConfiguration.setBody("SELECT id as user_id FROM users");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
+                    //TODO: remove it.
+                    System.out.println("devtest: " + dsConfig.toString());
+                    System.out.println("devtest: " + result.toString());
+
+                    /*try {
+                        TimeUnit.HOURS.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }*/
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
                             new String[]{
@@ -285,11 +311,21 @@ public class MySqlPluginTest {
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
+
+                    System.out.println("devtest: " + result.toString());
+
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
 
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    System.out.println("devtest: body: " + result.getBody().toString());
+                    System.out.println("devtest: node: " + node.toString());
+                    System.out.println("devtest: node.get(dob): " + node.get("dob").toString());
+                    System.out.println("devtest: node.get(dob).type: " + node.get("dob").getNodeType().toString());
+                    System.out.println("devtest: node.get(dob).text: " + node.get("dob").asText());
+                    System.out.println("devtest: node.get(time1).text: " + node.get("time1").asText());
+
                     assertEquals("2018-12-31", node.get("dob").asText());
                     assertEquals("2018", node.get("yob").asText());
                     assertTrue(node.get("time1").asText().matches("\\d{2}:\\d{2}:\\d{2}"));

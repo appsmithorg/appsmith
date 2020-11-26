@@ -30,6 +30,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -113,14 +114,23 @@ public class MySqlPlugin extends BasePlugin {
                                 ColumnMetadata metaData = iterator.next();
                                 String columnName = metaData.getName();
                                 String typeName = metaData.getJavaType().toString();
-                                Object columnValue = null;
+                                Object columnValue = row.get(columnName);
 
-                                if(DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                //TODO: remove it.
+                               /* System.out.println("devtest: colvalue: " + columnValue);
+                                System.out.println("devtest: colname: " + columnName);
+                                System.out.println("devtest: typename: " + typeName);
+                                System.out.println("devtest: " + DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName));
+                                System.out.println("devtest: " + TIMESTAMP_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName));
+                                System.out.println("devtest: " + YEAR_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName));*/
+
+                                if(java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
+                                        && columnValue != null) {
                                     columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
                                             LocalDate.class));
                                 }
-                                else if (DATETIME_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)
-                                        || TIMESTAMP_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
+                                        && columnValue != null) {
                                     columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
                                             LocalDateTime.of(
                                                     row.get(columnName, LocalDateTime.class).toLocalDate(),
@@ -128,13 +138,20 @@ public class MySqlPlugin extends BasePlugin {
                                             )
                                     ) + "Z";
                                 }
-                                else if ("year".equalsIgnoreCase(typeName)) {
+                                else if(java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
+                                        && columnValue != null) {
+                                    columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
+                                            LocalTime.class));
+                                }
+                                else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
+                                        && columnValue != null) {
                                     columnValue = row.get(columnName, LocalDate.class).getYear();
                                 }
                                 else {
                                     columnValue = row.get(columnName);
                                 }
-
+                                //TODO: remove it.
+                                System.out.println("devtest: columnValue: " + columnValue);
                                 processedRow.put(columnName, columnValue);
                             }
 
@@ -146,7 +163,11 @@ public class MySqlPlugin extends BasePlugin {
                     .collectList()
                     .flatMap(execResult -> {
                         ActionExecutionResult result = new ActionExecutionResult();
+                        //TODO: remove it.
+                        System.out.println("devtest: rowsList: " + rowsList.toString());
                         result.setBody(objectMapper.valueToTree(rowsList));
+                        //TODO: remove it.
+                        System.out.println("devtest: tree: " + objectMapper.valueToTree(rowsList));
                         result.setIsExecutionSuccess(true);
                         log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
                         return Mono.just(result);
@@ -274,10 +295,11 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
+            final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
-            return Mono.from(connection.createStatement(COLUMNS_QUERY).execute())
+            return Flux.from(connection.createStatement(COLUMNS_QUERY).execute())
                     .flatMap(result -> {
-                        result.map((row, meta) -> {
+                        return result.map((row, meta) -> {
                             final String tableName = row.get("table_name", String.class);
 
                             if (!tablesByName.containsKey(tableName)) {
@@ -297,63 +319,65 @@ public class MySqlPlugin extends BasePlugin {
                                     null
                             ));
 
-                            return Mono.empty();
+                            return result;
                         });
-
-                        return Mono.from(connection.createStatement(KEYS_QUERY).execute());
+                        //TODO: remove it.
+                        //return Mono.from(connection.createStatement(KEYS_QUERY).execute());
                     })
+                    .buffer()
+                    .flatMap(list -> Flux.from(connection.createStatement(KEYS_QUERY).execute()))
                     .flatMap(result -> {
-                        result.map((row, meta) -> {
-                            final String constraintName = row.get("constraint_name", String.class);
-                            final char constraintType = row.get("constraint_type", String.class).charAt(0);
-                            final String selfSchema = row.get("self_schema", String.class);
-                            final String tableName = row.get("self_table", String.class);
+                                return result.map((row, meta) -> {
+                                    final String constraintName = row.get("constraint_name", String.class);
+                                    final char constraintType = row.get("constraint_type", String.class).charAt(0);
+                                    final String selfSchema = row.get("self_schema", String.class);
+                                    final String tableName = row.get("self_table", String.class);
 
 
-                            if (!tablesByName.containsKey(tableName)) {
-                                return Mono.empty();
-                            }
+                                    if (!tablesByName.containsKey(tableName)) {
+                                        return result;
+                                    }
 
-                            final DatasourceStructure.Table table = tablesByName.get(tableName);
-                            final String keyFullName = tableName + "." + row.get("constraint_name", String.class);
-                            final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
+                                    final DatasourceStructure.Table table = tablesByName.get(tableName);
+                                    final String keyFullName = tableName + "." + row.get("constraint_name", String.class);
 
-                            if (constraintType == 'p') {
-                                if (!keyRegistry.containsKey(keyFullName)) {
-                                    final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
-                                            constraintName,
-                                            new ArrayList<>()
-                                    );
-                                    keyRegistry.put(keyFullName, key);
-                                    table.getKeys().add(key);
-                                }
-                                ((DatasourceStructure.PrimaryKey) keyRegistry.get(keyFullName)).getColumnNames()
-                                        .add(row.get("self_column", String.class));
-                            }
-                            else if (constraintType == 'f') {
-                                final String foreignSchema = row.get("foreign_schema", String.class);
-                                final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
-                                        + row.get("foreign_table", String.class) + ".";
+                                    if (constraintType == 'p') {
+                                        if (!keyRegistry.containsKey(keyFullName)) {
+                                            final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
+                                                    constraintName,
+                                                    new ArrayList<>()
+                                            );
+                                            keyRegistry.put(keyFullName, key);
+                                            table.getKeys().add(key);
+                                        }
+                                        ((DatasourceStructure.PrimaryKey) keyRegistry.get(keyFullName)).getColumnNames()
+                                                .add(row.get("self_column", String.class));
+                                    } else if (constraintType == 'f') {
+                                        final String foreignSchema = row.get("foreign_schema", String.class);
+                                        final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
+                                                + row.get("foreign_table", String.class) + ".";
 
-                                if (!keyRegistry.containsKey(keyFullName)) {
-                                    final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
-                                            constraintName,
-                                            new ArrayList<>(),
-                                            new ArrayList<>()
-                                    );
-                                    keyRegistry.put(keyFullName, key);
-                                    table.getKeys().add(key);
-                                }
+                                        if (!keyRegistry.containsKey(keyFullName)) {
+                                            final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
+                                                    constraintName,
+                                                    new ArrayList<>(),
+                                                    new ArrayList<>()
+                                            );
+                                            keyRegistry.put(keyFullName, key);
+                                            table.getKeys().add(key);
+                                        }
 
-                                ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getFromColumns()
-                                        .add(row.get("self_column", String.class));
-                                ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getToColumns()
-                                        .add(prefix + row.get("foreign_column", String.class));
-                            }
+                                        ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getFromColumns()
+                                                .add(row.get("self_column", String.class));
+                                        ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getToColumns()
+                                                .add(prefix + row.get("foreign_column", String.class));
+                                    }
 
-                            return Mono.empty();
-                        });
-
+                                    return result;
+                                });
+                    })
+                    .collectList()
+                    .flatMap(list -> {
                         // Get/compute templates for each table and put those in.
                         for (DatasourceStructure.Table table : tablesByName.values()) {
                             final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
@@ -369,6 +393,10 @@ public class MySqlPlugin extends BasePlugin {
                                 final String name = column.getName();
                                 final String type = column.getType();
                                 String value;
+
+                                //TODO: remove it.
+                                System.out.println("devtest: column type: " + type);
+                                System.out.println("devtest: column name: " + name);
 
                                 if (type == null) {
                                     value = "null";
