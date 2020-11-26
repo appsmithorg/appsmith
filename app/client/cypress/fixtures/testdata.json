@@ -180,5 +180,6 @@
   "atobInput": "{{atob('QQ==')",
   "btoaInput": "{{btoa('A')",
   "defaultInputBinding": "{{Input2.text",
+  "tabBinding": "{{Tabs1.selectedTab",
   "pageloadBinding": "{{PageLoadApi.data.data[1].id}}{{Input1.text}}"
 }
