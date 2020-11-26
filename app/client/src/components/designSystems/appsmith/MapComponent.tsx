@@ -34,7 +34,7 @@ interface MapComponentProps {
   updateMarker: (lat: number, long: number, index: number) => void;
   saveMarker: (lat: number, long: number) => void;
   selectMarker: (lat: number, long: number, title: string) => void;
-  disableDrag: (e: any) => void;
+  enableDrag: (e: any) => void;
   unselectMarker: () => void;
 }
 
@@ -178,22 +178,20 @@ const MyMapComponent = withScriptjs(
   }),
 );
 
-class MapComponent extends React.Component<MapComponentProps> {
-  render() {
-    const zoom = Math.floor(this.props.zoomLevel / 5);
-    return (
-      <MapWrapper onMouseLeave={this.props.disableDrag}>
-        <MyMapComponent
-          googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${this.props.apiKey}&v=3.exp&libraries=geometry,drawing,places`}
-          loadingElement={<MapContainerWrapper />}
-          containerElement={<MapContainerWrapper />}
-          mapElement={<MapContainerWrapper />}
-          {...this.props}
-          zoom={zoom}
-        />
-      </MapWrapper>
-    );
-  }
-}
+const MapComponent = (props: MapComponentProps) => {
+  const zoom = Math.floor(props.zoomLevel / 5);
+  return (
+    <MapWrapper onMouseLeave={props.enableDrag}>
+      <MyMapComponent
+        googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${props.apiKey}&v=3.exp&libraries=geometry,drawing,places`}
+        loadingElement={<MapContainerWrapper />}
+        containerElement={<MapContainerWrapper />}
+        mapElement={<MapContainerWrapper />}
+        {...props}
+        zoom={zoom}
+      />
+    </MapWrapper>
+  );
+};
 
 export default MapComponent;

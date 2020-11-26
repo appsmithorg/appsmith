@@ -37,7 +37,8 @@ export const RichtextEditorComponent = (
   useEffect(() => {
     if (
       editorInstance !== null &&
-      props.defaultValue !== editorContent.current
+      (editorContent.current.length === 0 ||
+        editorContent.current !== props.defaultValue)
     ) {
       setTimeout(() => {
         const content = props.defaultValue

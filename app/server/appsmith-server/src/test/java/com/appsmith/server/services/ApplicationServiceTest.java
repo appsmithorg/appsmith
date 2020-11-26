@@ -22,6 +22,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +43,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -96,6 +99,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     NewPageRepository newPageRepository;
+
+    @Autowired
+    ApplicationRepository applicationRepository;
 
     String orgId;
 
@@ -613,6 +619,11 @@ public class ApplicationServiceTest {
                     assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getOrganizationId().equals(orgId));
+                    List<ApplicationPage> pages = application.getPages();
+                    Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
+
+                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb));
 
                     assertThat(pageList).isNotEmpty();
                     for (PageDTO page : pageList) {
@@ -851,5 +862,102 @@ public class ApplicationServiceTest {
                     assertThat(editedApplicationPages).containsAnyOf(applicationPage);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validCloneApplicationWhenCancelledMidWay() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Application testApplication = new Application();
+        String appName = "ApplicationServiceTest Clone Application Midway Cancellation";
+        testApplication.setName(appName);
+
+        Application originalApplication = applicationPageService.createApplication(testApplication, orgId)
+                .block();
+
+        String pageId = originalApplication.getPages().get(0).getId();
+
+        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Cloned App Test");
+        datasource.setPluginId(plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("Clone App Test action1");
+        action1.setPageId(pageId);
+        action1.setDatasource(savedDatasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction1 = newActionService.createAction(action1).block();
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("Clone App Test action2");
+        action2.setPageId(pageId);
+        action2.setDatasource(savedDatasource);
+        action2.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction2 = newActionService.createAction(action2).block();
+
+        ActionDTO action3 = new ActionDTO();
+        action3.setName("Clone App Test action3");
+        action3.setPageId(pageId);
+        action3.setDatasource(savedDatasource);
+        action3.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction3 = newActionService.createAction(action3).block();
+
+
+        // Trigger the clone of application now.
+        applicationPageService.cloneApplication(originalApplication.getId())
+                .timeout(Duration.ofMillis(10))
+                .subscribe();
+
+        Mono<Application> clonedAppFromDbMono = Mono.just(originalApplication)
+                .flatMap(originalApp -> {
+                    try {
+                        // Before fetching the cloned application, sleep for 5 seconds to ensure that the cloning finishes
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return applicationRepository.findByClonedFromApplicationId(originalApp.getId()).next();
+                })
+                .cache();
+
+        Mono<List<NewAction>> actionsMono = clonedAppFromDbMono
+                .flatMap(clonedAppFromDb -> newActionService
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
+                        .collectList()
+                );
+
+        Mono<List<PageDTO>> pagesMono = clonedAppFromDbMono
+                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
+                .collectList();
+
+        StepVerifier
+                .create(Mono.zip(clonedAppFromDbMono, actionsMono, pagesMono))
+                .assertNext(tuple -> {
+                    Application cloneApp = tuple.getT1();
+                    List<NewAction> actions = tuple.getT2();
+                    List<PageDTO> pages = tuple.getT3();
+
+                    assertThat(cloneApp).isNotNull();
+                    assertThat(pages.get(0).getId()).isNotEqualTo(pageId);
+                    assertThat(actions.size()).isEqualTo(3);
+                    Set<String> actionNames = actions.stream().map(action -> action.getUnpublishedAction().getName()).collect(Collectors.toSet());
+                    assertThat(actionNames).containsExactlyInAnyOrder("Clone App Test action1", "Clone App Test action2", "Clone App Test action3");
+                })
+                .verifyComplete();
+
     }
 }

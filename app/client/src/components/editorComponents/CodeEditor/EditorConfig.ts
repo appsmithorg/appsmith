@@ -46,6 +46,7 @@ export type HintHelper = (
 export type Hinter = {
   showHint: (editor: CodeMirror.Editor) => void;
   update?: (data: DataTree) => void;
+  trigger?: (editor: CodeMirror.Editor) => void;
 };
 
 export type MarkHelper = (editor: CodeMirror.Editor) => void;

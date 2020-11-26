@@ -1,6 +1,7 @@
 import { Theme } from "constants/DefaultTheme";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
+import { toast } from "react-toastify";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
@@ -64,3 +65,32 @@ export const StoryWrapper = styled.div`
   height: 700px;
   padding: 50px 100px;
 `;
+
+export enum Variant {
+  success = "success",
+  info = "info",
+  warning = "warning",
+  danger = "danger",
+}
+
+export const ToastVariant = (type: any) => {
+  let variant: Variant;
+  switch (type) {
+    case toast.TYPE.ERROR === type:
+      variant = Variant.danger;
+      break;
+    case toast.TYPE.INFO === type:
+      variant = Variant.info;
+      break;
+    case toast.TYPE.SUCCESS === type:
+      variant = Variant.success;
+      break;
+    case toast.TYPE.WARNING === type:
+      variant = Variant.warning;
+      break;
+    default:
+      variant = Variant.info;
+      break;
+  }
+  return variant;
+};

@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import "./index.css";
 import { ThemeProvider } from "constants/DefaultTheme";
 import { appInitializer } from "utils/AppsmithUtils";
-import { Slide, ToastContainer } from "react-toastify";
+import { Slide } from "react-toastify";
 import store from "./store";
 import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "./AppRouter";
@@ -15,6 +15,8 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
+import { StyledToastContainer } from "components/ads/Toast";
+
 import AppErrorBoundary from "./AppErrorBoundry";
 appInitializer();
 
@@ -42,12 +44,13 @@ class ThemedApp extends React.Component<{
   render() {
     return (
       <ThemeProvider theme={this.props.currentTheme}>
-        <ToastContainer
+        <StyledToastContainer
           hideProgressBar
           draggable={false}
           transition={Slide}
           autoClose={5000}
           closeButton={false}
+          pauseOnHover={false}
         />
         <AppErrorBoundary>
           <AppRouter />
