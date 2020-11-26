@@ -190,6 +190,7 @@ export class DataTreeEvaluator {
     const withFunctions = addFunctions(unEvalTree);
     // Calculate diff
     const diffCheckTimeStart = performance.now();
+    debugger;
     const differences = diff(this.oldUnEvalTree, unEvalTree) || [];
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
@@ -371,7 +372,6 @@ export class DataTreeEvaluator {
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
-          debugger;
           if (changedSortOrder && !changedSortOrder.includes(propertyPath)) {
             const lastEvalValue = _.get(this.evalTree, propertyPath);
             return _.set(currentTree, propertyPath, lastEvalValue);
@@ -698,7 +698,6 @@ export class DataTreeEvaluator {
     if (isPathADynamicTrigger(widget, entityPropertyName)) {
       return unEvalPropertyValue;
     } else {
-      debugger;
       const parsedCache = this.getParsedValueCache(propertyPath);
       if (!equal(parsedCache.value, parsed)) {
         this.parsedValueCache.set(propertyPath, {
@@ -1069,7 +1068,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
           },
         };
       };
-      _.set(dataTree, `${entityName}.run`, runFunction);
+      _.set(withFunction, `${entityName}.run`, runFunction);
       withFunction.actionPaths &&
         withFunction.actionPaths.push(`${entityName}.run`);
     }
