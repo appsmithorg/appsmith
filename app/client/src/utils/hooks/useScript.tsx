@@ -44,7 +44,6 @@ export function useScript(src: string, head = false): ScriptStatuses {
         // Store status in attribute on script
         // This can be read by other instances of this hook
         const setAttributeFromEvent = (event: any) => {
-          console.log("myhahaha", event);
           script.setAttribute(
             "data-status",
             event.type === "load" ? ScriptStatuses.READY : ScriptStatuses.ERROR,
@@ -62,7 +61,6 @@ export function useScript(src: string, head = false): ScriptStatuses {
       // Note: Even if the script already exists we still need to add
       // event handlers to update the state for *this* hook instance.
       const setStateFromEvent = (event: any) => {
-        console.log("wait what why?", event);
         setStatus(
           event.type === "load" ? ScriptStatuses.READY : ScriptStatuses.ERROR,
         );
