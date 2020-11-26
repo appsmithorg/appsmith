@@ -27,7 +27,6 @@ import TabControl from "components/propertyControls/TabControl";
 import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
-import AdditionalColumnsControl from "components/propertyControls/AdditionalColumnsControl";
 import ColorPickerControl, {
   ColorPickerControlProps,
 } from "components/propertyControls/ColorPickerControl";
@@ -61,7 +60,6 @@ export const PropertyControls = {
   TabControl,
   ColorPickerControl,
   PrimaryColumnsControl,
-  AdditionalColumnsControl,
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,

@@ -304,8 +304,8 @@ const tableWidgetPropertyPaneMigrations = (
         },
       );
 
-      const derivedColumns = children.columnActions || [];
-      children.derivedColumns = derivedColumns.map(
+      const columnActions = children.columnActions || [];
+      const updatedDerivedColumns = columnActions.map(
         (action: ColumnAction, index: number) => {
           return {
             index: index,
@@ -322,6 +322,11 @@ const tableWidgetPropertyPaneMigrations = (
           };
         },
       );
+      if (updatedDerivedColumns.length) {
+        children.primaryColumns = children.primaryColumns.concat(
+          updatedDerivedColumns,
+        );
+      }
     }
     return children;
   });
