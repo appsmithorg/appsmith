@@ -151,7 +151,6 @@ export class DataTreeFactory {
           unInitializedDefaultProps[propertyName] = undefined;
         }
       });
-      debugger;
       dataTree[widget.widgetName] = {
         ...widget,
         ...defaultMetaProps,
