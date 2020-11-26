@@ -1,7 +1,7 @@
 const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const dsl = require("../../../fixtures/tableDsl.json");
+const dsl = require("../../../fixtures/tabledsl.json");
 const pages = require("../../../locators/Pages.json");
 
 describe("Table Widget property pane feature validation", function() {
