@@ -451,7 +451,6 @@ Cypress.Commands.add("CreateSubsequentAPI", apiname => {
 });
 
 Cypress.Commands.add("EditApiName", apiname => {
-  //cy.wait("@getUser");
   cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
