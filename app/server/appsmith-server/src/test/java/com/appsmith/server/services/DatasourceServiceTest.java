@@ -6,6 +6,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
@@ -249,6 +250,69 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createAndUpdateDatasourceDifferentAuthentication() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource datasource = new Datasource();
+        datasource.setName("test db datasource");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Connection connection = new Connection();
+        connection.setMode(Connection.Mode.READ_ONLY);
+        connection.setType(Connection.Type.REPLICA_SET);
+        SSLDetails sslDetails = new SSLDetails();
+        sslDetails.setAuthType(SSLDetails.AuthType.CA_CERTIFICATE);
+        sslDetails.setKeyFile(new UploadedFile("ssl_key_file_id", ""));
+        sslDetails.setCertificateFile(new UploadedFile("ssl_cert_file_id", ""));
+        connection.setSsl(sslDetails);
+        datasourceConfiguration.setConnection(connection);
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        datasourceConfiguration.setAuthentication(auth);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        datasource.setOrganizationId(orgId);
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+
+        Mono<Datasource> datasourceMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                }).flatMap(datasourceService::create)
+                .flatMap(datasource1 -> {
+                    Datasource updates = new Datasource();
+                    DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+                    Connection connection1 = new Connection();
+                    SSLDetails ssl = new SSLDetails();
+                    ssl.setKeyFile(new UploadedFile());
+                    ssl.getKeyFile().setName("ssl_key_file_id2");
+                    connection1.setSsl(ssl);
+                    OAuth2 auth2 = new OAuth2();
+                    auth2.setClientId("test");
+                    auth2.setClientSecret("test");
+                    datasourceConfiguration1.setAuthentication(auth2);
+                    datasourceConfiguration1.setConnection(connection1);
+                    updates.setDatasourceConfiguration(datasourceConfiguration1);
+
+                    return datasourceService.update(datasource1.getId(), updates);
+                });
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
+                    assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id2");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2).isTrue();
                 })
                 .verifyComplete();
     }
