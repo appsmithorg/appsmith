@@ -52,17 +52,17 @@ On your development machine, please ensure that:
 
 1. Run `yarn`
 
-Note:
+    Note:
 
-- On Ubuntu Linux platform, please run the following cmd before step 2 below:
+    - On Ubuntu Linux platform, please run the following cmd before step 2 below:
 
-```
-echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-```
+        ```
+        echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+        ```
 
 2. Run `yarn start`
 
-🎉 Your Appsmith client is now running on https://dev.appsmith.com.
+    🎉 Your Appsmith client is now running on https://dev.appsmith.com.
 
     This URL must be opened with https and not have the port 3000 in it
 
@@ -83,16 +83,16 @@ node versions to be used in different projects. Check below for installation and
 
 - You can pass the server url as an arg to the `start-https.sh` script.
 
-```bash
-./start-https.sh https://release.app.appsmith.com
-```
+    ```bash
+    ./start-https.sh https://release.app.appsmith.com
+    ```
 
 - Run
 
-```
-yarn
-yarn start
-```
+    ```
+    yarn
+    yarn start
+    ```
 
 ### Troubleshooting
 
