@@ -12,10 +12,7 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import io.r2dbc.spi.ColumnMetadata;
-import io.r2dbc.spi.Connection;
-import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -91,88 +88,107 @@ public class MySqlPlugin extends BasePlugin {
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
 
+        private Map<String, Object> getRow(Row row, RowMetadata meta) {
+            Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
+            Map<String, Object> processedRow = new LinkedHashMap<>();
+
+            while(iterator.hasNext()) {
+                ColumnMetadata metaData = iterator.next();
+                String columnName = metaData.getName();
+                String typeName = metaData.getJavaType().toString();
+                Object columnValue = row.get(columnName);
+
+                if(java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
+                        && columnValue != null) {
+                    columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
+                            LocalDate.class));
+                }
+                else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
+                        && columnValue != null) {
+                    columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
+                            LocalDateTime.of(
+                                    row.get(columnName, LocalDateTime.class).toLocalDate(),
+                                    row.get(columnName, LocalDateTime.class).toLocalTime()
+                            )
+                    ) + "Z";
+                }
+                else if(java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
+                        && columnValue != null) {
+                    columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
+                            LocalTime.class));
+                }
+                else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
+                        && columnValue != null) {
+                    columnValue = row.get(columnName, LocalDate.class).getYear();
+                }
+                else {
+                    columnValue = row.get(columnName);
+                }
+
+                processedRow.put(columnName, columnValue);
+            }
+
+            return processedRow;
+        }
+
+        private boolean getIsSelectQuery(String query) {
+            String[] queries = query.split(";");
+            return queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("select");
+        }
+
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
             String query = actionConfiguration.getBody();
+            boolean isSelectQuery = getIsSelectQuery(query);
 
             if (query == null) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
             }
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
+            Flux<Result> resultFlux = Flux.from(connection.createStatement(query).execute());
 
-            return Flux.from(connection.createStatement(query).execute())
-                    .flatMap(result -> {
-                        return result.map((row, meta) -> {
-                            Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
-                            Map<String, Object> processedRow = new LinkedHashMap<>();
-
-                            while(iterator.hasNext()) {
-                                ColumnMetadata metaData = iterator.next();
-                                String columnName = metaData.getName();
-                                String typeName = metaData.getJavaType().toString();
-                                Object columnValue = row.get(columnName);
-
-                                //TODO: remove it.
-                               /* System.out.println("devtest: colvalue: " + columnValue);
-                                System.out.println("devtest: colname: " + columnName);
-                                System.out.println("devtest: typename: " + typeName);
-                                System.out.println("devtest: " + DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName));
-                                System.out.println("devtest: " + TIMESTAMP_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName));
-                                System.out.println("devtest: " + YEAR_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName));*/
-
-                                if(java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
-                                        && columnValue != null) {
-                                    columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
-                                            LocalDate.class));
-                                }
-                                else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
-                                        && columnValue != null) {
-                                    columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
-                                            LocalDateTime.of(
-                                                    row.get(columnName, LocalDateTime.class).toLocalDate(),
-                                                    row.get(columnName, LocalDateTime.class).toLocalTime()
-                                            )
-                                    ) + "Z";
-                                }
-                                else if(java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
-                                        && columnValue != null) {
-                                    columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
-                                            LocalTime.class));
-                                }
-                                else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
-                                        && columnValue != null) {
-                                    columnValue = row.get(columnName, LocalDate.class).getYear();
-                                }
-                                else {
-                                    columnValue = row.get(columnName);
-                                }
-                                //TODO: remove it.
-                                System.out.println("devtest: columnValue: " + columnValue);
-                                processedRow.put(columnName, columnValue);
-                            }
-
-                            rowsList.add(processedRow);
-
-                            return result;
-                        });
-                    })
-                    .collectList()
-                    .flatMap(execResult -> {
-                        ActionExecutionResult result = new ActionExecutionResult();
-                        //TODO: remove it.
-                        System.out.println("devtest: rowsList: " + rowsList.toString());
-                        result.setBody(objectMapper.valueToTree(rowsList));
-                        //TODO: remove it.
-                        System.out.println("devtest: tree: " + objectMapper.valueToTree(rowsList));
-                        result.setIsExecutionSuccess(true);
-                        log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
-                        return Mono.just(result);
-                    })
-                    .subscribeOn(Schedulers.elastic());
+            if(isSelectQuery) {
+                return resultFlux
+                        .flatMap(result -> {
+                            return result.map((row, meta) -> {
+                                rowsList.add(getRow(row, meta));
+                                return result;
+                            });
+                        })
+                        .collectList()
+                        .flatMap(execResult -> {
+                            ActionExecutionResult result = new ActionExecutionResult();
+                            result.setBody(objectMapper.valueToTree(rowsList));
+                            result.setIsExecutionSuccess(true);
+                            log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
+                            return Mono.just(result);
+                        })
+                        .subscribeOn(Schedulers.elastic());
+            }
+            else {
+                return resultFlux
+                        .flatMap(result -> result.getRowsUpdated())
+                        .collectList()
+                        .flatMap(list -> Mono.just(list.get(list.size() - 1)))
+                        .flatMap(rowsUpdated -> {
+                            rowsList.add(
+                                    Map.of(
+                                            "affectedRows",
+                                            ObjectUtils.defaultIfNull(rowsUpdated, 0)
+                                    )
+                            );
+                            ActionExecutionResult result = new ActionExecutionResult();
+                            result.setBody(objectMapper.valueToTree(rowsList));
+                            result.setIsExecutionSuccess(true);
+                            log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
+                            return Mono.just(result);
+                        })
+                        .subscribeOn(Schedulers.elastic());
+            }
         }
 
         @Override
@@ -214,7 +230,6 @@ public class MySqlPlugin extends BasePlugin {
                     }
                 }
             }
-
 
             ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
             ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
@@ -321,8 +336,6 @@ public class MySqlPlugin extends BasePlugin {
 
                             return result;
                         });
-                        //TODO: remove it.
-                        //return Mono.from(connection.createStatement(KEYS_QUERY).execute());
                     })
                     .buffer()
                     .flatMap(list -> Flux.from(connection.createStatement(KEYS_QUERY).execute()))
@@ -394,10 +407,6 @@ public class MySqlPlugin extends BasePlugin {
                                 final String type = column.getType();
                                 String value;
 
-                                //TODO: remove it.
-                                System.out.println("devtest: column type: " + type);
-                                System.out.println("devtest: column name: " + name);
-
                                 if (type == null) {
                                     value = "null";
                                 } else if ("text".equals(type) || "varchar".equals(type)) {
@@ -439,8 +448,6 @@ public class MySqlPlugin extends BasePlugin {
                             table.getKeys().sort(Comparator.naturalOrder());
                         }
 
-                        //TODO: remove it.
-                        System.out.println("devtest: structure: " + structure.toString());
                         return Mono.just(structure);
                     })
                     .onErrorResume(error -> {
