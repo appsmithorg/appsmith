@@ -1,16 +1,25 @@
 import { useState, useEffect } from "react";
 
+export enum ScriptStatuses {
+  IDLE = "idle",
+  LOADING = "loading",
+  READY = "ready",
+  ERROR = "error",
+}
+
 // Hook
-export default function useScript(src: string) {
-  // Keep track of script status ("idle", "loading", "ready", "error")
-  const [status, setStatus] = useState(src ? "loading" : "idle");
+export function useScript(src: string, head = false): ScriptStatuses {
+  // Keep track of script status
+  const [status, setStatus] = useState<ScriptStatuses>(
+    src ? ScriptStatuses.LOADING : ScriptStatuses.IDLE,
+  );
 
   useEffect(
     () => {
       // Allow falsy src value if waiting on other data needed for
       // constructing the script URL passed to this hook.
       if (!src) {
-        setStatus("idle");
+        setStatus(ScriptStatuses.IDLE);
         return;
       }
 
@@ -23,16 +32,22 @@ export default function useScript(src: string) {
         script = document.createElement("script");
         script.src = src;
         script.async = true;
-        script.setAttribute("data-status", "loading");
-        // Add script to document body
-        document.body.appendChild(script);
+        script.setAttribute("data-status", ScriptStatuses.LOADING);
+        if (head) {
+          const hd = document.getElementsByTagName("head")[0];
+          hd.insertBefore(script, hd.lastChild);
+        } else {
+          // Add script to document body
+          document.body.appendChild(script);
+        }
 
         // Store status in attribute on script
         // This can be read by other instances of this hook
         const setAttributeFromEvent = (event: any) => {
+          console.log("myhahaha", event);
           script.setAttribute(
             "data-status",
-            event.type === "load" ? "ready" : "error",
+            event.type === "load" ? ScriptStatuses.READY : ScriptStatuses.ERROR,
           );
         };
 
@@ -47,7 +62,10 @@ export default function useScript(src: string) {
       // Note: Even if the script already exists we still need to add
       // event handlers to update the state for *this* hook instance.
       const setStateFromEvent = (event: any) => {
-        setStatus(event.type === "load" ? "ready" : "error");
+        console.log("wait what why?", event);
+        setStatus(
+          event.type === "load" ? ScriptStatuses.READY : ScriptStatuses.ERROR,
+        );
       };
 
       // Add event listeners
