@@ -2,7 +2,8 @@ import EditableText, { EditableTextProps, SavingState } from "./EditableText";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
-import { AppToaster } from "components/editorComponents/ToastComponent";
+import { Variant } from "./common";
+import { Toaster } from "./Toast";
 
 type EditableTextWrapperProps = EditableTextProps & {
   variant: "UNDERLINE" | "ICON";
@@ -102,9 +103,9 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
             setIsValid(Boolean(props.isInvalid(value)));
             return props.isInvalid(value);
           } else if (value === "") {
-            AppToaster.show({
-              message: "Application name can't be empty",
-              type: "error",
+            Toaster.show({
+              text: "Application name can't be empty",
+              variant: Variant.danger,
             });
             return false;
           } else {

@@ -11,7 +11,6 @@ import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { useSelector } from "react-redux";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
