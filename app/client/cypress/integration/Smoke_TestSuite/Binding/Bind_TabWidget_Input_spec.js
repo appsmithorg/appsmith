@@ -24,11 +24,6 @@ describe("Binding the input Widget with tab Widget", function() {
 
   it("validation of data displayed in input widgets based on tab selected", function() {
     cy.PublishtheApp();
-    /*
-    cy.get(commonlocators.selectTab)
-      .last()
-      .click();
-    */
     cy.get(publish.tabWidget)
       .contains("Tab 2")
       .click({ force: true })
@@ -37,11 +32,6 @@ describe("Binding the input Widget with tab Widget", function() {
       .first()
       .invoke("attr", "value")
       .should("contain", "Tab 2");
-    /*
-    cy.get(commonlocators.selectTab)
-      .first()
-      .click();
-    */
     cy.get(publish.tabWidget)
       .contains("Tab 1")
       .click({ force: true })
