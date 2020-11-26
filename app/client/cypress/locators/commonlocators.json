@@ -83,5 +83,6 @@
   "editColTitle": ".t--property-pane-edit-title",
   "editColText": ".t--property-pane-edit-title span",
   "changeColType": ".t--property-control-columntype .bp3-button",
-  "selectedColType": ".t--property-control-columntype button span"
+  "selectedColType": ".t--property-control-columntype button span",
+  "selectTab": ".t--tab-Tab"
 }
