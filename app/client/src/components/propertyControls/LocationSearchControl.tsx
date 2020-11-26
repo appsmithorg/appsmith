@@ -3,7 +3,6 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
-import { getAppsmithConfigs } from "configs";
 
 const StyledInput = styled.input`
   box-sizing: border-box;
@@ -18,8 +17,6 @@ const StyledInput = styled.input`
   background: #272821;
   color: ${props => props.theme.colors.textOnDarkBG};
 `;
-
-const { google } = getAppsmithConfigs();
 
 class LocationSearchControl extends BaseControl<ControlProps> {
   searchBox: any = null;
