@@ -67,6 +67,7 @@ export type UpdateApplicationPayload = {
   icon?: string;
   color?: string;
   name?: string;
+  currentApp?: boolean;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
@@ -83,12 +84,19 @@ export interface ApplicationObject {
   userPermissions: string[];
 }
 
+export interface UserRoles {
+  name: string;
+  roleName: string;
+  username: string;
+}
+
 export interface OrganizationApplicationObject {
   applications: Array<ApplicationObject>;
   organization: {
     id: string;
     name: string;
   };
+  userRoles: Array<UserRoles>;
 }
 export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
   data: {

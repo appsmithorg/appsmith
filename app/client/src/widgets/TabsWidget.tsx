@@ -39,9 +39,7 @@ class TabsWidget extends BaseWidget<
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      selectedTab: "defaultTab",
-    };
+    return {};
   }
 
   static getTriggerPropertyMap(): TriggerPropertiesMap {

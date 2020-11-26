@@ -138,3 +138,6 @@ export const getIsDeletingApplications = createSelector(
   (applications: ApplicationsReduxState): boolean =>
     applications.deletingApplication,
 );
+
+export const getIsSavingOrgInfo = (state: AppState) =>
+  state.ui.applications.isSavingOrgInfo;

@@ -80,7 +80,7 @@ describe("Entity explorer datasource structure", function() {
 
     cy.get(commonlocators.entityExplorersearch).clear();
 
-    cy.deletePostgresDatasource(datasourceName);
+    cy.deleteDatasource(datasourceName);
   });
 
   it("Refresh datasource structure", function() {
@@ -158,7 +158,7 @@ describe("Entity explorer datasource structure", function() {
         );
 
         cy.get(commonlocators.entityExplorersearch).clear();
-        cy.deletePostgresDatasource(datasourceName);
+        cy.deleteDatasource(datasourceName);
       });
   });
 });

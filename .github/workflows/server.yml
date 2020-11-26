@@ -71,7 +71,7 @@ jobs:
     - name: Push release image to Docker Hub
       if: success() && github.ref == 'refs/heads/release'
       run: |
-        docker build -t appsmith/appsmith-server:${{steps.vars.outputs.tag}} .
+        docker build  --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:${{steps.vars.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful 
         # with this command
@@ -81,8 +81,8 @@ jobs:
     - name: Push master image to Docker Hub with commit tag
       if: success() && github.ref == 'refs/heads/master'
       run: |
-        docker build -t appsmith/appsmith-server:${GITHUB_SHA} .
-        docker build -t appsmith/appsmith-server:nightly .
+        docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:${GITHUB_SHA} .
+        docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:nightly .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful 
         # with this command

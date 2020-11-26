@@ -3,7 +3,9 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.services.ConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,9 +19,11 @@ import java.util.Map;
 
 /**
  * This class represents a scheduled task that pings a data point indicating that this server installation is live.
+ * This ping is only invoked if the Appsmith server is NOT running in Appsmith Clouud & the user has given Appsmith
+ * permissions to collect anonymized data
  */
 @Component
-@ConditionalOnProperty(prefix = "is", name = "self-hosted")
+@ConditionalOnExpression("!${is.cloud-hosted:false} && !${disable.telemetry:true}")
 @Slf4j
 @RequiredArgsConstructor
 public class PingScheduledTask {
@@ -27,6 +31,9 @@ public class PingScheduledTask {
     private final ConfigService configService;
 
     public static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
+
+    @Value("${segment.ce.key}")
+    private String segmentCEKey;
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -73,11 +80,15 @@ public class PingScheduledTask {
         // Note: Hard-coding Segment auth header and the event name intentionally. These are not intended to be
         // environment specific values, instead, they are common values for all self-hosted environments. As such, they
         // are not intended to be configurable.
+        if (StringUtils.isEmpty(segmentCEKey)) {
+            log.error("The segment key is null");
+        }
+
         return WebClient
                 .create("https://api.segment.io")
                 .post()
                 .uri("/v1/track")
-                .header("Authorization", "Basic QjJaM3hXRThXdDRwYnZOWDRORnJPNWZ3VXdnYWtFbk06")
+                .headers(headers -> headers.setBasicAuth(segmentCEKey, ""))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(Map.of(
                         "userId", ipAddress,

@@ -21,6 +21,7 @@ import FilePicker, {
   SetProgress,
   UploadCallback,
 } from "components/ads/FilePicker";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
 const InputLabelWrapper = styled.div`
   width: 200px;
@@ -56,33 +57,35 @@ const FilePickerLoader = styled.div`
 export function GeneralSettings() {
   const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
-  const currentOrg = useSelector(getCurrentOrg);
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === orgId,
+  )[0];
   function saveChanges(settings: SaveOrgRequest) {
     dispatch(saveOrg(settings));
   }
 
-  const throttleTimeout = 1000;
+  const timeout = 1000;
 
   const onWorkspaceNameChange = debounce((newName: string) => {
     saveChanges({
       id: orgId as string,
       name: newName,
     });
-  }, throttleTimeout);
+  }, timeout);
 
   const onWebsiteChange = debounce((newWebsite: string) => {
     saveChanges({
       id: orgId as string,
       website: newWebsite,
     });
-  }, throttleTimeout);
+  }, timeout);
 
   const onEmailChange = debounce((newEmail: string) => {
     saveChanges({
       id: orgId as string,
       email: newEmail,
     });
-  }, throttleTimeout);
+  }, timeout);
 
   const { isFetchingOrg } = useSelector(getOrgLoadingStates);
   const logoUploadError = useSelector(getCurrentError);
@@ -114,6 +117,7 @@ export function GeneralSettings() {
   const DeleteLogo = () => {
     dispatch(deleteOrgLogo(orgId));
   };
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   return (
     <>
@@ -122,13 +126,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Organization Name</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={notEmptyValidator}
-            placeholder="Workspace name"
+            placeholder="Organization Name"
             onChange={onWorkspaceNameChange}
-            defaultValue={currentOrg.name}
+            defaultValue={currentOrg && currentOrg.name}
             cypressSelector="t--org-name-input"
           ></TextInput>
         )}
@@ -155,12 +161,14 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Website</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             placeholder="Your website"
             onChange={onWebsiteChange}
-            defaultValue={currentOrg.website || ""}
+            defaultValue={(currentOrg && currentOrg.website) || ""}
             cypressSelector="t--org-website-input"
           ></TextInput>
         )}
@@ -170,13 +178,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={emailValidator}
             placeholder="Email"
             onChange={onEmailChange}
-            defaultValue={currentOrg.email || ""}
+            defaultValue={(currentOrg && currentOrg.email) || ""}
             cypressSelector="t--org-email-input"
           ></TextInput>
         )}

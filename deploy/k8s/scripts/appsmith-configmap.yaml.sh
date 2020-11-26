@@ -5,6 +5,7 @@ mongo_host="$2"
 encoded_mongo_root_user="$3"
 encoded_mongo_root_password="$4"
 mongo_db="$5"
+disable_telemetry="$6"
 
 cat<<EOF
 apiVersion: v1
@@ -28,4 +29,5 @@ data:
   APPSMITH_GOOGLE_MAPS_API_KEY: ""
   APPSMITH_REDIS_URL: redis://redis-service:6379
   APPSMITH_MONGODB_URI: $mongo_protocol$encoded_mongo_root_user:$encoded_mongo_root_password@$mongo_host/$mongo_db?retryWrites=true&authSource=admin
+  APPSMITH_DISABLE_TELEMETRY: $disable_telemetry
 EOF

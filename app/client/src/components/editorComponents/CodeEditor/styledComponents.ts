@@ -17,7 +17,6 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     font-size: 90%;
     font-family: monospace;
     max-height: 20em;
-    width: 250px;
     overflow-y: auto;
     background: ${props =>
       props.editorTheme === EditorTheme.DARK ? "#090A0F" : "#ffffff"};
@@ -34,8 +33,18 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
       props.editorTheme === EditorTheme.DARK ? "#F4F4F4" : "#1E242B"};
     cursor: pointer;
     display: flex;
+    width: 250px;
     align-items: center;
     font-size: 13px;
+  }
+
+  .datasource-hint {
+    padding: 5px;
+    display: block;
+    width: 500px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
   }
 
   li.CodeMirror-hint-active {
@@ -144,10 +153,11 @@ export const EditorWrapper = styled.div<{
   && {
     .CodeMirror-cursor {
       border-right: none;
+      border-left-width: 2px;
       border-left-color: ${props =>
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.textOnDarkBG
-          : props.theme.colors.textDefault} !important
+          : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
       background: #ffffff;
@@ -163,11 +173,22 @@ export const EditorWrapper = styled.div<{
       color: #FFFFFF;
     }
     .binding-brackets {
-      color: ${props =>
-        props.editorTheme === EditorTheme.DARK
-          ? props.theme.colors.bindingTextDark
-          : props.theme.colors.bindingText};
+      ${props =>
+        props.hasError
+          ? `
+      color: ${props.theme.colors.error};
+      `
+          : `color: ${
+              props.editorTheme === EditorTheme.DARK
+                ? props.theme.colors.bindingTextDark
+                : props.theme.colors.bindingText
+            };`}
       font-weight: 700;
+    }
+    .CodeMirror-matchingbracket { 
+      text-decoration: none; 
+      color: #FFD600 !important;
+      background-color: #A74444;
     }
     .datasource-highlight {
       background-color: rgba(104, 113, 239, 0.1);

@@ -1,5 +1,11 @@
 import React from "react";
-import { CommonComponentProps, hexToRgba, ThemeProp, Classes } from "./common";
+import {
+  CommonComponentProps,
+  hexToRgba,
+  ThemeProp,
+  Classes,
+  Variant,
+} from "./common";
 import styled, { css } from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Spinner from "./Spinner";
@@ -9,13 +15,6 @@ export enum Category {
   primary = "primary",
   secondary = "secondary",
   tertiary = "tertiary",
-}
-
-export enum Variant {
-  success = "success",
-  info = "info",
-  warning = "warning",
-  danger = "danger",
 }
 
 export enum Size {

@@ -1,4 +1,5 @@
 import { GridDefaults } from "constants/WidgetConstants";
+import { JAVSCRIPT_KEYWORDS } from "constants/WidgetValidation";
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -135,4 +136,53 @@ export const isMac = () => {
 export const trimTrailingSlash = (path: string) => {
   const trailingUrlRegex = /\/+$/;
   return path.replace(trailingUrlRegex, "");
+};
+
+/**
+ * checks if ellipsis is active
+ * this function is meant for checking the existence of ellipsis by CSS.
+ * Since ellipsis by CSS are not part of DOM, we are checking with scroll width\height and offsetidth\height.
+ * ScrollWidth\ScrollHeight is always greater than the offsetWidth\OffsetHeight when ellipsis made by CSS is active.
+ *
+ * @param element
+ */
+export const isEllipsisActive = (element: HTMLElement | null) => {
+  return (
+    element &&
+    (element.offsetWidth < element.scrollWidth ||
+      element.offsetHeight < element.scrollHeight)
+  );
+};
+
+/**
+ * converts array to sentences
+ * for e.g - ['Pawan', 'Abhinav', 'Hetu'] --> 'Pawan, Abhinav and Hetu'
+ *
+ * @param arr string[]
+ */
+export const convertArrayToSentence = (arr: string[]) => {
+  return arr.join(", ").replace(/,\s([^,]+)$/, " and $1");
+};
+
+/**
+ * checks if the name is conflciting with
+ * 1. API names,
+ * 2. Queries name
+ * 3. Javascript reserved names
+ * 4. Few internal function names that are in the evaluation tree
+ *
+ * return if false name conflicts with anything from the above list
+ *
+ * @param name
+ * @param invalidNames
+ */
+export const isNameValid = (
+  name: string,
+  invalidNames: Record<string, any>,
+) => {
+  if (name in JAVSCRIPT_KEYWORDS || name in invalidNames) {
+    return false;
+  }
+
+  return true;
 };

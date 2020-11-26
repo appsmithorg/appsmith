@@ -451,7 +451,6 @@ Cypress.Commands.add("CreateSubsequentAPI", apiname => {
 });
 
 Cypress.Commands.add("EditApiName", apiname => {
-  //cy.wait("@getUser");
   cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
@@ -582,6 +581,26 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
     .first()
     .click({ force: true })
     .type(path, { parseSpecialCharSequences: false });
+});
+
+Cypress.Commands.add("changeZoomLevel", zoomValue => {
+  cy.get(commonlocators.changeZoomlevel).click();
+  cy.get("ul.bp3-menu")
+    .children()
+    .contains(zoomValue)
+    .click();
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(commonlocators.selectedZoomlevel)
+    .first()
+    .invoke("text")
+    .then(text => {
+      const someText = text;
+      expect(someText).to.equal(zoomValue);
+    });
 });
 
 Cypress.Commands.add(
@@ -892,6 +911,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
+  // checking valid widget name
   cy.get(commonlocators.editWidgetName)
     .click({ force: true })
     .type(text)
@@ -900,6 +920,15 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
     .first()
     .trigger("mouseover", { force: true });
   cy.get(innercss).should("have.text", text);
+});
+
+Cypress.Commands.add("invalidWidgetText", () => {
+  // checking invalid widget name
+  cy.get(commonlocators.editWidgetName)
+    .click({ force: true })
+    .type("download")
+    .type("{enter}");
+  cy.get(commonlocators.toastmsg).contains("download is already being used.");
 });
 
 Cypress.Commands.add("EvaluateDataType", dataType => {
@@ -1403,7 +1432,7 @@ Cypress.Commands.add("createPostgresDatasource", () => {
   cy.testSaveDatasource();
 });
 
-Cypress.Commands.add("deletePostgresDatasource", datasourceName => {
+Cypress.Commands.add("deleteDatasource", datasourceName => {
   cy.NavigateToQueryEditor();
 
   cy.contains(".t--datasource-name", datasourceName)
@@ -1622,7 +1651,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
   cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(

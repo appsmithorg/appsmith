@@ -31,6 +31,7 @@ const FIELD_VALUES: Record<
     exportPDF: "boolean",
     exportExcel: "boolean",
     exportCsv: "boolean",
+    defaultSelectedRow: "string",
     // onRowSelected: "Function Call",
     // onPageChange: "Function Call",
   },

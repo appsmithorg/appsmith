@@ -23,6 +23,9 @@ export const getOrgs = (state: AppState) => {
   return state.ui.applications.userOrgs;
 };
 export const getCurrentOrg = (state: AppState) => {
+  return state.ui.applications.userOrgs.map(el => el.organization);
+};
+export const getCurrentAppOrg = (state: AppState) => {
   return state.ui.orgs.currentOrg;
 };
 export const getAllUsers = (state: AppState) => state.ui.orgs.orgUsers;

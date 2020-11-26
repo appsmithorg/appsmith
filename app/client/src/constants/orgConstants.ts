@@ -14,6 +14,7 @@ export type Org = {
   email?: string;
   logoUrl?: string;
   uploadProgress?: number;
+  userPermissions?: string[];
 };
 
 export type OrgUser = {

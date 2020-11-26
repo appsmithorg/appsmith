@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from "react";
+import React, { createRef, useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import {
   getApplicationViewerPageURL,
@@ -44,6 +44,8 @@ import {
   getIsSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
+import TooltipComponent from "components/ads/Tooltip";
+import { isEllipsisActive } from "utils/helpers";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -113,7 +115,7 @@ const Wrapper = styled(
   height: ${props => props.theme.card.minHeight}px;
   position: relative;
   background-color: ${props => props.backgroundColor};
-  margin: ${props => props.theme.spaces[4]}px;
+  margin: ${props => props.theme.spaces[5]}px;
   .overlay {
     display: block;
     position: absolute;
@@ -194,6 +196,8 @@ const MoreOptionsContainer = styled.div`
 const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   padding: 12px;
   padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 12px;
   ${props =>
     props.isFetching
       ? `
@@ -202,14 +206,20 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
     margin-left: 10px;
   `
       : null};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* number of lines to show */
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+  color: ${props => props.theme.colors.text.heading};
 `;
 type ApplicationCardProps = {
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
-  delete?: (applicationId: string, orgId: string) => void;
+  delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
-  orgId: string;
 };
 
 const EditButton = styled(Button)`
@@ -248,7 +258,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
-  const menuIconRef = createRef<HTMLSpanElement>();
+  const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSelectedColor(colorCode);
@@ -306,7 +316,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   };
   const deleteApp = () => {
     setShowOverlay(false);
-    props.delete && props.delete(props.application.id, props.orgId);
+    props.delete && props.delete(props.application.id);
   };
   const askForConfirmation = () => {
     const updatedActionItems = [...moreActionItems];
@@ -346,6 +356,11 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application.id,
     props.application.defaultPageId,
   );
+  const appNameText = (
+    <Text type={TextType.H3} cypressSelector="t--app-card-name">
+      {props.application.name}
+    </Text>
+  );
 
   const ContextMenu = (
     <ContextDropdownWrapper>
@@ -353,11 +368,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         position={Position.RIGHT_TOP}
         target={
           <MoreOptionsContainer>
-            <Icon
-              name="context-menu"
-              ref={menuIconRef}
-              size={IconSize.XXXL}
-            ></Icon>
+            <Icon name="context-menu" size={IconSize.XXXL}></Icon>
           </MoreOptionsContainer>
         }
         className="more"
@@ -509,12 +520,17 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           )}
         </Wrapper>
         <AppNameWrapper
+          ref={appNameWrapperRef}
           isFetching={isFetchingApplications}
           className={isFetchingApplications ? Classes.SKELETON : ""}
         >
-          <Text type={TextType.H3} cypressSelector="t--app-card-name">
-            {props.application.name}
-          </Text>
+          {isEllipsisActive(appNameWrapperRef?.current) ? (
+            <TooltipComponent maxWidth={400} content={props.application.name}>
+              {appNameText}
+            </TooltipComponent>
+          ) : (
+            appNameText
+          )}
         </AppNameWrapper>
       </>
     </NameWrapper>
