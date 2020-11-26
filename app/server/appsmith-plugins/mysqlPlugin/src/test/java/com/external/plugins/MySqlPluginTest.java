@@ -10,17 +10,16 @@ import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.r2dbc.spi.Batch;
+
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactoryOptions;
-import io.r2dbc.spi.Result;
+import io.r2dbc.spi.Batch;
 import lombok.extern.log4j.Log4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.reactivestreams.Publisher;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
 import reactor.core.publisher.Mono;
@@ -76,10 +75,9 @@ public class MySqlPluginTest {
         ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
 
-        Mono<Connection> connectionMono = Mono.from(ConnectionFactories.get(ob.build()).create());
-        Mono<Batch> batchMono = connectionMono
+        Mono.from(ConnectionFactories.get(ob.build()).create())
                 .map(connection -> {
-                    Batch batch = connection.createBatch()
+                    return connection.createBatch()
                             .add("create table users (\n" +
                                     "    id int primary key,\n" +
                                     "    username varchar (250) unique not null,\n" +
@@ -118,20 +116,10 @@ public class MySqlPluginTest {
                                     " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
                                     ")"
                             );
-
-                    return batch;
-                });
-
-        Mono<? extends Publisher<? extends Result>> resultPublisher = batchMono
-                .map(Batch::execute);
-
-
-        Publisher<? extends Result> block = resultPublisher.block();
-
-        Result result = Mono.from(block)
+                })
+                .flatMap(batch -> Mono.from(batch.execute()))
                 .block();
 
-        System.out.println("Setup result is : " + result.toString());
         return;
     }
 
@@ -200,10 +188,6 @@ public class MySqlPluginTest {
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
-                    System.out.println(result);
-                   //TODO: remove it.
-                    System.out.println(dsConfig.toString());
-                    //TimeUnit.HOURS.sleep(1000);
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -247,7 +231,7 @@ public class MySqlPluginTest {
     }
 
     /* checking that the connection is being closed after the datasourceDestroy method is being called
-    NOT : this test case will fail in case of a SQL Exception
+     * NOTE: this test case will fail in case of a SQL Exception
      */
     @Test
     public void testDatasourceDestroy() {
@@ -268,22 +252,12 @@ public class MySqlPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
-        //actionConfiguration.setBody("SELECT id as user_id FROM users");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
-                    //TODO: remove it.
-                    System.out.println("devtest: " + dsConfig.toString());
-                    System.out.println("devtest: " + result.toString());
-
-                    /*try {
-                        TimeUnit.HOURS.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }*/
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
                             new String[]{
@@ -296,6 +270,8 @@ public class MySqlPluginTest {
                     );
                 })
                 .verifyComplete();
+
+        return;
     }
 
     @Test
@@ -311,21 +287,11 @@ public class MySqlPluginTest {
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
-
-                    System.out.println("devtest: " + result.toString());
-
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
 
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
-                    System.out.println("devtest: body: " + result.getBody().toString());
-                    System.out.println("devtest: node: " + node.toString());
-                    System.out.println("devtest: node.get(dob): " + node.get("dob").toString());
-                    System.out.println("devtest: node.get(dob).type: " + node.get("dob").getNodeType().toString());
-                    System.out.println("devtest: node.get(dob).text: " + node.get("dob").asText());
-                    System.out.println("devtest: node.get(time1).text: " + node.get("time1").asText());
-
                     assertEquals("2018-12-31", node.get("dob").asText());
                     assertEquals("2018", node.get("yob").asText());
                     assertTrue(node.get("time1").asText().matches("\\d{2}:\\d{2}:\\d{2}"));

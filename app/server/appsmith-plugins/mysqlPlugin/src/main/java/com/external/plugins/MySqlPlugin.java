@@ -12,7 +12,14 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import io.r2dbc.spi.*;
+
+import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Connection;
+import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.RowMetadata;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.ColumnMetadata;
+import io.r2dbc.spi.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -47,6 +54,17 @@ public class MySqlPlugin extends BasePlugin {
     private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
 
+    /**
+     Example output for COLUMNS_QUERY:
+     +------------+-----------+-------------+-------------+-------------+------------+----------------+
+     | table_name | column_id | column_name | column_type | is_nullable | COLUMN_KEY | EXTRA          |
+     +------------+-----------+-------------+-------------+-------------+------------+----------------+
+     | test       |         1 | id          | int         |           0 | PRI        | auto_increment |
+     | test       |         2 | firstname   | varchar     |           1 |            |                |
+     | test       |         3 | middlename  | varchar     |           1 |            |                |
+     | test       |         4 | lastname    | varchar     |           1 |            |                |
+     +------------+-----------+-------------+-------------+-------------+------------+----------------+
+     */
     private static final String COLUMNS_QUERY = "select tab.table_name as table_name,\n" +
             "       col.ordinal_position as column_id,\n" +
             "       col.column_name as column_name,\n" +
@@ -63,6 +81,14 @@ public class MySqlPlugin extends BasePlugin {
             "order by tab.table_name,\n" +
             "         col.ordinal_position;";
 
+    /**
+     Example output for KEYS_QUERY:
+     +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     | CONSTRAINT_NAME | self_schema | self_table | constraint_type | self_column | foreign_schema | foreign_table | foreign_column |
+     +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     | PRIMARY         | mytestdb    | test       | p               | id          | NULL           | NULL          | NULL           |
+     +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     */
     private static final String KEYS_QUERY = "select i.constraint_name,\n" +
             "       i.TABLE_SCHEMA as self_schema,\n" +
             "       i.table_name as self_table,\n" +
@@ -88,6 +114,10 @@ public class MySqlPlugin extends BasePlugin {
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
 
+        /**
+         * 1. Parse the actual row objects returned by r2dbc driver for mysql statements.
+         * 2. Return the row as a map {column_name -> column_value}.
+         */
         private Map<String, Object> getRow(Row row, RowMetadata meta) {
             Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
             Map<String, Object> processedRow = new LinkedHashMap<>();
@@ -131,6 +161,14 @@ public class MySqlPlugin extends BasePlugin {
             return processedRow;
         }
 
+        /**
+         * 1. Check the type of sql query - i.e Select ... or Insert/Update/Drop
+         * 2. In case sql queries are chained together, then decide the type based on the last query. i.e In case of
+         *    query "select * from test; updated test ..." the type of query will be based on the update statement.
+         * 3. This is used because the output returned to client is based on the type of the query. In case of a
+         *    select query rows are returned, whereas, in case of any other query the number of updated rows is
+         *    returned.
+         */
         private boolean getIsSelectQuery(String query) {
             String[] queries = query.split(";");
             return queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("select");
@@ -140,8 +178,7 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-
-            String query = actionConfiguration.getBody();
+            String query = actionConfiguration.getBody().trim();
             boolean isSelectQuery = getIsSelectQuery(query);
 
             if (query == null) {
@@ -167,6 +204,13 @@ public class MySqlPlugin extends BasePlugin {
                             log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
                             return Mono.just(result);
                         })
+                        .onErrorResume(exception -> {
+                            log.debug("In the action execution error mode.", exception);
+                            ActionExecutionResult result = new ActionExecutionResult();
+                            result.setBody(exception.getMessage());
+                            result.setIsExecutionSuccess(false);
+                            return Mono.just(result);
+                        })
                         .subscribeOn(Schedulers.elastic());
             }
             else {
@@ -187,6 +231,13 @@ public class MySqlPlugin extends BasePlugin {
                             log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
                             return Mono.just(result);
                         })
+                        .onErrorResume(exception -> {
+                            log.debug("In the action execution error mode.", exception);
+                            ActionExecutionResult result = new ActionExecutionResult();
+                            result.setBody(exception.getMessage());
+                            result.setIsExecutionSuccess(false);
+                            return Mono.just(result);
+                        })
                         .subscribeOn(Schedulers.elastic());
             }
         }
@@ -194,19 +245,16 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
-
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-
             Properties properties = new Properties();
 
             StringBuilder urlBuilder = new StringBuilder();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 urlBuilder.append(datasourceConfiguration.getUrl());
-
             } else {
                 urlBuilder.append("r2dbc:mysql://");
-
                 final List<String> hosts = new ArrayList<>();
+
                 for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                     hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
                 }
@@ -220,8 +268,8 @@ public class MySqlPlugin extends BasePlugin {
             }
 
             urlBuilder.append("?zeroDateTimeBehavior=convertToNull");
-
             final List<Property> dsProperties = datasourceConfiguration.getProperties();
+
             if (dsProperties != null) {
                 for (Property property : dsProperties) {
                     if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
@@ -235,17 +283,19 @@ public class MySqlPlugin extends BasePlugin {
             ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
             ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
             ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
-            Publisher<Connection> connection = (Publisher<Connection>) ConnectionFactories.get(ob.build()).create();
 
-            return Mono.from(connection)
+            return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
                     .subscribeOn(Schedulers.elastic());
         }
 
         @Override
         public void datasourceDestroy(Connection connection) {
-            //TODO: catch exception and log it.
             if (connection != null) {
                 Mono.from(connection.close())
+                        .onErrorResume(exception -> {
+                            log.debug("In datasourceDestroy function error mode.", exception);
+                            return Mono.empty();
+                        })
                         .subscribeOn(Schedulers.elastic())
                         .subscribe();
             }
@@ -300,10 +350,151 @@ public class MySqlPlugin extends BasePlugin {
                         return Mono.from(connection.close());
                     })
                     .then(Mono.just(new DatasourceTestResult()))
+                    .subscribeOn(Schedulers.elastic())
                     .onErrorResume(error -> {
                         log.warn("Error when testing MySQL datasource.", error);
                         return Mono.just(new DatasourceTestResult(error.getMessage()));
                     });
+        }
+
+        /**
+         * 1. Parse results obtained by running COLUMNS_QUERY defined on top of the page.
+         * 2. A sample mysql output for the query is also given near COLUMNS_QUERY definition on top of the page.
+         */
+        private void getTableInfo(Row row, RowMetadata meta, Map<String, DatasourceStructure.Table> tablesByName) {
+            final String tableName = row.get("table_name", String.class);
+
+            if (!tablesByName.containsKey(tableName)) {
+                tablesByName.put(tableName, new DatasourceStructure.Table(
+                        DatasourceStructure.TableType.TABLE,
+                        tableName,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                ));
+            }
+
+            final DatasourceStructure.Table table = tablesByName.get(tableName);
+            table.getColumns().add(new DatasourceStructure.Column(
+                    row.get("column_name", String.class),
+                    row.get("column_type", String.class),
+                    null
+            ));
+
+            return;
+        }
+
+        /**
+         * 1. Parse results obtained by running KEYS_QUERY defined on top of the page.
+         * 2. A sample mysql output for the query is also given near KEYS_QUERY definition on top of the page.
+         */
+        private void getKeyInfo(Row row, RowMetadata meta, Map<String, DatasourceStructure.Table> tablesByName,
+                                Map<String, DatasourceStructure.Key> keyRegistry) {
+            final String constraintName = row.get("constraint_name", String.class);
+            final char constraintType = row.get("constraint_type", String.class).charAt(0);
+            final String selfSchema = row.get("self_schema", String.class);
+            final String tableName = row.get("self_table", String.class);
+
+
+            if (!tablesByName.containsKey(tableName)) {
+                /* do nothing */
+                return;
+            }
+
+            final DatasourceStructure.Table table = tablesByName.get(tableName);
+            final String keyFullName = tableName + "." + row.get("constraint_name", String.class);
+
+            if (constraintType == 'p') {
+                if (!keyRegistry.containsKey(keyFullName)) {
+                    final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
+                            constraintName,
+                            new ArrayList<>()
+                    );
+                    keyRegistry.put(keyFullName, key);
+                    table.getKeys().add(key);
+                }
+                ((DatasourceStructure.PrimaryKey) keyRegistry.get(keyFullName)).getColumnNames()
+                        .add(row.get("self_column", String.class));
+            } else if (constraintType == 'f') {
+                final String foreignSchema = row.get("foreign_schema", String.class);
+                final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
+                        + row.get("foreign_table", String.class) + ".";
+
+                if (!keyRegistry.containsKey(keyFullName)) {
+                    final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
+                            constraintName,
+                            new ArrayList<>(),
+                            new ArrayList<>()
+                    );
+                    keyRegistry.put(keyFullName, key);
+                    table.getKeys().add(key);
+                }
+
+                ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getFromColumns()
+                        .add(row.get("self_column", String.class));
+                ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getToColumns()
+                        .add(prefix + row.get("foreign_column", String.class));
+            }
+
+            return;
+        }
+
+        /**
+         * 1. Generate template for all tables in the database.
+         */
+        private void getTemplates(Map<String, DatasourceStructure.Table> tablesByName) {
+            for (DatasourceStructure.Table table : tablesByName.values()) {
+                final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
+                        .stream()
+                        .filter(column -> column.getDefaultValue() == null)
+                        .collect(Collectors.toList());
+
+                final List<String> columnNames = new ArrayList<>();
+                final List<String> columnValues = new ArrayList<>();
+                final StringBuilder setFragments = new StringBuilder();
+
+                for (DatasourceStructure.Column column : columnsWithoutDefault) {
+                    final String name = column.getName();
+                    final String type = column.getType();
+                    String value;
+
+                    if (type == null) {
+                        value = "null";
+                    } else if ("text".equals(type) || "varchar".equals(type)) {
+                        value = "''";
+                    } else if (type.startsWith("int")) {
+                        value = "1";
+                    } else if (type.startsWith("double")) {
+                        value = "1.0";
+                    } else if (DATE_COLUMN_TYPE_NAME.equals(type)) {
+                        value = "'2019-07-01'";
+                    } else if (DATETIME_COLUMN_TYPE_NAME.equals(type)
+                            || TIMESTAMP_COLUMN_TYPE_NAME.equals(type)) {
+                        value = "'2019-07-01 10:00:00'";
+                    } else {
+                        value = "''";
+                    }
+
+                    columnNames.add(name);
+                    columnValues.add(value);
+                    setFragments.append("\n    ").append(name).append(" = ").append(value);
+                }
+
+                final String tableName = table.getName();
+                table.getTemplates().addAll(List.of(
+                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;"),
+                        new DatasourceStructure.Template("INSERT", "INSERT INTO " + tableName
+                                + " (" + String.join(", ", columnNames) + ")\n"
+                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                        new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
+                                + setFragments.toString() + "\n"
+                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                        new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
+                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
+                ));
+            }
+
+            return;
         }
 
         @Override
@@ -315,134 +506,24 @@ public class MySqlPlugin extends BasePlugin {
             return Flux.from(connection.createStatement(COLUMNS_QUERY).execute())
                     .flatMap(result -> {
                         return result.map((row, meta) -> {
-                            final String tableName = row.get("table_name", String.class);
-
-                            if (!tablesByName.containsKey(tableName)) {
-                                tablesByName.put(tableName, new DatasourceStructure.Table(
-                                        DatasourceStructure.TableType.TABLE,
-                                        tableName,
-                                        new ArrayList<>(),
-                                        new ArrayList<>(),
-                                        new ArrayList<>()
-                                ));
-                            }
-
-                            final DatasourceStructure.Table table = tablesByName.get(tableName);
-                            table.getColumns().add(new DatasourceStructure.Column(
-                                    row.get("column_name", String.class),
-                                    row.get("column_type", String.class),
-                                    null
-                            ));
+                            getTableInfo(row, meta, tablesByName);
 
                             return result;
                         });
                     })
-                    .buffer()
-                    .flatMap(list -> Flux.from(connection.createStatement(KEYS_QUERY).execute()))
+                    .collectList()
+                    .thenMany(Flux.from(connection.createStatement(KEYS_QUERY).execute()))
                     .flatMap(result -> {
                                 return result.map((row, meta) -> {
-                                    final String constraintName = row.get("constraint_name", String.class);
-                                    final char constraintType = row.get("constraint_type", String.class).charAt(0);
-                                    final String selfSchema = row.get("self_schema", String.class);
-                                    final String tableName = row.get("self_table", String.class);
-
-
-                                    if (!tablesByName.containsKey(tableName)) {
-                                        return result;
-                                    }
-
-                                    final DatasourceStructure.Table table = tablesByName.get(tableName);
-                                    final String keyFullName = tableName + "." + row.get("constraint_name", String.class);
-
-                                    if (constraintType == 'p') {
-                                        if (!keyRegistry.containsKey(keyFullName)) {
-                                            final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
-                                                    constraintName,
-                                                    new ArrayList<>()
-                                            );
-                                            keyRegistry.put(keyFullName, key);
-                                            table.getKeys().add(key);
-                                        }
-                                        ((DatasourceStructure.PrimaryKey) keyRegistry.get(keyFullName)).getColumnNames()
-                                                .add(row.get("self_column", String.class));
-                                    } else if (constraintType == 'f') {
-                                        final String foreignSchema = row.get("foreign_schema", String.class);
-                                        final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
-                                                + row.get("foreign_table", String.class) + ".";
-
-                                        if (!keyRegistry.containsKey(keyFullName)) {
-                                            final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
-                                                    constraintName,
-                                                    new ArrayList<>(),
-                                                    new ArrayList<>()
-                                            );
-                                            keyRegistry.put(keyFullName, key);
-                                            table.getKeys().add(key);
-                                        }
-
-                                        ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getFromColumns()
-                                                .add(row.get("self_column", String.class));
-                                        ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getToColumns()
-                                                .add(prefix + row.get("foreign_column", String.class));
-                                    }
+                                    getKeyInfo(row, meta, tablesByName, keyRegistry);
 
                                     return result;
                                 });
                     })
                     .collectList()
                     .flatMap(list -> {
-                        // Get/compute templates for each table and put those in.
-                        for (DatasourceStructure.Table table : tablesByName.values()) {
-                            final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
-                                    .stream()
-                                    .filter(column -> column.getDefaultValue() == null)
-                                    .collect(Collectors.toList());
-
-                            final List<String> columnNames = new ArrayList<>();
-                            final List<String> columnValues = new ArrayList<>();
-                            final StringBuilder setFragments = new StringBuilder();
-
-                            for (DatasourceStructure.Column column : columnsWithoutDefault) {
-                                final String name = column.getName();
-                                final String type = column.getType();
-                                String value;
-
-                                if (type == null) {
-                                    value = "null";
-                                } else if ("text".equals(type) || "varchar".equals(type)) {
-                                    value = "''";
-                                } else if (type.startsWith("int")) {
-                                    value = "1";
-                                } else if (type.startsWith("double")) {
-                                    value = "1.0";
-                                } else if (DATE_COLUMN_TYPE_NAME.equals(type)) {
-                                    value = "'2019-07-01'";
-                                } else if (DATETIME_COLUMN_TYPE_NAME.equals(type)
-                                        || TIMESTAMP_COLUMN_TYPE_NAME.equals(type)) {
-                                    value = "'2019-07-01 10:00:00'";
-                                } else {
-                                    value = "''";
-                                }
-
-                                columnNames.add(name);
-                                columnValues.add(value);
-                                setFragments.append("\n    ").append(name).append(" = ").append(value);
-                            }
-
-                            final String tableName = table.getName();
-                            table.getTemplates().addAll(List.of(
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO " + tableName
-                                            + " (" + String.join(", ", columnNames) + ")\n"
-                                            + "  VALUES (" + String.join(", ", columnValues) + ");"),
-                                    new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
-                                            + setFragments.toString() + "\n"
-                                            + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                    new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
-                                            + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
-                            ));
-                        }
-
+                        /* Get templates for each table and put those in. */
+                        getTemplates(tablesByName);
                         structure.setTables(new ArrayList<>(tablesByName.values()));
                         for (DatasourceStructure.Table table : structure.getTables()) {
                             table.getKeys().sort(Comparator.naturalOrder());
@@ -451,6 +532,8 @@ public class MySqlPlugin extends BasePlugin {
                         return Mono.just(structure);
                     })
                     .onErrorResume(error -> {
+                        log.debug("In getStructure function error mode.", error);
+
                         return Mono.error(Exceptions.propagate(error));
                     })
                     .subscribeOn(Schedulers.elastic());

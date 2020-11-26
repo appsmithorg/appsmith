@@ -23,7 +23,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
