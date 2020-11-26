@@ -190,7 +190,6 @@ export class DataTreeEvaluator {
     const withFunctions = addFunctions(unEvalTree);
     // Calculate diff
     const diffCheckTimeStart = performance.now();
-    debugger;
     const differences = diff(this.oldUnEvalTree, unEvalTree) || [];
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
@@ -200,6 +199,7 @@ export class DataTreeEvaluator {
       this.oldUnEvalTree,
       withFunctions,
     );
+    debugger;
     const CheckDependencyChangeStop = performance.now();
 
     const updateChangedDependenciesStart = performance.now();
@@ -970,6 +970,7 @@ const calculateSubDependencies = (
   path: string,
   all: Record<string, true>,
 ): Array<string> => {
+  debugger;
   const subDeps: Array<string> = [];
   const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.]*/g) || [path];
   identifiers.forEach((identifier: string) => {
@@ -1042,8 +1043,8 @@ const removeFunctions = (value: any) => {
   }
 };
 
-const addFunctions = (dataTree: DataTree): DataTree => {
-  const withFunction = _.cloneDeep(dataTree);
+const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
+  const withFunction: DataTree = _.cloneDeep(dataTree);
   withFunction.actionPaths = [];
   Object.keys(withFunction).forEach(entityName => {
     const entity = withFunction[entityName];
