@@ -199,7 +199,6 @@ export class DataTreeEvaluator {
       this.oldUnEvalTree,
       withFunctions,
     );
-    debugger;
     const CheckDependencyChangeStop = performance.now();
 
     const updateChangedDependenciesStart = performance.now();
@@ -970,7 +969,6 @@ const calculateSubDependencies = (
   path: string,
   all: Record<string, true>,
 ): Array<string> => {
-  debugger;
   const subDeps: Array<string> = [];
   const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.]*/g) || [path];
   identifiers.forEach((identifier: string) => {
