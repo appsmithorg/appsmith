@@ -232,6 +232,7 @@ export class DataTreeEvaluator {
     const evaluatedTree = this.evaluateTree(
       withFunctions,
       this.sortedDependencies,
+      newSortOrder,
     );
     // Validate Widgets
     const validated = this.getValidatedTree(evaluatedTree);
